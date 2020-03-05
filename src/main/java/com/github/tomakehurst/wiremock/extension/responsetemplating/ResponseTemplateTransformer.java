@@ -181,10 +181,31 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         if (responseDefinition.getProxyBaseUrl() != null) {
             HandlebarsOptimizedTemplate proxyBaseUrlTemplate = getTemplate(TemplateCacheKey.forProxyUrl(responseDefinition), responseDefinition.getProxyBaseUrl());
             String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
-            newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
-        }
 
-        return newResponseDefBuilder.build();
+            ResponseDefinitionBuilder.ProxyResponseDefinitionBuilder newProxyResponseDefBuilder = newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
+
+            if (responseDefinition.getAdditionalProxyRequestHeaders() != null) {
+                Iterable<HttpHeader> newResponseHeaders = Iterables.transform(responseDefinition.getAdditionalProxyRequestHeaders().all(), new Function<HttpHeader, HttpHeader>() {
+                    @Override
+                    public HttpHeader apply(final HttpHeader header) {
+                        ImmutableList.Builder<String> valueListBuilder = ImmutableList.builder();
+                        int index = 0;
+                        for (String headerValue: header.values()) {
+                            HandlebarsOptimizedTemplate template = getTemplate(TemplateCacheKey.forHeader(responseDefinition, header.key(), index++), headerValue);
+                            valueListBuilder.add(uncheckedApplyTemplate(template, model));
+                        }
+                        return new HttpHeader(header.key(), valueListBuilder.build());
+                    }
+                });
+                HttpHeaders proxyHttpHeaders = new HttpHeaders(newResponseHeaders);
+                for (String key: proxyHttpHeaders.keys()) {
+                    newProxyResponseDefBuilder.withAdditionalRequestHeader(key, proxyHttpHeaders.getHeader(key).firstValue());
+                }
+            }
+            return newProxyResponseDefBuilder.build();
+        } else {
+            return newResponseDefBuilder.build();
+        }
     }
 
     /**

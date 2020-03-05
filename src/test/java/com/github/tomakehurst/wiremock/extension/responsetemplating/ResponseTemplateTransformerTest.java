@@ -35,6 +35,7 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class ResponseTemplateTransformerTest {
@@ -307,16 +308,24 @@ public class ResponseTemplateTransformerTest {
     
 
     @Test
-    public void proxyBaseUrl() {
+    public void proxyBaseUrlWithAdditionalRequestHeader() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
                 .header("X-WM-Uri", "http://localhost:8000"),
             aResponse().proxiedFrom("{{request.headers.X-WM-Uri}}")
+                .withAdditionalRequestHeader("X-Origin-Url", "{{request.url}}")
         );
 
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
         ));
+        assertNotNull(transformedResponseDef.getAdditionalProxyRequestHeaders());
+        assertThat(transformedResponseDef
+                        .getAdditionalProxyRequestHeaders()
+                        .getHeader("X-Origin-Url")
+                        .firstValue(),
+                is("/things")
+        );
     }
 
     @Test
