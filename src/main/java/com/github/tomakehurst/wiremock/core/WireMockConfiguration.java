@@ -56,7 +56,7 @@ public class WireMockConfiguration implements Options {
     private int containerThreads = DEFAULT_CONTAINER_THREADS;
 
     private int httpsPort = -1;
-    private String keyStorePath = Resources.getResource("keystore").toString();
+    private String keyStorePath = getResource("keystore");
     private String keyStorePassword = "password";
     private String keyStoreType = "JKS";
     private String trustStorePath;
@@ -103,6 +103,17 @@ public class WireMockConfiguration implements Options {
         }
 
         return mappingsSource;
+    }
+    
+    private static String getResource(final String resource)
+    {
+    	try
+    	{
+    		return Resources.getResource(resource).toString();
+    	}
+    	catch (IllegalArgumentException e) {
+			return null;
+		}
     }
 
     public static WireMockConfiguration wireMockConfig() {
