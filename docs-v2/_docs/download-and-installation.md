@@ -93,4 +93,4 @@ testCompile "com.github.tomakehurst:wiremock-jre8-standalone:{{ site.wiremock_ve
 ## Direct download
 
 If you want to run WireMock as a standalone process you can [download the standalone JAR from
-here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar).
+here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/{{ site.wiremock_version }}/wiremock-jre8-standalone-{{ site.wiremock_version }}.jar).
