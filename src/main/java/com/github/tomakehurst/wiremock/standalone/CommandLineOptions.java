@@ -62,7 +62,8 @@ public class CommandLineOptions implements Options {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
-	private static final String PORT = "port";
+    private static final String PORT = "port";
+    private static final String DISABLE_HTTP = "disable-http";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
@@ -92,8 +93,8 @@ public class CommandLineOptions implements Options {
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
     private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
     private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
-
     private static final String DISABLE_GZIP = "disable-gzip";
+    private static final String DISABLE_REQUEST_LOGGING = "disable-request-logging";
 
 
     private final OptionSet optionSet;
@@ -101,11 +102,13 @@ public class CommandLineOptions implements Options {
     private final MappingsSource mappingsSource;
 
     private String helpText;
-    private Optional<Integer> resultingPort;
+    private Integer actualHttpPort;
+    private Integer actualHttpsPort;
 
     public CommandLineOptions(String... args) {
-		OptionParser optionParser = new OptionParser();
-		optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
+        OptionParser optionParser = new OptionParser();
+        optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
+        optionParser.accepts(DISABLE_HTTP, "Disable the default HTTP listener.");
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
@@ -141,7 +144,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
         optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of case-insensitive regular expressions for names of permitted system properties and environment vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
-
+        optionParser.accepts(DISABLE_REQUEST_LOGGING, "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -152,10 +155,16 @@ public class CommandLineOptions implements Options {
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 
-        resultingPort = Optional.absent();
+        actualHttpPort = null;
 	}
 
     private void validate() {
+        if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
+            throw new IllegalArgumentException("The HTTP listener can't have a port set and be disabled at the same time");
+        }
+        if (!optionSet.has(HTTPS_PORT) && optionSet.has(DISABLE_HTTP)) {
+            throw new IllegalArgumentException("HTTPS must be enabled if HTTP is not.");
+        }
         if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
             throw new IllegalArgumentException("HTTPS port number must be specified if specifying the keystore path");
         }
@@ -228,9 +237,18 @@ public class CommandLineOptions implements Options {
         return DEFAULT_PORT;
 	}
 
-	public void setResultingPort(int port) {
-		resultingPort = Optional.of(port);
+    @Override
+    public boolean getHttpDisabled() {
+        return optionSet.has(DISABLE_HTTP);
+    }
+
+	public void setActualHttpPort(int port) {
+		actualHttpPort = port;
 	}
+
+	public void setActualHttpsPort(int port) {
+        actualHttpsPort = port;
+    }
 
     @Override
     public String bindAddress(){
@@ -410,7 +428,7 @@ public class CommandLineOptions implements Options {
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
     }
-    
+
     public boolean bannerDisabled() {
         return optionSet.has(DISABLE_BANNER);
     }
@@ -439,12 +457,17 @@ public class CommandLineOptions implements Options {
     @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        int port = resultingPort.isPresent() ? resultingPort.get() : portNumber();
-        builder.put(PORT, port);
+
+        if (actualHttpPort != null) {
+            builder.put(PORT, actualHttpPort);
+        }
+
+        if (actualHttpsPort != null) {
+            builder.put(HTTPS_PORT, actualHttpsPort);
+        }
 
         if (httpsSettings().enabled()) {
-            builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
-                   .put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
+            builder.put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
         }
 
         if (!(proxyVia() == NO_PROXY)) {
@@ -456,7 +479,7 @@ public class CommandLineOptions implements Options {
         }
 
         builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
-        
+
         builder.put(DISABLE_BANNER, bannerDisabled());
 
         if (recordMappingsEnabled()) {
@@ -523,6 +546,11 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getGzipDisabled() {
         return optionSet.has(DISABLE_GZIP);
+    }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
+        return optionSet.has(DISABLE_REQUEST_LOGGING);
     }
 
     private Long getMaxTemplateCacheEntries() {

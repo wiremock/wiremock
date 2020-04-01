@@ -53,11 +53,13 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         Stopwatch stopwatch = Stopwatch.createStarted();
 
 		ServeEvent serveEvent;
-
+		Request originalRequest = request;
 		if (!requestFilters.isEmpty()) {
 			RequestFilterAction requestFilterAction = processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
 			if (requestFilterAction instanceof ContinueAction) {
-				serveEvent = handleRequest(((ContinueAction) requestFilterAction).getRequest());
+				Request wrappedRequest = ((ContinueAction) requestFilterAction).getRequest();
+				originalRequest = wrappedRequest;
+				serveEvent = handleRequest(wrappedRequest);
 			} else {
 				serveEvent = ServeEvent.of(LoggedRequest.createFrom(request), ((StopAction) requestFilterAction).getResponseDefinition());
 			}
@@ -66,7 +68,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		}
 
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-		responseDefinition.setOriginalRequest(request);
+		responseDefinition.setOriginalRequest(originalRequest);
 		Response response = responseRenderer.render(serveEvent);
 		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 

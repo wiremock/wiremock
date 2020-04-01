@@ -50,10 +50,10 @@ test-java11() {
 
 release() {
     use-java7
-    ./gradlew -c release-settings.gradle clean :java7:release
+    ./gradlew -c release-settings.gradle clean :java7:release --stacktrace
 
     use-java8
-    ./gradlew -c release-settings.gradle clean :java8:release
+    ./gradlew -c release-settings.gradle clean :java8:release --stacktrace
 }
 
 release-local() {

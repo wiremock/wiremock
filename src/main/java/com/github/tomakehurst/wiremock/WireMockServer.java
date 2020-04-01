@@ -179,8 +179,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public int port() {
         checkState(
-                this.isRunning(),
-                "Not listening on HTTP port. The WireMock server is most likely stopped"
+            this.isRunning() && !options.getHttpDisabled(),
+            "Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped."
         );
         return this.httpServer.port();
     }

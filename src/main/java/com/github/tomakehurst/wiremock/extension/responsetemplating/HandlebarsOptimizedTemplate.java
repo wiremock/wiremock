@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import java.io.IOException;
 
+import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.tomakehurst.wiremock.common.Exceptions;
@@ -56,8 +57,17 @@ public class HandlebarsOptimizedTemplate {
 		}
 	}
 
-	public String apply(Object context) throws IOException {
+	public String apply(Object contextData) throws IOException {
+		final RenderCache renderCache = new RenderCache();
+		Context context = Context
+				.newBuilder(contextData)
+				.combine("renderCache", renderCache)
+				.build();
+
 		StringBuilder sb = new StringBuilder();
-		return sb.append(startContent).append(template.apply(context)).append(endContent).toString();
+		return sb.append(startContent)
+				 .append(template.apply(context))
+				 .append(endContent)
+				 .toString();
 	}
 }

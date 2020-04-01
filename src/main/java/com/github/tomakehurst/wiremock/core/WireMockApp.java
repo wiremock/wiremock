@@ -168,7 +168,8 @@ public class WireMockApp implements StubServer, Admin {
             this,
             postServeActions,
             requestJournal,
-            getStubRequestFilters()
+            getStubRequestFilters(),
+            options.getStubRequestLoggingDisabled()
         );
     }
 
@@ -248,11 +249,16 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public void removeStubMapping(final StubMapping stubMapping) {
-        this.stubMappings.removeMapping(stubMapping);
-        if (stubMapping.shouldBePersisted()) {
-            this.mappingsSaver.remove(stubMapping);
+    public void removeStubMapping(StubMapping stubMapping) {
+        final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
+        if (maybeStub.isPresent()) {
+            StubMapping stubToDelete = maybeStub.get();
+            if (stubToDelete.shouldBePersisted()) {
+                mappingsSaver.remove(stubToDelete);
+            }
         }
+
+        stubMappings.removeMapping(stubMapping);
 
         this.proxyHandler.removeProxyConfig(stubMapping.getUuid());
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
@@ -281,7 +287,10 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void saveMappings() {
-        this.mappingsSaver.save(this.stubMappings.getAll());
+        for (StubMapping stubMapping: stubMappings.getAll()) {
+            stubMapping.setPersistent(true);
+        }
+        mappingsSaver.save(stubMappings.getAll());
     }
 
     @Override

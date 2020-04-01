@@ -73,6 +73,8 @@ public class JettyHttpServer implements HttpServer {
     private final ServerConnector httpConnector;
     private final ServerConnector httpsConnector;
 
+    private ScheduledExecutorService scheduledExecutorService;
+
     public JettyHttpServer(
             final Options options,
             final AdminRequestHandler adminRequestHandler,
@@ -80,15 +82,19 @@ public class JettyHttpServer implements HttpServer {
     ) {
         this.jettyServer = this.createServer(options);
 
-        final NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(
-                options.networkTrafficListener());
-        this.httpConnector = this.createHttpConnector(
-                options.bindAddress(),
-                options.portNumber(),
-                options.jettySettings(),
-                networkTrafficListenerAdapter
-        );
-        this.jettyServer.addConnector(this.httpConnector);
+        NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(options.networkTrafficListener());
+
+        if (options.getHttpDisabled()) {
+            httpConnector = null;
+        } else {
+            httpConnector = createHttpConnector(
+                    options.bindAddress(),
+                    options.portNumber(),
+                    options.jettySettings(),
+                    networkTrafficListenerAdapter
+            );
+            jettyServer.addConnector(httpConnector);
+        }
 
         if (options.httpsSettings().enabled()) {
             this.httpsConnector = this.createHttpsConnector(
@@ -210,9 +216,13 @@ public class JettyHttpServer implements HttpServer {
     @Override
     public void stop() {
         try {
-            this.jettyServer.stop();
-            this.jettyServer.join();
-        } catch (final Exception e) {
+            if (scheduledExecutorService != null) {
+                scheduledExecutorService.shutdown();
+            }
+
+            jettyServer.stop();
+            jettyServer.join();
+        } catch (Exception e) {
             throwUnchecked(e);
         }
     }
@@ -376,7 +386,7 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
         if (asynchronousResponseSettings.isEnabled()) {
-            final ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
+            scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
             mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
         }
 
@@ -394,6 +404,8 @@ public class JettyHttpServer implements HttpServer {
 
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
+
+        addCorsFilter(mockServiceContext);
 
         return mockServiceContext;
     }
@@ -452,16 +464,23 @@ public class JettyHttpServer implements HttpServer {
 
         adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
 
-        final FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
+        addCorsFilter(adminContext);
+
+        return adminContext;
+    }
+
+    private void addCorsFilter(ServletContextHandler context) {
+        context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
+    }
+
+    private FilterHolder buildCorsFilter() {
+        FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
         filterHolder.setInitParameters(ImmutableMap.of(
                 "chainPreflight", "false",
                 "allowedOrigins", "*",
-                "allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,Authorization",
+                "allowedHeaders", "*",
                 "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
-
-        adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
-
-        return adminContext;
+        return filterHolder;
     }
 
     // Override this for platform-specific impls

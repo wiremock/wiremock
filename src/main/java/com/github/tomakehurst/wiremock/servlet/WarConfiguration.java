@@ -53,6 +53,11 @@ public class WarConfiguration implements Options {
     }
 
     @Override
+    public boolean getHttpDisabled() {
+        return false;
+    }
+
+    @Override
     public HttpsSettings httpsSettings() {
         return new HttpsSettings.Builder().build();
     }
@@ -179,6 +184,11 @@ public class WarConfiguration implements Options {
 
     @Override
     public boolean getGzipDisabled() {
+        return false;
+    }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
         return false;
     }
 }

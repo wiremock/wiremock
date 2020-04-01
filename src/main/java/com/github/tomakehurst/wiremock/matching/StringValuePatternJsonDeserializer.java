@@ -87,6 +87,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             }
         });
 
+        if (!entry.getValue().isTextual()) {
+            throw new JsonMappingException(entry.getKey() + " operand must be a non-null string");
+        }
         String operand = entry.getValue().textValue();
         try {
             return constructor.newInstance(operand);
@@ -100,7 +103,12 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
         }
 
-        String operand = rootNode.findValue("equalTo").textValue();
+        JsonNode equalToNode = rootNode.findValue("equalTo");
+        if (!equalToNode.isTextual()) {
+            throw new JsonMappingException("equalTo operand must be a non-null string");
+        }
+
+        String operand = equalToNode.textValue();
         Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
 
         return new EqualToPattern(operand, ignoreCase);

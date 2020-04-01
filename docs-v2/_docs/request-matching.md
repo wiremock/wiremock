@@ -391,6 +391,8 @@ JSON with string literal:
 }
 ```
 
+#### Less strict matching
+
 By default different array orderings and additional object attributes will trigger a non-match. However, both of these conditions can be disabled individually.
 
 Java:
@@ -416,6 +418,29 @@ JSON:
 }
 ```
 
+#### Placeholders
+
+JSON equality matching is based on [JsonUnit](https://github.com/lukas-krecan/JsonUnit) and therefore supports placeholders.
+This allows specific attributes to be treated as wildcards, rather than an exactly value being required for a match.
+
+For instance, the following: 
+
+```json
+{ "id": "${json-unit.any-string}" }
+```
+
+would match a request with a JSON body of:
+
+```json
+{ "id": "abc123" }
+```
+
+It's also possible to use placeholders that constrain the expected value by type or regular expression.
+See [the JsonUnit placeholders documentation](https://github.com/lukas-krecan/JsonUnit#typeplc) for the full syntax.
+
+> **note**
+>
+> Placeholders are only available in the `jre8` WireMock JARs, as the JsonUnit library requires at least Java 8. 
 
 ### JSON Path
 

@@ -15,49 +15,71 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
+import org.junit.Before;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public abstract class HandlebarsHelperTestBase {
 
+    protected RenderCache renderCache;
+
+    @Before
+    public void initRenderCache() {
+        renderCache = new RenderCache();
+    }
+
     protected static final String FAIL_GRACEFULLY_MSG = "Handlebars helper should fail gracefully and show the issue directly in the response.";
 
-    protected static <T> void testHelperError(Helper<T> helper,
+    protected <T> void testHelperError(Helper<T> helper,
                                               T content,
                                               String pathExpression,
                                               Matcher<String> expectation) {
         try {
-            assertThat((String) helper.apply(content, createOptions(pathExpression)), expectation);
+            assertThat((String) renderHelperValue(helper, content, pathExpression), expectation);
         } catch (final IOException e) {
             Assert.fail(FAIL_GRACEFULLY_MSG);
         }
     }
 
-    protected static <T> void testHelper(Helper<T> helper,
+    @SuppressWarnings("unchecked")
+    protected <R, C> R renderHelperValue(Helper<C> helper, C content, String parameter) throws IOException {
+        return (R) helper.apply(content, createOptions(parameter));
+    }
+
+    protected <T> void testHelper(Helper<T> helper,
                                          T content,
                                          String optionParam,
                                          String expected) throws IOException {
         testHelper(helper, content, optionParam, is(expected));
     }
 
-    protected static <T> void testHelper(Helper<T> helper,
+    protected <T> void testHelper(Helper<T> helper,
                                          T content,
                                          String optionParam,
                                          Matcher<String> expected) throws IOException {
         assertThat(helper.apply(content, createOptions(optionParam)).toString(), expected);
     }
 
-    protected static Options createOptions(String optionParam) {
-        return new Options(null, null, null, null, null, null,
+    protected Options createOptions(String optionParam) {
+        return createOptions(optionParam, renderCache);
+    }
+
+    protected Options createOptions(String optionParam, RenderCache renderCache) {
+        Context context = Context.newBuilder(null)
+                .combine("renderCache", renderCache)
+                .build();
+
+        return new Options(null, null, null, context, null, null,
                            new Object[]{optionParam}, null, new ArrayList<String>(0));
     }
 }
