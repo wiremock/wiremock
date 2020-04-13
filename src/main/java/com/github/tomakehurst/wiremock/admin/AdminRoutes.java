@@ -153,6 +153,20 @@ public class AdminRoutes {
         return requestSpec;
     }
 
+    public RequestSpec requestSpecForTask(final AdminTask task) {
+        return tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+            @Override
+            public boolean apply(Map.Entry<RequestSpec, AdminTask> input) {
+                return input.getValue() == task;
+            }
+        }).transform(new Function<Map.Entry<RequestSpec, AdminTask>, RequestSpec>() {
+            @Override
+            public RequestSpec apply(Map.Entry<RequestSpec, AdminTask> input) {
+                return input.getKey();
+            }
+        }).get();
+    }
+
     protected static class RouteBuilder implements Router {
         private final ImmutableBiMap.Builder<RequestSpec, AdminTask> builder;
 

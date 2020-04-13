@@ -80,7 +80,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         try {
             AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);
 
-            AdminUriTemplate uriTemplate = adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
+            AdminUriTemplate uriTemplate = adminRoutes.requestSpecForTask(adminTask).getUriTemplate();
             PathParams pathParams = uriTemplate.parse(path);
 
             return ServeEvent.of(
@@ -102,5 +102,5 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	private static String withoutAdminRoot(String url) {
 	    return url.replace(ADMIN_CONTEXT_ROOT, "");
 	}
-	
+
 }
