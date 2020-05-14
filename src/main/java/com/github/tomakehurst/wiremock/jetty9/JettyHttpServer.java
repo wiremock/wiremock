@@ -392,7 +392,8 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setMimeTypes(mimeTypes);
         mockServiceContext.setWelcomeFiles(new String[]{"index.json", "index.html", "index.xml", "index.txt"});
 
-        mockServiceContext.setErrorHandler(new NotFoundHandler());
+        NotFoundHandler errorHandler = new NotFoundHandler(mockServiceContext);
+        mockServiceContext.setErrorHandler(errorHandler);
 
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));

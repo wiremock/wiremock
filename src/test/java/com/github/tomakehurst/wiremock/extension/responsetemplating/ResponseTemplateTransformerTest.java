@@ -706,6 +706,26 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void squareBracketedRequestParameters1() {
+        String body = transform(
+                mockRequest().url("/stuff?things[1]=one&things[2]=two&things[3]=three"),
+                ok("{{lookup request.query 'things[2]'}}"))
+                .getBody();
+
+        assertThat(body, is("two"));
+    }
+
+    @Test
+    public void squareBracketedRequestParameters2() {
+        String body = transform(
+                mockRequest().url("/stuff?filter[order_id]=123"),
+                ok("Order ID: {{lookup request.query 'filter[order_id]'}}"))
+                .getBody();
+
+        assertThat(body, is("Order ID: 123"));
+    }
+
+    @Test
     public void correctlyRendersWhenContentExistsEitherSideOfTemplate() {
         String body = transform(
                 mockRequest().url("/stuff?one=1&two=2"),
