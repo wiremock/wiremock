@@ -35,7 +35,7 @@ allprojects {
         mavenCentral()
     }
 
-    def jacksonVersion = '2.10.3'
+    def jacksonVersion = '2.11.0'
 
     def versionSets = [
         java7: [
