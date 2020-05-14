@@ -64,7 +64,6 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
         client = new WireMockTestClient(wm.port());
     }
 
-
     @Test
     public void singleUnmatchedRequestShouldThrowVerificationException() {
         expectedException.expect(VerificationException.class);
@@ -104,6 +103,10 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
     public void unmatchedRequestWithoutStubShouldThrowVerificationException() {
         expectedException.expect(VerificationException.class);
         expectedException.expectMessage(containsString("A request was unmatched by any stub mapping."));
+
+        // Check that url details are part of the output error
+        expectedException.expectMessage(containsString("\"url\" : \"/miss\""));
+
         client.get("/miss");
     }
 
