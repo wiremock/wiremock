@@ -49,7 +49,7 @@ allprojects {
         java8: [
             handlebars     : '4.2.0',
             jetty          : '9.4.28.v20200408',
-            guava          : '27.0.1-jre',
+            guava          : '29.0-jre',
             jackson        : jacksonVersion,
             jacksonDatabind: jacksonVersion,
             xmlUnit        : '2.6.2'
