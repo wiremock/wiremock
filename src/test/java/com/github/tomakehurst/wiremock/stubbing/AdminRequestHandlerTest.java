@@ -41,7 +41,7 @@ import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRe
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class AdminRequestHandlerTest {

@@ -36,7 +36,7 @@ import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSou
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseTemplateTransformerTest {
 

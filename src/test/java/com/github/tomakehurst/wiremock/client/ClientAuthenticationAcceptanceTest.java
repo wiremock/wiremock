@@ -33,7 +33,7 @@ import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
 public class ClientAuthenticationAcceptanceTest {

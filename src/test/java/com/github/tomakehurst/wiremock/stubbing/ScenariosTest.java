@@ -29,7 +29,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ScenariosTest {
 

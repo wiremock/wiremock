@@ -33,7 +33,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.http.entity.ContentType.MULTIPART_FORM_DATA;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
