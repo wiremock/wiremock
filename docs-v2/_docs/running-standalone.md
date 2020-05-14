@@ -80,7 +80,8 @@ creating stub mappings that proxy to other hosts), route via another
 proxy server (useful when inside a corporate network that only permits
 internet access via an opaque proxy). e.g.
 `--proxy-via webproxy.mycorp.com` (defaults to port 80) or
-`--proxy-via webproxy.mycorp.com:8080`
+`--proxy-via webproxy.mycorp.com:8080`. Also supports proxy authentication,
+e.g. `--proxy-via http://username:password@webproxy.mycorp.com:8080/`.
 
 `--enable-browser-proxying`: Run as a browser proxy. See
 browser-proxying.
