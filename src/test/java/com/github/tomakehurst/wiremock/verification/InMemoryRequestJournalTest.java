@@ -27,7 +27,7 @@ import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class InMemoryRequestJournalTest {
 

@@ -21,7 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
 	private static CollectingNetworkTrafficListener networkTrafficListener = new CollectingNetworkTrafficListener();

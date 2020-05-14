@@ -30,7 +30,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseDribbleAcceptanceTest {
 

@@ -36,7 +36,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 public class JsonFileMappingsSourceTest {

@@ -39,7 +39,7 @@ import static com.github.tomakehurst.wiremock.verification.notmatched.PlainTextS
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NotMatchedPageAcceptanceTest {
 

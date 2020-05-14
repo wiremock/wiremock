@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import java.net.HttpURLConnection;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class SaveMappingsTaskTest {

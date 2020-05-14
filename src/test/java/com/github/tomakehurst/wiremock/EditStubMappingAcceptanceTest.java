@@ -24,7 +24,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.google.common.collect.FluentIterable.from;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
 

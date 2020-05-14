@@ -41,7 +41,7 @@ import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weigh
 import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NEAR_MISS_COUNT;
 import static com.google.common.collect.FluentIterable.from;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NearMissCalculatorTest {
 
