@@ -47,7 +47,7 @@ allprojects {
             xmlUnit        : '2.6.2'
         ],
         java8: [
-            handlebars     : '4.1.2',
+            handlebars     : '4.2.0',
             jetty          : '9.4.28.v20200408',
             guava          : '27.0.1-jre',
             jackson        : jacksonVersion,
