@@ -592,6 +592,14 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
+        public void verifiesRequestsWithCountMatchingStrategy() {
+            testClient.get("/custom-match-this");
+            testClient.get("/custom-match-this");
+
+            wireMockServer.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
+        }
+
+        @Test
         public void verifiesRequestsViaCustomMatcher() {
             testClient.get("/custom-match-this");
             testClient.get("/custom-match-that");
