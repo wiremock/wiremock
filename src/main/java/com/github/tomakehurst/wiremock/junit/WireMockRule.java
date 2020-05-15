@@ -67,7 +67,13 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 			@Override
 			public void evaluate() throws Throwable {
 				start();
-				WireMock.configureFor("localhost", port());
+
+				if (options.getHttpDisabled()) {
+                    WireMock.configureFor("https", "localhost", httpsPort());
+                } else {
+                    WireMock.configureFor("localhost", port());
+                }
+
 				try {
                     before();
                     base.evaluate();

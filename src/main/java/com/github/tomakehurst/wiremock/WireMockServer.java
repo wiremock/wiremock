@@ -62,7 +62,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 	private final HttpServer httpServer;
 	private final Notifier notifier;
 
-    private final Options options;
+    protected final Options options;
 
     protected final WireMock client;
 
