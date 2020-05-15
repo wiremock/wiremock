@@ -115,6 +115,7 @@ public class JettyHttpServer implements HttpServer {
                 options.filesRoot(),
                 options.getAsynchronousResponseSettings(),
                 options.getChunkedEncodingPolicy(),
+                options.getStubCorsEnabled(),
                 notifier
         );
 
@@ -335,14 +336,11 @@ public class JettyHttpServer implements HttpServer {
                 2,
                 connectionFactories
         );
+
         connector.setPort(port);
-
         connector.addNetworkTrafficListener(listener);
-
         setJettySettings(jettySettings, connector);
-
         connector.setHost(bindAddress);
-
         return connector;
     }
 
@@ -358,6 +356,7 @@ public class JettyHttpServer implements HttpServer {
             FileSource fileSource,
             AsynchronousResponseSettings asynchronousResponseSettings,
             Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
+            boolean stubCorsEnabled,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -398,7 +397,9 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
-        addCorsFilter(mockServiceContext);
+        if (stubCorsEnabled) {
+            addCorsFilter(mockServiceContext);
+        }
 
         return mockServiceContext;
     }

@@ -72,4 +72,5 @@ public interface Options {
     ChunkedEncodingPolicy getChunkedEncodingPolicy();
     boolean getGzipDisabled();
     boolean getStubRequestLoggingDisabled();
+    boolean getStubCorsEnabled();
 }

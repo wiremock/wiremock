@@ -469,6 +469,18 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void enablesStubCors() {
+        CommandLineOptions options = new CommandLineOptions("--enable-stub-cors");
+        assertThat(options.getStubCorsEnabled(), is(true));
+    }
+
+    @Test
+    public void defaultsToNoStubCors() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getStubCorsEnabled(), is(false));
+    }
+
+    @Test
     public void printsBothActualPortsOnlyWhenHttpsEnabled() {
 	    CommandLineOptions options = new CommandLineOptions();
 	    options.setActualHttpPort(5432);
