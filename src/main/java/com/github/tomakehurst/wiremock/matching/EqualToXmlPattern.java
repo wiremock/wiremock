@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.common.Xml;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
@@ -37,7 +36,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
-public class EqualToXmlPattern extends StringValuePattern {
+public class EqualToXmlPattern extends MemoizingStringValuePattern {
 
     private static List<ComparisonType> COUNTED_COMPARISONS = ImmutableList.of(
         ELEMENT_TAG_NAME,
@@ -55,7 +54,6 @@ public class EqualToXmlPattern extends StringValuePattern {
         ATTR_NAME_LOOKUP
     );
 
-    private final Document xmlDocument;
     private final Boolean enablePlaceholders;
     private final String placeholderOpeningDelimiterRegex;
     private final String placeholderClosingDelimiterRegex;
@@ -70,7 +68,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                              @JsonProperty("placeholderOpeningDelimiterRegex") String placeholderOpeningDelimiterRegex,
                              @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex) {
         super(expectedValue);
-        xmlDocument = Xml.read(expectedValue);
+        Xml.read(expectedValue); // Throw an exception if we can't parse the document
         this.enablePlaceholders = enablePlaceholders;
         this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
         this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
@@ -104,7 +102,7 @@ public class EqualToXmlPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(final String value) {
+    protected MatchResult calculateMatch(final String value) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
@@ -140,7 +138,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                 final AtomicInteger totalComparisons = new AtomicInteger(0);
                 final AtomicInteger differences = new AtomicInteger(0);
 
-                Diff diff = null;
+                Diff diff;
                 try {
                     diff = DiffBuilder.compare(Input.from(expectedValue))
                             .withTest(value)

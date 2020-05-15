@@ -71,14 +71,17 @@ public class ProxyAcceptanceTest {
     WireMockTestClient testClient;
 
 	void init(WireMockConfiguration proxyingServiceOptions) {
-		targetService = new WireMockServer(wireMockConfig().dynamicPort().dynamicHttpsPort());
+		targetService = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .bindAddress("127.0.0.1"));
 		targetService.start();
 		targetServiceAdmin = WireMock.create().host("localhost").port(targetService.port()).build();
 
         targetServiceBaseUrl = "http://localhost:" + targetService.port();
         targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
 
-        proxyingServiceOptions.dynamicPort();
+        proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
         proxyingServiceAdmin = WireMock.create().port(proxyingService.port()).build();
