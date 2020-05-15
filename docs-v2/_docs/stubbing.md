@@ -19,7 +19,7 @@ responses for requests matching criteria. These are described in detail in [Requ
 ## Basic stubbing
 
 The following code will configure a response with a status of 200 to be
-returned when the relative URL exactly matches `/some/thing` (including
+returned when the relative URL exactly matches `/some/thing` (not including
 query parameters). The body of the response will be "Hello world!" and a
 `Content-Type` header will be sent with a value of `text-plain`.
 
@@ -36,8 +36,8 @@ public void exactUrlOnly() {
 }
 ```
 
-> **note**
->
+> **note**\
+> If you want to stub a response for a request which contain query parameter in url use `.withQueryParam` instead of adding query parameter in url.\
 > If you'd prefer to use slightly more BDDish language in your tests you
 > can replace `stubFor` with `givenThat`.
 
