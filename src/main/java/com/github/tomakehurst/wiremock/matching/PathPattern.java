@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Objects;
 
-public abstract class PathPattern extends StringValuePattern {
+public abstract class PathPattern extends MemoizingStringValuePattern {
 
     protected final StringValuePattern valuePattern;
 
@@ -38,7 +38,7 @@ public abstract class PathPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(String value) {
+    protected MatchResult calculateMatch(String value) {
         if (isSimple()) {
             return isSimpleMatch(value);
         }
@@ -60,6 +60,6 @@ public abstract class PathPattern extends StringValuePattern {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getValuePattern());
+        return Objects.hash(super.hashCode(), valuePattern);
     }
 }

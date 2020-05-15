@@ -31,13 +31,12 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.flipkart.zjsonpatch.DiffFlags.OMIT_COPY_OPERATION;
-import static com.flipkart.zjsonpatch.DiffFlags.OMIT_MOVE_OPERATION;
 import static com.github.tomakehurst.wiremock.common.Json.deepSize;
 import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
 import static com.google.common.collect.Iterables.getLast;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
-public class EqualToJsonPattern extends StringValuePattern {
+public class EqualToJsonPattern extends MemoizingStringValuePattern {
 
     private final JsonNode expected;
     private final Boolean ignoreArrayOrder;
@@ -95,7 +94,7 @@ public class EqualToJsonPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(String value) {
+    protected MatchResult calculateMatch(String value) {
         try {
             final JsonNode actual = Json.read(value, JsonNode.class);
 

@@ -67,7 +67,6 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
-    private final PlainTextDiffRenderer diffRenderer;
     private final Recorder recorder;
     private final List<GlobalSettingsListener> globalSettingsListeners;
 
@@ -95,7 +94,6 @@ public class WireMockApp implements StubServer, Admin {
             ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
         );
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
-        diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
@@ -122,7 +120,6 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
-        diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
@@ -209,22 +206,9 @@ public class WireMockApp implements StubServer, Admin {
             if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
                 return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
             }
-
-            logUnmatchedRequest(loggedRequest);
         }
 
         return serveEvent;
-    }
-
-    private void logUnmatchedRequest(LoggedRequest request) {
-        List<NearMiss> nearest = nearMissCalculator.findNearestTo(request);
-        String message;
-        if (!nearest.isEmpty()) {
-            message = diffRenderer.render(nearest.get(0).getDiff());
-        } else {
-            message = "Request was not matched as there were no stubs registered:\n" + request;
-        }
-        notifier().error(message);
     }
 
     @Override
