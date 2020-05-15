@@ -198,6 +198,48 @@ For instance, given a request URL like `/multi-query?things=1&things=2&things=3`
 > The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
 > with another String value. 
 
+## Using transformer parameters
+
+Parameter values can be passed to the transformer as shown below (or dynamically added to the parameters map programmatically in custom transformers).
+
+### Java
+
+{% raw %}
+```java
+wm.stubFor(get(urlPathEqualTo("/templated"))
+  .willReturn(aResponse()
+      .withBody("{{request.path.[0]}}")
+      .withTransformers("response-template")
+      .withTransformerParameter("MyCustomParameter", "Parameter Value")));
+```
+{% endraw %}
+
+
+{% raw %}
+### JSON
+```json
+{
+    "request": {
+        "urlPath": "/templated"
+    },
+    "response": {
+        "body": "{{request.path.[0]}}",
+        "transformers": ["response-template"],
+        "transformerParameters" : {
+            "MyCustomParameter" : "Parameter Value"
+        }
+    }
+}
+```
+{% endraw %}
+
+These parameters can be referenced in template body content using the `parameters.` prefix:
+
+{% raw %}
+```
+<h1>The MyCustomParameter value is {{parameters.MyCustomParameter}}</h1>
+```
+{% endraw %}
 
 ## Handlebars helpers
 All of the standard helpers (template functions) provided by the [Java Handlebars implementation by jknack](https://github.com/jknack/handlebars.java)
