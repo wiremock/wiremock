@@ -97,6 +97,8 @@ public class WireMockConfiguration implements Options {
     private boolean stubLoggingDisabled = false;
     private String permittedSystemKeys = null;
 
+    private boolean stubCorsEnabled = false;
+
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
             mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
@@ -355,6 +357,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration stubCorsEnabled(boolean enabled) {
+        this.stubCorsEnabled = enabled;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -508,5 +515,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getStubRequestLoggingDisabled() {
         return stubLoggingDisabled;
+    }
+
+    @Override
+    public boolean getStubCorsEnabled() {
+        return stubCorsEnabled;
     }
 }

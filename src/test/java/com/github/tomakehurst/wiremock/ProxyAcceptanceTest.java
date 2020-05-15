@@ -74,7 +74,7 @@ public class ProxyAcceptanceTest {
 		targetService = new WireMockServer(wireMockConfig()
                 .dynamicPort()
                 .dynamicHttpsPort()
-                .bindAddress("127.0.0.1"));
+                .bindAddress("127.0.0.1").stubCorsEnabled(true));
 		targetService.start();
 		targetServiceAdmin = WireMock.create().host("localhost").port(targetService.port()).build();
 
@@ -490,12 +490,14 @@ public class ProxyAcceptanceTest {
         proxyingServiceAdmin.register(any(anyUrl())
                 .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-        targetServiceAdmin.register(any(urlPathEqualTo("/cors")).willReturn(ok()));
+        targetServiceAdmin.register(any(urlPathEqualTo("/cors"))
+                .withName("Target with CORS")
+                .willReturn(ok()));
 
         WireMockResponse response = testClient.get("/cors", withHeader("Origin", "http://somewhere.com"));
 
         Collection<String> allowOriginHeaderValues = response.headers().get("Access-Control-Allow-Origin");
-        assertThat(allowOriginHeaderValues.size(), is(1));
+        assertThat(allowOriginHeaderValues.size(), is(0));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

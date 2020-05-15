@@ -95,7 +95,7 @@ public class CommandLineOptions implements Options {
     private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
     private static final String DISABLE_GZIP = "disable-gzip";
     private static final String DISABLE_REQUEST_LOGGING = "disable-request-logging";
-
+    private static final String ENABLE_STUB_CORS = "enable-stub-cors";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -145,6 +145,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of case-insensitive regular expressions for names of permitted system properties and environment vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
         optionParser.accepts(DISABLE_REQUEST_LOGGING, "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
+        optionParser.accepts(ENABLE_STUB_CORS, "Enable automatic sending of CORS headers with stub responses.");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -551,6 +552,11 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getStubRequestLoggingDisabled() {
         return optionSet.has(DISABLE_REQUEST_LOGGING);
+    }
+
+    @Override
+    public boolean getStubCorsEnabled() {
+        return optionSet.has(ENABLE_STUB_CORS);
     }
 
     private Long getMaxTemplateCacheEntries() {

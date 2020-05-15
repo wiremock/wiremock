@@ -191,4 +191,9 @@ public class WarConfiguration implements Options {
     public boolean getStubRequestLoggingDisabled() {
         return false;
     }
+
+    @Override
+    public boolean getStubCorsEnabled() {
+        return false;
+    }
 }

@@ -172,3 +172,13 @@ Valid values are:
 This might put a lot of strain on the garbage collector if you're using large response bodies.
 * `BODY_FILE` - Use chunked encoding for body files but calculate a `Content-Length` for directly configured bodies.
 * `ALWAYS` - Always use chunk encoding - the default.
+
+
+## Cross-origin response headers (CORS)
+
+WireMock always sends CORS headers with admin API responses, but not by default with stub responses.
+To enable automatic sending of CORS headers on stub responses, do the following:
+
+```java
+.stubCorsEnabled(true)
+```

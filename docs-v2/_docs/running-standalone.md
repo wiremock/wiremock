@@ -133,6 +133,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 
 `--permitted-system-keys`: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to `wiremock.*`.
 
+`--enable-stub-cors`: Enable automatic sending of cross-origin (CORS) response headers. Defaults to off.
+
 `--help`: Show command line help
 
 ## Configuring WireMock using the Java client
