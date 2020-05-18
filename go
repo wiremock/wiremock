@@ -3,8 +3,8 @@
 set -eo pipefail
 
 export JAVA7_HOME=~/.sdkman/candidates/java/7.0.181-zulu
-export JAVA8_HOME=~/.sdkman/candidates/java/8.0.181-zulu
-export JAVA11_HOME=~/.sdkman/candidates/java/11.0.1-open
+export JAVA8_HOME=~/.sdkman/candidates/java/8.0.252-zulu
+export JAVA11_HOME=~/.sdkman/candidates/java/11.0.7-zulu
 
 help() {
     echo -e "Usage: go <command>"
