@@ -1,8 +1,11 @@
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.collect.ImmutableMap;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.StringReader;
@@ -55,5 +58,25 @@ public class XmlTest {
 
         assertThat(namespaces.size(), is(1));
         assertThat(namespaces.get("fl"), is("https://fluff.abc"));
+    }
+
+    @Test
+    public void findsNodesByXPathWithAutoDetectedNamespaces() throws Exception {
+        String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings' xmlns='https://example.com/mynamespace'><s:subThing>The stuff</s:subThing></t:thing>";
+
+        NodeList nodes = Xml.findNodesByXPath(xml, "//s:subThing/text()", null);
+
+        assertThat(nodes.getLength(), is(1));
+        assertThat(nodes.item(0).getTextContent(), is("The stuff"));
+    }
+
+    @Test
+    public void findsNodesByXPathWithSpecifiedNamespaces() throws Exception {
+        String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings' xmlns='https://example.com/mynamespace'><s:subThing>The stuff</s:subThing></t:thing>";
+
+        NodeList nodes = Xml.findNodesByXPath(xml, "//sub:subThing/text()", ImmutableMap.of("sub", "http://subthings"));
+
+        assertThat(nodes.getLength(), is(1));
+        assertThat(nodes.item(0).getTextContent(), is("The stuff"));
     }
 }
