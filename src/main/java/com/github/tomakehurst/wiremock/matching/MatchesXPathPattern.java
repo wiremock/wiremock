@@ -27,6 +27,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -120,10 +121,12 @@ public class MatchesXPathPattern extends PathPattern {
             documentBuilder.setErrorHandler(new SilentErrorHandler());
             Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(value));
             XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
-            if (xpathNamespaces != null) {
-                NamespaceContext namespaceContext = new SimpleNamespaceContext(xpathNamespaces);
-                simpleXpathEngine.setNamespaceContext(namespaceContext);
-            }
+
+            NamespaceContext namespaceContext = xpathNamespaces != null ?
+                    new SimpleNamespaceContext(xpathNamespaces) :
+                    new SimpleNamespaceContext(Xml.extractNamespaces(expectedValue, inDocument));
+            simpleXpathEngine.setNamespaceContext(namespaceContext);
+
             return simpleXpathEngine.getMatchingNodes(expectedValue, inDocument);
         } catch (SAXException e) {
             notifier().info(String.format(

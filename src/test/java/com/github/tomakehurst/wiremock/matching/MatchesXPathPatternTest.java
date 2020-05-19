@@ -88,12 +88,38 @@ public class MatchesXPathPatternTest {
     }
 
     @Test
-    public void matchesNamespacedXmlExactly() {
+    public void matchesNamespacedXmlExactlyWhenNamspacesSpecifiedExplicitly() {
         String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
         StringValuePattern pattern = WireMock.matchingXPath(
-            "//s:subThing[.='The stuff']",
-            ImmutableMap.of("s", "http://subthings", "t", "http://things"));
+            "//subt:subThing[.='The stuff']",
+            ImmutableMap.of("subt", "http://subthings", "thi", "http://things"));
+
+        MatchResult match = pattern.match(xml);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void automaticallyDetectsNamespacesWhenNotSpecifiedExplicitly() {
+        String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings' xmlns='https://example.com/mynamespace'><s:subThing>The stuff</s:subThing></t:thing>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("//s:subThing/text()", equalTo("The stuff"));
+
+        MatchResult match = pattern.match(xml);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void automaticallyDetectsNamespacesFromSubElements() {
+        String xml = "<?xml version='1.0'?>\n" +
+                "<things xmlns:s='https://stuff.biz' id='$1'>\n" +
+                "    <stuff id='1'/>\n" +
+                "    <fl:fluff xmlns:fl='https://fluff.abc' id='2'>\n" +
+                "        <fl:inner>Innards</fl:inner>\n" +
+                "    </fl:fluff>\n" +
+                "</things>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("/things/fl:fluff/fl:inner/text()", equalTo("Innards"));
 
         MatchResult match = pattern.match(xml);
         assertTrue(match.isExactMatch());

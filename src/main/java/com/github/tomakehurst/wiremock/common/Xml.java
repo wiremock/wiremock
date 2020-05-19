@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -36,8 +39,14 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.util.Collections.emptyMap;
 import static javax.xml.transform.OutputKeys.INDENT;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
@@ -142,6 +151,60 @@ public class Xml {
 
     public static DocumentBuilderFactory newDocumentBuilderFactory() {
         return new SkipResolvingEntitiesDocumentBuilderFactory();
+    }
+
+    private static final Pattern NAMESPACE_PATTERN = Pattern.compile("/([a-zA-Z0-9]+?):");
+
+    public static Map<String, String> extractNamespaces(String xpathExpression, Document document) {
+        final Matcher matcher = NAMESPACE_PATTERN.matcher(xpathExpression);
+        Set<String> prefixes = new HashSet<>();
+        while (matcher.find()) {
+            if (matcher.groupCount() > 0) {
+                prefixes.add(matcher.group(1));
+            }
+        }
+
+        if (!document.hasChildNodes()) {
+            return emptyMap();
+        }
+
+        return findNamespaces(prefixes, document.getFirstChild());
+    }
+
+    private static Map<String, String> findNamespaces(Set<String> prefixesToFind, Node parentNode) {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        NamedNodeMap attributes = parentNode.getAttributes();
+        Set<String> foundPrefixes = new HashSet<>();
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); i++) {
+                Node attribute = attributes.item(i);
+                String attributeName = attribute.getNodeName();
+                if (attributeName.startsWith("xmlns")) {
+                    String[] parts = attributeName.split(":");
+                    if (parts.length == 2) {
+                        String prefix = parts[1];
+                        String uri = attribute.getNodeValue();
+
+                        if (prefixesToFind.contains(prefix)) {
+                            foundPrefixes.add(prefix);
+                            builder.put(prefix, uri);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (parentNode.hasChildNodes() && !prefixesToFind.isEmpty()) {
+            Set<String> prefixesRemainingToFind = Sets.difference(prefixesToFind, foundPrefixes);
+            for (int i = 0; i < parentNode.getChildNodes().getLength(); i++) {
+                Node childNode = parentNode.getChildNodes().item(i);
+                Map<String, String> childNamespaces = findNamespaces(prefixesRemainingToFind, childNode);
+                prefixesRemainingToFind = Sets.difference(prefixesRemainingToFind, childNamespaces.keySet());
+                builder.putAll(childNamespaces);
+            }
+        }
+
+        return builder.build();
     }
 
     private static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
