@@ -141,4 +141,17 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         assertThat(two, is("2"));
     }
 
+    @Test
+    public void returnsTheFirstValueWhenMoreThanOneMatch() throws Exception {
+        String value = renderHelperValue(helper,
+                "<?xml version=\"1.0\"?>\n" +
+                        "<things>\n" +
+                        "    <thing>1</thing>\n" +
+                        "    <thing>2</thing>\n" +
+                        "</things>",
+                "//thing/text()");
+
+        assertThat(value, is("1"));
+    }
+
 }
