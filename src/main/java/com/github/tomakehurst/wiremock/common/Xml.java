@@ -17,10 +17,15 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XpathEngine;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -151,6 +156,20 @@ public class Xml {
 
     public static DocumentBuilderFactory newDocumentBuilderFactory() {
         return new SkipResolvingEntitiesDocumentBuilderFactory();
+    }
+
+    public static NodeList findNodesByXPath(String xml, String xpathExpression, Map<String, String> namespaces) throws IOException, SAXException, XpathException, ParserConfigurationException {
+        DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
+        documentBuilder.setErrorHandler(new SilentErrorHandler());
+        Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(xml));
+        XpathEngine xpathEngine = XMLUnit.newXpathEngine();
+
+        NamespaceContext namespaceContext = namespaces != null ?
+                new SimpleNamespaceContext(namespaces) :
+                new SimpleNamespaceContext(extractNamespaces(xpathExpression, inDocument));
+        xpathEngine.setNamespaceContext(namespaceContext);
+
+        return xpathEngine.getMatchingNodes(xpathExpression, inDocument);
     }
 
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("/([a-zA-Z0-9]+?):");

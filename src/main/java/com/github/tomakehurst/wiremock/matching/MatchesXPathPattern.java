@@ -117,17 +117,7 @@ public class MatchesXPathPattern extends PathPattern {
             return null;
         }
         try {
-            DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
-            documentBuilder.setErrorHandler(new SilentErrorHandler());
-            Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(value));
-            XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
-
-            NamespaceContext namespaceContext = xpathNamespaces != null ?
-                    new SimpleNamespaceContext(xpathNamespaces) :
-                    new SimpleNamespaceContext(Xml.extractNamespaces(expectedValue, inDocument));
-            simpleXpathEngine.setNamespaceContext(namespaceContext);
-
-            return simpleXpathEngine.getMatchingNodes(expectedValue, inDocument);
+            return Xml.findNodesByXPath(value, expectedValue, xpathNamespaces);
         } catch (SAXException e) {
             notifier().info(String.format(
                 "Warning: failed to parse the XML document. Reason: %s\nXML: %s", e.getMessage(), value));
