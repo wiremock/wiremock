@@ -57,9 +57,30 @@ import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 public class Xml {
 
+    private static final InheritableThreadLocal<XpathEngine> threadLocalXPathEngine = new InheritableThreadLocal<XpathEngine>() {
+        @Override
+        protected XpathEngine initialValue() {
+            return XMLUnit.newXpathEngine();
+        }
+    };
+
+    private static final InheritableThreadLocal<DocumentBuilder> threadLocalDocumentBuilder = new InheritableThreadLocal<DocumentBuilder>() {
+        @Override
+        protected DocumentBuilder initialValue() {
+            try {
+                DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
+                documentBuilder.setErrorHandler(new SilentErrorHandler());
+                return documentBuilder;
+            } catch (ParserConfigurationException e) {
+                return throwUnchecked(e, DocumentBuilder.class);
+            }
+        }
+    };
+
     private Xml() {
         // Hide constructor
     }
+
     public static void optimizeFactoriesLoading() {
         String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
         String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
@@ -117,11 +138,13 @@ public class Xml {
     }
 
     public static Document read(String xml) {
+        InputSource is = new InputSource(new StringReader(xml));
+        return read(is);
+    }
+
+    public static Document read(InputSource source) {
         try {
-            DocumentBuilderFactory dbf = newDocumentBuilderFactory();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            InputSource is = new InputSource(new StringReader(xml));
-            return db.parse(is);
+            return threadLocalDocumentBuilder.get().parse(source);
         } catch (SAXException e) {
             throw XmlException.fromSaxException(e);
         } catch (Exception e) {
@@ -159,17 +182,19 @@ public class Xml {
     }
 
     public static NodeList findNodesByXPath(String xml, String xpathExpression, Map<String, String> namespaces) throws IOException, SAXException, XpathException, ParserConfigurationException {
-        DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
-        documentBuilder.setErrorHandler(new SilentErrorHandler());
-        Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(xml));
-        XpathEngine xpathEngine = XMLUnit.newXpathEngine();
+        DocumentBuilder documentBuilder = threadLocalDocumentBuilder.get();
+        Document xmlDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(xml));
+        return findNodesByXPath(xmlDocument, xpathExpression, namespaces);
+    }
 
+    public static NodeList findNodesByXPath(Document xmlDocument, String xpathExpression, Map<String, String> namespaces) throws XpathException {
+        XpathEngine xpathEngine = threadLocalXPathEngine.get();
         NamespaceContext namespaceContext = namespaces != null ?
                 new SimpleNamespaceContext(namespaces) :
-                new SimpleNamespaceContext(extractNamespaces(xpathExpression, inDocument));
+                new SimpleNamespaceContext(extractNamespaces(xpathExpression, xmlDocument));
         xpathEngine.setNamespaceContext(namespaceContext);
 
-        return xpathEngine.getMatchingNodes(xpathExpression, inDocument);
+        return xpathEngine.getMatchingNodes(xpathExpression, xmlDocument);
     }
 
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("/([a-zA-Z0-9]+?):");

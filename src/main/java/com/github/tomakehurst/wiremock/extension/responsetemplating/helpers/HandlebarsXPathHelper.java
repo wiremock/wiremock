@@ -17,37 +17,27 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.XmlException;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static javax.xml.xpath.XPathConstants.NODE;
 
 /**
  * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for response
  * templating.
  */
 public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
-
-    private static final InheritableThreadLocal<XPath> localXPath = new InheritableThreadLocal<XPath>() {
-        @Override
-        protected XPath initialValue() {
-            final XPathFactory xPathfactory = XPathFactory.newInstance();
-            return xPathfactory.newXPath();
-        }
-    };
 
     private static final InheritableThreadLocal<DocumentBuilder> localDocBuilder = new InheritableThreadLocal<DocumentBuilder>() {
         @Override
@@ -76,7 +66,7 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         Document doc;
         try {
             doc = getDocument(inputXml, options);
-        } catch (SAXException se) {
+        } catch (XmlException se) {
             return handleError(inputXml + " is not valid XML");
         }
 
@@ -88,33 +78,33 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
             }
 
             return Xml.toStringValue(node);
-        } catch (XPathExpressionException e) {
+        } catch (XpathException e) {
             return handleError(xPathInput + " is not a valid XPath expression", e);
         }
     }
 
-    private Node getNode(String xPathExpression, Document doc, Options options) throws XPathExpressionException {
+    private Node getNode(String xPathExpression, Document doc, Options options) throws XpathException {
         RenderCache renderCache = getRenderCache(options);
         RenderCache.Key cacheKey = RenderCache.Key.keyFor(Document.class, xPathExpression, doc);
         Node node = renderCache.get(cacheKey);
 
         if (node == null) {
-            XPath xPath = localXPath.get();
-            node = (Node) xPath.evaluate(xPathExpression, doc, NODE);
+            NodeList nodes = Xml.findNodesByXPath(doc, xPathExpression, null);
+            node = nodes.getLength() == 0 ? null : nodes.item(0);
             renderCache.put(cacheKey, node);
         }
 
         return node;
     }
 
-    private Document getDocument(String xml, Options options) throws SAXException, IOException {
+    private Document getDocument(String xml, Options options) {
         RenderCache renderCache = getRenderCache(options);
         RenderCache.Key cacheKey = RenderCache.Key.keyFor(Document.class, xml);
         Document document = renderCache.get(cacheKey);
         if (document == null) {
             try (final StringReader reader = new StringReader(xml)) {
                 InputSource source = new InputSource(reader);
-                document = localDocBuilder.get().parse(source);
+                document = Xml.read(source);
                 renderCache.put(cacheKey, document);
             }
         }

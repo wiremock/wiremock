@@ -53,9 +53,9 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
     public void rendersASimpleValue() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
                 mockRequest().url("/xml")
-                    .body("<a><test>success</test></a>"),
+                        .body("<a><test>success</test></a>"),
                 aResponse()
-                    .withBody("<test>{{xPath request.body '/a/test/text()'}}</test>").build(),
+                        .withBody("<test>{{xPath request.body '/a/test/text()'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -66,9 +66,9 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
     public void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
                 mockRequest().url("/xml")
-                    .body("<a><test>success</test></a>"),
+                        .body("<a><test>success</test></a>"),
                 aResponse()
-                    .withBody("<test>{{xPath request.body '/b/test'}}</test>").build(),
+                        .withBody("<test>{{xPath request.body '/b/test'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -88,10 +88,10 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
     @Test
     public void extractsASubElement() throws IOException {
         testHelper(helper, "<outer>\n" +
-            "    <inner>stuff</inner>\n" +
-            "</outer>",
-            "/outer/inner",
-            equalToXml("<inner>stuff</inner>"));
+                        "    <inner>stuff</inner>\n" +
+                        "</outer>",
+                "/outer/inner",
+                equalToXml("<inner>stuff</inner>"));
     }
 
     @Test
@@ -154,4 +154,12 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         assertThat(value, is("1"));
     }
 
+    @Test
+    public void returnsValueFromNamespacedDocument() throws Exception {
+        String value = renderHelperValue(helper,
+                "<waffle xmlns:bla=\"https://blah.xyz\"><bla:content>Blah</bla:content></waffle>",
+                "//bla:content/text()");
+
+        assertThat(value, is("Blah"));
+    }
 }
