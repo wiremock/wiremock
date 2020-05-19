@@ -44,7 +44,7 @@ allprojects {
             guava          : '20.0',
             jackson        : jacksonVersion,
             jacksonDatabind: jacksonVersion,
-            xmlUnit        : '2.6.2'
+            xmlUnit        : '2.7.0'
         ],
         java8: [
             handlebars     : '4.2.0',
@@ -52,7 +52,7 @@ allprojects {
             guava          : '29.0-jre',
             jackson        : jacksonVersion,
             jacksonDatabind: jacksonVersion,
-            xmlUnit        : '2.6.2'
+            xmlUnit        : '2.7.0'
         ]
     ]
 
