@@ -201,6 +201,9 @@ public class Xml {
                 Map<String, String> childNamespaces = findNamespaces(prefixesRemainingToFind, childNode);
                 prefixesRemainingToFind = Sets.difference(prefixesRemainingToFind, childNamespaces.keySet());
                 builder.putAll(childNamespaces);
+                if (prefixesRemainingToFind.isEmpty()) {
+                    break;
+                }
             }
         }
 
