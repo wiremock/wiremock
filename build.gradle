@@ -66,6 +66,7 @@ allprojects {
         compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
         compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
         compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
+        compile "org.eclipse.jetty:jetty-proxy:$versions.jetty"
         compile "com.google.guava:guava:$versions.guava"
         compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
             "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",

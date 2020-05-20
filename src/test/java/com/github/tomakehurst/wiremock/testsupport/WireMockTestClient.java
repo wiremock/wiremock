@@ -26,6 +26,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
@@ -35,10 +36,14 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 
+import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -108,6 +113,8 @@ public class WireMockTestClient {
             .disableAutomaticRetries()
             .disableCookieManagement()
             .disableRedirectHandling()
+            .setSSLContext(buildAllowAnythingSSLContext())
+            .setSSLHostnameVerifier(new NoopHostnameVerifier())
             .setProxy(proxy)
             .build();
 
@@ -315,5 +322,18 @@ public class WireMockTestClient {
         return HttpClients.custom()
             .setDefaultCredentialsProvider(credsProvider)
             .build();
+    }
+
+    private static SSLContext buildAllowAnythingSSLContext() {
+        try {
+            return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) {
+                    return true;
+                }
+            }).build();
+        } catch (Exception e) {
+            return throwUnchecked(e, SSLContext.class);
+        }
     }
 }
