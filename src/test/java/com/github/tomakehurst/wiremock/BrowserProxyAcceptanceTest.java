@@ -62,7 +62,7 @@ public class BrowserProxyAcceptanceTest {
         assertThat(testClient.getViaProxy(url("/whatever"), proxy.port()).content(), is("Got it"));
     }
 
-    @Test @Ignore
+    @Test
     public void canProxyHttps() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
