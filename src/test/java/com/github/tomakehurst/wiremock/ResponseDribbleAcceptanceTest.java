@@ -64,7 +64,7 @@ public class ResponseDribbleAcceptanceTest {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
-        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 100.0));
+        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 150.0));
     }
 
     @Test

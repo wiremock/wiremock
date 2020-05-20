@@ -156,9 +156,12 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
     @Test
     public void returnsValueFromNamespacedDocument() throws Exception {
+//        String value = renderHelperValue(helper,
+//                "<waffle xmlns:bla=\"https://blah.xyz\"><bla:content>Blah</bla:content></waffle>",
+//                "//bla:content/text()");
         String value = renderHelperValue(helper,
                 "<waffle xmlns:bla=\"https://blah.xyz\"><bla:content>Blah</bla:content></waffle>",
-                "//bla:content/text()");
+                "//content/text()");
 
         assertThat(value, is("Blah"));
     }

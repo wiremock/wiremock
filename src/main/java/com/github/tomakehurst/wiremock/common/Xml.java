@@ -22,6 +22,7 @@ import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.custommonkey.xmlunit.jaxp13.XMLUnitNamespaceContext2Jaxp13;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -29,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlunit.util.Convert;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,6 +40,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
@@ -54,6 +58,8 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Collections.emptyMap;
 import static javax.xml.transform.OutputKeys.INDENT;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
+import static javax.xml.xpath.XPathConstants.NODE;
+import static javax.xml.xpath.XPathConstants.NODESET;
 
 public class Xml {
 
@@ -61,6 +67,14 @@ public class Xml {
         @Override
         protected XpathEngine initialValue() {
             return XMLUnit.newXpathEngine();
+        }
+    };
+
+    private static final InheritableThreadLocal<XPath> threadLocalXPath = new InheritableThreadLocal<XPath>() {
+        @Override
+        protected XPath initialValue() {
+            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            return xPathfactory.newXPath();
         }
     };
 
@@ -201,10 +215,10 @@ public class Xml {
 
     public static Map<String, String> extractNamespaces(String xpathExpression, Document document) {
         final Matcher matcher = NAMESPACE_PATTERN.matcher(xpathExpression);
-        Set<String> prefixes = new HashSet<>();
+        Set<String> prefixesToFind = new HashSet<>();
         while (matcher.find()) {
             if (matcher.groupCount() > 0) {
-                prefixes.add(matcher.group(1));
+                prefixesToFind.add(matcher.group(1));
             }
         }
 
@@ -212,7 +226,7 @@ public class Xml {
             return emptyMap();
         }
 
-        return findNamespaces(prefixes, document.getFirstChild());
+        return findNamespaces(prefixesToFind, document.getFirstChild());
     }
 
     private static Map<String, String> findNamespaces(Set<String> prefixesToFind, Node parentNode) {

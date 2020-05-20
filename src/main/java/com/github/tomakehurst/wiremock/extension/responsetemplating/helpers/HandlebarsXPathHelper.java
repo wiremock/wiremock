@@ -28,10 +28,14 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static javax.xml.xpath.XPathConstants.NODE;
 
 /**
  * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for response
@@ -39,15 +43,11 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
  */
 public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
-    private static final InheritableThreadLocal<DocumentBuilder> localDocBuilder = new InheritableThreadLocal<DocumentBuilder>() {
+    private static final InheritableThreadLocal<XPath> localXPath = new InheritableThreadLocal<XPath>() {
         @Override
-        protected DocumentBuilder initialValue() {
-            final DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
-            try {
-                return factory.newDocumentBuilder();
-            } catch (ParserConfigurationException e) {
-                return throwUnchecked(e, DocumentBuilder.class);
-            }
+        protected XPath initialValue() {
+            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            return xPathfactory.newXPath();
         }
     };
 
@@ -89,9 +89,15 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         Node node = renderCache.get(cacheKey);
 
         if (node == null) {
-            NodeList nodes = Xml.findNodesByXPath(doc, xPathExpression, null);
-            node = nodes.getLength() == 0 ? null : nodes.item(0);
-            renderCache.put(cacheKey, node);
+//            NodeList nodes = Xml.findNodesByXPath(doc, xPathExpression, null);
+//            node = nodes.getLength() == 0 ? null : nodes.item(0);
+            XPath xPath = localXPath.get();
+            try {
+                node = (Node) xPath.evaluate(xPathExpression, doc, NODE);
+                renderCache.put(cacheKey, node);
+            } catch (XPathExpressionException e) {
+                throw new XpathException(e);
+            }
         }
 
         return node;
