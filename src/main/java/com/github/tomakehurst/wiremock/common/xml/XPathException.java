@@ -22,23 +22,13 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.xpath.XPathExpressionException;
 
-public class XmlException extends InvalidInputException {
+public class XPathException extends InvalidInputException {
 
-    protected XmlException(Errors errors) {
-        super(errors);
-    }
-
-    protected XmlException(Throwable cause, Errors errors) {
+    protected XPathException(Throwable cause, Errors errors) {
         super(cause, errors);
     }
 
-    public static XmlException fromSaxException(SAXException e) {
-        if (e instanceof SAXParseException) {
-            SAXParseException spe = (SAXParseException) e;
-            String detail = String.format("%s; line %d; column %d", spe.getMessage(), spe.getLineNumber(), spe.getColumnNumber());
-            return new XmlException(Errors.singleWithDetail(50, e.getMessage(), detail));
-        }
-
-        return new XmlException(e, Errors.single(50, e.getMessage()));
+    public static XPathException fromXPathException(XPathExpressionException e) {
+        return new XPathException(e, Errors.single(51, e.getMessage()));
     }
 }

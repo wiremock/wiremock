@@ -1,23 +1,8 @@
 package com.github.tomakehurst.wiremock.common.xml;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-import java.io.StringWriter;
-
-import static javax.xml.transform.OutputKeys.INDENT;
-import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
-import static javax.xml.xpath.XPathConstants.NODE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -120,32 +105,5 @@ public class XmlTest {
         ListOrSingle<XmlNode> xmlNodes = xmlDocument.findNodes("/things/fluff/inner[@id=\"123\"]");
 
         assertThat(xmlNodes.toString(), is("<fl:inner fl:code=\"D1\" id=\"123\">Innards</fl:inner>"));
-    }
-
-    @Ignore
-    @Test
-    public void tmp() throws Exception {
-        String xml = "<?xml version=\"1.0\"?>\n" +
-                "<things xmlns:s=\"https://stuff.biz\" id=\"1\">\n" +
-                "    <stuff id=\"1\"/>\n" +
-                "    <fl:fluff xmlns:fl=\"https://fluff.abc\" id=\"2\">\n" +
-                "        <fl:inner id=\"123\" fl:code=\"D1\">Innards</fl:inner>\n" +
-                "        <fl:inner>More Innards</fl:inner>\n" +
-                "    </fl:fluff>\n" +
-                "</things>";
-
-        final Document doc = Xml.read(xml);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-        Node node = (Node) xPath.evaluate("/things/fluff/inner", doc, NODE);
-        StringWriter sw = new StringWriter();
-        final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
-        transformer.setOutputProperty(INDENT, "yes");
-        final DOM2SAX dom2SAX = new DOM2SAX(node);
-        final SAXSource saxSource = new SAXSource();
-        saxSource.setXMLReader(dom2SAX);
-        transformer.transform(saxSource, new StreamResult(sw));
-        System.out.println(sw.toString());
     }
 }
