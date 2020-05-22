@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

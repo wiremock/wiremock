@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.common.xml;
 
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import javax.xml.xpath.XPathExpressionException;
 
 public class XmlException extends InvalidInputException {
 
     protected XmlException(Errors errors) {
         super(errors);
+    }
+
+    protected XmlException(Throwable cause, Errors errors) {
+        super(cause, errors);
+    }
+
+    public static XmlException fromXPathException(XPathExpressionException e) {
+        return new XmlException(e, Errors.single(51, e.getMessage()));
     }
 
     public static XmlException fromSaxException(SAXException e) {
@@ -31,6 +43,6 @@ public class XmlException extends InvalidInputException {
             return new XmlException(Errors.singleWithDetail(50, e.getMessage(), detail));
         }
 
-        return new XmlException(Errors.single(50, e.getMessage()));
+        return new XmlException(e, Errors.single(50, e.getMessage()));
     }
 }

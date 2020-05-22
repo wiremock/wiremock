@@ -26,6 +26,11 @@ public class ClientError extends RuntimeException {
         this.errors = errors;
     }
 
+    protected ClientError(Throwable cause, Errors errors) {
+        super(Json.write(errors), cause);
+        this.errors = errors;
+    }
+
     public static ClientError fromErrors(Errors errors) {
         Integer errorCode = errors.first().getCode();
         switch (errorCode) {

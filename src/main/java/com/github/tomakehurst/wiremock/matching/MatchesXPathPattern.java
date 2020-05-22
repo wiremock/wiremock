@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.google.common.collect.ImmutableMap;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
