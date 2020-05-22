@@ -2,10 +2,10 @@ package com.github.tomakehurst.wiremock.common.xml;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.google.common.collect.ImmutableMap;
-import com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.XMLReader;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -17,6 +17,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -56,13 +58,12 @@ public class XmlNode {
         }
     };
 
-    private static final boolean DOM2SAX_AVAILABLE = getDom2SaxAvailability();
-    private static boolean getDom2SaxAvailability() {
+    private static final Class<XMLReader> DOM2SAX_XMLREADER_CLASS = getDom2SaxAvailability();
+    private static Class<XMLReader> getDom2SaxAvailability() {
         try {
-            Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX");
-            return true;
+            return (Class<XMLReader>) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX");
         } catch (ClassNotFoundException e) {
-            return false;
+            return null;
         }
     }
 
@@ -129,11 +130,16 @@ public class XmlNode {
     // unbound namespace prefixes (which can happen when you've selected an element via XPath whose namespaces are declared in a parent element).
     // For some reason Transformer is happy to do this with a SAX source, but not a DOM source.
     private static Source getSourceForTransform(Node node) {
-        if (DOM2SAX_AVAILABLE) {
-            DOM2SAX dom2SAX = new DOM2SAX(node);
-            SAXSource saxSource = new SAXSource();
-            saxSource.setXMLReader(dom2SAX);
-            return saxSource;
+        if (DOM2SAX_XMLREADER_CLASS != null) {
+            try {
+                Constructor<XMLReader> constructor = DOM2SAX_XMLREADER_CLASS.getConstructor(Node.class);
+                XMLReader dom2SAX = constructor.newInstance(node);
+                SAXSource saxSource = new SAXSource();
+                saxSource.setXMLReader(dom2SAX);
+                return saxSource;
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                return new DOMSource(node);
+            }
         }
 
         return new DOMSource(node);
