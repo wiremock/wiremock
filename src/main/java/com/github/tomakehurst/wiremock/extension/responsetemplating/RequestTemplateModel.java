@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class RequestTemplateModel {
 
@@ -40,12 +41,13 @@ public class RequestTemplateModel {
 
     public static RequestTemplateModel from(final Request request) {
         RequestLine requestLine = RequestLine.fromRequest(request);
-        Map<String, ListOrSingle<String>> adaptedHeaders = Maps.toMap(request.getAllHeaderKeys(), new Function<String, ListOrSingle<String>>() {
+        Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        adaptedHeaders.putAll(Maps.toMap(request.getAllHeaderKeys(), new Function<String, ListOrSingle<String>>() {
             @Override
             public ListOrSingle<String> apply(String input) {
                 return ListOrSingle.of(request.header(input).values());
             }
-        });
+        }));
         Map<String, ListOrSingle<String>> adaptedCookies = Maps.transformValues(request.getCookies(), new Function<Cookie, ListOrSingle<String>>() {
             @Override
             public ListOrSingle<String> apply(Cookie cookie) {

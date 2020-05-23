@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,6 +87,21 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is(
             "Request ID: req-id-1234, Awkward named header: foundit"
+        ));
+    }
+
+    @Test
+    public void requestHeadersCaseInsensitive() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .header("Case-KEY-123", "foundit"),
+            aResponse().withBody(
+                "Case key header: {{request.headers.case-key-123}}, With brackets: {{request.headers.[case-key-123]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), CoreMatchers.is(
+            "Case key header: foundit, With brackets: foundit"
         ));
     }
 
