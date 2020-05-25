@@ -113,7 +113,7 @@ public class WireMockTestClient {
             .disableAutomaticRetries()
             .disableCookieManagement()
             .disableRedirectHandling()
-            .setSSLContext(buildAllowAnythingSSLContext())
+            .setSSLContext(buildTrustWireMockDefaultCertificateSSLContext())
             .setSSLHostnameVerifier(new NoopHostnameVerifier())
             .setProxy(proxy)
             .build();
@@ -324,12 +324,12 @@ public class WireMockTestClient {
             .build();
     }
 
-    private static SSLContext buildAllowAnythingSSLContext() {
+    private static SSLContext buildTrustWireMockDefaultCertificateSSLContext() {
         try {
             return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
                 @Override
                 public boolean isTrusted(X509Certificate[] chain, String authType) {
-                    return true;
+                    return "CN=Tom Akehurst, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown".equals(chain[0].getSubjectDN().getName());
                 }
             }).build();
         } catch (Exception e) {

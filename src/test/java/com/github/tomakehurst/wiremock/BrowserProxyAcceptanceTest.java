@@ -27,10 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class BrowserProxyAcceptanceTest {
 
     @ClassRule
-    public static WireMockClassRule target = new WireMockClassRule(wireMockConfig()
-            .dynamicPort()
-            .dynamicHttpsPort()
-    );
+    public static WireMockClassRule target = new WireMockClassRule(wireMockConfig().dynamicPort());
 
     @Rule
     public WireMockClassRule instanceRule = target;
@@ -63,13 +60,6 @@ public class BrowserProxyAcceptanceTest {
     }
 
     @Test
-    public void canProxyHttps() throws Exception {
-        target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
-
-        assertThat(testClient.getViaProxy(httpsUrl("/whatever"), proxy.port()).content(), is("Got it"));
-    }
-
-    @Test
     public void passesQueryParameters() {
         target.stubFor(get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
 
@@ -78,10 +68,6 @@ public class BrowserProxyAcceptanceTest {
 
     private String url(String pathAndQuery) {
         return "http://localhost:" + target.port() + pathAndQuery;
-    }
-
-    private String httpsUrl(String pathAndQuery) {
-        return "https://localhost:" + target.httpsPort() + pathAndQuery;
     }
 
 }
