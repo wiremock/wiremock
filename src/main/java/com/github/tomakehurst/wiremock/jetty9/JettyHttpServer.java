@@ -30,7 +30,6 @@ import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
@@ -128,8 +127,6 @@ public class JettyHttpServer implements HttpServer {
         } else {
             addGZipHandler(mockServiceContext, handlers);
         }
-
-        handlers.addHandler(new ConnectHandler());
 
         return handlers;
     }
