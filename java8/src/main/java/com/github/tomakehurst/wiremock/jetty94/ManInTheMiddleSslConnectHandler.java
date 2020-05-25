@@ -15,13 +15,8 @@ import static org.eclipse.jetty.http.HttpMethod.CONNECT;
 
 /**
  * A Handler for the HTTP CONNECT method that, instead of opening up a
- * TCP tunnel between the downstream and upstream sockets,
- * 1) captures the
- * and
- * 2) turns the connection into an SSL connection allowing this server to handle
- * it.
- *
- *
+ * TCP tunnel between the downstream and upstream sockets, turns the connection
+ * into an SSL connection allowing this server to handle it.
  */
 class ManInTheMiddleSslConnectHandler extends AbstractHandler {
 
