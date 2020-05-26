@@ -2,7 +2,8 @@ package com.github.tomakehurst.wiremock.jetty94;
 
 import org.eclipse.jetty.io.Connection;
 import org.eclipse.jetty.io.EndPoint;
-import org.eclipse.jetty.server.HttpConnection;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -56,10 +57,16 @@ class ManInTheMiddleSslConnectHandler extends AbstractHandler {
         HttpServletResponse response
     ) throws IOException {
         sendConnectResponse(response);
-        final HttpConnection transport = (HttpConnection) baseRequest.getHttpChannel().getHttpTransport();
-        EndPoint endpoint = transport.getEndPoint();
-        Connection connection = sslConnectionFactory.newConnection(transport.getConnector(), endpoint);
+
+        HttpChannel httpChannel = baseRequest.getHttpChannel();
+        Connector connector = httpChannel.getConnector();
+        EndPoint endpoint = httpChannel.getEndPoint();
+        endpoint.setConnection(null);
+
+        Connection connection = sslConnectionFactory.newConnection(connector, endpoint);
         endpoint.setConnection(connection);
+
+        endpoint.onOpen();
         connection.onOpen();
     }
 

@@ -106,8 +106,12 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse getViaProxy(String url, int proxyPort) {
+        return getViaProxy(url, proxyPort, HttpHost.DEFAULT_SCHEME_NAME);
+    }
+
+    public WireMockResponse getViaProxy(String url, int proxyPort, String scheme) {
         URI targetUri = URI.create(url);
-        HttpHost proxy = new HttpHost(address, proxyPort);
+        HttpHost proxy = new HttpHost(address, proxyPort, scheme);
         HttpClient httpClientUsingProxy = HttpClientBuilder.create()
             .disableAuthCaching()
             .disableAutomaticRetries()

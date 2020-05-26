@@ -18,10 +18,17 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpProxy;
+import org.eclipse.jetty.client.Origin;
+import org.eclipse.jetty.client.ProxyConfiguration;
+import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -59,6 +66,7 @@ public class Http2BrowserProxyAcceptanceTest {
 
         proxy = new WireMockServer(wireMockConfig()
                 .dynamicPort()
+                .dynamicHttpsPort()
                 .fileSource(new SingleRootFileSource(setupTempFileRoot()))
                 .enableBrowserProxying(true));
         proxy.start();
@@ -76,6 +84,28 @@ public class Http2BrowserProxyAcceptanceTest {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
         assertThat(testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
+    }
+
+    @Test
+    public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
+        target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), "https");
+        assertThat(response.content(), is("Got it"));
+    }
+
+    @Test @Ignore("Jetty doesn't yet support proxying via HTTP2")
+    public void canProxyHttpsUsingHttp2InBrowserHttpsProxyMode() throws Exception {
+
+        HttpClient httpClient = Http2ClientFactory.create();
+        ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
+        HttpProxy httpProxy = new HttpProxy(new Origin.Address("localhost", proxy.httpsPort()), true);
+        proxyConfig.getProxies().add(httpProxy);
+
+        target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+        ContentResponse response = httpClient.GET(target.url("/whatever"));
+        assertThat(response.getContentAsString(), is("Got it"));
     }
 
     @Test
