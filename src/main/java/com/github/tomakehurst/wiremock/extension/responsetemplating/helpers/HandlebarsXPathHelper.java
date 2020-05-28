@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.common.xml.Xml;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -41,26 +42,6 @@ import static javax.xml.xpath.XPathConstants.NODE;
  */
 public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
-    private static final InheritableThreadLocal<XPath> localXPath = new InheritableThreadLocal<XPath>() {
-        @Override
-        protected XPath initialValue() {
-            final XPathFactory xPathfactory = XPathFactory.newInstance();
-            return xPathfactory.newXPath();
-        }
-    };
-
-    private static final InheritableThreadLocal<DocumentBuilder> localDocBuilder = new InheritableThreadLocal<DocumentBuilder>() {
-        @Override
-        protected DocumentBuilder initialValue() {
-            final DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
-            try {
-                return factory.newDocumentBuilder();
-            } catch (ParserConfigurationException e) {
-                return throwUnchecked(e, DocumentBuilder.class);
-            }
-        }
-    };
-
     @Override
     public Object apply(final String inputXml, final Options options) throws IOException {
         if (inputXml == null ) {
@@ -73,50 +54,47 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
         final String xPathInput = options.param(0);
 
-        Document doc;
+        XmlDocument xmlDocument;
         try {
-            doc = getDocument(inputXml, options);
-        } catch (SAXException se) {
+            xmlDocument = getXmlDocument(inputXml, options);
+        } catch (XmlException e) {
             return handleError(inputXml + " is not valid XML");
         }
 
         try {
-            Node node = getNode(getXPathPrefix() + xPathInput, doc, options);
+            XmlNode xmlNode = getXmlNode(getXPathPrefix() + xPathInput, xmlDocument, options);
 
-            if (node == null) {
+            if (xmlNode == null) {
                 return "";
             }
 
-            return Xml.toStringValue(node);
-        } catch (XPathExpressionException e) {
+            return xmlNode.toString();
+        } catch (XPathException e) {
             return handleError(xPathInput + " is not a valid XPath expression", e);
         }
     }
 
-    private Node getNode(String xPathExpression, Document doc, Options options) throws XPathExpressionException {
+    private XmlNode getXmlNode(String xPathExpression, XmlDocument doc, Options options) {
         RenderCache renderCache = getRenderCache(options);
-        RenderCache.Key cacheKey = RenderCache.Key.keyFor(Document.class, xPathExpression, doc);
-        Node node = renderCache.get(cacheKey);
+        RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
+        XmlNode node = renderCache.get(cacheKey);
 
         if (node == null) {
-            XPath xPath = localXPath.get();
-            node = (Node) xPath.evaluate(xPathExpression, doc, NODE);
+            ListOrSingle<XmlNode> nodes = doc.findNodes(xPathExpression);
+            node = nodes.isEmpty() ? null : nodes.getFirst();
             renderCache.put(cacheKey, node);
         }
 
         return node;
     }
 
-    private Document getDocument(String xml, Options options) throws SAXException, IOException {
+    private XmlDocument getXmlDocument(String xml, Options options) {
         RenderCache renderCache = getRenderCache(options);
-        RenderCache.Key cacheKey = RenderCache.Key.keyFor(Document.class, xml);
-        Document document = renderCache.get(cacheKey);
+        RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xml);
+        XmlDocument document = renderCache.get(cacheKey);
         if (document == null) {
-            try (final StringReader reader = new StringReader(xml)) {
-                InputSource source = new InputSource(reader);
-                document = localDocBuilder.get().parse(source);
-                renderCache.put(cacheKey, document);
-            }
+            document = Xml.parse(xml);
+            renderCache.put(cacheKey, document);
         }
 
         return document;
