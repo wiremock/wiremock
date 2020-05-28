@@ -10,9 +10,10 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import sun.security.x509.X500Name;
+import org.junit.function.ThrowingRunnable;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -26,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class ProxyResponseRendererTest {
 
@@ -36,18 +38,18 @@ public class ProxyResponseRendererTest {
             .keystorePath(generateKeystore().getAbsolutePath())
     );
 
+    private final ProxyResponseRenderer proxyResponseRenderer = new ProxyResponseRenderer(
+            ProxySettings.NO_PROXY,
+            KeyStoreSettings.NO_STORE,
+            /* preserveHostHeader = */ false,
+            /* hostHeaderValue = */ null,
+            new GlobalSettingsHolder()
+    );
+
     @Test
     public void acceptsAnyCertificateForStandardProxying() {
 
         origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
-
-        ProxyResponseRenderer proxyResponseRenderer = new ProxyResponseRenderer(
-                ProxySettings.NO_PROXY,
-                KeyStoreSettings.NO_STORE,
-                /* preserveHostHeader = */ false,
-                /* hostHeaderValue = */ null,
-                new GlobalSettingsHolder()
-        );
 
         ServeEvent serveEvent = reverseProxyServeEvent("/proxied");
 
@@ -56,7 +58,32 @@ public class ProxyResponseRendererTest {
         assertEquals(response.getBodyAsString(), "Result");
     }
 
+    @Test @Ignore("Not yet implemented")
+    public void rejectsSelfSignedCertificateForReverseProxying() {
+
+        origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
+
+        final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+
+        Exception e = assertThrows(Exception.class, new ThrowingRunnable() {
+            @Override
+            public void run() {
+                proxyResponseRenderer.render(serveEvent);
+            }
+        });
+
+        assertEquals("", e.getMessage());
+    }
+
     private ServeEvent reverseProxyServeEvent(String path) {
+        return serveEvent(path, false);
+    }
+
+    private ServeEvent forwardProxyServeEvent(String path) {
+        return serveEvent(path, true);
+    }
+
+    private ServeEvent serveEvent(String path, boolean isBrowserProxyRequest) {
         LoggedRequest loggedRequest = new LoggedRequest(
                 /* url = */path,
                 /* absoluteUrl = */origin.url(path),
@@ -64,7 +91,7 @@ public class ProxyResponseRendererTest {
                 /* clientIp = */"127.0.0.1",
                 /* headers = */new HttpHeaders(),
                 /* cookies = */new HashMap<String, Cookie>(),
-                /* isBrowserProxyRequest = */false,
+                /* isBrowserProxyRequest = */isBrowserProxyRequest,
                 /* loggedDate = */new Date(),
                 /* body = */new byte[0],
                 /* multiparts = */null
