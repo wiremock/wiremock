@@ -100,6 +100,14 @@ public class XmlNode {
         return nodes;
     }
 
+    public String getName() {
+        return domNode.getNodeName();
+    }
+
+    public String getText() {
+        return domNode.getTextContent();
+    }
+
     @Override
     public String toString() {
         switch (domNode.getNodeType()) {
