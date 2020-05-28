@@ -106,14 +106,18 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse getViaProxy(String url, int proxyPort) {
+        return getViaProxy(url, proxyPort, HttpHost.DEFAULT_SCHEME_NAME);
+    }
+
+    public WireMockResponse getViaProxy(String url, int proxyPort, String scheme) {
         URI targetUri = URI.create(url);
-        HttpHost proxy = new HttpHost(address, proxyPort);
+        HttpHost proxy = new HttpHost(address, proxyPort, scheme);
         HttpClient httpClientUsingProxy = HttpClientBuilder.create()
             .disableAuthCaching()
             .disableAutomaticRetries()
             .disableCookieManagement()
             .disableRedirectHandling()
-            .setSSLContext(buildAllowAnythingSSLContext())
+            .setSSLContext(buildTrustWireMockDefaultCertificateSSLContext())
             .setSSLHostnameVerifier(new NoopHostnameVerifier())
             .setProxy(proxy)
             .build();
@@ -324,12 +328,12 @@ public class WireMockTestClient {
             .build();
     }
 
-    private static SSLContext buildAllowAnythingSSLContext() {
+    private static SSLContext buildTrustWireMockDefaultCertificateSSLContext() {
         try {
             return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
                 @Override
                 public boolean isTrusted(X509Certificate[] chain, String authType) {
-                    return true;
+                    return "CN=Tom Akehurst, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown".equals(chain[0].getSubjectDN().getName());
                 }
             }).build();
         } catch (Exception e) {
