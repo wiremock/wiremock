@@ -54,3 +54,19 @@ To build both JARs (thin and standalone):
 
 The built JAR will be placed under ``java8/build/libs``.
 
+Developing on IntelliJ IDEA
+---------------------------
+
+IntelliJ can't import the gradle build script correctly automatically, so run
+```bash
+./gradlew -c release-settings.gradle :java8:idea
+```
+
+Make sure you have no `.idea` directory, the plugin generates old style .ipr,
+.iml & .iws metadata files.
+
+You may have to then set up your project SDK to point at your Java 8
+installation.
+
+Then edit the module settings. Remove the "null" Source & Test source folders
+from all modules. Add `wiremock` as a module dependency to Java 7 & Java 8.

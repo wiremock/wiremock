@@ -26,6 +26,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static org.hamcrest.Matchers.*;
@@ -45,8 +47,11 @@ public class ResponseDribbleAcceptanceTest {
     private HttpClient httpClient;
 
     @Before
-    public void init() {
+    public void init() throws IOException {
+        stubFor(get("/warmup").willReturn(ok()));
         httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        // Warm up the server
+        httpClient.execute(new HttpGet(String.format("http://localhost:%d/warmup", wireMockRule.port())));
     }
 
     @Test
