@@ -25,12 +25,15 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import org.xmlunit.diff.ComparisonType;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.tryFind;
@@ -142,8 +145,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         Boolean enablePlaceholders = fromNullable(rootNode.findValue("enablePlaceholders"));
         String placeholderOpeningDelimiterRegex = fromNullableTextNode(rootNode.findValue("placeholderOpeningDelimiterRegex"));
         String placeholderClosingDelimiterRegex = fromNullableTextNode(rootNode.findValue("placeholderClosingDelimiterRegex"));
+        Set<ComparisonType> exemptedComparisons = comparisonTypeSetFromArray(rootNode.findValue("exemptedComparisons"));
 
-        return new EqualToXmlPattern(operand.textValue(), enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+        return new EqualToXmlPattern(operand.textValue(), enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex, exemptedComparisons);
     }
 
     private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode) throws JsonMappingException {
@@ -208,6 +212,19 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     private static String fromNullableTextNode(JsonNode node) {
         return node == null ? null : node.asText();
+    }
+
+    private static Set<ComparisonType> comparisonTypeSetFromArray(JsonNode node) {
+        if (node == null || !node.isArray()) {
+            return null;
+        }
+
+        ImmutableSet.Builder<ComparisonType> builder = ImmutableSet.builder();
+        for (JsonNode itemNode: node) {
+            builder.add(ComparisonType.valueOf(itemNode.textValue()));
+        }
+
+        return builder.build();
     }
 
     @SuppressWarnings("unchecked")
