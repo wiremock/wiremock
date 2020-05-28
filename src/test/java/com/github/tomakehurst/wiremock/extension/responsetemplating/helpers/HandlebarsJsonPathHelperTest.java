@@ -42,13 +42,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsJsonPathHelper helper;
-    private ResponseTemplateTransformer transformer;
 
     @Before
     public void init() {
         helper = new HandlebarsJsonPathHelper();
-        transformer = new ResponseTemplateTransformer(true);
-
         LocalNotifier.set(new ConsoleNotifier(true));
     }
 
@@ -99,8 +96,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                     "    ]\n" +
                     "}"),
             aResponse()
-                .withBody("" +
-                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
+                .withBody("{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
                 .build(),
             noFileSource(),
             Parameters.empty());

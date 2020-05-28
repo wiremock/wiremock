@@ -19,22 +19,8 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.io.StringReader;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static javax.xml.xpath.XPathConstants.NODE;
 
 /**
  * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for response
@@ -62,30 +48,29 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         }
 
         try {
-            XmlNode xmlNode = getXmlNode(getXPathPrefix() + xPathInput, xmlDocument, options);
+            ListOrSingle<XmlNode> xmlNodes = getXmlNodes(getXPathPrefix() + xPathInput, xmlDocument, options);
 
-            if (xmlNode == null) {
+            if (xmlNodes == null || xmlNodes.isEmpty()) {
                 return "";
             }
 
-            return xmlNode.toString();
+            return xmlNodes;
         } catch (XPathException e) {
             return handleError(xPathInput + " is not a valid XPath expression", e);
         }
     }
 
-    private XmlNode getXmlNode(String xPathExpression, XmlDocument doc, Options options) {
+    private ListOrSingle<XmlNode> getXmlNodes(String xPathExpression, XmlDocument doc, Options options) {
         RenderCache renderCache = getRenderCache(options);
         RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
-        XmlNode node = renderCache.get(cacheKey);
+        ListOrSingle<XmlNode> nodes = renderCache.get(cacheKey);
 
-        if (node == null) {
-            ListOrSingle<XmlNode> nodes = doc.findNodes(xPathExpression);
-            node = nodes.isEmpty() ? null : nodes.getFirst();
-            renderCache.put(cacheKey, node);
+        if (nodes == null) {
+            nodes = doc.findNodes(xPathExpression);
+            renderCache.put(cacheKey, nodes);
         }
 
-        return node;
+        return nodes;
     }
 
     private XmlDocument getXmlDocument(String xml, Options options) {
