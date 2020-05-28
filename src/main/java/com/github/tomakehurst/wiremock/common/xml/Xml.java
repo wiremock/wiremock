@@ -129,7 +129,7 @@ public class Xml {
         }
     }
 
-    public static String render(Node node) {
+    private static String render(Node node) {
         try {
             StringWriter sw = new StringWriter();
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -142,7 +142,16 @@ public class Xml {
         }
     }
 
-    public static DocumentBuilder getDocumentBuilder() {
+    public static XmlDocument parse(String xml) {
+        try {
+            InputSource source = new InputSource(new StringReader(xml));
+            return new XmlDocument(getDocumentBuilder().parse(source));
+        } catch (SAXException | IOException e) {
+            throw new XmlException(Errors.single(50, e.getMessage()));
+        }
+    }
+
+    private static DocumentBuilder getDocumentBuilder() {
         try {
             return newDocumentBuilderFactory().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -152,15 +161,6 @@ public class Xml {
 
     public static DocumentBuilderFactory newDocumentBuilderFactory() {
         return new SkipResolvingEntitiesDocumentBuilderFactory();
-    }
-
-    public static XmlDocument parse(String xml) {
-        try {
-            InputSource source = new InputSource(new StringReader(xml));
-            return new XmlDocument(getDocumentBuilder().parse(source));
-        } catch (SAXException | IOException e) {
-            throw new XmlException(Errors.single(50, e.getMessage()));
-        }
     }
 
     private static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
