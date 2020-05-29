@@ -815,7 +815,10 @@ JSON:
 }
 ```
 
-The above example will only work with non-namespaced XML. If you need to match a namespaced document with  it is necessary to declare the namespaces:
+The above example will select elements based on their local name if used with a namespaced XML document.
+
+If you need to be able to select elements based on their namespace in addition to their name you can declare the prefix
+to namespace URI mappings and use them in your XPath expression:
 
 Java:
 
