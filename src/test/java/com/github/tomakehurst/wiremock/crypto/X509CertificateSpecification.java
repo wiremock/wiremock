@@ -2,7 +2,9 @@ package com.github.tomakehurst.wiremock.crypto;
 
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
+import sun.security.x509.CertificateIssuerName;
 import sun.security.x509.CertificateSerialNumber;
+import sun.security.x509.CertificateSubjectName;
 import sun.security.x509.CertificateValidity;
 import sun.security.x509.CertificateX509Key;
 import sun.security.x509.X500Name;
@@ -27,9 +29,9 @@ import static java.util.Objects.requireNonNull;
 public class X509CertificateSpecification implements CertificateSpecification {
 
     private final X509CertificateVersion version;
-    private final String subject;
-    private final String issuer;
-    // java.time is JDK8 on
+    private final X500Name subject;
+    private final X500Name issuer;
+    // java.time is JDK8 only
     private final Date notBefore;
     private final Date notAfter;
 
@@ -39,10 +41,10 @@ public class X509CertificateSpecification implements CertificateSpecification {
         String issuer,
         Date notBefore,
         Date notAfter
-    ) {
+    ) throws IOException {
         this.version = requireNonNull(version);
-        this.subject = requireNonNull(subject);
-        this.issuer = requireNonNull(issuer);
+        this.subject = new X500Name(requireNonNull(subject));
+        this.issuer = new X500Name(requireNonNull(issuer));
         this.notBefore = requireNonNull(notBefore);
         this.notAfter = requireNonNull(notAfter);
     }
@@ -54,8 +56,23 @@ public class X509CertificateSpecification implements CertificateSpecification {
 
             X509CertInfo info = new X509CertInfo();
             info.set(X509CertInfo.VERSION, version.getVersion());
-            info.set(X509CertInfo.SUBJECT, new X500Name(subject));
-            info.set(X509CertInfo.ISSUER, new X500Name(issuer));
+
+            // On Java <= 1.7 it has to be a `CertificateSubjectName`
+            // On Java >= 1.8 it has to be an `X500Name`
+            try {
+                info.set(X509CertInfo.SUBJECT, subject);
+            } catch (CertificateException ignore) {
+                info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(subject));
+            }
+
+            // On Java <= 1.7 it has to be a `CertificateIssuerName`
+            // On Java >= 1.8 it has to be an `X500Name`
+            try {
+                info.set(X509CertInfo.ISSUER, issuer);
+            } catch (CertificateException ignore) {
+                info.set(X509CertInfo.ISSUER, new CertificateIssuerName(issuer));
+            }
+
             info.set(X509CertInfo.VALIDITY, new CertificateValidity(notBefore, notAfter));
 
             info.set(X509CertInfo.KEY, new CertificateX509Key(keyPair.getPublic()));
