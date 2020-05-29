@@ -132,6 +132,11 @@ stubFor(get(urlEqualTo("/users/12345.json"))
   .withStatus(503)));
 ```
 
+wiremock-jre8 allows forward proxying, stubbing & recording of HTTPS traffic. By default, this will verify the origin certificates; this behaviour can be turned to trusting all as follows:
+```bash
+$ java -jar wiremock-jre8-standalone-{{ site.wiremock_version }}.jar --enable-browser-proxying --trust-all
+```
+
 ## Proxying via another proxy server
 
 If you're inside a network that only permits HTTP traffic out to the
