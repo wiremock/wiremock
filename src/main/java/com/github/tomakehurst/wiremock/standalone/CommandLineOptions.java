@@ -96,6 +96,7 @@ public class CommandLineOptions implements Options {
     private static final String DISABLE_GZIP = "disable-gzip";
     private static final String DISABLE_REQUEST_LOGGING = "disable-request-logging";
     private static final String ENABLE_STUB_CORS = "enable-stub-cors";
+    private static final String TRUST_ALL = "trust-all";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -146,6 +147,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
         optionParser.accepts(DISABLE_REQUEST_LOGGING, "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
         optionParser.accepts(ENABLE_STUB_CORS, "Enable automatic sending of CORS headers with stub responses.");
+        optionParser.accepts(TRUST_ALL, "Trust all certificates presented by origins when browser proxying");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -557,6 +559,11 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getStubCorsEnabled() {
         return optionSet.has(ENABLE_STUB_CORS);
+    }
+
+    @Override
+    public boolean trustAll() {
+        return optionSet.has(TRUST_ALL);
     }
 
     private Long getMaxTemplateCacheEntries() {

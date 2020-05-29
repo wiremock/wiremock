@@ -98,6 +98,7 @@ public class WireMockConfiguration implements Options {
     private String permittedSystemKeys = null;
 
     private boolean stubCorsEnabled = false;
+    private boolean trustAll = false;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -362,6 +363,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration trustAll(boolean enabled) {
+        this.trustAll = enabled;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -520,5 +526,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getStubCorsEnabled() {
         return stubCorsEnabled;
+    }
+
+    @Override
+    public boolean trustAll() {
+        return trustAll;
     }
 }

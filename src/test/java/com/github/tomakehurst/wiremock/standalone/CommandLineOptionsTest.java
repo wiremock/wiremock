@@ -481,6 +481,18 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void trustsAll() {
+        CommandLineOptions options = new CommandLineOptions("--trust-all");
+        assertThat(options.trustAll(), is(true));
+    }
+
+    @Test
+    public void defaultsToNotTrustingAll() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.trustAll(), is(false));
+    }
+
+    @Test
     public void printsBothActualPortsOnlyWhenHttpsEnabled() {
 	    CommandLineOptions options = new CommandLineOptions();
 	    options.setActualHttpPort(5432);
