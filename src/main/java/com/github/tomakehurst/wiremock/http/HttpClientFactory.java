@@ -26,6 +26,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -55,7 +56,8 @@ public class HttpClientFactory {
             int maxConnections,
             int timeoutMilliseconds,
             ProxySettings proxySettings,
-            KeyStoreSettings trustStoreSettings) {
+            KeyStoreSettings trustStoreSettings,
+            boolean trustSelfSignedCertificates) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -83,21 +85,32 @@ public class HttpClientFactory {
         }
 
         if (trustStoreSettings != NO_STORE) {
-            builder.setSslcontext(buildSSLContextWithTrustStore(trustStoreSettings));
-        } else {
+            builder.setSslcontext(buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates));
+        } else if (trustSelfSignedCertificates) {
             builder.setSslcontext(buildAllowAnythingSSLContext());
         }
 
         return builder.build();
 	}
 
-    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings) {
+    public static CloseableHttpClient createClient(
+            int maxConnections,
+            int timeoutMilliseconds,
+            ProxySettings proxySettings,
+            KeyStoreSettings trustStoreSettings) {
+        return createClient(maxConnections, timeoutMilliseconds, proxySettings, trustStoreSettings, true);
+    }
+
+    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, boolean trustSelfSignedCertificates) {
         try {
             KeyStore trustStore = trustStoreSettings.loadStore();
-            return SSLContexts.custom()
-                    .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom()
                     .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
-                    .useTLS()
+                    .useTLS();
+            if (trustSelfSignedCertificates) {
+                sslContextBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+            }
+            return sslContextBuilder
                     .build();
         } catch (Exception e) {
             return throwUnchecked(e, SSLContext.class);

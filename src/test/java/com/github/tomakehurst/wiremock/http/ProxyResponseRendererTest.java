@@ -10,11 +10,11 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -26,6 +26,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -38,13 +40,7 @@ public class ProxyResponseRendererTest {
             .keystorePath(generateKeystore().getAbsolutePath())
     );
 
-    private final ProxyResponseRenderer proxyResponseRenderer = new ProxyResponseRenderer(
-            ProxySettings.NO_PROXY,
-            KeyStoreSettings.NO_STORE,
-            /* preserveHostHeader = */ false,
-            /* hostHeaderValue = */ null,
-            new GlobalSettingsHolder()
-    );
+    private final ProxyResponseRenderer proxyResponseRenderer = buildProxyResponseRenderer(false);
 
     @Test
     public void acceptsAnyCertificateForStandardProxying() {
@@ -58,21 +54,35 @@ public class ProxyResponseRendererTest {
         assertEquals(response.getBodyAsString(), "Result");
     }
 
-    @Test @Ignore("Not yet implemented")
+    @Test
     public void rejectsSelfSignedCertificateForReverseProxying() {
 
         origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
         final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
-        Exception e = assertThrows(Exception.class, new ThrowingRunnable() {
+        SSLHandshakeException e = assertThrows(SSLHandshakeException.class, new ThrowingRunnable() {
             @Override
             public void run() {
                 proxyResponseRenderer.render(serveEvent);
             }
         });
 
-        assertEquals("", e.getMessage());
+        assertThat(e.getMessage(), containsString("unable to find valid certification path to requested target"));
+    }
+
+    @Test
+    public void acceptsSelfSignedCertificateForReverseProxyingIfTrustAll() {
+
+        final ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
+
+        origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
+
+        final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+
+        Response response = trustAllProxyResponseRenderer.render(serveEvent);
+
+        assertEquals(response.getBodyAsString(), "Result");
     }
 
     private ServeEvent reverseProxyServeEvent(String path) {
@@ -129,6 +139,17 @@ public class ProxyResponseRendererTest {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(1024);
         return keyGen.generateKeyPair();
+    }
+
+    private ProxyResponseRenderer buildProxyResponseRenderer(boolean trustAll) {
+        return new ProxyResponseRenderer(
+                ProxySettings.NO_PROXY,
+                KeyStoreSettings.NO_STORE,
+                /* preserveHostHeader = */ false,
+                /* hostHeaderValue = */ null,
+                new GlobalSettingsHolder(),
+                trustAll
+        );
     }
 
     // Just exists to make the compiler happy by having the throws clause
