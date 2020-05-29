@@ -321,6 +321,32 @@ The following will render "success" in the output:
 {% endraw %}
 
 
+### Using the output of `xPath` in other helpers
+
+Since version 2.27.0 the XPath helper returns collections of node objects rather than a single string, meaning that the result
+can be used in further helpers.
+
+The returned node objects have the following properties:
+
+`name` - the local XML element name.
+
+`text` - the text content of the element.
+
+`attributes` - a map of the element's attributes (name: value)
+
+Referring to the node itself will cause it to be printed.
+
+
+A common use case for returned node objects is to iterate over the collection with the `each` helper:
+
+{% raw %}
+```
+{{#each (xPath request.body '/things/item') as |node|}}
+  name: {{node.name}}, text: {{node.text}}, ID attribute: {{node.attributes.id}}
+{{/each}}
+```
+{% endraw %}
+
 ## JSONPath helper
 It is similarly possible to extract JSON values or sub documents via JSONPath using the `jsonPath` helper. Given the JSON
 
