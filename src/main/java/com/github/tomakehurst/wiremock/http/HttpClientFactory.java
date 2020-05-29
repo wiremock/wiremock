@@ -20,24 +20,21 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthenticationStrategy;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -69,7 +66,7 @@ public class HttpClientFactory {
                 .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
                 .useSystemProperties()
-                .setHostnameVerifier(new AllowAllHostnameVerifier());
+                .setSSLHostnameVerifier(new NoopHostnameVerifier());
 
         if (proxySettings != NO_PROXY) {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
@@ -85,9 +82,9 @@ public class HttpClientFactory {
         }
 
         if (trustStoreSettings != NO_STORE) {
-            builder.setSslcontext(buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates));
+            builder.setSSLContext(buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates));
         } else if (trustSelfSignedCertificates) {
-            builder.setSslcontext(buildAllowAnythingSSLContext());
+            builder.setSSLContext(buildAllowAnythingSSLContext());
         }
 
         return builder.build();
@@ -106,7 +103,7 @@ public class HttpClientFactory {
             KeyStore trustStore = trustStoreSettings.loadStore();
             SSLContextBuilder sslContextBuilder = SSLContexts.custom()
                     .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
-                    .useTLS();
+                    .setProtocol("TLS");
             if (trustSelfSignedCertificates) {
                 sslContextBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
             }
@@ -121,7 +118,7 @@ public class HttpClientFactory {
         try {
             return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
                 @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                public boolean isTrusted(X509Certificate[] chain, String authType) {
                     return true;
                 }
             }).build();
