@@ -86,7 +86,7 @@ public class DiffTest {
         assertThat(diff.toString(), is(
             junitStyleDiffMessage(
                 "ANY\n" +
-                "/expected/.*\n",
+                "[path regex] /expected/.*\n",
 
                 "ANY\n" +
                 "/actual\n")
