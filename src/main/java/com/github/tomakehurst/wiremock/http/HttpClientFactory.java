@@ -36,6 +36,8 @@ import org.apache.http.ssl.SSLContexts;
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
@@ -54,7 +56,8 @@ public class HttpClientFactory {
             int timeoutMilliseconds,
             ProxySettings proxySettings,
             KeyStoreSettings trustStoreSettings,
-            boolean trustSelfSignedCertificates) {
+            boolean trustSelfSignedCertificates,
+            final List<String> trustedHosts) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -95,7 +98,7 @@ public class HttpClientFactory {
             int timeoutMilliseconds,
             ProxySettings proxySettings,
             KeyStoreSettings trustStoreSettings) {
-        return createClient(maxConnections, timeoutMilliseconds, proxySettings, trustStoreSettings, true);
+        return createClient(maxConnections, timeoutMilliseconds, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
     }
 
     private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, boolean trustSelfSignedCertificates) {

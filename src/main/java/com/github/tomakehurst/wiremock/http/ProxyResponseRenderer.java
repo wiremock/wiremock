@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,8 +73,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     ) {
         this.globalSettingsHolder = globalSettingsHolder;
         this.trustAllProxyTargets = trustAllProxyTargets;
-        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true);
-        scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false);
+        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
+        scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false, Collections.<String>emptyList());
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
