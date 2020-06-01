@@ -55,7 +55,7 @@ public class ProxyResponseRendererTest {
     }
 
     @Test
-    public void rejectsSelfSignedCertificateForReverseProxying() {
+    public void rejectsSelfSignedCertificateForForwardProxyingByDefault() {
 
         origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
@@ -72,7 +72,7 @@ public class ProxyResponseRendererTest {
     }
 
     @Test
-    public void acceptsSelfSignedCertificateForReverseProxyingIfTrustAllProxyTargets() {
+    public void acceptsSelfSignedCertificateForForwardProxyingIfTrustAllProxyTargets() {
 
         final ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
 
