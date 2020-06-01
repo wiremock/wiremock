@@ -116,7 +116,7 @@ The body file for a response can be selected dynamically by templating the file 
 ```java
 wm.stubFor(get(urlPathMatching("/static/.*"))
   .willReturn(ok()
-    .withBodyFile("files/{{request.requestLine.pathSegments.[1]}}")));
+    .withBodyFile("files/{{request.pathSegments.[1]}}")));
 
 ```
 {% endraw %}
@@ -132,7 +132,7 @@ wm.stubFor(get(urlPathMatching("/static/.*"))
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "files/{{request.requestLine.pathSegments.[1]}}"
+    "bodyFileName" : "files/{{request.pathSegments.[1]}}"
   }
 }
 ```
@@ -143,23 +143,23 @@ The model of the request is supplied to the header and body templates. The follo
  
 `request.url` - URL path and query
 
-`request.requestLine.path` - URL path
+`request.path` - URL path
 
-`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.requestLine.pathSegments.[2]`
+`request.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.pathSegments.[2]`
 
-`request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
+`request.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
-`request.requestLine.query.<key>.[<n>]`- nth value of a query parameter (zero indexed) e.g. `request.query.search.[5]`
+`request.query.<key>.[<n>]`- nth value of a query parameter (zero indexed) e.g. `request.query.search.[5]`
 
-`request.requestLine.method`- request method e.g. `POST`
+`request.method`- request method e.g. `POST`
 
-`request.requestLine.host`- hostname part of the URL e.g. `my.example.com`
+`request.host`- hostname part of the URL e.g. `my.example.com`
 
-`request.requestLine.port`- port number e.g. `8080`
+`request.port`- port number e.g. `8080`
 
-`request.requestLine.scheme`- protocol part of the URL e.g. `https`
+`request.scheme`- protocol part of the URL e.g. `https`
 
-`request.requestLine.baseUrl`- URL up to the start of the path e.g. `https://my.example.com:8080`
+`request.baseUrl`- URL up to the start of the path e.g. `https://my.example.com:8080`
  
 `request.headers.<key>`- First value of a request header e.g. `request.headers.X-Request-Id`
  
