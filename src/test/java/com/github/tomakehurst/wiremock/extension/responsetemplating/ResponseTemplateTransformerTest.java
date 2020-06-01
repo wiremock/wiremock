@@ -466,7 +466,24 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path: {{{request.requestLine.path}}}"
+                "path: {{{request.path}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path: /the/entire/path"
+        ));
+    }
+
+    @Test
+    public void requestLineUrl() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path: {{{request.url}}}"
             )
         );
 
@@ -483,7 +500,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -500,7 +517,7 @@ public class ResponseTemplateTransformerTest {
                 .port(80)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -517,7 +534,7 @@ public class ResponseTemplateTransformerTest {
                 .port(443)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -534,7 +551,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path segments: {{{request.requestLine.pathSegments}}}"
+                "path segments: {{{request.pathSegments}}}"
             )
         );
 
@@ -551,7 +568,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path segments 0: {{{request.requestLine.pathSegments.[0]}}}"
+                "path segments 0: {{{request.pathSegments.[0]}}}"
             )
         );
 
@@ -565,7 +582,7 @@ public class ResponseTemplateTransformerTest {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things?multi_param=one&multi_param=two&single-param=1234"),
             aResponse().withBody(
-                "Multi 1: {{request.requestLine.query.multi_param.[0]}}, Multi 2: {{request.requestLine.query.multi_param.[1]}}, Single 1: {{request.requestLine.query.single-param}}"
+                "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"
             )
         );
 
