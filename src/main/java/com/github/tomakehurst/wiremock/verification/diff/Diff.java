@@ -21,6 +21,9 @@ import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.net.URI;
@@ -31,6 +34,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.Arrays.asList;
 
 public class Diff {
 
@@ -66,9 +70,10 @@ public class Diff {
         builder.add(methodSection);
 
         UrlPattern urlPattern = firstNonNull(requestPattern.getUrlMatcher(), anyUrl());
+        String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
         DiffLine<String> urlSection = new DiffLine<>("URL", urlPattern,
             request.getUrl(),
-            urlPattern.getExpected());
+            printedUrlPattern);
         builder.add(urlSection);
 
         builder.add(SPACER);
@@ -207,6 +212,17 @@ public class Diff {
                 }
             }
         }
+    }
+
+    private String generatePrintedUrlPattern(UrlPattern urlPattern) {
+        String matchPart = (urlPattern instanceof UrlPathPattern ? "path" : "") +
+                (urlPattern.isRegex() ? " regex" : "");
+
+        matchPart = matchPart.trim();
+
+        return matchPart.isEmpty() ?
+                urlPattern.getExpected() :
+                "[" + matchPart + "] " + urlPattern.getExpected();
     }
 
     private String generateOperatorString(ContentPattern<?> pattern, String defaultValue) {
