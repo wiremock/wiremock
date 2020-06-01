@@ -25,7 +25,7 @@
  *
  */
 
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.http.ssl;
 
 import org.apache.http.ssl.PrivateKeyDetails;
 import org.apache.http.ssl.PrivateKeyStrategy;

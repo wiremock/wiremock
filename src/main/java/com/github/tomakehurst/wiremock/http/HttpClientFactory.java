@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
