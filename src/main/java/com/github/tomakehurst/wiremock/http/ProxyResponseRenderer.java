@@ -60,7 +60,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
     private final GlobalSettingsHolder globalSettingsHolder;
-    private final boolean trustAll;
+    private final boolean trustAllProxyTargets;
 
     public ProxyResponseRenderer(
         ProxySettings proxySettings,
@@ -68,10 +68,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         boolean preserveHostHeader,
         String hostHeaderValue,
         GlobalSettingsHolder globalSettingsHolder,
-        boolean trustAll
+        boolean trustAllProxyTargets
     ) {
         this.globalSettingsHolder = globalSettingsHolder;
-        this.trustAll = trustAll;
+        this.trustAllProxyTargets = trustAllProxyTargets;
         client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true);
         scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false);
 
@@ -109,7 +109,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	}
 
     private HttpClient buildClient(boolean browserProxyRequest) {
-	    if (browserProxyRequest && !trustAll) {
+	    if (browserProxyRequest && !trustAllProxyTargets) {
             return scepticalClient;
         } else {
             return this.client;

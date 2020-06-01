@@ -72,7 +72,7 @@ public class ProxyResponseRendererTest {
     }
 
     @Test
-    public void acceptsSelfSignedCertificateForReverseProxyingIfTrustAll() {
+    public void acceptsSelfSignedCertificateForReverseProxyingIfTrustAllProxyTargets() {
 
         final ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
 
@@ -141,14 +141,14 @@ public class ProxyResponseRendererTest {
         return keyGen.generateKeyPair();
     }
 
-    private ProxyResponseRenderer buildProxyResponseRenderer(boolean trustAll) {
+    private ProxyResponseRenderer buildProxyResponseRenderer(boolean trustAllProxyTargets) {
         return new ProxyResponseRenderer(
                 ProxySettings.NO_PROXY,
                 KeyStoreSettings.NO_STORE,
                 /* preserveHostHeader = */ false,
                 /* hostHeaderValue = */ null,
                 new GlobalSettingsHolder(),
-                trustAll
+                trustAllProxyTargets
         );
     }
 

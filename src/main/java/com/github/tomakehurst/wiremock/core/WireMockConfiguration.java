@@ -98,7 +98,7 @@ public class WireMockConfiguration implements Options {
     private String permittedSystemKeys = null;
 
     private boolean stubCorsEnabled = false;
-    private boolean trustAll = false;
+    private boolean trustAllProxyTargets = false;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -363,8 +363,8 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration trustAll(boolean enabled) {
-        this.trustAll = enabled;
+    public WireMockConfiguration trustAllProxyTargets(boolean enabled) {
+        this.trustAllProxyTargets = enabled;
         return this;
     }
 
@@ -529,7 +529,7 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public boolean trustAll() {
-        return trustAll;
+    public boolean trustAllProxyTargets() {
+        return trustAllProxyTargets;
     }
 }

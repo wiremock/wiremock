@@ -86,7 +86,7 @@ e.g. `--proxy-via http://username:password@webproxy.mycorp.com:8080/`.
 `--enable-browser-proxying`: Run as a browser proxy. See
 browser-proxying.
 
-`--trust-all`: Trust all remote certificates when running as a browser proxy and
+`--trust-all-proxy-targets`: Trust all remote certificates when running as a browser proxy and
 proxying HTTPS traffic.
 
 `--no-request-journal`: Disable the request journal, which records

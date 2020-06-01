@@ -198,7 +198,7 @@ public class WarConfiguration implements Options {
     }
 
     @Override
-    public boolean trustAll() {
+    public boolean trustAllProxyTargets() {
         return false;
     }
 }
