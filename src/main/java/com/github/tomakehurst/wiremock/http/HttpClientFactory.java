@@ -30,8 +30,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
 
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
@@ -104,7 +102,7 @@ public class HttpClientFactory {
     private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, boolean trustSelfSignedCertificates) {
         try {
             KeyStore trustStore = trustStoreSettings.loadStore();
-            SSLContextBuilder sslContextBuilder = SSLContexts.custom()
+            SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
                     .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
                     .setProtocol("TLS");
             if (trustSelfSignedCertificates) {
@@ -119,7 +117,7 @@ public class HttpClientFactory {
 
     private static SSLContext buildAllowAnythingSSLContext() {
         try {
-            return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
+            return SSLContextBuilder.create().loadTrustMaterial(null, new TrustStrategy() {
                 @Override
                 public boolean isTrusted(X509Certificate[] chain, String authType) {
                     return true;
