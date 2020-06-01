@@ -69,7 +69,7 @@ public class HttpsBrowserProxyAcceptanceTest {
                 .dynamicHttpsPort()
                 .fileSource(new SingleRootFileSource(setupTempFileRoot()))
                 .enableBrowserProxying(true)
-                .trustAll(true)
+                .trustAllProxyTargets(true)
         );
         proxy.start();
     }

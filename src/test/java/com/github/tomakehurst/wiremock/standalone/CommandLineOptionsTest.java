@@ -33,12 +33,9 @@ import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
-import static java.util.regex.Pattern.DOTALL;
-import static java.util.regex.Pattern.MULTILINE;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -482,14 +479,14 @@ public class CommandLineOptionsTest {
 
     @Test
     public void trustsAll() {
-        CommandLineOptions options = new CommandLineOptions("--trust-all");
-        assertThat(options.trustAll(), is(true));
+        CommandLineOptions options = new CommandLineOptions("--trust-all-proxy-targets");
+        assertThat(options.trustAllProxyTargets(), is(true));
     }
 
     @Test
     public void defaultsToNotTrustingAll() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.trustAll(), is(false));
+        assertThat(options.trustAllProxyTargets(), is(false));
     }
 
     @Test

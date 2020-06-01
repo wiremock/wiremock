@@ -73,5 +73,5 @@ public interface Options {
     boolean getGzipDisabled();
     boolean getStubRequestLoggingDisabled();
     boolean getStubCorsEnabled();
-    boolean trustAll();
+    boolean trustAllProxyTargets();
 }
