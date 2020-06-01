@@ -35,6 +35,7 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
@@ -55,13 +56,24 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     );
 
     private final HttpClient client;
+    private final HttpClient scepticalClient;
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
     private final GlobalSettingsHolder globalSettingsHolder;
-	
-	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue, GlobalSettingsHolder globalSettingsHolder) {
+    private final boolean trustAllProxyTargets;
+
+    public ProxyResponseRenderer(
+        ProxySettings proxySettings,
+        KeyStoreSettings trustStoreSettings,
+        boolean preserveHostHeader,
+        String hostHeaderValue,
+        GlobalSettingsHolder globalSettingsHolder,
+        boolean trustAllProxyTargets
+    ) {
         this.globalSettingsHolder = globalSettingsHolder;
-        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
+        this.trustAllProxyTargets = trustAllProxyTargets;
+        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true);
+        scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
@@ -75,7 +87,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
 		try {
 			addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
-			HttpResponse httpResponse = client.execute(httpRequest);
+            HttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
+            HttpResponse httpResponse = client.execute(httpRequest);
 
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
@@ -91,9 +104,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                     .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
                     .build();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			return throwUnchecked(e, null);
 		}
 	}
+
+    private HttpClient buildClient(boolean browserProxyRequest) {
+	    if (browserProxyRequest && !trustAllProxyTargets) {
+            return scepticalClient;
+        } else {
+            return this.client;
+        }
+    }
 
     private HttpHeaders headersFrom(HttpResponse httpResponse, ResponseDefinition responseDefinition) {
 	    List<HttpHeader> httpHeaders = new LinkedList<HttpHeader>();
