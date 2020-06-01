@@ -22,6 +22,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
@@ -60,6 +61,7 @@ public class EqualToXmlPattern extends MemoizingStringValuePattern {
     private final String placeholderClosingDelimiterRegex;
     private final DifferenceEvaluator diffEvaluator;
     private final Set<ComparisonType> exemptedComparisons;
+    private final Document expectedXmlDoc;
 
     public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
         this(expectedValue, null, null, null, null);
@@ -72,7 +74,7 @@ public class EqualToXmlPattern extends MemoizingStringValuePattern {
                              @JsonProperty("exemptedComparisons") Set<ComparisonType> exemptedComparisons) {
 
         super(expectedValue);
-        Xml.read(expectedValue); // Throw an exception if we can't parse the document
+        expectedXmlDoc = Xml.read(expectedValue); // Throw an exception if we can't parse the document
         this.enablePlaceholders = enablePlaceholders;
         this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
         this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
@@ -121,7 +123,7 @@ public class EqualToXmlPattern extends MemoizingStringValuePattern {
                     return false;
                 }
                 try {
-                    Diff diff = DiffBuilder.compare(Input.from(expectedValue))
+                    Diff diff = DiffBuilder.compare(Input.from(expectedXmlDoc))
                             .withTest(value)
                             .withComparisonController(ComparisonControllers.StopWhenDifferent)
                             .ignoreWhitespace()
