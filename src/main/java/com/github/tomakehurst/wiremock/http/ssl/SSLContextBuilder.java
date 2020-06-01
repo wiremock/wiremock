@@ -27,6 +27,8 @@
 
 package com.github.tomakehurst.wiremock.http.ssl;
 
+import com.github.tomakehurst.wiremock.common.ListFunctions;
+import com.github.tomakehurst.wiremock.common.Pair;
 import org.apache.http.ssl.PrivateKeyDetails;
 import org.apache.http.ssl.PrivateKeyStrategy;
 import org.apache.http.ssl.TrustStrategy;
@@ -61,9 +63,12 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.ArrayFunctions.concat;
+import static com.github.tomakehurst.wiremock.common.ListFunctions.splitByType;
 import static java.util.Collections.addAll;
 
 /**
@@ -193,25 +198,50 @@ public class SSLContextBuilder {
     }
 
     public SSLContextBuilder loadTrustMaterial(
-            final KeyStore truststore,
-            final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException {
-        final TrustManagerFactory tmfactory = TrustManagerFactory
-                .getInstance(trustManagerFactoryAlgorithm == null ? TrustManagerFactory.getDefaultAlgorithm()
-                        : trustManagerFactoryAlgorithm);
-        tmfactory.init(truststore);
-        final TrustManager[] tms = tmfactory.getTrustManagers();
-        if (tms != null) {
-            if (trustStrategy != null) {
-                for (int i = 0; i < tms.length; i++) {
-                    final TrustManager tm = tms[i];
-                    if (tm instanceof X509TrustManager) {
-                        tms[i] = new TrustManagerDelegate((X509TrustManager) tm, trustStrategy);
-                    }
-                }
-            }
-            addAll(this.trustManagers, tms);
+        final KeyStore truststore,
+        final TrustStrategy trustStrategy
+    ) throws NoSuchAlgorithmException, KeyStoreException {
+
+        String algorithm = trustManagerFactoryAlgorithm == null ? TrustManagerFactory.getDefaultAlgorithm() : trustManagerFactoryAlgorithm;
+        TrustManager[] tms = loadTrustManagers(truststore, algorithm);
+        TrustManager[] allTms = truststore == null ? tms : concat(tms, loadDefaultTrustManagers());
+        TrustManager[] tmsWithStrategy = trustStrategy == null ? allTms : addStrategy(allTms, trustStrategy);
+
+        Pair<List<TrustManager>, List<X509TrustManager>> split = splitByType(tmsWithStrategy, X509TrustManager.class);
+        List<TrustManager> otherTms = split.a;
+        List<X509TrustManager> x509Tms = split.b;
+        if (!x509Tms.isEmpty()) {
+            this.trustManagers.add(new CompositeTrustManager(x509Tms));
         }
+        this.trustManagers.addAll(otherTms);
         return this;
+    }
+
+    private TrustManager[] loadTrustManagers(KeyStore truststore, String algorithm) throws NoSuchAlgorithmException, KeyStoreException {
+        final TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(algorithm);
+        tmfactory.init(truststore);
+        TrustManager[] tms = tmfactory.getTrustManagers();
+        return tms == null ? new TrustManager[0] : tms;
+    }
+
+    private TrustManager[] loadDefaultTrustManagers() throws KeyStoreException, NoSuchAlgorithmException {
+        return loadTrustManagers(null, TrustManagerFactory.getDefaultAlgorithm());
+    }
+
+    private TrustManager[] addStrategy(TrustManager[] allTms, TrustStrategy trustStrategy) {
+        TrustManager[] withStrategy = new TrustManager[allTms.length];
+        for (int i = 0; i < allTms.length; i++) {
+            withStrategy[i] = addStrategy(allTms[i], trustStrategy);
+        }
+        return withStrategy;
+    }
+
+    private TrustManager addStrategy(TrustManager tm, TrustStrategy trustStrategy) {
+        if (tm instanceof X509TrustManager) {
+            return new TrustManagerDelegate((X509TrustManager) tm, trustStrategy);
+        } else {
+            return tm;
+        }
     }
 
     public SSLContextBuilder loadTrustMaterial(
