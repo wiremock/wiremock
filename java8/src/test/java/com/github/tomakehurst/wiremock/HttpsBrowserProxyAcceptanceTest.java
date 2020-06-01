@@ -43,7 +43,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class Http2BrowserProxyAcceptanceTest {
+public class HttpsBrowserProxyAcceptanceTest {
 
     private static final String CERTIFICATE_NOT_TRUSTED_BY_TEST_CLIENT = TestFiles.KEY_STORE_PATH;
 
@@ -68,7 +68,9 @@ public class Http2BrowserProxyAcceptanceTest {
                 .dynamicPort()
                 .dynamicHttpsPort()
                 .fileSource(new SingleRootFileSource(setupTempFileRoot()))
-                .enableBrowserProxying(true));
+                .enableBrowserProxying(true)
+                .trustAllProxyTargets(true)
+        );
         proxy.start();
     }
 

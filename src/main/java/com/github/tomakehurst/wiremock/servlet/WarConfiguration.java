@@ -196,4 +196,9 @@ public class WarConfiguration implements Options {
     public boolean getStubCorsEnabled() {
         return false;
     }
+
+    @Override
+    public boolean trustAllProxyTargets() {
+        return false;
+    }
 }
