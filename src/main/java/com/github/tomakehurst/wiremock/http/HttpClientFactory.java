@@ -23,6 +23,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -31,10 +32,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -66,8 +73,10 @@ public class HttpClientFactory {
                 .setMaxConnTotal(maxConnections)
                 .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
-                .useSystemProperties()
-                .setSSLHostnameVerifier(new NoopHostnameVerifier());
+                .useSystemProperties();
+
+        HostnameVerifier hostnameVerifier = buildHostnameVerifier(trustSelfSignedCertificates, trustedHosts);
+        builder.setSSLHostnameVerifier(hostnameVerifier);
 
         if (proxySettings != NO_PROXY) {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
@@ -91,6 +100,14 @@ public class HttpClientFactory {
         return builder.build();
 	}
 
+    private static HostnameVerifier buildHostnameVerifier(boolean trustSelfSignedCertificates, List<String> trustedHosts) {
+        if (trustSelfSignedCertificates) {
+            return new NoopHostnameVerifier();
+        } else {
+            return new ExtraHostsHostnameVerifier(trustedHosts);
+        }
+    }
+
     public static CloseableHttpClient createClient(
             int maxConnections,
             int timeoutMilliseconds,
@@ -107,12 +124,29 @@ public class HttpClientFactory {
                     .setProtocol("TLS");
             if (trustSelfSignedCertificates) {
                 sslContextBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+            } else if (containsCertificate(trustStore)) {
+                sslContextBuilder.loadTrustMaterial(trustStore, null);
             }
             return sslContextBuilder
                     .build();
         } catch (Exception e) {
             return throwUnchecked(e, SSLContext.class);
         }
+    }
+
+    private static boolean containsCertificate(KeyStore trustStore) throws KeyStoreException {
+        Enumeration<String> aliases = trustStore.aliases();
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+            try {
+                if (trustStore.getEntry(alias, null) instanceof KeyStore.TrustedCertificateEntry) {
+                    return true;
+                }
+            } catch (NoSuchAlgorithmException | UnrecoverableEntryException e) {
+                // ignore
+            }
+        }
+        return false;
     }
 
     private static SSLContext buildAllowAnythingSSLContext() {
@@ -165,5 +199,24 @@ public class HttpClientFactory {
             return new HttpPatch(url);
         else
             return new GenericHttpUriRequest(method.toString(), url);
+    }
+
+    private static class ExtraHostsHostnameVerifier implements HostnameVerifier {
+
+        private final List<String> trustedHosts;
+        private final DefaultHostnameVerifier defaultHostnameVerifier = new DefaultHostnameVerifier();
+
+        public ExtraHostsHostnameVerifier(List<String> trustedHosts) {
+            this.trustedHosts = trustedHosts;
+        }
+
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            if (trustedHosts.contains(hostname)) {
+                return true;
+            } else {
+                return defaultHostnameVerifier.verify(hostname, session);
+            }
+        }
     }
 }
