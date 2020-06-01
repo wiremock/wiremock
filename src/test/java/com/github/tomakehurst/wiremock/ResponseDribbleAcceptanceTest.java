@@ -40,6 +40,7 @@ public class ResponseDribbleAcceptanceTest {
     private static final int DOUBLE_THE_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 2;
 
     private static final byte[] BODY_BYTES = "the long sentence being sent".getBytes();
+    public static final double ERROR_MARGIN = 200.0;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(DYNAMIC_PORT, DYNAMIC_PORT);
@@ -69,7 +70,7 @@ public class ResponseDribbleAcceptanceTest {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
-        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 100.0));
+        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, ERROR_MARGIN));
     }
 
     @Test
