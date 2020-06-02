@@ -198,22 +198,31 @@ public class SSLContextBuilder {
     }
 
     public SSLContextBuilder loadTrustMaterial(
-        final KeyStore truststore,
-        final TrustStrategy trustStrategy
+        final KeyStore truststore
     ) throws NoSuchAlgorithmException, KeyStoreException {
 
         String algorithm = trustManagerFactoryAlgorithm == null ? TrustManagerFactory.getDefaultAlgorithm() : trustManagerFactoryAlgorithm;
         TrustManager[] tms = loadTrustManagers(truststore, algorithm);
-        TrustManager[] allTms = truststore == null ? tms : concat(tms, loadDefaultTrustManagers());
-        TrustManager[] tmsWithStrategy = trustStrategy == null ? allTms : addStrategy(allTms, trustStrategy);
+        TrustManager[] allTms = concat(tms, loadDefaultTrustManagers());
 
-        Pair<List<TrustManager>, List<X509TrustManager>> split = splitByType(tmsWithStrategy, X509TrustManager.class);
+        Pair<List<TrustManager>, List<X509TrustManager>> split = splitByType(allTms, X509TrustManager.class);
         List<TrustManager> otherTms = split.a;
         List<X509TrustManager> x509Tms = split.b;
         if (!x509Tms.isEmpty()) {
             this.trustManagers.add(new CompositeTrustManager(x509Tms));
         }
         this.trustManagers.addAll(otherTms);
+        return this;
+    }
+
+    public SSLContextBuilder loadTrustMaterial(
+        final TrustStrategy trustStrategy
+    ) throws NoSuchAlgorithmException, KeyStoreException {
+
+        TrustManager[] tms = loadTrustManagers(null, TrustManagerFactory.getDefaultAlgorithm());
+        TrustManager[] tmsWithStrategy = addStrategy(tms, trustStrategy);
+
+        addAll(this.trustManagers, tmsWithStrategy);
         return this;
     }
 
@@ -242,52 +251,6 @@ public class SSLContextBuilder {
         } else {
             return tm;
         }
-    }
-
-    public SSLContextBuilder loadTrustMaterial(
-            final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException {
-        return loadTrustMaterial(null, trustStrategy);
-    }
-
-    public SSLContextBuilder loadTrustMaterial(
-            final File file,
-            final char[] storePassword,
-            final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        Args.notNull(file, "Truststore file");
-        final KeyStore trustStore = KeyStore.getInstance(keyStoreType);
-        try (FileInputStream inStream = new FileInputStream(file)) {
-            trustStore.load(inStream, storePassword);
-        }
-        return loadTrustMaterial(trustStore, trustStrategy);
-    }
-
-    public SSLContextBuilder loadTrustMaterial(
-            final File file,
-            final char[] storePassword) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        return loadTrustMaterial(file, storePassword, null);
-    }
-
-    public SSLContextBuilder loadTrustMaterial(
-            final File file) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        return loadTrustMaterial(file, null);
-    }
-
-    public SSLContextBuilder loadTrustMaterial(
-            final URL url,
-            final char[] storePassword,
-            final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        Args.notNull(url, "Truststore URL");
-        final KeyStore trustStore = KeyStore.getInstance(keyStoreType);
-        try (InputStream inStream = url.openStream()) {
-            trustStore.load(inStream, storePassword);
-        }
-        return loadTrustMaterial(trustStore, trustStrategy);
-    }
-
-    public SSLContextBuilder loadTrustMaterial(
-            final URL url,
-            final char[] storePassword) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
-        return loadTrustMaterial(url, storePassword, null);
     }
 
     public SSLContextBuilder loadKeyMaterial(

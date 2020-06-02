@@ -124,9 +124,9 @@ public class HttpClientFactory {
                     .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
                     .setProtocol("TLS");
             if (trustSelfSignedCertificates) {
-                sslContextBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+                sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
             } else if (containsCertificate(trustStore)) {
-                sslContextBuilder.loadTrustMaterial(trustStore, null);
+                sslContextBuilder.loadTrustMaterial(trustStore);
             }
             return sslContextBuilder
                     .build();
@@ -152,7 +152,7 @@ public class HttpClientFactory {
 
     private static SSLContext buildAllowAnythingSSLContext() {
         try {
-            return SSLContextBuilder.create().loadTrustMaterial(null, new TrustStrategy() {
+            return SSLContextBuilder.create().loadTrustMaterial(new TrustStrategy() {
                 @Override
                 public boolean isTrusted(X509Certificate[] chain, String authType) {
                     return true;
