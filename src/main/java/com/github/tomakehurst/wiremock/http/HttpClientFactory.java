@@ -32,6 +32,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
+import org.apache.http.ssl.SSLContexts;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -92,14 +93,24 @@ public class HttpClientFactory {
             }
         }
 
-        if (trustStoreSettings != NO_STORE) {
-            builder.setSSLContext(buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates));
-        } else if (trustSelfSignedCertificates) {
-            builder.setSSLContext(buildAllowAnythingSSLContext());
-        }
+        final SSLContext sslContext = buildSslContext(trustStoreSettings, trustSelfSignedCertificates);
+        builder.setSSLContext(sslContext);
 
         return builder.build();
 	}
+
+    private static SSLContext buildSslContext(
+        KeyStoreSettings trustStoreSettings,
+        boolean trustSelfSignedCertificates
+    ) {
+        if (trustStoreSettings != NO_STORE) {
+            return buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates);
+        } else if (trustSelfSignedCertificates) {
+            return buildAllowAnythingSSLContext();
+        } else {
+            return SSLContexts.createSystemDefault();
+        }
+    }
 
     private static HostnameVerifier buildHostnameVerifier(boolean trustSelfSignedCertificates, List<String> trustedHosts) {
         if (trustSelfSignedCertificates) {
