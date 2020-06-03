@@ -26,6 +26,7 @@ import java.util.Date;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Objects.requireNonNull;
 
+@SuppressWarnings("sunapi")
 public class X509CertificateSpecification implements CertificateSpecification {
 
     private final X509CertificateVersion version;
