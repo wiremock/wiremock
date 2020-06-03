@@ -27,7 +27,6 @@
 
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import com.github.tomakehurst.wiremock.common.ListFunctions;
 import com.github.tomakehurst.wiremock.common.Pair;
 import org.apache.http.ssl.PrivateKeyDetails;
 import org.apache.http.ssl.PrivateKeyStrategy;
@@ -41,6 +40,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
@@ -205,9 +205,9 @@ public class SSLContextBuilder {
         TrustManager[] tms = loadTrustManagers(truststore, algorithm);
         TrustManager[] allTms = concat(tms, loadDefaultTrustManagers());
 
-        Pair<List<TrustManager>, List<X509TrustManager>> split = splitByType(allTms, X509TrustManager.class);
+        Pair<List<TrustManager>, List<X509ExtendedTrustManager>> split = splitByType(allTms, X509ExtendedTrustManager.class);
         List<TrustManager> otherTms = split.a;
-        List<X509TrustManager> x509Tms = split.b;
+        List<X509ExtendedTrustManager> x509Tms = split.b;
         if (!x509Tms.isEmpty()) {
             this.trustManagers.add(new CompositeTrustManager(x509Tms));
         }
@@ -352,7 +352,6 @@ public class SSLContextBuilder {
         private final TrustStrategy trustStrategy;
 
         TrustManagerDelegate(final X509TrustManager trustManager, final TrustStrategy trustStrategy) {
-            super();
             this.trustManager = trustManager;
             this.trustStrategy = trustStrategy;
         }
