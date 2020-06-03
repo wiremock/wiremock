@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import javax.net.ssl.SSLEngine;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -21,7 +22,8 @@ public class TrustSpecificHostsStrategy implements TrustStrategy {
 
     @Override
     public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
-        return trustedHosts.contains(socket.getInetAddress().getHostName());
+        InetAddress inetAddress = socket.getInetAddress();
+        return trustedHosts.contains(inetAddress.getHostName()) || trustedHosts.contains(inetAddress.getHostAddress());
     }
 
     @Override
