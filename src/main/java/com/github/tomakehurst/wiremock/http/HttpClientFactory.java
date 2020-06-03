@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
+import com.github.tomakehurst.wiremock.http.ssl.TrustEverythingStrategy;
+import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -26,8 +28,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -41,7 +41,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
-import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -163,12 +162,7 @@ public class HttpClientFactory {
 
     private static SSLContext buildAllowAnythingSSLContext() {
         try {
-            return SSLContextBuilder.create().loadTrustMaterial(new TrustStrategy() {
-                @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) {
-                    return true;
-                }
-            }).build();
+            return SSLContextBuilder.create().loadTrustMaterial(new TrustEverythingStrategy()).build();
         } catch (Exception e) {
             return throwUnchecked(e, SSLContext.class);
         }
