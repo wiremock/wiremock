@@ -74,4 +74,5 @@ public interface Options {
     boolean getStubRequestLoggingDisabled();
     boolean getStubCorsEnabled();
     boolean trustAllProxyTargets();
+    List<String> trustedProxyTargets();
 }
