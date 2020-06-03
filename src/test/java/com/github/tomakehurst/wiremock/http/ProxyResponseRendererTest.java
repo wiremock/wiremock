@@ -123,7 +123,7 @@ public class ProxyResponseRendererTest {
 
         CertificateSpecification certificateSpecification = new X509CertificateSpecification(
                 /* version = */V3,
-                /* subject = */"CN=wiremock.org",
+                /* subject = */"CN=localhost",
                 /* issuer = */"CN=wiremock.org",
                 /* notBefore = */new Date(),
                 /* notAfter = */new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000))
