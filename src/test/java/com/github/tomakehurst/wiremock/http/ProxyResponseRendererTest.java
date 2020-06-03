@@ -20,6 +20,7 @@ import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -151,7 +152,8 @@ public class ProxyResponseRendererTest {
                 /* preserveHostHeader = */ false,
                 /* hostHeaderValue = */ null,
                 new GlobalSettingsHolder(),
-                trustAllProxyTargets
+                trustAllProxyTargets,
+                Collections.<String>emptyList()
         );
     }
 

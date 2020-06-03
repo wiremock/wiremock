@@ -37,6 +37,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -99,6 +100,7 @@ public class WireMockConfiguration implements Options {
 
     private boolean stubCorsEnabled = false;
     private boolean trustAllProxyTargets = false;
+    private final List<String> trustedProxyTargets = new ArrayList<>();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -368,6 +370,15 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration trustedProxyTargets(String... trustedProxyTargets) {
+        return trustedProxyTargets(asList(trustedProxyTargets));
+    }
+
+    public WireMockConfiguration trustedProxyTargets(List<String> trustedProxyTargets) {
+        this.trustedProxyTargets.addAll(trustedProxyTargets);
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -531,5 +542,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean trustAllProxyTargets() {
         return trustAllProxyTargets;
+    }
+
+    @Override
+    public List<String> trustedProxyTargets() {
+        return trustedProxyTargets;
     }
 }

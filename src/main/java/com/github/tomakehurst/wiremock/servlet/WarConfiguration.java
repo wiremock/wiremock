@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
+
 public class WarConfiguration implements Options {
 
     private static final String FILE_SOURCE_ROOT_KEY = "WireMockFileSourceRoot";
@@ -124,7 +126,7 @@ public class WarConfiguration implements Options {
 
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
@@ -200,5 +202,10 @@ public class WarConfiguration implements Options {
     @Override
     public boolean trustAllProxyTargets() {
         return false;
+    }
+
+    @Override
+    public List<String> trustedProxyTargets() {
+        return emptyList();
     }
 }
