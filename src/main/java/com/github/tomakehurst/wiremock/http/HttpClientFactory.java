@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
 import com.github.tomakehurst.wiremock.http.ssl.TrustEverythingStrategy;
 import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
+import com.github.tomakehurst.wiremock.http.ssl.TrustSpecificHostsStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -32,11 +33,11 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
-import org.apache.http.ssl.SSLContexts;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -92,7 +93,7 @@ public class HttpClientFactory {
             }
         }
 
-        final SSLContext sslContext = buildSslContext(trustStoreSettings, trustSelfSignedCertificates);
+        final SSLContext sslContext = buildSslContext(trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
         builder.setSSLContext(sslContext);
 
         return builder.build();
@@ -100,14 +101,19 @@ public class HttpClientFactory {
 
     private static SSLContext buildSslContext(
         KeyStoreSettings trustStoreSettings,
-        boolean trustSelfSignedCertificates
+        boolean trustSelfSignedCertificates,
+        List<String> trustedHosts
     ) {
         if (trustStoreSettings != NO_STORE) {
-            return buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates);
+            return buildSSLContextWithTrustStore(trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
         } else if (trustSelfSignedCertificates) {
             return buildAllowAnythingSSLContext();
         } else {
-            return SSLContexts.createSystemDefault();
+            try {
+                return SSLContextBuilder.create().loadTrustMaterial(new TrustSpecificHostsStrategy(trustedHosts)).build();
+            } catch (NoSuchAlgorithmException | KeyManagementException e) {
+                return throwUnchecked(e, null);
+            }
         }
     }
 
@@ -127,7 +133,7 @@ public class HttpClientFactory {
         return createClient(maxConnections, timeoutMilliseconds, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
     }
 
-    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, boolean trustSelfSignedCertificates) {
+    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, boolean trustSelfSignedCertificates, List<String> trustedHosts) {
         try {
             KeyStore trustStore = trustStoreSettings.loadStore();
             SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
@@ -136,7 +142,9 @@ public class HttpClientFactory {
             if (trustSelfSignedCertificates) {
                 sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
             } else if (containsCertificate(trustStore)) {
-                sslContextBuilder.loadTrustMaterial(trustStore);
+                sslContextBuilder.loadTrustMaterial(trustStore, new TrustSpecificHostsStrategy(trustedHosts));
+            } else {
+                sslContextBuilder.loadTrustMaterial(new TrustSpecificHostsStrategy(trustedHosts));
             }
             return sslContextBuilder
                     .build();
@@ -164,7 +172,7 @@ public class HttpClientFactory {
         try {
             return SSLContextBuilder.create().loadTrustMaterial(new TrustEverythingStrategy()).build();
         } catch (Exception e) {
-            return throwUnchecked(e, SSLContext.class);
+            return throwUnchecked(e, null);
         }
     }
 

@@ -66,6 +66,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.concat;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ListFunctions.splitByType;
 import static java.util.Collections.addAll;
 
@@ -198,6 +199,13 @@ public class SSLContextBuilder {
     public SSLContextBuilder loadTrustMaterial(
         final KeyStore truststore
     ) throws NoSuchAlgorithmException, KeyStoreException {
+        return loadTrustMaterial(truststore, null);
+    }
+
+    public SSLContextBuilder loadTrustMaterial(
+        final KeyStore truststore,
+        final TrustStrategy trustStrategy
+    ) throws NoSuchAlgorithmException, KeyStoreException {
 
         String algorithm = trustManagerFactoryAlgorithm == null ? TrustManagerFactory.getDefaultAlgorithm() : trustManagerFactoryAlgorithm;
         TrustManager[] tms = loadTrustManagers(truststore, algorithm);
@@ -207,7 +215,9 @@ public class SSLContextBuilder {
         List<TrustManager> otherTms = split.a;
         List<X509ExtendedTrustManager> x509Tms = split.b;
         if (!x509Tms.isEmpty()) {
-            this.trustManagers.add(new CompositeTrustManager(x509Tms));
+            CompositeTrustManager trustManager = new CompositeTrustManager(x509Tms);
+            TrustManager tm = trustStrategy == null ? trustManager : addStrategy(trustManager, trustStrategy);
+            this.trustManagers.add(tm);
         }
         this.trustManagers.addAll(otherTms);
         return this;
@@ -215,9 +225,9 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder loadTrustMaterial(
         final TrustStrategy trustStrategy
-    ) throws NoSuchAlgorithmException, KeyStoreException {
+    ) {
 
-        TrustManager[] tms = loadTrustManagers(null, TrustManagerFactory.getDefaultAlgorithm());
+        TrustManager[] tms = loadDefaultTrustManagers();
         TrustManager[] tmsWithStrategy = addStrategy(tms, trustStrategy);
 
         addAll(this.trustManagers, tmsWithStrategy);
@@ -231,8 +241,12 @@ public class SSLContextBuilder {
         return tms == null ? new TrustManager[0] : tms;
     }
 
-    private TrustManager[] loadDefaultTrustManagers() throws KeyStoreException, NoSuchAlgorithmException {
-        return loadTrustManagers(null, TrustManagerFactory.getDefaultAlgorithm());
+    private TrustManager[] loadDefaultTrustManagers() {
+        try {
+            return loadTrustManagers(null, TrustManagerFactory.getDefaultAlgorithm());
+        } catch (NoSuchAlgorithmException | KeyStoreException e) {
+            return throwUnchecked(e, null);
+        }
     }
 
     private TrustManager[] addStrategy(TrustManager[] allTms, TrustStrategy trustStrategy) {
