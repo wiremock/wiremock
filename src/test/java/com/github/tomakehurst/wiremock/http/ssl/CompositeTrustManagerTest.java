@@ -1,12 +1,9 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -25,24 +22,20 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CompositeTrustManagerTest {
 
-    private final Mockery context = new Mockery();
-    {
-        context.setDefaultResultForType(X509Certificate[].class, new X509Certificate[0]);
-    }
-    private final X509TrustManager trustManager1 = mockX509TrustManager("trustManager1");
-    private final X509TrustManager trustManager2 = mockX509TrustManager("trustManager2");
+    private final X509ExtendedTrustManager trustManager1 = mockX509ExtendedTrustManager();
+    private final X509ExtendedTrustManager trustManager2 = mockX509ExtendedTrustManager();
     private final X509Certificate[] chain = new X509Certificate[0];
     private final String authType = "AN_AUTH_TYPE";
 
     @Test
     public void checkServerTrustedPassesForSingleTrustManager() throws CertificateException {
-
-        context.checking(new Expectations() {{
-            allowing(trustManager1).checkServerTrusted(chain, authType);
-        }});
 
         CompositeTrustManager compositeTrustManager = new CompositeTrustManager(singletonList(
             trustManager1
@@ -56,10 +49,8 @@ public class CompositeTrustManagerTest {
 
         final CertificateException invalidCertForTrustManager1 = new CertificateException("Invalid cert for trustManager1");
 
-        context.checking(new Expectations() {{
-            allowing(trustManager1).checkServerTrusted(chain, authType);
-            will(throwException(invalidCertForTrustManager1));
-        }});
+        willThrow(invalidCertForTrustManager1)
+                .given(trustManager1).checkServerTrusted(chain, authType);
 
         final CompositeTrustManager compositeTrustManager = new CompositeTrustManager(singletonList(
             trustManager1
@@ -77,11 +68,6 @@ public class CompositeTrustManagerTest {
     @Test
     public void checkServerTrustedIfBothWouldPass() throws CertificateException {
 
-        context.checking(new Expectations() {{
-            allowing(trustManager1).checkServerTrusted(chain, authType);
-            allowing(trustManager2).checkServerTrusted(chain, authType);
-        }});
-
         CompositeTrustManager compositeTrustManager = new CompositeTrustManager(asList(
             trustManager1,
             trustManager2
@@ -93,12 +79,8 @@ public class CompositeTrustManagerTest {
     @Test
     public void checkServerTrustedIfFirstWouldPass() throws CertificateException {
 
-        context.checking(new Expectations() {{
-            allowing(trustManager1).checkServerTrusted(chain, authType);
-
-            allowing(trustManager2).checkServerTrusted(chain, authType);
-            will(throwException(new CertificateException("Invalid cert for trustManager2")));
-        }});
+        willThrow(new CertificateException("Invalid cert for trustManager2"))
+                .given(trustManager2).checkServerTrusted(chain, authType);
 
         CompositeTrustManager compositeTrustManager = new CompositeTrustManager(asList(
             trustManager1,
@@ -111,12 +93,8 @@ public class CompositeTrustManagerTest {
     @Test
     public void checkServerTrustedIfSecondWouldPass() throws CertificateException {
 
-        context.checking(new Expectations() {{
-            allowing(trustManager1).checkServerTrusted(chain, authType);
-            will(throwException(new CertificateException("Invalid cert for trustManager1")));
-
-            allowing(trustManager2).checkServerTrusted(chain, authType);
-        }});
+        willThrow(new CertificateException("Invalid cert for trustManager1"))
+                .given(trustManager1).checkServerTrusted(chain, authType);
 
         CompositeTrustManager compositeTrustManager = new CompositeTrustManager(asList(
             trustManager1,
@@ -131,17 +109,15 @@ public class CompositeTrustManagerTest {
 
         final CertificateException invalidCertForTrustManager2 = new CertificateException("Invalid cert for trustManager2");
 
-        context.checking(new Expectations() {{
-            allowing(trustManager1).checkServerTrusted(chain, authType);
-            will(throwException(new CertificateException("Invalid cert for trustManager1")));
+        willThrow(new CertificateException("Invalid cert for trustManager1"))
+                .given(trustManager1).checkServerTrusted(chain, authType);
+        willThrow(invalidCertForTrustManager2)
+                .given(trustManager2).checkServerTrusted(chain, authType);
 
-            allowing(trustManager2).checkServerTrusted(chain, authType);
-            will(throwException(invalidCertForTrustManager2));
-        }});
-
-        final CompositeTrustManager compositeTrustManager = new CompositeTrustManager(
-                asList(trustManager1, trustManager2)
-        );
+        final CompositeTrustManager compositeTrustManager = new CompositeTrustManager(asList(
+            trustManager1,
+            trustManager2
+        ));
 
         CertificateException thrown = assertThrows(CertificateException.class, new ThrowingRunnable() {
             @Override
@@ -161,20 +137,13 @@ public class CompositeTrustManagerTest {
         final X509Certificate cert3 = new FakeX509Certificate("cert3");
         final X509Certificate cert4 = new FakeX509Certificate("cert4");
 
-        final X509TrustManager trustManager1 = context.mock(X509TrustManager.class, "newTrustManager1");
-        final X509TrustManager trustManager2 = context.mock(X509TrustManager.class, "newTrustManager2");
+        given(trustManager1.getAcceptedIssuers()).willReturn(new X509Certificate[] { cert1, cert2 });
+        given(trustManager2.getAcceptedIssuers()).willReturn(new X509Certificate[] { cert3, cert4 });
 
-        context.checking(new Expectations() {{
-            allowing(trustManager1).getAcceptedIssuers();
-            will(returnValue(new X509Certificate[] { cert1, cert2 }));
-
-            allowing(trustManager2).getAcceptedIssuers();
-            will(returnValue(new X509Certificate[] { cert3, cert4 }));
-        }});
-
-        final CompositeTrustManager compositeTrustManager = new CompositeTrustManager(
-                asList(trustManager1, trustManager2)
-        );
+        final CompositeTrustManager compositeTrustManager = new CompositeTrustManager(asList(
+            trustManager1,
+            trustManager2
+        ));
 
         X509Certificate[] acceptedIssuers = compositeTrustManager.getAcceptedIssuers();
 
@@ -185,16 +154,9 @@ public class CompositeTrustManagerTest {
         assertArrayEquals(new X509Certificate[] { cert1, cert2, cert3, cert4 }, compositeTrustManager.getAcceptedIssuers());
     }
 
-    @After
-    public void checkMockeryContextSatisfied() {
-        context.assertIsSatisfied();
-    }
-
-    private X509TrustManager mockX509TrustManager(String name) {
-        final X509TrustManager trustManager = context.mock(X509TrustManager.class, name);
-        context.checking(new Expectations() {{
-            allowing(trustManager).getAcceptedIssuers();
-        }});
+    private X509ExtendedTrustManager mockX509ExtendedTrustManager() {
+        final X509ExtendedTrustManager trustManager = mock(X509ExtendedTrustManager.class);
+        when(trustManager.getAcceptedIssuers()).thenReturn(new X509Certificate[0]);
         return trustManager;
     }
 
