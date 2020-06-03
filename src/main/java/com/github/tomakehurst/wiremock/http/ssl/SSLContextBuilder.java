@@ -30,7 +30,6 @@ package com.github.tomakehurst.wiremock.http.ssl;
 import com.github.tomakehurst.wiremock.common.Pair;
 import org.apache.http.ssl.PrivateKeyDetails;
 import org.apache.http.ssl.PrivateKeyStrategy;
-import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.Args;
 
 import javax.net.ssl.KeyManager;
@@ -41,7 +40,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509ExtendedTrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -246,8 +244,8 @@ public class SSLContextBuilder {
     }
 
     private TrustManager addStrategy(TrustManager tm, TrustStrategy trustStrategy) {
-        if (tm instanceof X509TrustManager) {
-            return new TrustManagerDelegate((X509TrustManager) tm, trustStrategy);
+        if (tm instanceof X509ExtendedTrustManager) {
+            return new TrustManagerDelegate((X509ExtendedTrustManager) tm, trustStrategy);
         } else {
             return tm;
         }
@@ -346,12 +344,12 @@ public class SSLContextBuilder {
         return sslContext;
     }
 
-    static class TrustManagerDelegate implements X509TrustManager {
+    static class TrustManagerDelegate extends X509ExtendedTrustManager {
 
-        private final X509TrustManager trustManager;
+        private final X509ExtendedTrustManager trustManager;
         private final TrustStrategy trustStrategy;
 
-        TrustManagerDelegate(final X509TrustManager trustManager, final TrustStrategy trustStrategy) {
+        TrustManagerDelegate(final X509ExtendedTrustManager trustManager, final TrustStrategy trustStrategy) {
             this.trustManager = trustManager;
             this.trustStrategy = trustStrategy;
         }
@@ -375,6 +373,29 @@ public class SSLContextBuilder {
             return this.trustManager.getAcceptedIssuers();
         }
 
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
+            trustManager.checkClientTrusted(chain, authType, socket);
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
+            if (!this.trustStrategy.isTrusted(chain, authType, socket)) {
+                trustManager.checkServerTrusted(chain, authType, socket);
+            }
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
+            trustManager.checkClientTrusted(chain, authType, engine);
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
+            if (!this.trustStrategy.isTrusted(chain, authType, engine)) {
+                trustManager.checkServerTrusted(chain, authType, engine);
+            }
+        }
     }
 
     static class KeyManagerDelegate extends X509ExtendedKeyManager {
