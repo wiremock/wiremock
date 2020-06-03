@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+@SuppressWarnings("sunapi")
 public enum X509CertificateVersion {
 
     V1(CertificateVersion.V1),
@@ -26,7 +27,7 @@ public enum X509CertificateVersion {
         }
     }
 
-    public CertificateVersion getVersion() {
+    CertificateVersion getVersion() {
         return version;
     }
 }

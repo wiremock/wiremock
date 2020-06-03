@@ -136,6 +136,7 @@ allprojects {
 
     compileTestJava {
         options.encoding = 'UTF-8'
+        options.compilerArgs += '-XDenableSunApiLintControl'
     }
 
     test {
