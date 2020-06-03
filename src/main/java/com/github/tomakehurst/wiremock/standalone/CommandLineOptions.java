@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
@@ -513,6 +514,15 @@ public class CommandLineOptions implements Options {
 
         if (getHttpsRequiredForAdminApi()) {
             builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
+        }
+
+        if (trustAllProxyTargets()) {
+            builder.put(TRUST_ALL_PROXY_TARGETS, "true");
+        }
+
+        List<String> trustedProxyTargets = trustedProxyTargets();
+        if (!trustedProxyTargets.isEmpty()) {
+            builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
         }
 
         StringBuilder sb = new StringBuilder();
