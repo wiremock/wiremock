@@ -136,6 +136,35 @@ wiremock-jre8 allows forward proxying, stubbing & recording of HTTPS traffic. By
 ```bash
 $ java -jar wiremock-jre8-standalone-{{ site.wiremock_version }}.jar --enable-browser-proxying --trust-all-proxy-targets
 ```
+or to trust specific hosts:
+```bash
+$ java -jar wiremock-jre8-standalone-{{ site.wiremock_version }}.jar --enable-browser-proxying --trust-proxy-target localhost --trust-proxy-target dev.mycorp.com
+```
+
+Additional trusted public certificates can also be added to the keystore
+specified via the `--https-truststore`, and should then be trusted without
+needing the `--trust-proxy-target` parameter (so long as match the requested
+host).
+
+As WireMock is here running as a man-in-the-middle, the resulting traffic will
+appear to the client encrypted with WireMock's (configurable) private key &
+certificate, and so will not be trusted by default by clients.
+
+Proxying of HTTPS traffic when the proxy endpoint is also HTTPS is problematic;
+Postman seems not to cope with an HTTPS proxy even to proxy HTTP traffic. Older
+versions of curl fail trying to do the CONNECT call because they try to do so
+over HTTP/2 (newer versions only offer HTTP/1.1 for the CONNECT call). At time
+of writing it works using `curl 7.64.1 (x86_64-apple-darwin19.0) libcurl/7.64.1 (SecureTransport) LibreSSL/2.8.3 zlib/1.2.11 nghttp2/1.39.2` as so:
+```bash
+curl --proxy-insecure -x https://localhost:8443 -k 'https://www.example.com/'
+```
+
+Please check your client's behaviour proxying via another https proxy such as 
+https://hub.docker.com/r/wernight/spdyproxy to see if it is a client problem:
+```bash
+docker run --rm -it -p 44300:44300 wernight/spdyproxy
+curl --proxy-insecure -x https://localhost:44300 -k 'https://www.example.com/'
+```
 
 ## Proxying via another proxy server
 
