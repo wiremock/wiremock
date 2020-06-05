@@ -29,10 +29,6 @@ public class HostVerifyingSSLSocketFactory extends SSLSocketFactory {
         return verifyHosts(delegate.createSocket(s, host, port, autoClose));
     }
 
-    public Socket createSocket(Socket s, InputStream consumed, boolean autoClose) throws IOException {
-        return verifyHosts(delegate.createSocket(s, consumed, autoClose));
-    }
-
     public Socket createSocket() throws IOException {
         return verifyHosts(delegate.createSocket());
     }
