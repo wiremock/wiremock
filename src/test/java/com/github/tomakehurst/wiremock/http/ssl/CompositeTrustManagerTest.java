@@ -132,10 +132,10 @@ public class CompositeTrustManagerTest {
     @Test
     public void returnAllAcceptedIssuers() {
 
-        final X509Certificate cert1 = new FakeX509Certificate("cert1");
-        final X509Certificate cert2 = new FakeX509Certificate("cert2");
-        final X509Certificate cert3 = new FakeX509Certificate("cert3");
-        final X509Certificate cert4 = new FakeX509Certificate("cert4");
+        final X509Certificate cert1 = mock(X509Certificate.class, "cert1");
+        final X509Certificate cert2 = mock(X509Certificate.class, "cert2");
+        final X509Certificate cert3 = mock(X509Certificate.class, "cert3");
+        final X509Certificate cert4 = mock(X509Certificate.class, "cert4");
 
         given(trustManager1.getAcceptedIssuers()).willReturn(new X509Certificate[] { cert1, cert2 });
         given(trustManager2.getAcceptedIssuers()).willReturn(new X509Certificate[] { cert3, cert4 });
@@ -149,7 +149,7 @@ public class CompositeTrustManagerTest {
 
         assertArrayEquals(new X509Certificate[] { cert1, cert2, cert3, cert4 }, acceptedIssuers);
 
-        acceptedIssuers[2] = new FakeX509Certificate("cert5");
+        acceptedIssuers[2] = mock(X509Certificate.class, "cert5");
 
         assertArrayEquals(new X509Certificate[] { cert1, cert2, cert3, cert4 }, compositeTrustManager.getAcceptedIssuers());
     }
@@ -158,144 +158,5 @@ public class CompositeTrustManagerTest {
         final X509ExtendedTrustManager trustManager = mock(X509ExtendedTrustManager.class);
         when(trustManager.getAcceptedIssuers()).thenReturn(new X509Certificate[0]);
         return trustManager;
-    }
-
-    private static class FakeX509Certificate extends X509Certificate {
-
-        private final String name;
-
-        public FakeX509Certificate(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "X509Certificate{" + name + "}";
-        }
-
-        @Override
-        public void checkValidity() throws CertificateExpiredException, CertificateNotYetValidException {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public void checkValidity(Date date) throws CertificateExpiredException, CertificateNotYetValidException {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public int getVersion() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public BigInteger getSerialNumber() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Principal getIssuerDN() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Principal getSubjectDN() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Date getNotBefore() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Date getNotAfter() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public byte[] getTBSCertificate() throws CertificateEncodingException {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public byte[] getSignature() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public String getSigAlgName() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public String getSigAlgOID() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public byte[] getSigAlgParams() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public boolean[] getIssuerUniqueID() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public boolean[] getSubjectUniqueID() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public boolean[] getKeyUsage() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public int getBasicConstraints() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public byte[] getEncoded() throws CertificateEncodingException {
-            return name.getBytes();
-        }
-
-        @Override
-        public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public void verify(PublicKey key, String sigProvider) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public PublicKey getPublicKey() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public boolean hasUnsupportedCriticalExtension() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Set<String> getCriticalExtensionOIDs() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Set<String> getNonCriticalExtensionOIDs() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public byte[] getExtensionValue(String oid) {
-            throw new UnsupportedOperationException("Not implemented");
-        }
     }
 }
