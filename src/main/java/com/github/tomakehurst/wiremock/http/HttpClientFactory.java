@@ -151,8 +151,7 @@ public class HttpClientFactory {
         try {
             KeyStore trustStore = trustStoreSettings.loadStore();
             SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
-                    .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
-                    .setProtocol("TLS");
+                    .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray());
             if (trustSelfSignedCertificates) {
                 sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
             } else if (containsCertificate(trustStore)) {
