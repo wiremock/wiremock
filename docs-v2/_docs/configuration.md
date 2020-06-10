@@ -86,7 +86,13 @@ WireMock can accept HTTPS connections from clients, require a client to present 
 .trustStorePassword("trustme")
 ```
 
-The client certificate in the trust store defined in the last two options will also be used when proxying to another service that requires a client certificate for authentication.
+WireMock uses the trust store for three purposes:
+1. As a server, when requiring client auth, WireMock will trust the client if it
+   presents a public certificate in this trust store
+2. As a proxy, WireMock will use the private key & certificate in this key store
+   to authenticate its http client with target servers that require client auth
+3. As a proxy, WireMock will trust a target server if it presents a public
+   certificate in this trust store
 
 ## Proxy settings
 
@@ -102,6 +108,12 @@ The client certificate in the trust store defined in the last two options will a
 
  // When reverse proxying, also route via the specified forward proxy (useful inside corporate firewalls)
 .proxyVia("my.corporate.proxy", 8080)
+
+// When proxying, path to a security store containing client private keys and trusted public certificates for communicating with a target server
+.trustStorePath("/path/to/trust-store.jks")
+
+// The password to the trust store
+.trustStorePassword("trustme")
 ```
 
 
