@@ -190,6 +190,29 @@ public class HttpsBrowserProxyAcceptanceTest {
         }
     }
 
+    @Test
+    public void canTrustSpecificTargetHosts() {
+
+        WireMockServer scepticalProxy = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .trustedProxyTargets("localhost")
+        );
+
+        try {
+            scepticalProxy.start();
+
+            target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+            WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());
+
+            assertThat(response.statusCode(), is(200));
+            assertThat(response.content(), is("Got it"));
+        } finally {
+            scepticalProxy.stop();
+        }
+    }
+
     private static File setupTempFileRoot() {
         try {
             File root = java.nio.file.Files.createTempDirectory("wiremock").toFile();
