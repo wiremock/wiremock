@@ -143,8 +143,8 @@ $ java -jar wiremock-jre8-standalone-{{ site.wiremock_version }}.jar --enable-br
 
 Additional trusted public certificates can also be added to the keystore
 specified via the `--https-truststore`, and should then be trusted without
-needing the `--trust-proxy-target` parameter (so long as match the requested
-host).
+needing the `--trust-proxy-target` parameter (so long as they match the
+requested host).
 
 As WireMock is here running as a man-in-the-middle, the resulting traffic will
 appear to the client encrypted with WireMock's (configurable) private key &

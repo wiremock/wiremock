@@ -44,8 +44,12 @@ certificate.
 `--keystore-password`: Password to the keystore, if something other than
 "password".
 
-`--https-truststore`: Path to a keystore file containing client
-certificates. See https and proxy-client-certs for details.
+`--https-truststore`: Path to a keystore file containing client public
+certificates, proxy target public certificates & private keys to use when
+authenticate with a proxy target that require client authentication. See
+[HTTPS configuration](/docs/configuration/#https-configuration)
+and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
+details.
 
 `--truststore-password`: Optional password to the trust store. Defaults
 to "password" if not specified.
