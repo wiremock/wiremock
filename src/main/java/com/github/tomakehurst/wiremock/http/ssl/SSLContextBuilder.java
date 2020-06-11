@@ -36,6 +36,10 @@ public class SSLContextBuilder {
         return new SSLContextBuilder();
     }
 
+    public SSLContextBuilder loadTrustMaterial(final KeyStore truststore) throws KeyStoreException, NoSuchAlgorithmException {
+        return loadTrustMaterial(truststore, null);
+    }
+
     public SSLContextBuilder loadTrustMaterial(
         final KeyStore truststore,
         final TrustStrategy trustStrategy

@@ -333,7 +333,7 @@ public class WireMockTestClient {
             return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
                 @Override
                 public boolean isTrusted(X509Certificate[] chain, String authType) {
-                    return "CN=Tom Akehurst, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown".equals(chain[0].getSubjectDN().getName());
+                    return chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst");
                 }
             }).build();
         } catch (Exception e) {
