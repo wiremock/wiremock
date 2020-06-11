@@ -40,6 +40,8 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -141,6 +143,74 @@ public class HttpsBrowserProxyAcceptanceTest {
 
         // then
         assertThat(testClient.getViaProxy(recordedEndpoint, proxy.port()).content(), is("Target response"));
+    }
+
+    @Test
+    public void rejectsUntrustedTarget() {
+
+        WireMockServer scepticalProxy = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+        );
+
+        try {
+            scepticalProxy.start();
+
+            target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+            WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());
+
+            assertThat(response.statusCode(), is(500));
+        } finally {
+            scepticalProxy.stop();
+        }
+    }
+
+    @Test
+    public void trustsTargetIfTrustStoreContainsItsCertificate() {
+
+        WireMockServer scepticalProxy = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .trustStorePath(TRUST_STORE_PATH)
+                .trustStorePassword(TRUST_STORE_PASSWORD)
+        );
+
+        try {
+            scepticalProxy.start();
+
+            target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+            WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());
+
+            assertThat(response.statusCode(), is(200));
+            assertThat(response.content(), is("Got it"));
+        } finally {
+            scepticalProxy.stop();
+        }
+    }
+
+    @Test
+    public void canTrustSpecificTargetHosts() {
+
+        WireMockServer scepticalProxy = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .trustedProxyTargets("localhost")
+        );
+
+        try {
+            scepticalProxy.start();
+
+            target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+            WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), scepticalProxy.port());
+
+            assertThat(response.statusCode(), is(200));
+            assertThat(response.content(), is("Got it"));
+        } finally {
+            scepticalProxy.stop();
+        }
     }
 
     private static File setupTempFileRoot() {

@@ -113,6 +113,7 @@ allprojects {
             exclude group: "org.hamcrest", module: "hamcrest-core"
             exclude group: "org.hamcrest", module: "hamcrest-library"
         }
+        testCompile 'org.mockito:mockito-core:2.28.2'
         testCompile "org.skyscreamer:jsonassert:1.2.3"
         testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.4.12'
         testCompile 'org.awaitility:awaitility:2.0.0'
@@ -135,6 +136,7 @@ allprojects {
 
     compileTestJava {
         options.encoding = 'UTF-8'
+        options.compilerArgs += '-XDenableSunApiLintControl'
     }
 
     test {

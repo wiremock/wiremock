@@ -48,9 +48,12 @@ public class InMemoryKeyStore {
         }
     }
 
-    public void addPrivateKey(String alias, KeyPair keyPair, CertificateSpecification specification) throws KeyStoreException, CertificateException, InvalidKeyException, SignatureException {
-        Certificate cert = specification.certificateFor(keyPair);
-        keyStore.setKeyEntry(alias, keyPair.getPrivate(), password.getValue(), new Certificate[] { cert });
+    public void addPrivateKey(String alias, KeyPair keyPair, Certificate... certs) throws KeyStoreException {
+        keyStore.setKeyEntry(alias, keyPair.getPrivate(), password.getValue(), certs);
+    }
+
+    public void addCertificate(String alias, Certificate cert) throws KeyStoreException {
+        keyStore.setCertificateEntry(alias, cert);
     }
 
     public void saveAs(File file) throws IOException {
