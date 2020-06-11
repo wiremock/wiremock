@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -120,13 +122,15 @@ public class ProxyResponseRendererTest {
 
         InMemoryKeyStore ks = new InMemoryKeyStore(InMemoryKeyStore.KeyStoreType.JKS, new Secret("password"));
 
-        ks.addPrivateKey("wiremock", generateKeyPair(), new X509CertificateSpecification(
+        CertificateSpecification certificateSpecification = new X509CertificateSpecification(
                 /* version = */V3,
-                /* subject = */"CN=wiremock.org",
+                /* subject = */"CN=localhost",
                 /* issuer = */"CN=wiremock.org",
                 /* notBefore = */new Date(),
                 /* notAfter = */new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000))
-        ));
+        );
+        KeyPair keyPair = generateKeyPair();
+        ks.addPrivateKey("wiremock", keyPair, certificateSpecification.certificateFor(keyPair));
 
         File keystoreFile = File.createTempFile("wiremock-test", "keystore");
 
@@ -148,7 +152,8 @@ public class ProxyResponseRendererTest {
                 /* preserveHostHeader = */ false,
                 /* hostHeaderValue = */ null,
                 new GlobalSettingsHolder(),
-                trustAllProxyTargets
+                trustAllProxyTargets,
+                Collections.<String>emptyList()
         );
     }
 

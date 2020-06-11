@@ -151,7 +151,8 @@ public class WireMockApp implements StubServer, Admin {
                     options.shouldPreserveHostHeader(),
                     options.proxyHostHeader(),
                     globalSettingsHolder,
-                    options.trustAllProxyTargets()
+                    options.trustAllProxyTargets(),
+                    options.trustedProxyTargets()
                 ),
                 ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
             ),

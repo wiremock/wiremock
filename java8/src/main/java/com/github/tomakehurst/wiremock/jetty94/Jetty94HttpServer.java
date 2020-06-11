@@ -9,15 +9,11 @@ import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -33,46 +29,44 @@ public class Jetty94HttpServer extends JettyHttpServer {
     }
 
     @Override
-    protected ServerConnector createHttpConnector(String bindAddress, int port, JettySettings jettySettings, NetworkTrafficListener listener) {
-
-        ConnectionFactories connectionFactories = buildConnectionFactories(jettySettings, 0);
-        return createServerConnector(
-                bindAddress,
-                jettySettings,
-                port,
-                listener,
-                // http needs to be the first (the default)
-                connectionFactories.http,
-                // alpn & h2 are included so that HTTPS forward proxying can find them
-                connectionFactories.alpn,
-                connectionFactories.h2
-        );
+    protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
+        HttpConfiguration httpConfig = super.createHttpConfig(jettySettings);
+        httpConfig.setSendXPoweredBy(false);
+        httpConfig.setSendServerVersion(false);
+        httpConfig.addCustomizer(new SecureRequestCustomizer());
+        return httpConfig;
     }
 
     @Override
     protected ServerConnector createHttpsConnector(Server server, String bindAddress, HttpsSettings httpsSettings, JettySettings jettySettings, NetworkTrafficListener listener) {
+        SslContextFactory.Server http2SslContextFactory = buildHttp2SslContextFactory(httpsSettings);
 
-        ConnectionFactories connectionFactories = buildConnectionFactories(jettySettings, httpsSettings.port());
-        SslConnectionFactory ssl = sslConnectionFactory(httpsSettings);
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
+
+        HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
+        HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
+
+        ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+
+        SslConnectionFactory ssl = new SslConnectionFactory(http2SslContextFactory, alpn.getProtocol());
+
+        ConnectionFactory[] connectionFactories = {
+                ssl,
+                alpn,
+                h2,
+                http
+        };
 
         return createServerConnector(
                 bindAddress,
                 jettySettings,
                 httpsSettings.port(),
                 listener,
-                ssl,
-                connectionFactories.alpn,
-                connectionFactories.h2,
-                connectionFactories.http
+                connectionFactories
         );
     }
 
-    private SslConnectionFactory sslConnectionFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server http2SslContextFactory = buildHttp2SslContextFactory(httpsSettings);
-        return new SslConnectionFactory(http2SslContextFactory, "alpn");
-    }
-
-    private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
+    private SslContextFactory.Server buildBasicSslContextFactory(HttpsSettings httpsSettings) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
@@ -83,18 +77,15 @@ public class Jetty94HttpServer extends JettyHttpServer {
             sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
-        sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-        sslContextFactory.setProvider("Conscrypt");
         return sslContextFactory;
     }
 
-    @Override
-    protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
-        HttpConfiguration httpConfig = super.createHttpConfig(jettySettings);
-        httpConfig.setSendXPoweredBy(false);
-        httpConfig.setSendServerVersion(false);
-        httpConfig.addCustomizer(new SecureRequestCustomizer());
-        return httpConfig;
+
+    private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
+        SslContextFactory.Server sslContextFactory = buildBasicSslContextFactory(httpsSettings);
+        sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
+        sslContextFactory.setProvider("Conscrypt");
+        return sslContextFactory;
     }
 
     @Override
@@ -106,37 +97,35 @@ public class Jetty94HttpServer extends JettyHttpServer {
         HandlerCollection handler = super.createHandler(options, adminRequestHandler, stubRequestHandler);
 
         ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
-                sslConnectionFactory(options.httpsSettings())
+                new SslConnectionFactory(
+                    buildBasicSslContextFactory(options.httpsSettings()),
+                    /*
+                    If the proxy CONNECT request is made over HTTPS, and the
+                    actual content request is made using HTTP/2 tunneled over
+                    HTTPS, and an exception is thrown, the server blocks for 30
+                    seconds before flushing the response.
+
+                    To fix this, force HTTP/1.1 over TLS when tunneling HTTPS.
+
+                    This also means the HTTP connector does not need the alpn &
+                    h2 connection factories as it will not use them.
+
+                    Unfortunately it has proven too hard to write a test to
+                    demonstrate the bug; it requires an HTTP client capable of
+                    doing ALPN & HTTP/2, which will only offer HTTP/1.1 in the
+                    ALPN negotiation when using HTTPS for the initial CONNECT
+                    request but will then offer both HTTP/1.1 and HTTP/2 for the
+                    actual request (this is how curl 7.64.1 behaves!). Neither
+                    Apache HTTP 4, 5, 5 Async, OkHttp, nor the Jetty client
+                    could do this. It might be possible to write one using
+                    Netty, but it would be hard and time consuming.
+                     */
+                    HttpVersion.HTTP_1_1.asString()
+                )
         );
 
         handler.addHandler(manInTheMiddleSslConnectHandler);
 
         return handler;
-    }
-
-    private ConnectionFactories buildConnectionFactories(
-        JettySettings jettySettings,
-        int securePort
-    ) {
-        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
-        httpConfig.setSecurePort(securePort);
-
-        HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
-        HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
-        ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
-
-        return new ConnectionFactories(http, h2, alpn);
-    }
-
-    private static class ConnectionFactories {
-        private final HttpConnectionFactory http;
-        private final HTTP2ServerConnectionFactory h2;
-        private final ALPNServerConnectionFactory alpn;
-
-        private ConnectionFactories(HttpConnectionFactory http, HTTP2ServerConnectionFactory h2, ALPNServerConnectionFactory alpn) {
-            this.http = http;
-            this.h2 = h2;
-            this.alpn = alpn;
-        }
     }
 }

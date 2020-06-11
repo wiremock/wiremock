@@ -44,8 +44,12 @@ certificate.
 `--keystore-password`: Password to the keystore, if something other than
 "password".
 
-`--https-truststore`: Path to a keystore file containing client
-certificates. See https and proxy-client-certs for details.
+`--https-truststore`: Path to a keystore file containing client public
+certificates, proxy target public certificates & private keys to use when
+authenticate with a proxy target that require client authentication. See
+[HTTPS configuration](/docs/configuration/#https-configuration)
+and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
+details.
 
 `--truststore-password`: Optional password to the trust store. Defaults
 to "password" if not specified.
@@ -86,8 +90,14 @@ e.g. `--proxy-via http://username:password@webproxy.mycorp.com:8080/`.
 `--enable-browser-proxying`: Run as a browser proxy. See
 browser-proxying.
 
-`--trust-all-proxy-targets`: Trust all remote certificates when running as a browser proxy and
-proxying HTTPS traffic.
+`--trust-all-proxy-targets`: Trust all remote certificates when running as a
+browser proxy and proxying HTTPS traffic.
+
+`--trust-proxy-target`: Trust a specific remote endpoint's certificate when
+running as a browser proxy and proxying HTTPS traffic. Can be specified multiple
+times. e.g. `--trust-proxy-target dev.mycorp.com --trust-proxy-target localhost`
+would allow proxying to `https://dev.mycorp.com` or `https://localhost:8443`
+despite their having invalid certificate chains in some way.
 
 `--no-request-journal`: Disable the request journal, which records
 incoming requests for later verification. This allows WireMock to be run

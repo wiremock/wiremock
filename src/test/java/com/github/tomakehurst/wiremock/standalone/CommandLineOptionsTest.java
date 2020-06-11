@@ -32,10 +32,13 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -478,15 +481,33 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void trustsAll() {
+    public void trustAllProxyTargets() {
         CommandLineOptions options = new CommandLineOptions("--trust-all-proxy-targets");
         assertThat(options.trustAllProxyTargets(), is(true));
     }
 
     @Test
-    public void defaultsToNotTrustingAll() {
+    public void defaultsToNotTrustingAllProxyTargets() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.trustAllProxyTargets(), is(false));
+    }
+
+    @Test
+    public void trustsOneProxyTarget1() {
+        CommandLineOptions options = new CommandLineOptions("--trust-proxy-target", "localhost");
+        assertThat(options.trustedProxyTargets(), is(singletonList("localhost")));
+    }
+
+    @Test
+    public void trustsManyProxyTargets() {
+        CommandLineOptions options = new CommandLineOptions("--trust-proxy-target=localhost", "--trust-proxy-target", "wiremock.org", "--trust-proxy-target=www.google.com");
+        assertThat(options.trustedProxyTargets(), is(asList("localhost", "wiremock.org", "www.google.com")));
+    }
+
+    @Test
+    public void defaultsToNoTrustedProxyTargets() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.trustedProxyTargets(), is(Collections.<String>emptyList()));
     }
 
     @Test
