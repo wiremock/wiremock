@@ -232,7 +232,7 @@ public class HttpsBrowserProxyAcceptanceTest {
         }
     }
 
-    @Test @Ignore("not yet implemented")
+    @Test
     public void certificatesSignedWithUsersRootCertificate() throws Exception {
 
         KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");

@@ -65,4 +65,8 @@ public class InMemoryKeyStore {
             }
         }
     }
+
+    public KeyStore getKeyStore() {
+        return keyStore;
+    }
 }

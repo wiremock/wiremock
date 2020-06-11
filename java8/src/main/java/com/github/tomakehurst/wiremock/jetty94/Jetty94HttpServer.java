@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
@@ -16,6 +17,12 @@ import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.X509ExtendedKeyManager;
+import java.security.KeyStore;
+
+import static java.util.Arrays.stream;
 
 public class Jetty94HttpServer extends JettyHttpServer {
 
@@ -66,9 +73,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
         );
     }
 
-    private SslContextFactory.Server buildBasicSslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-
+    private SslContextFactory.Server configure(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
         sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
         sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
@@ -80,9 +85,8 @@ public class Jetty94HttpServer extends JettyHttpServer {
         return sslContextFactory;
     }
 
-
     private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = buildBasicSslContextFactory(httpsSettings);
+        SslContextFactory.Server sslContextFactory = configure(new SslContextFactory.Server(), httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
         sslContextFactory.setProvider("Conscrypt");
         return sslContextFactory;
@@ -98,7 +102,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
         ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
                 new SslConnectionFactory(
-                    buildBasicSslContextFactory(options.httpsSettings()),
+                        buildManInTheMiddleSslContextFactory(options.httpsSettings()),
                     /*
                     If the proxy CONNECT request is made over HTTPS, and the
                     actual content request is made using HTTP/2 tunneled over
@@ -127,5 +131,24 @@ public class Jetty94HttpServer extends JettyHttpServer {
         handler.addHandler(manInTheMiddleSslConnectHandler);
 
         return handler;
+    }
+
+    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings) {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
+            @Override
+            protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
+                KeyManager[] managers = super.getKeyManagers(keyStore);
+                return stream(managers).map(manager -> {
+                    if (manager instanceof X509ExtendedKeyManager) {
+                        char[] keyStorePassword = httpsSettings.keyStorePassword() == null ? null : httpsSettings.keyStorePassword().toCharArray();
+                        return new CertificateGeneratingX509ExtendedKeyManager((X509ExtendedKeyManager) manager, keyStore, keyStorePassword);
+                    } else {
+                        return manager;
+                    }
+                }).toArray(KeyManager[]::new);
+            }
+        };
+
+        return configure(sslContextFactory, httpsSettings);
     }
 }
