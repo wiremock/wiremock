@@ -2,6 +2,11 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.util.HostnameChecker;
+import sun.security.x509.CertificateExtensions;
+import sun.security.x509.DNSName;
+import sun.security.x509.GeneralName;
+import sun.security.x509.GeneralNames;
+import sun.security.x509.SubjectAlternativeNameExtension;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
@@ -29,6 +34,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -214,7 +220,13 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
             CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
             newCertAndKey.generate(2048);
             PrivateKey newKey = newCertAndKey.getPrivateKey();
-            X509Certificate certificate = newCertAndKey.getSelfCertificate(new X500Name("CN=" + requestedNameString), (long) 365 * 24 * 60 * 60);
+
+            X509Certificate certificate = newCertAndKey.getSelfCertificate(
+                    new X500Name("CN=" + requestedNameString),
+                    new Date(),
+                    (long) 365 * 24 * 60 * 60,
+                    subjectAlternativeName(requestedNameString)
+            );
 
             CertChainAndKey authority = findExistingCertificateAuthority();
             if (authority != null) {
@@ -235,6 +247,17 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
             // TODO log?
             return defaultAlias;
         }
+    }
+
+    private CertificateExtensions subjectAlternativeName(String requestedNameString) throws IOException {
+        GeneralName name = new GeneralName(new DNSName(requestedNameString));
+        GeneralNames names = new GeneralNames();
+        names.add(name);
+        SubjectAlternativeNameExtension subjectAlternativeNameExtension = new SubjectAlternativeNameExtension(names);
+
+        CertificateExtensions extensions = new CertificateExtensions();
+        extensions.set(SubjectAlternativeNameExtension.NAME, subjectAlternativeNameExtension);
+        return extensions;
     }
 
     private CertChainAndKey findExistingCertificateAuthority() {
