@@ -139,6 +139,14 @@ allprojects {
         options.compilerArgs += '-XDenableSunApiLintControl'
     }
 
+    compileJava {
+        options.encoding = 'UTF-8'
+        options.fork = true
+        options.forkOptions.executable = 'javac'
+        options.compilerArgs += '-XDenableSunApiLintControl'
+        options.compilerArgs += '-XDignore.symbol.file'
+    }
+
     test {
         // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
         systemProperty 'user.timezone', 'Australia/Sydney'
