@@ -36,6 +36,19 @@ class DynamicKeyStore implements X509KeyStore {
      * @param keyType             non null, guaranteed to be valid
      * @param requestedServerName non null
      */
+    void generateCertificateIfNecessary(
+        String keyType,
+        SNIHostName requestedServerName
+    ) throws CertificateException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
+        if (getPrivateKey(requestedServerName.getAsciiName()) == null) {
+            generateCertificate(keyType, requestedServerName);
+        }
+    }
+
+    /**
+     * @param keyType             non null, guaranteed to be valid
+     * @param requestedServerName non null
+     */
     void generateCertificate(
         String keyType,
         SNIHostName requestedServerName
