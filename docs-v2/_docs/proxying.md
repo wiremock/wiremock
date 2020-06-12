@@ -150,6 +150,29 @@ As WireMock is here running as a man-in-the-middle, the resulting traffic will
 appear to the client encrypted with WireMock's (configurable) private key &
 certificate, and so will not be trusted by default by clients.
 
+Adding WireMock's certificate to your trusted certs (whether those of the O/S or
+the browser) will not solve this[1], as clients should verify that the
+certificate is for the requested hostname. To work around this, you can generate
+your own keystore containing a private key and certificate that are able to act
+as a root certificate for signing other certificates. When WireMock is started
+with a JKS keystore (via `WireMockConfiguration.keystorePath()` or
+`--https-keystore` when running standalone) containing such a certificate, it
+will serve browser proxied https traffic using a newly generated certificate per
+requested hostname, valid for that hostname. You can then trust that root
+certificate and be able to browse all sites proxied via WireMock.
+
+A few caveats:
+* The keystore must be in JKS format
+* This depends on internal sun classes; it works with OepnJDK 1.8 -> 14, but may
+  stop working in future versions or on other runtimes
+* It's your responsibility to keep that private key & keystore secure - if you
+  add it to your trusted certs then anyone getting hold of it could potentially
+  get access to any service you use on the web.
+
+TODO: Document how to generate such a keystore, and how to trust its
+certificate, on Linux, OS/X & Windows.
+
+
 Proxying of HTTPS traffic when the proxy endpoint is also HTTPS is problematic;
 Postman seems not to cope with an HTTPS proxy even to proxy HTTP traffic. Older
 versions of curl fail trying to do the CONNECT call because they try to do so
@@ -165,6 +188,8 @@ https://hub.docker.com/r/wernight/spdyproxy to see if it is a client problem:
 docker run --rm -it -p 44300:44300 wernight/spdyproxy
 curl --proxy-insecure -x https://localhost:44300 -k 'https://www.example.com/'
 ```
+
+[1] It would also be a security risk as the private key is in the public domain
 
 ## Proxying via another proxy server
 
