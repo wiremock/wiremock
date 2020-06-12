@@ -75,7 +75,7 @@ public class X509KeyStore {
     }
 
     /**
-     * @return the first key & chain that represent a certificate authority
+     * @return the first key &amp; chain that represent a certificate authority
      *         or null if none found
      */
     public CertificateAuthority getCertificateAuthority() {
