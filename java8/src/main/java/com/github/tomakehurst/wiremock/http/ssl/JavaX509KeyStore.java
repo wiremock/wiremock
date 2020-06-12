@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -72,11 +73,7 @@ public class JavaX509KeyStore implements X509KeyStore {
     }
 
     private static X509Certificate[] convertToX509(Certificate[] fromKeyStore) {
-        X509Certificate[] result = new X509Certificate[fromKeyStore.length];
-        for (int i = 0; i < fromKeyStore.length; i++) {
-            result[i] = (X509Certificate) fromKeyStore[i];
-        }
-        return result;
+        return stream(fromKeyStore).map(X509Certificate.class::cast).toArray(X509Certificate[]::new);
     }
 
     @Override
