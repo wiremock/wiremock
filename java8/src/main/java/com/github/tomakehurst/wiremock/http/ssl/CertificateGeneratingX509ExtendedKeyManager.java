@@ -216,49 +216,55 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         if (matches(certificateChain[0], requestedServerNames)) {
             return defaultAlias;
         } else {
-            return generateCertificate(keyType, defaultAlias, requestedServerNames.get(0));
+            try {
+                return generateCertificate(keyType, requestedServerNames.get(0));
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | IOException | SignatureException e) {
+                // TODO log?
+                return defaultAlias;
+            }
         }
     }
 
     /**
      * @param keyType non null, guaranteed to be valid
-     * @param defaultAlias non null, guaranteed to match a private key entry
      * @param requestedServerName non null
      * @return an alias to a new private key & certificate for the first requested server name
      */
     private String generateCertificate(
         String keyType,
-        String defaultAlias,
         SNIHostName requestedServerName
-    ) {
-        try {
-            String requestedNameString = requestedServerName.getAsciiName();
+    ) throws CertificateException, NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
+        String requestedNameString = requestedServerName.getAsciiName();
 
-            CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
-            newCertAndKey.generate(2048);
-            PrivateKey newKey = newCertAndKey.getPrivateKey();
+        CertChainAndKey newCertChainAndKey = generateCertificate(keyType, requestedNameString);
 
-            X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                    new X500Name("CN=" + requestedNameString),
-                    new Date(),
-                    (long) 365 * 24 * 60 * 60,
-                    subjectAlternativeName(requestedNameString)
-            );
+        keyStore.setKeyEntry(requestedNameString, newCertChainAndKey.key, password, newCertChainAndKey.certificateChain);
+        return requestedNameString;
+    }
 
-            X509Certificate[] signingChain = existingCertificateAuthority.certificateChain;
-            PrivateKey signingKey = existingCertificateAuthority.key;
+    private CertChainAndKey generateCertificate(
+        String keyType,
+        String requestedNameString
+    ) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, CertificateException, SignatureException, IOException {
+        CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
+        newCertAndKey.generate(2048);
+        PrivateKey newKey = newCertAndKey.getPrivateKey();
 
-            X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
-            X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
-            fullChain[0] = signed;
-            System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
+        X509Certificate certificate = newCertAndKey.getSelfCertificate(
+                new X500Name("CN=" + requestedNameString),
+                new Date(),
+                (long) 365 * 24 * 60 * 60,
+                subjectAlternativeName(requestedNameString)
+        );
 
-            keyStore.setKeyEntry(requestedNameString, newKey, password, fullChain);
-            return requestedNameString;
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | IOException | SignatureException e) {
-            // TODO log?
-            return defaultAlias;
-        }
+        X509Certificate[] signingChain = existingCertificateAuthority.certificateChain;
+        PrivateKey signingKey = existingCertificateAuthority.key;
+
+        X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
+        X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
+        fullChain[0] = signed;
+        System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
+        return new CertChainAndKey(fullChain, newKey);
     }
 
     private static CertificateExtensions subjectAlternativeName(String requestedNameString) throws IOException {
