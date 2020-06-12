@@ -159,8 +159,8 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
      * @param requestedServerNames non null, non empty
      */
     private String chooseServerAlias(String keyType, String defaultAlias, List<SNIHostName> requestedServerNames) {
-        X509Certificate[] certificateChain = getCertificateChain(defaultAlias);
-        if (matches(certificateChain[0], requestedServerNames)) {
+        X509Certificate[] certificateChain = super.getCertificateChain(defaultAlias);
+        if (certificateChain != null && matches(certificateChain[0], requestedServerNames)) {
             return defaultAlias;
         } else {
             try {
