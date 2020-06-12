@@ -165,7 +165,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         } else {
             try {
                 SNIHostName requestedServerName = requestedServerNames.get(0);
-                dynamicKeyStore.generateCertificate(keyType, requestedServerName);
+                dynamicKeyStore.generateCertificateIfNecessary(keyType, requestedServerName);
                 return requestedServerName.getAsciiName();
             } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
                 // TODO log?

@@ -15,17 +15,18 @@ import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.KEY_STORE_WITH_CA_PATH;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -57,6 +58,34 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
 
         PublicKey myPublicKey = getPublicKey(privateKey);
         assertEquals(myPublicKey, generatingKeyManager.getCertificateChain(keyAlias)[0].getPublicKey());
+    }
+
+    @Test
+    public void returnsSameGeneratedPricateKeyOnSubsequencCalls() throws Exception {
+
+        KeyStore keyStore = readKeyStore(KEY_STORE_WITH_CA_PATH, "password");
+        String hostname = "example.com";
+
+        // given
+        CertificateGeneratingX509ExtendedKeyManager generatingKeyManager = keyManagerFor(keyStore, "password".toCharArray());
+
+        // when
+        SSLEngine sslEngineMock = getSslEngineWithSessionFor(hostname);
+        String keyAlias = generatingKeyManager.chooseEngineServerAlias("RSA", null, sslEngineMock);
+
+        // and
+        X509Certificate[] certificateChain = generatingKeyManager.getCertificateChain(keyAlias);
+        PrivateKey privateKey = generatingKeyManager.getPrivateKey(keyAlias);
+
+        // when
+        String sameKeyAlias = generatingKeyManager.chooseEngineServerAlias("RSA", null, sslEngineMock);
+
+        // then
+        assertEquals(keyAlias, sameKeyAlias);
+
+        // and same keys returned
+        assertEquals(privateKey, generatingKeyManager.getPrivateKey(sameKeyAlias));
+        assertArrayEquals(certificateChain, generatingKeyManager.getCertificateChain(sameKeyAlias));
     }
 
     private PublicKey getPublicKey(RSAPrivateCrtKey privateKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
