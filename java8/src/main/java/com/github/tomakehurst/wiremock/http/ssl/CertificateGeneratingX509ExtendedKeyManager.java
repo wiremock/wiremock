@@ -9,7 +9,6 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509ExtendedKeyManager;
-import java.io.IOException;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -208,7 +207,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         } else {
             try {
                 return generateCertificate(keyType, requestedServerNames.get(0));
-            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | IOException | SignatureException e) {
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
                 // TODO log?
                 return defaultAlias;
             }
@@ -223,7 +222,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     private String generateCertificate(
         String keyType,
         SNIHostName requestedServerName
-    ) throws CertificateException, NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
+    ) throws CertificateException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
         String requestedNameString = requestedServerName.getAsciiName();
 
         CertChainAndKey newCertChainAndKey = existingCertificateAuthority.generateCertificate(keyType, requestedNameString);

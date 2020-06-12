@@ -21,6 +21,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Objects.requireNonNull;
 
 class CertificateAuthority {
@@ -39,53 +41,64 @@ class CertificateAuthority {
     CertChainAndKey generateCertificate(
         String keyType,
         String requestedNameString
-    ) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, CertificateException, SignatureException, IOException {
+    ) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, CertificateException, SignatureException {
         CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
         newCertAndKey.generate(2048);
         PrivateKey newKey = newCertAndKey.getPrivateKey();
 
         X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                new X500Name("CN=" + requestedNameString),
+                x500Name(requestedNameString),
                 new Date(),
                 (long) 365 * 24 * 60 * 60,
                 subjectAlternativeName(requestedNameString)
         );
 
         X509Certificate signed = sign(certificate);
-        X509Certificate[] fullChain = new X509Certificate[certificateChain.length + 1];
-        fullChain[0] = signed;
-        System.arraycopy(certificateChain, 0, fullChain, 1, certificateChain.length);
+        X509Certificate[] fullChain = prepend(signed, certificateChain);
         return new CertChainAndKey(fullChain, newKey);
     }
 
-    private static CertificateExtensions subjectAlternativeName(String requestedNameString) throws IOException {
-        GeneralName name = new GeneralName(new DNSName(requestedNameString));
-        GeneralNames names = new GeneralNames();
-        names.add(name);
-        SubjectAlternativeNameExtension subjectAlternativeNameExtension = new SubjectAlternativeNameExtension(names);
-
-        CertificateExtensions extensions = new CertificateExtensions();
-        extensions.set(SubjectAlternativeNameExtension.NAME, subjectAlternativeNameExtension);
-        return extensions;
+    private X500Name x500Name(String requestedNameString) {
+        try {
+            return new X500Name("CN=" + requestedNameString);
+        } catch (IOException e) {
+            // it's an in memory op, should be impossible...
+            return throwUnchecked(e, null);
+        }
     }
 
-    private X509Certificate sign(X509Certificate certificate) {
+    private static CertificateExtensions subjectAlternativeName(String requestedNameString) {
         try {
-            X509Certificate issuerCertificate = certificateChain[0];
-            Principal issuer = issuerCertificate.getSubjectDN();
-            String issuerSigAlg = issuerCertificate.getSigAlgName();
+            GeneralName name = new GeneralName(new DNSName(requestedNameString));
+            GeneralNames names = new GeneralNames();
+            names.add(name);
+            SubjectAlternativeNameExtension subjectAlternativeNameExtension = new SubjectAlternativeNameExtension(names);
 
-            byte[] inCertBytes = certificate.getTBSCertificate();
-            X509CertInfo info = new X509CertInfo(inCertBytes);
-            info.set(X509CertInfo.ISSUER, issuer);
-
-            X509CertImpl outCert = new X509CertImpl(info);
-            outCert.sign(key, issuerSigAlg);
-
-            return outCert;
-        } catch (Exception ex) {
-            // TODO log failure to generate certificate
+            CertificateExtensions extensions = new CertificateExtensions();
+            extensions.set(SubjectAlternativeNameExtension.NAME, subjectAlternativeNameExtension);
+            return extensions;
+        } catch (IOException e) {
+            // it's an in memory op, should be impossible...
+            return throwUnchecked(e, null);
         }
-        return null;
+    }
+
+    private X509Certificate sign(X509Certificate certificate) throws CertificateException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        X509Certificate issuerCertificate = certificateChain[0];
+        Principal issuer = issuerCertificate.getSubjectDN();
+        String issuerSigAlg = issuerCertificate.getSigAlgName();
+
+        byte[] inCertBytes = certificate.getTBSCertificate();
+        X509CertInfo info = new X509CertInfo(inCertBytes);
+        try {
+            info.set(X509CertInfo.ISSUER, issuer);
+        } catch (IOException e) {
+            return throwUnchecked(e, null);
+        }
+
+        X509CertImpl outCert = new X509CertImpl(info);
+        outCert.sign(key, issuerSigAlg);
+
+        return outCert;
     }
 }
