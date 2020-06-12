@@ -93,7 +93,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private boolean areX509Certificates(Certificate[] fromKeyStore) {
+    private static boolean areX509Certificates(Certificate[] fromKeyStore) {
         return fromKeyStore.length == 0 || fromKeyStore[0] instanceof X509Certificate;
     }
 
@@ -113,7 +113,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
     }
 
-    private ExtendedSSLSession getHandshakeSession(Socket socket) {
+    private static ExtendedSSLSession getHandshakeSession(Socket socket) {
         if (socket instanceof SSLSocket) {
             SSLSocket sslSocket = (SSLSocket) socket;
             SSLSession sslSession = getHandshakeSessionIfSupported(sslSocket);
@@ -123,7 +123,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private SSLSession getHandshakeSessionIfSupported(SSLSocket sslSocket) {
+    private static SSLSession getHandshakeSessionIfSupported(SSLSocket sslSocket) {
         try {
             return sslSocket.getHandshakeSession();
         } catch (UnsupportedOperationException e) {
@@ -139,12 +139,12 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
     }
 
-    private ExtendedSSLSession getHandshakeSession(SSLEngine sslEngine) {
+    private static ExtendedSSLSession getHandshakeSession(SSLEngine sslEngine) {
         SSLSession sslSession = getHandshakeSessionIfSupported(sslEngine);
         return getHandshakeSession(sslSession);
     }
 
-    private SSLSession getHandshakeSessionIfSupported(SSLEngine sslEngine) {
+    private static SSLSession getHandshakeSessionIfSupported(SSLEngine sslEngine) {
         try {
             return sslEngine.getHandshakeSession();
         } catch (UnsupportedOperationException | NullPointerException e) {
@@ -153,7 +153,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private ExtendedSSLSession getHandshakeSession(SSLSession handshakeSession) {
+    private static ExtendedSSLSession getHandshakeSession(SSLSession handshakeSession) {
         if (handshakeSession instanceof ExtendedSSLSession) {
             return (ExtendedSSLSession) handshakeSession;
         } else {
@@ -188,7 +188,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private List<SNIHostName> getSNIHostNames(ExtendedSSLSession handshakeSession) {
+    private static List<SNIHostName> getSNIHostNames(ExtendedSSLSession handshakeSession) {
         List<SNIServerName> requestedServerNames = getRequestedServerNames(handshakeSession);
         List<SNIHostName> requestedHostNames = new ArrayList<>(requestedServerNames.size());
         for (SNIServerName serverName: requestedServerNames) {
@@ -199,7 +199,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return requestedHostNames;
     }
 
-    private List<SNIServerName> getRequestedServerNames(ExtendedSSLSession handshakeSession) {
+    private static List<SNIServerName> getRequestedServerNames(ExtendedSSLSession handshakeSession) {
         try {
             return handshakeSession.getRequestedServerNames();
         } catch (UnsupportedOperationException e) {
@@ -268,7 +268,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private CertificateExtensions subjectAlternativeName(String requestedNameString) throws IOException {
+    private static CertificateExtensions subjectAlternativeName(String requestedNameString) throws IOException {
         GeneralName name = new GeneralName(new DNSName(requestedNameString));
         GeneralNames names = new GeneralNames();
         names.add(name);
@@ -305,7 +305,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private boolean isCertificateAuthority(X509Certificate certificate) {
+    private static boolean isCertificateAuthority(X509Certificate certificate) {
         boolean[] keyUsage = certificate.getKeyUsage();
         return keyUsage != null && keyUsage.length > 5 && keyUsage[5];
     }
@@ -339,7 +339,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return null;
     }
 
-    private boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
+    private static boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
         for (SNIHostName serverName : requestedServerNames) {
             if (matches(x509Certificate, serverName)) {
                 return true;
@@ -348,7 +348,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return false;
     }
 
-    private boolean matches(X509Certificate x509Certificate, SNIHostName hostName) {
+    private static boolean matches(X509Certificate x509Certificate, SNIHostName hostName) {
         try {
             HostnameChecker instance = HostnameChecker.getInstance(HostnameChecker.TYPE_TLS);
             instance.match(hostName.getAsciiName(), x509Certificate);
