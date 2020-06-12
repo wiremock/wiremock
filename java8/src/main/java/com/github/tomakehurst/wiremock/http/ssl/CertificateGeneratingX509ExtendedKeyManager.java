@@ -165,7 +165,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
      * @param handshakeSession nullable
      */
     private String tryToChooseServerAlias(String keyType, String defaultAlias, ExtendedSSLSession handshakeSession) {
-        if (defaultAlias != null && handshakeSession != null) {
+        if (defaultAlias != null && handshakeSession != null && existingCertificateAuthority != null) {
             return chooseServerAlias(keyType, defaultAlias, handshakeSession);
         } else {
             return defaultAlias;
@@ -245,20 +245,16 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
                     subjectAlternativeName(requestedNameString)
             );
 
-            if (existingCertificateAuthority != null) {
-                X509Certificate[] signingChain = existingCertificateAuthority.certificateChain;
-                PrivateKey signingKey = existingCertificateAuthority.key;
+            X509Certificate[] signingChain = existingCertificateAuthority.certificateChain;
+            PrivateKey signingKey = existingCertificateAuthority.key;
 
-                X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
-                X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
-                fullChain[0] = signed;
-                System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
+            X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
+            X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
+            fullChain[0] = signed;
+            System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
 
-                keyStore.setKeyEntry(requestedNameString, newKey, password, fullChain);
-                return requestedNameString;
-            } else {
-                return defaultAlias;
-            }
+            keyStore.setKeyEntry(requestedNameString, newKey, password, fullChain);
+            return requestedNameString;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | IOException | SignatureException e) {
             // TODO log?
             return defaultAlias;
