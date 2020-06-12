@@ -10,6 +10,7 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
+import javax.net.ssl.SNIHostName;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -25,6 +26,7 @@ import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Objects.requireNonNull;
 
+@SuppressWarnings("sunapi")
 class CertificateAuthority {
 
     private final X509Certificate[] certificateChain;
@@ -40,17 +42,17 @@ class CertificateAuthority {
 
     CertChainAndKey generateCertificate(
         String keyType,
-        String requestedNameString
+        SNIHostName hostName
     ) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, CertificateException, SignatureException {
         CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
         newCertAndKey.generate(2048);
         PrivateKey newKey = newCertAndKey.getPrivateKey();
 
         X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                x500Name(requestedNameString),
+                x500Name(hostName),
                 new Date(),
                 (long) 365 * 24 * 60 * 60,
-                subjectAlternativeName(requestedNameString)
+                subjectAlternativeName(hostName)
         );
 
         X509Certificate signed = sign(certificate);
@@ -58,27 +60,36 @@ class CertificateAuthority {
         return new CertChainAndKey(fullChain, newKey);
     }
 
-    private X500Name x500Name(String requestedNameString) {
+    private X500Name x500Name(SNIHostName hostName) {
         try {
-            return new X500Name("CN=" + requestedNameString);
+            return new X500Name("CN=" + hostName.getAsciiName());
+        } catch (IOException e) {
+            // X500Name throws IOException for a parse error (which isn't an IO problem...)
+            // An SNIHostName should be guaranteed not to have a parse issue
+            return throwUnchecked(e, null);
+        }
+    }
+
+    private static CertificateExtensions subjectAlternativeName(SNIHostName hostName) {
+        GeneralName name = new GeneralName(dnsName(hostName));
+        GeneralNames names = new GeneralNames();
+        names.add(name);
+        try {
+            CertificateExtensions extensions = new CertificateExtensions();
+            extensions.set(SubjectAlternativeNameExtension.NAME, new SubjectAlternativeNameExtension(names));
+            return extensions;
         } catch (IOException e) {
             // it's an in memory op, should be impossible...
             return throwUnchecked(e, null);
         }
     }
 
-    private static CertificateExtensions subjectAlternativeName(String requestedNameString) {
+    private static DNSName dnsName(SNIHostName name) {
         try {
-            GeneralName name = new GeneralName(new DNSName(requestedNameString));
-            GeneralNames names = new GeneralNames();
-            names.add(name);
-            SubjectAlternativeNameExtension subjectAlternativeNameExtension = new SubjectAlternativeNameExtension(names);
-
-            CertificateExtensions extensions = new CertificateExtensions();
-            extensions.set(SubjectAlternativeNameExtension.NAME, subjectAlternativeNameExtension);
-            return extensions;
+            return new DNSName(name.getAsciiName());
         } catch (IOException e) {
-            // it's an in memory op, should be impossible...
+            // DNSName throws IOException for a parse error (which isn't an IO problem...)
+            // An SNIHostName should be guaranteed not to have a parse issue
             return throwUnchecked(e, null);
         }
     }

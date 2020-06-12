@@ -223,10 +223,10 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         String keyType,
         SNIHostName requestedServerName
     ) throws CertificateException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
+
+        CertChainAndKey newCertChainAndKey = existingCertificateAuthority.generateCertificate(keyType, requestedServerName);
+
         String requestedNameString = requestedServerName.getAsciiName();
-
-        CertChainAndKey newCertChainAndKey = existingCertificateAuthority.generateCertificate(keyType, requestedNameString);
-
         keyStore.setKeyEntry(requestedNameString, newCertChainAndKey.key, password, newCertChainAndKey.certificateChain);
         return requestedNameString;
     }
