@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import org.junit.Test;
 
 import javax.net.ssl.ExtendedSSLSession;
@@ -13,7 +14,10 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 
+import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
@@ -27,11 +31,13 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
     private final SSLEngine nullSslEngine = null;
     private final SSLSession nonExtendedSslSessionMock = mock(SSLSession.class);
     private final ExtendedSSLSession extendedSslSessionMock = mock(ExtendedSSLSession.class);
+    private final TestNotifier testNotifier = new TestNotifier();
 
     private final CertificateGeneratingX509ExtendedKeyManager certificateGeneratingKeyManager = new CertificateGeneratingX509ExtendedKeyManager(
             keyManagerMock,
             mock(DynamicKeyStore.class),
-            new SunHostNameMatcher()
+            new SunHostNameMatcher(),
+            testNotifier
     );
     private final Principal[] nullPrincipals = null;
 
@@ -65,6 +71,10 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
         String alias = certificateGeneratingKeyManager.chooseEngineServerAlias("RSA", nullPrincipals, sslEngineMock);
 
         assertEquals("default_alias", alias);
+        assertThat(testNotifier.getErrorMessages(), contains(
+                "Dynamic certificate generation is not supported because your SSL Provider does not support SSLEngine.getHandshakeSession()" + lineSeparator() +
+                "All sites will be served using the normal WireMock HTTPS certificate."
+        ));
     }
 
     @Test
@@ -83,6 +93,10 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
         String alias = certificateGeneratingKeyManager.chooseEngineServerAlias("RSA", nullPrincipals, sslEngineMock);
 
         assertEquals("default_alias", alias);
+        assertThat(testNotifier.getErrorMessages(), contains(
+                "Dynamic certificate generation is not supported because your SSL Provider does not support ExtendedSSLSession.getRequestedServerNames()" + lineSeparator() +
+                "All sites will be served using the normal WireMock HTTPS certificate."
+        ));
     }
 
     @Test

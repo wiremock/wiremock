@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.jetty94;
 
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
@@ -114,7 +115,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
         ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
                 new SslConnectionFactory(
-                        buildManInTheMiddleSslContextFactory(options.httpsSettings()),
+                        buildManInTheMiddleSslContextFactory(options.httpsSettings(), options.notifier()),
                     /*
                     If the proxy CONNECT request is made over HTTPS, and the
                     actual content request is made using HTTP/2 tunneled over
@@ -145,7 +146,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
         return handler;
     }
 
-    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings) {
+    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, final Notifier notifier) {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
             protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
@@ -153,7 +154,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
                 return stream(managers).map(manager -> {
                     if (manager instanceof X509ExtendedKeyManager) {
                         char[] keyStorePassword = httpsSettings.keyStorePassword() == null ? null : httpsSettings.keyStorePassword().toCharArray();
-                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStorePassword);
+                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStorePassword, notifier);
                     } else {
                         return manager;
                     }
@@ -164,7 +165,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
         return configure(sslContextFactory, httpsSettings);
     }
 
-    private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword) {
+    private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword, Notifier notifier) {
         try {
             X509KeyStore x509KeyStore = new X509KeyStore(keyStore, keyStorePassword);
             CertificateAuthority certificateAuthority = x509KeyStore.getCertificateAuthority();
@@ -173,7 +174,8 @@ public class Jetty94HttpServer extends JettyHttpServer {
                     manager,
                     new DynamicKeyStore(x509KeyStore, certificateAuthority),
                     // TODO write a version of this that doesn't depend on sun internal classes
-                    new SunHostNameMatcher()
+                    new SunHostNameMatcher(),
+                    notifier
                 );
             } else {
                 return manager;

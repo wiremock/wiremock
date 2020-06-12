@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
+import com.github.tomakehurst.wiremock.common.Notifier;
+
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
@@ -13,8 +15,10 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static java.lang.System.lineSeparator;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
@@ -22,15 +26,18 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     private final DynamicKeyStore dynamicKeyStore;
     private final HostNameMatcher hostNameMatcher;
+    private final OnceOnlyNotifier notifier;
 
     public CertificateGeneratingX509ExtendedKeyManager(
         X509ExtendedKeyManager keyManager,
         DynamicKeyStore dynamicKeyStore,
-        HostNameMatcher hostNameMatcher
+        HostNameMatcher hostNameMatcher,
+        Notifier notifier
     ) {
         super(keyManager);
         this.dynamicKeyStore = requireNonNull(dynamicKeyStore);
         this.hostNameMatcher = requireNonNull(hostNameMatcher);
+        this.notifier = new OnceOnlyNotifier(notifier);
     }
 
     @Override
@@ -56,7 +63,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
     }
 
-    private static ExtendedSSLSession getHandshakeSession(Socket socket) {
+    private ExtendedSSLSession getHandshakeSession(Socket socket) {
         if (socket instanceof SSLSocket) {
             SSLSocket sslSocket = (SSLSocket) socket;
             SSLSession sslSession = getHandshakeSessionIfSupported(sslSocket);
@@ -66,11 +73,11 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private static SSLSession getHandshakeSessionIfSupported(SSLSocket sslSocket) {
+    private SSLSession getHandshakeSessionIfSupported(SSLSocket sslSocket) {
         try {
             return sslSocket.getHandshakeSession();
         } catch (UnsupportedOperationException e) {
-            // TODO log that dynamically generating is not supported
+            notify("your SSL Provider does not support SSLSocket.getHandshakeSession()", e);
             return null;
         }
     }
@@ -82,16 +89,16 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
     }
 
-    private static ExtendedSSLSession getHandshakeSession(SSLEngine sslEngine) {
+    private ExtendedSSLSession getHandshakeSession(SSLEngine sslEngine) {
         SSLSession sslSession = getHandshakeSessionIfSupported(sslEngine);
         return getHandshakeSession(sslSession);
     }
 
-    private static SSLSession getHandshakeSessionIfSupported(SSLEngine sslEngine) {
+    private SSLSession getHandshakeSessionIfSupported(SSLEngine sslEngine) {
         try {
             return sslEngine.getHandshakeSession();
         } catch (UnsupportedOperationException | NullPointerException e) {
-            // TODO log that dynamically generating is not supported
+            notify("your SSL Provider does not support SSLEngine.getHandshakeSession()", e);
             return null;
         }
     }
@@ -131,7 +138,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
     }
 
-    private static List<SNIHostName> getSNIHostNames(ExtendedSSLSession handshakeSession) {
+    private List<SNIHostName> getSNIHostNames(ExtendedSSLSession handshakeSession) {
         List<SNIServerName> requestedServerNames = getRequestedServerNames(handshakeSession);
         return requestedServerNames.stream()
                 .filter(SNIHostName.class::isInstance)
@@ -139,11 +146,11 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
                 .collect(Collectors.toList());
     }
 
-    private static List<SNIServerName> getRequestedServerNames(ExtendedSSLSession handshakeSession) {
+    private List<SNIServerName> getRequestedServerNames(ExtendedSSLSession handshakeSession) {
         try {
             return handshakeSession.getRequestedServerNames();
         } catch (UnsupportedOperationException e) {
-            // TODO log that dynamically generating is not supported
+            notify("your SSL Provider does not support ExtendedSSLSession.getRequestedServerNames()", e);
             return emptyList();
         }
     }
@@ -163,7 +170,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
                 dynamicKeyStore.generateCertificateIfNecessary(keyType, requestedServerName);
                 return requestedServerName.getAsciiName();
             } catch (KeyStoreException | CertificateGenerationUnsupportedException e) {
-                // TODO log?
+                notify("certificates cannot be generated; perhaps the sun internal classes are not available?", e);
                 return defaultAlias;
             }
         }
@@ -171,5 +178,49 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     private boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
         return requestedServerNames.stream().anyMatch(sniHostName -> hostNameMatcher.matches(x509Certificate, sniHostName));
+    }
+
+    private void notify(String reason, Exception e) {
+        notifier.error("Dynamic certificate generation is not supported because " + reason + lineSeparator() +
+                "All sites will be served using the normal WireMock HTTPS certificate.", e);
+    }
+
+    private static class OnceOnlyNotifier implements Notifier {
+
+        private final Notifier notifier;
+        private final OnceOnly onceOnly = new OnceOnly();
+
+        private OnceOnlyNotifier(Notifier notifier) {
+            this.notifier = notifier;
+        }
+
+        @Override
+        public void info(String message) {
+            if (onceOnly.unused()) {
+                notifier.info(message);
+            }
+        }
+
+        @Override
+        public void error(String message) {
+            if (onceOnly.unused()) {
+                notifier.error(message);
+            }
+        }
+
+        @Override
+        public void error(String message, Throwable t) {
+            if (onceOnly.unused()) {
+                notifier.error(message, t);
+            }
+        }
+    }
+
+    private static class OnceOnly {
+        private final AtomicBoolean used = new AtomicBoolean(false);
+
+        boolean unused() {
+            return used.compareAndSet(false, true);
+        }
     }
 }
