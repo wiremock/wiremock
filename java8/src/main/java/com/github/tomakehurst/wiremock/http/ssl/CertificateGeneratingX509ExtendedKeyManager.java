@@ -45,21 +45,19 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     private final KeyStore keyStore;
     private final char[] password;
+    private final CertChainAndKey existingCertificateAuthority;
 
     public CertificateGeneratingX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, KeyStore keyStore, char[] keyPassword) {
         super(keyManager);
         this.keyStore = keyStore;
         this.password = keyPassword;
+        existingCertificateAuthority = findExistingCertificateAuthority();
     }
 
     @Override
     public PrivateKey getPrivateKey(String alias) {
         PrivateKey original = super.getPrivateKey(alias);
-        if (original == null) {
-            return getDynamicPrivateKey(alias);
-        } else {
-            return original;
-        }
+        return original == null ? getDynamicPrivateKey(alias) : original;
     }
 
     private PrivateKey getDynamicPrivateKey(String alias) {
@@ -247,10 +245,9 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
                     subjectAlternativeName(requestedNameString)
             );
 
-            CertChainAndKey authority = findExistingCertificateAuthority();
-            if (authority != null) {
-                X509Certificate[] signingChain = authority.certificateChain;
-                PrivateKey signingKey = authority.key;
+            if (existingCertificateAuthority != null) {
+                X509Certificate[] signingChain = existingCertificateAuthority.certificateChain;
+                PrivateKey signingKey = existingCertificateAuthority.key;
 
                 X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
                 X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
@@ -292,7 +289,6 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
             if (key != null) return key;
         }
         return null;
-
     }
 
     private CertChainAndKey getCertChainAndKey(String alias) {
