@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import org.junit.Test;
 
 import javax.net.ssl.ExtendedSSLSession;
@@ -113,7 +114,8 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
         return new CertificateGeneratingX509ExtendedKeyManager(
                 keyManager,
                 new DynamicKeyStore(x509KeyStore, x509KeyStore.getCertificateAuthority()),
-                new SunHostNameMatcher()
+                new SunHostNameMatcher(),
+                new TestNotifier()
         );
     }
 
