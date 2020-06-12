@@ -1,7 +1,5 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import sun.security.util.HostnameChecker;
-
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
@@ -10,29 +8,30 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509ExtendedKeyManager;
 import java.net.Socket;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.PrivateKey;
-import java.security.SignatureException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
-@SuppressWarnings("sunapi")
 public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509ExtendedKeyManager {
 
     private final DynamicKeyStore dynamicKeyStore;
+    private final HostNameMatcher hostNameMatcher;
 
-    public CertificateGeneratingX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, KeyStore keyStore, char[] keyPassword) throws KeyStoreException {
+    public CertificateGeneratingX509ExtendedKeyManager(
+        X509ExtendedKeyManager keyManager,
+        KeyStore keyStore,
+        char[] keyPassword,
+        HostNameMatcher hostNameMatcher
+    ) throws KeyStoreException {
         super(keyManager);
-        dynamicKeyStore = new DynamicKeyStore(new JavaX509KeyStore(keyStore, keyPassword));
+        this.hostNameMatcher = hostNameMatcher;
+        this.dynamicKeyStore = new DynamicKeyStore(new JavaX509KeyStore(keyStore, keyPassword));
     }
 
     @Override
@@ -164,24 +163,14 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
                 SNIHostName requestedServerName = requestedServerNames.get(0);
                 dynamicKeyStore.generateCertificateIfNecessary(keyType, requestedServerName);
                 return requestedServerName.getAsciiName();
-            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
+            } catch (KeyStoreException | CertificateGenerationUnsupportedException e) {
                 // TODO log?
                 return defaultAlias;
             }
         }
     }
 
-    private static boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
-        return requestedServerNames.stream().anyMatch(sniHostName -> matches(x509Certificate, sniHostName));
-    }
-
-    private static boolean matches(X509Certificate x509Certificate, SNIHostName hostName) {
-        try {
-            HostnameChecker instance = HostnameChecker.getInstance(HostnameChecker.TYPE_TLS);
-            instance.match(hostName.getAsciiName(), x509Certificate);
-            return true;
-        } catch (CertificateException e) {
-            return false;
-        }
+    private boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
+        return requestedServerNames.stream().anyMatch(sniHostName -> hostNameMatcher.matches(x509Certificate, sniHostName));
     }
 }

@@ -109,7 +109,12 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
         keyManagerFactory.init(keyStore, keyStorePassword);
         X509ExtendedKeyManager keyManager = findExtendedKeyManager(keyManagerFactory.getKeyManagers());
 
-        return new CertificateGeneratingX509ExtendedKeyManager(keyManager, keyStore, keyStorePassword);
+        return new CertificateGeneratingX509ExtendedKeyManager(
+                keyManager,
+                keyStore,
+                keyStorePassword,
+                new SunHostNameMatcher()
+        );
     }
 
     private X509ExtendedKeyManager findExtendedKeyManager(KeyManager[] keyManagers) {

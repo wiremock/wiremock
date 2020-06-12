@@ -39,7 +39,7 @@ class DynamicKeyStore implements X509KeyStore {
     void generateCertificateIfNecessary(
         String keyType,
         SNIHostName requestedServerName
-    ) throws CertificateException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
+    ) throws CertificateGenerationUnsupportedException, KeyStoreException {
         if (getPrivateKey(requestedServerName.getAsciiName()) == null) {
             generateCertificate(keyType, requestedServerName);
         }
@@ -52,7 +52,7 @@ class DynamicKeyStore implements X509KeyStore {
     void generateCertificate(
         String keyType,
         SNIHostName requestedServerName
-    ) throws CertificateException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
+    ) throws CertificateGenerationUnsupportedException, KeyStoreException {
         CertChainAndKey newCertChainAndKey = existingCertificateAuthority.generateCertificate(keyType, requestedServerName);
         setKeyEntry(requestedServerName.getAsciiName(), newCertChainAndKey);
     }
