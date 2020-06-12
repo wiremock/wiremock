@@ -139,4 +139,6 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseServerAliasDefault
         when(certificate.getSubjectX500Principal()).thenReturn(new X500Principal(cn));
         return certificate;
     }
+
+    public CertificateGeneratingX509ExtendedKeyManagerChooseServerAliasDefaultsTest() throws Exception {}
 }

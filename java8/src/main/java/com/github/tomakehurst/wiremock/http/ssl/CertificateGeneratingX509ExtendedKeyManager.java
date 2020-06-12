@@ -30,9 +30,9 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     private final DynamicKeyStore dynamicKeyStore;
 
-    public CertificateGeneratingX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, KeyStore keyStore, char[] keyPassword) {
+    public CertificateGeneratingX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, KeyStore keyStore, char[] keyPassword) throws KeyStoreException {
         super(keyManager);
-        dynamicKeyStore = new DynamicKeyStore(keyStore, keyPassword);
+        dynamicKeyStore = new DynamicKeyStore(new JavaX509KeyStore(keyStore, keyPassword));
     }
 
     @Override

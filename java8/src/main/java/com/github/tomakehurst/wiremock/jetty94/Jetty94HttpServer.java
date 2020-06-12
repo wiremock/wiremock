@@ -14,14 +14,22 @@ import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.X509ExtendedKeyManager;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Arrays.stream;
 
 public class Jetty94HttpServer extends JettyHttpServer {
@@ -141,7 +149,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
                 return stream(managers).map(manager -> {
                     if (manager instanceof X509ExtendedKeyManager) {
                         char[] keyStorePassword = httpsSettings.keyStorePassword() == null ? null : httpsSettings.keyStorePassword().toCharArray();
-                        return new CertificateGeneratingX509ExtendedKeyManager((X509ExtendedKeyManager) manager, keyStore, keyStorePassword);
+                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStorePassword);
                     } else {
                         return manager;
                     }
@@ -150,5 +158,14 @@ public class Jetty94HttpServer extends JettyHttpServer {
         };
 
         return configure(sslContextFactory, httpsSettings);
+    }
+
+    private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword) {
+        try {
+            return new CertificateGeneratingX509ExtendedKeyManager(manager, keyStore, keyStorePassword);
+        } catch (KeyStoreException e) {
+            // KeyStore must be loaded here, should never happen
+            return throwUnchecked(e, null);
+        }
     }
 }
