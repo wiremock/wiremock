@@ -27,7 +27,7 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.util.Objects.requireNonNull;
 
 @SuppressWarnings("sunapi")
-class CertificateAuthority {
+public class CertificateAuthority {
 
     private final X509Certificate[] certificateChain;
     private final PrivateKey key;

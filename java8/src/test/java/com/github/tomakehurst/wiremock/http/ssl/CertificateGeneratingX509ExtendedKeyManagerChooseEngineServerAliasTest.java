@@ -108,11 +108,11 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(keyStore, keyStorePassword);
         X509ExtendedKeyManager keyManager = findExtendedKeyManager(keyManagerFactory.getKeyManagers());
+        JavaX509KeyStore x509KeyStore = new JavaX509KeyStore(keyStore, keyStorePassword);
 
         return new CertificateGeneratingX509ExtendedKeyManager(
                 keyManager,
-                keyStore,
-                keyStorePassword,
+                new DynamicKeyStore(x509KeyStore, x509KeyStore.getCertificateAuthority()),
                 new SunHostNameMatcher()
         );
     }

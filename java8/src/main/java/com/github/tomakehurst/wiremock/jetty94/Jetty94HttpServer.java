@@ -5,7 +5,10 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
+import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
+import com.github.tomakehurst.wiremock.http.ssl.JavaX509KeyStore;
 import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
@@ -163,13 +166,18 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
     private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword) {
         try {
-            return new CertificateGeneratingX509ExtendedKeyManager(
-                manager,
-                keyStore,
-                keyStorePassword,
-                // TODO write a version of this that doesn't depend on sun internal classes
-                new SunHostNameMatcher()
-            );
+            JavaX509KeyStore x509KeyStore = new JavaX509KeyStore(keyStore, keyStorePassword);
+            CertificateAuthority certificateAuthority = x509KeyStore.getCertificateAuthority();
+            if (certificateAuthority != null) {
+                return new CertificateGeneratingX509ExtendedKeyManager(
+                    manager,
+                    new DynamicKeyStore(x509KeyStore, certificateAuthority),
+                    // TODO write a version of this that doesn't depend on sun internal classes
+                    new SunHostNameMatcher()
+                );
+            } else {
+                return manager;
+            }
         } catch (KeyStoreException e) {
             // KeyStore must be loaded here, should never happen
             return throwUnchecked(e, null);

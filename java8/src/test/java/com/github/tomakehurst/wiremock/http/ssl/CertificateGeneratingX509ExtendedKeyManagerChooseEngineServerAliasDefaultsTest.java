@@ -1,7 +1,5 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
-import com.github.tomakehurst.wiremock.crypto.Secret;
 import org.junit.Test;
 
 import javax.net.ssl.ExtendedSSLSession;
@@ -15,7 +13,6 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 
-import static com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore.KeyStoreType.JKS;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -33,8 +30,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
 
     private final CertificateGeneratingX509ExtendedKeyManager certificateGeneratingKeyManager = new CertificateGeneratingX509ExtendedKeyManager(
             keyManagerMock,
-            new InMemoryKeyStore(JKS, new Secret("whatever")).getKeyStore(),
-            "password".toCharArray(),
+            mock(DynamicKeyStore.class),
             new SunHostNameMatcher()
     );
     private final Principal[] nullPrincipals = null;
