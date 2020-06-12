@@ -87,30 +87,47 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     @Override
     public PrivateKey getPrivateKey(String alias) {
+        PrivateKey original = super.getPrivateKey(alias);
+        if (original == null) {
+            return getDynamicPrivateKey(alias);
+        } else {
+            return original;
+        }
+    }
+
+    private PrivateKey getDynamicPrivateKey(String alias) {
         try {
-            PrivateKey fromKeyStore = (PrivateKey) keyStore.getKey(alias, password);
-            if (fromKeyStore == null) {
-                return super.getPrivateKey(alias);
-            } else {
-                return fromKeyStore;
-            }
+            return (PrivateKey) keyStore.getKey(alias, password);
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
-            return super.getPrivateKey(alias);
+            return null;
         }
     }
 
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
+        X509Certificate[] original = super.getCertificateChain(alias);
+        if (original == null) {
+            return getDynamicCertificateChain(alias);
+        } else {
+            return original;
+        }
+    }
+
+    private X509Certificate[] getDynamicCertificateChain(String alias) {
         try {
             Certificate[] fromKeyStore = keyStore.getCertificateChain(alias);
-            if (fromKeyStore == null) {
-                return super.getCertificateChain(alias);
-            } else {
+            if (fromKeyStore != null && areX509Certificates(fromKeyStore)) {
                 return convertToX509(fromKeyStore);
+            } else {
+                return null;
             }
         } catch (KeyStoreException e) {
-            return super.getCertificateChain(alias);
+            return null;
         }
+    }
+
+    private boolean areX509Certificates(Certificate[] fromKeyStore) {
+        return fromKeyStore.length == 0 || fromKeyStore[0] instanceof X509Certificate;
     }
 
     private static X509Certificate[] convertToX509(Certificate[] fromKeyStore) {
