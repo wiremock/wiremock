@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * Wrapper class to make it easy to retrieve X509 PrivateKey and certificate
  * chains
  */
-public class JavaX509KeyStore {
+public class X509KeyStore {
 
     private final KeyStore keyStore;
     private final char[] password;
@@ -31,7 +31,7 @@ public class JavaX509KeyStore {
      * @param password used to manage all keys stored in this key store
      * @throws KeyStoreException if the keystore has not been loaded
      */
-    public JavaX509KeyStore(KeyStore keyStore, char[] password) throws KeyStoreException {
+    public X509KeyStore(KeyStore keyStore, char[] password) throws KeyStoreException {
         this.keyStore = requireNonNull(keyStore);
         this.password = requireNonNull(password);
         this.aliases = Collections.list(keyStore.aliases());
