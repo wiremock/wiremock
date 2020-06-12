@@ -1,15 +1,6 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import sun.security.tools.keytool.CertAndKeyGen;
 import sun.security.util.HostnameChecker;
-import sun.security.x509.CertificateExtensions;
-import sun.security.x509.DNSName;
-import sun.security.x509.GeneralName;
-import sun.security.x509.GeneralNames;
-import sun.security.x509.SubjectAlternativeNameExtension;
-import sun.security.x509.X500Name;
-import sun.security.x509.X509CertImpl;
-import sun.security.x509.X509CertInfo;
 
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
@@ -34,7 +25,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -45,7 +35,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     private final KeyStore keyStore;
     private final char[] password;
-    private final CertChainAndKey existingCertificateAuthority;
+    private final CertificateAuthority existingCertificateAuthority;
 
     public CertificateGeneratingX509ExtendedKeyManager(X509ExtendedKeyManager keyManager, KeyStore keyStore, char[] keyPassword) {
         super(keyManager);
@@ -236,49 +226,13 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     ) throws CertificateException, NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, InvalidKeyException, KeyStoreException {
         String requestedNameString = requestedServerName.getAsciiName();
 
-        CertChainAndKey newCertChainAndKey = generateCertificate(keyType, requestedNameString);
+        CertChainAndKey newCertChainAndKey = existingCertificateAuthority.generateCertificate(keyType, requestedNameString);
 
         keyStore.setKeyEntry(requestedNameString, newCertChainAndKey.key, password, newCertChainAndKey.certificateChain);
         return requestedNameString;
     }
 
-    private CertChainAndKey generateCertificate(
-        String keyType,
-        String requestedNameString
-    ) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, CertificateException, SignatureException, IOException {
-        CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
-        newCertAndKey.generate(2048);
-        PrivateKey newKey = newCertAndKey.getPrivateKey();
-
-        X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                new X500Name("CN=" + requestedNameString),
-                new Date(),
-                (long) 365 * 24 * 60 * 60,
-                subjectAlternativeName(requestedNameString)
-        );
-
-        X509Certificate[] signingChain = existingCertificateAuthority.certificateChain;
-        PrivateKey signingKey = existingCertificateAuthority.key;
-
-        X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
-        X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
-        fullChain[0] = signed;
-        System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
-        return new CertChainAndKey(fullChain, newKey);
-    }
-
-    private static CertificateExtensions subjectAlternativeName(String requestedNameString) throws IOException {
-        GeneralName name = new GeneralName(new DNSName(requestedNameString));
-        GeneralNames names = new GeneralNames();
-        names.add(name);
-        SubjectAlternativeNameExtension subjectAlternativeNameExtension = new SubjectAlternativeNameExtension(names);
-
-        CertificateExtensions extensions = new CertificateExtensions();
-        extensions.set(SubjectAlternativeNameExtension.NAME, subjectAlternativeNameExtension);
-        return extensions;
-    }
-
-    private CertChainAndKey findExistingCertificateAuthority() {
+    private CertificateAuthority findExistingCertificateAuthority() {
         Enumeration<String> aliases;
         try {
             aliases = keyStore.aliases();
@@ -287,17 +241,17 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
         while (aliases.hasMoreElements()) {
             String alias = aliases.nextElement();
-            CertChainAndKey key = getCertChainAndKey(alias);
+            CertificateAuthority key = getCertChainAndKey(alias);
             if (key != null) return key;
         }
         return null;
     }
 
-    private CertChainAndKey getCertChainAndKey(String alias) {
+    private CertificateAuthority getCertChainAndKey(String alias) {
         X509Certificate[] chain = getCertificateChain(alias);
         PrivateKey key = getPrivateKey(alias);
         if (isCertificateAuthority(chain[0]) && key != null) {
-            return new CertChainAndKey(chain, key);
+            return new CertificateAuthority(chain, key);
         } else {
             return null;
         }
@@ -306,25 +260,6 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     private static boolean isCertificateAuthority(X509Certificate certificate) {
         boolean[] keyUsage = certificate.getKeyUsage();
         return keyUsage != null && keyUsage.length > 5 && keyUsage[5];
-    }
-
-    private static X509Certificate createSignedCertificate(X509Certificate certificate, X509Certificate issuerCertificate, PrivateKey issuerPrivateKey) {
-        try {
-            Principal issuer = issuerCertificate.getSubjectDN();
-            String issuerSigAlg = issuerCertificate.getSigAlgName();
-
-            byte[] inCertBytes = certificate.getTBSCertificate();
-            X509CertInfo info = new X509CertInfo(inCertBytes);
-            info.set(X509CertInfo.ISSUER, issuer);
-
-            X509CertImpl outCert = new X509CertImpl(info);
-            outCert.sign(issuerPrivateKey, issuerSigAlg);
-
-            return outCert;
-        } catch (Exception ex) {
-            // TODO log failure to generate certificate
-        }
-        return null;
     }
 
     private static boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
