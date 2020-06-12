@@ -9,10 +9,10 @@ import static java.util.Objects.requireNonNull;
 
 public class DynamicKeyStore {
 
-    private final JavaX509KeyStore keyStore;
+    private final X509KeyStore keyStore;
     private final CertificateAuthority existingCertificateAuthority;
 
-    public DynamicKeyStore(JavaX509KeyStore keyStore, CertificateAuthority existingCertificateAuthority) {
+    public DynamicKeyStore(X509KeyStore keyStore, CertificateAuthority existingCertificateAuthority) {
         this.keyStore = requireNonNull(keyStore);
         this.existingCertificateAuthority = requireNonNull(existingCertificateAuthority);
     }

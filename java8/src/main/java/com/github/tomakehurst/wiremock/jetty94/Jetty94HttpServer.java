@@ -8,7 +8,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
 import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
-import com.github.tomakehurst.wiremock.http.ssl.JavaX509KeyStore;
+import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
 import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
@@ -166,7 +166,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
     private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword) {
         try {
-            JavaX509KeyStore x509KeyStore = new JavaX509KeyStore(keyStore, keyStorePassword);
+            X509KeyStore x509KeyStore = new X509KeyStore(keyStore, keyStorePassword);
             CertificateAuthority certificateAuthority = x509KeyStore.getCertificateAuthority();
             if (certificateAuthority != null) {
                 return new CertificateGeneratingX509ExtendedKeyManager(
