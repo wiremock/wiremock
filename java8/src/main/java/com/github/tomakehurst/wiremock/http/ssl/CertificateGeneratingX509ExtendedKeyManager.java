@@ -53,39 +53,6 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     }
 
     @Override
-    public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-        String defaultAlias = super.chooseServerAlias(keyType, issuers, socket);
-        ExtendedSSLSession handshakeSession = getHandshakeSession(socket);
-        return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
-    }
-
-    private ExtendedSSLSession getHandshakeSession(Socket socket) {
-        if (socket instanceof SSLSocket) {
-            SSLSocket sslSocket = (SSLSocket) socket;
-            SSLSession sslSession = getHandshakeSessionIfSupported(sslSocket);
-            return getHandshakeSession(sslSession);
-        } else {
-            return null;
-        }
-    }
-
-    private SSLSession getHandshakeSessionIfSupported(SSLSocket sslSocket) {
-        try {
-            return sslSocket.getHandshakeSession();
-        } catch (UnsupportedOperationException e) {
-            // TODO log that dynamically generating is not supported
-            return null;
-        }
-    }
-
-    @Override
-    public String chooseEngineServerAlias(String keyType, Principal[] issuers, SSLEngine engine) {
-        String defaultAlias = super.chooseEngineServerAlias(keyType, issuers, engine);
-        ExtendedSSLSession handshakeSession = getHandshakeSession(engine);
-        return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
-    }
-
-    @Override
     public PrivateKey getPrivateKey(String alias) {
         PrivateKey original = super.getPrivateKey(alias);
         if (original == null) {
@@ -136,6 +103,40 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
             result[i] = (X509Certificate) fromKeyStore[i];
         }
         return result;
+    }
+
+
+    @Override
+    public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+        String defaultAlias = super.chooseServerAlias(keyType, issuers, socket);
+        ExtendedSSLSession handshakeSession = getHandshakeSession(socket);
+        return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
+    }
+
+    private ExtendedSSLSession getHandshakeSession(Socket socket) {
+        if (socket instanceof SSLSocket) {
+            SSLSocket sslSocket = (SSLSocket) socket;
+            SSLSession sslSession = getHandshakeSessionIfSupported(sslSocket);
+            return getHandshakeSession(sslSession);
+        } else {
+            return null;
+        }
+    }
+
+    private SSLSession getHandshakeSessionIfSupported(SSLSocket sslSocket) {
+        try {
+            return sslSocket.getHandshakeSession();
+        } catch (UnsupportedOperationException e) {
+            // TODO log that dynamically generating is not supported
+            return null;
+        }
+    }
+
+    @Override
+    public String chooseEngineServerAlias(String keyType, Principal[] issuers, SSLEngine engine) {
+        String defaultAlias = super.chooseEngineServerAlias(keyType, issuers, engine);
+        ExtendedSSLSession handshakeSession = getHandshakeSession(engine);
+        return tryToChooseServerAlias(keyType, defaultAlias, handshakeSession);
     }
 
     private ExtendedSSLSession getHandshakeSession(SSLEngine sslEngine) {
