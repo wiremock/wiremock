@@ -16,3 +16,15 @@ dependencies {
     testCompile "org.eclipse.jetty:jetty-client:$jettyVersion"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$jettyVersion"
 }
+
+compileJava {
+    options.encoding = 'UTF-8'
+
+    // silences warnings about compiling against `sun` packages
+    options.compilerArgs += '-XDenableSunApiLintControl'
+
+    // makes it possible to compile against `sun.security.tools.keytool`
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+    options.compilerArgs += '-XDignore.symbol.file'
+}
