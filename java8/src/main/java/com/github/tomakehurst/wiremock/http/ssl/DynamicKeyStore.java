@@ -1,34 +1,27 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import javax.net.ssl.SNIHostName;
-import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.SignatureException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import static java.util.Objects.requireNonNull;
 
-class DynamicKeyStore implements X509KeyStore {
+public class DynamicKeyStore {
 
-    private final X509KeyStore keyStore;
+    private final JavaX509KeyStore keyStore;
     private final CertificateAuthority existingCertificateAuthority;
 
-    DynamicKeyStore(X509KeyStore keyStore) {
+    public DynamicKeyStore(JavaX509KeyStore keyStore, CertificateAuthority existingCertificateAuthority) {
         this.keyStore = requireNonNull(keyStore);
-        this.existingCertificateAuthority = keyStore.getCertificateAuthority();
+        this.existingCertificateAuthority = requireNonNull(existingCertificateAuthority);
     }
 
-    @Override
-    public PrivateKey getPrivateKey(String alias) {
+    PrivateKey getPrivateKey(String alias) {
         return keyStore.getPrivateKey(alias);
     }
 
-    @Override
-    public X509Certificate[] getCertificateChain(String alias) {
+    X509Certificate[] getCertificateChain(String alias) {
         return keyStore.getCertificateChain(alias);
     }
 
@@ -49,26 +42,11 @@ class DynamicKeyStore implements X509KeyStore {
      * @param keyType             non null, guaranteed to be valid
      * @param requestedServerName non null
      */
-    void generateCertificate(
+    private void generateCertificate(
         String keyType,
         SNIHostName requestedServerName
     ) throws CertificateGenerationUnsupportedException, KeyStoreException {
         CertChainAndKey newCertChainAndKey = existingCertificateAuthority.generateCertificate(keyType, requestedServerName);
-        setKeyEntry(requestedServerName.getAsciiName(), newCertChainAndKey);
-    }
-
-    @Override
-    public boolean hasCertificateAuthority() {
-        return existingCertificateAuthority != null;
-    }
-
-    @Override
-    public CertificateAuthority getCertificateAuthority() {
-        return keyStore.getCertificateAuthority();
-    }
-
-    @Override
-    public void setKeyEntry(String alias, CertChainAndKey newCertChainAndKey) throws KeyStoreException {
-        keyStore.setKeyEntry(alias, newCertChainAndKey);
+        keyStore.setKeyEntry(requestedServerName.getAsciiName(), newCertChainAndKey);
     }
 }

@@ -19,7 +19,7 @@ import static java.util.Objects.requireNonNull;
  * Wrapper class to make it easy to retrieve X509 PrivateKey and certificate
  * chains
  */
-public class JavaX509KeyStore implements X509KeyStore {
+public class JavaX509KeyStore {
 
     private final KeyStore keyStore;
     private final char[] password;
@@ -37,8 +37,7 @@ public class JavaX509KeyStore implements X509KeyStore {
         this.aliases = Collections.list(keyStore.aliases());
     }
 
-    @Override
-    public PrivateKey getPrivateKey(String alias) {
+    PrivateKey getPrivateKey(String alias) {
         try {
             Key key = keyStore.getKey(alias, password);
             if (key instanceof PrivateKey) {
@@ -54,8 +53,7 @@ public class JavaX509KeyStore implements X509KeyStore {
         }
     }
 
-    @Override
-    public X509Certificate[] getCertificateChain(String alias) {
+    X509Certificate[] getCertificateChain(String alias) {
         try {
             Certificate[] fromKeyStore = keyStore.getCertificateChain(alias);
             if (fromKeyStore != null && areX509Certificates(fromKeyStore)) {
@@ -76,12 +74,10 @@ public class JavaX509KeyStore implements X509KeyStore {
         return stream(fromKeyStore).map(X509Certificate.class::cast).toArray(X509Certificate[]::new);
     }
 
-    @Override
-    public boolean hasCertificateAuthority() {
-        return getCertificateAuthority() != null;
-    }
-
-    @Override
+    /**
+     * @return the first key & chain that represent a certificate authority
+     *         or null if none found
+     */
     public CertificateAuthority getCertificateAuthority() {
         for (String alias : aliases) {
             X509Certificate[] chain = getCertificateChain(alias);
@@ -98,8 +94,7 @@ public class JavaX509KeyStore implements X509KeyStore {
         return keyUsage != null && keyUsage.length > 5 && keyUsage[5];
     }
 
-    @Override
-    public void setKeyEntry(String alias, CertChainAndKey newCertChainAndKey) throws KeyStoreException {
+    void setKeyEntry(String alias, CertChainAndKey newCertChainAndKey) throws KeyStoreException {
         keyStore.setKeyEntry(alias, newCertChainAndKey.key, password, newCertChainAndKey.certificateChain);
     }
 }

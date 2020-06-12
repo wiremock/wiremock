@@ -8,7 +8,6 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509ExtendedKeyManager;
 import java.net.Socket;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.Principal;
 import java.security.PrivateKey;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 
 public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509ExtendedKeyManager {
 
@@ -25,13 +25,12 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     public CertificateGeneratingX509ExtendedKeyManager(
         X509ExtendedKeyManager keyManager,
-        KeyStore keyStore,
-        char[] keyPassword,
+        DynamicKeyStore dynamicKeyStore,
         HostNameMatcher hostNameMatcher
-    ) throws KeyStoreException {
+    ) {
         super(keyManager);
-        this.hostNameMatcher = hostNameMatcher;
-        this.dynamicKeyStore = new DynamicKeyStore(new JavaX509KeyStore(keyStore, keyPassword));
+        this.dynamicKeyStore = requireNonNull(dynamicKeyStore);
+        this.hostNameMatcher = requireNonNull(hostNameMatcher);
     }
 
     @Override
@@ -111,7 +110,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
      * @param handshakeSession nullable
      */
     private String tryToChooseServerAlias(String keyType, String defaultAlias, ExtendedSSLSession handshakeSession) {
-        if (defaultAlias != null && handshakeSession != null && dynamicKeyStore.hasCertificateAuthority()) {
+        if (defaultAlias != null && handshakeSession != null) {
             return chooseServerAlias(keyType, defaultAlias, handshakeSession);
         } else {
             return defaultAlias;
