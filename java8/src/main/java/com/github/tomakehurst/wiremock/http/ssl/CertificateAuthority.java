@@ -51,12 +51,10 @@ class CertificateAuthority {
                 subjectAlternativeName(requestedNameString)
         );
 
-        X509Certificate[] signingChain = certificateChain;
-
         X509Certificate signed = sign(certificate);
-        X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
+        X509Certificate[] fullChain = new X509Certificate[certificateChain.length + 1];
         fullChain[0] = signed;
-        System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
+        System.arraycopy(certificateChain, 0, fullChain, 1, certificateChain.length);
         return new CertChainAndKey(fullChain, newKey);
     }
 
