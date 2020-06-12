@@ -20,8 +20,8 @@ import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -135,13 +135,10 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
 
     private static List<SNIHostName> getSNIHostNames(ExtendedSSLSession handshakeSession) {
         List<SNIServerName> requestedServerNames = getRequestedServerNames(handshakeSession);
-        List<SNIHostName> requestedHostNames = new ArrayList<>(requestedServerNames.size());
-        for (SNIServerName serverName: requestedServerNames) {
-            if (serverName instanceof SNIHostName) {
-                requestedHostNames.add((SNIHostName) serverName);
-            }
-        }
-        return requestedHostNames;
+        return requestedServerNames.stream()
+                .filter(SNIHostName.class::isInstance)
+                .map(SNIHostName.class::cast)
+                .collect(Collectors.toList());
     }
 
     private static List<SNIServerName> getRequestedServerNames(ExtendedSSLSession handshakeSession) {
@@ -175,12 +172,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     }
 
     private static boolean matches(X509Certificate x509Certificate, List<SNIHostName> requestedServerNames) {
-        for (SNIHostName serverName : requestedServerNames) {
-            if (matches(x509Certificate, serverName)) {
-                return true;
-            }
-        }
-        return false;
+        return requestedServerNames.stream().anyMatch(sniHostName -> matches(x509Certificate, sniHostName));
     }
 
     private static boolean matches(X509Certificate x509Certificate, SNIHostName hostName) {
