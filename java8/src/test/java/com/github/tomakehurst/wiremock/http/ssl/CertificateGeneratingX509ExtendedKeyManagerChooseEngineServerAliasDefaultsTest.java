@@ -127,4 +127,6 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
         when(certificate.getSubjectX500Principal()).thenReturn(new X500Principal(cn));
         return certificate;
     }
+
+    public CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest() throws Exception {}
 }
