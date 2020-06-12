@@ -308,16 +308,6 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         return keyUsage != null && keyUsage.length > 5 && keyUsage[5];
     }
 
-    private static class CertChainAndKey {
-        private final X509Certificate[] certificateChain;
-        private final PrivateKey key;
-
-        private CertChainAndKey(X509Certificate[] certificateChain, PrivateKey key) {
-            this.certificateChain = certificateChain;
-            this.key = key;
-        }
-    }
-
     private static X509Certificate createSignedCertificate(X509Certificate certificate, X509Certificate issuerCertificate, PrivateKey issuerPrivateKey) {
         try {
             Principal issuer = issuerCertificate.getSubjectDN();
