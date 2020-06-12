@@ -37,7 +37,8 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseServerAliasDefault
     private final CertificateGeneratingX509ExtendedKeyManager certificateGeneratingKeyManager = new CertificateGeneratingX509ExtendedKeyManager(
             keyManagerMock,
             new InMemoryKeyStore(JKS, new Secret("whatever")).getKeyStore(),
-            "password".toCharArray()
+            "password".toCharArray(),
+            new SunHostNameMatcher()
     );
     private final Principal[] nullPrincipals = null;
 

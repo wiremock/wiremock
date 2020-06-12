@@ -43,21 +43,29 @@ class CertificateAuthority {
     CertChainAndKey generateCertificate(
         String keyType,
         SNIHostName hostName
-    ) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, CertificateException, SignatureException {
-        CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With"+keyType, null);
-        newCertAndKey.generate(2048);
-        PrivateKey newKey = newCertAndKey.getPrivateKey();
+    ) throws CertificateGenerationUnsupportedException {
+        try {
+            // TODO inline CertAndKeyGen logic so we don't depend on sun.security.tools.keytool
+            CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With" + keyType, null);
+            newCertAndKey.generate(2048);
+            PrivateKey newKey = newCertAndKey.getPrivateKey();
 
-        X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                x500Name(hostName),
-                new Date(),
-                (long) 365 * 24 * 60 * 60,
-                subjectAlternativeName(hostName)
-        );
+            X509Certificate certificate = newCertAndKey.getSelfCertificate(
+                    x500Name(hostName),
+                    new Date(),
+                    (long) 365 * 24 * 60 * 60,
+                    subjectAlternativeName(hostName)
+            );
 
-        X509Certificate signed = sign(certificate);
-        X509Certificate[] fullChain = prepend(signed, certificateChain);
-        return new CertChainAndKey(fullChain, newKey);
+            X509Certificate signed = sign(certificate);
+            X509Certificate[] fullChain = prepend(signed, certificateChain);
+            return new CertChainAndKey(fullChain, newKey);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError e) {
+            throw new CertificateGenerationUnsupportedException(
+                "Your runtime does not support generating certificates at runtime",
+                e
+            );
+        }
     }
 
     private X500Name x500Name(SNIHostName hostName) {

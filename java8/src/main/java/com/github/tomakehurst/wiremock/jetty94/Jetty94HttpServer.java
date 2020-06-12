@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
+import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
@@ -162,7 +163,13 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
     private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword) {
         try {
-            return new CertificateGeneratingX509ExtendedKeyManager(manager, keyStore, keyStorePassword);
+            return new CertificateGeneratingX509ExtendedKeyManager(
+                manager,
+                keyStore,
+                keyStorePassword,
+                // TODO write a version of this that doesn't depend on sun internal classes
+                new SunHostNameMatcher()
+            );
         } catch (KeyStoreException e) {
             // KeyStore must be loaded here, should never happen
             return throwUnchecked(e, null);
