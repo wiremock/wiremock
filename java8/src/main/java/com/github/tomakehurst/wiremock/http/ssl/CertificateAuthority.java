@@ -52,9 +52,8 @@ class CertificateAuthority {
         );
 
         X509Certificate[] signingChain = certificateChain;
-        PrivateKey signingKey = key;
 
-        X509Certificate signed = createSignedCertificate(certificate, signingChain[0], signingKey);
+        X509Certificate signed = sign(certificate);
         X509Certificate[] fullChain = new X509Certificate[signingChain.length + 1];
         fullChain[0] = signed;
         System.arraycopy(signingChain, 0, fullChain, 1, signingChain.length);
@@ -72,8 +71,9 @@ class CertificateAuthority {
         return extensions;
     }
 
-    private static X509Certificate createSignedCertificate(X509Certificate certificate, X509Certificate issuerCertificate, PrivateKey issuerPrivateKey) {
+    private X509Certificate sign(X509Certificate certificate) {
         try {
+            X509Certificate issuerCertificate = certificateChain[0];
             Principal issuer = issuerCertificate.getSubjectDN();
             String issuerSigAlg = issuerCertificate.getSigAlgName();
 
@@ -82,7 +82,7 @@ class CertificateAuthority {
             info.set(X509CertInfo.ISSUER, issuer);
 
             X509CertImpl outCert = new X509CertImpl(info);
-            outCert.sign(issuerPrivateKey, issuerSigAlg);
+            outCert.sign(key, issuerSigAlg);
 
             return outCert;
         } catch (Exception ex) {
