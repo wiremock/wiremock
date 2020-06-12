@@ -40,6 +40,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
+@SuppressWarnings("sunapi")
 public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509ExtendedKeyManager {
 
     private final KeyStore keyStore;
