@@ -163,7 +163,7 @@ certificate and be able to browse all sites proxied via WireMock.
 
 A few caveats:
 * The keystore must be in JKS format
-* This depends on internal sun classes; it works with OepnJDK 1.8 -> 14, but may
+* This depends on internal sun classes; it works with OpenJDK 1.8 -> 14, but may
   stop working in future versions or on other runtimes
 * It's your responsibility to keep that private key & keystore secure - if you
   add it to your trusted certs then anyone getting hold of it could potentially

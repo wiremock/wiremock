@@ -62,7 +62,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
     }
 
     @Test
-    public void returnsSameGeneratedPricateKeyOnSubsequencCalls() throws Exception {
+    public void returnsSameGeneratedPrivateKeyOnSubsequentCalls() throws Exception {
 
         KeyStore keyStore = readKeyStore(KEY_STORE_WITH_CA_PATH, "password");
         String hostname = "example.com";
