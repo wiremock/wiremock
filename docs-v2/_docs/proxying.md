@@ -169,9 +169,14 @@ A few caveats:
   add it to your trusted certs then anyone getting hold of it could potentially
   get access to any service you use on the web.
 
-TODO: Document how to generate such a keystore, and how to trust its
-certificate, on Linux, OS/X & Windows.
-
+> See [this script](https://github.com/tomakehurst/wiremock/blob/master/scripts/create-ca-cert.sh)
+> for an example of how to build a valid self-signed root certificate called
+> ca-cert.crt already imported into a keystore called ca-cert.jks.
+> 
+> On OS/X it can be trusted by dragging ca-cert.crt onto Keychain Access,
+> double clicking on the certificate and setting SSL to "always trust".
+>
+> Please raise PRs to add documentation for other platforms.
 
 Proxying of HTTPS traffic when the proxy endpoint is also HTTPS is problematic;
 Postman seems not to cope with an HTTPS proxy even to proxy HTTP traffic. Older
