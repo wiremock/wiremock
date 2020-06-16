@@ -81,8 +81,12 @@ public class HttpsSettings {
 
     public KeyStoreSettings trustStore() {
         return trustStorePath != null ?
-                new KeyStoreSettings(trustStorePath, trustStorePassword) :
+                new KeyStoreSettings(trustStorePath, trustStorePassword, trustStoreType) :
                 KeyStoreSettings.NO_STORE;
+    }
+
+    public KeyStoreSettings keyStore() {
+        return new KeyStoreSettings(keyStorePath, keyStorePassword, keyStoreType);
     }
 
     @Override
