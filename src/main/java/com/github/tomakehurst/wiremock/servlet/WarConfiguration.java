@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -200,12 +201,7 @@ public class WarConfiguration implements Options {
     }
 
     @Override
-    public boolean trustAllProxyTargets() {
-        return false;
-    }
-
-    @Override
-    public List<String> trustedProxyTargets() {
-        return emptyList();
+    public BrowserProxySettings browserProxySettings() {
+        return BrowserProxySettings.DISABLED;
     }
 }

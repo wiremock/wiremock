@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
@@ -66,6 +68,11 @@ public class WireMockConfiguration implements Options {
     private boolean needClientAuth;
 
     private boolean browserProxyingEnabled = false;
+    private String caKeystorePath = DEFAULT_CA_KEYSTORE_PATH;
+    private String caKeystorePassword = DEFAULT_CA_KESTORE_PASSWORD;
+    private boolean trustAllProxyTargets = false;
+    private final List<String> trustedProxyTargets = new ArrayList<>();
+
     private ProxySettings proxySettings = ProxySettings.NO_PROXY;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private MappingsSource mappingsSource;
@@ -99,8 +106,6 @@ public class WireMockConfiguration implements Options {
     private String permittedSystemKeys = null;
 
     private boolean stubCorsEnabled = false;
-    private boolean trustAllProxyTargets = false;
-    private final List<String> trustedProxyTargets = new ArrayList<>();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -180,6 +185,16 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystoreType(String keyStoreType) {
         this.keyStoreType = keyStoreType;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystorePath(String path) {
+        this.caKeystorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystorePassword(String keyStorePassword) {
+        this.caKeystorePassword = keyStorePassword;
         return this;
     }
 
@@ -540,12 +555,13 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public boolean trustAllProxyTargets() {
-        return trustAllProxyTargets;
-    }
-
-    @Override
-    public List<String> trustedProxyTargets() {
-        return trustedProxyTargets;
+    public BrowserProxySettings browserProxySettings() {
+        return new BrowserProxySettings.Builder()
+                .enabled(browserProxyingEnabled)
+                .trustAllProxyTargets(trustAllProxyTargets)
+                .trustedProxyTargets(trustedProxyTargets)
+                .caKeyStorePath(caKeystorePath)
+                .caKeyStorePassword(caKeystorePassword)
+                .build();
     }
 }

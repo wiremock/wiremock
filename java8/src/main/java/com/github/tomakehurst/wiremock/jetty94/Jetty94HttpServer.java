@@ -2,7 +2,9 @@ package com.github.tomakehurst.wiremock.jetty94;
 
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
@@ -86,20 +88,24 @@ public class Jetty94HttpServer extends JettyHttpServer {
         );
     }
 
-    private SslContextFactory.Server configure(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
-        sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
-        sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
+    private void setupKeyStore(SslContextFactory.Server sslContextFactory, KeyStoreSettings keyStoreSettings) {
+        sslContextFactory.setKeyStorePath(keyStoreSettings.path());
+        sslContextFactory.setKeyManagerPassword(keyStoreSettings.password());
+        sslContextFactory.setKeyStoreType(keyStoreSettings.type());
+    }
+
+    private void setupClientAuth(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
             sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
-        return sslContextFactory;
     }
 
     private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = configure(new SslContextFactory.Server(), httpsSettings);
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        setupKeyStore(sslContextFactory, httpsSettings.keyStore());
+        setupClientAuth(sslContextFactory, httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
         sslContextFactory.setProvider("Conscrypt");
         return sslContextFactory;
@@ -113,9 +119,10 @@ public class Jetty94HttpServer extends JettyHttpServer {
     ) {
         HandlerCollection handler = super.createHandler(options, adminRequestHandler, stubRequestHandler);
 
-        ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
-                new SslConnectionFactory(
-                        buildManInTheMiddleSslContextFactory(options.httpsSettings(), options.notifier()),
+        if (options.browserProxySettings().enabled()) {
+            ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
+                    new SslConnectionFactory(
+                            buildManInTheMiddleSslContextFactory(options.httpsSettings(), options.browserProxySettings(), options.notifier()),
                     /*
                     If the proxy CONNECT request is made over HTTPS, and the
                     actual content request is made using HTTP/2 tunneled over
@@ -137,24 +144,33 @@ public class Jetty94HttpServer extends JettyHttpServer {
                     could do this. It might be possible to write one using
                     Netty, but it would be hard and time consuming.
                      */
-                    HttpVersion.HTTP_1_1.asString()
-                )
-        );
+                            HttpVersion.HTTP_1_1.asString()
+                    )
+            );
 
-        handler.addHandler(manInTheMiddleSslConnectHandler);
+            handler.addHandler(manInTheMiddleSslConnectHandler);
+        }
 
         return handler;
     }
 
-    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, final Notifier notifier) {
+    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, BrowserProxySettings browserProxySettings, final Notifier notifier) {
+
+        KeyStoreSettings browserProxyCaKeyStore = browserProxySettings.caKeyStore();
+        final KeyStoreSettings keyStoreSettings;
+        if (browserProxyCaKeyStore.exists()) {
+            keyStoreSettings = browserProxyCaKeyStore;
+        } else {
+            keyStoreSettings = httpsSettings.keyStore();
+        }
+
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
             protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
                 KeyManager[] managers = super.getKeyManagers(keyStore);
                 return stream(managers).map(manager -> {
                     if (manager instanceof X509ExtendedKeyManager) {
-                        char[] keyStorePassword = httpsSettings.keyStorePassword() == null ? null : httpsSettings.keyStorePassword().toCharArray();
-                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStorePassword, notifier);
+                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStoreSettings.password().toCharArray(), notifier);
                     } else {
                         return manager;
                     }
@@ -162,7 +178,10 @@ public class Jetty94HttpServer extends JettyHttpServer {
             }
         };
 
-        return configure(sslContextFactory, httpsSettings);
+        setupKeyStore(sslContextFactory, keyStoreSettings);
+        sslContextFactory.setKeyStorePassword(keyStoreSettings.password());
+        setupClientAuth(sslContextFactory, httpsSettings);
+        return sslContextFactory;
     }
 
     private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword, Notifier notifier) {
