@@ -127,11 +127,6 @@ public class CommandLineOptionsTest {
         assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void throwsExceptionIfKeyStoreSpecifiedWithoutHttpsPort() {
-        new CommandLineOptions("--https-keystore", "/my/keystore");
-    }
-
 	@Test(expected=Exception.class)
 	public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
 		new CommandLineOptions("--port");
