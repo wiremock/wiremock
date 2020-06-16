@@ -35,7 +35,6 @@ import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.Origin;
 import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -84,11 +83,10 @@ public class HttpsBrowserProxyAcceptanceTest {
             .fileSource(new SingleRootFileSource(setupTempFileRoot()))
             .enableBrowserProxying(true)
             .trustAllProxyTargets(true)
-            .keystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
     );
 
     @Rule
-    public WireMockClassRule instanceProxyRule = target;
+    public WireMockClassRule instanceProxyRule = proxy;
 
     private WireMockTestClient testClient;
 
@@ -230,28 +228,40 @@ public class HttpsBrowserProxyAcceptanceTest {
     @Test
     public void certificatesSignedWithUsersRootCertificate() throws Exception {
 
-        KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");
-
-        // given
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
-                .setProxy(new HttpHost("localhost", proxy.port()))
-                .build();
-
-        // when
-        httpClient.execute(
-                new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
+        WireMockServer proxyWithCustomCaKeyStore = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .trustAllProxyTargets(true)
+                .caKeystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
         );
 
-        // then no exception is thrown
+        try {
+            proxyWithCustomCaKeyStore.start();
+            KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");
 
-        // when
-        httpClient.execute(
-                new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
-        );
+            // given
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                    .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                    .setProxy(new HttpHost("localhost", proxyWithCustomCaKeyStore.port()))
+                    .build();
 
-        // then no exception is thrown
+            // when
+            httpClient.execute(
+                    new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
+            );
+
+            // then no exception is thrown
+
+            // when
+            httpClient.execute(
+                    new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
+            );
+
+            // then no exception is thrown
+        } finally {
+            proxyWithCustomCaKeyStore.stop();
+        }
     }
 
     private SSLConnectionSocketFactory sslSocketFactoryThatTrusts(KeyStore trustStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
