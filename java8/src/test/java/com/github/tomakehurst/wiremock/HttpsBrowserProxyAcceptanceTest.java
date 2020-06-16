@@ -77,29 +77,24 @@ public class HttpsBrowserProxyAcceptanceTest {
     @Rule
     public WireMockClassRule instanceRule = target;
 
-    private WireMockServer proxy;
+    @ClassRule
+    public static WireMockClassRule proxy = new WireMockClassRule(wireMockConfig()
+            .dynamicPort()
+            .dynamicHttpsPort()
+            .fileSource(new SingleRootFileSource(setupTempFileRoot()))
+            .enableBrowserProxying(true)
+            .trustAllProxyTargets(true)
+            .keystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
+    );
+
+    @Rule
+    public WireMockClassRule instanceProxyRule = target;
+
     private WireMockTestClient testClient;
 
     @Before
     public void addAResourceToProxy() {
         testClient = new WireMockTestClient(target.httpsPort());
-
-        proxy = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .dynamicHttpsPort()
-                .fileSource(new SingleRootFileSource(setupTempFileRoot()))
-                .enableBrowserProxying(true)
-                .trustAllProxyTargets(true)
-                .keystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
-        );
-        proxy.start();
-    }
-
-    @After
-    public void stopServer() {
-        if (proxy.isRunning()) {
-            proxy.stop();
-        }
     }
 
     @Test
