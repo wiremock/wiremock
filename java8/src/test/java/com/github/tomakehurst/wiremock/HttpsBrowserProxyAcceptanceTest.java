@@ -16,10 +16,20 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
+import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.apache.http.HttpHost;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.DnsResolver;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.Origin;
@@ -32,8 +42,15 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -47,12 +64,13 @@ import static org.hamcrest.Matchers.is;
 
 public class HttpsBrowserProxyAcceptanceTest {
 
-    private static final String CERTIFICATE_NOT_TRUSTED_BY_TEST_CLIENT = TestFiles.KEY_STORE_PATH;
+    private static final String TARGET_KEYSTORE_WITH_CUSTOM_CERT = TestFiles.KEY_STORE_PATH;
+    private static final String PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT = TestFiles.KEY_STORE_WITH_CA_PATH;
 
     @ClassRule
     public static WireMockClassRule target = new WireMockClassRule(wireMockConfig()
             .httpDisabled(true)
-            .keystorePath(CERTIFICATE_NOT_TRUSTED_BY_TEST_CLIENT)
+            .keystorePath(TARGET_KEYSTORE_WITH_CUSTOM_CERT)
             .dynamicHttpsPort()
     );
 
@@ -72,6 +90,7 @@ public class HttpsBrowserProxyAcceptanceTest {
                 .fileSource(new SingleRootFileSource(setupTempFileRoot()))
                 .enableBrowserProxying(true)
                 .trustAllProxyTargets(true)
+                .keystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
         );
         proxy.start();
     }
@@ -213,6 +232,43 @@ public class HttpsBrowserProxyAcceptanceTest {
         }
     }
 
+    @Test
+    public void certificatesSignedWithUsersRootCertificate() throws Exception {
+
+        KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");
+
+        // given
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                .setProxy(new HttpHost("localhost", proxy.port()))
+                .build();
+
+        // when
+        httpClient.execute(
+                new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
+        );
+
+        // then no exception is thrown
+
+        // when
+        httpClient.execute(
+                new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
+        );
+
+        // then no exception is thrown
+    }
+
+    private SSLConnectionSocketFactory sslSocketFactoryThatTrusts(KeyStore trustStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
+        SSLContext sslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(trustStore)
+                .build();
+        return new SSLConnectionSocketFactory(
+                new HostVerifyingSSLSocketFactory(sslContext.getSocketFactory()),
+                new NoopHostnameVerifier() // using Java's hostname verification
+        );
+    }
+
     private static File setupTempFileRoot() {
         try {
             File root = java.nio.file.Files.createTempDirectory("wiremock").toFile();
@@ -221,6 +277,25 @@ public class HttpsBrowserProxyAcceptanceTest {
             return root;
         } catch (IOException e) {
             return throwUnchecked(e, File.class);
+        }
+    }
+
+    private static class CustomLocalTldDnsResolver implements DnsResolver {
+
+        private final String tldToSendToLocalhost;
+
+        public CustomLocalTldDnsResolver(String tldToSendToLocalhost) {
+            this.tldToSendToLocalhost = tldToSendToLocalhost;
+        }
+
+        @Override
+        public InetAddress[] resolve(String host) throws UnknownHostException {
+
+            if (host.endsWith("." + tldToSendToLocalhost)) {
+                return new InetAddress[] { InetAddress.getLocalHost() };
+            } else {
+                return new SystemDefaultDnsResolver().resolve(host);
+            }
         }
     }
 }

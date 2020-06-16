@@ -2,9 +2,15 @@ package com.github.tomakehurst.wiremock.jetty94;
 
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
+import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
+import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
+import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
+import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
@@ -13,9 +19,23 @@ import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.X509ExtendedKeyManager;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.util.Arrays.stream;
 
 public class Jetty94HttpServer extends JettyHttpServer {
 
@@ -66,9 +86,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
         );
     }
 
-    private SslContextFactory.Server buildBasicSslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-
+    private SslContextFactory.Server configure(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
         sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
         sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
@@ -80,9 +98,8 @@ public class Jetty94HttpServer extends JettyHttpServer {
         return sslContextFactory;
     }
 
-
     private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = buildBasicSslContextFactory(httpsSettings);
+        SslContextFactory.Server sslContextFactory = configure(new SslContextFactory.Server(), httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
         sslContextFactory.setProvider("Conscrypt");
         return sslContextFactory;
@@ -98,7 +115,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
         ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
                 new SslConnectionFactory(
-                    buildBasicSslContextFactory(options.httpsSettings()),
+                        buildManInTheMiddleSslContextFactory(options.httpsSettings(), options.notifier()),
                     /*
                     If the proxy CONNECT request is made over HTTPS, and the
                     actual content request is made using HTTP/2 tunneled over
@@ -127,5 +144,45 @@ public class Jetty94HttpServer extends JettyHttpServer {
         handler.addHandler(manInTheMiddleSslConnectHandler);
 
         return handler;
+    }
+
+    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, final Notifier notifier) {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
+            @Override
+            protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
+                KeyManager[] managers = super.getKeyManagers(keyStore);
+                return stream(managers).map(manager -> {
+                    if (manager instanceof X509ExtendedKeyManager) {
+                        char[] keyStorePassword = httpsSettings.keyStorePassword() == null ? null : httpsSettings.keyStorePassword().toCharArray();
+                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStorePassword, notifier);
+                    } else {
+                        return manager;
+                    }
+                }).toArray(KeyManager[]::new);
+            }
+        };
+
+        return configure(sslContextFactory, httpsSettings);
+    }
+
+    private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword, Notifier notifier) {
+        try {
+            X509KeyStore x509KeyStore = new X509KeyStore(keyStore, keyStorePassword);
+            CertificateAuthority certificateAuthority = x509KeyStore.getCertificateAuthority();
+            if (certificateAuthority != null) {
+                return new CertificateGeneratingX509ExtendedKeyManager(
+                    manager,
+                    new DynamicKeyStore(x509KeyStore, certificateAuthority),
+                    // TODO write a version of this that doesn't depend on sun internal classes
+                    new SunHostNameMatcher(),
+                    notifier
+                );
+            } else {
+                return manager;
+            }
+        } catch (KeyStoreException e) {
+            // KeyStore must be loaded here, should never happen
+            return throwUnchecked(e, null);
+        }
     }
 }
