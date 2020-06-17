@@ -247,7 +247,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
                     x500Name("WireMock Local Self Signed Root Certificate"),
                     new Date(),
                     (long) 365 * 24 * 60 * 60 * 10,
-                    certificateAuthority(newCertAndKey.getPublicKey())
+                    certificateAuthorityExtensions(newCertAndKey.getPublicKey())
             );
             keyStore.setKeyEntry("wiremock-ca", newKey, password, new Certificate[] { certificate });
 
@@ -288,17 +288,21 @@ public class Jetty94HttpServer extends JettyHttpServer {
         }
     }
 
-    private static CertificateExtensions certificateAuthority(X509Key publicKey) throws IOException {
+    private static CertificateExtensions certificateAuthorityExtensions(X509Key publicKey) throws IOException {
         KeyIdentifier keyId = new KeyIdentifier(publicKey);
         byte[] keyIdBytes = keyId.getIdentifier();
         CertificateExtensions extensions = new CertificateExtensions();
         extensions.set(AuthorityKeyIdentifierExtension.NAME, new AuthorityKeyIdentifierExtension(keyId, null, null));
+
         extensions.set(BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
+
         KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
         keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
         keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
         extensions.set(KeyUsageExtension.NAME, keyUsage);
+
         extensions.set(SubjectKeyIdentifierExtension.NAME, new SubjectKeyIdentifierExtension(keyIdBytes));
+
         return extensions;
     }
 }
