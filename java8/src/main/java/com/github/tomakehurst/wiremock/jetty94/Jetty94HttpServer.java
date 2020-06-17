@@ -42,12 +42,13 @@ import sun.security.x509.X509Key;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.X509ExtendedKeyManager;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -250,11 +251,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
             );
             keyStore.setKeyEntry("wiremock-ca", newKey, password, new Certificate[] { certificate });
 
-            Path path = Paths.get(browserProxyCaKeyStore.path());
-            if (!Files.exists(path.getParent())) {
-                Files.createDirectory(path.getParent(), asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE)));
-            }
-            Path created = Files.createFile(path, asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE)));
+            Path created = createCaKeystoreFile(Paths.get(browserProxyCaKeyStore.path()));
             try (FileOutputStream fos = new FileOutputStream(created.toFile())) {
                 try {
                     keyStore.store(fos, password);
@@ -266,6 +263,19 @@ public class Jetty94HttpServer extends JettyHttpServer {
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
             return throwUnchecked(e, null);
         }
+    }
+
+    private Path createCaKeystoreFile(Path path) throws IOException {
+        FileAttribute<?>[] privateDirAttrs = new FileAttribute<?>[0];
+        FileAttribute<?>[] privateFileAttrs = new FileAttribute<?>[0];
+        if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            privateDirAttrs = new FileAttribute<?>[] { asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE)) };
+            privateFileAttrs = new FileAttribute<?>[] { asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE)) };
+        }
+        if (!Files.exists(path.getParent())) {
+            Files.createDirectories(path.getParent(), privateDirAttrs);
+        }
+        return Files.createFile(path, privateFileAttrs);
     }
 
     private static X500Name x500Name(String name){
