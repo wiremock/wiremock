@@ -45,6 +45,9 @@ import javax.net.ssl.X509ExtendedKeyManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -56,8 +59,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.nio.file.attribute.PosixFilePermission.*;
+import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute;
 import static java.util.Arrays.stream;
 
 public class Jetty94HttpServer extends JettyHttpServer {
@@ -243,9 +249,13 @@ public class Jetty94HttpServer extends JettyHttpServer {
                     certificateAuthority(newCertAndKey.getPublicKey())
             );
             keyStore.setKeyEntry("wiremock-ca", newKey, password, new Certificate[] { certificate });
-            File file = new File(browserProxyCaKeyStore.path());
-            file.getParentFile().mkdirs();
-            try (FileOutputStream fos = new FileOutputStream(file)) {
+
+            Path path = Paths.get(browserProxyCaKeyStore.path());
+            if (!Files.exists(path.getParent())) {
+                Files.createDirectory(path.getParent(), asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE)));
+            }
+            Path created = Files.createFile(path, asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE)));
+            try (FileOutputStream fos = new FileOutputStream(created.toFile())) {
                 try {
                     keyStore.store(fos, password);
                 } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
