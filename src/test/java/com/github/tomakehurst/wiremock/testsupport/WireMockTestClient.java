@@ -333,7 +333,9 @@ public class WireMockTestClient {
             return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
                 @Override
                 public boolean isTrusted(X509Certificate[] chain, String authType) {
-                    return chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst");
+                    return chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst") ||
+                            chain[0].getSubjectDN().getName().equals("CN=WireMock Local Self Signed Root Certificate") ||
+                            chain.length == 2 && chain[1].getSubjectDN().getName().equals("CN=WireMock Local Self Signed Root Certificate");
                 }
             }).build();
         } catch (Exception e) {
