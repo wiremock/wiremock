@@ -30,15 +30,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import sun.security.tools.keytool.CertAndKeyGen;
-import sun.security.x509.AuthorityKeyIdentifierExtension;
-import sun.security.x509.BasicConstraintsExtension;
-import sun.security.x509.CertificateExtensions;
-import sun.security.x509.KeyIdentifier;
-import sun.security.x509.KeyUsageExtension;
-import sun.security.x509.SubjectKeyIdentifierExtension;
-import sun.security.x509.X500Name;
-import sun.security.x509.X509Key;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.X509ExtendedKeyManager;
@@ -54,12 +45,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
 import java.security.SignatureException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Date;
 import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -239,7 +226,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
             KeyStore keyStore = KeyStore.getInstance(browserProxyCaKeyStore.type());
             char[] password = browserProxyCaKeyStore.password().toCharArray();
             keyStore.load(null, password);
-            CertificateAuthority certificateAuthority = generateCertificateAuthority();
+            CertificateAuthority certificateAuthority = CertificateAuthority.generateCertificateAuthority();
             keyStore.setKeyEntry("wiremock-ca", certificateAuthority.key(), password, certificateAuthority.certificateChain());
 
             Path created = createCaKeystoreFile(Paths.get(browserProxyCaKeyStore.path()));
@@ -256,20 +243,6 @@ public class Jetty94HttpServer extends JettyHttpServer {
         }
     }
 
-    private CertificateAuthority generateCertificateAuthority() throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, SignatureException, NoSuchProviderException, IOException {
-        CertAndKeyGen newCertAndKey = new CertAndKeyGen("RSA", "SHA256WithRSA");
-        newCertAndKey.generate(2048);
-        PrivateKey newKey = newCertAndKey.getPrivateKey();
-
-        X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                x500Name("WireMock Local Self Signed Root Certificate"),
-                new Date(),
-                (long) 365 * 24 * 60 * 60 * 10,
-                certificateAuthorityExtensions(newCertAndKey.getPublicKey())
-        );
-        return new CertificateAuthority(new X509Certificate[]{ certificate }, newKey);
-    }
-
     private Path createCaKeystoreFile(Path path) throws IOException {
         FileAttribute<?>[] privateDirAttrs = new FileAttribute<?>[0];
         FileAttribute<?>[] privateFileAttrs = new FileAttribute<?>[0];
@@ -281,33 +254,5 @@ public class Jetty94HttpServer extends JettyHttpServer {
             Files.createDirectories(path.getParent(), privateDirAttrs);
         }
         return Files.createFile(path, privateFileAttrs);
-    }
-
-    private static X500Name x500Name(String name){
-        try {
-            return new X500Name("CN=" + name);
-        } catch (IOException e) {
-            // X500Name throws IOException for a parse error (which isn't an IO problem...)
-            // An SNIHostName should be guaranteed not to have a parse issue
-            return throwUnchecked(e, null);
-        }
-    }
-
-    private static CertificateExtensions certificateAuthorityExtensions(X509Key publicKey) throws IOException {
-        KeyIdentifier keyId = new KeyIdentifier(publicKey);
-        byte[] keyIdBytes = keyId.getIdentifier();
-        CertificateExtensions extensions = new CertificateExtensions();
-        extensions.set(AuthorityKeyIdentifierExtension.NAME, new AuthorityKeyIdentifierExtension(keyId, null, null));
-
-        extensions.set(BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
-
-        KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
-        keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
-        keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
-        extensions.set(KeyUsageExtension.NAME, keyUsage);
-
-        extensions.set(SubjectKeyIdentifierExtension.NAME, new SubjectKeyIdentifierExtension(keyIdBytes));
-
-        return extensions;
     }
 }

@@ -31,6 +31,5 @@ compileJava {
 
 javadoc {
     exclude "**/CertificateAuthority.java"
-    exclude "**/Jetty94HttpServer.java"
     exclude "**/SunHostNameMatcher.java"
 }
