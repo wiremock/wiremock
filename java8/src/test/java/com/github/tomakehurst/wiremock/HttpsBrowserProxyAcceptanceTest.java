@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
@@ -42,7 +43,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -52,11 +55,13 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
@@ -299,6 +304,22 @@ public class HttpsBrowserProxyAcceptanceTest {
         // then no exception is thrown
     }
 
+    @Test(expected = EOFException.class)
+    public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
+        new WireMockServer(options()
+            .enableBrowserProxying(true)
+            .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString())
+        ).start();
+    }
+
+    @Test(expected = FatalStartupException.class)
+    public void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
+        new WireMockServer(options()
+            .enableBrowserProxying(true)
+            .caKeystorePath(emptyKeyStore().toString())
+        ).start();
+    }
+
     private SSLConnectionSocketFactory sslSocketFactoryThatTrusts(KeyStore trustStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
         SSLContext sslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(trustStore)
@@ -346,5 +367,16 @@ public class HttpsBrowserProxyAcceptanceTest {
         } catch (IOException e) {
             return throwUnchecked(e, null);
         }
+    }
+
+    private static Path emptyKeyStore() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        char[] password = "password".toCharArray();
+        keyStore.load(null, password);
+        Path keystoreNoCa = Files.createTempFile("keystore-with-no-ca", "jks");
+        try (FileOutputStream fos = new FileOutputStream(keystoreNoCa.toFile())) {
+            keyStore.store(fos, password);
+        }
+        return keystoreNoCa;
     }
 }
