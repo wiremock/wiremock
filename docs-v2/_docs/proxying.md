@@ -186,6 +186,15 @@ of writing it works using `curl 7.64.1 (x86_64-apple-darwin19.0) libcurl/7.64.1 
 ```bash
 curl --proxy-insecure -x https://localhost:8443 -k 'https://www.example.com/'
 ```
+You can force HTTP/1.1 in curl as so:
+```bash
+curl --http1.1 --proxy-insecure -x https://localhost:8443 -k 'https://www.example.com/'
+```
+
+Many client proxy settings which distinguish between secure and insecure are
+actually referring to the target site's protocol, not the protocol of the proxy,
+and assume the proxy will be listening for an HTTP CONNECT request when proxying
+an HTTPS site.
 
 Please check your client's behaviour proxying via another https proxy such as 
 https://hub.docker.com/r/wernight/spdyproxy to see if it is a client problem:
