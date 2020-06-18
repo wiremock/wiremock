@@ -10,6 +10,7 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
+import com.github.tomakehurst.wiremock.http.ssl.CertificateGenerationUnsupportedException;
 import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
 import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
@@ -238,7 +239,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
                 }
             }
             return new X509KeyStore(keyStore, password);
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | CertificateGenerationUnsupportedException e) {
             return throwUnchecked(e, null);
         }
     }

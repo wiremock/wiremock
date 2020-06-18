@@ -26,7 +26,11 @@ import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.function.Function;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -46,36 +50,37 @@ public class CertificateAuthority {
         this.key = requireNonNull(key);
     }
 
-    public static CertificateAuthority generateCertificateAuthority() throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, SignatureException, NoSuchProviderException, IOException {
-        CertAndKeyGen newCertAndKey = new CertAndKeyGen("RSA", "SHA256WithRSA");
-        newCertAndKey.generate(2048);
-        PrivateKey newKey = newCertAndKey.getPrivateKey();
-
-        X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                x500Name("WireMock Local Self Signed Root Certificate"),
-                new Date(),
-                (long) 365 * 24 * 60 * 60 * 10,
-                certificateAuthorityExtensions(newCertAndKey.getPublicKey())
+    public static CertificateAuthority generateCertificateAuthority() throws CertificateGenerationUnsupportedException {
+        CertChainAndKey certChainAndKey = generateCertChainAndKey(
+                "RSA",
+                "SHA256WithRSA",
+                "WireMock Local Self Signed Root Certificate",
+                Period.ofYears(10),
+                CertificateAuthority::certificateAuthorityExtensions
         );
-        return new CertificateAuthority(new X509Certificate[]{ certificate }, newKey);
+        return new CertificateAuthority(certChainAndKey.certificateChain, certChainAndKey.key);
     }
 
-    private static CertificateExtensions certificateAuthorityExtensions(X509Key publicKey) throws IOException {
-        KeyIdentifier keyId = new KeyIdentifier(publicKey);
-        byte[] keyIdBytes = keyId.getIdentifier();
-        CertificateExtensions extensions = new CertificateExtensions();
-        extensions.set(AuthorityKeyIdentifierExtension.NAME, new AuthorityKeyIdentifierExtension(keyId, null, null));
+    private static CertificateExtensions certificateAuthorityExtensions(X509Key publicKey) {
+        try {
+            KeyIdentifier keyId = new KeyIdentifier(publicKey);
+            byte[] keyIdBytes = keyId.getIdentifier();
+            CertificateExtensions extensions = new CertificateExtensions();
+            extensions.set(AuthorityKeyIdentifierExtension.NAME, new AuthorityKeyIdentifierExtension(keyId, null, null));
 
-        extensions.set(BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
+            extensions.set(BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
 
-        KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
-        keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
-        keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
-        extensions.set(KeyUsageExtension.NAME, keyUsage);
+            KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
+            keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
+            keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
+            extensions.set(KeyUsageExtension.NAME, keyUsage);
 
-        extensions.set(SubjectKeyIdentifierExtension.NAME, new SubjectKeyIdentifierExtension(keyIdBytes));
+            extensions.set(SubjectKeyIdentifierExtension.NAME, new SubjectKeyIdentifierExtension(keyIdBytes));
 
-        return extensions;
+            return extensions;
+        } catch (IOException e) {
+            return throwUnchecked(e, null);
+        }
     }
 
     public X509Certificate[] certificateChain() {
@@ -91,21 +96,10 @@ public class CertificateAuthority {
         SNIHostName hostName
     ) throws CertificateGenerationUnsupportedException {
         try {
-            // TODO inline CertAndKeyGen logic so we don't depend on sun.security.tools.keytool
-            CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, "SHA256With" + keyType, null);
-            newCertAndKey.generate(2048);
-            PrivateKey newKey = newCertAndKey.getPrivateKey();
-
-            X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                    x500Name(hostName.getAsciiName()),
-                    new Date(),
-                    (long) 365 * 24 * 60 * 60,
-                    subjectAlternativeName(hostName)
-            );
-
-            X509Certificate signed = sign(certificate);
+            CertChainAndKey certChainAndKey = generateCertChainAndKey(keyType, "SHA256With" + keyType, hostName.getAsciiName(), Period.ofYears(1), x509Key -> subjectAlternativeName(hostName));
+            X509Certificate signed = sign(certChainAndKey.certificateChain[0]);
             X509Certificate[] fullChain = prepend(signed, certificateChain);
-            return new CertChainAndKey(fullChain, newKey);
+            return new CertChainAndKey(fullChain, certChainAndKey.key);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError e) {
             throw new CertificateGenerationUnsupportedException(
                 "Your runtime does not support generating certificates at runtime",
@@ -114,13 +108,34 @@ public class CertificateAuthority {
         }
     }
 
-    private static X500Name x500Name(String name){
+    private static CertChainAndKey generateCertChainAndKey(
+        String keyType,
+        String sigAlg,
+        String subjectName,
+        Period validity,
+        Function<X509Key, CertificateExtensions> extensionBuilder
+    ) throws CertificateGenerationUnsupportedException {
         try {
-            return new X500Name("CN=" + name);
-        } catch (IOException e) {
-            // X500Name throws IOException for a parse error (which isn't an IO problem...)
-            // An SNIHostName should be guaranteed not to have a parse issue
-            return throwUnchecked(e, null);
+            // TODO inline CertAndKeyGen logic so we don't depend on sun.security.tools.keytool
+            CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, sigAlg);
+            newCertAndKey.generate(2048);
+            PrivateKey newKey = newCertAndKey.getPrivateKey();
+
+            ZonedDateTime start = ZonedDateTime.now();
+            ZonedDateTime end = start.plus(validity);
+
+            X509Certificate certificate = newCertAndKey.getSelfCertificate(
+                    new X500Name("CN=" + subjectName),
+                    Date.from(start.toInstant()),
+                    Duration.between(start, end).getSeconds(),
+                    extensionBuilder.apply(newCertAndKey.getPublicKey())
+            );
+            return new CertChainAndKey(new X509Certificate[]{ certificate }, newKey);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException e) {
+            throw new CertificateGenerationUnsupportedException(
+                    "Your runtime does not support generating certificates at runtime",
+                    e
+            );
         }
     }
 
