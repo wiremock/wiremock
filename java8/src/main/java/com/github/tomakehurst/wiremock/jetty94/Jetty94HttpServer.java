@@ -9,10 +9,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
-import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGenerationUnsupportedException;
-import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
-import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
@@ -32,8 +29,6 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.X509ExtendedKeyManager;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -41,19 +36,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.file.attribute.PosixFilePermission.*;
 import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute;
-import static java.util.Arrays.stream;
 
 public class Jetty94HttpServer extends JettyHttpServer {
 
@@ -104,13 +95,13 @@ public class Jetty94HttpServer extends JettyHttpServer {
         );
     }
 
-    private void setupKeyStore(SslContextFactory.Server sslContextFactory, KeyStoreSettings keyStoreSettings) {
+    private static void setupKeyStore(SslContextFactory.Server sslContextFactory, KeyStoreSettings keyStoreSettings) {
         sslContextFactory.setKeyStorePath(keyStoreSettings.path());
         sslContextFactory.setKeyManagerPassword(keyStoreSettings.password());
         sslContextFactory.setKeyStoreType(keyStoreSettings.type());
     }
 
-    private void setupClientAuth(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
+    private static void setupClientAuth(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
             sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
@@ -170,34 +161,10 @@ public class Jetty94HttpServer extends JettyHttpServer {
         return handler;
     }
 
-    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, BrowserProxySettings browserProxySettings, final Notifier notifier) {
+    static SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, BrowserProxySettings browserProxySettings, final Notifier notifier) {
 
         KeyStoreSettings browserProxyCaKeyStore = browserProxySettings.caKeyStore();
-        X509KeyStore x509KeyStore = getOrCreateX509KeyStore(browserProxyCaKeyStore);
-        CertificateAuthority certificateAuthority = x509KeyStore.getCertificateAuthority();
-        if (certificateAuthority == null) {
-            throw new IllegalArgumentException("Keystore "+browserProxyCaKeyStore.path()+" does not contain a certificate that can act as a certificate authority");
-        }
-
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
-            @Override
-            protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
-                KeyManager[] managers = super.getKeyManagers(keyStore);
-                return stream(managers).map(manager -> {
-                    if (manager instanceof X509ExtendedKeyManager) {
-                        return new CertificateGeneratingX509ExtendedKeyManager(
-                            (X509ExtendedKeyManager) manager,
-                            new DynamicKeyStore(x509KeyStore, certificateAuthority),
-                            // TODO write a version of this that doesn't depend on sun internal classes
-                            new SunHostNameMatcher(),
-                            notifier
-                        );
-                    } else {
-                        return manager;
-                    }
-                }).toArray(KeyManager[]::new);
-            }
-        };
+        SslContextFactory.Server sslContextFactory = buildSslContextFactory(notifier, browserProxyCaKeyStore);
 
         setupKeyStore(sslContextFactory, browserProxyCaKeyStore);
         sslContextFactory.setKeyStorePassword(browserProxyCaKeyStore.password());
@@ -205,15 +172,22 @@ public class Jetty94HttpServer extends JettyHttpServer {
         return sslContextFactory;
     }
 
-    private X509KeyStore getOrCreateX509KeyStore(KeyStoreSettings browserProxyCaKeyStore) {
+    private static SslContextFactory.Server buildSslContextFactory(Notifier notifier, KeyStoreSettings browserProxyCaKeyStore) {
         if (browserProxyCaKeyStore.exists()) {
-            return toX509KeyStore(browserProxyCaKeyStore);
+            X509KeyStore existingKeyStore = toX509KeyStore(browserProxyCaKeyStore);
+            return new CertificateGeneratingSslContextFactory(existingKeyStore, notifier);
         } else {
-            return createX509KeyStoreWithCertificateAuthority(browserProxyCaKeyStore);
+            try {
+                X509KeyStore newKeyStore = buildKeyStore(browserProxyCaKeyStore);
+                return new CertificateGeneratingSslContextFactory(newKeyStore, notifier);
+            } catch (Exception e) {
+                notifier.error("Unable to generate a certificate authority", e);
+                return new SslContextFactory.Server();
+            }
         }
     }
 
-    private X509KeyStore toX509KeyStore(KeyStoreSettings browserProxyCaKeyStore) {
+    private static X509KeyStore toX509KeyStore(KeyStoreSettings browserProxyCaKeyStore) {
         try {
             return new X509KeyStore(browserProxyCaKeyStore.loadStore(), browserProxyCaKeyStore.password().toCharArray());
         } catch (KeyStoreException e) {
@@ -222,29 +196,25 @@ public class Jetty94HttpServer extends JettyHttpServer {
         }
     }
 
-    private X509KeyStore createX509KeyStoreWithCertificateAuthority(KeyStoreSettings browserProxyCaKeyStore) {
-        try {
-            KeyStore keyStore = KeyStore.getInstance(browserProxyCaKeyStore.type());
-            char[] password = browserProxyCaKeyStore.password().toCharArray();
-            keyStore.load(null, password);
-            CertificateAuthority certificateAuthority = CertificateAuthority.generateCertificateAuthority();
-            keyStore.setKeyEntry("wiremock-ca", certificateAuthority.key(), password, certificateAuthority.certificateChain());
+    private static X509KeyStore buildKeyStore(KeyStoreSettings browserProxyCaKeyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, CertificateGenerationUnsupportedException {
+        final CertificateAuthority certificateAuthority = CertificateAuthority.generateCertificateAuthority();
+        KeyStore keyStore = KeyStore.getInstance(browserProxyCaKeyStore.type());
+        char[] password = browserProxyCaKeyStore.password().toCharArray();
+        keyStore.load(null, password);
+        keyStore.setKeyEntry("wiremock-ca", certificateAuthority.key(), password, certificateAuthority.certificateChain());
 
-            Path created = createCaKeystoreFile(Paths.get(browserProxyCaKeyStore.path()));
-            try (FileOutputStream fos = new FileOutputStream(created.toFile())) {
-                try {
-                    keyStore.store(fos, password);
-                } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
-                    throwUnchecked(e);
-                }
+        Path created = createCaKeystoreFile(Paths.get(browserProxyCaKeyStore.path()));
+        try (FileOutputStream fos = new FileOutputStream(created.toFile())) {
+            try {
+                keyStore.store(fos, password);
+            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+                throwUnchecked(e);
             }
-            return new X509KeyStore(keyStore, password);
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | CertificateGenerationUnsupportedException e) {
-            return throwUnchecked(e, null);
         }
+        return new X509KeyStore(keyStore, password);
     }
 
-    private Path createCaKeystoreFile(Path path) throws IOException {
+    private static Path createCaKeystoreFile(Path path) throws IOException {
         FileAttribute<?>[] privateDirAttrs = new FileAttribute<?>[0];
         FileAttribute<?>[] privateFileAttrs = new FileAttribute<?>[0];
         if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
