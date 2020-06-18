@@ -239,17 +239,8 @@ public class Jetty94HttpServer extends JettyHttpServer {
             KeyStore keyStore = KeyStore.getInstance(browserProxyCaKeyStore.type());
             char[] password = browserProxyCaKeyStore.password().toCharArray();
             keyStore.load(null, password);
-            CertAndKeyGen newCertAndKey = new CertAndKeyGen("RSA", "SHA256WithRSA");
-            newCertAndKey.generate(2048);
-            PrivateKey newKey = newCertAndKey.getPrivateKey();
-
-            X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                    x500Name("WireMock Local Self Signed Root Certificate"),
-                    new Date(),
-                    (long) 365 * 24 * 60 * 60 * 10,
-                    certificateAuthorityExtensions(newCertAndKey.getPublicKey())
-            );
-            keyStore.setKeyEntry("wiremock-ca", newKey, password, new Certificate[] { certificate });
+            CertificateAuthority certificateAuthority = generateCertificateAuthority();
+            keyStore.setKeyEntry("wiremock-ca", certificateAuthority.key(), password, certificateAuthority.certificateChain());
 
             Path created = createCaKeystoreFile(Paths.get(browserProxyCaKeyStore.path()));
             try (FileOutputStream fos = new FileOutputStream(created.toFile())) {
@@ -263,6 +254,20 @@ public class Jetty94HttpServer extends JettyHttpServer {
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | InvalidKeyException | SignatureException | NoSuchProviderException e) {
             return throwUnchecked(e, null);
         }
+    }
+
+    private CertificateAuthority generateCertificateAuthority() throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, SignatureException, NoSuchProviderException, IOException {
+        CertAndKeyGen newCertAndKey = new CertAndKeyGen("RSA", "SHA256WithRSA");
+        newCertAndKey.generate(2048);
+        PrivateKey newKey = newCertAndKey.getPrivateKey();
+
+        X509Certificate certificate = newCertAndKey.getSelfCertificate(
+                x500Name("WireMock Local Self Signed Root Certificate"),
+                new Date(),
+                (long) 365 * 24 * 60 * 60 * 10,
+                certificateAuthorityExtensions(newCertAndKey.getPublicKey())
+        );
+        return new CertificateAuthority(new X509Certificate[]{ certificate }, newKey);
     }
 
     private Path createCaKeystoreFile(Path path) throws IOException {

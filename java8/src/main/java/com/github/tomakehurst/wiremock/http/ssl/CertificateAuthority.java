@@ -32,12 +32,20 @@ public class CertificateAuthority {
     private final X509Certificate[] certificateChain;
     private final PrivateKey key;
 
-    CertificateAuthority(X509Certificate[] certificateChain, PrivateKey key) {
+    public CertificateAuthority(X509Certificate[] certificateChain, PrivateKey key) {
         this.certificateChain = requireNonNull(certificateChain);
         if (certificateChain.length == 0) {
             throw new IllegalArgumentException("Chain must have entries");
         }
         this.key = requireNonNull(key);
+    }
+
+    public X509Certificate[] certificateChain() {
+        return certificateChain;
+    }
+
+    public PrivateKey key() {
+        return key;
     }
 
     CertChainAndKey generateCertificate(
