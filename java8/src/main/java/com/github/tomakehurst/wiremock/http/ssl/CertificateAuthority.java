@@ -1,14 +1,20 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import sun.security.tools.keytool.CertAndKeyGen;
+import sun.security.x509.AuthorityKeyIdentifierExtension;
+import sun.security.x509.BasicConstraintsExtension;
 import sun.security.x509.CertificateExtensions;
 import sun.security.x509.DNSName;
 import sun.security.x509.GeneralName;
 import sun.security.x509.GeneralNames;
+import sun.security.x509.KeyIdentifier;
+import sun.security.x509.KeyUsageExtension;
 import sun.security.x509.SubjectAlternativeNameExtension;
+import sun.security.x509.SubjectKeyIdentifierExtension;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
+import sun.security.x509.X509Key;
 
 import javax.net.ssl.SNIHostName;
 import java.io.IOException;
@@ -40,6 +46,38 @@ public class CertificateAuthority {
         this.key = requireNonNull(key);
     }
 
+    public static CertificateAuthority generateCertificateAuthority() throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, SignatureException, NoSuchProviderException, IOException {
+        CertAndKeyGen newCertAndKey = new CertAndKeyGen("RSA", "SHA256WithRSA");
+        newCertAndKey.generate(2048);
+        PrivateKey newKey = newCertAndKey.getPrivateKey();
+
+        X509Certificate certificate = newCertAndKey.getSelfCertificate(
+                x500Name("WireMock Local Self Signed Root Certificate"),
+                new Date(),
+                (long) 365 * 24 * 60 * 60 * 10,
+                certificateAuthorityExtensions(newCertAndKey.getPublicKey())
+        );
+        return new CertificateAuthority(new X509Certificate[]{ certificate }, newKey);
+    }
+
+    private static CertificateExtensions certificateAuthorityExtensions(X509Key publicKey) throws IOException {
+        KeyIdentifier keyId = new KeyIdentifier(publicKey);
+        byte[] keyIdBytes = keyId.getIdentifier();
+        CertificateExtensions extensions = new CertificateExtensions();
+        extensions.set(AuthorityKeyIdentifierExtension.NAME, new AuthorityKeyIdentifierExtension(keyId, null, null));
+
+        extensions.set(BasicConstraintsExtension.NAME, new BasicConstraintsExtension(true, Integer.MAX_VALUE));
+
+        KeyUsageExtension keyUsage = new KeyUsageExtension(new boolean[7]);
+        keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
+        keyUsage.set(KeyUsageExtension.CRL_SIGN, true);
+        extensions.set(KeyUsageExtension.NAME, keyUsage);
+
+        extensions.set(SubjectKeyIdentifierExtension.NAME, new SubjectKeyIdentifierExtension(keyIdBytes));
+
+        return extensions;
+    }
+
     public X509Certificate[] certificateChain() {
         return certificateChain;
     }
@@ -59,7 +97,7 @@ public class CertificateAuthority {
             PrivateKey newKey = newCertAndKey.getPrivateKey();
 
             X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                    x500Name(hostName),
+                    x500Name(hostName.getAsciiName()),
                     new Date(),
                     (long) 365 * 24 * 60 * 60,
                     subjectAlternativeName(hostName)
@@ -76,9 +114,9 @@ public class CertificateAuthority {
         }
     }
 
-    private X500Name x500Name(SNIHostName hostName) {
+    private static X500Name x500Name(String name){
         try {
-            return new X500Name("CN=" + hostName.getAsciiName());
+            return new X500Name("CN=" + name);
         } catch (IOException e) {
             // X500Name throws IOException for a parse error (which isn't an IO problem...)
             // An SNIHostName should be guaranteed not to have a parse issue
