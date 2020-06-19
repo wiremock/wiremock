@@ -39,7 +39,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseServerAliasDefault
     private final CertificateGeneratingX509ExtendedKeyManager certificateGeneratingKeyManager = new CertificateGeneratingX509ExtendedKeyManager(
             keyManagerMock,
             mock(DynamicKeyStore.class),
-            new SunHostNameMatcher(),
+            new ApacheHttpHostNameMatcher(),
             testNotifier
     );
     private final Principal[] nullPrincipals = null;
