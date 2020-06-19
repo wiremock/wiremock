@@ -38,11 +38,7 @@ public class LocalNotifier {
 		public void info(String message) {
 		}
 
-        @Override
-        public void info(String message, Throwable t) {
-        }
-
-        @Override
+		@Override
 		public void error(String message) {
 		}
 
