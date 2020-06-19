@@ -22,11 +22,6 @@ compileJava {
 
     // silences warnings about compiling against `sun` packages
     options.compilerArgs += '-XDenableSunApiLintControl'
-
-    // makes it possible to compile against `sun.security.tools.keytool`
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-    options.compilerArgs += '-XDignore.symbol.file'
 }
 
 javadoc {
