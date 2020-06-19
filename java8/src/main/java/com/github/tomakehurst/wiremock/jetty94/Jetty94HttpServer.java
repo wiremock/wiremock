@@ -110,8 +110,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
     }
 
     private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        setupKeyStore(sslContextFactory, httpsSettings.keyStore());
+        SslContextFactory.Server sslContextFactory = defaultSslContextFactory(httpsSettings.keyStore());
         setupClientAuth(sslContextFactory, httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
         sslContextFactory.setProvider("Conscrypt");
@@ -172,24 +171,30 @@ public class Jetty94HttpServer extends JettyHttpServer {
     private static SslContextFactory.Server buildSslContextFactory(Notifier notifier, KeyStoreSettings browserProxyCaKeyStore, KeyStoreSettings defaultHttpsKeyStore) {
         if (browserProxyCaKeyStore.exists()) {
             X509KeyStore existingKeyStore = toX509KeyStore(browserProxyCaKeyStore);
-            SslContextFactory.Server sslContextFactory = new CertificateGeneratingSslContextFactory(existingKeyStore, notifier);
-            setupKeyStore(sslContextFactory, browserProxyCaKeyStore);
-            sslContextFactory.setKeyStorePassword(browserProxyCaKeyStore.password());
-            return sslContextFactory;
+            return certificateGeneratingSslContextFactory(notifier, browserProxyCaKeyStore, existingKeyStore);
         } else {
             try {
                 X509KeyStore newKeyStore = buildKeyStore(browserProxyCaKeyStore);
-                SslContextFactory.Server sslContextFactory = new CertificateGeneratingSslContextFactory(newKeyStore, notifier);
-                setupKeyStore(sslContextFactory, browserProxyCaKeyStore);
-                sslContextFactory.setKeyStorePassword(browserProxyCaKeyStore.password());
-                return sslContextFactory;
+                return certificateGeneratingSslContextFactory(notifier, browserProxyCaKeyStore, newKeyStore);
             } catch (Exception e) {
                 notifier.error("Unable to generate a certificate authority", e);
-                SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-                setupKeyStore(sslContextFactory, defaultHttpsKeyStore);
-                return sslContextFactory;
+                return defaultSslContextFactory(defaultHttpsKeyStore);
             }
         }
+    }
+
+    private static SslContextFactory.Server defaultSslContextFactory(KeyStoreSettings defaultHttpsKeyStore) {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        setupKeyStore(sslContextFactory, defaultHttpsKeyStore);
+        return sslContextFactory;
+    }
+
+    private static SslContextFactory.Server certificateGeneratingSslContextFactory(Notifier notifier, KeyStoreSettings browserProxyCaKeyStore, X509KeyStore newKeyStore) {
+        SslContextFactory.Server sslContextFactory = new CertificateGeneratingSslContextFactory(newKeyStore, notifier);
+        setupKeyStore(sslContextFactory, browserProxyCaKeyStore);
+        // Unlike the default one, we can insist that the keystore password is the keystore password
+        sslContextFactory.setKeyStorePassword(browserProxyCaKeyStore.password());
+        return sslContextFactory;
     }
 
     private static X509KeyStore toX509KeyStore(KeyStoreSettings browserProxyCaKeyStore) {
