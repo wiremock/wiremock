@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -62,6 +63,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private final String hostHeaderValue;
     private final GlobalSettingsHolder globalSettingsHolder;
     private final boolean trustAllProxyTargets;
+    private final Notifier notifier;
 
     public ProxyResponseRenderer(
         ProxySettings proxySettings,
@@ -70,10 +72,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         String hostHeaderValue,
         GlobalSettingsHolder globalSettingsHolder,
         boolean trustAllProxyTargets,
-        List<String> trustedProxyTargets
+        List<String> trustedProxyTargets,
+        Notifier notifier
     ) {
         this.globalSettingsHolder = globalSettingsHolder;
         this.trustAllProxyTargets = trustAllProxyTargets;
+        this.notifier = notifier;
         client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
         scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false, trustedProxyTargets);
 
@@ -114,9 +118,11 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
 
     private Response proxyResponseError(String type, HttpUriRequest request, Exception e) {
+        String message = type + " failure trying to make a proxied request from WireMock to " + request.getURI();
+        notifier.info(message, e);
         return response()
                 .status(HTTP_INTERNAL_ERROR)
-                .body((type + " failure trying to make a proxied request from WireMock to " + request.getURI()) + "\r\n" + e.getMessage())
+                .body(message + "\r\n" + e.getMessage())
                 .build();
     }
 

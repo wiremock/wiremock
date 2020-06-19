@@ -54,6 +54,12 @@ public class TestNotifier implements Notifier {
     }
 
     @Override
+    public void info(String message, Throwable t) {
+        this.info.add(message);
+        consoleNotifier.info(message, t);
+    }
+
+    @Override
     public void error(String message) {
         this.error.add(message);
         consoleNotifier.error(message);
