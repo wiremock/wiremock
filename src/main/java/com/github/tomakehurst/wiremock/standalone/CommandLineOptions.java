@@ -538,15 +538,6 @@ public class CommandLineOptions implements Options {
             builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
         }
 
-        if (browserProxySettings.trustAllProxyTargets()) {
-            builder.put(TRUST_ALL_PROXY_TARGETS, "true");
-        }
-
-        List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
-        if (!trustedProxyTargets.isEmpty()) {
-            builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
-        }
-
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Object> param: builder.build().entrySet()) {
             int paddingLength = 29 - param.getKey().length();

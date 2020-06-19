@@ -194,7 +194,7 @@ subprojects {
 //            main.java.srcDir(project(':').sourceSets.main.java.exclude('com/github/tomakehurst/wiremock/matching/EqualToJsonPattern*'))
 //        }
 
-        main.java.srcDir project(':').sourceSets.main.java.exclude('com/github/tomakehurst/wiremock/matching/EqualToJsonPattern*')
+        main.java.srcDir project(':').sourceSets.main.java.exclude('com/github/tomakehurst/wiremock/matching/EqualToJsonPattern*', 'com/github/tomakehurst/wiremock/admin/tasks/GetCaCertTask.java')
 
         test.java.srcDir project(':').sourceSets.test.java
         test.scala.srcDir project(':').sourceSets.test.scala

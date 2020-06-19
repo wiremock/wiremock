@@ -546,6 +546,20 @@ public class CommandLineOptionsTest {
 	    assertThat(dump, matchesMultiLine(".*https-port:.*2345.*"));
     }
 
+    @Test
+    public void toStringWithTrustAllProxyTargetsWorks() {
+        String options = new CommandLineOptions("--enable-browser-proxying", "--trust-all-proxy-targets").toString();
+        assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
+        assertThat(options, matchesMultiLine(".*trust-all-proxy-targets: *true.*"));
+    }
+
+    @Test
+    public void toStringWithTrustProxyTarget() {
+        String options = new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target", "localhost", "--trust-proxy-target", "example.com").toString();
+        assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
+        assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));
+    }
+
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
