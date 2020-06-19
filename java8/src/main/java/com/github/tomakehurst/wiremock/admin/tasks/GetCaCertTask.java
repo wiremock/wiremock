@@ -39,13 +39,9 @@ public class GetCaCertTask implements AdminTask {
                     )
                     .build();
         } catch (Exception e) {
-            StringWriter stacktrace = new StringWriter();
-            e.printStackTrace(new PrintWriter(stacktrace));
-            return new ResponseDefinition(
-                    HTTP_INTERNAL_ERROR,
-                    "Failed to export certificate authority cert from " + caKeyStore.path() + "\r\n" +
-                    stacktrace
-            );
+            String message = "Failed to export certificate authority cert from " + caKeyStore.path();
+            admin.getOptions().notifier().error(message, e);
+            return new ResponseDefinition(HTTP_INTERNAL_ERROR, message);
         }
     }
 }
