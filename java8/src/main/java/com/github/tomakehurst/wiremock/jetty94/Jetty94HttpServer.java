@@ -1,16 +1,16 @@
 package com.github.tomakehurst.wiremock.jetty94;
 
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
-import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
-import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
+import com.github.tomakehurst.wiremock.http.ssl.CertificateGenerationUnsupportedException;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
-import com.github.tomakehurst.wiremock.http.ssl.SunHostNameMatcher;
 import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
@@ -29,13 +29,22 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.X509ExtendedKeyManager;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static java.util.Arrays.stream;
+import static java.nio.file.attribute.PosixFilePermission.*;
+import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute;
 
 public class Jetty94HttpServer extends JettyHttpServer {
 
@@ -86,20 +95,23 @@ public class Jetty94HttpServer extends JettyHttpServer {
         );
     }
 
-    private SslContextFactory.Server configure(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
-        sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
-        sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
+    private static void setupKeyStore(SslContextFactory.Server sslContextFactory, KeyStoreSettings keyStoreSettings) {
+        sslContextFactory.setKeyStorePath(keyStoreSettings.path());
+        sslContextFactory.setKeyManagerPassword(keyStoreSettings.password());
+        sslContextFactory.setKeyStoreType(keyStoreSettings.type());
+    }
+
+    private static void setupClientAuth(SslContextFactory.Server sslContextFactory, HttpsSettings httpsSettings) {
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
             sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
-        return sslContextFactory;
     }
 
     private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = configure(new SslContextFactory.Server(), httpsSettings);
+        SslContextFactory.Server sslContextFactory = defaultSslContextFactory(httpsSettings.keyStore());
+        setupClientAuth(sslContextFactory, httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
         sslContextFactory.setProvider("Conscrypt");
         return sslContextFactory;
@@ -113,76 +125,115 @@ public class Jetty94HttpServer extends JettyHttpServer {
     ) {
         HandlerCollection handler = super.createHandler(options, adminRequestHandler, stubRequestHandler);
 
-        ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
-                new SslConnectionFactory(
-                        buildManInTheMiddleSslContextFactory(options.httpsSettings(), options.notifier()),
-                    /*
-                    If the proxy CONNECT request is made over HTTPS, and the
-                    actual content request is made using HTTP/2 tunneled over
-                    HTTPS, and an exception is thrown, the server blocks for 30
-                    seconds before flushing the response.
+        if (options.browserProxySettings().enabled()) {
+            ManInTheMiddleSslConnectHandler manInTheMiddleSslConnectHandler = new ManInTheMiddleSslConnectHandler(
+                    new SslConnectionFactory(
+                            buildManInTheMiddleSslContextFactory(options.httpsSettings(), options.browserProxySettings(), options.notifier()),
+                            /*
+                            If the proxy CONNECT request is made over HTTPS, and the
+                            actual content request is made using HTTP/2 tunneled over
+                            HTTPS, and an exception is thrown, the server blocks for 30
+                            seconds before flushing the response.
 
-                    To fix this, force HTTP/1.1 over TLS when tunneling HTTPS.
+                            To fix this, force HTTP/1.1 over TLS when tunneling HTTPS.
 
-                    This also means the HTTP connector does not need the alpn &
-                    h2 connection factories as it will not use them.
+                            This also means the HTTP connector does not need the alpn &
+                            h2 connection factories as it will not use them.
 
-                    Unfortunately it has proven too hard to write a test to
-                    demonstrate the bug; it requires an HTTP client capable of
-                    doing ALPN & HTTP/2, which will only offer HTTP/1.1 in the
-                    ALPN negotiation when using HTTPS for the initial CONNECT
-                    request but will then offer both HTTP/1.1 and HTTP/2 for the
-                    actual request (this is how curl 7.64.1 behaves!). Neither
-                    Apache HTTP 4, 5, 5 Async, OkHttp, nor the Jetty client
-                    could do this. It might be possible to write one using
-                    Netty, but it would be hard and time consuming.
-                     */
-                    HttpVersion.HTTP_1_1.asString()
-                )
-        );
+                            Unfortunately it has proven too hard to write a test to
+                            demonstrate the bug; it requires an HTTP client capable of
+                            doing ALPN & HTTP/2, which will only offer HTTP/1.1 in the
+                            ALPN negotiation when using HTTPS for the initial CONNECT
+                            request but will then offer both HTTP/1.1 and HTTP/2 for the
+                            actual request (this is how curl 7.64.1 behaves!). Neither
+                            Apache HTTP 4, 5, 5 Async, OkHttp, nor the Jetty client
+                            could do this. It might be possible to write one using
+                            Netty, but it would be hard and time consuming.
+                             */
+                            HttpVersion.HTTP_1_1.asString()
+                    )
+            );
 
-        handler.addHandler(manInTheMiddleSslConnectHandler);
+            handler.addHandler(manInTheMiddleSslConnectHandler);
+        }
 
         return handler;
     }
 
-    private SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, final Notifier notifier) {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
-            @Override
-            protected KeyManager[] getKeyManagers(KeyStore keyStore) throws Exception {
-                KeyManager[] managers = super.getKeyManagers(keyStore);
-                return stream(managers).map(manager -> {
-                    if (manager instanceof X509ExtendedKeyManager) {
-                        char[] keyStorePassword = httpsSettings.keyStorePassword() == null ? null : httpsSettings.keyStorePassword().toCharArray();
-                        return certificateGeneratingX509ExtendedKeyManager(keyStore, (X509ExtendedKeyManager) manager, keyStorePassword, notifier);
-                    } else {
-                        return manager;
-                    }
-                }).toArray(KeyManager[]::new);
-            }
-        };
+    static SslContextFactory.Server buildManInTheMiddleSslContextFactory(HttpsSettings httpsSettings, BrowserProxySettings browserProxySettings, final Notifier notifier) {
 
-        return configure(sslContextFactory, httpsSettings);
+        KeyStoreSettings browserProxyCaKeyStore = browserProxySettings.caKeyStore();
+        SslContextFactory.Server sslContextFactory = buildSslContextFactory(notifier, browserProxyCaKeyStore, httpsSettings.keyStore());
+        setupClientAuth(sslContextFactory, httpsSettings);
+        return sslContextFactory;
     }
 
-    private KeyManager certificateGeneratingX509ExtendedKeyManager(KeyStore keyStore, X509ExtendedKeyManager manager, char[] keyStorePassword, Notifier notifier) {
-        try {
-            X509KeyStore x509KeyStore = new X509KeyStore(keyStore, keyStorePassword);
-            CertificateAuthority certificateAuthority = x509KeyStore.getCertificateAuthority();
-            if (certificateAuthority != null) {
-                return new CertificateGeneratingX509ExtendedKeyManager(
-                    manager,
-                    new DynamicKeyStore(x509KeyStore, certificateAuthority),
-                    // TODO write a version of this that doesn't depend on sun internal classes
-                    new SunHostNameMatcher(),
-                    notifier
-                );
-            } else {
-                return manager;
+    private static SslContextFactory.Server buildSslContextFactory(Notifier notifier, KeyStoreSettings browserProxyCaKeyStore, KeyStoreSettings defaultHttpsKeyStore) {
+        if (browserProxyCaKeyStore.exists()) {
+            X509KeyStore existingKeyStore = toX509KeyStore(browserProxyCaKeyStore);
+            return certificateGeneratingSslContextFactory(notifier, browserProxyCaKeyStore, existingKeyStore);
+        } else {
+            try {
+                X509KeyStore newKeyStore = buildKeyStore(browserProxyCaKeyStore);
+                return certificateGeneratingSslContextFactory(notifier, browserProxyCaKeyStore, newKeyStore);
+            } catch (Exception e) {
+                notifier.error("Unable to generate a certificate authority", e);
+                return defaultSslContextFactory(defaultHttpsKeyStore);
             }
+        }
+    }
+
+    private static SslContextFactory.Server defaultSslContextFactory(KeyStoreSettings defaultHttpsKeyStore) {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        setupKeyStore(sslContextFactory, defaultHttpsKeyStore);
+        return sslContextFactory;
+    }
+
+    private static SslContextFactory.Server certificateGeneratingSslContextFactory(Notifier notifier, KeyStoreSettings browserProxyCaKeyStore, X509KeyStore newKeyStore) {
+        SslContextFactory.Server sslContextFactory = new CertificateGeneratingSslContextFactory(newKeyStore, notifier);
+        setupKeyStore(sslContextFactory, browserProxyCaKeyStore);
+        // Unlike the default one, we can insist that the keystore password is the keystore password
+        sslContextFactory.setKeyStorePassword(browserProxyCaKeyStore.password());
+        return sslContextFactory;
+    }
+
+    private static X509KeyStore toX509KeyStore(KeyStoreSettings browserProxyCaKeyStore) {
+        try {
+            return new X509KeyStore(browserProxyCaKeyStore.loadStore(), browserProxyCaKeyStore.password().toCharArray());
         } catch (KeyStoreException e) {
             // KeyStore must be loaded here, should never happen
             return throwUnchecked(e, null);
         }
+    }
+
+    private static X509KeyStore buildKeyStore(KeyStoreSettings browserProxyCaKeyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, CertificateGenerationUnsupportedException {
+        final CertificateAuthority certificateAuthority = CertificateAuthority.generateCertificateAuthority();
+        KeyStore keyStore = KeyStore.getInstance(browserProxyCaKeyStore.type());
+        char[] password = browserProxyCaKeyStore.password().toCharArray();
+        keyStore.load(null, password);
+        keyStore.setKeyEntry("wiremock-ca", certificateAuthority.key(), password, certificateAuthority.certificateChain());
+
+        Path created = createCaKeystoreFile(Paths.get(browserProxyCaKeyStore.path()));
+        try (FileOutputStream fos = new FileOutputStream(created.toFile())) {
+            try {
+                keyStore.store(fos, password);
+            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+                throwUnchecked(e);
+            }
+        }
+        return new X509KeyStore(keyStore, password);
+    }
+
+    private static Path createCaKeystoreFile(Path path) throws IOException {
+        FileAttribute<?>[] privateDirAttrs = new FileAttribute<?>[0];
+        FileAttribute<?>[] privateFileAttrs = new FileAttribute<?>[0];
+        if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            privateDirAttrs = new FileAttribute<?>[] { asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE)) };
+            privateFileAttrs = new FileAttribute<?>[] { asFileAttribute(EnumSet.of(OWNER_READ, OWNER_WRITE)) };
+        }
+        if (!Files.exists(path.getParent())) {
+            Files.createDirectories(path.getParent(), privateDirAttrs);
+        }
+        return Files.createFile(path, privateFileAttrs);
     }
 }

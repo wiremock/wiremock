@@ -43,17 +43,13 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
     @Override
     public PrivateKey getPrivateKey(String alias) {
         PrivateKey original = super.getPrivateKey(alias);
-        return original == null ? dynamicKeyStore.getPrivateKey(alias) : original;
+        return original != null ? original : dynamicKeyStore.getPrivateKey(alias);
     }
 
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
         X509Certificate[] original = super.getCertificateChain(alias);
-        if (original == null) {
-            return dynamicKeyStore.getCertificateChain(alias);
-        } else {
-            return original;
-        }
+        return original != null ? original : dynamicKeyStore.getCertificateChain(alias);
     }
 
     @Override

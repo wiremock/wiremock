@@ -28,3 +28,8 @@ compileJava {
     options.forkOptions.executable = 'javac'
     options.compilerArgs += '-XDignore.symbol.file'
 }
+
+javadoc {
+    exclude "**/CertificateAuthority.java"
+    exclude "**/SunHostNameMatcher.java"
+}

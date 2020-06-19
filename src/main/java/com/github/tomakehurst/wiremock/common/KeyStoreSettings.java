@@ -27,14 +27,16 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class KeyStoreSettings {
 
-    public static final KeyStoreSettings NO_STORE = new KeyStoreSettings(null, null);
+    public static final KeyStoreSettings NO_STORE = new KeyStoreSettings(null, null, null);
 
     private final String path;
     private final String password;
+    private final String type;
 
-    public KeyStoreSettings(String path, String password) {
+    public KeyStoreSettings(String path, String password, String type) {
         this.path = path;
         this.password = password;
+        this.type = type;
     }
 
     public String path() {
@@ -43,6 +45,10 @@ public class KeyStoreSettings {
 
     public String password() {
         return password;
+    }
+
+    public String type() {
+        return type;
     }
 
     public KeyStore loadStore() {
@@ -66,10 +72,14 @@ public class KeyStoreSettings {
     }
 
     private InputStream createInputStream() throws IOException {
-        if (new File(path).isFile()) {
+        if (exists()) {
             return new FileInputStream(path);
         } else {
             return Resources.getResource(path).openStream();
         }
+    }
+
+    public boolean exists() {
+        return new File(path).isFile();
     }
 }

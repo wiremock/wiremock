@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
@@ -35,7 +36,6 @@ import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.Origin;
 import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -43,19 +43,25 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
@@ -66,6 +72,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
     private static final String TARGET_KEYSTORE_WITH_CUSTOM_CERT = TestFiles.KEY_STORE_PATH;
     private static final String PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT = TestFiles.KEY_STORE_WITH_CA_PATH;
+    private static final String NO_PREEXISTING_KEYSTORE_PATH = tempNonExistingPath("wiremock-keystores", "ca-keystore.jks");
 
     @ClassRule
     public static WireMockClassRule target = new WireMockClassRule(wireMockConfig()
@@ -77,29 +84,24 @@ public class HttpsBrowserProxyAcceptanceTest {
     @Rule
     public WireMockClassRule instanceRule = target;
 
-    private WireMockServer proxy;
+    @ClassRule
+    public static WireMockClassRule proxy = new WireMockClassRule(wireMockConfig()
+            .dynamicPort()
+            .dynamicHttpsPort()
+            .fileSource(new SingleRootFileSource(setupTempFileRoot()))
+            .caKeystorePath(NO_PREEXISTING_KEYSTORE_PATH)
+            .enableBrowserProxying(true)
+            .trustAllProxyTargets(true)
+    );
+
+    @Rule
+    public WireMockClassRule instanceProxyRule = proxy;
+
     private WireMockTestClient testClient;
 
     @Before
     public void addAResourceToProxy() {
         testClient = new WireMockTestClient(target.httpsPort());
-
-        proxy = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .dynamicHttpsPort()
-                .fileSource(new SingleRootFileSource(setupTempFileRoot()))
-                .enableBrowserProxying(true)
-                .trustAllProxyTargets(true)
-                .keystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
-        );
-        proxy.start();
-    }
-
-    @After
-    public void stopServer() {
-        if (proxy.isRunning()) {
-            proxy.stop();
-        }
     }
 
     @Test
@@ -235,7 +237,46 @@ public class HttpsBrowserProxyAcceptanceTest {
     @Test
     public void certificatesSignedWithUsersRootCertificate() throws Exception {
 
-        KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");
+        WireMockServer proxyWithCustomCaKeyStore = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .enableBrowserProxying(true)
+                .trustAllProxyTargets(true)
+                .caKeystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT)
+        );
+
+        try {
+            proxyWithCustomCaKeyStore.start();
+            KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");
+
+            // given
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                    .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                    .setProxy(new HttpHost("localhost", proxyWithCustomCaKeyStore.port()))
+                    .build();
+
+            // when
+            httpClient.execute(
+                    new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
+            );
+
+            // then no exception is thrown
+
+            // when
+            httpClient.execute(
+                    new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
+            );
+
+            // then no exception is thrown
+        } finally {
+            proxyWithCustomCaKeyStore.stop();
+        }
+    }
+
+    @Test
+    public void certificatesSignedWithGeneratedRootCertificate() throws Exception {
+
+        KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(NO_PREEXISTING_KEYSTORE_PATH, "password");
 
         // given
         CloseableHttpClient httpClient = HttpClients.custom()
@@ -257,6 +298,22 @@ public class HttpsBrowserProxyAcceptanceTest {
         );
 
         // then no exception is thrown
+    }
+
+    @Test(expected = EOFException.class)
+    public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
+        new WireMockServer(options()
+            .enableBrowserProxying(true)
+            .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString())
+        ).start();
+    }
+
+    @Test(expected = FatalStartupException.class)
+    public void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
+        new WireMockServer(options()
+            .enableBrowserProxying(true)
+            .caKeystorePath(emptyKeyStore().toString())
+        ).start();
     }
 
     private SSLConnectionSocketFactory sslSocketFactoryThatTrusts(KeyStore trustStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
@@ -297,5 +354,25 @@ public class HttpsBrowserProxyAcceptanceTest {
                 return new SystemDefaultDnsResolver().resolve(host);
             }
         }
+    }
+
+    private static String tempNonExistingPath(String prefix, String filename) {
+        try {
+            Path tempDirectory = Files.createTempDirectory(prefix);
+            return tempDirectory.resolve(filename).toFile().getAbsolutePath();
+        } catch (IOException e) {
+            return throwUnchecked(e, null);
+        }
+    }
+
+    private static Path emptyKeyStore() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        char[] password = "password".toCharArray();
+        keyStore.load(null, password);
+        Path keystoreNoCa = Files.createTempFile("keystore-with-no-ca", "jks");
+        try (FileOutputStream fos = new FileOutputStream(keystoreNoCa.toFile())) {
+            keyStore.store(fos, password);
+        }
+        return keystoreNoCa;
     }
 }
