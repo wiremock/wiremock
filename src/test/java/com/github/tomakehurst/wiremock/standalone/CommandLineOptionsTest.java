@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -35,6 +36,8 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
 import static java.util.Arrays.asList;
@@ -160,7 +163,15 @@ public class CommandLineOptionsTest {
 	public void returnsBrowserProxyingEnabledWhenOptionSet() {
 		CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
 		assertThat(options.browserProxyingEnabled(), is(true));
+		assertThat(options.browserProxySettings().enabled(), is(true));
 	}
+
+    @Test
+    public void returnsBrowserProxyingDisabledWhenOptionNoSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.browserProxyingEnabled(), is(false));
+        assertThat(options.browserProxySettings().enabled(), is(false));
+    }
 
 	@Test
 	public void setsAll() {
@@ -477,32 +488,50 @@ public class CommandLineOptionsTest {
 
     @Test
     public void trustAllProxyTargets() {
-        CommandLineOptions options = new CommandLineOptions("--trust-all-proxy-targets");
-        assertThat(options.trustAllProxyTargets(), is(true));
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying", "--trust-all-proxy-targets");
+        assertThat(options.browserProxySettings().trustAllProxyTargets(), is(true));
     }
 
     @Test
     public void defaultsToNotTrustingAllProxyTargets() {
-        CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.trustAllProxyTargets(), is(false));
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
+        assertThat(options.browserProxySettings().trustAllProxyTargets(), is(false));
     }
 
     @Test
     public void trustsOneProxyTarget1() {
-        CommandLineOptions options = new CommandLineOptions("--trust-proxy-target", "localhost");
-        assertThat(options.trustedProxyTargets(), is(singletonList("localhost")));
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target", "localhost");
+        assertThat(options.browserProxySettings().trustedProxyTargets(), is(singletonList("localhost")));
     }
 
     @Test
     public void trustsManyProxyTargets() {
-        CommandLineOptions options = new CommandLineOptions("--trust-proxy-target=localhost", "--trust-proxy-target", "wiremock.org", "--trust-proxy-target=www.google.com");
-        assertThat(options.trustedProxyTargets(), is(asList("localhost", "wiremock.org", "www.google.com")));
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target=localhost", "--trust-proxy-target", "wiremock.org", "--trust-proxy-target=www.google.com");
+        assertThat(options.browserProxySettings().trustedProxyTargets(), is(asList("localhost", "wiremock.org", "www.google.com")));
     }
 
     @Test
     public void defaultsToNoTrustedProxyTargets() {
-        CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.trustedProxyTargets(), is(Collections.<String>emptyList()));
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
+        assertThat(options.browserProxySettings().trustedProxyTargets(), is(Collections.<String>emptyList()));
+    }
+
+    @Test
+    public void setsCaKeyStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying", "--ca-keystore", "/my/keystore", "--ca-keystore-password", "someotherpwd", "--ca-keystore-type", "pkcs12");
+        KeyStoreSettings caKeyStore = options.browserProxySettings().caKeyStore();
+        assertThat(caKeyStore.path(), is("/my/keystore"));
+        assertThat(caKeyStore.password(), is("someotherpwd"));
+        assertThat(caKeyStore.type(), is("pkcs12"));
+    }
+
+    @Test
+    public void defaultsCaKeyStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
+        KeyStoreSettings caKeyStore = options.browserProxySettings().caKeyStore();
+        assertThat(caKeyStore.path(), is(DEFAULT_CA_KEYSTORE_PATH));
+        assertThat(caKeyStore.password(), is(DEFAULT_CA_KESTORE_PASSWORD));
+        assertThat(caKeyStore.type(), is("jks"));
     }
 
     @Test

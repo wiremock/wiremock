@@ -12,9 +12,9 @@ public class DynamicKeyStore {
     private final X509KeyStore keyStore;
     private final CertificateAuthority existingCertificateAuthority;
 
-    public DynamicKeyStore(X509KeyStore keyStore, CertificateAuthority existingCertificateAuthority) {
+    public DynamicKeyStore(X509KeyStore keyStore) {
         this.keyStore = requireNonNull(keyStore);
-        this.existingCertificateAuthority = requireNonNull(existingCertificateAuthority);
+        this.existingCertificateAuthority = requireNonNull(keyStore.getCertificateAuthority(), "Keystore does not contain a certificate that can act as a certificate authority");
     }
 
     PrivateKey getPrivateKey(String alias) {

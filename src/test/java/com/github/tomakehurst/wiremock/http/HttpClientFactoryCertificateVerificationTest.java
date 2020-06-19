@@ -6,12 +6,9 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -21,7 +18,6 @@ import java.security.cert.Certificate;
 import java.util.Date;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore.KeyStoreType.JKS;
@@ -85,7 +81,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         }
         File clientTrustStoreFile = File.createTempFile("wiremock-client", "jks");
         clientTrustStore.saveAs(clientTrustStoreFile);
-        KeyStoreSettings clientTrustStoreSettings = new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password");
+        KeyStoreSettings clientTrustStoreSettings = new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password", "jks");
 
         client = HttpClientFactory.createClient(
                 1000,
