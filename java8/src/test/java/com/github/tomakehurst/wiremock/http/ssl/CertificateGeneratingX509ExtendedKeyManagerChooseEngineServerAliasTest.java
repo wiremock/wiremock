@@ -114,7 +114,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
         return new CertificateGeneratingX509ExtendedKeyManager(
                 keyManager,
                 new DynamicKeyStore(x509KeyStore),
-                new SunHostNameMatcher(),
+                new ApacheHttpHostNameMatcher(),
                 new TestNotifier()
         );
     }
