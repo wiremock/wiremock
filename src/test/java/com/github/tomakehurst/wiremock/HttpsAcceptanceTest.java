@@ -344,11 +344,8 @@ public class HttpsAcceptanceTest {
 
     static KeyStore readKeyStore(String path, String password) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
-        FileInputStream instream = new FileInputStream(path);
-        try {
+        try (FileInputStream instream = new FileInputStream(path)) {
             trustStore.load(instream, password.toCharArray());
-        } finally {
-            instream.close();
         }
         return trustStore;
     }
