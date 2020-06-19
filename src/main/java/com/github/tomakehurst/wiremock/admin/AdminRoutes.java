@@ -111,6 +111,8 @@ public class AdminRoutes {
 
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
         router.add(GET, "/docs", GetDocIndexTask.class);
+
+        router.add(GET, "/certs/wiremock-ca.crt", GetCaCertTask.class);
     }
 
     protected void initAdditionalRoutes(Router routeBuilder) {

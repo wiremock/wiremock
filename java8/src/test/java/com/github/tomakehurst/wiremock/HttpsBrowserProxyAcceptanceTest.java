@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
+import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -43,6 +44,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,7 +57,10 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.util.Base64;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -67,6 +72,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 
 public class HttpsBrowserProxyAcceptanceTest {
 
@@ -314,6 +320,27 @@ public class HttpsBrowserProxyAcceptanceTest {
             .enableBrowserProxying(true)
             .caKeystorePath(emptyKeyStore().toString())
         ).start();
+    }
+
+    @Test
+    public void certificateAuthorityCertCanBeDownloaded() throws Exception {
+        WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.port());
+
+        WireMockResponse certResponse = proxyTestClient.get("/__admin/certs/wiremock-ca.crt");
+        assertEquals(200, certResponse.statusCode());
+        assertEquals("application/x-pem-file", certResponse.firstHeader("Content-Type"));
+
+        Certificate cert = decode(certResponse.content());
+        X509KeyStore keyStore = new X509KeyStore(HttpsAcceptanceTest.readKeyStore(NO_PREEXISTING_KEYSTORE_PATH, "password"), "password".toCharArray());
+
+        assertEquals(keyStore.getCertificateAuthority().certificateChain()[0], cert);
+    }
+
+    private Certificate decode(String body) throws Exception {
+        String base64 = body.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "");
+        byte[] certBytes = Base64.getMimeDecoder().decode(base64);
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        return cf.generateCertificate(new ByteArrayInputStream(certBytes));
     }
 
     private SSLConnectionSocketFactory sslSocketFactoryThatTrusts(KeyStore trustStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
