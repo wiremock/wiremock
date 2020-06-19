@@ -41,14 +41,6 @@ public class ConsoleNotifier implements Notifier {
     }
 
     @Override
-    public void info(String message, Throwable t) {
-        if (verbose) {
-            out.println(formatMessage(message));
-            t.printStackTrace(out);
-        }
-    }
-
-    @Override
     public void error(String message) {
         err.println(formatMessage(message));
     }

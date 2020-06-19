@@ -198,13 +198,6 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         }
 
         @Override
-        public void info(String message, Throwable t) {
-            if (onceOnly.unused()) {
-                notifier.info(message, t);
-            }
-        }
-
-        @Override
         public void error(String message) {
             if (onceOnly.unused()) {
                 notifier.error(message);

@@ -10,7 +10,6 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +30,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertEquals;
@@ -46,7 +44,6 @@ public class ProxyResponseRendererTest {
             .keystorePath(generateKeystore().getAbsolutePath())
     );
 
-    private final TestNotifier notifier = new TestNotifier();
     private final ProxyResponseRenderer proxyResponseRenderer = buildProxyResponseRenderer(false);
 
     @Test
@@ -73,7 +70,6 @@ public class ProxyResponseRendererTest {
         assertEquals(HTTP_INTERNAL_ERROR, response.getStatus());
         assertThat(response.getBodyAsString(), startsWith("SSL failure trying to make a proxied request from WireMock to "+origin.url("/proxied")));
         assertThat(response.getBodyAsString(), containsString("unable to find valid certification path to requested target"));
-        assertThat(notifier.getInfoMessages(), contains("SSL failure trying to make a proxied request from WireMock to "+origin.url("/proxied")));
     }
 
     @Test
@@ -156,8 +152,7 @@ public class ProxyResponseRendererTest {
                 /* hostHeaderValue = */ null,
                 new GlobalSettingsHolder(),
                 trustAllProxyTargets,
-                Collections.<String>emptyList(),
-                notifier
+                Collections.<String>emptyList()
         );
     }
 
