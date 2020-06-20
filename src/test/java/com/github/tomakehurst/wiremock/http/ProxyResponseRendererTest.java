@@ -28,8 +28,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
@@ -63,14 +65,11 @@ public class ProxyResponseRendererTest {
 
         final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
-        SSLHandshakeException e = assertThrows(SSLHandshakeException.class, new ThrowingRunnable() {
-            @Override
-            public void run() {
-                proxyResponseRenderer.render(serveEvent);
-            }
-        });
+        Response response = proxyResponseRenderer.render(serveEvent);
 
-        assertThat(e.getMessage(), containsString("unable to find valid certification path to requested target"));
+        assertEquals(HTTP_INTERNAL_ERROR, response.getStatus());
+        assertThat(response.getBodyAsString(), startsWith("SSL failure trying to make a proxied request from WireMock to "+origin.url("/proxied")));
+        assertThat(response.getBodyAsString(), containsString("unable to find valid certification path to requested target"));
     }
 
     @Test
