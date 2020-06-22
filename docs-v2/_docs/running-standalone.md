@@ -90,6 +90,15 @@ e.g. `--proxy-via http://username:password@webproxy.mycorp.com:8080/`.
 `--enable-browser-proxying`: Run as a browser proxy. See
 browser-proxying.
 
+`--ca-keystore`: A key store containing a root Certificate Authority private key
+and certificate that can be used to sign generated certificates when
+browser proxying https. Defaults to `$HOME/.wiremock/ca-keystore.jks`.
+
+`--ca-keystore-password`: Password to the ca-keystore, if something other than
+"password".
+
+`--ca-keystore-type`: Type of the ca-keystore, if something other than `jks`.
+
 `--trust-all-proxy-targets`: Trust all remote certificates when running as a
 browser proxy and proxying HTTPS traffic.
 
