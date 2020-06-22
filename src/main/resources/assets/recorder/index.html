@@ -103,7 +103,7 @@
     <p>
     Certificate to trust when browser proxying HTTPS sites:<p>
     <a href="../certs/wiremock-ca.crt">wiremock-ca.crt</a><p>
-    This self-signed certificate is marked as a certificate authority, and contains the public key that is paired with the private key provided in the keystore specified using the <code>--ca-keystore-path</code> option.<p>
+    This self-signed certificate is marked as a certificate authority, and contains the public key that is paired with the private key provided in the keystore specified using the <code>--ca-keystore</code> option.<p>
     By default this is a securely generated private key local to the system where WireMock is running.<p>
     WireMock will serve generated certificates signed with this private key for any HTTPS site you visit while using WireMock as your proxy server.<p>
     Trusting this certificate will mean your browser (or other client) will trust those generated certificates.<p>
