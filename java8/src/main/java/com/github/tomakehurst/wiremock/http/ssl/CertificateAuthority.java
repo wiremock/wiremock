@@ -1,9 +1,14 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import sun.security.tools.keytool.CertAndKeyGen;
+import sun.security.x509.AlgorithmId;
 import sun.security.x509.AuthorityKeyIdentifierExtension;
 import sun.security.x509.BasicConstraintsExtension;
+import sun.security.x509.CertificateAlgorithmId;
 import sun.security.x509.CertificateExtensions;
+import sun.security.x509.CertificateSerialNumber;
+import sun.security.x509.CertificateValidity;
+import sun.security.x509.CertificateVersion;
+import sun.security.x509.CertificateX509Key;
 import sun.security.x509.DNSName;
 import sun.security.x509.GeneralName;
 import sun.security.x509.GeneralNames;
@@ -14,23 +19,23 @@ import sun.security.x509.SubjectKeyIdentifierExtension;
 import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
-import sun.security.x509.X509Key;
 
 import javax.net.ssl.SNIHostName;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.time.Duration;
 import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.function.Function;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -51,17 +56,29 @@ public class CertificateAuthority {
     }
 
     public static CertificateAuthority generateCertificateAuthority() throws CertificateGenerationUnsupportedException {
-        CertChainAndKey certChainAndKey = generateCertChainAndKey(
-                "RSA",
-                "SHA256WithRSA",
-                "WireMock Local Self Signed Root Certificate",
-                Period.ofYears(10),
-                CertificateAuthority::certificateAuthorityExtensions
-        );
-        return new CertificateAuthority(certChainAndKey.certificateChain, certChainAndKey.key);
+        try {
+            KeyPair pair = generateKeyPair("RSA");
+            String sigAlg = "SHA256WithRSA";
+            X509CertInfo info = makeX509CertInfo(sigAlg, "WireMock Local Self Signed Root Certificate", Period.ofYears(10), pair.getPublic(), certificateAuthorityExtensions(pair.getPublic()));
+
+            X509CertImpl certificate = selfSign(info, pair.getPrivate(), sigAlg);
+
+            return new CertificateAuthority(new X509Certificate[] { certificate }, pair.getPrivate());
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException e) {
+            throw new CertificateGenerationUnsupportedException(
+                    "Your runtime does not support generating certificates at runtime",
+                    e
+            );
+        }
     }
 
-    private static CertificateExtensions certificateAuthorityExtensions(X509Key publicKey) {
+    private static X509CertImpl selfSign(X509CertInfo info, PrivateKey privateKey, String sigAlg) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+        X509CertImpl certificate = new X509CertImpl(info);
+        certificate.sign(privateKey, sigAlg);
+        return certificate;
+    }
+
+    private static CertificateExtensions certificateAuthorityExtensions(PublicKey publicKey) {
         try {
             KeyIdentifier keyId = new KeyIdentifier(publicKey);
             byte[] keyIdBytes = keyId.getIdentifier();
@@ -96,11 +113,15 @@ public class CertificateAuthority {
         SNIHostName hostName
     ) throws CertificateGenerationUnsupportedException {
         try {
-            CertChainAndKey certChainAndKey = generateCertChainAndKey(keyType, "SHA256With" + keyType, hostName.getAsciiName(), Period.ofYears(1), x509Key -> subjectAlternativeName(hostName));
-            X509Certificate signed = sign(certChainAndKey.certificateChain[0]);
-            X509Certificate[] fullChain = prepend(signed, certificateChain);
-            return new CertChainAndKey(fullChain, certChainAndKey.key);
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError e) {
+            KeyPair pair = generateKeyPair(keyType);
+            String sigAlg = "SHA256With" + keyType;
+            X509CertInfo info = makeX509CertInfo(sigAlg, hostName.getAsciiName(), Period.ofYears(1), pair.getPublic(), subjectAlternativeName(hostName));
+
+            X509CertImpl certificate = sign(info);
+
+            X509Certificate[] fullChain = prepend(certificate, certificateChain);
+            return new CertChainAndKey(fullChain, pair.getPrivate());
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException e) {
             throw new CertificateGenerationUnsupportedException(
                 "Your runtime does not support generating certificates at runtime",
                 e
@@ -108,35 +129,43 @@ public class CertificateAuthority {
         }
     }
 
-    private static CertChainAndKey generateCertChainAndKey(
-        String keyType,
+    private X509CertImpl sign(X509CertInfo info) throws CertificateException, IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+        X509Certificate issuerCertificate = certificateChain[0];
+        info.set(X509CertInfo.ISSUER, issuerCertificate.getSubjectDN());
+
+        X509CertImpl certificate = new X509CertImpl(info);
+        certificate.sign(key, issuerCertificate.getSigAlgName());
+        return certificate;
+    }
+
+    private static KeyPair generateKeyPair(String keyType) throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(keyType);
+        keyGen.initialize(2048, new SecureRandom());
+        return keyGen.generateKeyPair();
+    }
+
+    private static X509CertInfo makeX509CertInfo(
         String sigAlg,
         String subjectName,
         Period validity,
-        Function<X509Key, CertificateExtensions> extensionBuilder
-    ) throws CertificateGenerationUnsupportedException {
-        try {
-            // TODO inline CertAndKeyGen logic so we don't depend on sun.security.tools.keytool
-            CertAndKeyGen newCertAndKey = new CertAndKeyGen(keyType, sigAlg);
-            newCertAndKey.generate(2048);
-            PrivateKey newKey = newCertAndKey.getPrivateKey();
+        PublicKey publicKey,
+        CertificateExtensions certificateExtensions
+    ) throws IOException, CertificateException, NoSuchAlgorithmException {
+        ZonedDateTime start = ZonedDateTime.now();
+        ZonedDateTime end = start.plus(validity);
 
-            ZonedDateTime start = ZonedDateTime.now();
-            ZonedDateTime end = start.plus(validity);
-
-            X509Certificate certificate = newCertAndKey.getSelfCertificate(
-                    new X500Name("CN=" + subjectName),
-                    Date.from(start.toInstant()),
-                    Duration.between(start, end).getSeconds(),
-                    extensionBuilder.apply(newCertAndKey.getPublicKey())
-            );
-            return new CertChainAndKey(new X509Certificate[]{ certificate }, newKey);
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException e) {
-            throw new CertificateGenerationUnsupportedException(
-                    "Your runtime does not support generating certificates at runtime",
-                    e
-            );
-        }
+        X500Name myname = new X500Name("CN=" + subjectName);
+        X509CertInfo info = new X509CertInfo();
+        // Add all mandatory attributes
+        info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
+        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
+        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(AlgorithmId.get(sigAlg)));
+        info.set(X509CertInfo.SUBJECT, myname);
+        info.set(X509CertInfo.KEY, new CertificateX509Key(publicKey));
+        info.set(X509CertInfo.VALIDITY, new CertificateValidity(Date.from(start.toInstant()), Date.from(end.toInstant())));
+        info.set(X509CertInfo.ISSUER, myname);
+        info.set(X509CertInfo.EXTENSIONS, certificateExtensions);
+        return info;
     }
 
     private static CertificateExtensions subjectAlternativeName(SNIHostName hostName) {
@@ -161,24 +190,5 @@ public class CertificateAuthority {
             // An SNIHostName should be guaranteed not to have a parse issue
             return throwUnchecked(e, null);
         }
-    }
-
-    private X509Certificate sign(X509Certificate certificate) throws CertificateException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        X509Certificate issuerCertificate = certificateChain[0];
-        Principal issuer = issuerCertificate.getSubjectDN();
-        String issuerSigAlg = issuerCertificate.getSigAlgName();
-
-        byte[] inCertBytes = certificate.getTBSCertificate();
-        X509CertInfo info = new X509CertInfo(inCertBytes);
-        try {
-            info.set(X509CertInfo.ISSUER, issuer);
-        } catch (IOException e) {
-            return throwUnchecked(e, null);
-        }
-
-        X509CertImpl outCert = new X509CertImpl(info);
-        outCert.sign(key, issuerSigAlg);
-
-        return outCert;
     }
 }
