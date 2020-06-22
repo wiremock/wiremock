@@ -70,6 +70,7 @@ public class WireMockConfiguration implements Options {
     private boolean browserProxyingEnabled = false;
     private String caKeystorePath = DEFAULT_CA_KEYSTORE_PATH;
     private String caKeystorePassword = DEFAULT_CA_KESTORE_PASSWORD;
+    private String caKeystoreType = "JKS";
     private boolean trustAllProxyTargets = false;
     private final List<String> trustedProxyTargets = new ArrayList<>();
 
@@ -195,6 +196,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration caKeystorePassword(String keyStorePassword) {
         this.caKeystorePassword = keyStorePassword;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystoreType(String caKeystoreType) {
+        this.caKeystoreType = caKeystoreType;
         return this;
     }
 
@@ -562,6 +568,7 @@ public class WireMockConfiguration implements Options {
                 .trustedProxyTargets(trustedProxyTargets)
                 .caKeyStorePath(caKeystorePath)
                 .caKeyStorePassword(caKeystorePassword)
+                .caKeyStoreType(caKeystoreType)
                 .build();
     }
 }

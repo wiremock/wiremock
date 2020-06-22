@@ -114,6 +114,15 @@ WireMock uses the trust store for three purposes:
 
 // The password to the trust store
 .trustStorePassword("trustme")
+
+// When proxying, a key store containing a root Certificate Authority private key and certificate that can be used to sign generated certificates
+.caKeystorePath("/path/to/ca-key-store.jks")
+
+// The password to the CA key store
+.caKeystorePassword("trustme")
+
+// The type of the CA key store
+.caKeystoreType("JKS")
 ```
 
 
