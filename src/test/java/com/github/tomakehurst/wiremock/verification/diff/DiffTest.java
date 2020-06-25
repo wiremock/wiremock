@@ -495,4 +495,54 @@ public class DiffTest {
                 )
         ));
     }
+
+    @Test
+    public void includesSpecificDiffForJsonPathSubMatchWhenElementFound() {
+        Diff diff = new Diff(
+                post("/submatch")
+                        .withRequestBody(matchingJsonPath("$.name", containing("Tom")))
+                        .willReturn(ok("Yep")).build(),
+                mockRequest()
+                        .method(POST)
+                        .url("/submatch")
+                        .body("{\"name\": \"Rob\"}")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "$.name [contains] Tom"
+                        ,
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "Rob"
+                )
+        ));
+    }
+
+    @Test
+    public void includesSpecificDiffForJsonPathSubMatchWhenElementNotFound() {
+        Diff diff = new Diff(
+                post("/submatch")
+                        .withRequestBody(matchingJsonPath("$.name", containing("Tom")))
+                        .willReturn(ok("Yep")).build(),
+                mockRequest()
+                        .method(POST)
+                        .url("/submatch")
+                        .body("{\"id\": \"abc123\"}")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "$.name [contains] Tom"
+                        ,
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "{\"id\": \"abc123\"}"
+                )
+        ));
+    }
 }

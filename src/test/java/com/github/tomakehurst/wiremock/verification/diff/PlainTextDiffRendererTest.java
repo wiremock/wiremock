@@ -253,6 +253,25 @@ public class PlainTextDiffRendererTest {
     }
 
     @Test
+    public void showsXPathWithSubMatchMismatch() {
+        Diff diff = new Diff(post("/thing")
+                .withRequestBody(matchingXPath("//thing/text()", equalTo("two")))
+                .build(),
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+                        .body("<stuff>\n" +
+                              "    <thing>one</thing>\n" +
+                              "</stuff>"));
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        String expected = file("not-found-diff-sample_xpath-with-submatch.txt");
+        assertThat(output, equalsMultiLine(expected));
+    }
+
+    @Test
     public void showsUrlRegexUnescapedMessage() {
         Diff diff = new Diff(get(urlMatching("thing?query=value"))
             .build(),
@@ -380,7 +399,6 @@ public class PlainTextDiffRendererTest {
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_only-custom_matcher.txt")));
     }
-
 
     @Test
     public void handlesUrlsWithQueryStringAndNoPath() {

@@ -224,7 +224,23 @@ public class Diff {
         if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
             for (ContentPattern<?> pattern: bodyPatterns) {
                 String formattedBody = formatIfJsonOrXml(pattern, body);
-                if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
+                if (PathPattern.class.isAssignableFrom(pattern.getClass())) {
+                    PathPattern pathPattern = (PathPattern) pattern;
+                    if (!pathPattern.isSimple()) {
+                        String expressionResult = pathPattern.getExpressionResult(body.asString());
+                        String printedExpectedValue =
+                                pathPattern.getExpected() +
+                                        " [" + pathPattern.getValuePattern().getName() + "] " +
+                                        pathPattern.getValuePattern().getExpected();
+                        if (expressionResult != null) {
+                            builder.add(new DiffLine<>("Body", pathPattern.getValuePattern(), expressionResult, printedExpectedValue));
+                        } else {
+                            builder.add(new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue));
+                        }
+                    } else {
+                        builder.add(new DiffLine<>("Body", pathPattern, formattedBody, pattern.getExpected()));
+                    }
+                } else if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
                     StringValuePattern stringValuePattern = (StringValuePattern) pattern;
                     builder.add(new DiffLine<>("Body", stringValuePattern, formattedBody, pattern.getExpected()));
                 } else {
