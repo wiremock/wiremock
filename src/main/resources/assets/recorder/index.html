@@ -27,9 +27,26 @@
         .content {
             margin: auto;
             width: 600px;
-            height: 300px;
+            /*height: 300px;*/
             padding-top: 100px;
             vertical-align: middle;
+        }
+
+        .ca-cert-box {
+            border: 1px solid black;
+            padding: 1em;
+            vertical-align: middle;
+            margin-top: 60px;
+            color: #898989;
+            font-size: 90%;
+        }
+
+        .ca-cert-box a {
+            color: #42407d;
+        }
+
+        .ca-cert-box a:visited {
+            color: #42407d;
         }
 
         button {
@@ -100,14 +117,12 @@
 
     <button id="startRecording" disabled="disabled">Record</button>
     <button id="stopRecording" disabled="disabled">Stop</button>
-    <p>
-    Certificate to trust when browser proxying HTTPS sites:<p>
-    <a href="../certs/wiremock-ca.crt">wiremock-ca.crt</a><p>
-    This self-signed certificate is marked as a certificate authority, and contains the public key that is paired with the private key provided in the keystore specified using the <code>--ca-keystore</code> option.<p>
-    By default this is a securely generated private key local to the system where WireMock is running.<p>
-    WireMock will serve generated certificates signed with this private key for any HTTPS site you visit while using WireMock as your proxy server.<p>
-    Trusting this certificate will mean your browser (or other client) will trust those generated certificates.<p>
-    This will be secure provided nobody else ever gets hold of the private key.
+
+    <div class="ca-cert-box">
+        <p>To record stubs from an HTTPS endpoint using browser (forward) proxying, you may need to trust WireMock's CA cert, which
+        can be downloaded here: <a href="../certs/wiremock-ca.crt">wiremock-ca.crt</a>
+        <p>See the <a href="http://wiremock.org/docs/proxying/#browser-proxying-of-https" target="_blank">documentation on HTTPS proxying</a> for more details.
+    </div>
 </div>
 
 <script type="text/javascript">
