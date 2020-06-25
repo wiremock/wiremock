@@ -17,9 +17,8 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -468,6 +467,32 @@ public class DiffTest {
                         "POST\n" +
                                 "/thing\n\n" +
                                 "not absent")
+        ));
+    }
+
+    @Test
+    public void indicatesThatScenarioStateDiffersWhenStubAndRequestOtherwiseMatch() {
+        Diff diff = new Diff(
+                get("/stateful")
+                        .inScenario("my-steps")
+                        .whenScenarioStateIs("step2")
+                        .willReturn(ok("Yep")).build(),
+                mockRequest()
+                        .method(GET)
+                        .url("/stateful"),
+                Scenario.STARTED
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "GET\n" +
+                        "/stateful\n\n" +
+                        "[Scenario 'my-steps' state: step2]"
+                        ,
+                        "GET\n" +
+                        "/stateful\n\n" +
+                        "[Scenario 'my-steps' state: Started]"
+                )
         ));
     }
 }

@@ -57,7 +57,7 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
 
-
+    private final Scenarios scenarios;
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
@@ -86,13 +86,16 @@ public class WireMockApp implements StubServer, Admin {
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
+
+        scenarios = new Scenarios();
         stubMappings = new InMemoryStubMappings(
+            scenarios,
             customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource,
             ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
         );
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
@@ -116,9 +119,10 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
+        scenarios = new Scenarios();
+        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();

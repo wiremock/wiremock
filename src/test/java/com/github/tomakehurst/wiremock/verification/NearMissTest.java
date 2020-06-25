@@ -74,7 +74,8 @@ public class NearMissTest {
         String json = Json.write(new NearMiss(
             LoggedRequest.createFrom(mockRequest().method(HEAD).url("/nearly-missed-me")),
             get(urlEqualTo("/missed-me")).willReturn(aResponse()).build(),
-            MatchResult.partialMatch(0.5)
+            MatchResult.partialMatch(0.5),
+            null
         ));
 
         assertThat(json, equalToJson(STUB_MAPPING_EXAMPLE, LENIENT));

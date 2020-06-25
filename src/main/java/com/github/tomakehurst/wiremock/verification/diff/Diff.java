@@ -21,9 +21,6 @@ import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.net.URI;
@@ -34,24 +31,36 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static java.util.Arrays.asList;
 
 public class Diff {
 
     private final String stubMappingName;
     private final RequestPattern requestPattern;
     private final Request request;
+    private final String scenarioName;
+    private final String scenarioState;
+    private final String expectedScenarioState;
 
     public Diff(RequestPattern expected, Request actual) {
         this.requestPattern = expected;
         this.request = actual;
         this.stubMappingName = null;
+        this.scenarioName = null;
+        this.scenarioState = null;
+        this.expectedScenarioState = null;
     }
 
     public Diff(StubMapping expected, Request actual) {
+        this(expected, actual, null);
+    }
+
+    public Diff(StubMapping expected, Request actual, String scenarioState) {
         this.requestPattern = expected.getRequest();
         this.request = actual;
         this.stubMappingName = expected.getName();
+        this.scenarioName = expected.getScenarioName();
+        this.scenarioState = scenarioState;
+        this.expectedScenarioState = expected.getRequiredScenarioState();
     }
 
     @Override
@@ -174,8 +183,20 @@ public class Diff {
             }
         }
 
+        if (scenarioName != null) {
+            builder.add(new DiffLine<>(
+                    "Scenario",
+                    new EqualToPattern(expectedScenarioState),
+                    buildScenarioLine(scenarioName, scenarioState),
+                    buildScenarioLine(scenarioName, expectedScenarioState))
+            );
+        }
 
         return builder.build();
+    }
+
+    private static String buildScenarioLine(String scenarioName, String scenarioState) {
+        return "[Scenario '" + scenarioName + "' state: " + scenarioState + "]";
     }
 
     private void addHeaderSection(Map<String, MultiValuePattern> headerPatterns, HttpHeaders headers, ImmutableList.Builder<DiffLine<?>> builder) {

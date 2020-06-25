@@ -166,6 +166,20 @@ public class NotMatchedPageAcceptanceTest {
         assertThat(response.content(), containsString("No response could be served"));
     }
 
+    @Test
+    public void indicatesWhenWrongScenarioStateIsTheReasonForNonMatch() {
+        configure();
+
+        stubFor(post("/thing")
+            .inScenario("thing states")
+            .whenScenarioStateIs("first")
+            .willReturn(ok("Done!")));
+
+        WireMockResponse response = testClient.postJson("/thing", "{}");
+
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample_scenario-state.txt")));
+    }
+
     private void configure() {
         configure(WireMockConfiguration.wireMockConfig().dynamicPort());
     }

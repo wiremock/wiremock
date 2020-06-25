@@ -17,11 +17,8 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.WeightedMatchResult;
+import com.github.tomakehurst.wiremock.stubbing.Scenarios;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
@@ -51,6 +48,7 @@ public class NearMissCalculatorTest {
 
     StubMappings stubMappings;
     RequestJournal requestJournal;
+    Scenarios scenarios;
 
     @Before
     public void init() {
@@ -58,7 +56,8 @@ public class NearMissCalculatorTest {
 
         stubMappings = context.mock(StubMappings.class);
         requestJournal = context.mock(RequestJournal.class);
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        scenarios = new Scenarios();
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     }
 
     @Test
