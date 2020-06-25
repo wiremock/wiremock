@@ -17,9 +17,7 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 
@@ -41,10 +39,12 @@ public class NearMissCalculator {
 
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
+    private final Scenarios scenarios;
 
-    public NearMissCalculator(StubMappings stubMappings, RequestJournal requestJournal) {
+    public NearMissCalculator(StubMappings stubMappings, RequestJournal requestJournal, Scenarios scenarios) {
         this.stubMappings = stubMappings;
         this.requestJournal = requestJournal;
+        this.scenarios = scenarios;
     }
 
     public List<NearMiss> findNearestTo(final LoggedRequest request) {
@@ -53,9 +53,19 @@ public class NearMissCalculator {
         return sortAndTruncate(from(allMappings).transform(new Function<StubMapping, NearMiss>() {
             public NearMiss apply(StubMapping stubMapping) {
                 MatchResult matchResult = stubMapping.getRequest().match(request);
-                return new NearMiss(request, stubMapping, matchResult);
+                String actualScenarioState = getScenarioStateOrNull(stubMapping);
+                return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
             }
         }), allMappings.size());
+    }
+
+    private String getScenarioStateOrNull(StubMapping stubMapping) {
+        if (!stubMapping.isInScenario()) {
+            return null;
+        }
+
+        Scenario scenario = scenarios.getByName(stubMapping.getScenarioName());
+        return scenario != null ? scenario.getState() : null;
     }
 
     public List<NearMiss> findNearestTo(final RequestPattern requestPattern) {

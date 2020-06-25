@@ -45,13 +45,14 @@ import static com.google.common.collect.Iterables.tryFind;
 public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
-	private final Scenarios scenarios = new Scenarios();
+	private final Scenarios scenarios;
 	private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
     private final List<StubLifecycleListener> stubLifecycleListeners;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
+	public InMemoryStubMappings(Scenarios scenarios, Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
+		this.scenarios = scenarios;
 		this.customMatchers = customMatchers;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
@@ -59,7 +60,8 @@ public class InMemoryStubMappings implements StubMappings {
 	}
 
 	public InMemoryStubMappings() {
-		this(Collections.<String, RequestMatcherExtension>emptyMap(),
+		this(new Scenarios(),
+			 Collections.<String, RequestMatcherExtension>emptyMap(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
              new SingleRootFileSource("."),
 			 Collections.<StubLifecycleListener>emptyList()
