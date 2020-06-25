@@ -140,6 +140,11 @@ public class ResponseDefinitionBuilder {
         return this;
     }
 
+    public ResponseDefinitionBuilder withTransformerParameters(Map<String, Object> parameters) {
+        transformerParameters.putAll(parameters);
+        return this;
+    }
+
     public ResponseDefinitionBuilder withTransformerParameter(String name, Object value) {
         transformerParameters.put(name, value);
         return this;
