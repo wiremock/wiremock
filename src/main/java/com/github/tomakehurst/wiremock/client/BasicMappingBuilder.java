@@ -70,6 +70,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	}
 
 	@Override
+	public MappingBuilder withHost(StringValuePattern hostPattern) {
+    	requestPatternBuilder.withHost(hostPattern);
+		return this;
+	}
+
+	@Override
 	public BasicMappingBuilder withHeader(String key, StringValuePattern headerPattern) {
         requestPatternBuilder.withHeader(key, headerPattern);
 		return this;

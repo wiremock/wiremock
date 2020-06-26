@@ -43,6 +43,7 @@ import static java.util.Arrays.asList;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
+    private final StringValuePattern host;
     private final UrlPattern url;
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
@@ -56,7 +57,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final ValueMatcher<Request> matcher;
     private final boolean hasInlineCustomMatcher;
 
-    public RequestPattern(final UrlPattern url,
+    public RequestPattern(final StringValuePattern host,
+                          final UrlPattern url,
                           final RequestMethod method,
                           final Map<String, MultiValuePattern> headers,
                           final Map<String, MultiValuePattern> queryParams,
@@ -66,6 +68,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           final CustomMatcherDefinition customMatcherDefinition,
                           final ValueMatcher<Request> customMatcher,
                           final List<MultipartValuePattern> multiPattern) {
+        this.host = host;
         this.url = firstNonNull(url, UrlPattern.ANY);
         this.method = firstNonNull(method, RequestMethod.ANY);
         this.headers = headers;
@@ -81,6 +84,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             @Override
             public MatchResult match(Request request) {
                 List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
+                        weight(hostMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
                         weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
 
@@ -107,7 +111,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     @JsonCreator
-    public RequestPattern(@JsonProperty("url") String url,
+    public RequestPattern(@JsonProperty("host") StringValuePattern host,
+                          @JsonProperty("url") String url,
                           @JsonProperty("urlPattern") String urlPattern,
                           @JsonProperty("urlPath") String urlPath,
                           @JsonProperty("urlPathPattern") String urlPathPattern,
@@ -121,6 +126,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           @JsonProperty("multipartPatterns") List<MultipartValuePattern> multiPattern) {
 
         this(
+            host,
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
             method,
             headers,
@@ -135,6 +141,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     public static RequestPattern ANYTHING = new RequestPattern(
+        null,
         WireMock.anyUrl(),
         RequestMethod.ANY,
         null,
@@ -148,11 +155,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     );
 
     public RequestPattern(ValueMatcher<Request> customMatcher) {
-        this(UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
+        this(null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
+        this(null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
     }
 
     @Override
@@ -208,6 +215,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         }
 
         return MatchResult.exactMatch();
+    }
+
+    private MatchResult hostMatches(final Request request) {
+        return host != null ?
+                host.match(request.getHost()) :
+                MatchResult.exactMatch();
     }
 
     private MatchResult allHeadersMatchResult(final Request request) {
@@ -304,6 +317,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return match(request, customMatchers).isExactMatch();
     }
 
+    public StringValuePattern getHost() {
+        return host;
+    }
+
     public String getUrl() {
         return urlPatternOrNull(UrlPattern.class, false);
     }
@@ -393,21 +410,23 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RequestPattern that = (RequestPattern) o;
-        return Objects.equals(url, that.url) &&
-            Objects.equals(method, that.method) &&
-            Objects.equals(headers, that.headers) &&
-            Objects.equals(queryParams, that.queryParams) &&
-            Objects.equals(cookies, that.cookies) &&
-            Objects.equals(basicAuthCredentials, that.basicAuthCredentials) &&
-            Objects.equals(bodyPatterns, that.bodyPatterns) &&
-            Objects.equals(customMatcherDefinition, that.customMatcherDefinition) &&
-            Objects.equals(matcher, that.matcher) &&
-            Objects.equals(multipartPatterns, that.multipartPatterns);
+        return hasInlineCustomMatcher == that.hasInlineCustomMatcher &&
+                Objects.equals(host, that.host) &&
+                Objects.equals(url, that.url) &&
+                Objects.equals(method, that.method) &&
+                Objects.equals(headers, that.headers) &&
+                Objects.equals(queryParams, that.queryParams) &&
+                Objects.equals(cookies, that.cookies) &&
+                Objects.equals(basicAuthCredentials, that.basicAuthCredentials) &&
+                Objects.equals(bodyPatterns, that.bodyPatterns) &&
+                Objects.equals(multipartPatterns, that.multipartPatterns) &&
+                Objects.equals(customMatcherDefinition, that.customMatcherDefinition) &&
+                Objects.equals(matcher, that.matcher);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, multipartPatterns);
+        return Objects.hash(host, url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, multipartPatterns, customMatcherDefinition, matcher, hasInlineCustomMatcher);
     }
 
     @Override

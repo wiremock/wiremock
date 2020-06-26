@@ -23,12 +23,13 @@ import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 import java.util.UUID;
 
 public interface MappingBuilder {
+
+    MappingBuilder withHost(StringValuePattern hostPattern);
 
     MappingBuilder atPriority(Integer priority);
     MappingBuilder withHeader(String key, StringValuePattern headerPattern);
