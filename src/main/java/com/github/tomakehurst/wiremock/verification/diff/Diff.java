@@ -75,6 +75,13 @@ public class Diff {
     public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
         ImmutableList.Builder<DiffLine<?>> builder = ImmutableList.builder();
 
+        if (requestPattern.getHost() != null) {
+            String hostOperator = generateOperatorString(requestPattern.getHost(), "");
+            String printedHostPatternValue = hostOperator + requestPattern.getHost().getExpected();
+            DiffLine<String> hostSection = new DiffLine<>("Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
+            builder.add(hostSection);
+        }
+
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 

@@ -545,4 +545,52 @@ public class DiffTest {
                 )
         ));
     }
+
+    @Test
+    public void includeHostnameIfSpecifiedWithEqualTo() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withHost(equalTo("my.host"))
+                        .build(),
+                mockRequest()
+                        .host("wrong.host")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "my.host\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                        ,
+                        "wrong.host\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                )
+        ));
+    }
+
+    @Test
+    public void includeHostnameIfSpecifiedWithNonEqualTo() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withHost(containing("my.host"))
+                        .build(),
+                mockRequest()
+                        .host("wrong.host")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "[contains] my.host\n" +
+                                "ANY\n" +
+                                "/thing\n"
+                        ,
+                        "wrong.host\n" +
+                                "ANY\n" +
+                                "/thing\n"
+                )
+        ));
+    }
 }

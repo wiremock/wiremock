@@ -30,6 +30,7 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class RequestPatternBuilder {
 
+    private StringValuePattern hostPattern;
     private UrlPattern url = UrlPattern.ANY;
     private RequestMethod method = RequestMethod.ANY;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
@@ -87,6 +88,7 @@ public class RequestPatternBuilder {
      */
     public static RequestPatternBuilder like(RequestPattern requestPattern) {
         RequestPatternBuilder builder = new RequestPatternBuilder();
+        builder.hostPattern = requestPattern.getHost();
         builder.url = requestPattern.getUrlMatcher();
         builder.method = requestPattern.getMethod();
         if (requestPattern.getHeaders() != null) {
@@ -113,6 +115,11 @@ public class RequestPatternBuilder {
     }
 
     public RequestPatternBuilder but() {
+        return this;
+    }
+
+    public RequestPatternBuilder withHost(StringValuePattern hostPattern) {
+        this.hostPattern = hostPattern;
         return this;
     }
 
@@ -182,6 +189,7 @@ public class RequestPatternBuilder {
 
     public RequestPattern build() {
         return new RequestPattern(
+                hostPattern,
                 url,
                 method,
                 headers.isEmpty() ? null : headers,
