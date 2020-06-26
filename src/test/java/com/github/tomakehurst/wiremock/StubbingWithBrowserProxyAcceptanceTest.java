@@ -73,6 +73,18 @@ public class StubbingWithBrowserProxyAcceptanceTest {
         }
     }
 
+    @Test
+    public void matchesAnyHostnameWhenNotSpecified() throws Exception {
+        stubFor(get(urlPathEqualTo("/mypath"))
+                .willReturn(ok("Got it"))
+        );
+
+        HttpUriRequest request = RequestBuilder.get("http://whatever.internal/mypath").build();
+        try (CloseableHttpResponse response = client.execute(request)) {
+            assertThat(EntityUtils.toString(response.getEntity()), is("Got it"));
+        }
+    }
+
     private static class CustomLocalTldDnsResolver implements DnsResolver {
 
         private final String tldToSendToLocalhost;
