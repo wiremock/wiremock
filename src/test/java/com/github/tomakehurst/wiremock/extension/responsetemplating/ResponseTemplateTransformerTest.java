@@ -25,17 +25,20 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -748,6 +751,25 @@ public class ResponseTemplateTransformerTest {
                 .getBody();
 
         assertThat(body, is("3"));
+    }
+
+    @Test
+    public void picksRandomElementFromLiteralList() {
+        Set<String> bodyValues = new HashSet<>();
+        for (int i = 0; i < 30; i++) {
+            String body = transform("{{{pickRandom '1' '2' '3'}}}");
+            bodyValues.add(body);
+        }
+
+        assertThat(bodyValues, hasItem("1"));
+        assertThat(bodyValues, hasItem("2"));
+        assertThat(bodyValues, hasItem("3"));
+    }
+
+    @Test
+    public void picksRandomElementFromListVariable() {
+        String body = transform("{{{pickRandom (jsonPath request.body '$.names')}}}", "{ \"names\": [\"Rob\", \"Tom\", \"Gus\"] }");
+        assertThat(body, anyOf(is("Gus"), is("Tom"), is("Rob")));
     }
 
     @Test

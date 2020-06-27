@@ -432,6 +432,24 @@ Random strings of various kinds can be generated:
 {% endraw %}
 
 
+## Pick random helper
+A value can be randomly selected from a literal list:
+
+{% raw %}
+```
+{{{pickRandom '1' '2' '3'}}}
+```
+{% endraw %}
+
+Or from a list passed as a parameter:
+
+{% raw %}
+```
+{{{pickRandom (jsonPath request.body '$.names')}}}
+```
+{% endraw %}
+
+
 ## String trim helper
 Use the `trim` helper to remove whitespace from the start and end of the input:
 
