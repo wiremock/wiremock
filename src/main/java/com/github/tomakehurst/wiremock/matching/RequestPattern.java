@@ -44,6 +44,7 @@ import static java.util.Arrays.asList;
 public class RequestPattern implements NamedValueMatcher<Request> {
 
     private final StringValuePattern host;
+    private final Integer port;
     private final UrlPattern url;
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
@@ -58,6 +59,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final boolean hasInlineCustomMatcher;
 
     public RequestPattern(final StringValuePattern host,
+                          final Integer port,
                           final UrlPattern url,
                           final RequestMethod method,
                           final Map<String, MultiValuePattern> headers,
@@ -69,6 +71,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           final ValueMatcher<Request> customMatcher,
                           final List<MultipartValuePattern> multiPattern) {
         this.host = host;
+        this.port = port;
         this.url = firstNonNull(url, UrlPattern.ANY);
         this.method = firstNonNull(method, RequestMethod.ANY);
         this.headers = headers;
@@ -85,6 +88,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             public MatchResult match(Request request) {
                 List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
                         weight(hostMatches(request), 10.0),
+                        weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
                         weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
 
@@ -112,6 +116,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     @JsonCreator
     public RequestPattern(@JsonProperty("host") StringValuePattern host,
+                          @JsonProperty("port") Integer port,
                           @JsonProperty("url") String url,
                           @JsonProperty("urlPattern") String urlPattern,
                           @JsonProperty("urlPath") String urlPath,
@@ -127,6 +132,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
         this(
             host,
+            port,
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
             method,
             headers,
@@ -142,6 +148,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     public static RequestPattern ANYTHING = new RequestPattern(
         null,
+        null,
         WireMock.anyUrl(),
         RequestMethod.ANY,
         null,
@@ -155,11 +162,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     );
 
     public RequestPattern(ValueMatcher<Request> customMatcher) {
-        this(null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
+        this(null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
+        this(null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
     }
 
     @Override
@@ -220,6 +227,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private MatchResult hostMatches(final Request request) {
         return host != null ?
                 host.match(request.getHost()) :
+                MatchResult.exactMatch();
+    }
+
+    private MatchResult portMatches(final Request request) {
+        return port != null ?
+                MatchResult.of(request.getPort() == port) :
                 MatchResult.exactMatch();
     }
 
@@ -321,6 +334,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return host;
     }
 
+    public Integer getPort() {
+        return port;
+    }
+
     public String getUrl() {
         return urlPatternOrNull(UrlPattern.class, false);
     }
@@ -412,6 +429,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         RequestPattern that = (RequestPattern) o;
         return hasInlineCustomMatcher == that.hasInlineCustomMatcher &&
                 Objects.equals(host, that.host) &&
+                Objects.equals(port, that.port) &&
                 Objects.equals(url, that.url) &&
                 Objects.equals(method, that.method) &&
                 Objects.equals(headers, that.headers) &&
@@ -426,7 +444,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(host, url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, multipartPatterns, customMatcherDefinition, matcher, hasInlineCustomMatcher);
+        return Objects.hash(host, port, url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, multipartPatterns, customMatcherDefinition, matcher, hasInlineCustomMatcher);
     }
 
     @Override

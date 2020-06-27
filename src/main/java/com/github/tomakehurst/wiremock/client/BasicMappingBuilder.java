@@ -76,6 +76,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	}
 
 	@Override
+	public MappingBuilder withPort(int port) {
+    	requestPatternBuilder.withPort(port);
+		return this;
+	}
+
+	@Override
 	public BasicMappingBuilder withHeader(String key, StringValuePattern headerPattern) {
         requestPatternBuilder.withHeader(key, headerPattern);
 		return this;
