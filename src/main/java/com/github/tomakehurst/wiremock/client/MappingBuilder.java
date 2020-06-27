@@ -30,6 +30,7 @@ import java.util.UUID;
 public interface MappingBuilder {
 
     MappingBuilder withHost(StringValuePattern hostPattern);
+    MappingBuilder withPort(int port);
 
     MappingBuilder atPriority(Integer priority);
     MappingBuilder withHeader(String key, StringValuePattern headerPattern);
@@ -39,21 +40,22 @@ public interface MappingBuilder {
     MappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
     ScenarioMappingBuilder inScenario(String scenarioName);
     MappingBuilder withId(UUID id);
-    MappingBuilder withName(String name);
 
+    MappingBuilder withName(String name);
     MappingBuilder persistent();
+
     MappingBuilder withBasicAuth(String username, String password);
 
     MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
     <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
-
     MappingBuilder withMetadata(Map<String, ?> metadata);
     MappingBuilder withMetadata(Metadata metadata);
-    MappingBuilder withMetadata(Metadata.Builder metadata);
 
+    MappingBuilder withMetadata(Metadata.Builder metadata);
     MappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
     MappingBuilder andMatching(String customRequestMatcherName);
+
     MappingBuilder andMatching(String customRequestMatcherName, Parameters parameters);
 
     MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);

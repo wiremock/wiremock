@@ -71,6 +71,7 @@ public class RequestPatternBuilderTest {
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(
             WireMock.equalTo("my.wiremock.org"),
+            1234,
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
             ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
@@ -123,6 +124,7 @@ public class RequestPatternBuilderTest {
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(
                 WireMock.equalTo("my.wiremock.org"),
+                1234,
                 WireMock.urlEqualTo("/foo"),
                 RequestMethod.POST,
                 ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),

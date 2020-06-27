@@ -593,4 +593,28 @@ public class DiffTest {
                 )
         ));
     }
+
+    @Test
+    public void includePortIfSpecified() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withPort(5544)
+                        .build(),
+                mockRequest()
+                        .port(6543)
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "5544\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                        ,
+                        "6543\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                )
+        ));
+    }
 }

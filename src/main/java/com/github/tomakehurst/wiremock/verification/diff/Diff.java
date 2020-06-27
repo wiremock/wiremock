@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -80,6 +81,13 @@ public class Diff {
             String printedHostPatternValue = hostOperator + requestPattern.getHost().getExpected();
             DiffLine<String> hostSection = new DiffLine<>("Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
             builder.add(hostSection);
+        }
+
+        if (requestPattern.getPort() != null) {
+            StringValuePattern expectedPort = equalTo(String.valueOf(requestPattern.getPort()));
+            String actualPort = String.valueOf(request.getPort());
+            DiffLine<String> portSection = new DiffLine<>("Port", expectedPort, actualPort, expectedPort.getExpected());
+            builder.add(portSection);
         }
 
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());

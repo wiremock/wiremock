@@ -27,6 +27,8 @@ import static org.hamcrest.Matchers.not;
 
 public class StubbingWithBrowserProxyAcceptanceTest {
 
+    static final String EXPECTED_RESPONSE_BODY = "Got it";
+
     @ClassRule
     public static WireMockClassRule wm = new WireMockClassRule(wireMockConfig()
             .dynamicPort()
@@ -51,37 +53,65 @@ public class StubbingWithBrowserProxyAcceptanceTest {
     public void matchesOnHostname() throws Exception {
         stubFor(get(urlPathEqualTo("/mypath"))
                 .withHost(equalTo("righthost.internal"))
-                .willReturn(ok("Got it"))
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
         HttpUriRequest request = RequestBuilder.get("http://righthost.internal/mypath").build();
-        try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(EntityUtils.toString(response.getEntity()), is("Got it"));
-        }
+        makeRequestAndAssertOk(request);
     }
 
     @Test
     public void doesNotMatchOnHostnameWhenIncorrect() throws Exception {
         stubFor(get(urlPathEqualTo("/mypath"))
                 .withHost(equalTo("righthost.internal"))
-                .willReturn(ok("Got it"))
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
         HttpUriRequest request = RequestBuilder.get("http://wronghost.internal/mypath").build();
-        try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(EntityUtils.toString(response.getEntity()), not(is("Got it")));
-        }
+        makeRequestAndAssertNotOk(request);
     }
 
     @Test
     public void matchesAnyHostnameWhenNotSpecified() throws Exception {
         stubFor(get(urlPathEqualTo("/mypath"))
-                .willReturn(ok("Got it"))
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
         HttpUriRequest request = RequestBuilder.get("http://whatever.internal/mypath").build();
+        makeRequestAndAssertOk(request);
+    }
+    
+    @Test
+    public void matchesPortNumber() throws Exception {
+        stubFor(get(urlPathEqualTo("/mypath"))
+                .withPort(1234)
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
+        );
+
+        HttpUriRequest request = RequestBuilder.get("http://localhost:1234/mypath").build();
+        makeRequestAndAssertOk(request);
+    }
+
+    @Test
+    public void doesNotMatchOnPortNumberWhenIncorrect() throws Exception {
+        stubFor(get(urlPathEqualTo("/mypath"))
+                .withPort(1234)
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
+        );
+
+        HttpUriRequest request = RequestBuilder.get("http://localhost:4321/mypath").build();
+        makeRequestAndAssertNotOk(request);
+    }
+    
+    private void makeRequestAndAssertOk(HttpUriRequest request) throws Exception {
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(EntityUtils.toString(response.getEntity()), is("Got it"));
+            assertThat(EntityUtils.toString(response.getEntity()), is(EXPECTED_RESPONSE_BODY));
+        }
+    }
+
+    private void makeRequestAndAssertNotOk(HttpUriRequest request) throws Exception {
+        try (CloseableHttpResponse response = client.execute(request)) {
+            assertThat(EntityUtils.toString(response.getEntity()), not(is(EXPECTED_RESPONSE_BODY)));
         }
     }
 
