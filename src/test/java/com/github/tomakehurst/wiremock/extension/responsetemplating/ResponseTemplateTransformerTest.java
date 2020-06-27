@@ -623,8 +623,20 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void base64EncodeValueWithoutPadding() {
+        String body = transform("{{{base64 'hello' padding=false}}}");
+        assertThat(body, is("aGVsbG8"));
+    }
+
+    @Test
     public void base64DecodeValue() {
         String body = transform("{{{base64 'aGVsbG8=' decode=true}}}");
+        assertThat(body, is("hello"));
+    }
+
+    @Test
+    public void base64DecodeValueWithoutPadding() {
+        String body = transform("{{{base64 'aGVsbG8' decode=true}}}");
         assertThat(body, is("hello"));
     }
 
