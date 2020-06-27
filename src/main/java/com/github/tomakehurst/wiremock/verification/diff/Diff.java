@@ -90,6 +90,12 @@ public class Diff {
             builder.add(portSection);
         }
 
+        if (requestPattern.getScheme() != null) {
+            StringValuePattern expectedScheme = equalTo(String.valueOf(requestPattern.getScheme()));
+            DiffLine<String> schemeSection = new DiffLine<>("Scheme", expectedScheme, request.getScheme(), requestPattern.getScheme());
+            builder.add(schemeSection);
+        }
+
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 

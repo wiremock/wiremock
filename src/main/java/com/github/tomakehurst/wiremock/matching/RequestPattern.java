@@ -43,6 +43,7 @@ import static java.util.Arrays.asList;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
+    private final String scheme;
     private final StringValuePattern host;
     private final Integer port;
     private final UrlPattern url;
@@ -58,7 +59,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final ValueMatcher<Request> matcher;
     private final boolean hasInlineCustomMatcher;
 
-    public RequestPattern(final StringValuePattern host,
+    public RequestPattern(final String scheme,
+                          final StringValuePattern host,
                           final Integer port,
                           final UrlPattern url,
                           final RequestMethod method,
@@ -70,6 +72,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           final CustomMatcherDefinition customMatcherDefinition,
                           final ValueMatcher<Request> customMatcher,
                           final List<MultipartValuePattern> multiPattern) {
+        this.scheme = scheme;
         this.host = host;
         this.port = port;
         this.url = firstNonNull(url, UrlPattern.ANY);
@@ -87,6 +90,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             @Override
             public MatchResult match(Request request) {
                 List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
+                        weight(schemeMatches(request), 3.0),
                         weight(hostMatches(request), 10.0),
                         weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
@@ -115,7 +119,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     @JsonCreator
-    public RequestPattern(@JsonProperty("host") StringValuePattern host,
+    public RequestPattern(@JsonProperty("scheme") String scheme,
+                          @JsonProperty("host") StringValuePattern host,
                           @JsonProperty("port") Integer port,
                           @JsonProperty("url") String url,
                           @JsonProperty("urlPattern") String urlPattern,
@@ -131,6 +136,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           @JsonProperty("multipartPatterns") List<MultipartValuePattern> multiPattern) {
 
         this(
+            scheme,
             host,
             port,
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
@@ -149,6 +155,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     public static RequestPattern ANYTHING = new RequestPattern(
         null,
         null,
+        null,
         WireMock.anyUrl(),
         RequestMethod.ANY,
         null,
@@ -162,11 +169,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     );
 
     public RequestPattern(ValueMatcher<Request> customMatcher) {
-        this(null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
+        this(null, null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
+        this(null, null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
     }
 
     @Override
@@ -222,6 +229,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         }
 
         return MatchResult.exactMatch();
+    }
+
+    private MatchResult schemeMatches(final Request request) {
+        return scheme != null ?
+                MatchResult.of(scheme.equals(request.getScheme())) :
+                MatchResult.exactMatch();
     }
 
     private MatchResult hostMatches(final Request request) {
@@ -330,6 +343,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return match(request, customMatchers).isExactMatch();
     }
 
+    public String getScheme() {
+        return scheme;
+    }
+
     public StringValuePattern getHost() {
         return host;
     }
@@ -428,6 +445,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         if (o == null || getClass() != o.getClass()) return false;
         RequestPattern that = (RequestPattern) o;
         return hasInlineCustomMatcher == that.hasInlineCustomMatcher &&
+                Objects.equals(scheme, that.scheme) &&
                 Objects.equals(host, that.host) &&
                 Objects.equals(port, that.port) &&
                 Objects.equals(url, that.url) &&
@@ -444,7 +462,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(host, port, url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, multipartPatterns, customMatcherDefinition, matcher, hasInlineCustomMatcher);
+        return Objects.hash(scheme, host, port, url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, multipartPatterns, customMatcherDefinition, matcher, hasInlineCustomMatcher);
     }
 
     @Override

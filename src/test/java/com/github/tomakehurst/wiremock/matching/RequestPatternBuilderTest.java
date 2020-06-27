@@ -70,6 +70,7 @@ public class RequestPatternBuilderTest {
     public void likeRequestPatternWithoutCustomMatcher() {
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(
+            "https",
             WireMock.equalTo("my.wiremock.org"),
             1234,
             WireMock.urlEqualTo("/foo"),
@@ -123,6 +124,7 @@ public class RequestPatternBuilderTest {
 
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(
+                "https",
                 WireMock.equalTo("my.wiremock.org"),
                 1234,
                 WireMock.urlEqualTo("/foo"),

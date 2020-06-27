@@ -617,4 +617,28 @@ public class DiffTest {
                 )
         ));
     }
+
+    @Test
+    public void includeSchemeIfSpecified() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withScheme("https")
+                        .build(),
+                mockRequest()
+                        .scheme("http")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "https\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                        ,
+                        "http\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                )
+        ));
+    }
 }
