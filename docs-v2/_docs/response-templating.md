@@ -460,6 +460,10 @@ The `base64` helper can be used to base64 encode and decode values:
 Content to encode     
 {{/base64}}
 
+{{#base64 padding=false}}
+Content to encode without padding    
+{{/base64}}
+
 {{#base64 decode=true}}
 Q29udGVudCB0byBkZWNvZGUK     
 {{/base64}}

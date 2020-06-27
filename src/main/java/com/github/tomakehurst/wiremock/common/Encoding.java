@@ -43,9 +43,13 @@ public class Encoding {
     }
 
     public static String encodeBase64(byte[] content) {
+        return encodeBase64(content, true);
+    }
+
+    public static String encodeBase64(byte[] content, boolean padding) {
         return content != null ?
-               getInstance().encode(content) :
-               null;
+                getInstance().encode(content, padding) :
+                null;
     }
 
     public static String urlEncode(String unencodedUrl) {
