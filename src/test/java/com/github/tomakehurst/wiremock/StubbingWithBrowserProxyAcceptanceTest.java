@@ -102,6 +102,28 @@ public class StubbingWithBrowserProxyAcceptanceTest {
         HttpUriRequest request = RequestBuilder.get("http://localhost:4321/mypath").build();
         makeRequestAndAssertNotOk(request);
     }
+
+    @Test
+    public void matchesOnScheme() throws Exception {
+        stubFor(get(urlPathEqualTo("/mypath"))
+                .withScheme("http")
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
+        );
+
+        HttpUriRequest request = RequestBuilder.get("http://whatever/mypath").build();
+        makeRequestAndAssertOk(request);
+    }
+
+    @Test
+    public void doesNotMatchWhenSchemeIncorrect() throws Exception {
+        stubFor(get(urlPathEqualTo("/mypath"))
+                .withScheme("https")
+                .willReturn(ok(EXPECTED_RESPONSE_BODY))
+        );
+
+        HttpUriRequest request = RequestBuilder.get("http://whatever/mypath").build();
+        makeRequestAndAssertNotOk(request);
+    }
     
     private void makeRequestAndAssertOk(HttpUriRequest request) throws Exception {
         try (CloseableHttpResponse response = client.execute(request)) {
