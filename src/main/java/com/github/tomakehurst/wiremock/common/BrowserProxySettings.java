@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.common.ssl.AbstractKeyStoreSource;
+import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 
 import java.nio.file.Paths;
@@ -22,24 +24,18 @@ public final class BrowserProxySettings {
     private final boolean enabled;
     private final boolean trustAllProxyTargets;
     private final List<String> trustedProxyTargets;
-    private final String caKeyStorePath;
-    private final String caKeyStorePassword;
-    private final String caKeyStoreType;
+    private final KeyStoreSettings caKeyStoreSettings;
 
     public BrowserProxySettings(
         boolean enabled,
         boolean trustAllProxyTargets,
         List<String> trustedProxyTargets,
-        String caKeyStorePath,
-        String caKeyStorePassword,
-        String caKeyStoreType
+        KeyStoreSettings caKeyStoreSettings
     ) {
         this.enabled = enabled;
         this.trustAllProxyTargets = trustAllProxyTargets;
         this.trustedProxyTargets = trustedProxyTargets;
-        this.caKeyStorePath = caKeyStorePath;
-        this.caKeyStorePassword = caKeyStorePassword;
-        this.caKeyStoreType = caKeyStoreType;
+        this.caKeyStoreSettings = caKeyStoreSettings;
     }
 
     public boolean enabled() {
@@ -55,9 +51,7 @@ public final class BrowserProxySettings {
     }
 
     public KeyStoreSettings caKeyStore() {
-        return caKeyStorePath != null ?
-                new KeyStoreSettings(caKeyStorePath, caKeyStorePassword, caKeyStoreType) :
-                KeyStoreSettings.NO_STORE;
+        return caKeyStoreSettings;
     }
 
     @Override
@@ -66,8 +60,7 @@ public final class BrowserProxySettings {
                 "enabled=" + enabled +
                 ", trustAllProxyTargets=" + trustAllProxyTargets +
                 ", trustedProxyTargets=" + trustedProxyTargets +
-                ", caKeyStorePath='" + caKeyStorePath + '\'' +
-                ", caKeyStoreType='" + caKeyStorePath + '\'' +
+                ", caKeyStore='" + caKeyStoreSettings.path() + '\'' +
                 '}';
     }
 
@@ -79,13 +72,12 @@ public final class BrowserProxySettings {
         return enabled == that.enabled &&
                 trustAllProxyTargets == that.trustAllProxyTargets &&
                 Objects.equals(trustedProxyTargets, that.trustedProxyTargets) &&
-                Objects.equals(caKeyStorePath, that.caKeyStorePath) &&
-                Objects.equals(caKeyStorePassword, that.caKeyStorePassword);
+                Objects.equals(caKeyStoreSettings, that.caKeyStoreSettings);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(enabled, trustAllProxyTargets, trustedProxyTargets, caKeyStorePath, caKeyStorePassword);
+        return Objects.hash(enabled, trustAllProxyTargets, trustedProxyTargets, caKeyStoreSettings);
     }
 
     public static final class Builder {
@@ -93,9 +85,8 @@ public final class BrowserProxySettings {
         private boolean enabled = false;
         private boolean trustAllProxyTargets = false;
         private List<String> trustedProxyTargets = emptyList();
-        private String caKeyStorePath = DEFAULT_CA_KEYSTORE_PATH;
-        private String caKeyStorePassword = DEFAULT_CA_KESTORE_PASSWORD;
-        private String caKeyStoreType = "jks";
+
+        private KeyStoreSettings caKeyStoreSettings = KeyStoreSettings.NO_STORE;
 
         public Builder enabled(boolean enabled) {
             this.enabled = enabled;
@@ -112,23 +103,13 @@ public final class BrowserProxySettings {
             return this;
         }
 
-        public Builder caKeyStorePath(String caKeyStorePath) {
-            this.caKeyStorePath = caKeyStorePath;
-            return this;
-        }
-
-        public Builder caKeyStorePassword(String caKeyStorePassword) {
-            this.caKeyStorePassword = caKeyStorePassword;
-            return this;
-        }
-
-        public Builder caKeyStoreType(String caKeyStoreType) {
-            this.caKeyStoreType = caKeyStoreType;
+        public Builder caKeyStoreSettings(KeyStoreSettings caKeyStoreSettings) {
+            this.caKeyStoreSettings = caKeyStoreSettings;
             return this;
         }
 
         public BrowserProxySettings build() {
-            return new BrowserProxySettings(enabled, trustAllProxyTargets, trustedProxyTargets, caKeyStorePath, caKeyStorePassword, caKeyStoreType);
+            return new BrowserProxySettings(enabled, trustAllProxyTargets, trustedProxyTargets, caKeyStoreSettings);
         }
     }
 }

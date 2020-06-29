@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
+import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -587,15 +588,22 @@ public class CommandLineOptions implements Options {
         return optionSet.has(ENABLE_STUB_CORS);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public BrowserProxySettings browserProxySettings() {
+        KeyStoreSettings keyStoreSettings = new KeyStoreSettings(
+                new FileOrClasspathKeyStoreSource(
+                        (String) optionSet.valueOf(HTTPS_CA_KEYSTORE),
+                        (String) optionSet.valueOf(HTTPS_CA_KEYSTORE_TYPE),
+                        ((String) optionSet.valueOf(HTTPS_CA_KEYSTORE_PASSWORD)).toCharArray()
+                )
+        );
+
         return new BrowserProxySettings.Builder()
                 .enabled(optionSet.has(ENABLE_BROWSER_PROXYING))
                 .trustAllProxyTargets(optionSet.has(TRUST_ALL_PROXY_TARGETS))
                 .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
-                .caKeyStorePath((String) optionSet.valueOf(HTTPS_CA_KEYSTORE))
-                .caKeyStorePassword((String) optionSet.valueOf(HTTPS_CA_KEYSTORE_PASSWORD))
-                .caKeyStoreType((String) optionSet.valueOf(HTTPS_CA_KEYSTORE_TYPE))
+                .caKeyStoreSettings(keyStoreSettings)
                 .build();
     }
 
