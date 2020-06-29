@@ -42,7 +42,7 @@ public class KeyStoreSettings {
             return ((FileOrClasspathKeyStoreSource) keyStoreSource).getPath();
         }
 
-        throw new IllegalStateException("Can't get the path from a custom keystore source");
+        return "(no path - custom keystore source)";
     }
 
     public String password() {

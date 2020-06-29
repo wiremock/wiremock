@@ -5,6 +5,8 @@ import com.github.tomakehurst.wiremock.common.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.util.Arrays;
+import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
@@ -47,5 +49,21 @@ public abstract class AbstractKeyStoreSource implements Source<KeyStore> {
 
     public char[] getKeyStorePassword() {
         return keyStorePassword;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractKeyStoreSource that = (AbstractKeyStoreSource) o;
+        return keyStoreType.equals(that.keyStoreType) &&
+                Arrays.equals(keyStorePassword, that.keyStorePassword);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(keyStoreType);
+        result = 31 * result + Arrays.hashCode(keyStorePassword);
+        return result;
     }
 }

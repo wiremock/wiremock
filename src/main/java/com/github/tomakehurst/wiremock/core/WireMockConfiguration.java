@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ssl.AbstractKeyStoreSource;
+import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -45,6 +48,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
@@ -71,6 +75,7 @@ public class WireMockConfiguration implements Options {
     private String caKeystorePath = DEFAULT_CA_KEYSTORE_PATH;
     private String caKeystorePassword = DEFAULT_CA_KESTORE_PASSWORD;
     private String caKeystoreType = "JKS";
+    private KeyStoreSettings caKeyStoreSettings = null;
     private boolean trustAllProxyTargets = false;
     private final List<String> trustedProxyTargets = new ArrayList<>();
 
@@ -186,6 +191,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystoreType(String keyStoreType) {
         this.keyStoreType = keyStoreType;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystoreSettings(KeyStoreSettings caKeyStoreSettings) {
+        this.caKeyStoreSettings = caKeyStoreSettings;
         return this;
     }
 
@@ -562,13 +572,15 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public BrowserProxySettings browserProxySettings() {
+        KeyStoreSettings keyStoreSettings = caKeyStoreSettings != null ?
+                caKeyStoreSettings :
+                new KeyStoreSettings(new FileOrClasspathKeyStoreSource(caKeystorePath, caKeystoreType, caKeystorePassword.toCharArray()));
+
         return new BrowserProxySettings.Builder()
                 .enabled(browserProxyingEnabled)
                 .trustAllProxyTargets(trustAllProxyTargets)
                 .trustedProxyTargets(trustedProxyTargets)
-                .caKeyStorePath(caKeystorePath)
-                .caKeyStorePassword(caKeystorePassword)
-                .caKeyStoreType(caKeystoreType)
+                .caKeyStoreSettings(keyStoreSettings)
                 .build();
     }
 }
