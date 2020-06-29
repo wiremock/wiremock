@@ -1,7 +1,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
