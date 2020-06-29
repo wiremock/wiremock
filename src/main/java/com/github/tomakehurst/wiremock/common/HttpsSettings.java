@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.google.common.io.Resources;
 
 public class HttpsSettings {
