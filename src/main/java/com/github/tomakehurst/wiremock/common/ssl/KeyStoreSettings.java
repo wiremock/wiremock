@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common.ssl;
 
+import com.github.tomakehurst.wiremock.common.Source;
+
 import java.security.KeyStore;
 
 public class KeyStoreSettings {
@@ -55,6 +57,10 @@ public class KeyStoreSettings {
 
     public KeyStore loadStore() {
         return keyStoreSource.load();
+    }
+
+    public Source<KeyStore> getSource() {
+        return keyStoreSource;
     }
 
     public boolean exists() {
