@@ -23,16 +23,18 @@ public class HttpsSettings {
     private final int port;
     private final String keyStorePath;
     private final String keyStorePassword;
+    private final String keyManagerPassword;
     private final String keyStoreType;
     private final String trustStorePath;
     private final String trustStorePassword;
     private final String trustStoreType;
     private final boolean needClientAuth;
 
-    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String keyStoreType,  String trustStorePath, String trustStorePassword, String trustStoreType, boolean needClientAuth) {
+    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String keyManagerPassword, String keyStoreType, String trustStorePath, String trustStorePassword, String trustStoreType, boolean needClientAuth) {
         this.port = port;
         this.keyStorePath = keyStorePath;
         this.keyStorePassword = keyStorePassword;
+        this.keyManagerPassword = keyManagerPassword;
         this.keyStoreType = keyStoreType;
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
@@ -50,6 +52,10 @@ public class HttpsSettings {
 
     public String keyStorePassword() {
         return keyStorePassword;
+    }
+
+    public String keyManagerPassword() {
+        return keyManagerPassword;
     }
 
     public String keyStoreType() {
@@ -107,6 +113,7 @@ public class HttpsSettings {
         private int port;
         private String keyStorePath = Resources.getResource("keystore").toString();
         private String keyStorePassword = "password";
+        private String keyManagerPassword = "password";
         private String keyStoreType = "JKS";
         private String trustStorePath = null;
         private String trustStorePassword = "password";
@@ -125,6 +132,11 @@ public class HttpsSettings {
 
         public Builder keyStorePassword(String keyStorePassword) {
             this.keyStorePassword = keyStorePassword;
+            return this;
+        }
+
+        public Builder keyManagerPassword(String keyStorePassword) {
+            this.keyManagerPassword = keyStorePassword;
             return this;
         }
 
@@ -154,7 +166,7 @@ public class HttpsSettings {
         }
 
         public HttpsSettings build() {
-            return new HttpsSettings(port, keyStorePath, keyStorePassword,  keyStoreType,  trustStorePath, trustStorePassword, trustStoreType, needClientAuth);
+            return new HttpsSettings(port, keyStorePath, keyStorePassword, keyManagerPassword, keyStoreType,  trustStorePath, trustStorePassword, trustStoreType, needClientAuth);
         }
     }
 }

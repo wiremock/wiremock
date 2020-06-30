@@ -43,6 +43,11 @@ certificate.
 
 `--keystore-password`: Password to the keystore, if something other than
 "password".
+Note: the behaviour of this changed in version 2.27.0. Previously this set Jetty's key manager password, whereas now it
+sets the keystore password value. The key manager password can be set with the (new) parameter below. 
+
+`--key-manager-password`: The password used by Jetty to access individual keys in the store, if something other than
+"password".
 
 `--https-truststore`: Path to a keystore file containing client public
 certificates, proxy target public certificates & private keys to use when

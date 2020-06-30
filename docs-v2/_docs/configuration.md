@@ -70,8 +70,12 @@ WireMock can accept HTTPS connections from clients, require a client to present 
 // Set the keystore containing the HTTPS certificate
 .keystorePath("/path/to/https-certs-keystore.jks")
 
-// Set the password to the keystore
+// Set the password to the keystore. Note: the behaviour of this changed in version 2.27.0.
+// Previously this set Jetty's key manager password, whereas now it sets the keystore password value.
 .keystorePassword("verysecret!")
+
+// Set the password to the Jetty's key manager. Note: added in version 2.27.0.
+.keyManagerPassword("donttell")
 
 // Set the keystore type
 .keystoreType("BKS")
