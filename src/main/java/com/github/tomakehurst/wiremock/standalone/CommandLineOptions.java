@@ -74,9 +74,11 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
     private static final String HTTPS_KEYSTORE_PASSWORD = "keystore-password";
+    private static final String HTTPS_KEYSTORE_TYPE = "keystore-type";
     private static final String HTTPS_KEY_MANAGER_PASSWORD = "key-manager-password";
     private static final String HTTPS_TRUSTSTORE = "https-truststore";
     private static final String HTTPS_TRUSTSTORE_PASSWORD = "truststore-password";
+    private static final String HTTPS_TRUSTSTORE_TYPE = "truststore-type";
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
@@ -125,8 +127,10 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
+        optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
         optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEY_MANAGER_PASSWORD, "Key manager password for use with the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
@@ -281,9 +285,11 @@ public class CommandLineOptions implements Options {
                 .port(httpsPortNumber())
                 .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
                 .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
+                .keyStoreType((String) optionSet.valueOf(HTTPS_KEYSTORE_TYPE))
                 .keyManagerPassword((String) optionSet.valueOf(HTTPS_KEY_MANAGER_PASSWORD))
                 .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
                 .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
+                .trustStoreType((String) optionSet.valueOf(HTTPS_TRUSTSTORE_TYPE))
                 .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT)).build();
     }
 

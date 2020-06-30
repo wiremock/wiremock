@@ -114,19 +114,29 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsTrustStorePathAndPassword() {
-        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+    public void setsTrustStoreOptions() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--https-port", "8443",
                 "--https-keystore", "/my/keystore",
                 "--https-truststore", "/my/truststore",
+                "--truststore-type", "PKCS12",
                 "--truststore-password", "sometrustpwd");
         assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
+        assertThat(options.httpsSettings().trustStoreType(), is("PKCS12"));
         assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
     }
 
     @Test
-    public void setsKeyStorePathPasswordAndKeyManagerPassword() {
-        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore", "--keystore-password", "someotherpwd", "--key-manager-password", "keymanpass");
+    public void setsHttpsKeyStorePathOptions() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--keystore-type", "pkcs12",
+                "--keystore-password", "someotherpwd",
+                "--key-manager-password", "keymanpass"
+        );
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
+        assertThat(options.httpsSettings().keyStoreType(), is("pkcs12"));
         assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
         assertThat(options.httpsSettings().keyManagerPassword(), is("keymanpass"));
     }
