@@ -1,7 +1,12 @@
 package com.github.tomakehurst.wiremock.common.ssl;
 
 import com.github.tomakehurst.wiremock.common.Source;
+import com.google.common.io.ByteStreams;
+import org.apache.commons.codec.digest.DigestUtils;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -10,12 +15,12 @@ import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-public abstract class AbstractKeyStoreSource implements Source<KeyStore> {
+public abstract class KeyStoreSource implements Source<KeyStore> {
 
     protected final String keyStoreType;
     protected final char[] keyStorePassword;
 
-    protected AbstractKeyStoreSource(String keyStoreType, char[] keyStorePassword) {
+    protected KeyStoreSource(String keyStoreType, char[] keyStorePassword) {
         this.keyStoreType = keyStoreType;
         this.keyStorePassword = keyStorePassword;
     }
@@ -41,21 +46,20 @@ public abstract class AbstractKeyStoreSource implements Source<KeyStore> {
     }
 
     protected abstract InputStream createInputStream();
-    public abstract boolean exists();
 
     public String getKeyStoreType() {
         return keyStoreType;
     }
 
-    public char[] getKeyStorePassword() {
-        return keyStorePassword;
+    public String getKeyStorePassword() {
+        return new String(keyStorePassword);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AbstractKeyStoreSource that = (AbstractKeyStoreSource) o;
+        KeyStoreSource that = (KeyStoreSource) o;
         return keyStoreType.equals(that.keyStoreType) &&
                 Arrays.equals(keyStorePassword, that.keyStorePassword);
     }

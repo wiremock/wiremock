@@ -3,6 +3,10 @@ package com.github.tomakehurst.wiremock.common.ssl;
 import com.google.common.io.Resources;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +23,7 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.file.attribute.PosixFilePermission.*;
 import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute;
 
-public class FileOrClasspathKeyStoreSource extends AbstractKeyStoreSource {
+public class FileOrClasspathKeyStoreSource extends KeyStoreSource {
 
     private final String path;
 
@@ -35,7 +39,12 @@ public class FileOrClasspathKeyStoreSource extends AbstractKeyStoreSource {
             if (exists()) {
                 return new FileInputStream(path);
             } else {
-                return Resources.getResource(path).openStream();
+                try {
+                    URL pathUrl = new URL(path);
+                    return pathUrl.openStream();
+                } catch (MalformedURLException ignored) {
+                    return Resources.getResource(path).openStream();
+                }
             }
         } catch (IOException e) {
             return throwUnchecked(e, InputStream.class);

@@ -1,7 +1,5 @@
 package com.github.tomakehurst.wiremock.common;
 
-import com.github.tomakehurst.wiremock.common.ssl.AbstractKeyStoreSource;
-import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 
 import java.nio.file.Paths;

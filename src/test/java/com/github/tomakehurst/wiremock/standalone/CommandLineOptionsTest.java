@@ -124,10 +124,11 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsKeyStorePathAndPassword() {
-        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore", "--keystore-password", "someotherpwd");
+    public void setsKeyStorePathPasswordAndKeyManagerPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore", "--keystore-password", "someotherpwd", "--key-manager-password", "keymanpass");
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
         assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
+        assertThat(options.httpsSettings().keyManagerPassword(), is("keymanpass"));
     }
 
 	@Test(expected=Exception.class)

@@ -55,6 +55,7 @@ public class SslContexts {
 
     public static SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
         SslContextFactory.Server sslContextFactory = SslContexts.defaultSslContextFactory(httpsSettings.keyStore());
+        sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
         setupClientAuth(sslContextFactory, httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
         sslContextFactory.setProvider("Conscrypt");
@@ -106,8 +107,8 @@ public class SslContexts {
     }
 
     private static void setupKeyStore(SslContextFactory.Server sslContextFactory, KeyStoreSettings keyStoreSettings) {
-        sslContextFactory.setKeyStorePath(keyStoreSettings.path());
-        sslContextFactory.setKeyManagerPassword(keyStoreSettings.password());
+        sslContextFactory.setKeyStore(keyStoreSettings.loadStore());
+        sslContextFactory.setKeyStorePassword(keyStoreSettings.password());
         sslContextFactory.setKeyStoreType(keyStoreSettings.type());
     }
 

@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.common.ssl.AbstractKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -48,7 +47,6 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
@@ -65,6 +63,7 @@ public class WireMockConfiguration implements Options {
     private int httpsPort = -1;
     private String keyStorePath = Resources.getResource("keystore").toString();
     private String keyStorePassword = "password";
+    private String keyManagerPassword = "password";
     private String keyStoreType = "JKS";
     private String trustStorePath;
     private String trustStorePassword = "password";
@@ -186,6 +185,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystorePassword(String keyStorePassword) {
         this.keyStorePassword = keyStorePassword;
+        return this;
+    }
+
+    public WireMockConfiguration keyManagerPassword(String keyManagerPassword) {
+        this.keyManagerPassword = keyManagerPassword;
         return this;
     }
 
@@ -431,6 +435,7 @@ public class WireMockConfiguration implements Options {
                 .port(httpsPort)
                 .keyStorePath(keyStorePath)
                 .keyStorePassword(keyStorePassword)
+                .keyManagerPassword(keyManagerPassword)
                 .keyStoreType(keyStoreType)
                 .trustStorePath(trustStorePath)
                 .trustStorePassword(trustStorePassword)

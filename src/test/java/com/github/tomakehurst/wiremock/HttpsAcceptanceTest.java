@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -175,11 +176,31 @@ public class HttpsAcceptanceTest {
 
     @Test
     public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
-        String keystorePath = Resources.getResource("test-keystore-pwd").toString();
-        startServerWithKeystore(keystorePath, "anotherpassword");
+        String testKeystorePath = Resources.getResource("test-keystore-pwd").toString();
+        startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+    }
+
+    @Test
+    public void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
+        String keystorePath = Resources.getResource("test-keystore-key-man-pwd").toString();
+        startServerWithKeystore(keystorePath, "password", "anotherpassword");
         stubFor(get(urlEqualTo("/alt-password-https")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
+    }
+
+    @Test
+    public void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
+        try {
+            String keystorePath = Resources.getResource("test-keystore-key-man-pwd").toString();
+            startServerWithKeystore(keystorePath, "password", "wrongpassword");
+            fail("Expected a SocketException or SSLHandshakeException to be thrown");
+        } catch (Exception e) {
+            assertThat(e.getClass().getName(), is(FatalStartupException.class.getName()));
+        }
     }
 
     @Test
@@ -294,11 +315,12 @@ public class HttpsAcceptanceTest {
         httpClient = HttpClientFactory.createClient();
     }
 
-    private void startServerWithKeystore(String keystorePath, String keystorePassword) {
+    private void startServerWithKeystore(String keystorePath, String keystorePassword, String keyManagerPassword) {
         WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
         if (keystorePath != null) {
-            config.keystorePath(keystorePath);
-            config.keystorePassword(keystorePassword);
+            config.keystorePath(keystorePath)
+                .keystorePassword(keystorePassword)
+                .keyManagerPassword(keyManagerPassword);
         }
 
         wireMockServer = new WireMockServer(config);
@@ -309,7 +331,7 @@ public class HttpsAcceptanceTest {
     }
 
     private void startServerWithKeystore(String keystorePath) {
-        startServerWithKeystore(keystorePath, "password");
+        startServerWithKeystore(keystorePath, "password", "password");
     }
 
     private void startServerWithDefaultKeystore() {

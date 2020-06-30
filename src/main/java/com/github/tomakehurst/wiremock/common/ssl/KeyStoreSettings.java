@@ -23,9 +23,9 @@ public class KeyStoreSettings {
 
     public static final KeyStoreSettings NO_STORE = new KeyStoreSettings(null, null, null);
 
-    private final AbstractKeyStoreSource keyStoreSource;
+    private final KeyStoreSource keyStoreSource;
 
-    public KeyStoreSettings(AbstractKeyStoreSource keyStoreSource) {
+    public KeyStoreSettings(KeyStoreSource keyStoreSource) {
         this.keyStoreSource = keyStoreSource;
     }
 
@@ -48,7 +48,7 @@ public class KeyStoreSettings {
     }
 
     public String password() {
-        return new String(keyStoreSource.getKeyStorePassword());
+        return keyStoreSource.getKeyStorePassword();
     }
 
     public String type() {
