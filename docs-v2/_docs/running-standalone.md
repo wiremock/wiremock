@@ -41,6 +41,8 @@ certificate to use with HTTPS. The keystore must have a password of
 If this option isn't used WireMock will default to its own self-signed
 certificate.
 
+`--keystore-type`: The HTTPS keystore type. Usually JKS or PKCS12.
+
 `--keystore-password`: Password to the keystore, if something other than
 "password".
 Note: the behaviour of this changed in version 2.27.0. Previously this set Jetty's key manager password, whereas now it
@@ -55,6 +57,8 @@ authenticate with a proxy target that require client authentication. See
 [HTTPS configuration](/docs/configuration/#https-configuration)
 and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
 details.
+
+`--keystore-type`: The HTTPS trust store type. Usually JKS or PKCS12.
 
 `--truststore-password`: Optional password to the trust store. Defaults
 to "password" if not specified.
