@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-03-12T12:20:14+00:00">
+  <meta property="article:published_time" content="2020-06-30T20:28:25+01:00">
   
     <link rel="next" href="/docs/record-playback-legacy/" title="Record and Playback (Legacy)">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Proxying">
     <meta itemprop="description" content="WireMock has the ability to selectively proxy requests through toother hosts. This supports a proxy/intercept setup where requests are bydefault proxied to another (possibly real, live) service, but wherespecific stubs are configured these are returned in place of the remoteservice’s response. Responses that the live service can’t be forced togenerate on demand can thus be injected for testing. Proxying alsosupports record and playback.">
-    <meta itemprop="datePublished" content="March 12, 2020">
+    <meta itemprop="datePublished" content="June 30, 2020">
     
 
     <div class="page__inner-wrap">
@@ -458,7 +458,7 @@ you to modify specific AJAX requests or swap out CSS/Javascript files.</p>
 
 <p>To configure your browser to proxy via WireMock, first start WireMock with browser proxying enabled:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.26.3.jar <span class="nt">--enable-browser-proxying</span> <span class="nt">--port</span> 9999
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.27.0.jar <span class="nt">--enable-browser-proxying</span> <span class="nt">--port</span> 9999
 </code></pre></div></div>
 
 <p>Then open your browser’s proxy settings and point them to the running server:
@@ -473,6 +473,105 @@ a web page that fetches a user profile via an AJAX call to <code class="highligh
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
   <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">503</span><span class="o">)));</span>
 </code></pre></div></div>
+
+<h3 id="browser-proxying-of-https">Browser proxying of HTTPS</h3>
+
+<p>wiremock-jre8 allows forward proxying, stubbing &amp; recording of HTTPS traffic.</p>
+
+<p>This happens automatically when browser proxying is enabled.</p>
+
+<p><em>We strongly recommend using WireMock over HTTP to proxy HTTPS</em>; there are no associated security concerns, and proxying HTTPS over HTTPS is poorly supported by many clients.</p>
+
+<p>Note that when clients / operating systems distinguish between HTTP &amp; HTTPS proxies they are often referring to the scheme of the target server, not the scheme the proxy server is listening on.</p>
+
+<h4 id="getting-your-client-to-trust-the-certificate-presented-by-wiremock">Getting your client to trust the certificate presented by WireMock</h4>
+
+<p>Normally when proxying HTTPS the proxy creates a TCP tunnel between the client and the target server, so the HTTPS session is between the client and the target server.
+While the proxy passes the bytes back and forward, it cannot understand them because there is end-to-end encryption between the client and the target.</p>
+
+<p>WireMock needs to decrypt the traffic in order to record or replace it with stubs.
+Consequently, there have to be two separate HTTPS sessions - one between WireMock and the target server, and one between the client and WireMock.
+This means that when you request https://www.example.com proxied via WireMock the HTTPS certificate will be presented by WireMock, not www.example.com.
+Inevitably it cannot be trusted by default - otherwise no internet traffic would be secure.</p>
+
+<p>WireMock uses a root Certificate Authority private key to sign a certificate for each host that it proxies.
+By default, WireMock will use a CA key store at <code class="highlighter-rouge">$HOME/.wiremock/ca-keystore.jks</code>.
+If this key store does not exist, WireMock will generate it with a new secure private key which should be entirely private to the system on which WireMock is running.
+You can provide a key store containing such a private key &amp; certificate yourself using the <code class="highlighter-rouge">--ca-keystore</code>, <code class="highlighter-rouge">--ca-keystore-password</code> &amp; <code class="highlighter-rouge">--ca-keystore-type</code> options.</p>
+<blockquote>
+  <p>See <a href="https://github.com/tomakehurst/wiremock/blob/master/scripts/create-ca-cert.sh">this script</a>
+for an example of how to build a key &amp; valid self-signed root certificate called
+ca-cert.crt already imported into a keystore called ca-cert.jks.</p>
+</blockquote>
+
+<p>This CA certificate can be downloaded from WireMock: <a href="http://localhost:8080/__admin/certs/wiremock-ca.crt">http://localhost:8080/__admin/certs/wiremock-ca.crt</a>.
+There’s a link to the certificate on the recorder UI page at <a href="http://localhost:8080/__admin/recorder">http://localhost:8080/__admin/recorder</a>.
+Trusting this certificate will trust all certificates generated by it, allowing you to browse without client warnings.</p>
+<blockquote>
+  <p>On OS/X a certificate can be trusted by dragging ca-cert.crt onto Keychain Access,
+double clicking on the certificate and setting SSL to “always trust”.</p>
+</blockquote>
+
+<p>A few caveats:</p>
+<ul>
+  <li>This depends on internal sun classes; it works with OpenJDK 1.8 -&gt; 14, but may
+stop working in future versions or on other runtimes</li>
+  <li>It’s your responsibility to keep the private key &amp; keystore secure - if you
+add it to your trusted certs then anyone getting hold of it could potentially
+get access to any service you use on the web.</li>
+</ul>
+
+<h4 id="trusting-targets-with-invalid-https-certificates">Trusting targets with invalid HTTPS certificates</h4>
+
+<p>For convenience when acting as a <em>reverse</em> proxy WireMock ignores HTTPS certificate problems from the target such as untrusted certificates or incorrect hostnames on the certificate.
+When browser proxying, however, it is normal to proxy all traffic, often for the entire operating system.
+This would present a substantial security risk, so by default WireMock will verify the target certificates when browser proxying.
+You can trust specific hosts as follows:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.27.0.jar <span class="nt">--enable-browser-proxying</span> <span class="nt">--trust-proxy-target</span> localhost <span class="nt">--trust-proxy-target</span> dev.mycorp.com
+</code></pre></div></div>
+<p>or if you’re not interested in security you can trust all hosts:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.27.0.jar <span class="nt">--enable-browser-proxying</span> <span class="nt">--trust-all-proxy-targets</span>
+</code></pre></div></div>
+
+<p>Additional trusted public certificates can also be added to the keystore
+specified via the <code class="highlighter-rouge">--https-truststore</code>, and WireMock will then trust them without
+needing the <code class="highlighter-rouge">--trust-proxy-target</code> parameter (so long as they match the
+requested host).</p>
+
+<h4 id="proxying-https-on-the-https-endpoint">Proxying HTTPS on the HTTPS endpoint</h4>
+
+<p>The only use case we can think of for this is if you are using WireMock to test
+a generic HTTPS client, and want that HTTPS client to support proxying HTTPS over
+HTTPS. It has several problems. However, if you really must, there is limited support
+for doing so.</p>
+
+<p>Please be aware that many clients do not work very well with this
+configuration. For instance:</p>
+
+<p>Postman seems not to cope with an HTTPS proxy even to proxy HTTP traffic.</p>
+
+<p>Older versions of curl fail trying to do the CONNECT call because they try to do so
+over HTTP/2 (newer versions only offer HTTP/1.1 for the CONNECT call). At time
+of writing it works using <code class="highlighter-rouge">curl 7.64.1 (x86_64-apple-darwin19.0) libcurl/7.64.1 (SecureTransport) LibreSSL/2.8.3 zlib/1.2.11 nghttp2/1.39.2</code> as so:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">--proxy-insecure</span> <span class="nt">-x</span> https://localhost:8443 <span class="nt">-k</span> <span class="s1">'https://www.example.com/'</span>
+</code></pre></div></div>
+<p>You can force HTTP/1.1 in curl as so:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">--http1</span>.1 <span class="nt">--proxy-insecure</span> <span class="nt">-x</span> https://localhost:8443 <span class="nt">-k</span> <span class="s1">'https://www.example.com/'</span>
+</code></pre></div></div>
+
+<p>Please check your client’s behaviour proxying via another https proxy such as 
+https://hub.docker.com/r/wernight/spdyproxy to see if it is a client problem before asking for help:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">--rm</span> <span class="nt">-it</span> <span class="nt">-p</span> 44300:44300 wernight/spdyproxy
+curl <span class="nt">--proxy-insecure</span> <span class="nt">-x</span> https://localhost:44300 <span class="nt">-k</span> <span class="s1">'https://www.example.com/'</span>
+</code></pre></div></div>
+
+<h4 id="security-concerns">Security concerns</h4>
+
+<p>Acting as a man in the middle for HTTPS traffic has to be done at your own risk.
+Whilst best efforts have been taken to reduce your risk, you should be aware you are granting WireMock unencrypted access to all HTTPS traffic proxied via WireMock,
+and that as part of its normal operation WireMock may store that traffic, in memory or on the file system, or print it to the console.
+If you choose to trust the root CA certificate WireMock is using, or you choose to bypass HTTPS verification for some or all target servers,
+you should understand the risk involved.</p>
 
 <h2 id="proxying-via-another-proxy-server">Proxying via another proxy server</h2>
 

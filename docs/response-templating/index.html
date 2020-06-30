@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-03-12T12:20:14+00:00">
+  <meta property="article:published_time" content="2020-06-30T20:28:25+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="March 12, 2020">
+    <meta itemprop="datePublished" content="June 30, 2020">
     
 
     <div class="page__inner-wrap">
@@ -449,7 +449,7 @@ since compilation can be expensive for larger templates.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/static/.*"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">withBodyFile</span><span class="o">(</span><span class="s">"files/{{request.requestLine.pathSegments.[1]}}"</span><span class="o">)));</span>
+    <span class="o">.</span><span class="na">withBodyFile</span><span class="o">(</span><span class="s">"files/{{request.pathSegments.[1]}}"</span><span class="o">)));</span>
 
 </code></pre></div></div>
 
@@ -461,7 +461,7 @@ since compilation can be expensive for larger templates.</p>
   </span><span class="p">},</span><span class="w">
   </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"bodyFileName"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"files/{{request.requestLine.pathSegments.[1]}}"</span><span class="w">
+    </span><span class="nl">"bodyFileName"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"files/{{request.pathSegments.[1]}}"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -471,23 +471,23 @@ since compilation can be expensive for larger templates.</p>
 
 <p><code class="highlighter-rouge">request.url</code> - URL path and query</p>
 
-<p><code class="highlighter-rouge">request.requestLine.path</code> - URL path</p>
+<p><code class="highlighter-rouge">request.path</code> - URL path</p>
 
-<p><code class="highlighter-rouge">request.requestLine.pathSegments.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="highlighter-rouge">request.requestLine.pathSegments.[2]</code></p>
+<p><code class="highlighter-rouge">request.pathSegments.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="highlighter-rouge">request.pathSegments.[2]</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="highlighter-rouge">request.query.search</code></p>
+<p><code class="highlighter-rouge">request.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="highlighter-rouge">request.query.search</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="highlighter-rouge">request.query.search.[5]</code></p>
+<p><code class="highlighter-rouge">request.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="highlighter-rouge">request.query.search.[5]</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.method</code>- request method e.g. <code class="highlighter-rouge">POST</code></p>
+<p><code class="highlighter-rouge">request.method</code>- request method e.g. <code class="highlighter-rouge">POST</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.host</code>- hostname part of the URL e.g. <code class="highlighter-rouge">my.example.com</code></p>
+<p><code class="highlighter-rouge">request.host</code>- hostname part of the URL e.g. <code class="highlighter-rouge">my.example.com</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.port</code>- port number e.g. <code class="highlighter-rouge">8080</code></p>
+<p><code class="highlighter-rouge">request.port</code>- port number e.g. <code class="highlighter-rouge">8080</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.scheme</code>- protocol part of the URL e.g. <code class="highlighter-rouge">https</code></p>
+<p><code class="highlighter-rouge">request.scheme</code>- protocol part of the URL e.g. <code class="highlighter-rouge">https</code></p>
 
-<p><code class="highlighter-rouge">request.requestLine.baseUrl</code>- URL up to the start of the path e.g. <code class="highlighter-rouge">https://my.example.com:8080</code></p>
+<p><code class="highlighter-rouge">request.baseUrl</code>- URL up to the start of the path e.g. <code class="highlighter-rouge">https://my.example.com:8080</code></p>
 
 <p><code class="highlighter-rouge">request.headers.&lt;key&gt;</code>- First value of a request header e.g. <code class="highlighter-rouge">request.headers.X-Request-Id</code></p>
 
@@ -523,6 +523,39 @@ this easy to work with by wrapping these in a “list or single” type that ret
 The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
 with another String value.</p>
 </blockquote>
+
+<h2 id="using-transformer-parameters">Using transformer parameters</h2>
+
+<p>Parameter values can be passed to the transformer as shown below (or dynamically added to the parameters map programmatically in custom transformers).</p>
+
+<h3 id="java-3">Java</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templated"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{{request.path.[0]}}"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withTransformers</span><span class="o">(</span><span class="s">"response-template"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withTransformerParameter</span><span class="o">(</span><span class="s">"MyCustomParameter"</span><span class="o">,</span> <span class="s">"Parameter Value"</span><span class="o">)));</span>
+</code></pre></div></div>
+
+<h3 id="json-3">JSON</h3>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.path.[0]}}"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">],</span><span class="w">
+        </span><span class="nl">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"MyCustomParameter"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"Parameter Value"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>These parameters can be referenced in template body content using the <code class="highlighter-rouge">parameters.</code> prefix:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;h1&gt;The MyCustomParameter value is {{parameters.MyCustomParameter}}&lt;/h1&gt;
+</code></pre></div></div>
 
 <h2 id="handlebars-helpers">Handlebars helpers</h2>
 <p>All of the standard helpers (template functions) provided by the <a href="https://github.com/jknack/handlebars.java">Java Handlebars implementation by jknack</a>
@@ -581,6 +614,28 @@ are available e.g.</p>
 <p>The following will render “success” in the output:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{soapXPath request.body '/a/test/text()'}}
+</code></pre></div></div>
+
+<h3 id="using-the-output-of-xpath-in-other-helpers">Using the output of <code class="highlighter-rouge">xPath</code> in other helpers</h3>
+
+<p>Since version 2.27.0 the XPath helper returns collections of node objects rather than a single string, meaning that the result
+can be used in further helpers.</p>
+
+<p>The returned node objects have the following properties:</p>
+
+<p><code class="highlighter-rouge">name</code> - the local XML element name.</p>
+
+<p><code class="highlighter-rouge">text</code> - the text content of the element.</p>
+
+<p><code class="highlighter-rouge">attributes</code> - a map of the element’s attributes (name: value)</p>
+
+<p>Referring to the node itself will cause it to be printed.</p>
+
+<p>A common use case for returned node objects is to iterate over the collection with the <code class="highlighter-rouge">each</code> helper:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (xPath request.body '/things/item') as |node|}}
+  name: {{node.name}}, text: {{node.text}}, ID attribute: {{node.attributes.id}}
+{{/each}}
 </code></pre></div></div>
 
 <h2 id="jsonpath-helper">JSONPath helper</h2>
@@ -642,6 +697,17 @@ the UNIX timestamp in seconds.</p>
 {{randomValue type='UUID'}}
 </code></pre></div></div>
 
+<h2 id="pick-random-helper">Pick random helper</h2>
+<p>A value can be randomly selected from a literal list:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom '1' '2' '3'}}}
+</code></pre></div></div>
+
+<p>Or from a list passed as a parameter:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom (jsonPath request.body '$.names')}}}
+</code></pre></div></div>
+
 <h2 id="string-trim-helper">String trim helper</h2>
 <p>Use the <code class="highlighter-rouge">trim</code> helper to remove whitespace from the start and end of the input:</p>
 
@@ -662,6 +728,10 @@ the UNIX timestamp in seconds.</p>
 
 {{#base64}}
 Content to encode     
+{{/base64}}
+
+{{#base64 padding=false}}
+Content to encode without padding    
 {{/base64}}
 
 {{#base64 decode=true}}

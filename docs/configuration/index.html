@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-03-12T12:20:14+00:00">
+  <meta property="article:published_time" content="2020-06-30T20:28:25+01:00">
   
     <link rel="next" href="/docs/download-and-installation/" title="Download and Installation">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Configuration">
     <meta itemprop="description" content="Both WireMockServer and the WireMockRule take a configuration builder as the parameter to their constructor e.g.">
-    <meta itemprop="datePublished" content="March 12, 2020">
+    <meta itemprop="datePublished" content="June 30, 2020">
     
 
     <div class="page__inner-wrap">
@@ -419,8 +419,12 @@
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Set the keystore containing the HTTPS certificate</span>
 <span class="o">.</span><span class="na">keystorePath</span><span class="o">(</span><span class="s">"/path/to/https-certs-keystore.jks"</span><span class="o">)</span>
 
-<span class="c1">// Set the password to the keystore</span>
+<span class="c1">// Set the password to the keystore. Note: the behaviour of this changed in version 2.27.0.</span>
+<span class="c1">// Previously this set Jetty's key manager password, whereas now it sets the keystore password value.</span>
 <span class="o">.</span><span class="na">keystorePassword</span><span class="o">(</span><span class="s">"verysecret!"</span><span class="o">)</span>
+
+<span class="c1">// Set the password to the Jetty's key manager. Note: added in version 2.27.0.</span>
+<span class="o">.</span><span class="na">keyManagerPassword</span><span class="o">(</span><span class="s">"donttell"</span><span class="o">)</span>
 
 <span class="c1">// Set the keystore type</span>
 <span class="o">.</span><span class="na">keystoreType</span><span class="o">(</span><span class="s">"BKS"</span><span class="o">)</span>
@@ -435,7 +439,15 @@
 <span class="o">.</span><span class="na">trustStorePassword</span><span class="o">(</span><span class="s">"trustme"</span><span class="o">)</span>
 </code></pre></div></div>
 
-<p>The client certificate in the trust store defined in the last two options will also be used when proxying to another service that requires a client certificate for authentication.</p>
+<p>WireMock uses the trust store for three purposes:</p>
+<ol>
+  <li>As a server, when requiring client auth, WireMock will trust the client if it
+presents a public certificate in this trust store</li>
+  <li>As a proxy, WireMock will use the private key &amp; certificate in this key store
+to authenticate its http client with target servers that require client auth</li>
+  <li>As a proxy, WireMock will trust a target server if it presents a public
+certificate in this trust store</li>
+</ol>
 
 <h2 id="proxy-settings">Proxy settings</h2>
 
@@ -450,6 +462,21 @@
 
  <span class="c1">// When reverse proxying, also route via the specified forward proxy (useful inside corporate firewalls)</span>
 <span class="o">.</span><span class="na">proxyVia</span><span class="o">(</span><span class="s">"my.corporate.proxy"</span><span class="o">,</span> <span class="mi">8080</span><span class="o">)</span>
+
+<span class="c1">// When proxying, path to a security store containing client private keys and trusted public certificates for communicating with a target server</span>
+<span class="o">.</span><span class="na">trustStorePath</span><span class="o">(</span><span class="s">"/path/to/trust-store.jks"</span><span class="o">)</span>
+
+<span class="c1">// The password to the trust store</span>
+<span class="o">.</span><span class="na">trustStorePassword</span><span class="o">(</span><span class="s">"trustme"</span><span class="o">)</span>
+
+<span class="c1">// When proxying, a key store containing a root Certificate Authority private key and certificate that can be used to sign generated certificates</span>
+<span class="o">.</span><span class="na">caKeystorePath</span><span class="o">(</span><span class="s">"/path/to/ca-key-store.jks"</span><span class="o">)</span>
+
+<span class="c1">// The password to the CA key store</span>
+<span class="o">.</span><span class="na">caKeystorePassword</span><span class="o">(</span><span class="s">"trustme"</span><span class="o">)</span>
+
+<span class="c1">// The type of the CA key store</span>
+<span class="o">.</span><span class="na">caKeystoreType</span><span class="o">(</span><span class="s">"JKS"</span><span class="o">)</span>
 </code></pre></div></div>
 
 <h2 id="file-locations">File locations</h2>
@@ -514,6 +541,14 @@ This might put a lot of strain on the garbage collector if you’re using large 
   <li><code class="highlighter-rouge">BODY_FILE</code> - Use chunked encoding for body files but calculate a <code class="highlighter-rouge">Content-Length</code> for directly configured bodies.</li>
   <li><code class="highlighter-rouge">ALWAYS</code> - Always use chunk encoding - the default.</li>
 </ul>
+
+<h2 id="cross-origin-response-headers-cors">Cross-origin response headers (CORS)</h2>
+
+<p>WireMock always sends CORS headers with admin API responses, but not by default with stub responses.
+To enable automatic sending of CORS headers on stub responses, do the following:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="na">stubCorsEnabled</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+</code></pre></div></div>
 
         
       </section>

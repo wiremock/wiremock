@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-03-12T12:20:14+00:00">
+  <meta property="article:published_time" content="2020-06-30T20:28:25+01:00">
   
     <link rel="next" href="/docs/response-templating/" title="Response Templating">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Request Matching">
     <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
-    <meta itemprop="datePublished" content="March 12, 2020">
+    <meta itemprop="datePublished" content="June 30, 2020">
     
 
     <div class="page__inner-wrap">
@@ -987,7 +987,9 @@ is an object or array. A benefit of this is that this allows a sub-document to b
 
 <p>Java:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;message&gt;&lt;id&gt;${xmlunit.ignore}&lt;/id&gt;&lt;content&gt;Hello&lt;/content&gt;&lt;/message&gt;"</span><span class="o">,</span> <span class="kc">true</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span>
+    <span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;message&gt;&lt;id&gt;${xmlunit.ignore}&lt;/id&gt;&lt;content&gt;Hello&lt;/content&gt;&lt;/message&gt;"</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+<span class="o">)</span>
 </code></pre></div></div>
 
 <p>JSON:</p>
@@ -1011,7 +1013,13 @@ is an object or array. A benefit of this is that this allows a sub-document to b
 
 <p>Java:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;message&gt;&lt;id&gt;[[xmlunit.ignore]]&lt;/id&gt;&lt;content&gt;Hello&lt;/content&gt;&lt;/message&gt;"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="s">"\\[\\["</span><span class="o">,</span> <span class="s">"]]"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span>
+    <span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;message&gt;&lt;id&gt;[[xmlunit.ignore]]&lt;/id&gt;&lt;content&gt;Hello&lt;/content&gt;&lt;/message&gt;"</span><span class="o">,</span>
+               <span class="kc">true</span><span class="o">,</span>
+               <span class="s">"\\[\\["</span><span class="o">,</span>
+               <span class="s">"]]"</span>
+    <span class="o">)</span>
+<span class="o">)</span>
 </code></pre></div></div>
 
 <p>JSON:</p>
@@ -1030,6 +1038,52 @@ is an object or array. A benefit of this is that this allows a sub-document to b
   </span><span class="err">...</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
+
+<h4 id="excluding-specific-types-of-comparison">Excluding specific types of comparison</h4>
+
+<p>You can further tune how XML documents are compared for equality by disabling specific <a href="https://www.xmlunit.org/api/java/2.7.0/org/xmlunit/diff/ComparisonType.html">XMLUnit comparison types</a>.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">xmlunit</span><span class="o">.</span><span class="na">diff</span><span class="o">.</span><span class="na">ComparisonType</span><span class="o">.*;</span>
+
+<span class="o">...</span>
+
+<span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;thing&gt;Hello&lt;/thing&gt;"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">exemptingComparisons</span><span class="o">(</span><span class="no">NAMESPACE_URI</span><span class="o">,</span> <span class="no">ELEMENT_TAG_NAME</span><span class="o">)</span>
+<span class="o">)</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nl">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"equalToXml"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;thing&gt;Hello&lt;/thing&gt;"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"exemptedComparisons"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"NAMESPACE_URI"</span><span class="p">,</span><span class="w"> </span><span class="s2">"ELEMENT_TAG_NAME"</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The full list of comparison types used by default is as follows:</p>
+
+<p><code class="highlighter-rouge">ELEMENT_TAG_NAME</code>
+<code class="highlighter-rouge">SCHEMA_LOCATION</code>
+<code class="highlighter-rouge">NO_NAMESPACE_SCHEMA_LOCATION</code>
+<code class="highlighter-rouge">NODE_TYPE</code>
+<code class="highlighter-rouge">NAMESPACE_URI</code>
+<code class="highlighter-rouge">TEXT_VALUE</code>
+<code class="highlighter-rouge">PROCESSING_INSTRUCTION_TARGET</code>
+<code class="highlighter-rouge">PROCESSING_INSTRUCTION_DATA</code>
+<code class="highlighter-rouge">ELEMENT_NUM_ATTRIBUTES</code>
+<code class="highlighter-rouge">ATTR_VALUE</code>
+<code class="highlighter-rouge">CHILD_NODELIST_LENGTH</code>
+<code class="highlighter-rouge">CHILD_LOOKUP</code>
+<code class="highlighter-rouge">ATTR_NAME_LOOKUP</code></p>
 
 <h3 id="xpath">XPath</h3>
 
@@ -1054,7 +1108,10 @@ is an object or array. A benefit of this is that this allows a sub-document to b
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>The above example will only work with non-namespaced XML. If you need to match a namespaced document with  it is necessary to declare the namespaces:</p>
+<p>The above example will select elements based on their local name if used with a namespaced XML document.</p>
+
+<p>If you need to be able to select elements based on their namespace in addition to their name you can declare the prefix
+to namespace URI mappings and use them in your XPath expression:</p>
 
 <p>Java:</p>
 
