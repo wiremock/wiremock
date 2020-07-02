@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -579,7 +579,7 @@ public class WireMockConfiguration implements Options {
     public BrowserProxySettings browserProxySettings() {
         KeyStoreSettings keyStoreSettings = caKeyStoreSettings != null ?
                 caKeyStoreSettings :
-                new KeyStoreSettings(new FileOrClasspathKeyStoreSource(caKeystorePath, caKeystoreType, caKeystorePassword.toCharArray()));
+                new KeyStoreSettings(KeyStoreSourceFactory.getAppropriateForJreVersion(caKeystorePath, caKeystoreType, caKeystorePassword.toCharArray()));
 
         return new BrowserProxySettings.Builder()
                 .enabled(browserProxyingEnabled)

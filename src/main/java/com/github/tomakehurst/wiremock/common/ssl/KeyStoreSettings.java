@@ -31,7 +31,7 @@ public class KeyStoreSettings {
 
     public KeyStoreSettings(String path, String password, String type) {
         this(
-            path != null && password != null && type != null ? new FileOrClasspathKeyStoreSource(
+            path != null && password != null && type != null ? KeyStoreSourceFactory.getAppropriateForJreVersion(
                 path,
                 type,
                 password.toCharArray()) :
@@ -40,8 +40,8 @@ public class KeyStoreSettings {
     }
 
     public String path() {
-        if (keyStoreSource instanceof FileOrClasspathKeyStoreSource) {
-            return ((FileOrClasspathKeyStoreSource) keyStoreSource).getPath();
+        if (keyStoreSource instanceof ReadOnlyFileOrClasspathKeyStoreSource) {
+            return ((ReadOnlyFileOrClasspathKeyStoreSource) keyStoreSource).getPath();
         }
 
         return "(no path - custom keystore source)";

@@ -12,7 +12,7 @@ public class KeyStoreSourceTest {
 
     @Test
     public void loadsAPasswordProtectedJksKeyStore() throws Exception {
-        KeyStoreSource keyStoreSource = new FileOrClasspathKeyStoreSource(
+        KeyStoreSource keyStoreSource = new ReadOnlyFileOrClasspathKeyStoreSource(
                 "test-keystore-pwd",
                 "jks",
                 "nondefaultpass".toCharArray()
