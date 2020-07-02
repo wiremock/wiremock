@@ -16,9 +16,8 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
-import com.github.tomakehurst.wiremock.common.ssl.FileOrClasspathKeyStoreSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
@@ -50,12 +49,15 @@ import joptsimple.OptionSet;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
@@ -601,7 +603,7 @@ public class CommandLineOptions implements Options {
     @Override
     public BrowserProxySettings browserProxySettings() {
         KeyStoreSettings keyStoreSettings = new KeyStoreSettings(
-                new FileOrClasspathKeyStoreSource(
+                KeyStoreSourceFactory.getAppropriateForJreVersion(
                         (String) optionSet.valueOf(HTTPS_CA_KEYSTORE),
                         (String) optionSet.valueOf(HTTPS_CA_KEYSTORE_TYPE),
                         ((String) optionSet.valueOf(HTTPS_CA_KEYSTORE_PASSWORD)).toCharArray()

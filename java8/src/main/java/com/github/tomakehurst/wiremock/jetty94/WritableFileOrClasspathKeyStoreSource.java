@@ -1,11 +1,10 @@
-package com.github.tomakehurst.wiremock.common.ssl;
+package com.github.tomakehurst.wiremock.jetty94;
 
+import com.github.tomakehurst.wiremock.common.ssl.ReadOnlyFileOrClasspathKeyStoreSource;
 import com.google.common.io.Resources;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -23,37 +22,10 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.file.attribute.PosixFilePermission.*;
 import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute;
 
-public class FileOrClasspathKeyStoreSource extends KeyStoreSource {
+public class WritableFileOrClasspathKeyStoreSource extends ReadOnlyFileOrClasspathKeyStoreSource {
 
-    private final String path;
-
-    public FileOrClasspathKeyStoreSource(String path, String keyStoreType, char[] keyStorePassword) {
-        super(keyStoreType, keyStorePassword);
-        this.path = path;
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    @Override
-    protected InputStream createInputStream() {
-        try {
-            if (exists()) {
-                return new FileInputStream(path);
-            } else {
-                try {
-                    URL pathUrl = new URL(path);
-                    return pathUrl.openStream();
-                } catch (MalformedURLException ignored) {
-                    return Resources.getResource(path).openStream();
-                }
-            }
-        } catch (IOException e) {
-            return throwUnchecked(e, InputStream.class);
-        }
-    }
-
-    @Override
-    public boolean exists() {
-        return new File(path).isFile();
+    public WritableFileOrClasspathKeyStoreSource(String path, String keyStoreType, char[] keyStorePassword) {
+        super(path, keyStoreType, keyStorePassword);
     }
 
     @Override
@@ -82,23 +54,5 @@ public class FileOrClasspathKeyStoreSource extends KeyStoreSource {
         } catch (IOException e) {
             return throwUnchecked(e, Path.class);
         }
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        FileOrClasspathKeyStoreSource that = (FileOrClasspathKeyStoreSource) o;
-        return path.equals(that.path);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), path);
     }
 }

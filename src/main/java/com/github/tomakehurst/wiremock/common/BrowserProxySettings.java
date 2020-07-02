@@ -2,7 +2,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,11 +10,11 @@ import static java.util.Collections.emptyList;
 
 public final class BrowserProxySettings {
 
-    public static final String DEFAULT_CA_KEYSTORE_PATH = Paths.get(
-            System.getProperty("user.home"))
-            .resolve(".wiremock")
-            .resolve("ca-keystore.jks")
-            .toFile().getAbsolutePath();
+    public static final String DEFAULT_CA_KEYSTORE_PATH = new File(
+                System.getProperty("user.home") + File.separatorChar
+                + ".wiremock" + File.separatorChar
+                + "ca-keystore.jks" + File.separatorChar
+            ).getAbsolutePath();
     public static final String DEFAULT_CA_KESTORE_PASSWORD = "password";
 
     public static BrowserProxySettings DISABLED = new Builder().build();
