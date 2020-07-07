@@ -163,7 +163,7 @@ public class JettyHttpServer implements HttpServer {
 
     protected void finalizeSetup(Options options) {
         if(!options.jettySettings().getStopTimeout().isPresent()) {
-            jettyServer.setStopTimeout(0);
+            jettyServer.setStopTimeout(1000);
         }
     }
 
