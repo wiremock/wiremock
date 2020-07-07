@@ -80,7 +80,7 @@ public class JettyHttpServerTest {
 
     @Test
     public void testStopTimeoutNotSet() {
-        long expectedStopTimeout = 0L;
+        long expectedStopTimeout = 1000L;
         WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
         JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
