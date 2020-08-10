@@ -16,9 +16,13 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.PersistJournalRequests;
+import com.github.tomakehurst.wiremock.extension.PersistStubMappings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.stubbing.PersistStubMappingsWrapper;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.SortedConcurrentMappingSet;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -26,9 +30,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
@@ -41,11 +43,20 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	private final Optional<Integer> maxEntries;
 
-	public InMemoryRequestJournal(Optional<Integer> maxEntries) {
+	private boolean persistJournals=false;
+
+	private PersistJournalRequests persistJournalRequests;
+
+	public InMemoryRequestJournal(Optional<Integer> maxEntries, Map<String, PersistJournalRequests> persistStubMappings) {
 		if (maxEntries.isPresent() && maxEntries.get() < 0) {
 			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
 		}
 		this.maxEntries = maxEntries;
+
+		if(persistStubMappings.size()>0){
+			this.persistJournals=true;
+			this.persistJournalRequests=ImmutableList.copyOf(persistStubMappings.values()).get(0);
+		}
 	}
 
 	@Override
@@ -60,7 +71,13 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	@Override
 	public void requestReceived(ServeEvent serveEvent) {
+
 		serveEvents.add(serveEvent);
+
+		if(persistJournals){
+			persistJournalRequests.add(serveEvent);
+		}
+
         removeOldEntries();
 	}
 
@@ -85,11 +102,17 @@ public class InMemoryRequestJournal implements RequestJournal {
 	}
 
 	private List<ServeEvent> removeServeEvents(Predicate<ServeEvent> predicate) {
+
 		List<ServeEvent> toDelete = FluentIterable.from(serveEvents)
 				.filter(predicate)
 				.toList();
 
 		for (ServeEvent event: toDelete) {
+
+			if(persistJournals){
+				persistJournalRequests.remove(event);
+			}
+
 			serveEvents.remove(event);
 		}
 
@@ -98,6 +121,18 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	@Override
     public List<ServeEvent> getAllServeEvents() {
+
+		if(persistJournals){
+
+			List<ServeEvent> journalRequests=persistJournalRequests.getAll();
+
+			serveEvents.clear();
+
+			for(ServeEvent journalRequest:journalRequests){
+				serveEvents.add(journalRequest);
+			}
+		}
+
         return ImmutableList.copyOf(serveEvents).reverse();
     }
 
@@ -113,10 +148,25 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	@Override
 	public void reset() {
+
+		if(persistJournals){
+			persistJournalRequests.clear();
+		}
 		serveEvents.clear();
 	}
 
+
 	private Iterable<LoggedRequest> getRequests() {
+		List<ServeEvent> getJournalRequest;
+
+	if(persistJournals){
+		getJournalRequest=persistJournalRequests.getAll();
+
+		for(ServeEvent serveEvent:getJournalRequest){
+			serveEvents.add(serveEvent);
+		}
+	}
+
 		return transform(serveEvents, new Function<ServeEvent, LoggedRequest>() {
 			public LoggedRequest apply(ServeEvent input) {
 				return input.getRequest();

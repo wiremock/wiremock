@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.collect.Iterables.removeIf;
 
-public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
+public class SortedConcurrentMappingSet extends PersistStubMappingsWrapper {
 
 	private AtomicLong insertionCount;
 	private ConcurrentSkipListSet<StubMapping> mappingSet;

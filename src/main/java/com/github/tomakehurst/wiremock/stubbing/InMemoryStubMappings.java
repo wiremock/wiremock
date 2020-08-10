@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -44,25 +42,34 @@ import static com.google.common.collect.Iterables.tryFind;
 
 public class InMemoryStubMappings implements StubMappings {
 	
-	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
+	private  PersistStubMappingsWrapper mappings;
 	private final Scenarios scenarios;
 	private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
+	private final Map<String, PersistStubMappings> persistStubMappings;
     private final FileSource rootFileSource;
     private final List<StubLifecycleListener> stubLifecycleListeners;
 
-	public InMemoryStubMappings(Scenarios scenarios, Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
+	public InMemoryStubMappings(Scenarios scenarios, Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, Map<String, PersistStubMappings> persistStubMappings, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
 		this.scenarios = scenarios;
 		this.customMatchers = customMatchers;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
 		this.stubLifecycleListeners = stubLifecycleListeners;
+		this.persistStubMappings=persistStubMappings;
+
+		if(persistStubMappings.size()>0){
+			mappings=ImmutableList.copyOf(this.persistStubMappings.values()).get(0);
+		}else{
+			mappings=new SortedConcurrentMappingSet();
+		}
 	}
 
 	public InMemoryStubMappings() {
 		this(new Scenarios(),
 			 Collections.<String, RequestMatcherExtension>emptyMap(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
+				Collections.<String, PersistStubMappings>emptyMap(),
              new SingleRootFileSource("."),
 			 Collections.<StubLifecycleListener>emptyList()
 		);

@@ -84,7 +84,7 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
+        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries(),options.extensionsOfType(PersistJournalRequests.class));
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
 
         scenarios = new Scenarios();
@@ -92,6 +92,7 @@ public class WireMockApp implements StubServer, Admin {
             scenarios,
             customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
+                options.extensionsOfType(PersistStubMappings.class),
             fileSource,
             ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
         );
@@ -110,6 +111,7 @@ public class WireMockApp implements StubServer, Admin {
         boolean requestJournalDisabled,
         Optional<Integer> maxRequestJournalEntries,
         Map<String, ResponseDefinitionTransformer> transformers,
+        Map<String, PersistStubMappings> persistStubMappings,
         Map<String, RequestMatcherExtension> requestMatchers,
         FileSource rootFileSource,
         Container container) {
@@ -118,9 +120,9 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries,options.extensionsOfType(PersistJournalRequests.class));
         scenarios = new Scenarios();
-        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
+        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers,persistStubMappings, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
@@ -225,7 +227,7 @@ public class WireMockApp implements StubServer, Admin {
         }
         
         stubMappings.addMapping(stubMapping);
-        if (stubMapping.shouldBePersisted()) {
+        if (stubMapping.shouldBePersisted() && options.extensionsOfType(PersistStubMappings.class).size()==0) {
             mappingsSaver.save(stubMapping);
         }
     }

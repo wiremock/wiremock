@@ -73,6 +73,8 @@ allprojects {
             "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
         compile "org.apache.httpcomponents:httpclient:4.5.12"
         compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
+        compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.4'
+
         compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
             exclude group: 'junit', module: 'junit'
         }
