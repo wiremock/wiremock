@@ -54,7 +54,7 @@ Now you're ready to write a test case like this:
 ```java
 @Test
 public void exampleTest() {
-    stubFor(get(urlEqualTo("/my/resource"))
+    stubFor(post(urlEqualTo("/my/resource"))
             .withHeader("Accept", equalTo("text/xml"))
             .willReturn(aResponse()
                 .withStatus(200)
