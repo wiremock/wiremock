@@ -35,14 +35,12 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 
 
 public class InMemoryStubMappings implements StubMappings {
-	
-	private  PersistStubMappingsWrapper mappings;
+
 	private final Scenarios scenarios;
 	private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
@@ -50,29 +48,43 @@ public class InMemoryStubMappings implements StubMappings {
     private final FileSource rootFileSource;
     private final List<StubLifecycleListener> stubLifecycleListeners;
 
+	private  PersistStubMappingsWrapper mappings;
+
 	public InMemoryStubMappings(Scenarios scenarios, Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, Map<String, PersistStubMappings> persistStubMappings, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
 		this.scenarios = scenarios;
 		this.customMatchers = customMatchers;
-        this.transformers = transformers;
-        this.rootFileSource = rootFileSource;
+		this.transformers = transformers;
+		this.rootFileSource = rootFileSource;
 		this.stubLifecycleListeners = stubLifecycleListeners;
-		this.persistStubMappings=persistStubMappings;
+		this.persistStubMappings = persistStubMappings;
 
-		if(persistStubMappings.size()>0){
-			mappings=ImmutableList.copyOf(this.persistStubMappings.values()).get(0);
-		}else{
-			mappings=new SortedConcurrentMappingSet();
+		if (persistStubMappings.isEmpty()) {
+
+			mappings = new SortedConcurrentMappingSet();
+
+		} else {
+
+			//Throw exceptions if more than extension classes are configured
+			if (persistStubMappings.size() == 1) {
+
+				mappings = ImmutableList.copyOf(this.persistStubMappings.values()).get(0);
+
+			} else {
+
+				throw new IllegalArgumentException("Multiple PersistStubMappings extensions present,Only one configuration allowed");
+
+			}
 		}
 	}
 
 	public InMemoryStubMappings() {
 		this(new Scenarios(),
-			 Collections.<String, RequestMatcherExtension>emptyMap(),
-             Collections.<String, ResponseDefinitionTransformer>emptyMap(),
+			 	Collections.<String, RequestMatcherExtension>emptyMap(),
+             	Collections.<String, ResponseDefinitionTransformer>emptyMap(),
 				Collections.<String, PersistStubMappings>emptyMap(),
-             new SingleRootFileSource("."),
-			 Collections.<StubLifecycleListener>emptyList()
-		);
+             	new SingleRootFileSource("."),
+			 	Collections.<StubLifecycleListener>emptyList()
+			);
 	}
 
 	@Override

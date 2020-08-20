@@ -1,40 +1,26 @@
-/*
- * Copyright (C) 2011 Thomas Akehurst
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
-import static com.google.common.collect.Iterables.removeIf;
-
-public abstract class PersistJournalRequestWrapper extends ConcurrentLinkedQueue {
+public abstract class PersistJournalRequestWrapper {
 
 		public abstract  void add(ServeEvent mapping);
 
-		public abstract boolean remove(final ServeEvent mappingToRemove);
+		public abstract List<ServeEvent> remove(Predicate<ServeEvent> predicate);
 
 		public abstract void clear();
 
 		public abstract List<ServeEvent> getAll();
+
+		public abstract Optional<ServeEvent> getServeEvent(final UUID id);
+
+		protected abstract Iterable<LoggedRequest> getRequests();
+
+		protected abstract void removeOldEntries(Optional<Integer> maxEntries);
 
 }
