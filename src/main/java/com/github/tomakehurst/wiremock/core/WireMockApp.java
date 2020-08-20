@@ -70,7 +70,7 @@ public class WireMockApp implements StubServer, Admin {
     private final List<GlobalSettingsListener> globalSettingsListeners;
 
     private Options options;
-    private  boolean isPersistanceConfigured;
+    private  boolean isPersistenceConfigured;
 
     static {
         Xml.optimizeFactoriesLoading();
@@ -102,7 +102,7 @@ public class WireMockApp implements StubServer, Admin {
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
         if(options.extensionsOfType(PersistStubMappings.class).size()==0){
-            this.isPersistanceConfigured=false;
+            this.isPersistenceConfigured =false;
         }
         this.container = container;
         loadDefaultMappings();
@@ -132,9 +132,9 @@ public class WireMockApp implements StubServer, Admin {
         recorder = new Recorder(this);
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
-
+        //Check if PersistStubMappings configuration extensions made
         if(options.extensionsOfType(PersistStubMappings.class).size()==0){
-            this.isPersistanceConfigured=false;
+            this.isPersistenceConfigured =false;
         }
     }
 
@@ -237,7 +237,7 @@ public class WireMockApp implements StubServer, Admin {
         
         stubMappings.addMapping(stubMapping);
 
-        if (stubMapping.shouldBePersisted() && !isPersistanceConfigured) {
+        if (stubMapping.shouldBePersisted() && !isPersistenceConfigured) {
             mappingsSaver.save(stubMapping);
         }
     }
@@ -258,7 +258,7 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         stubMappings.editMapping(stubMapping);
-        if (stubMapping.shouldBePersisted() && !isPersistanceConfigured) {
+        if (stubMapping.shouldBePersisted() && !isPersistenceConfigured) {
             mappingsSaver.save(stubMapping);
         }
     }
@@ -278,7 +278,7 @@ public class WireMockApp implements StubServer, Admin {
         for (StubMapping stubMapping: stubMappings.getAll()) {
             stubMapping.setPersistent(true);
         }
-        if(!isPersistanceConfigured){
+        if(!isPersistenceConfigured){
             mappingsSaver.save(stubMappings.getAll());
         }
 
