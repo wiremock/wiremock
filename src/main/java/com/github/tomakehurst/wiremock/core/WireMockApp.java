@@ -101,8 +101,9 @@ public class WireMockApp implements StubServer, Admin {
         recorder = new Recorder(this);
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
-        if(options.extensionsOfType(PersistStubMappings.class).size()==0){
-            this.isPersistenceConfigured =false;
+        //Check if PersistStubMappings configuration extensions made
+        if(options.extensionsOfType(PersistStubMappings.class).size() == 1){
+            this.isPersistenceConfigured =true;
         }
         this.container = container;
         loadDefaultMappings();
@@ -133,8 +134,8 @@ public class WireMockApp implements StubServer, Admin {
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
         //Check if PersistStubMappings configuration extensions made
-        if(options.extensionsOfType(PersistStubMappings.class).size()==0){
-            this.isPersistenceConfigured =false;
+        if(options.extensionsOfType(PersistStubMappings.class).size() == 1){
+            this.isPersistenceConfigured =true;
         }
     }
 

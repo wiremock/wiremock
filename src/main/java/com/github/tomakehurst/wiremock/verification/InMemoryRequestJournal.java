@@ -21,8 +21,10 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.*;
@@ -102,7 +104,13 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	private List<ServeEvent> removeServeEvents(Predicate<ServeEvent> predicate) {
 
-		return serveEvents.remove(predicate);
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
+		List<ServeEvent> toDelete = FluentIterable.from(getserveEvents)
+				.filter(predicate)
+				.toList();
+
+		return serveEvents.remove(toDelete);
 	}
 
 	@Override
@@ -113,7 +121,16 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	@Override
 	public Optional<ServeEvent> getServeEvent(final UUID id) {
-		return serveEvents.getServeEvent(id);
+
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
+		return tryFind(getserveEvents, new Predicate<ServeEvent>() {
+				@Override
+				public boolean apply(ServeEvent input) {
+					return input.getId().equals(id);
+				}
+			});
+
 	}
 
 	@Override
@@ -124,11 +141,26 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	private Iterable<LoggedRequest> getRequests() {
 
-		return serveEvents.getRequests();
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
+		return transform(getserveEvents, new Function<ServeEvent, LoggedRequest>() {
+			public LoggedRequest apply(ServeEvent input) {
+				return input.getRequest();
+			}
+		});
+
 	}
 
 	private void removeOldEntries() {
-		serveEvents.removeOldEntries(maxEntries);
+
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
+		if (maxEntries.isPresent()) {
+			while (getserveEvents.size() > maxEntries.get()) {
+				getserveEvents.poll();
+			}
+		}
+
 	}
 
 	private static Predicate<ServeEvent> withStubMetadataMatching(final StringValuePattern metadataPattern) {
