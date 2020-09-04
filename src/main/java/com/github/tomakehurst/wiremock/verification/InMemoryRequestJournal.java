@@ -17,12 +17,9 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.PersistJournalRequests;
-import com.github.tomakehurst.wiremock.extension.PersistStubMappings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.stubbing.PersistStubMappingsWrapper;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.SortedConcurrentMappingSet;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -31,7 +28,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.withRequstMatching;
@@ -39,7 +35,7 @@ import static com.google.common.collect.Iterables.*;
 
 public class InMemoryRequestJournal implements RequestJournal {
 
-	private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
+	private  PersistJournalRequestWrapper serveEvents;
 
 	private final Optional<Integer> maxEntries;
 
@@ -48,14 +44,24 @@ public class InMemoryRequestJournal implements RequestJournal {
 	private PersistJournalRequests persistJournalRequests;
 
 	public InMemoryRequestJournal(Optional<Integer> maxEntries, Map<String, PersistJournalRequests> persistStubMappings) {
+
 		if (maxEntries.isPresent() && maxEntries.get() < 0) {
 			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
 		}
+
 		this.maxEntries = maxEntries;
 
-		if(persistStubMappings.size()>0){
-			this.persistJournals=true;
-			this.persistJournalRequests=ImmutableList.copyOf(persistStubMappings.values()).get(0);
+		if (persistStubMappings.isEmpty()) {
+
+			serveEvents = new SortedConcurrentLinkedQueue();
+
+		}else if (persistStubMappings.size() == 1) {
+
+				this.serveEvents=ImmutableList.copyOf(persistStubMappings.values()).get(0);
+
+		}else {
+
+			throw new IllegalArgumentException("Multiple PersistJournalRequests extensions present,Only one configuration allowed");
 		}
 	}
 
@@ -73,11 +79,6 @@ public class InMemoryRequestJournal implements RequestJournal {
 	public void requestReceived(ServeEvent serveEvent) {
 
 		serveEvents.add(serveEvent);
-
-		if(persistJournals){
-			persistJournalRequests.add(serveEvent);
-		}
-
         removeOldEntries();
 	}
 
@@ -103,83 +104,63 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	private List<ServeEvent> removeServeEvents(Predicate<ServeEvent> predicate) {
 
-		List<ServeEvent> toDelete = FluentIterable.from(serveEvents)
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
+		List<ServeEvent> toDelete = FluentIterable.from(getserveEvents)
 				.filter(predicate)
 				.toList();
 
-		for (ServeEvent event: toDelete) {
-
-			if(persistJournals){
-				persistJournalRequests.remove(event);
-			}
-
-			serveEvents.remove(event);
-		}
-
-		return toDelete;
+		return serveEvents.remove(toDelete);
 	}
 
 	@Override
     public List<ServeEvent> getAllServeEvents() {
 
-		if(persistJournals){
-
-			List<ServeEvent> journalRequests=persistJournalRequests.getAll();
-
-			serveEvents.clear();
-
-			for(ServeEvent journalRequest:journalRequests){
-				serveEvents.add(journalRequest);
-			}
-		}
-
-        return ImmutableList.copyOf(serveEvents).reverse();
+        return serveEvents.getAll();
     }
 
 	@Override
 	public Optional<ServeEvent> getServeEvent(final UUID id) {
-		return tryFind(serveEvents, new Predicate<ServeEvent>() {
-			@Override
-			public boolean apply(ServeEvent input) {
-				return input.getId().equals(id);
-			}
-		});
+
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
+		return tryFind(getserveEvents, new Predicate<ServeEvent>() {
+				@Override
+				public boolean apply(ServeEvent input) {
+					return input.getId().equals(id);
+				}
+			});
+
 	}
 
 	@Override
 	public void reset() {
 
-		if(persistJournals){
-			persistJournalRequests.clear();
-		}
 		serveEvents.clear();
 	}
 
-
 	private Iterable<LoggedRequest> getRequests() {
-		List<ServeEvent> getJournalRequest;
 
-	if(persistJournals){
-		getJournalRequest=persistJournalRequests.getAll();
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
 
-		for(ServeEvent serveEvent:getJournalRequest){
-			serveEvents.add(serveEvent);
-		}
-	}
-
-		return transform(serveEvents, new Function<ServeEvent, LoggedRequest>() {
+		return transform(getserveEvents, new Function<ServeEvent, LoggedRequest>() {
 			public LoggedRequest apply(ServeEvent input) {
 				return input.getRequest();
 			}
 		});
+
 	}
 
 	private void removeOldEntries() {
+
+		Queue<ServeEvent> getserveEvents = serveEvents.getServeQueue();
+
 		if (maxEntries.isPresent()) {
-			while (serveEvents.size() > maxEntries.get()) {
-				serveEvents.poll();
+			while (getserveEvents.size() > maxEntries.get()) {
+				getserveEvents.poll();
 			}
 		}
+
 	}
 
 	private static Predicate<ServeEvent> withStubMetadataMatching(final StringValuePattern metadataPattern) {

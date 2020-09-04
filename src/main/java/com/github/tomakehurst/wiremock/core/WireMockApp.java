@@ -70,6 +70,7 @@ public class WireMockApp implements StubServer, Admin {
     private final List<GlobalSettingsListener> globalSettingsListeners;
 
     private Options options;
+    private  boolean isPersistenceConfigured;
 
     static {
         Xml.optimizeFactoriesLoading();
@@ -84,22 +85,26 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries(),options.extensionsOfType(PersistJournalRequests.class));
+        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries(), options.extensionsOfType(PersistJournalRequests.class));
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
 
         scenarios = new Scenarios();
         stubMappings = new InMemoryStubMappings(
-            scenarios,
-            customMatchers,
-            options.extensionsOfType(ResponseDefinitionTransformer.class),
+                scenarios,
+                customMatchers,
+                options.extensionsOfType(ResponseDefinitionTransformer.class),
                 options.extensionsOfType(PersistStubMappings.class),
-            fileSource,
-            ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
-        );
+                fileSource,
+                ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
+            );
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
+        //Check if PersistStubMappings configuration extensions made
+        if(options.extensionsOfType(PersistStubMappings.class).size() == 1){
+            this.isPersistenceConfigured =true;
+        }
         this.container = container;
         loadDefaultMappings();
     }
@@ -120,14 +125,18 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries,options.extensionsOfType(PersistJournalRequests.class));
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries, options.extensionsOfType(PersistJournalRequests.class));
         scenarios = new Scenarios();
-        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers,persistStubMappings, rootFileSource, Collections.<StubLifecycleListener>emptyList());
+        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, persistStubMappings, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
+        //Check if PersistStubMappings configuration extensions made
+        if(options.extensionsOfType(PersistStubMappings.class).size() == 1){
+            this.isPersistenceConfigured =true;
+        }
     }
 
     public AdminRequestHandler buildAdminRequestHandler() {
@@ -222,12 +231,14 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void addStubMapping(StubMapping stubMapping) {
+
         if (stubMapping.getId() == null) {
             stubMapping.setId(UUID.randomUUID());
         }
         
         stubMappings.addMapping(stubMapping);
-        if (stubMapping.shouldBePersisted() && options.extensionsOfType(PersistStubMappings.class).size()==0) {
+
+        if (stubMapping.shouldBePersisted() && !isPersistenceConfigured) {
             mappingsSaver.save(stubMapping);
         }
     }
@@ -248,7 +259,7 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         stubMappings.editMapping(stubMapping);
-        if (stubMapping.shouldBePersisted()) {
+        if (stubMapping.shouldBePersisted() && !isPersistenceConfigured) {
             mappingsSaver.save(stubMapping);
         }
     }
@@ -268,7 +279,10 @@ public class WireMockApp implements StubServer, Admin {
         for (StubMapping stubMapping: stubMappings.getAll()) {
             stubMapping.setPersistent(true);
         }
-        mappingsSaver.save(stubMappings.getAll());
+        if(!isPersistenceConfigured){
+            mappingsSaver.save(stubMappings.getAll());
+        }
+
     }
 
     @Override
