@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.3.5",
-    "node-sass": "4.12.0",
+    "node-sass": "4.13.1",
     "npm-run-all": "^1.7.0",
     "onchange": "^6.1.0",
     "postcss-cli": "^6.1.3",
