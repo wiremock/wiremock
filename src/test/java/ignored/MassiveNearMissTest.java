@@ -37,12 +37,12 @@ public class MassiveNearMissTest {
         }
 
         final int drop = 2;
-        final int reps = 30;
+        final int reps = 10;
         List<Long> times = new ArrayList<>(reps);
         long sum = 0;
         for (int i = 0; i < reps; i++) {
             Stopwatch stopwatch = Stopwatch.createStarted();
-            client.postXml("/things/blah123/" + (stubs / 2), "<?xml version=\"1.0\"?><things />");
+            client.postXml("/things/blah123/" + (stubs / 2), "<?xml version=\"1.0\"?><things id=\"" + i + "\"/>");
             stopwatch.stop();
             long time = stopwatch.elapsed(MILLISECONDS);
             times.add(time);
