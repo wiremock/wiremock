@@ -36,7 +36,7 @@ import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
 import static com.google.common.collect.Iterables.getLast;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
-public class EqualToJsonPattern extends MemoizingStringValuePattern {
+public class EqualToJsonPattern extends StringValuePattern {
 
     private final JsonNode expected;
     private final Boolean ignoreArrayOrder;
@@ -94,7 +94,7 @@ public class EqualToJsonPattern extends MemoizingStringValuePattern {
     }
 
     @Override
-    protected MatchResult calculateMatch(String value) {
+    public MatchResult match(String value) {
         try {
             final JsonNode actual = Json.read(value, JsonNode.class);
 

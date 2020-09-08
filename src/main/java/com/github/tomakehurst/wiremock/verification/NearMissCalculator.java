@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.MemoizingMatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.google.common.base.Function;
@@ -52,7 +53,7 @@ public class NearMissCalculator {
 
         return sortAndTruncate(from(allMappings).transform(new Function<StubMapping, NearMiss>() {
             public NearMiss apply(StubMapping stubMapping) {
-                MatchResult matchResult = stubMapping.getRequest().match(request);
+                MatchResult matchResult = new MemoizingMatchResult(stubMapping.getRequest().match(request));
                 String actualScenarioState = getScenarioStateOrNull(stubMapping);
                 return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
             }
