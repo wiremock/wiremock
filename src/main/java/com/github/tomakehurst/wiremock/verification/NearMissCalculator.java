@@ -73,7 +73,7 @@ public class NearMissCalculator {
         List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
         return sortAndTruncate(from(serveEvents).transform(new Function<ServeEvent, NearMiss>() {
             public NearMiss apply(ServeEvent serveEvent) {
-                MatchResult matchResult = requestPattern.match(serveEvent.getRequest());
+                MatchResult matchResult = new MemoizingMatchResult(requestPattern.match(serveEvent.getRequest()));
                 return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
             }
         }), serveEvents.size());
