@@ -3,12 +3,7 @@ package com.github.tomakehurst.wiremock.http.ssl;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import org.junit.Test;
 
-import javax.net.ssl.ExtendedSSLSession;
-import javax.net.ssl.SNIHostName;
-import javax.net.ssl.SNIServerName;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.*;
 import javax.security.auth.x500.X500Principal;
 import java.net.Socket;
 import java.security.Principal;

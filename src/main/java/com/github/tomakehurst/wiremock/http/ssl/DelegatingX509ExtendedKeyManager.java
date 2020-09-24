@@ -2,7 +2,6 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
-
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
