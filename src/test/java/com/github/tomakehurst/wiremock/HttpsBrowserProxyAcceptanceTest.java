@@ -37,18 +37,10 @@ import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.Origin;
 import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.net.ssl.SSLContext;
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -355,7 +347,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
     private static File setupTempFileRoot() {
         try {
-            File root = java.nio.file.Files.createTempDirectory("wiremock").toFile();
+            File root = Files.createTempDirectory("wiremock").toFile();
             new File(root, MAPPINGS_ROOT).mkdirs();
             new File(root, FILES_ROOT).mkdirs();
             return root;

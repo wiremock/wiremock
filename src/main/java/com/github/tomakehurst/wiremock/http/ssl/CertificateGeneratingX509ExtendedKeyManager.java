@@ -2,13 +2,7 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
 
-import javax.net.ssl.ExtendedSSLSession;
-import javax.net.ssl.SNIHostName;
-import javax.net.ssl.SNIServerName;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.X509ExtendedKeyManager;
+import javax.net.ssl.*;
 import java.net.Socket;
 import java.security.KeyStoreException;
 import java.security.Principal;

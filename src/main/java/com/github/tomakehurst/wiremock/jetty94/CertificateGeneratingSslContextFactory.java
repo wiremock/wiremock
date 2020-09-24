@@ -1,9 +1,9 @@
 package com.github.tomakehurst.wiremock.jetty94;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.http.ssl.ApacheHttpHostNameMatcher;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGeneratingX509ExtendedKeyManager;
 import com.github.tomakehurst.wiremock.http.ssl.DynamicKeyStore;
-import com.github.tomakehurst.wiremock.http.ssl.ApacheHttpHostNameMatcher;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 

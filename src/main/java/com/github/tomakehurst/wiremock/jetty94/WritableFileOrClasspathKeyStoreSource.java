@@ -1,11 +1,9 @@
 package com.github.tomakehurst.wiremock.jetty94;
 
 import com.github.tomakehurst.wiremock.common.ssl.ReadOnlyFileOrClasspathKeyStoreSource;
-import com.google.common.io.Resources;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +14,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.EnumSet;
-import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.file.attribute.PosixFilePermission.*;
