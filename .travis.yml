@@ -4,7 +4,6 @@ dist: trusty
 
 jdk:
   - oraclejdk8
-  - openjdk7
   - openjdk8
 
 install:
@@ -12,5 +11,5 @@ install:
   - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses -x generateApiDocs
 
 script:
-  - if [[ $TRAVIS_JDK_VERSION == *"8"* ]]; then ./gradlew -c release-settings.gradle :java8:check --stacktrace --no-daemon; else ./gradlew -c release-settings.gradle :java7:check --stacktrace --no-daemon; fi
+  - ./gradlew check --stacktrace --no-daemon
 
