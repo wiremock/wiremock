@@ -303,6 +303,10 @@ task writeThinJarPom {
                 artifactId = jar.baseName
             }
             project(pomInfo)
+        }.whenConfigured { MavenPom pom ->
+            pom.dependencies.removeAll { dependency ->
+                dependency.scope == 'test'
+            }
         }.writeTo(thinJarPomPath)
     }
 }
