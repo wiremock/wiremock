@@ -386,7 +386,7 @@ If you want to always match request bodies with `equalTo` case-insensitively, re
 ```json
 "requestBodyPattern" : {
     "matcher": "equalTo",
-    "caseInsenstivie" : true
+    "caseInsensitive" : true
   }
 ```
 
