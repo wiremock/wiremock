@@ -17,11 +17,14 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
+import com.github.tomakehurst.wiremock.extension.MeterRegistryProvider;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
 import java.util.Map;
@@ -37,13 +40,14 @@ public class StubRequestHandler extends AbstractRequestHandler {
     private final boolean loggingDisabled;
 
 	public StubRequestHandler(StubServer stubServer,
-                              ResponseRenderer responseRenderer,
-                              Admin admin,
-                              Map<String, PostServeAction> postServeActions,
-                              RequestJournal requestJournal,
-                              List<RequestFilter> requestFilters,
-                              boolean loggingDisabled) {
-		super(responseRenderer, requestFilters);
+                            ResponseRenderer responseRenderer,
+                            Admin admin,
+                            Map<String, PostServeAction> postServeActions,
+                            RequestJournal requestJournal,
+                            List<RequestFilter> requestFilters,
+                            boolean loggingDisabled,
+                            List<MeterRegistryProvider> meterRegistryProvider) {
+		super(responseRenderer, requestFilters, meterRegistryProvider);
 		this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
