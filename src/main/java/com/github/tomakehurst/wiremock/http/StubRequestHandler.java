@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
+import com.github.tomakehurst.wiremock.extension.MeterRegistryProvider;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
@@ -42,8 +43,9 @@ public class StubRequestHandler extends AbstractRequestHandler {
                               Map<String, PostServeAction> postServeActions,
                               RequestJournal requestJournal,
                               List<RequestFilter> requestFilters,
-                              boolean loggingDisabled) {
-		super(responseRenderer, requestFilters);
+                              boolean loggingDisabled,
+                              List<MeterRegistryProvider> meterRegistryProviders) {
+		super(responseRenderer, requestFilters, meterRegistryProviders);
 		this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
