@@ -25,8 +25,8 @@ allprojects {
     apply plugin: 'scala'
     apply plugin: 'project-report'
 
-    group = 'jp.ne.paypay'
-    version = '2.27.6'
+    group = 'com.github.tomakehurst'
+    version = '2.27.2'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -320,7 +320,6 @@ subprojects {
         sign new File(standaloneJarPomPath)
     }
 
-/*
     if (!this.hasProperty('sonatypeUser')) {
         repoUser = 'default'
     } else {
@@ -332,7 +331,6 @@ subprojects {
     } else {
         repoPassword = sonatypePassword
     }
-*/
 
 
     def pomInfo = {
@@ -363,11 +361,16 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/paypay/wiremock")
-                credentials {
-                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                URL localRepo = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
+                URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
+
+                url repoUrl
+
+                if (!shouldPublishLocally) {
+                    credentials {
+                        username repoUser
+                        password repoPassword
+                    }
                 }
             }
         }
@@ -378,6 +381,15 @@ subprojects {
                 artifact sourcesJar
                 artifact javadocJar
                 artifact testJar
+                (signJars.signatures + signThinJar.singleSignature).each { signature ->
+                    artifact(signature) {
+                        classifier = signature.classifier == '' ? null : signature.classifier
+                        extension = "jar.${signature.extension}"
+                    }
+                }
+                artifact(signThinJarPom.singleSignature) {
+                    extension = 'pom.asc'
+                }
 
                 pom.withXml {
                     asNode().children().last() + pomInfo
@@ -404,7 +416,15 @@ subprojects {
 
                 artifact sourcesJar
                 artifact javadocJar
-                artifact testJar
+                (signJars.signatures + signShadowJar.singleSignature).each { signature ->
+                    artifact(signature) {
+                        classifier = signature.classifier == '' ? null : signature.classifier
+                        extension = "jar.${signature.extension}"
+                    }
+                }
+                artifact(signStandaloneJarPom.singleSignature) {
+                    extension = 'pom.asc'
+                }
 
                 pom.packaging 'jar'
                 pom.withXml {
@@ -426,7 +446,7 @@ subprojects {
             assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
         }
     }
-    //publish.dependsOn checkReleasePreconditions
+    publish.dependsOn checkReleasePreconditions
 
     task addGitTag {
         doLast {
