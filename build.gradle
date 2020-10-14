@@ -25,7 +25,7 @@ allprojects {
     apply plugin: 'scala'
     apply plugin: 'project-report'
 
-    group = 'com.github.paypay'
+    group = 'jp.ne.paypay'
     version = '2.27.6'
 
     sourceCompatibility = 1.7
