@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew build -x check
 
       - name: Publish to GitHub Packages
-        run: gradle publish
+        run: ./gradlew -c release-settings.gradle :java8:publish
         env:
           TOKEN: ${{ secrets.WIREMOCK_TOKEN }}
           USERNAME: nitinPaypay
