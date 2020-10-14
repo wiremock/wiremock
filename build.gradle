@@ -26,10 +26,10 @@ allprojects {
     apply plugin: 'project-report'
 
     group = 'com.github.paypay'
-    version = '2.27.4'
+    version = '2.27.5'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     repositories {
         mavenCentral()
