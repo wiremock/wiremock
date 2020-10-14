@@ -373,20 +373,12 @@ subprojects {
         }
         publications {
             thinJar(MavenPublication) {
-                artifactId "${jar.baseName}"
-                from components.java
+                artifactId = "${jar.baseName}"
+
+                artifact jar
                 artifact sourcesJar
                 artifact javadocJar
                 artifact testJar
-                (signJars.signatures + signThinJar.singleSignature).each { signature ->
-                    artifact(signature) {
-                        classifier = signature.classifier == '' ? null : signature.classifier
-                        extension = "jar.${signature.extension}"
-                    }
-                }
-                artifact(signThinJarPom.singleSignature) {
-                    extension = 'pom.asc'
-                }
 
                 pom.withXml {
                     asNode().children().last() + pomInfo
@@ -396,13 +388,8 @@ subprojects {
                             dep.name == it.artifactId.text()
                         }
                     }.each() {
-                        if (it.name in VARIABLE_VERSION_ARTIFACTS.keySet() && it.version != VARIABLE_VERSION_ARTIFACTS[it.name]) {
-                            it.remove()
-                        } else {
-                            it.scope*.value = 'compile'
-                        }
+                        it.scope*.value = 'compile'
                     }
-
                 }
             }
 
