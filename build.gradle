@@ -320,6 +320,7 @@ subprojects {
         sign new File(standaloneJarPomPath)
     }
 
+/*
     if (!this.hasProperty('sonatypeUser')) {
         repoUser = 'default'
     } else {
@@ -331,6 +332,7 @@ subprojects {
     } else {
         repoPassword = sonatypePassword
     }
+*/
 
 
     def pomInfo = {
@@ -405,21 +407,12 @@ subprojects {
             }
 
             standaloneJar(MavenPublication) { publication ->
-                artifactId "${jar.baseName}-standalone"
+                artifactId = "${jar.baseName}-standalone"
                 project.shadow.component(publication)
-//                from components.shadow
 
                 artifact sourcesJar
                 artifact javadocJar
-                (signJars.signatures + signShadowJar.singleSignature).each { signature ->
-                    artifact(signature) {
-                        classifier = signature.classifier == '' ? null : signature.classifier
-                        extension = "jar.${signature.extension}"
-                    }
-                }
-                artifact(signStandaloneJarPom.singleSignature) {
-                    extension = 'pom.asc'
-                }
+                artifact testJar
 
                 pom.packaging 'jar'
                 pom.withXml {
