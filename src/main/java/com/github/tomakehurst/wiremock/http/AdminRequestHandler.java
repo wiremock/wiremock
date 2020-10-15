@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.NotPermittedException;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.MeterRegistryProvider;
+import com.github.tomakehurst.wiremock.extension.MetricsPublisher;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -49,9 +49,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
                                Authenticator authenticator,
                                boolean requireHttps,
                                List<RequestFilter> requestFilters,
-                               List<MeterRegistryProvider> meterRegistryProviders
+                               List<MetricsPublisher> metricsPublishers
     ) {
-		super(responseRenderer, requestFilters, meterRegistryProviders);
+		super(responseRenderer, requestFilters, metricsPublishers);
         this.adminRoutes = adminRoutes;
         this.admin = admin;
         this.authenticator = authenticator;

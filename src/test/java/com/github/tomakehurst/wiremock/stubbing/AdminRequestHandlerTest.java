@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.MeterRegistryProvider;
+import com.github.tomakehurst.wiremock.extension.MetricsPublisher;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
@@ -59,7 +59,7 @@ public class AdminRequestHandlerTest {
         httpResponder = new MockHttpResponder();
 
 
-		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList(), Collections.<MeterRegistryProvider>emptyList());
+		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList(), Collections.<MetricsPublisher>emptyList());
 	}
 	
     @Test
