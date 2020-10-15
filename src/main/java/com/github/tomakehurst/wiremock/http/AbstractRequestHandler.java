@@ -15,13 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.extension.MeterRegistryProvider;
-import com.github.tomakehurst.wiremock.extension.requestfilter.*;
+import com.github.tomakehurst.wiremock.extension.MetricsPublisher;
+import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
-import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,17 +38,18 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 	protected List<RequestListener> listeners = newArrayList();
 	protected final ResponseRenderer responseRenderer;
 	protected final List<RequestFilter> requestFilters;
-	protected MeterRegistry meterRegistry = null;
-	private static final String HTTP_SERVER_REQUESTS = "http.server.requests";
-	private static final String PARAMETER = "{:param}";
+    protected MetricsPublisher metricsPublisher = null;
+    private static final String HTTP_SERVER_REQUESTS = "http.server.requests";
+    private static final String PARAMETER = "{:param}";
 
-	public AbstractRequestHandler(ResponseRenderer responseRenderer, List<RequestFilter> requestFilters, List<MeterRegistryProvider> meterRegistryProvider) {
-		this.responseRenderer = responseRenderer;
-		this.requestFilters = requestFilters;
-		if(!meterRegistryProvider.isEmpty()){
-			this.meterRegistry = meterRegistryProvider.get(0).getMeterRegistry();
-		}
-	}
+
+    public AbstractRequestHandler(ResponseRenderer responseRenderer, List<RequestFilter> requestFilters, List<MetricsPublisher> metricsPublishers) {
+        this.responseRenderer = responseRenderer;
+        this.requestFilters = requestFilters;
+        if (!metricsPublishers.isEmpty()) {
+            this.metricsPublisher = metricsPublishers.get(0);
+        }
+    }
 
 	@Override
 	public void addRequestListener(RequestListener requestListener) {
@@ -96,9 +99,9 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		stopwatch.start();
 		httpResponder.respond(processedRequest, response);
 
-		completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
-		this.publishMetrics(completedServeEvent);
-		afterResponseSent(completedServeEvent, response);
+        completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
+        this.publishMetrics(completedServeEvent);
+        afterResponseSent(completedServeEvent, response);
         stopwatch.stop();
 	}
 
@@ -129,35 +132,35 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 	protected abstract ServeEvent handleRequest(Request request);
 
 
-	protected void publishMetrics(ServeEvent event){
-		if(Objects.nonNull(meterRegistry)) {
-			notifier().info("Publishing Metrics for URI: " + event.getRequest().getUrl());
-			String uri = normalizedURL(event);
-			meterRegistry.summary(HTTP_SERVER_REQUESTS,
-				"uri", uri,
-				"status", Integer.toString(event.getResponse().getStatus()),
-				"method", event.getRequest().getMethod().getName())
-				.record(event.getTiming().getTotalTime());
-		}
-	}
+    protected void publishMetrics(ServeEvent event) {
+        if (Objects.nonNull(metricsPublisher)) {
+            notifier().info("Publishing Metrics for URI: " + event.getRequest().getUrl());
+            String uri = normalizedURL(event);
+            metricsPublisher.summary(HTTP_SERVER_REQUESTS,
+                event.getTiming().getTotalTime(),
+                "uri", uri,
+                "status", Integer.toString(event.getResponse().getStatus()),
+                "method", event.getRequest().getMethod().getName());
+        }
+    }
 
-	private String normalizedURL(ServeEvent event){
-		RequestPattern requestPattern = event.getStubMapping().getRequest();
-		if(event.getResponse().getStatus() != 200){
-			return event.getRequest().getUrl();
-		}
-		if(Objects.nonNull(requestPattern.getUrl())){
-			return requestPattern.getUrl().replace("(.+)",PARAMETER).replace(".+",PARAMETER);
-		}
-		if(Objects.nonNull(requestPattern.getUrlPattern())){
-			return requestPattern.getUrlPattern().replace("(.+)",PARAMETER).replace(".+",PARAMETER);
-		}
-		if(Objects.nonNull(requestPattern.getUrlPath())){
-			return requestPattern.getUrlPath().replace("(.+)",PARAMETER).replace(".+",PARAMETER);
-		}
-		if(Objects.nonNull(requestPattern.getUrlPathPattern())){
-			return requestPattern.getUrlPathPattern().replace("(.+)",PARAMETER).replace(".+",PARAMETER);
-		}
-		return event.getRequest().getUrl();
-	}
+    private String normalizedURL(ServeEvent event) {
+        RequestPattern requestPattern = event.getStubMapping().getRequest();
+        if (event.getResponse().getStatus() != 200) {
+            return event.getRequest().getUrl();
+        }
+        if (Objects.nonNull(requestPattern.getUrl())) {
+            return requestPattern.getUrl().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        if (Objects.nonNull(requestPattern.getUrlPattern())) {
+            return requestPattern.getUrlPattern().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        if (Objects.nonNull(requestPattern.getUrlPath())) {
+            return requestPattern.getUrlPath().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        if (Objects.nonNull(requestPattern.getUrlPathPattern())) {
+            return requestPattern.getUrlPathPattern().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        return event.getRequest().getUrl();
+    }
 }

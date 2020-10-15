@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.MeterRegistryProvider;
+import com.github.tomakehurst.wiremock.extension.MetricsPublisher;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
@@ -55,7 +55,7 @@ public class JettyHttpServerTest {
         context = new Mockery();
         Admin admin = context.mock(Admin.class);
 
-        adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList(),  Collections.<MeterRegistryProvider>emptyList());
+        adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList(),  Collections.<MetricsPublisher>emptyList());
         stubRequestHandler = new StubRequestHandler(context.mock(StubServer.class),
                 context.mock(ResponseRenderer.class),
                 admin,
@@ -63,7 +63,7 @@ public class JettyHttpServerTest {
                 context.mock(RequestJournal.class),
                 Collections.<RequestFilter>emptyList(),
                 false,
-                Collections.<MeterRegistryProvider>emptyList()
+                Collections.<MetricsPublisher>emptyList()
         );
     }
 
