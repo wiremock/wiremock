@@ -26,7 +26,7 @@ allprojects {
     apply plugin: 'project-report'
 
     group = 'jp.ne.paypay'
-    version = '2.27.8'
+    version = '2.27.9'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
