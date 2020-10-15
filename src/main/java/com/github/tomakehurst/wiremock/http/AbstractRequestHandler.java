@@ -35,136 +35,132 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
-  protected List<RequestListener> listeners = newArrayList();
-  protected final ResponseRenderer responseRenderer;
-  protected final List<RequestFilter> requestFilters;
-  protected MetricsPublisher metricsPublisher = null;
-  private static final String HTTP_SERVER_REQUESTS = "http.server.requests";
-  private static final String PARAMETER = "{:param}";
+	protected List<RequestListener> listeners = newArrayList();
+	protected final ResponseRenderer responseRenderer;
+	protected final List<RequestFilter> requestFilters;
+    protected MetricsPublisher metricsPublisher = null;
+    private static final String HTTP_SERVER_REQUESTS = "http.server.requests";
+    private static final String PARAMETER = "{:param}";
 
-  public AbstractRequestHandler(ResponseRenderer responseRenderer, List<RequestFilter> requestFilters, List<MetricsPublisher> metricsPublishers) {
-    this.responseRenderer = responseRenderer;
-    this.requestFilters = requestFilters;
-    if (!metricsPublishers.isEmpty()) {
-      this.metricsPublisher = metricsPublishers.get(0);
-    }
-  }
 
-  @Override
-  public void addRequestListener(RequestListener requestListener) {
-    listeners.add(requestListener);
-  }
-
-  protected void beforeResponseSent(ServeEvent serveEvent, Response response) {
-  }
-
-  protected void afterResponseSent(ServeEvent serveEvent, Response response) {
-  }
-
-  @Override
-  public void handle(Request request, HttpResponder httpResponder) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    ServeEvent serveEvent;
-    Request processedRequest = request;
-    if (!requestFilters.isEmpty()) {
-      RequestFilterAction requestFilterAction = processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
-      if (requestFilterAction instanceof ContinueAction) {
-        processedRequest = ((ContinueAction) requestFilterAction).getRequest();
-        serveEvent = handleRequest(processedRequest);
-      } else {
-        serveEvent = ServeEvent.of(LoggedRequest.createFrom(request), ((StopAction) requestFilterAction).getResponseDefinition());
-      }
-    } else {
-      serveEvent = handleRequest(request);
+    public AbstractRequestHandler(ResponseRenderer responseRenderer, List<RequestFilter> requestFilters, List<MetricsPublisher> metricsPublishers) {
+        this.responseRenderer = responseRenderer;
+        this.requestFilters = requestFilters;
+        if (!metricsPublishers.isEmpty()) {
+            this.metricsPublisher = metricsPublishers.get(0);
+        }
     }
 
-    ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    responseDefinition.setOriginalRequest(processedRequest);
-    Response response = responseRenderer.render(serveEvent);
-    ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
+	@Override
+	public void addRequestListener(RequestListener requestListener) {
+		listeners.add(requestListener);
+	}
 
-    if (logRequests()) {
-      notifier().info("Request received:\n" +
-                        formatRequest(processedRequest) +
-                        "\n\nMatched response definition:\n" + responseDefinition +
-                        "\n\nResponse:\n" + response);
+	protected void beforeResponseSent(ServeEvent serveEvent, Response response) {}
+    protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
+
+	@Override
+	public void handle(Request request, HttpResponder httpResponder) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+		ServeEvent serveEvent;
+		Request processedRequest = request;
+		if (!requestFilters.isEmpty()) {
+			RequestFilterAction requestFilterAction = processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
+			if (requestFilterAction instanceof ContinueAction) {
+				processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+				serveEvent = handleRequest(processedRequest);
+			} else {
+				serveEvent = ServeEvent.of(LoggedRequest.createFrom(request), ((StopAction) requestFilterAction).getResponseDefinition());
+			}
+		} else {
+			serveEvent = handleRequest(request);
+		}
+
+		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+		responseDefinition.setOriginalRequest(processedRequest);
+		Response response = responseRenderer.render(serveEvent);
+		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
+
+		if (logRequests()) {
+			notifier().info("Request received:\n" +
+					formatRequest(processedRequest) +
+					"\n\nMatched response definition:\n" + responseDefinition +
+					"\n\nResponse:\n" + response);
+		}
+
+		for (RequestListener listener: listeners) {
+			listener.requestReceived(processedRequest, response);
+		}
+
+        beforeResponseSent(completedServeEvent, response);
+
+		stopwatch.reset();
+		stopwatch.start();
+		httpResponder.respond(processedRequest, response);
+
+        completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
+        this.publishMetrics(completedServeEvent);
+        afterResponseSent(completedServeEvent, response);
+        stopwatch.stop();
+	}
+
+	protected String formatRequest(Request request) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(request.getClientIp())
+				.append(" - ")
+				.append(request.getMethod())
+				.append(" ")
+				.append(request.getUrl());
+
+		if (request.isBrowserProxyRequest()) {
+			sb.append(" (via browser proxy request)");
+		}
+
+		sb.append("\n\n");
+		sb.append(request.getHeaders());
+
+		if (request.getBody() != null) {
+			sb.append(request.getBodyAsString()).append("\n");
+		}
+
+		return sb.toString();
+	}
+
+	protected boolean logRequests() { return false; }
+
+	protected abstract ServeEvent handleRequest(Request request);
+
+
+    protected void publishMetrics(ServeEvent event) {
+        if (Objects.nonNull(metricsPublisher)) {
+            notifier().info("Publishing Metrics for URI: " + event.getRequest().getUrl());
+            String uri = normalizedURL(event);
+            metricsPublisher.summary(HTTP_SERVER_REQUESTS,
+                event.getTiming().getTotalTime(),
+                "uri", uri,
+                "status", Integer.toString(event.getResponse().getStatus()),
+                "method", event.getRequest().getMethod().getName());
+        }
     }
 
-    for (RequestListener listener : listeners) {
-      listener.requestReceived(processedRequest, response);
+    private String normalizedURL(ServeEvent event) {
+        RequestPattern requestPattern = event.getStubMapping().getRequest();
+        if (event.getResponse().getStatus() != 200) {
+            return event.getRequest().getUrl();
+        }
+        if (Objects.nonNull(requestPattern.getUrl())) {
+            return requestPattern.getUrl().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        if (Objects.nonNull(requestPattern.getUrlPattern())) {
+            return requestPattern.getUrlPattern().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        if (Objects.nonNull(requestPattern.getUrlPath())) {
+            return requestPattern.getUrlPath().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        if (Objects.nonNull(requestPattern.getUrlPathPattern())) {
+            return requestPattern.getUrlPathPattern().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
+        }
+        return event.getRequest().getUrl();
     }
-
-    beforeResponseSent(completedServeEvent, response);
-
-    stopwatch.reset();
-    stopwatch.start();
-    httpResponder.respond(processedRequest, response);
-
-    completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
-    this.publishMetrics(completedServeEvent);
-    afterResponseSent(completedServeEvent, response);
-    stopwatch.stop();
-  }
-
-  protected String formatRequest(Request request) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(request.getClientIp())
-      .append(" - ")
-      .append(request.getMethod())
-      .append(" ")
-      .append(request.getUrl());
-
-    if (request.isBrowserProxyRequest()) {
-      sb.append(" (via browser proxy request)");
-    }
-
-    sb.append("\n\n");
-    sb.append(request.getHeaders());
-
-    if (request.getBody() != null) {
-      sb.append(request.getBodyAsString()).append("\n");
-    }
-
-    return sb.toString();
-  }
-
-  protected boolean logRequests() {
-    return false;
-  }
-
-  protected abstract ServeEvent handleRequest(Request request);
-
-
-  protected void publishMetrics(ServeEvent event) {
-    if (Objects.nonNull(metricsPublisher)) {
-      notifier().info("Publishing Metrics for URI: " + event.getRequest().getUrl());
-      String uri = normalizedURL(event);
-      metricsPublisher.summary(HTTP_SERVER_REQUESTS,
-        event.getTiming().getTotalTime(),
-        "uri", uri,
-        "status", Integer.toString(event.getResponse().getStatus()),
-        "method", event.getRequest().getMethod().getName());
-    }
-  }
-
-  private String normalizedURL(ServeEvent event) {
-    RequestPattern requestPattern = event.getStubMapping().getRequest();
-    if (event.getResponse().getStatus() != 200) {
-      return event.getRequest().getUrl();
-    }
-    if (Objects.nonNull(requestPattern.getUrl())) {
-      return requestPattern.getUrl().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
-    }
-    if (Objects.nonNull(requestPattern.getUrlPattern())) {
-      return requestPattern.getUrlPattern().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
-    }
-    if (Objects.nonNull(requestPattern.getUrlPath())) {
-      return requestPattern.getUrlPath().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
-    }
-    if (Objects.nonNull(requestPattern.getUrlPathPattern())) {
-      return requestPattern.getUrlPathPattern().replace("(.+)", PARAMETER).replace(".+", PARAMETER);
-    }
-    return event.getRequest().getUrl();
-  }
 }
