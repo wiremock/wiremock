@@ -25,8 +25,8 @@ allprojects {
     apply plugin: 'scala'
     apply plugin: 'project-report'
 
-    group = 'jp.ne.paypay'
-    version = '2.27.9'
+    group = 'com.github.tomakehurst'
+    version = '2.27.2'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -38,28 +38,28 @@ allprojects {
     def jacksonVersion = '2.11.0'
 
     def versionSets = [
-            java7: [
-                    handlebars     : '4.0.7',
-                    jetty          : '9.2.28.v20190418', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
-                    guava          : '20.0',
-                    jackson        : jacksonVersion,
-                    jacksonDatabind: jacksonVersion,
-                    xmlUnit        : '2.7.0'
-            ],
-            java8: [
-                    handlebars     : '4.2.0',
-                    jetty          : '9.4.30.v20200611',
-                    guava          : '29.0-jre',
-                    jackson        : jacksonVersion,
-                    jacksonDatabind: jacksonVersion,
-                    xmlUnit        : '2.7.0'
-            ]
+        java7: [
+            handlebars     : '4.0.7',
+            jetty          : '9.2.28.v20190418', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
+            guava          : '20.0',
+            jackson        : jacksonVersion,
+            jacksonDatabind: jacksonVersion,
+            xmlUnit        : '2.7.0'
+        ],
+        java8: [
+            handlebars     : '4.2.0',
+            jetty          : '9.4.30.v20200611',
+            guava          : '29.0-jre',
+            jackson        : jacksonVersion,
+            jacksonDatabind: jacksonVersion,
+            xmlUnit        : '2.7.0'
+        ]
     ]
 
     def isJava7 = project.name in ['wiremock', 'java7']
     def versions =  isJava7 ?
-            versionSets.java7 :
-            versionSets[project.name]
+        versionSets.java7 :
+        versionSets[project.name]
 
     dependencies {
         compile "org.eclipse.jetty:jetty-server:$versions.jetty"
@@ -69,8 +69,8 @@ allprojects {
         compile "org.eclipse.jetty:jetty-proxy:$versions.jetty"
         compile "com.google.guava:guava:$versions.guava"
         compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-                "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-                "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
+            "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+            "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
         compile "org.apache.httpcomponents:httpclient:4.5.12"
         compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
         compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
@@ -317,18 +317,17 @@ subprojects {
         sign new File(standaloneJarPomPath)
     }
 
-/*
     if (!this.hasProperty('sonatypeUser')) {
         repoUser = 'default'
     } else {
         repoUser = sonatypeUser
     }
+
     if (!this.hasProperty('sonatypePassword')) {
         repoPassword = 'default'
     } else {
         repoPassword = sonatypePassword
     }
-*/
 
 
     def pomInfo = {
@@ -359,11 +358,16 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/paypay/wiremock")
-                credentials {
-                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                URL localRepo = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
+                URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
+
+                url repoUrl
+
+                if (!shouldPublishLocally) {
+                    credentials {
+                        username repoUser
+                        password repoPassword
+                    }
                 }
             }
         }
@@ -374,6 +378,15 @@ subprojects {
                 artifact sourcesJar
                 artifact javadocJar
                 artifact testJar
+                (signJars.signatures + signThinJar.singleSignature).each { signature ->
+                    artifact(signature) {
+                        classifier = signature.classifier == '' ? null : signature.classifier
+                        extension = "jar.${signature.extension}"
+                    }
+                }
+                artifact(signThinJarPom.singleSignature) {
+                    extension = 'pom.asc'
+                }
 
                 pom.withXml {
                     asNode().children().last() + pomInfo
@@ -400,7 +413,15 @@ subprojects {
 
                 artifact sourcesJar
                 artifact javadocJar
-                artifact testJar
+                (signJars.signatures + signShadowJar.singleSignature).each { signature ->
+                    artifact(signature) {
+                        classifier = signature.classifier == '' ? null : signature.classifier
+                        extension = "jar.${signature.extension}"
+                    }
+                }
+                artifact(signStandaloneJarPom.singleSignature) {
+                    extension = 'pom.asc'
+                }
 
                 pom.packaging 'jar'
                 pom.withXml {
@@ -422,7 +443,7 @@ subprojects {
             assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
         }
     }
-    //publish.dependsOn checkReleasePreconditions
+    publish.dependsOn checkReleasePreconditions
 
     task addGitTag {
         doLast {
@@ -455,9 +476,9 @@ subprojects {
 task 'bump-patch-version' {
     doLast {
         def filesWithVersion = [
-                'build.gradle'                                      : { "version = '${it}" },
-                'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-                'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+            'build.gradle'                                      : { "version = '${it}" },
+            'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
+            'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
         ]
 
         def currentVersion = project.version
@@ -466,8 +487,8 @@ task 'bump-patch-version' {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates]
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentVersion)
@@ -482,9 +503,9 @@ task 'bump-patch-version' {
 task 'bump-minor-version' {
     doLast {
         def filesWithVersion = [
-                'build.gradle'                                      : { "version = '${it}" },
-                'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-                'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+            'build.gradle'                                      : { "version = '${it}" },
+            'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
+            'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
         ]
 
         def currentVersion = project.version
@@ -493,8 +514,8 @@ task 'bump-minor-version' {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates]
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentVersion)
