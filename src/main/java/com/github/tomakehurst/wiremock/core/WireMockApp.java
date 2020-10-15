@@ -139,7 +139,8 @@ public class WireMockApp implements StubServer, Admin {
             new BasicResponseRenderer(),
             options.getAdminAuthenticator(),
             options.getHttpsRequiredForAdminApi(),
-            getAdminRequestFilters()
+            getAdminRequestFilters(),
+            ImmutableList.copyOf(options.extensionsOfType(MeterRegistryProvider.class).values())
         );
     }
 
@@ -166,7 +167,8 @@ public class WireMockApp implements StubServer, Admin {
             postServeActions,
             requestJournal,
             getStubRequestFilters(),
-            options.getStubRequestLoggingDisabled()
+            options.getStubRequestLoggingDisabled(),
+            ImmutableList.copyOf(options.extensionsOfType(MeterRegistryProvider.class).values())
         );
     }
 
