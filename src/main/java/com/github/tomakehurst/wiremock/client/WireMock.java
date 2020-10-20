@@ -192,16 +192,16 @@ public class WireMock {
         return new MatchesJsonPathPattern(value, valuePattern);
     }
 
-    public static StringValuePattern equalToXml(String value) {
+    public static EqualToXmlPattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
-        return new EqualToXmlPattern(value, enablePlaceholders, null, null);
+        return new EqualToXmlPattern(value, enablePlaceholders, null, null, null);
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders, String placeholderOpeningDelimiterRegex, String placeholderClosingDelimiterRegex) {
-	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex, null);
     }
 
     public static MatchesXPathPattern matchingXPath(String value) {

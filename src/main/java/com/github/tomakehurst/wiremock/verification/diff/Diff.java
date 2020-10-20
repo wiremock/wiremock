@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Urls;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -37,17 +38,30 @@ public class Diff {
     private final String stubMappingName;
     private final RequestPattern requestPattern;
     private final Request request;
+    private final String scenarioName;
+    private final String scenarioState;
+    private final String expectedScenarioState;
 
     public Diff(RequestPattern expected, Request actual) {
         this.requestPattern = expected;
         this.request = actual;
         this.stubMappingName = null;
+        this.scenarioName = null;
+        this.scenarioState = null;
+        this.expectedScenarioState = null;
     }
 
     public Diff(StubMapping expected, Request actual) {
+        this(expected, actual, null);
+    }
+
+    public Diff(StubMapping expected, Request actual, String scenarioState) {
         this.requestPattern = expected.getRequest();
         this.request = actual;
         this.stubMappingName = expected.getName();
+        this.scenarioName = expected.getScenarioName();
+        this.scenarioState = scenarioState;
+        this.expectedScenarioState = expected.getRequiredScenarioState();
     }
 
     @Override
@@ -62,13 +76,34 @@ public class Diff {
     public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
         ImmutableList.Builder<DiffLine<?>> builder = ImmutableList.builder();
 
+        if (requestPattern.getHost() != null) {
+            String hostOperator = generateOperatorString(requestPattern.getHost(), "");
+            String printedHostPatternValue = hostOperator + requestPattern.getHost().getExpected();
+            DiffLine<String> hostSection = new DiffLine<>("Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
+            builder.add(hostSection);
+        }
+
+        if (requestPattern.getPort() != null) {
+            StringValuePattern expectedPort = equalTo(String.valueOf(requestPattern.getPort()));
+            String actualPort = String.valueOf(request.getPort());
+            DiffLine<String> portSection = new DiffLine<>("Port", expectedPort, actualPort, expectedPort.getExpected());
+            builder.add(portSection);
+        }
+
+        if (requestPattern.getScheme() != null) {
+            StringValuePattern expectedScheme = equalTo(String.valueOf(requestPattern.getScheme()));
+            DiffLine<String> schemeSection = new DiffLine<>("Scheme", expectedScheme, request.getScheme(), requestPattern.getScheme());
+            builder.add(schemeSection);
+        }
+
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 
         UrlPattern urlPattern = firstNonNull(requestPattern.getUrlMatcher(), anyUrl());
+        String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
         DiffLine<String> urlSection = new DiffLine<>("URL", urlPattern,
             request.getUrl(),
-            urlPattern.getExpected());
+            printedUrlPattern);
         builder.add(urlSection);
 
         builder.add(SPACER);
@@ -169,8 +204,20 @@ public class Diff {
             }
         }
 
+        if (scenarioName != null) {
+            builder.add(new DiffLine<>(
+                    "Scenario",
+                    new EqualToPattern(expectedScenarioState),
+                    buildScenarioLine(scenarioName, scenarioState),
+                    buildScenarioLine(scenarioName, expectedScenarioState))
+            );
+        }
 
         return builder.build();
+    }
+
+    private static String buildScenarioLine(String scenarioName, String scenarioState) {
+        return "[Scenario '" + scenarioName + "' state: " + scenarioState + "]";
     }
 
     private void addHeaderSection(Map<String, MultiValuePattern> headerPatterns, HttpHeaders headers, ImmutableList.Builder<DiffLine<?>> builder) {
@@ -198,7 +245,23 @@ public class Diff {
         if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
             for (ContentPattern<?> pattern: bodyPatterns) {
                 String formattedBody = formatIfJsonOrXml(pattern, body);
-                if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
+                if (PathPattern.class.isAssignableFrom(pattern.getClass())) {
+                    PathPattern pathPattern = (PathPattern) pattern;
+                    if (!pathPattern.isSimple()) {
+                        String expressionResult = pathPattern.getExpressionResult(body.asString());
+                        String printedExpectedValue =
+                                pathPattern.getExpected() +
+                                        " [" + pathPattern.getValuePattern().getName() + "] " +
+                                        pathPattern.getValuePattern().getExpected();
+                        if (expressionResult != null) {
+                            builder.add(new DiffLine<>("Body", pathPattern.getValuePattern(), expressionResult, printedExpectedValue));
+                        } else {
+                            builder.add(new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue));
+                        }
+                    } else {
+                        builder.add(new DiffLine<>("Body", pathPattern, formattedBody, pattern.getExpected()));
+                    }
+                } else if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
                     StringValuePattern stringValuePattern = (StringValuePattern) pattern;
                     builder.add(new DiffLine<>("Body", stringValuePattern, formattedBody, pattern.getExpected()));
                 } else {
@@ -207,6 +270,17 @@ public class Diff {
                 }
             }
         }
+    }
+
+    private String generatePrintedUrlPattern(UrlPattern urlPattern) {
+        String matchPart = (urlPattern instanceof UrlPathPattern ? "path" : "") +
+                (urlPattern.isRegex() ? " regex" : "");
+
+        matchPart = matchPart.trim();
+
+        return matchPart.isEmpty() ?
+                urlPattern.getExpected() :
+                "[" + matchPart + "] " + urlPattern.getExpected();
     }
 
     private String generateOperatorString(ContentPattern<?> pattern, String defaultValue) {

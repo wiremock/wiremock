@@ -9,10 +9,10 @@ import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
-import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Jetty94HttpServer extends JettyHttpServer {
@@ -27,15 +27,19 @@ public class Jetty94HttpServer extends JettyHttpServer {
     }
 
     @Override
-    protected ServerConnector createHttpsConnector(Server server, String bindAddress, HttpsSettings httpsSettings, JettySettings jettySettings, NetworkTrafficListener listener) {
-        SslContextFactory.Server http2SslContextFactory = buildHttp2SslContextFactory(httpsSettings);
-
-        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
-        httpConfig.setSecureScheme("https");
-        httpConfig.setSecurePort(httpsSettings.port());
+    protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
+        HttpConfiguration httpConfig = super.createHttpConfig(jettySettings);
         httpConfig.setSendXPoweredBy(false);
         httpConfig.setSendServerVersion(false);
         httpConfig.addCustomizer(new SecureRequestCustomizer());
+        return httpConfig;
+    }
+
+    @Override
+    protected ServerConnector createHttpsConnector(Server server, String bindAddress, HttpsSettings httpsSettings, JettySettings jettySettings, NetworkTrafficListener listener) {
+        SslContextFactory.Server http2SslContextFactory = SslContexts.buildHttp2SslContextFactory(httpsSettings);
+
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
 
         HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
         HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
@@ -44,7 +48,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
 
         SslConnectionFactory ssl = new SslConnectionFactory(http2SslContextFactory, alpn.getProtocol());
 
-        ConnectionFactory[] connectionFactories = new ConnectionFactory[] {
+        ConnectionFactory[] connectionFactories = {
                 ssl,
                 alpn,
                 h2,
@@ -60,19 +64,19 @@ public class Jetty94HttpServer extends JettyHttpServer {
         );
     }
 
-    private SslContextFactory.Server buildHttp2SslContextFactory(HttpsSettings httpsSettings) {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+    @Override
+    protected HandlerCollection createHandler(
+        Options options,
+        AdminRequestHandler adminRequestHandler,
+        StubRequestHandler stubRequestHandler
+    ) {
+        HandlerCollection handler = super.createHandler(options, adminRequestHandler, stubRequestHandler);
 
-        sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
-        sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
-        if (httpsSettings.hasTrustStore()) {
-            sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
-            sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
+        if (options.browserProxySettings().enabled()) {
+            handler.addHandler(SslContexts.buildManInTheMiddleSslConnectHandler(options));
         }
-        sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
-        sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-        sslContextFactory.setProvider("Conscrypt");
-        return sslContextFactory;
+
+        return handler;
     }
+
 }

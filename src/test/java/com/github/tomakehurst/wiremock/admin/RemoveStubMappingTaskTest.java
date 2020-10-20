@@ -30,7 +30,7 @@ import java.net.HttpURLConnection;
 
 import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildJsonStringFor;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RemoveStubMappingTaskTest {
 

@@ -116,7 +116,7 @@ The body file for a response can be selected dynamically by templating the file 
 ```java
 wm.stubFor(get(urlPathMatching("/static/.*"))
   .willReturn(ok()
-    .withBodyFile("files/{{request.requestLine.pathSegments.[1]}}")));
+    .withBodyFile("files/{{request.pathSegments.[1]}}")));
 
 ```
 {% endraw %}
@@ -132,7 +132,7 @@ wm.stubFor(get(urlPathMatching("/static/.*"))
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "files/{{request.requestLine.pathSegments.[1]}}"
+    "bodyFileName" : "files/{{request.pathSegments.[1]}}"
   }
 }
 ```
@@ -143,23 +143,23 @@ The model of the request is supplied to the header and body templates. The follo
  
 `request.url` - URL path and query
 
-`request.requestLine.path` - URL path
+`request.path` - URL path
 
-`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.requestLine.pathSegments.[2]`
+`request.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.pathSegments.[2]`
 
-`request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
+`request.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
-`request.requestLine.query.<key>.[<n>]`- nth value of a query parameter (zero indexed) e.g. `request.query.search.[5]`
+`request.query.<key>.[<n>]`- nth value of a query parameter (zero indexed) e.g. `request.query.search.[5]`
 
-`request.requestLine.method`- request method e.g. `POST`
+`request.method`- request method e.g. `POST`
 
-`request.requestLine.host`- hostname part of the URL e.g. `my.example.com`
+`request.host`- hostname part of the URL e.g. `my.example.com`
 
-`request.requestLine.port`- port number e.g. `8080`
+`request.port`- port number e.g. `8080`
 
-`request.requestLine.scheme`- protocol part of the URL e.g. `https`
+`request.scheme`- protocol part of the URL e.g. `https`
 
-`request.requestLine.baseUrl`- URL up to the start of the path e.g. `https://my.example.com:8080`
+`request.baseUrl`- URL up to the start of the path e.g. `https://my.example.com:8080`
  
 `request.headers.<key>`- First value of a request header e.g. `request.headers.X-Request-Id`
  
@@ -198,6 +198,48 @@ For instance, given a request URL like `/multi-query?things=1&things=2&things=3`
 > The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
 > with another String value. 
 
+## Using transformer parameters
+
+Parameter values can be passed to the transformer as shown below (or dynamically added to the parameters map programmatically in custom transformers).
+
+### Java
+
+{% raw %}
+```java
+wm.stubFor(get(urlPathEqualTo("/templated"))
+  .willReturn(aResponse()
+      .withBody("{{request.path.[0]}}")
+      .withTransformers("response-template")
+      .withTransformerParameter("MyCustomParameter", "Parameter Value")));
+```
+{% endraw %}
+
+
+{% raw %}
+### JSON
+```json
+{
+    "request": {
+        "urlPath": "/templated"
+    },
+    "response": {
+        "body": "{{request.path.[0]}}",
+        "transformers": ["response-template"],
+        "transformerParameters" : {
+            "MyCustomParameter" : "Parameter Value"
+        }
+    }
+}
+```
+{% endraw %}
+
+These parameters can be referenced in template body content using the `parameters.` prefix:
+
+{% raw %}
+```
+<h1>The MyCustomParameter value is {{parameters.MyCustomParameter}}</h1>
+```
+{% endraw %}
 
 ## Handlebars helpers
 All of the standard helpers (template functions) provided by the [Java Handlebars implementation by jknack](https://github.com/jknack/handlebars.java)
@@ -278,6 +320,32 @@ The following will render "success" in the output:
 ```
 {% endraw %}
 
+
+### Using the output of `xPath` in other helpers
+
+Since version 2.27.0 the XPath helper returns collections of node objects rather than a single string, meaning that the result
+can be used in further helpers.
+
+The returned node objects have the following properties:
+
+`name` - the local XML element name.
+
+`text` - the text content of the element.
+
+`attributes` - a map of the element's attributes (name: value)
+
+Referring to the node itself will cause it to be printed.
+
+
+A common use case for returned node objects is to iterate over the collection with the `each` helper:
+
+{% raw %}
+```
+{{#each (xPath request.body '/things/item') as |node|}}
+  name: {{node.name}}, text: {{node.text}}, ID attribute: {{node.attributes.id}}
+{{/each}}
+```
+{% endraw %}
 
 ## JSONPath helper
 It is similarly possible to extract JSON values or sub documents via JSONPath using the `jsonPath` helper. Given the JSON
@@ -364,6 +432,24 @@ Random strings of various kinds can be generated:
 {% endraw %}
 
 
+## Pick random helper
+A value can be randomly selected from a literal list:
+
+{% raw %}
+```
+{{{pickRandom '1' '2' '3'}}}
+```
+{% endraw %}
+
+Or from a list passed as a parameter:
+
+{% raw %}
+```
+{{{pickRandom (jsonPath request.body '$.names')}}}
+```
+{% endraw %}
+
+
 ## String trim helper
 Use the `trim` helper to remove whitespace from the start and end of the input:
 
@@ -390,6 +476,10 @@ The `base64` helper can be used to base64 encode and decode values:
 
 {{#base64}}
 Content to encode     
+{{/base64}}
+
+{{#base64 padding=false}}
+Content to encode without padding    
 {{/base64}}
 
 {{#base64 decode=true}}

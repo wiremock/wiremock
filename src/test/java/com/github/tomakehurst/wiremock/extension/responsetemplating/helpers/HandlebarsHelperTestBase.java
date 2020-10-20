@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,14 +28,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class HandlebarsHelperTestBase {
 
+    protected ResponseTemplateTransformer transformer;
     protected RenderCache renderCache;
 
     @Before
     public void initRenderCache() {
+        transformer = new ResponseTemplateTransformer(true);
         renderCache = new RenderCache();
     }
 

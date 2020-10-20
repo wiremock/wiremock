@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -26,7 +27,6 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.TextType.JSON;
-import static com.github.tomakehurst.wiremock.common.TextType.XML;
 import static com.google.common.collect.Iterables.any;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;

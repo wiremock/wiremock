@@ -22,7 +22,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DateOffsetTest {
 

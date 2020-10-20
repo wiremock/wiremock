@@ -125,6 +125,7 @@ public class JettyHttpServer implements HttpServer {
                 options.filesRoot(),
                 options.getAsynchronousResponseSettings(),
                 options.getChunkedEncodingPolicy(),
+                options.getStubCorsEnabled(),
                 notifier
         );
 
@@ -172,7 +173,7 @@ public class JettyHttpServer implements HttpServer {
 
     protected void finalizeSetup(final Options options) {
         if (!options.jettySettings().getStopTimeout().isPresent()) {
-            this.jettyServer.setStopTimeout(0);
+            this.jettyServer.setStopTimeout(1000);
         }
     }
 
@@ -276,7 +277,8 @@ public class JettyHttpServer implements HttpServer {
         SslContextFactory sslContextFactory = buildSslContextFactory();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
+        sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
+        sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
         sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
@@ -343,14 +345,11 @@ public class JettyHttpServer implements HttpServer {
                 2,
                 connectionFactories
         );
+
         connector.setPort(port);
-
         connector.addNetworkTrafficListener(listener);
-
         this.setJettySettings(jettySettings, connector);
-
         connector.setHost(bindAddress);
-
         return connector;
     }
 
@@ -362,11 +361,12 @@ public class JettyHttpServer implements HttpServer {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private ServletContextHandler addMockServiceContext(
-            final StubRequestHandler stubRequestHandler,
-            final FileSource fileSource,
-            final AsynchronousResponseSettings asynchronousResponseSettings,
-            final Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
-            final Notifier notifier
+            StubRequestHandler stubRequestHandler,
+            FileSource fileSource,
+            AsynchronousResponseSettings asynchronousResponseSettings,
+            Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
+            boolean stubCorsEnabled,
+            Notifier notifier
     ) {
         final ServletContextHandler mockServiceContext = new ServletContextHandler(this.jettyServer, "/");
 
@@ -400,12 +400,15 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setMimeTypes(mimeTypes);
         mockServiceContext.setWelcomeFiles(new String[]{"index.json", "index.html", "index.xml", "index.txt"});
 
-        mockServiceContext.setErrorHandler(new NotFoundHandler());
+        NotFoundHandler errorHandler = new NotFoundHandler(mockServiceContext);
+        mockServiceContext.setErrorHandler(errorHandler);
 
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
-        addCorsFilter(mockServiceContext);
+        if (stubCorsEnabled) {
+            addCorsFilter(mockServiceContext);
+        }
 
         return mockServiceContext;
     }

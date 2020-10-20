@@ -18,9 +18,19 @@ package com.github.tomakehurst.wiremock.common;
 import com.google.common.io.BaseEncoding;
 
 public class GuavaBase64Encoder implements Base64Encoder {
+
     @Override
     public String encode(byte[] content) {
-        return BaseEncoding.base64().encode(content);
+        return encode(content, true);
+    }
+
+    @Override
+    public String encode(byte[] content, boolean padding) {
+        BaseEncoding encoder = BaseEncoding.base64();
+        if (!padding) {
+            encoder = encoder.omitPadding();
+        }
+        return encoder.encode(content);
     }
 
     @Override

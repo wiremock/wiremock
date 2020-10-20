@@ -52,7 +52,7 @@ import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRe
 import static java.lang.System.lineSeparator;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
@@ -589,6 +589,14 @@ public class VerificationAcceptanceTest {
             testClient.patchWithBody("/patch/this", SAMPLE_JSON, "application/json");
             verify(patchRequestedFor(urlEqualTo("/patch/this"))
                     .withRequestBody(matching(".*\"importantKey\": \"Important value\".*")));
+        }
+
+        @Test
+        public void verifiesRequestsWithCountMatchingStrategy() {
+            testClient.get("/custom-match-this");
+            testClient.get("/custom-match-this");
+
+            wireMockServer.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
         }
 
         @Test

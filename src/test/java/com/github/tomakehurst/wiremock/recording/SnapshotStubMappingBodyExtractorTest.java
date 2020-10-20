@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class SnapshotStubMappingBodyExtractorTest {

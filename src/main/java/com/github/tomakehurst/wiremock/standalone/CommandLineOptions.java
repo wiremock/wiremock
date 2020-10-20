@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
@@ -36,6 +38,7 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
@@ -46,8 +49,13 @@ import joptsimple.OptionSet;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
@@ -68,8 +76,11 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
     private static final String HTTPS_KEYSTORE_PASSWORD = "keystore-password";
+    private static final String HTTPS_KEYSTORE_TYPE = "keystore-type";
+    private static final String HTTPS_KEY_MANAGER_PASSWORD = "key-manager-password";
     private static final String HTTPS_TRUSTSTORE = "https-truststore";
     private static final String HTTPS_TRUSTSTORE_PASSWORD = "truststore-password";
+    private static final String HTTPS_TRUSTSTORE_TYPE = "truststore-type";
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
@@ -95,7 +106,12 @@ public class CommandLineOptions implements Options {
     private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
     private static final String DISABLE_GZIP = "disable-gzip";
     private static final String DISABLE_REQUEST_LOGGING = "disable-request-logging";
-
+    private static final String ENABLE_STUB_CORS = "enable-stub-cors";
+    private static final String TRUST_ALL_PROXY_TARGETS = "trust-all-proxy-targets";
+    private static final String TRUST_PROXY_TARGET = "trust-proxy-target";
+    private static final String HTTPS_CA_KEYSTORE = "ca-keystore";
+    private static final String HTTPS_CA_KEYSTORE_PASSWORD = "ca-keystore-password";
+    private static final String HTTPS_CA_KEYSTORE_TYPE = "ca-keystore-type";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -113,9 +129,12 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
+        optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
         optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
+        optionParser.accepts(HTTPS_KEY_MANAGER_PASSWORD, "Key manager password for use with the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
@@ -145,8 +164,14 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of case-insensitive regular expressions for names of permitted system properties and environment vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
         optionParser.accepts(DISABLE_REQUEST_LOGGING, "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
+        optionParser.accepts(ENABLE_STUB_CORS, "Enable automatic sending of CORS headers with stub responses.");
+        optionParser.accepts(TRUST_ALL_PROXY_TARGETS, "Trust all certificates presented by origins when browser proxying").availableIf(ENABLE_BROWSER_PROXYING);
+        optionParser.accepts(TRUST_PROXY_TARGET, "Trust any certificate presented by this origin when browser proxying").availableIf(ENABLE_BROWSER_PROXYING).availableUnless(TRUST_ALL_PROXY_TARGETS).withRequiredArg();
+        optionParser.accepts(HTTPS_CA_KEYSTORE, "Path to an alternative keystore containing a Certificate Authority private key & certificate for generating certificates when proxying HTTPS. Password is assumed to be \"password\" if not specified.").availableIf(ENABLE_BROWSER_PROXYING).withRequiredArg().defaultsTo(DEFAULT_CA_KEYSTORE_PATH);
+        optionParser.accepts(HTTPS_CA_KEYSTORE_PASSWORD, "Password for the alternative CA keystore.").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo(DEFAULT_CA_KESTORE_PASSWORD);
+        optionParser.accepts(HTTPS_CA_KEYSTORE_TYPE, "Type of the alternative CA keystore (jks or pkcs12).").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo("jks");
 
-        optionParser.accepts(HELP, "Print this message");
+        optionParser.accepts(HELP, "Print this message").forHelp();
 
 		optionSet = optionParser.parse(args);
         validate();
@@ -164,9 +189,6 @@ public class CommandLineOptions implements Options {
         }
         if (!optionSet.has(HTTPS_PORT) && optionSet.has(DISABLE_HTTP)) {
             throw new IllegalArgumentException("HTTPS must be enabled if HTTP is not.");
-        }
-        if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
-            throw new IllegalArgumentException("HTTPS port number must be specified if specifying the keystore path");
         }
 
         if (optionSet.has(RECORD_MAPPINGS) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
@@ -265,8 +287,11 @@ public class CommandLineOptions implements Options {
                 .port(httpsPortNumber())
                 .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
                 .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
+                .keyStoreType((String) optionSet.valueOf(HTTPS_KEYSTORE_TYPE))
+                .keyManagerPassword((String) optionSet.valueOf(HTTPS_KEY_MANAGER_PASSWORD))
                 .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
                 .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
+                .trustStoreType((String) optionSet.valueOf(HTTPS_TRUSTSTORE_TYPE))
                 .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT)).build();
     }
 
@@ -390,9 +415,13 @@ public class CommandLineOptions implements Options {
         return new PlainTextStubNotMatchedRenderer();
     }
 
+    /**
+     * @deprecated use {@link BrowserProxySettings#enabled()}
+     */
+    @Deprecated
     @Override
     public boolean browserProxyingEnabled() {
-		return optionSet.has(ENABLE_BROWSER_PROXYING);
+		return browserProxySettings().enabled();
 	}
 
     @Override
@@ -478,7 +507,19 @@ public class CommandLineOptions implements Options {
                    .put(PRESERVE_HOST_HEADER, shouldPreserveHostHeader());
         }
 
-        builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
+        BrowserProxySettings browserProxySettings = browserProxySettings();
+
+        builder.put(ENABLE_BROWSER_PROXYING, browserProxySettings.enabled());
+        if (browserProxySettings.enabled()) {
+            KeyStoreSettings keyStoreSettings = browserProxySettings.caKeyStore();
+            builder.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
+            List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
+            if (!trustedProxyTargets.isEmpty()) {
+                builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
+            }
+            builder.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
+            builder.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());
+        }
 
         builder.put(DISABLE_BANNER, bannerDisabled());
 
@@ -551,6 +592,30 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getStubRequestLoggingDisabled() {
         return optionSet.has(DISABLE_REQUEST_LOGGING);
+    }
+
+    @Override
+    public boolean getStubCorsEnabled() {
+        return optionSet.has(ENABLE_STUB_CORS);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BrowserProxySettings browserProxySettings() {
+        KeyStoreSettings keyStoreSettings = new KeyStoreSettings(
+                KeyStoreSourceFactory.getAppropriateForJreVersion(
+                        (String) optionSet.valueOf(HTTPS_CA_KEYSTORE),
+                        (String) optionSet.valueOf(HTTPS_CA_KEYSTORE_TYPE),
+                        ((String) optionSet.valueOf(HTTPS_CA_KEYSTORE_PASSWORD)).toCharArray()
+                )
+        );
+
+        return new BrowserProxySettings.Builder()
+                .enabled(optionSet.has(ENABLE_BROWSER_PROXYING))
+                .trustAllProxyTargets(optionSet.has(TRUST_ALL_PROXY_TARGETS))
+                .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
+                .caKeyStoreSettings(keyStoreSettings)
+                .build();
     }
 
     private Long getMaxTemplateCacheEntries() {

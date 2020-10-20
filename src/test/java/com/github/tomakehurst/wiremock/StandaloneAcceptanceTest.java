@@ -55,7 +55,7 @@ import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 public class StandaloneAcceptanceTest {

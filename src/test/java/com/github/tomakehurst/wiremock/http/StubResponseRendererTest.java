@@ -32,7 +32,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class StubResponseRendererTest {

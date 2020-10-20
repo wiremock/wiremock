@@ -27,7 +27,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
 

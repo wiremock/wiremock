@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -28,10 +28,11 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.ByteArrayEntity;
 
+import javax.net.ssl.SSLException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
@@ -55,13 +57,25 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     );
 
     private final HttpClient client;
+    private final HttpClient scepticalClient;
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
     private final GlobalSettingsHolder globalSettingsHolder;
-	
-	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue, GlobalSettingsHolder globalSettingsHolder) {
+    private final boolean trustAllProxyTargets;
+
+    public ProxyResponseRenderer(
+        ProxySettings proxySettings,
+        KeyStoreSettings trustStoreSettings,
+        boolean preserveHostHeader,
+        String hostHeaderValue,
+        GlobalSettingsHolder globalSettingsHolder,
+        boolean trustAllProxyTargets,
+        List<String> trustedProxyTargets
+    ) {
         this.globalSettingsHolder = globalSettingsHolder;
-        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
+        this.trustAllProxyTargets = trustAllProxyTargets;
+        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
+        scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false, trustedProxyTargets);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
@@ -73,9 +87,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
         addRequestHeaders(httpRequest, responseDefinition);
 
-		try {
-			addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
-			HttpResponse httpResponse = client.execute(httpRequest);
+        addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
+        HttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
+        try {
+            HttpResponse httpResponse = client.execute(httpRequest);
 
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
@@ -90,13 +105,31 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                     )
                     .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
                     .build();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        } catch (SSLException e) {
+            return proxyResponseError("SSL", httpRequest, e);
+        } catch (IOException e) {
+            return proxyResponseError("Network", httpRequest, e);
+        }
 	}
 
+
+    private Response proxyResponseError(String type, HttpUriRequest request, Exception e) {
+        return response()
+                .status(HTTP_INTERNAL_ERROR)
+                .body((type + " failure trying to make a proxied request from WireMock to " + request.getURI()) + "\r\n" + e.getMessage())
+                .build();
+    }
+
+    private HttpClient buildClient(boolean browserProxyRequest) {
+	    if (browserProxyRequest && !trustAllProxyTargets) {
+            return scepticalClient;
+        } else {
+            return this.client;
+        }
+    }
+
     private HttpHeaders headersFrom(HttpResponse httpResponse, ResponseDefinition responseDefinition) {
-	    List<HttpHeader> httpHeaders = new LinkedList<HttpHeader>();
+	    List<HttpHeader> httpHeaders = new LinkedList<>();
 	    for (Header header : httpResponse.getAllHeaders()) {
 	        if (responseHeaderShouldBeTransferred(header.getName())) {
                 httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
@@ -151,7 +184,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         return !FORBIDDEN_HEADERS.contains(lowerCaseKey) && !lowerCaseKey.startsWith("access-control");
     }
 
-    private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
+    private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest();
 		if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
 			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;

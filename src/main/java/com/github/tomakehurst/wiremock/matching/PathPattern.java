@@ -48,6 +48,7 @@ public abstract class PathPattern extends StringValuePattern {
 
     protected abstract MatchResult isSimpleMatch(String value);
     protected abstract MatchResult isAdvancedMatch(String value);
+    public abstract String getExpressionResult(String value);
 
     @Override
     public boolean equals(Object o) {
@@ -60,6 +61,16 @@ public abstract class PathPattern extends StringValuePattern {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), getValuePattern());
+        return Objects.hash(super.hashCode(), valuePattern);
+    }
+
+    protected static class SubExpressionException extends RuntimeException {
+        public SubExpressionException(String message) {
+            super(message);
+        }
+
+        public SubExpressionException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

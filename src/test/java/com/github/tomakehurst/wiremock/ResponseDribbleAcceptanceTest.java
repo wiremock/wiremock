@@ -26,11 +26,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseDribbleAcceptanceTest {
 
@@ -38,6 +40,7 @@ public class ResponseDribbleAcceptanceTest {
     private static final int DOUBLE_THE_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 2;
 
     private static final byte[] BODY_BYTES = "the long sentence being sent".getBytes();
+    public static final double ERROR_MARGIN = 200.0;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(DYNAMIC_PORT, DYNAMIC_PORT);
@@ -45,8 +48,11 @@ public class ResponseDribbleAcceptanceTest {
     private HttpClient httpClient;
 
     @Before
-    public void init() {
+    public void init() throws IOException {
+        stubFor(get("/warmup").willReturn(ok()));
         httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        // Warm up the server
+        httpClient.execute(new HttpGet(String.format("http://localhost:%d/warmup", wireMockRule.port())));
     }
 
     @Test
@@ -64,7 +70,7 @@ public class ResponseDribbleAcceptanceTest {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
-        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 100.0));
+        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, ERROR_MARGIN));
     }
 
     @Test

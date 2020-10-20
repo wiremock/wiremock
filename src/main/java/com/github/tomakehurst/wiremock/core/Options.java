@@ -16,13 +16,13 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -49,7 +49,13 @@ public interface Options {
     HttpsSettings httpsSettings();
     JettySettings jettySettings();
     int containerThreads();
+
+    /**
+     * @deprecated use {@link BrowserProxySettings#enabled()}
+     */
+    @Deprecated
     boolean browserProxyingEnabled();
+    BrowserProxySettings browserProxySettings();
     ProxySettings proxyVia();
     FileSource filesRoot();
     MappingsLoader mappingsLoader();
@@ -72,4 +78,5 @@ public interface Options {
     ChunkedEncodingPolicy getChunkedEncodingPolicy();
     boolean getGzipDisabled();
     boolean getStubRequestLoggingDisabled();
+    boolean getStubCorsEnabled();
 }

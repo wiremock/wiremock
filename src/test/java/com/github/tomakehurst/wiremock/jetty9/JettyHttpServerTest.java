@@ -39,7 +39,7 @@ import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class JettyHttpServerTest {
@@ -80,7 +80,7 @@ public class JettyHttpServerTest {
 
     @Test
     public void testStopTimeoutNotSet() {
-        long expectedStopTimeout = 0L;
+        long expectedStopTimeout = 1000L;
         WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
         JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);

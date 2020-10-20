@@ -35,9 +35,8 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PlainTextDiffRendererTest {
 
@@ -199,8 +198,7 @@ public class PlainTextDiffRendererTest {
                     "      </thing>\n" +
                     "    </thing>\n" +
                     "  </thing>\n" +
-                    "</deep-things>")
-        );
+                    "</deep-things>"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -216,8 +214,7 @@ public class PlainTextDiffRendererTest {
             .build(),
             mockRequest()
                 .method(POST)
-                .url("/thing")
-        );
+                .url("/thing"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -246,8 +243,7 @@ public class PlainTextDiffRendererTest {
                     "      }\n" +
                     "    }\n" +
                     "  }\n" +
-                    "}"))
-        );
+                    "}")));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -257,13 +253,31 @@ public class PlainTextDiffRendererTest {
     }
 
     @Test
+    public void showsXPathWithSubMatchMismatch() {
+        Diff diff = new Diff(post("/thing")
+                .withRequestBody(matchingXPath("//thing/text()", equalTo("two")))
+                .build(),
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+                        .body("<stuff>\n" +
+                              "    <thing>one</thing>\n" +
+                              "</stuff>"));
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        String expected = file("not-found-diff-sample_xpath-with-submatch.txt");
+        assertThat(output, equalsMultiLine(expected));
+    }
+
+    @Test
     public void showsUrlRegexUnescapedMessage() {
         Diff diff = new Diff(get(urlMatching("thing?query=value"))
             .build(),
             mockRequest()
                 .method(GET)
-                .url("/thing")
-        );
+                .url("/thing"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -299,8 +313,7 @@ public class PlainTextDiffRendererTest {
                 .part(mockPart()
                     .name("part_two")
                     .body("Correct body")
-                )
-        );
+                ));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -320,8 +333,7 @@ public class PlainTextDiffRendererTest {
             mockRequest()
                 .method(POST)
                 .url("/thing")
-                .body("Non-multipart body")
-        );
+                .body("Non-multipart body"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -343,8 +355,7 @@ public class PlainTextDiffRendererTest {
 
                 mockRequest()
                         .method(POST)
-                        .url("/thing")
-        );
+                        .url("/thing"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -361,8 +372,7 @@ public class PlainTextDiffRendererTest {
 
                 mockRequest()
                         .method(POST)
-                        .url("/thing")
-        );
+                        .url("/thing"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
@@ -382,15 +392,13 @@ public class PlainTextDiffRendererTest {
 
                 mockRequest()
                         .method(POST)
-                        .url("/thing")
-        );
+                        .url("/thing"));
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_only-custom_matcher.txt")));
     }
-
 
     @Test
     public void handlesUrlsWithQueryStringAndNoPath() {
@@ -404,8 +412,6 @@ public class PlainTextDiffRendererTest {
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
-
-        assertThat(output, equalsMultiLine(file("not-found-diff-sample_no-path.txt")));
     }
 
     public static class MyCustomMatcher extends RequestMatcherExtension {

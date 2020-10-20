@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.common.ssl;
 
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class KeyStoreSettingsTest {
 
     @Test
     public void loadsTrustStoreFromClasspath() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD);
+        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jks");
 
         KeyStore keyStore = trustStoreSettings.loadStore();
         assertNotNull(keyStore);
@@ -34,7 +34,7 @@ public class KeyStoreSettingsTest {
 
     @Test
     public void loadsTrustStoreFromFilesystem() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD, "jks");
 
         KeyStore keyStore = trustStoreSettings.loadStore();
         assertNotNull(keyStore);
@@ -42,7 +42,7 @@ public class KeyStoreSettingsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failsWhenTrustStoreNotFound() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings("test-unknownstore", "");
+        KeyStoreSettings trustStoreSettings = new KeyStoreSettings("test-unknownstore", "", "jks");
         trustStoreSettings.loadStore();
     }
 

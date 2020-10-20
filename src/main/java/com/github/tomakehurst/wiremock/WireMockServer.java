@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
@@ -61,7 +62,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     private final HttpServer httpServer;
     private final Notifier notifier;
 
-    private final Options options;
+    protected final Options options;
 
     protected final WireMock client;
 
@@ -271,6 +272,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void verify(final int count, final RequestPatternBuilder requestPatternBuilder) {
         this.client.verifyThat(count, requestPatternBuilder);
+    }
+
+    @Override
+    public void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
+        client.verifyThat(countMatchingStrategy, requestPatternBuilder);
     }
 
     @Override

@@ -55,7 +55,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ProxyAcceptanceTest {
 
@@ -71,14 +71,17 @@ public class ProxyAcceptanceTest {
     WireMockTestClient testClient;
 
 	void init(WireMockConfiguration proxyingServiceOptions) {
-		targetService = new WireMockServer(wireMockConfig().dynamicPort().dynamicHttpsPort());
+		targetService = new WireMockServer(wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .bindAddress("127.0.0.1").stubCorsEnabled(true));
 		targetService.start();
 		targetServiceAdmin = WireMock.create().host("localhost").port(targetService.port()).build();
 
         targetServiceBaseUrl = "http://localhost:" + targetService.port();
         targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
 
-        proxyingServiceOptions.dynamicPort();
+        proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
         proxyingServiceAdmin = WireMock.create().port(proxyingService.port()).build();
@@ -487,12 +490,14 @@ public class ProxyAcceptanceTest {
         proxyingServiceAdmin.register(any(anyUrl())
                 .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-        targetServiceAdmin.register(any(urlPathEqualTo("/cors")).willReturn(ok()));
+        targetServiceAdmin.register(any(urlPathEqualTo("/cors"))
+                .withName("Target with CORS")
+                .willReturn(ok()));
 
         WireMockResponse response = testClient.get("/cors", withHeader("Origin", "http://somewhere.com"));
 
         Collection<String> allowOriginHeaderValues = response.headers().get("Access-Control-Allow-Origin");
-        assertThat(allowOriginHeaderValues.size(), is(1));
+        assertThat(allowOriginHeaderValues.size(), is(0));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

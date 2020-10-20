@@ -38,7 +38,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasFileContaining;
 import static com.google.common.base.Charsets.UTF_8;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StubMappingPersistenceAcceptanceTest {
 

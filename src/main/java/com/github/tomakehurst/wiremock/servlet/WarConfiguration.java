@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -36,6 +37,8 @@ import javax.servlet.ServletContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 public class WarConfiguration implements Options {
 
@@ -124,7 +127,7 @@ public class WarConfiguration implements Options {
 
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
@@ -190,5 +193,15 @@ public class WarConfiguration implements Options {
     @Override
     public boolean getStubRequestLoggingDisabled() {
         return false;
+    }
+
+    @Override
+    public boolean getStubCorsEnabled() {
+        return false;
+    }
+
+    @Override
+    public BrowserProxySettings browserProxySettings() {
+        return BrowserProxySettings.DISABLED;
     }
 }

@@ -4,15 +4,31 @@ shadowJar.baseName = 'wiremock-jre8-standalone'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-final jettyVersion = '9.4.20.v20190813'
+final jettyVersion = '9.4.30.v20200611'
 
 dependencies {
     compile "org.eclipse.jetty.http2:http2-server:$jettyVersion"
     compile "org.eclipse.jetty:jetty-alpn-server:$jettyVersion"
-    compile "org.eclipse.jetty:jetty-alpn-conscrypt-server:$jettyVersion"
-    compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-alpn-conscrypt-server:$jettyVersion", {
+        exclude group: 'org.conscrypt'
+    }
+    compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$jettyVersion", {
+        exclude group: 'org.conscrypt'
+    }
+    compile 'org.conscrypt:conscrypt-openjdk-uber:2.2.1'
     compile 'net.javacrumbs.json-unit:json-unit-core:2.12.0'
 
     testCompile "org.eclipse.jetty:jetty-client:$jettyVersion"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$jettyVersion"
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+
+    // silences warnings about compiling against `sun` packages
+    options.compilerArgs += '-XDenableSunApiLintControl'
+}
+
+javadoc {
+    exclude "**/CertificateAuthority.java"
 }
