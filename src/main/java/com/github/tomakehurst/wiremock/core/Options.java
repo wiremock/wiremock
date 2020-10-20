@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
@@ -40,14 +41,21 @@ public interface Options {
 
     int DEFAULT_PORT = 8080;
     int DYNAMIC_PORT = 0;
-    int DEFAULT_CONTAINER_THREADS = 10;
+    int DEFAULT_CONTAINER_THREADS = 14;
     String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
+    boolean getHttpDisabled();
     HttpsSettings httpsSettings();
     JettySettings jettySettings();
     int containerThreads();
+
+    /**
+     * @deprecated use {@link BrowserProxySettings#enabled()}
+     */
+    @Deprecated
     boolean browserProxyingEnabled();
+    BrowserProxySettings browserProxySettings();
     ProxySettings proxyVia();
     FileSource filesRoot();
     MappingsLoader mappingsLoader();
@@ -69,4 +77,6 @@ public interface Options {
     AsynchronousResponseSettings getAsynchronousResponseSettings();
     ChunkedEncodingPolicy getChunkedEncodingPolicy();
     boolean getGzipDisabled();
+    boolean getStubRequestLoggingDisabled();
+    boolean getStubCorsEnabled();
 }

@@ -29,7 +29,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class MatchesXPathPatternTest {
@@ -88,12 +88,22 @@ public class MatchesXPathPatternTest {
     }
 
     @Test
-    public void matchesNamespacedXmlExactly() {
+    public void matchesNamespacedXmlWhenNamespacesSpecified() {
         String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
         StringValuePattern pattern = WireMock.matchingXPath(
-            "//s:subThing[.='The stuff']",
-            ImmutableMap.of("s", "http://subthings", "t", "http://things"));
+            "//sub:subThing[.='The stuff']",
+            ImmutableMap.of("sub", "http://subthings", "t", "http://things"));
+
+        MatchResult match = pattern.match(xml);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesNamespacedXmlFromLocalNames() {
+        String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("/thing/subThing[.='The stuff']");
 
         MatchResult match = pattern.match(xml);
         assertTrue(match.isExactMatch());

@@ -26,6 +26,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
@@ -35,10 +36,14 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 
+import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -101,13 +106,19 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse getViaProxy(String url, int proxyPort) {
+        return getViaProxy(url, proxyPort, HttpHost.DEFAULT_SCHEME_NAME);
+    }
+
+    public WireMockResponse getViaProxy(String url, int proxyPort, String scheme) {
         URI targetUri = URI.create(url);
-        HttpHost proxy = new HttpHost(address, proxyPort, targetUri.getScheme());
+        HttpHost proxy = new HttpHost(address, proxyPort, scheme);
         HttpClient httpClientUsingProxy = HttpClientBuilder.create()
             .disableAuthCaching()
             .disableAutomaticRetries()
             .disableCookieManagement()
             .disableRedirectHandling()
+            .setSSLContext(buildTrustWireMockDefaultCertificateSSLContext())
+            .setSSLHostnameVerifier(new NoopHostnameVerifier())
             .setProxy(proxy)
             .build();
 
@@ -315,5 +326,20 @@ public class WireMockTestClient {
         return HttpClients.custom()
             .setDefaultCredentialsProvider(credsProvider)
             .build();
+    }
+
+    private static SSLContext buildTrustWireMockDefaultCertificateSSLContext() {
+        try {
+            return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) {
+                    return chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst") ||
+                            chain[0].getSubjectDN().getName().equals("CN=WireMock Local Self Signed Root Certificate") ||
+                            chain.length == 2 && chain[1].getSubjectDN().getName().equals("CN=WireMock Local Self Signed Root Certificate");
+                }
+            }).build();
+        } catch (Exception e) {
+            return throwUnchecked(e, SSLContext.class);
+        }
     }
 }

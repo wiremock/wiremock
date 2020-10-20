@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
@@ -27,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -34,18 +37,15 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsJsonPathHelper helper;
-    private ResponseTemplateTransformer transformer;
 
     @Before
     public void init() {
         helper = new HandlebarsJsonPathHelper();
-        transformer = new ResponseTemplateTransformer(true);
-
         LocalNotifier.set(new ConsoleNotifier(true));
     }
 
@@ -96,8 +96,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                     "    ]\n" +
                     "}"),
             aResponse()
-                .withBody("" +
-                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
+                .withBody("{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
                 .build(),
             noFileSource(),
             Parameters.empty());
@@ -228,4 +227,54 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
         assertThat(responseDefinition.getBody(), is("abc"));
     }
+
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments() throws Exception {
+        String one = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
+        String two = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
+
+        assertThat(one, is("one"));
+        assertThat(two, is("one"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments() throws Exception {
+        String one = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
+        String two = renderHelperValue(helper, "{\"test\": \"two\"}", "$.test");
+
+        assertThat(one, is("one"));
+        assertThat(two, is("two"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+        int one = renderHelperValue(helper, "{\n" +
+                "  \"test\": {\n" +
+                "    \"one\": 1,\n" +
+                "    \"two\": 2\n" +
+                "  }\n" +
+                "}", "$.test.one");
+        int two = renderHelperValue(helper, "{\n" +
+                "  \"test\": {\n" +
+                "    \"one\": 1,\n" +
+                "    \"two\": 2\n" +
+                "  }\n" +
+                "}", "$.test.two");
+
+        assertThat(one, is(1));
+        assertThat(two, is(2));
+    }
+
+    @Test
+    public void helperCanBeCalledDirectlyWithoutSupplyingRenderCache() throws Exception {
+        Context context = Context.newBuilder(null).build();
+        Options options = new Options(null, null, null, context, null, null,
+                new Object[] { "$.stuff" }, null, new ArrayList<String>(0));
+
+        Object result = helper.apply("{\"stuff\":1}", options);
+
+        assertThat(result, instanceOf(Integer.class));
+        assertThat((Integer) result, is(1));
+    }
+
 }

@@ -152,7 +152,7 @@ the Java API, JSON over HTTP or JSON files.
 This will start the server on port 8080:
 
 You can [download the standalone JAR from
-here](http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar).
+here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar).
 
 See [Running as a Standalone Process](/docs/running-standalone/) running-standalone for more details and commandline options.
 

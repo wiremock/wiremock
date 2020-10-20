@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RequestFilterAcceptanceTest {
 
@@ -131,6 +132,20 @@ public class RequestFilterAcceptanceTest {
 
         WireMockResponse admin = client.get(adminUrl);
         assertThat(admin.statusCode(), is(401));
+    }
+
+    @Test
+    public void wrappedRequestsAreUsedWhenProxying() {
+        WireMockServer proxyTarget = new WireMockServer(wireMockConfig().dynamicPort());
+        proxyTarget.start();
+        initialise(new PathModifyingStubFilter());
+
+        wm.stubFor(get(anyUrl()).willReturn(aResponse().proxiedFrom("http://localhost:" + proxyTarget.port())));
+        proxyTarget.stubFor(get("/prefix/subpath/item").willReturn(ok("From the proxy")));
+
+        assertThat(client.get("/subpath/item").content(), is("From the proxy"));
+
+        proxyTarget.stop();
     }
 
     @Before
@@ -262,6 +277,27 @@ public class RequestFilterAcceptanceTest {
         @Override
         public String getName() {
             return "both-authenticator";
+        }
+    }
+
+    public static class PathModifyingStubFilter extends StubRequestFilter {
+
+        @Override
+        public RequestFilterAction filter(Request request) {
+            Request wrappedRequest = RequestWrapper.create().transformAbsoluteUrl(new FieldTransformer<String>() {
+                @Override
+                public String transform(String url) {
+                    return url.replace("/subpath", "/prefix/subpath");
+                }
+            })
+            .wrap(request);
+
+            return RequestFilterAction.continueWith(wrappedRequest);
+        }
+
+        @Override
+        public String getName() {
+            return "path-mod-filter";
         }
     }
 

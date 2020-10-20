@@ -30,7 +30,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.withName;
 import static com.google.common.collect.Iterables.find;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 

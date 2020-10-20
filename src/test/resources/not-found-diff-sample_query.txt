@@ -9,7 +9,7 @@
 Query params diff                                          |
                                                            |
 GET                                                        | GET
-/thing                                                     | /thing?one=2&two=wrong%20things&three=abcde
+[path] /thing                                              | /thing?one=2&two=wrong%20things&three=abcde
                                                            |
 Query: one = 1                                             | one: 2                                              <<<<< Query does not match
 Query: two [contains] two things                           | two: wrong things                                   <<<<< Query does not match

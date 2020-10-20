@@ -16,11 +16,11 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
@@ -59,17 +59,19 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 public class HttpsAcceptanceTest {
 
     private WireMockServer wireMockServer;
     private WireMockServer proxy;
     private HttpClient httpClient;
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @After
     public void serverShutdown() {
@@ -87,6 +89,24 @@ public class HttpsAcceptanceTest {
         startServerWithDefaultKeystore();
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
+        assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+    }
+
+    @Test
+    public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
+        // HTTP
+        exceptionRule.expect(IllegalStateException.class);
+        exceptionRule.expectMessage("Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped.");
+        // HTTPS
+        WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
+        httpClient = HttpClientFactory.createClient();
+
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        wireMockServer.port();
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
     }
 
@@ -156,11 +176,31 @@ public class HttpsAcceptanceTest {
 
     @Test
     public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
-        String keystorePath = Resources.getResource("test-keystore-pwd").toString();
-        startServerWithKeystore(keystorePath, "anotherpassword");
+        String testKeystorePath = Resources.getResource("test-keystore-pwd").toString();
+        startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+    }
+
+    @Test
+    public void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
+        String keystorePath = Resources.getResource("test-keystore-key-man-pwd").toString();
+        startServerWithKeystore(keystorePath, "password", "anotherpassword");
         stubFor(get(urlEqualTo("/alt-password-https")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
+    }
+
+    @Test
+    public void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
+        try {
+            String keystorePath = Resources.getResource("test-keystore-key-man-pwd").toString();
+            startServerWithKeystore(keystorePath, "password", "wrongpassword");
+            fail("Expected a SocketException or SSLHandshakeException to be thrown");
+        } catch (Exception e) {
+            assertThat(e.getClass().getName(), is(FatalStartupException.class.getName()));
+        }
     }
 
     @Test
@@ -275,11 +315,12 @@ public class HttpsAcceptanceTest {
         httpClient = HttpClientFactory.createClient();
     }
 
-    private void startServerWithKeystore(String keystorePath, String keystorePassword) {
+    private void startServerWithKeystore(String keystorePath, String keystorePassword, String keyManagerPassword) {
         WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
         if (keystorePath != null) {
-            config.keystorePath(keystorePath);
-            config.keystorePassword(keystorePassword);
+            config.keystorePath(keystorePath)
+                .keystorePassword(keystorePassword)
+                .keyManagerPassword(keyManagerPassword);
         }
 
         wireMockServer = new WireMockServer(config);
@@ -290,7 +331,7 @@ public class HttpsAcceptanceTest {
     }
 
     private void startServerWithKeystore(String keystorePath) {
-        startServerWithKeystore(keystorePath, "password");
+        startServerWithKeystore(keystorePath, "password", "password");
     }
 
     private void startServerWithDefaultKeystore() {
@@ -325,11 +366,8 @@ public class HttpsAcceptanceTest {
 
     static KeyStore readKeyStore(String path, String password) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
-        FileInputStream instream = new FileInputStream(path);
-        try {
+        try (FileInputStream instream = new FileInputStream(path)) {
             trustStore.load(instream, password.toCharArray());
-        } finally {
-            instream.close();
         }
         return trustStore;
     }

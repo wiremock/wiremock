@@ -19,8 +19,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AbsentPattern extends StringValuePattern {
 
+    public static final AbsentPattern ABSENT = new AbsentPattern(null);
+
     public AbsentPattern(@JsonProperty("absent") String expectedValue) {
         super(expectedValue);
+    }
+
+    @Override
+    public boolean nullSafeIsAbsent() {
+        return true;
     }
 
     @Override
@@ -31,5 +38,10 @@ public class AbsentPattern extends StringValuePattern {
     @Override
     public String getExpected() {
         return "(absent)";
+    }
+
+    @Override
+    protected boolean isNullValuePermitted() {
+        return true;
     }
 }

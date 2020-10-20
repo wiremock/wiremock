@@ -192,16 +192,16 @@ public class WireMock {
         return new MatchesJsonPathPattern(value, valuePattern);
     }
 
-    public static StringValuePattern equalToXml(String value) {
+    public static EqualToXmlPattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
-        return new EqualToXmlPattern(value, enablePlaceholders, null, null);
+        return new EqualToXmlPattern(value, enablePlaceholders, null, null, null);
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders, String placeholderOpeningDelimiterRegex, String placeholderClosingDelimiterRegex) {
-	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex, null);
     }
 
     public static MatchesXPathPattern matchingXPath(String value) {
@@ -229,7 +229,7 @@ public class WireMock {
     }
 
     public static StringValuePattern absent() {
-        return StringValuePattern.ABSENT;
+        return AbsentPattern.ABSENT;
     }
 
     public void saveMappings() {
@@ -579,6 +579,30 @@ public class WireMock {
 
     public List<ServeEvent> getServeEvents() {
         return admin.getServeEvents().getRequests();
+    }
+
+    public static void removeServeEvent(UUID eventId) {
+	    defaultInstance.get().removeEvent(eventId);
+    }
+
+    public void removeEvent(UUID eventId) {
+	    admin.removeServeEvent(eventId);
+    }
+
+    public List<ServeEvent> removeEvents(RequestPatternBuilder requestPatternBuilder) {
+        return admin.removeServeEventsMatching(requestPatternBuilder.build()).getServeEvents();
+    }
+
+    public static List<ServeEvent> removeServeEvents(RequestPatternBuilder requestPatternBuilder) {
+	    return defaultInstance.get().removeEvents(requestPatternBuilder);
+    }
+
+    public static List<ServeEvent> removeEventsByStubMetadata(StringValuePattern pattern) {
+	    return defaultInstance.get().removeEventsByMetadata(pattern);
+    }
+
+    public List<ServeEvent> removeEventsByMetadata(StringValuePattern pattern) {
+	    return admin.removeServeEventsForStubsMatchingMetadata(pattern).getServeEvents();
     }
 
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {

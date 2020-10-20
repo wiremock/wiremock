@@ -80,17 +80,29 @@ public class MatchesJsonPathPattern extends PathPattern {
 
             return MatchResult.noMatch();
         }
-
     }
 
     protected MatchResult isAdvancedMatch(String value) {
-        // For performance reason, don't try to parse XML value
-        if (value != null && value.trim().startsWith("<")) {
-            notifier().info(String.format(
-                    "Warning: JSON path expression '%s' failed to match document '%s' because it's not JSON document",
-                    expectedValue, value));
+        try {
+            String expressionResult = getExpressionResult(value);
+            return valuePattern.match(expressionResult);
+        } catch (SubExpressionException e) {
+            notifier().info(e.getMessage());
             return MatchResult.noMatch();
         }
+    }
+
+    @Override
+    public String getExpressionResult(final String value) {
+        // For performance reason, don't try to parse XML value
+        if (value != null && value.trim().startsWith("<")) {
+            final String message = String.format(
+                    "Warning: JSON path expression '%s' failed to match document '%s' because it's not JSON document",
+                    expectedValue, value);
+            notifier().info(message);
+            throw new SubExpressionException(message);
+        }
+
         Object obj = null;
         try {
             obj = JsonPath.read(value, expectedValue);
@@ -104,21 +116,21 @@ public class MatchesJsonPathPattern extends PathPattern {
             }
 
             String message = String.format(
-                "Warning: JSON path expression '%s' failed to match document '%s' because %s",
-                expectedValue, value, error);
-            notifier().info(message);
+                    "Warning: JSON path expression '%s' failed to match document '%s' because %s",
+                    expectedValue, value, error);
 
-            return MatchResult.noMatch();
+            throw new SubExpressionException(message, e);
         }
 
+        String expressionResult;
         if (obj instanceof Number || obj instanceof String || obj instanceof Boolean) {
-            value = String.valueOf(obj);
+            expressionResult = String.valueOf(obj);
         } else if (obj instanceof Map || obj instanceof Collection) {
-            value = Json.write(obj);
+            expressionResult = Json.write(obj);
         } else {
-            value = null;
+            expressionResult = null;
         }
 
-        return valuePattern.match(value);
+        return expressionResult;
     }
 }

@@ -41,7 +41,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.find;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 

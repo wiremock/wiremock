@@ -23,12 +23,12 @@
     </ul>
     <span id="wmRecordingIndicator" class="navbar-text text-danger font-weight-bold blinkMe"
           *ngIf="currentRecordingStatus === RecordingStatus.Recording"><fa-icon icon="dot-circle"></fa-icon> Recording</span>
-    <div ngbDropdown placement="bottom-right" class="nav-item dropdown">
+    <div ngbDropdown placement="bottom-right" class="nav-item dropdown" display="dynamic">
       <a id="wmSettings" class="nav-link dropdown-toggle" ngbDropdownToggle>
         <fa-icon icon="cog"></fa-icon>
         Settings
       </a>
-      <div ngbDropdownMenu class="dropdown-menu">
+      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-right">
         <button type="button" class="dropdown-item" (click)="resetAll()">
           <fa-icon icon="trash"></fa-icon>
           Reset all

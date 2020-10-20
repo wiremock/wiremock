@@ -107,6 +107,11 @@ public class ResponseDefinitionBuilder {
         return this;
     }
 
+    public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
+        this.jsonBody = jsonBody;
+        return this;
+    }
+
     public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
         this.fixedDelayMilliseconds = milliseconds;
         return this;
@@ -132,6 +137,11 @@ public class ResponseDefinitionBuilder {
 
     public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
         this.responseTransformerNames = asList(responseTransformerNames);
+        return this;
+    }
+
+    public ResponseDefinitionBuilder withTransformerParameters(Map<String, Object> parameters) {
+        transformerParameters.putAll(parameters);
         return this;
     }
 

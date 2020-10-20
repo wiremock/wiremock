@@ -21,35 +21,38 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
+import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.forCustomMatcher;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findServeEventWithUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
@@ -589,6 +592,14 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
+        public void verifiesRequestsWithCountMatchingStrategy() {
+            testClient.get("/custom-match-this");
+            testClient.get("/custom-match-this");
+
+            wireMockServer.verify(exactly(2), getRequestedFor(urlEqualTo("/custom-match-this")));
+        }
+
+        @Test
         public void verifiesRequestsViaCustomMatcher() {
             testClient.get("/custom-match-this");
             testClient.get("/custom-match-that");
@@ -643,6 +654,108 @@ public class VerificationAcceptanceTest {
                     return MatchResult.of(request.getUrl().equals("/custom-verify"));
                 }
             }));
+        }
+
+        @Test
+        public void removesEventsById() {
+            stubFor(get(anyUrl()).willReturn(ok()));
+
+            testClient.get("/one", withHeader("My-Header", "one"));
+            testClient.get("/one", withHeader("My-Header", "two"));
+            testClient.get("/two");
+
+            List<ServeEvent> initialServeEvents = getAllServeEvents();
+            assertThat(initialServeEvents.size(), is(3));
+
+            removeServeEvent(initialServeEvents.get(0).getId());
+            removeServeEvent(initialServeEvents.get(2).getId());
+
+            List<ServeEvent> finalServeEvents = getAllServeEvents();
+
+            assertThat(finalServeEvents.size(), is(1));
+            assertThat(finalServeEvents.get(0).getRequest().header("My-Header").firstValue(), is("two"));
+        }
+
+        @Test
+        public void doesNothingWhenAttemptingToRemoveANonExistentServeEvent() {
+            stubFor(get(anyUrl()).willReturn(ok()));
+
+            testClient.get("/one", withHeader("My-Header", "one"));
+            testClient.get("/one", withHeader("My-Header", "two"));
+            testClient.get("/two");
+
+            List<ServeEvent> initialServeEvents = getAllServeEvents();
+            assertThat(initialServeEvents.size(), is(3));
+
+            removeServeEvent(UUID.randomUUID());
+
+            List<ServeEvent> finalServeEvents = getAllServeEvents();
+
+            assertThat(finalServeEvents.size(), is(3));
+        }
+
+        @Test
+        public void removesEventsPerSuppliedFilter() {
+            stubFor(get(anyUrl()).willReturn(ok()));
+
+            testClient.get("/one", withHeader("My-Header", "one"));
+            testClient.get("/one", withHeader("My-Header", "two"));
+            testClient.get("/two");
+
+            List<ServeEvent> removedEvents = removeServeEvents(
+                    getRequestedFor(urlPathEqualTo("/one")).withHeader("My-Header", equalTo("two"))
+            );
+
+            assertThat(removedEvents.size(), is(1));
+            assertThat(removedEvents.get(0).getRequest().header("My-Header").firstValue(), is("two"));
+
+            List<ServeEvent> serveEvents = getAllServeEvents();
+            assertThat(serveEvents.size(), is(2));
+
+            ServeEvent event1 = findServeEventWithUrl(serveEvents, "/one");
+            assertThat(event1.getRequest().header("My-Header").firstValue(), is("one"));
+
+            ServeEvent event2 = findServeEventWithUrl(serveEvents, "/two");
+            assertThat(event2, notNullValue());
+        }
+
+        @Test
+        public void returnsEmptyListWhenNoEventsMatchedForRemoval() {
+            stubFor(get(anyUrl()).willReturn(ok()));
+
+            testClient.get("/one", withHeader("My-Header", "one"));
+            testClient.get("/one", withHeader("My-Header", "two"));
+            testClient.get("/two");
+
+            List<ServeEvent> removedEvents = removeServeEvents(
+                    getRequestedFor(urlPathEqualTo("/one")).withHeader("My-Header", equalTo("wrong"))
+            );
+
+            assertThat(removedEvents.size(), is(0));
+
+            List<ServeEvent> serveEvents = getAllServeEvents();
+            assertThat(serveEvents.size(), is(3));
+        }
+
+        @Test
+        public void removesEventsAssociatedWithStubsMatchingMetadata() {
+            stubFor(get("/with-metadata")
+                .withMetadata(metadata()
+                    .list("tags", "delete-me")
+                ));
+            stubFor(get("/without-metadata"));
+
+            testClient.get("/with-metadata");
+            testClient.get("/without-metadata");
+
+            List<ServeEvent> removedServeEvents = removeEventsByStubMetadata(matchingJsonPath("$.tags[0]", equalTo("delete-me")));
+
+            assertThat(removedServeEvents.size(), is(1));
+            assertThat(removedServeEvents.get(0).getRequest().getUrl(), is("/with-metadata"));
+
+            List<ServeEvent> serveEvents = getAllServeEvents();
+            assertThat(serveEvents.size(), is(1));
+            assertThat(serveEvents.get(0).getRequest().getUrl(), is("/without-metadata"));
         }
 
     }

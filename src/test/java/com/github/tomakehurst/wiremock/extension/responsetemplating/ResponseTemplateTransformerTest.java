@@ -24,18 +24,23 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseTemplateTransformerTest {
 
@@ -85,6 +90,21 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is(
             "Request ID: req-id-1234, Awkward named header: foundit"
+        ));
+    }
+
+    @Test
+    public void requestHeadersCaseInsensitive() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .header("Case-KEY-123", "foundit"),
+            aResponse().withBody(
+                "Case key header: {{request.headers.case-key-123}}, With brackets: {{request.headers.[case-key-123]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), CoreMatchers.is(
+            "Case key header: foundit, With brackets: foundit"
         ));
     }
 
@@ -307,16 +327,24 @@ public class ResponseTemplateTransformerTest {
     
 
     @Test
-    public void proxyBaseUrl() {
+    public void proxyBaseUrlWithAdditionalRequestHeader() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
                 .header("X-WM-Uri", "http://localhost:8000"),
             aResponse().proxiedFrom("{{request.headers.X-WM-Uri}}")
+                .withAdditionalRequestHeader("X-Origin-Url", "{{request.url}}")
         );
 
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
         ));
+        assertNotNull(transformedResponseDef.getAdditionalProxyRequestHeaders());
+        assertThat(transformedResponseDef
+                        .getAdditionalProxyRequestHeaders()
+                        .getHeader("X-Origin-Url")
+                        .firstValue(),
+                is("/things")
+        );
     }
 
     @Test
@@ -441,7 +469,24 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path: {{{request.requestLine.path}}}"
+                "path: {{{request.path}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path: /the/entire/path"
+        ));
+    }
+
+    @Test
+    public void requestLineUrl() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path: {{{request.url}}}"
             )
         );
 
@@ -458,7 +503,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -475,7 +520,7 @@ public class ResponseTemplateTransformerTest {
                 .port(80)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -492,7 +537,7 @@ public class ResponseTemplateTransformerTest {
                 .port(443)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -509,7 +554,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path segments: {{{request.requestLine.pathSegments}}}"
+                "path segments: {{{request.pathSegments}}}"
             )
         );
 
@@ -526,7 +571,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path segments 0: {{{request.requestLine.pathSegments.[0]}}}"
+                "path segments 0: {{{request.pathSegments.[0]}}}"
             )
         );
 
@@ -540,7 +585,7 @@ public class ResponseTemplateTransformerTest {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things?multi_param=one&multi_param=two&single-param=1234"),
             aResponse().withBody(
-                "Multi 1: {{request.requestLine.query.multi_param.[0]}}, Multi 2: {{request.requestLine.query.multi_param.[1]}}, Single 1: {{request.requestLine.query.single-param}}"
+                "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"
             )
         );
 
@@ -581,8 +626,20 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void base64EncodeValueWithoutPadding() {
+        String body = transform("{{{base64 'hello' padding=false}}}");
+        assertThat(body, is("aGVsbG8"));
+    }
+
+    @Test
     public void base64DecodeValue() {
         String body = transform("{{{base64 'aGVsbG8=' decode=true}}}");
+        assertThat(body, is("hello"));
+    }
+
+    @Test
+    public void base64DecodeValueWithoutPadding() {
+        String body = transform("{{{base64 'aGVsbG8' decode=true}}}");
         assertThat(body, is("hello"));
     }
 
@@ -694,6 +751,45 @@ public class ResponseTemplateTransformerTest {
                 .getBody();
 
         assertThat(body, is("3"));
+    }
+
+    @Test
+    public void picksRandomElementFromLiteralList() {
+        Set<String> bodyValues = new HashSet<>();
+        for (int i = 0; i < 30; i++) {
+            String body = transform("{{{pickRandom '1' '2' '3'}}}");
+            bodyValues.add(body);
+        }
+
+        assertThat(bodyValues, hasItem("1"));
+        assertThat(bodyValues, hasItem("2"));
+        assertThat(bodyValues, hasItem("3"));
+    }
+
+    @Test
+    public void picksRandomElementFromListVariable() {
+        String body = transform("{{{pickRandom (jsonPath request.body '$.names')}}}", "{ \"names\": [\"Rob\", \"Tom\", \"Gus\"] }");
+        assertThat(body, anyOf(is("Gus"), is("Tom"), is("Rob")));
+    }
+
+    @Test
+    public void squareBracketedRequestParameters1() {
+        String body = transform(
+                mockRequest().url("/stuff?things[1]=one&things[2]=two&things[3]=three"),
+                ok("{{lookup request.query 'things[2]'}}"))
+                .getBody();
+
+        assertThat(body, is("two"));
+    }
+
+    @Test
+    public void squareBracketedRequestParameters2() {
+        String body = transform(
+                mockRequest().url("/stuff?filter[order_id]=123"),
+                ok("Order ID: {{lookup request.query 'filter[order_id]'}}"))
+                .getBody();
+
+        assertThat(body, is("Order ID: 123"));
     }
 
     @Test

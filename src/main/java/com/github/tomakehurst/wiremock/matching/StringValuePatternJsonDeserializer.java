@@ -25,12 +25,15 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import org.xmlunit.diff.ComparisonType;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.tryFind;
@@ -50,6 +53,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
             .put("anything", AnythingPattern.class)
+            .put("absent", AbsentPattern.class)
             .build();
 
     @Override
@@ -57,7 +61,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         JsonNode rootNode = parser.readValueAsTree();
 
         if (isAbsent(rootNode)) {
-            return StringValuePattern.ABSENT;
+            return AbsentPattern.ABSENT;
         }
 
         return buildStringValuePattern(rootNode);
@@ -86,6 +90,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             }
         });
 
+        if (!entry.getValue().isTextual()) {
+            throw new JsonMappingException(entry.getKey() + " operand must be a non-null string");
+        }
         String operand = entry.getValue().textValue();
         try {
             return constructor.newInstance(operand);
@@ -99,7 +106,12 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
         }
 
-        String operand = rootNode.findValue("equalTo").textValue();
+        JsonNode equalToNode = rootNode.findValue("equalTo");
+        if (!equalToNode.isTextual()) {
+            throw new JsonMappingException("equalTo operand must be a non-null string");
+        }
+
+        String operand = equalToNode.textValue();
         Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
 
         return new EqualToPattern(operand, ignoreCase);
@@ -133,8 +145,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         Boolean enablePlaceholders = fromNullable(rootNode.findValue("enablePlaceholders"));
         String placeholderOpeningDelimiterRegex = fromNullableTextNode(rootNode.findValue("placeholderOpeningDelimiterRegex"));
         String placeholderClosingDelimiterRegex = fromNullableTextNode(rootNode.findValue("placeholderClosingDelimiterRegex"));
+        Set<ComparisonType> exemptedComparisons = comparisonTypeSetFromArray(rootNode.findValue("exemptedComparisons"));
 
-        return new EqualToXmlPattern(operand.textValue(), enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+        return new EqualToXmlPattern(operand.textValue(), enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex, exemptedComparisons);
     }
 
     private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode) throws JsonMappingException {
@@ -199,6 +212,19 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     private static String fromNullableTextNode(JsonNode node) {
         return node == null ? null : node.asText();
+    }
+
+    private static Set<ComparisonType> comparisonTypeSetFromArray(JsonNode node) {
+        if (node == null || !node.isArray()) {
+            return null;
+        }
+
+        ImmutableSet.Builder<ComparisonType> builder = ImmutableSet.builder();
+        for (JsonNode itemNode: node) {
+            builder.add(ComparisonType.valueOf(itemNode.textValue()));
+        }
+
+        return builder.build();
     }
 
     @SuppressWarnings("unchecked")

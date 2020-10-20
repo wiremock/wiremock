@@ -21,8 +21,14 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -37,12 +43,13 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Examples extends AcceptanceTestBase {
 
@@ -367,6 +374,9 @@ public class Examples extends AcceptanceTestBase {
             // Statically set the HTTP port number. Defaults to 8080.
             .port(8000)
 
+            // Disable HTTP listener.
+            .httpDisabled(true)
+
             // Statically set the HTTPS port number. Defaults to 8443.
             .httpsPort(8001)
 
@@ -538,5 +548,45 @@ public class Examples extends AcceptanceTestBase {
                 .andMatching("path-contains-param", Parameters.one("path", "correct"))
                 .willReturn(ok())
                 .build()));
+    }
+
+    public static class SimpleAuthRequestFilter extends StubRequestFilter {
+
+        @Override
+        public RequestFilterAction filter(Request request) {
+            if (request.header("Authorization").firstValue().equals("Basic abc123")) {
+                return RequestFilterAction.continueWith(request);
+            }
+
+            return RequestFilterAction.stopWith(ResponseDefinition.notAuthorised());
+        }
+
+        @Override
+        public String getName() {
+            return "simple-auth";
+        }
+    }
+
+    public static class UrlAndHeadersModifyingFilter extends StubRequestFilter {
+
+        @Override
+        public RequestFilterAction filter(Request request) {
+            Request wrappedRequest = RequestWrapper.create()
+                    .transformAbsoluteUrl(new FieldTransformer<String>() {
+                        @Override
+                        public String transform(String url) {
+                            return url + "extraparam=123";
+                        }
+                    })
+                    .addHeader("X-Custom-Header", "headerval")
+                    .wrap(request);
+
+            return RequestFilterAction.continueWith(wrappedRequest);
+        }
+
+        @Override
+        public String getName() {
+            return "url-and-header-modifier";
+        }
     }
 }

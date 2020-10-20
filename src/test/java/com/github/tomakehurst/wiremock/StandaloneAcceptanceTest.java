@@ -55,7 +55,7 @@ import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 public class StandaloneAcceptanceTest {
@@ -400,6 +400,27 @@ public class StandaloneAcceptanceTest {
         }
         fail("WireMock did not shut down");
     }
+
+	@Test
+	public void canBeShutDownRemotelyWhenAsyncResponsesEnabled() {
+		startRunner("--async-response-enabled");
+
+		stubFor(get("/delay-this").willReturn(ok().withFixedDelay(50)));
+		testClient.get("/delay-this");
+		testClient.get("/delay-this");
+		testClient.get("/delay-this");
+
+		WireMock.shutdownServer();
+
+		// Keep trying the server until it shuts down.
+		long startTime = System.currentTimeMillis();
+		while (System.currentTimeMillis() - startTime < 5000) {
+			if (!runner.isRunning()) {
+				return;
+			}
+		}
+		fail("WireMock did not shut down");
+	}
 
     @Test
     public void isRunningReturnsFalseBeforeRunMethodIsExecuted() {

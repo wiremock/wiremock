@@ -40,6 +40,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,8 +55,10 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
@@ -546,14 +549,14 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getDetail(), allOf(
-                containsString("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')"),
+                containsString("Unexpected character ('(' (code 40)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')"),
                 containsString("line: 1, column: 2"))
         );
     }
 
     @Test
     public void returnsBadEntityStatusWhenInvalidEqualToXmlSpecified() {
-        WireMockResponse response = testClient.postXml("/__admin/mappings",
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
             "{\n" +
                 "    \"request\": {\n" +
                 "        \"bodyPatterns\": [\n" +
@@ -570,6 +573,90 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
         assertThat(errors.first().getDetail(), is("Content is not allowed in prolog.; line 1; column 1"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenContainsOperandIsNull() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"contains\": null\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenEqualToOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"equalTo\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("equalTo operand must be a non-null string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenContainsOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"contains\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenMatchesOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"matches\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("matches operand must be a non-null string"));
     }
 
     @Test
@@ -628,7 +715,11 @@ public class AdminApiTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/__admin/files");
 
         assertEquals(200, response.statusCode());
-        assertThat(new String(response.binaryContent()), matches("\\[ \".*bar.txt\", \".*zoo.*txt\" ]"));
+        String pathSeparatorRegex = File.separator;
+        if( File.separator.equals("\\") ) {
+            pathSeparatorRegex="\\\\";
+        }
+        assertThat(new String(response.binaryContent()), matches("\\[ \".*"+ pathSeparatorRegex + "bar.txt\", \".*zoo.*txt\" ]"));
     }
 
     @Test

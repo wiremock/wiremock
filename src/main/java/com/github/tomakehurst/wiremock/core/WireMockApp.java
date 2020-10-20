@@ -18,8 +18,9 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -34,7 +35,6 @@ import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -60,7 +59,7 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
 
-
+    private final Scenarios scenarios;
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
@@ -69,7 +68,6 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
-    private final PlainTextDiffRenderer diffRenderer;
     private final Recorder recorder;
     private final List<GlobalSettingsListener> globalSettingsListeners;
 
@@ -88,20 +86,22 @@ public class WireMockApp implements StubServer, Admin {
 
         final FileSource fileSource = options.filesRoot();
 
-        this.browserProxyingEnabled = options.browserProxyingEnabled();
+        this.browserProxyingEnabled = options.browserProxySettings().enabled();
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
         this.globalSettingsHolder = new GlobalSettingsHolder();
         this.requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
-        this.stubMappings = new InMemoryStubMappings(
+
+        scenarios = new Scenarios();
+        stubMappings = new InMemoryStubMappings(
+            scenarios,
             customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource,
             ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
         );
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
-        diffRenderer = new PlainTextDiffRenderer(customMatchers);
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
@@ -124,12 +124,12 @@ public class WireMockApp implements StubServer, Admin {
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
-        this.globalSettingsHolder = new GlobalSettingsHolder();
-        this.requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        this.stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
+        globalSettingsHolder = new GlobalSettingsHolder();
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
+        scenarios = new Scenarios();
+        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
-        diffRenderer = new PlainTextDiffRenderer(requestMatchers);
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
         recorder = new Recorder(this);
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
@@ -152,6 +152,7 @@ public class WireMockApp implements StubServer, Admin {
 
     public StubRequestHandler buildStubRequestHandler() {
         final Map<String, PostServeAction> postServeActions = this.options.extensionsOfType(PostServeAction.class);
+        BrowserProxySettings browserProxySettings = options.browserProxySettings();
         return new StubRequestHandler(
             this,
             new StubResponseRenderer(
@@ -162,13 +163,17 @@ public class WireMockApp implements StubServer, Admin {
                     options.httpsSettings().trustStore(),
                     options.shouldPreserveHostHeader(),
                     options.proxyHostHeader(),
-                    globalSettingsHolder),
+                    globalSettingsHolder,
+                    browserProxySettings.trustAllProxyTargets(),
+                    browserProxySettings.trustedProxyTargets()
+                ),
                 ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
             ),
             this,
             postServeActions,
             requestJournal,
-            getStubRequestFilters()
+            getStubRequestFilters(),
+            options.getStubRequestLoggingDisabled()
         );
     }
 
@@ -215,22 +220,9 @@ public class WireMockApp implements StubServer, Admin {
             if (request.isBrowserProxyRequest() && this.browserProxyingEnabled) {
                 return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
             }
-
-            this.logUnmatchedRequest(loggedRequest);
         }
 
         return serveEvent;
-    }
-
-    private void logUnmatchedRequest(final LoggedRequest request) {
-        final List<NearMiss> nearest = this.nearMissCalculator.findNearestTo(request);
-        final String message;
-        if (!nearest.isEmpty()) {
-            message = diffRenderer.render(nearest.get(0).getDiff());
-        } else {
-            message = "Request was not matched as there were no stubs registered:\n" + request;
-        }
-        notifier().error(message);
     }
 
     @Override
@@ -248,11 +240,16 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public void removeStubMapping(final StubMapping stubMapping) {
-        this.stubMappings.removeMapping(stubMapping);
-        if (stubMapping.shouldBePersisted()) {
-            this.mappingsSaver.remove(stubMapping);
+    public void removeStubMapping(StubMapping stubMapping) {
+        final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
+        if (maybeStub.isPresent()) {
+            StubMapping stubToDelete = maybeStub.get();
+            if (stubToDelete.shouldBePersisted()) {
+                mappingsSaver.remove(stubToDelete);
+            }
         }
+
+        stubMappings.removeMapping(stubMapping);
 
         this.proxyHandler.removeProxyConfig(stubMapping.getUuid());
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
@@ -281,7 +278,10 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void saveMappings() {
-        this.mappingsSaver.save(this.stubMappings.getAll());
+        for (StubMapping stubMapping: stubMappings.getAll()) {
+            stubMapping.setPersistent(true);
+        }
+        mappingsSaver.save(stubMappings.getAll());
     }
 
     @Override
@@ -372,6 +372,21 @@ public class WireMockApp implements StubServer, Admin {
         } catch (final RequestJournalDisabledException e) {
             return FindRequestsResult.withRequestJournalDisabled();
         }
+    }
+
+    @Override
+    public void removeServeEvent(UUID eventId) {
+        requestJournal.removeEvent(eventId);
+    }
+
+    @Override
+    public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
+        return new FindServeEventsResult(requestJournal.removeEventsMatching(requestPattern));
+    }
+
+    @Override
+    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+        return new FindServeEventsResult(requestJournal.removeServeEventsForStubsMatchingMetadata(metadataPattern));
     }
 
     @Override

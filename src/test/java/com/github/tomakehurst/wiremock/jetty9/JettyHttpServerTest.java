@@ -27,16 +27,19 @@ import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import org.eclipse.jetty.server.ServerConnector;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class JettyHttpServerTest {
@@ -57,7 +60,8 @@ public class JettyHttpServerTest {
                 admin,
                 Collections.<String, PostServeAction>emptyMap(),
                 context.mock(RequestJournal.class),
-                Collections.<RequestFilter>emptyList()
+                Collections.<RequestFilter>emptyList(),
+                false
         );
     }
 
@@ -76,11 +80,24 @@ public class JettyHttpServerTest {
 
     @Test
     public void testStopTimeoutNotSet() {
-        long expectedStopTimeout = 0L;
+        long expectedStopTimeout = 1000L;
         WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
         JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
         assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
+    }
+
+    @Test
+    public void testHttpConnectorIsNullWhenHttpDisabled() throws NoSuchFieldException, IllegalAccessException {
+        WireMockConfiguration config = WireMockConfiguration.wireMockConfig().httpDisabled(true);
+
+        JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+
+        Field httpConnectorField = JettyHttpServer.class.getDeclaredField("httpConnector");
+        httpConnectorField.setAccessible(true);
+        ServerConnector httpConnector = (ServerConnector) httpConnectorField.get(jettyHttpServer);
+
+       assertNull(httpConnector);
     }
 }

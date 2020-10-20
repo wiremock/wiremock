@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -253,46 +254,23 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-            return JettyUtils.getUri(jettyRequest).isAbsolute();
+            return JettyUtils.uriIsAbsolute(jettyRequest);
         }
 
         return false;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Collection<Part> getParts() {
         if (!isMultipart()) {
             return null;
         }
 
         if (cachedMultiparts == null) {
-            try {
-                multipartRequestConfigurer.configure(request);
-                cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
-                    @Override
-                    public Part apply(javax.servlet.http.Part input) {
-                        return WireMockHttpServletMultipartAdapter.from(input);
-                    }
-                }).toList();
-            } catch (IOException | ServletException exception) {
-                return throwUnchecked(exception, Collection.class);
-            }
+            cachedMultiparts = PartParser.parseFrom(this);
         }
 
         return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
-    }
-
-    private Collection<javax.servlet.http.Part> safelyGetRequestParts() throws IOException, ServletException {
-        try {
-            return request.getParts();
-        } catch (IOException ioe) {
-            if (ioe.getMessage().contains("Missing content for multipart")) {
-                return Collections.emptyList();
-            }
-
-            throw ioe;
-        }
     }
 
     @Override

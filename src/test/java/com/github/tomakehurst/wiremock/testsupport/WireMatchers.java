@@ -45,12 +45,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.*;
 import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
+import static java.util.regex.Pattern.DOTALL;
+import static java.util.regex.Pattern.MULTILINE;
 
 public class WireMatchers {
 
@@ -131,6 +134,23 @@ public class WireMatchers {
                 return actual.matches(regex);
             }
             
+        };
+    }
+
+    public static Matcher<String> matchesMultiLine(final String regex) {
+        return new TypeSafeMatcher<String>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Should match " + regex);
+
+            }
+
+            @Override
+            public boolean matchesSafely(String actual) {
+                return Pattern.compile(regex, MULTILINE + DOTALL).matcher(actual).matches();
+            }
+
         };
     }
 

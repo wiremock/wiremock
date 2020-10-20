@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import java.net.URI;
+import com.github.tomakehurst.wiremock.common.Urls;
 
 public class UrlPathPattern extends UrlPattern {
 
@@ -29,7 +29,7 @@ public class UrlPathPattern extends UrlPattern {
             return MatchResult.noMatch();
         }
 
-        String path = URI.create(url).getRawPath();
+        String path = Urls.getPath(url);
         return super.match(path);
     }
 

@@ -21,7 +21,7 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HttpHeadersTest {
 
@@ -146,4 +146,17 @@ public class HttpHeadersTest {
         HttpHeaders httpHeaders = new HttpHeaders();
         assertThat(httpHeaders.toString().equals("(no headers)\n"), is(true));
     }
+    
+    @Test
+    public void shouldEqualWhenIdentical() throws Exception {
+        HttpHeaders httpHeaders = new HttpHeaders(
+                httpHeader("Header-1", "h1v1", "h1v2"),
+                httpHeader("Header-2", "h2v1", "h2v2"));
+
+        HttpHeaders copyOfHeaders = HttpHeaders.copyOf(httpHeaders);
+
+        assertThat(httpHeaders.equals(copyOfHeaders), is(true));
+        assertThat(httpHeaders.hashCode(), equalTo(copyOfHeaders.hashCode()));
+    }
+
 }

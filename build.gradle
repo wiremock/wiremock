@@ -26,7 +26,7 @@ allprojects {
     apply plugin: 'project-report'
 
     group = 'com.github.tomakehurst'
-    version = '2.24.0'
+    version = '2.27.2'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -35,28 +35,29 @@ allprojects {
         mavenCentral()
     }
 
+    def jacksonVersion = '2.11.0'
+
     def versionSets = [
         java7: [
             handlebars     : '4.0.7',
-            
-            jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
+            jetty          : '9.2.28.v20190418', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
             guava          : '20.0',
-            jackson        : '2.9.9',
-            jacksonDatabind: '2.9.9',
-            xmlUnit        : '2.6.2'
-
+            jackson        : jacksonVersion,
+            jacksonDatabind: jacksonVersion,
+            xmlUnit        : '2.7.0'
         ],
         java8: [
-            handlebars     : '4.1.2',
-            jetty          : '9.4.15.v20190215',
-            guava          : '27.0.1-jre',
-            jackson        : '2.9.9',
-            jacksonDatabind: '2.9.9',
-            xmlUnit        : '2.6.2'
+            handlebars     : '4.2.0',
+            jetty          : '9.4.30.v20200611',
+            guava          : '29.0-jre',
+            jackson        : jacksonVersion,
+            jacksonDatabind: jacksonVersion,
+            xmlUnit        : '2.7.0'
         ]
     ]
 
-    def versions = project.name == 'wiremock' ?
+    def isJava7 = project.name in ['wiremock', 'java7']
+    def versions =  isJava7 ?
         versionSets.java7 :
         versionSets[project.name]
 
@@ -65,25 +66,29 @@ allprojects {
         compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
         compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
         compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
+        compile "org.eclipse.jetty:jetty-proxy:$versions.jetty"
         compile "org.eclipse.jetty:jetty-rewrite:$versions.jetty"
         compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: "${versions.jetty}"
         compile "com.google.guava:guava:$versions.guava"
         compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
                 "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
                 "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
-        compile "org.apache.httpcomponents:httpclient:4.5.6"
+        compile "org.apache.httpcomponents:httpclient:4.5.12"
         compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
-        compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
+        compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
+            exclude group: 'junit', module: 'junit'
+        }
         compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-        compile "com.jayway.jsonpath:json-path:2.4.0"
+        compile "com.jayway.jsonpath:json-path:2.4.0", {
+            exclude group: 'org.ow2.asm', module: 'asm'
+        }
         compile "org.ow2.asm:asm:7.0"
         compile "org.slf4j:slf4j-api:1.7.12"
         compile "net.sf.jopt-simple:jopt-simple:5.0.3"
-        compile("junit:junit:4.12") {
+        compileOnly("junit:junit:4.13") {
             exclude group: "org.hamcrest", module: "hamcrest-core"
         }
         compile 'org.apache.commons:commons-lang3:3.7'
-        compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4'
         compile "com.github.jknack:handlebars:$versions.handlebars", {
             exclude group: 'org.mozilla', module: 'rhino'
         }
@@ -95,6 +100,14 @@ allprojects {
         compile 'io.jsonwebtoken:jjwt-jackson:0.10.6'
         compile 'org.bouncycastle:bcprov-jdk15on:1.62'
 
+        compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4', {
+            exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+            exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+        }
+
+        compile 'commons-fileupload:commons-fileupload:1.4'
+
+        testCompile "junit:junit:4.13"
         testCompile "org.hamcrest:hamcrest-all:1.3"
         testCompile("org.jmock:jmock:2.5.1") {
             exclude group: "junit", module: "junit-dep"
@@ -106,21 +119,30 @@ allprojects {
             exclude group: "org.hamcrest", module: "hamcrest-core"
             exclude group: "org.hamcrest", module: "hamcrest-library"
         }
+        testCompile 'org.mockito:mockito-core:2.28.2'
         testCompile "org.skyscreamer:jsonassert:1.2.3"
         testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.4.12'
         testCompile 'org.awaitility:awaitility:2.0.0'
         testCompile "com.googlecode.jarjar:jarjar:1.3"
         testCompile "commons-io:commons-io:2.4"
         testCompile 'org.scala-lang:scala-library:2.11.12'
-        testCompile 'org.littleshoot:littleproxy:1.1.2:littleproxy-shade'
+
         testCompile 'org.apache.httpcomponents:httpmime:4.5'
 
         testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
         testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
+
+        def littleProxyDep = isJava7 ? 'org.littleshoot:littleproxy:1.1.2' : 'net.jockx:littleproxy:1.1.3'
+        testCompile (littleProxyDep) {
+            exclude group: 'com.google.guava', module: 'guava'
+            exclude group: 'org.apache.commons', module: 'commons-lang3'
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+        }
     }
 
     compileTestJava {
         options.encoding = 'UTF-8'
+        options.compilerArgs += '-XDenableSunApiLintControl'
     }
 
     test {
@@ -132,7 +154,7 @@ allprojects {
         maxParallelForks = 3
 
         testLogging {
-            events "failed"
+            events "FAILED", "SKIPPED"
             exceptionFormat "full"
         }
     }
@@ -168,7 +190,18 @@ subprojects {
     apply plugin: 'signing'
 
     sourceSets {
-        main.java.srcDir project(':').sourceSets.main.java
+//        def isJava7 = project.name in ['wiremock', 'java7']
+//        println "$project.name"
+//        if (isJava7) {
+//            println "$project.name: Using Java 7 EqualToJsonPattern"
+//            main.java.srcDir project(':').sourceSets.main.java
+//        } else {
+//            println "$project.name: Excluding Java 7 EqualToJsonPattern"
+//            main.java.srcDir(project(':').sourceSets.main.java.exclude('com/github/tomakehurst/wiremock/matching/EqualToJsonPattern*'))
+//        }
+
+        main.java.srcDir project(':').sourceSets.main.java.exclude('com/github/tomakehurst/wiremock/matching/EqualToJsonPattern*', 'com/github/tomakehurst/wiremock/admin/tasks/GetCaCertTask.java')
+
         test.java.srcDir project(':').sourceSets.test.java
         test.scala.srcDir project(':').sourceSets.test.scala
     }
@@ -205,7 +238,7 @@ subprojects {
         relocate "org.mortbay", 'wiremock.org.mortbay'
         relocate "org.eclipse", 'wiremock.org.eclipse'
         relocate "org.codehaus", 'wiremock.org.codehaus'
-        relocate "com.google.common", 'wiremock.com.google.common'
+        relocate "com.google", 'wiremock.com.google'
         relocate "com.google.thirdparty", 'wiremock.com.google.thirdparty'
         relocate "com.fasterxml.jackson", 'wiremock.com.fasterxml.jackson'
         relocate "org.apache", 'wiremock.org.apache'
@@ -217,16 +250,20 @@ subprojects {
         relocate "com.jayway", 'wiremock.com.jayway'
         relocate "org.objectweb", 'wiremock.org.objectweb'
         relocate "org.custommonkey", "wiremock.org.custommonkey"
-        relocate "com.flipkart", "wiremock.com.flipkart"
+        relocate "net.javacrumbs", "wiremock.net.javacrumbs"
         relocate "net.sf", "wiremock.net.sf"
         relocate "com.github.jknack", "wiremock.com.github.jknack"
         relocate "org.antlr", "wiremock.org.antlr"
+        relocate "javax.servlet", "wiremock.javax.servlet"
+        relocate "org.checkerframework", "wiremock.org.checkerframework"
 
         dependencies {
             exclude(dependency('junit:junit'))
         }
 
         mergeServiceFiles()
+
+        exclude 'META-INF/maven/javax.servlet/**'
     }
 
     def repoUser
@@ -475,9 +512,9 @@ subprojects {
 task 'bump-patch-version' {
     doLast {
         def filesWithVersion = [
-                'build.gradle'                                      : { "version = '${it}" },
-                'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-                'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+            'build.gradle'                                      : { "version = '${it}" },
+            'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
+            'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
         ]
 
         def currentVersion = project.version
@@ -486,8 +523,8 @@ task 'bump-patch-version' {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates]
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentVersion)
@@ -502,9 +539,9 @@ task 'bump-patch-version' {
 task 'bump-minor-version' {
     doLast {
         def filesWithVersion = [
-                'build.gradle'                                      : { "version = '${it}" },
-                'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-                'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+            'build.gradle'                                      : { "version = '${it}" },
+            'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
+            'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
         ]
 
         def currentVersion = project.version
@@ -513,8 +550,8 @@ task 'bump-minor-version' {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates]
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentVersion)

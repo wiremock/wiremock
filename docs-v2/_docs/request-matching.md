@@ -391,6 +391,8 @@ JSON with string literal:
 }
 ```
 
+#### Less strict matching
+
 By default different array orderings and additional object attributes will trigger a non-match. However, both of these conditions can be disabled individually.
 
 Java:
@@ -416,6 +418,29 @@ JSON:
 }
 ```
 
+#### Placeholders
+
+JSON equality matching is based on [JsonUnit](https://github.com/lukas-krecan/JsonUnit) and therefore supports placeholders.
+This allows specific attributes to be treated as wildcards, rather than an exactly value being required for a match.
+
+For instance, the following: 
+
+```json
+{ "id": "${json-unit.any-string}" }
+```
+
+would match a request with a JSON body of:
+
+```json
+{ "id": "abc123" }
+```
+
+It's also possible to use placeholders that constrain the expected value by type or regular expression.
+See [the JsonUnit placeholders documentation](https://github.com/lukas-krecan/JsonUnit#typeplc) for the full syntax.
+
+> **note**
+>
+> Placeholders are only available in the `jre8` WireMock JARs, as the JsonUnit library requires at least Java 8. 
 
 ### JSON Path
 
@@ -660,7 +685,9 @@ The XMLUnit [placeholders](https://github.com/xmlunit/user-guide/wiki/Placeholde
 Java:
 
 ```java
-.withRequestBody(equalToXml("<message><id>${xmlunit.ignore}</id><content>Hello</content></message>", true))
+.withRequestBody(
+    equalToXml("<message><id>${xmlunit.ignore}</id><content>Hello</content></message>", true)
+)
 ```
 
 JSON:
@@ -686,7 +713,13 @@ If the default placeholder delimiters `${` and `}` can not be used, you can spec
 Java:
 
 ```java
-.withRequestBody(equalToXml("<message><id>[[xmlunit.ignore]]</id><content>Hello</content></message>", true, "\\[\\[", "]]"))
+.withRequestBody(
+    equalToXml("<message><id>[[xmlunit.ignore]]</id><content>Hello</content></message>",
+               true,
+               "\\[\\[",
+               "]]"
+    )
+)
 ```
 
 JSON:
@@ -706,6 +739,56 @@ JSON:
   ...
 }
 ```
+
+#### Excluding specific types of comparison
+
+You can further tune how XML documents are compared for equality by disabling specific [XMLUnit comparison types](https://www.xmlunit.org/api/java/2.7.0/org/xmlunit/diff/ComparisonType.html).
+
+Java:
+
+
+```java
+import static org.xmlunit.diff.ComparisonType.*;
+
+...
+
+.withRequestBody(equalToXml("<thing>Hello</thing>")
+    .exemptingComparisons(NAMESPACE_URI, ELEMENT_TAG_NAME)
+)
+```
+ 
+JSON:
+ 
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "equalToXml" : "<thing>Hello</thing>",
+      "exemptedComparisons": ["NAMESPACE_URI", "ELEMENT_TAG_NAME"]
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+The full list of comparison types used by default is as follows:
+
+`ELEMENT_TAG_NAME`
+`SCHEMA_LOCATION`
+`NO_NAMESPACE_SCHEMA_LOCATION`
+`NODE_TYPE`
+`NAMESPACE_URI`
+`TEXT_VALUE`
+`PROCESSING_INSTRUCTION_TARGET`
+`PROCESSING_INSTRUCTION_DATA`
+`ELEMENT_NUM_ATTRIBUTES`
+`ATTR_VALUE`
+`CHILD_NODELIST_LENGTH`
+`CHILD_LOOKUP`
+`ATTR_NAME_LOOKUP`
+
 
 ### XPath
 
@@ -732,7 +815,10 @@ JSON:
 }
 ```
 
-The above example will only work with non-namespaced XML. If you need to match a namespaced document with  it is necessary to declare the namespaces:
+The above example will select elements based on their local name if used with a namespaced XML document.
+
+If you need to be able to select elements based on their namespace in addition to their name you can declare the prefix
+to namespace URI mappings and use them in your XPath expression:
 
 Java:
 

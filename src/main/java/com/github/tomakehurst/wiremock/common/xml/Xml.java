@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.common.xml;
 
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -127,7 +129,7 @@ public class Xml {
         }
     }
 
-    public static String render(Node node) {
+    private static String render(Node node) {
         try {
             StringWriter sw = new StringWriter();
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -137,6 +139,23 @@ public class Xml {
             return sw.toString();
         } catch (TransformerException e) {
             return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static XmlDocument parse(String xml) {
+        try {
+            InputSource source = new InputSource(new StringReader(xml));
+            return new XmlDocument(getDocumentBuilder().parse(source));
+        } catch (SAXException | IOException e) {
+            throw new XmlException(Errors.single(50, e.getMessage()));
+        }
+    }
+
+    private static DocumentBuilder getDocumentBuilder() {
+        try {
+            return newDocumentBuilderFactory().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            return throwUnchecked(e, DocumentBuilder.class);
         }
     }
 
@@ -164,7 +183,9 @@ public class Xml {
             @Override
             protected DocumentBuilder initialValue() {
                 try {
-                    return DBF_CACHE.get().newDocumentBuilder();
+                    DocumentBuilder documentBuilder = DBF_CACHE.get().newDocumentBuilder();
+                    documentBuilder.setErrorHandler(new SilentErrorHandler());
+                    return documentBuilder;
                 } catch (ParserConfigurationException e) {
                     return throwUnchecked(e, DocumentBuilder.class);
                 }

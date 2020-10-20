@@ -23,7 +23,7 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RequestBodyPatternFactoryJsonDeserializerTest {
     @Test
@@ -46,8 +46,9 @@ public class RequestBodyPatternFactoryJsonDeserializerTest {
             "    \"caseInsensitive\": true        \n" +
             "}                                      "
         );
-        EqualToPattern bodyPattern = (EqualToPattern) bodyPatternFactory.forRequest(mockRequest());
+        EqualToPattern bodyPattern = (EqualToPattern) bodyPatternFactory.forRequest(mockRequest().body("this body text"));
         assertThat(bodyPattern.getCaseInsensitive(), is(true));
+        assertThat(bodyPattern.getExpected(), is("this body text"));
     }
 
     @Test

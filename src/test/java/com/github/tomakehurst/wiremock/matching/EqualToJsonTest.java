@@ -17,17 +17,22 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static org.apache.commons.lang3.JavaVersion.JAVA_1_8;
+import static org.apache.commons.lang3.SystemUtils.isJavaVersionAtLeast;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 public class EqualToJsonTest {
 
@@ -269,7 +274,7 @@ public class EqualToJsonTest {
             "   \"one\":    1,          \n" +
             "   \"three\":  3,          \n" +
             "   \"two\":    2,          \n" +
-            "   \"four\":   [2, 1, 2],  \n" +
+            "   \"four\":   [2, 1, 3],  \n" +
             "   \"five\":   5,          \n" +
             "   \"six\":    6           \n" +
             "}                          \n"
@@ -534,4 +539,63 @@ public class EqualToJsonTest {
         assertFalse(match.isExactMatch());
     }
 
+    @Test
+    public void treatsTwoTopLevelsArraysWithDifferingOrderAsSameWhenIgnoringOrder() {
+        assumeJava8OrHigher();
+
+        String expected = "[\"a\",\"b\", \"c\",\"d\",\"e\",\"f\",\"g\",\"h\"]";
+        String actual   = "[\"b\",\"a\", \"d\",\"c\",\"e\",\"f\",\"g\",\"h\"]";
+
+        EqualToJsonPattern pattern = new EqualToJsonPattern(expected, true, true);
+        MatchResult result = pattern.match(actual);
+
+        assertTrue(result.isExactMatch());
+    }
+
+    @Test
+    public void supportsPlaceholders() {
+        assumeJava8OrHigher();
+
+        String expected = "{\n" +
+                "  \"id\": \"${json-unit.any-string}\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+
+        String actual = "{\n" +
+                "  \"id\": \"abc123\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+        assertThat(match.isExactMatch(), is(true));
+    }
+
+    @Test
+    public void supportsRegexPlaceholders() {
+        assumeJava8OrHigher();
+
+        String expected = "{\n" +
+                "  \"id\": \"${json-unit.regex}[a-z]+\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+
+        String actualMatching = "{\n" +
+                "  \"id\": \"abc\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actualMatching);
+        assertThat(match.isExactMatch(), is(true));
+
+
+        String actualNonMatching = "{\n" +
+                "  \"id\": \"123\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+        MatchResult nonMatch = new EqualToJsonPattern(expected, false, false).match(actualNonMatching);
+        assertThat(nonMatch.isExactMatch(), is(false));
+    }
+
+    private static void assumeJava8OrHigher() {
+        assumeThat(isJavaVersionAtLeast(JAVA_1_8), is(true));
+    }
 }

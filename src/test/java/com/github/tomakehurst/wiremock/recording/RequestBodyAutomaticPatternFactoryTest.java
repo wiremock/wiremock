@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.matching.*;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 
 public class RequestBodyAutomaticPatternFactoryTest {

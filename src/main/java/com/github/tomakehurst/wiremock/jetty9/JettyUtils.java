@@ -82,18 +82,9 @@ public class JettyUtils {
         }
     }
 
-    public static URI getUri(Request request) {
-        HttpURI httpUri = getHttpUri(request);
-
-        URI uri;
-        try {
-            Method getUriMethod = HttpURI.class.getDeclaredMethod("toURI");
-            uri = (URI) getUriMethod.invoke(httpUri);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
-            uri = URI.create(httpUri.toString());
-        }
-
-        return uri;
+    public static boolean uriIsAbsolute(Request request) {
+        HttpURI uri = getHttpUri(request);
+        return uri.getScheme() != null;
     }
 
     private static HttpURI getHttpUri(Request request) {

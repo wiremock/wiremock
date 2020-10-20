@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.Objects;
+
 public abstract class PathPattern extends StringValuePattern {
 
     protected final StringValuePattern valuePattern;
@@ -46,4 +48,29 @@ public abstract class PathPattern extends StringValuePattern {
 
     protected abstract MatchResult isSimpleMatch(String value);
     protected abstract MatchResult isAdvancedMatch(String value);
+    public abstract String getExpressionResult(String value);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PathPattern that = (PathPattern) o;
+        return Objects.equals(expectedValue, that.expectedValue) && Objects.equals(valuePattern, that.valuePattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), valuePattern);
+    }
+
+    protected static class SubExpressionException extends RuntimeException {
+        public SubExpressionException(String message) {
+            super(message);
+        }
+
+        public SubExpressionException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

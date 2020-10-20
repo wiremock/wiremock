@@ -63,6 +63,7 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
+    private static final int DEFAULT_ACCEPTORS = 3;
 
     static {
         System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
@@ -72,6 +73,8 @@ public class JettyHttpServer implements HttpServer {
     private final ServerConnector httpConnector;
     private final ServerConnector httpsConnector;
 
+    private ScheduledExecutorService scheduledExecutorService;
+
     public JettyHttpServer(
             final Options options,
             final AdminRequestHandler adminRequestHandler,
@@ -79,18 +82,23 @@ public class JettyHttpServer implements HttpServer {
     ) {
         this.jettyServer = this.createServer(options);
 
-        final NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(
-                options.networkTrafficListener());
-        this.httpConnector = this.createHttpConnector(
-                options.bindAddress(),
-                options.portNumber(),
-                options.jettySettings(),
-                networkTrafficListenerAdapter
-        );
-        this.jettyServer.addConnector(this.httpConnector);
+        NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(options.networkTrafficListener());
+
+        if (options.getHttpDisabled()) {
+            httpConnector = null;
+        } else {
+            httpConnector = createHttpConnector(
+                    options.bindAddress(),
+                    options.portNumber(),
+                    options.jettySettings(),
+                    networkTrafficListenerAdapter
+            );
+            jettyServer.addConnector(httpConnector);
+        }
 
         if (options.httpsSettings().enabled()) {
             this.httpsConnector = this.createHttpsConnector(
+                    jettyServer,
                     options.bindAddress(),
                     options.httpsSettings(),
                     options.jettySettings(),
@@ -117,6 +125,7 @@ public class JettyHttpServer implements HttpServer {
                 options.filesRoot(),
                 options.getAsynchronousResponseSettings(),
                 options.getChunkedEncodingPolicy(),
+                options.getStubCorsEnabled(),
                 notifier
         );
 
@@ -164,7 +173,7 @@ public class JettyHttpServer implements HttpServer {
 
     protected void finalizeSetup(final Options options) {
         if (!options.jettySettings().getStopTimeout().isPresent()) {
-            this.jettyServer.setStopTimeout(0);
+            this.jettyServer.setStopTimeout(1000);
         }
     }
 
@@ -208,9 +217,13 @@ public class JettyHttpServer implements HttpServer {
     @Override
     public void stop() {
         try {
-            this.jettyServer.stop();
-            this.jettyServer.join();
-        } catch (final Exception e) {
+            if (scheduledExecutorService != null) {
+                scheduledExecutorService.shutdown();
+            }
+
+            jettyServer.stop();
+            jettyServer.join();
+        } catch (Exception e) {
             throwUnchecked(e);
         }
     }
@@ -254,16 +267,18 @@ public class JettyHttpServer implements HttpServer {
     }
 
     protected ServerConnector createHttpsConnector(
-            final String bindAddress,
-            final HttpsSettings httpsSettings,
-            final JettySettings jettySettings,
-            final NetworkTrafficListener listener) {
+            Server server,
+            String bindAddress,
+            HttpsSettings httpsSettings,
+            JettySettings jettySettings,
+            NetworkTrafficListener listener) {
 
         //Added to support Android https communication.
         SslContextFactory sslContextFactory = buildSslContextFactory();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
+        sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
+        sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
         sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
@@ -276,17 +291,30 @@ public class JettyHttpServer implements HttpServer {
 
         final int port = httpsSettings.port();
 
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+        SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(
+                sslContextFactory,
+                "http/1.1"
+        );
+        ConnectionFactory[] connectionFactories = ArrayUtils.addAll(
+                new ConnectionFactory[] { sslConnectionFactory, httpConnectionFactory },
+                buildAdditionalConnectionFactories(httpsSettings, httpConnectionFactory, sslConnectionFactory)
+        );
+
         return this.createServerConnector(
                 bindAddress,
                 jettySettings,
                 port,
                 listener,
-                new SslConnectionFactory(
-                        sslContextFactory,
-                        "http/1.1"
-                ),
-                new HttpConnectionFactory(httpConfig)
+                connectionFactories
         );
+    }
+
+    protected ConnectionFactory[] buildAdditionalConnectionFactories(
+            HttpsSettings httpsSettings,
+            HttpConnectionFactory httpConnectionFactory,
+            SslConnectionFactory sslConnectionFactory) {
+        return new ConnectionFactory[] {};
     }
 
     // Override this for platform-specific impls
@@ -307,7 +335,7 @@ public class JettyHttpServer implements HttpServer {
                                                     final JettySettings jettySettings,
                                                     final int port, final NetworkTrafficListener listener,
                                                     final ConnectionFactory... connectionFactories) {
-        final int acceptors = jettySettings.getAcceptors().or(2);
+        final int acceptors = jettySettings.getAcceptors().or(DEFAULT_ACCEPTORS);
         final NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(
                 this.jettyServer,
                 null,
@@ -317,17 +345,11 @@ public class JettyHttpServer implements HttpServer {
                 2,
                 connectionFactories
         );
+
         connector.setPort(port);
-
-        connector.setStopTimeout(0);
-        connector.getSelectorManager().setStopTimeout(0);
-
         connector.addNetworkTrafficListener(listener);
-
         this.setJettySettings(jettySettings, connector);
-
         connector.setHost(bindAddress);
-
         return connector;
     }
 
@@ -339,11 +361,12 @@ public class JettyHttpServer implements HttpServer {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private ServletContextHandler addMockServiceContext(
-            final StubRequestHandler stubRequestHandler,
-            final FileSource fileSource,
-            final AsynchronousResponseSettings asynchronousResponseSettings,
-            final Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
-            final Notifier notifier
+            StubRequestHandler stubRequestHandler,
+            FileSource fileSource,
+            AsynchronousResponseSettings asynchronousResponseSettings,
+            Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
+            boolean stubCorsEnabled,
+            Notifier notifier
     ) {
         final ServletContextHandler mockServiceContext = new ServletContextHandler(this.jettyServer, "/");
 
@@ -363,7 +386,7 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
         if (asynchronousResponseSettings.isEnabled()) {
-            final ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
+            scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
             mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
         }
 
@@ -377,10 +400,15 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setMimeTypes(mimeTypes);
         mockServiceContext.setWelcomeFiles(new String[]{"index.json", "index.html", "index.xml", "index.txt"});
 
-        mockServiceContext.setErrorHandler(new NotFoundHandler());
+        NotFoundHandler errorHandler = new NotFoundHandler(mockServiceContext);
+        mockServiceContext.setErrorHandler(errorHandler);
 
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
+
+        if (stubCorsEnabled) {
+            addCorsFilter(mockServiceContext);
+        }
 
         return mockServiceContext;
     }
@@ -439,16 +467,23 @@ public class JettyHttpServer implements HttpServer {
 
         adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
 
-        final FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
+        addCorsFilter(adminContext);
+
+        return adminContext;
+    }
+
+    private void addCorsFilter(ServletContextHandler context) {
+        context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
+    }
+
+    private FilterHolder buildCorsFilter() {
+        FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
         filterHolder.setInitParameters(ImmutableMap.of(
                 "chainPreflight", "false",
                 "allowedOrigins", "*",
-                "allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,Authorization",
+                "allowedHeaders", "*",
                 "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
-
-        adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
-
-        return adminContext;
+        return filterHolder;
     }
 
     // Override this for platform-specific impls

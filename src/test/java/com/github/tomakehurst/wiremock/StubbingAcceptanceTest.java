@@ -15,9 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -27,7 +24,6 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -38,11 +34,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -58,7 +55,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Collections.singletonList;
 import static org.apache.http.entity.ContentType.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
@@ -331,6 +329,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void matchingOnRequestBodyWithAdvancedJsonPath() {
 		stubFor(post("/jsonpath/advanced")
 			.withRequestBody(matchingJsonPath("$.counter", equalTo("123")))
+			.withRequestBody(matchingJsonPath("$.wrong", absent()))
 			.willReturn(ok())
 		);
 
@@ -690,7 +689,37 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
-    private Matcher<StubMapping> named(final String name) {
+	@Test
+	public void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnWholeUrlRegex() throws Exception {
+		stubFor(get(urlMatching("/dodgy-chars.*")).willReturn(ok()));
+
+		String url = "http://localhost:" + wireMockServer.port() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+		int code = getStatusCodeUsingJavaUrlConnection(url);
+
+		assertThat(code, is(200));
+	}
+
+	@Test
+	public void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnExactUrlPath() throws Exception {
+		stubFor(get(urlPathEqualTo("/dodgy-chars")).willReturn(ok()));
+
+		String url = "http://localhost:" + wireMockServer.port() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+		int code = getStatusCodeUsingJavaUrlConnection(url);
+
+		assertThat(code, is(200));
+	}
+
+	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+		int code = connection.getResponseCode();
+		connection.disconnect();
+		return code;
+	}
+
+
+	private Matcher<StubMapping> named(final String name) {
 	    return new TypeSafeMatcher<StubMapping>() {
             @Override
             public void describeTo(Description description) {

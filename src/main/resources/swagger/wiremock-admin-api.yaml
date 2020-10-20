@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: WireMock
-  version: 2.24.0
+  version: 2.27.2
 
 externalDocs:
   description: WireMock user documentation
@@ -240,9 +240,25 @@ paths:
             application/json:
               example:
                 $ref: "examples/request.yaml"
+    delete:
+      summary: Delete request by ID
+      tags:
+         - Requests
+      parameters:
+        - description: The UUID of the logged request
+          in: path
+          name: requestId
+          required: true
+          example: 12fb14bb-600e-4bfa-bd8d-be7f12562c99
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted
 
   /__admin/requests/reset:
     post:
+      deprecated: true
       summary: Empty the request journal
       tags:
          - Requests
@@ -269,6 +285,42 @@ paths:
                   count:
                     type: integer
                     example: 4
+
+  /__admin/requests/remove:
+    post:
+      summary: Remove requests by criteria
+      description: Removed requests logged in the journal matching the specified criteria
+      tags:
+         - Requests
+      requestBody:
+        $ref: "#/components/requestBodies/requestPattern"
+      responses:
+        '200':
+          description: Removed request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
+                    
+  /__admin/requests/remove-by-metadata:
+    post:
+      summary: Delete requests mappings matching metadata
+      tags:
+        - Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+      responses:
+        '200':
+          description: Removed request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
 
   /__admin/requests/find:
     post:

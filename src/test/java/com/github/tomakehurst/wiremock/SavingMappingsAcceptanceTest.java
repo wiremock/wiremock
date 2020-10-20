@@ -16,18 +16,24 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import org.apache.commons.io.FileUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     private static final File FILE_SOURCE_ROOT = new File("build/save-mappings-files");
@@ -80,6 +86,47 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
         response = testClient.get("/some/url");
         assertThat(response.statusCode(), is(200));
         assertThat(response.content(), is("Response to /some/url"));
+
+        assertThat(listAllStubMappings().getMappings(), everyItem(IS_PERSISTENT));
+    }
+
+    @Test
+    public void savedMappingIsDeletedFromTheDiskOnRemove() {
+        StubMapping stubMapping = stubFor(get("/delete/me").willReturn(ok()));
+        saveAllMappings();
+
+        assertThat(MAPPINGS_DIRECTORY, containsFileWithNameContaining(stubMapping.getId().toString()));
+
+        removeStub(stubMapping);
+
+        assertThat(MAPPINGS_DIRECTORY, not(containsFileWithNameContaining(stubMapping.getId().toString())));
+    }
+
+    private static Matcher<File> containsFileWithNameContaining(final String namePart) {
+        return new TypeSafeDiagnosingMatcher<File>() {
+            @Override
+            protected boolean matchesSafely(File directory, Description mismatchDescription) {
+                boolean found = FluentIterable.from(directory.list()).filter(new Predicate<String>() {
+                    @Override
+                    public boolean apply(String filename) {
+                        return filename.contains(namePart);
+                    }
+                })
+                .first()
+                .isPresent();
+
+                if (!found) {
+                    mismatchDescription.appendText("file with name containing " + namePart + " not found");
+                }
+
+                return found;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a file whose name contains " + namePart);
+            }
+        };
     }
 
     @Test
@@ -118,4 +165,21 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
         // Check only one file has been written
         assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
     }
+
+    static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT = new TypeSafeDiagnosingMatcher<StubMapping>() {
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("a stub mapping marked as persistent");
+        }
+
+        @Override
+        protected boolean matchesSafely(StubMapping stub, Description mismatchDescription) {
+            final boolean result = stub.shouldBePersisted();
+            if (!result) {
+                mismatchDescription.appendText(stub.getId() + " not marked as persistent");
+            }
+
+            return result;
+        }
+    };
 }

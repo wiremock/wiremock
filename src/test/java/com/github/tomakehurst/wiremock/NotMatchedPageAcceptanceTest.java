@@ -20,8 +20,13 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
@@ -30,6 +35,9 @@ import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotM
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
@@ -37,9 +45,10 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer.CONSOLE_WIDTH_HEADER_KEY;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NotMatchedPageAcceptanceTest {
 
@@ -166,8 +175,54 @@ public class NotMatchedPageAcceptanceTest {
         assertThat(response.content(), containsString("No response could be served"));
     }
 
+    @Test
+    public void indicatesWhenWrongScenarioStateIsTheReasonForNonMatch() {
+        configure();
+
+        stubFor(post("/thing")
+            .inScenario("thing states")
+            .whenScenarioStateIs("first")
+            .willReturn(ok("Done!")));
+
+        WireMockResponse response = testClient.postJson("/thing", "{}");
+
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample_scenario-state.txt")));
+    }
+
+    @Test
+    public void requestValuesTransformedByRequestFilterAreShownInDiff() {
+        configure(wireMockConfig().extensions(new StubRequestFilter() {
+            @Override
+            public RequestFilterAction filter(Request request) {
+                Request wrappedRequest = RequestWrapper.create()
+                        .transformHeader("X-My-Header", new FieldTransformer<List<String>>() {
+                            @Override
+                            public List<String> transform(List<String> source) {
+                                return singletonList("modified value");
+                            }
+                        })
+                        .wrap(request);
+                return RequestFilterAction.continueWith(wrappedRequest);
+            }
+
+            @Override
+            public String getName() {
+                return "thing-changer-filter";
+            }
+        }));
+
+        stubFor(get("/filter")
+                .withHeader("X-My-Header", equalTo("original value"))
+                .willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/filter", withHeader("X-My-Header", "original value"));
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), containsString("| X-My-Header: modified value"));
+    }
+
     private void configure() {
-        configure(WireMockConfiguration.wireMockConfig().dynamicPort());
+        configure(wireMockConfig().dynamicPort());
     }
 
     private void configure(WireMockConfiguration options) {

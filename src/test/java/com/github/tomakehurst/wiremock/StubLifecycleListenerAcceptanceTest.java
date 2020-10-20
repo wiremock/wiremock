@@ -23,8 +23,10 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +43,13 @@ public class StubLifecycleListenerAcceptanceTest {
     TestStubLifecycleListener loggingListener = new TestStubLifecycleListener();
     ExceptionThrowingStubLifecycleListener exceptionThrowingListener = new ExceptionThrowingStubLifecycleListener();
 
+    @ClassRule
+    public static TemporaryFolder tempDir = new TemporaryFolder();
+
     @Rule
     public WireMockRule wm = new WireMockRule(options()
             .dynamicPort()
+            .withRootDirectory(tempDir.getRoot().getAbsolutePath())
             .extensions(loggingListener, exceptionThrowingListener));
 
     @Before
@@ -87,6 +93,8 @@ public class StubLifecycleListenerAcceptanceTest {
     @Test
     public void stubCreationCanBeVetoedWhenExceptionIsThrown() {
         exceptionThrowingListener.throwException = true;
+
+        assertTrue(wm.listAllStubMappings().getMappings().isEmpty());
 
         try {
             wm.stubFor(get("/test").withName("Created").willReturn(ok()));

@@ -203,21 +203,25 @@ public class ResponseDefinition {
     }
 
     public static ResponseDefinition copyOf(ResponseDefinition original) {
+        return original.copy();
+    }
+
+    public ResponseDefinition copy() {
         ResponseDefinition newResponseDef = new ResponseDefinition(
-            original.status,
-            original.statusMessage,
-            original.body,
-            original.bodyFileName,
-            original.headers,
-            original.additionalProxyRequestHeaders,
-            original.fixedDelayMilliseconds,
-            original.delayDistribution,
-            original.chunkedDribbleDelay,
-            original.proxyBaseUrl,
-            original.fault,
-            original.transformers,
-            original.transformerParameters,
-            original.wasConfigured
+            this.status,
+            this.statusMessage,
+            this.body,
+            this.bodyFileName,
+            this.headers,
+            this.additionalProxyRequestHeaders,
+            this.fixedDelayMilliseconds,
+            this.delayDistribution,
+            this.chunkedDribbleDelay,
+            this.proxyBaseUrl,
+            this.fault,
+            this.transformers,
+            this.transformerParameters,
+            this.wasConfigured
         );
         return newResponseDef;
     }
@@ -240,6 +244,11 @@ public class ResponseDefinition {
 
     public String getBody() {
         return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
+    }
+
+    @JsonIgnore
+    public String getTextBody() {
+        return !body.isBinary() ? body.asString() : null;
     }
 
     @JsonIgnore
