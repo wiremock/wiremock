@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class RegexExtractHelper extends HandlebarsHelper<Object> {
 
@@ -29,7 +29,14 @@ public class RegexExtractHelper extends HandlebarsHelper<Object> {
     public Object apply(Object context, Options options) {
         List<String> groups = new ArrayList<>();
         String regexString = options.param(0);
-        Pattern regex = Pattern.compile(regexString);
+        Pattern regex;
+
+        try {
+            regex = Pattern.compile(regexString);
+        } catch (PatternSyntaxException ex) {
+            return handleError("Invalid regex string " + regexString);
+        }
+
         Matcher matcher = regex.matcher(context.toString());
 
         while (matcher.find()) {
