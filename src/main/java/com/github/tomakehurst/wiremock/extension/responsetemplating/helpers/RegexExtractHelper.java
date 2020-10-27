@@ -27,26 +27,26 @@ public class RegexExtractHelper extends HandlebarsHelper<Object> {
 
     @Override
     public Object apply(Object context, Options options) {
+        List<String> groups = new ArrayList<>();
         String regexString = options.param(0);
         Pattern regex = Pattern.compile(regexString);
         Matcher matcher = regex.matcher(context.toString());
-        if (!matcher.find()) {
+
+        while (matcher.find()) {
+            groups.add(matcher.group());
+        }
+
+        if (groups.isEmpty()) {
             return handleError("Nothing matched " + regexString);
         }
 
         if (options.params.length == 1) {
-            return matcher.group();
-        }
-
-        List<String> groups = new ArrayList<>(matcher.groupCount());
-        for (int i = 1; i <= matcher.groupCount(); i++) {
-            groups.add(matcher.group(i));
+            return groups.get(0);
         }
 
         String variableName = options.param(1);
         options.context.data(variableName, new ListOrSingle<>(groups));
 
         return null;
-
     }
 }
