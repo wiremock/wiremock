@@ -38,6 +38,7 @@ import java.util.Map;
 public interface Options {
 
     enum ChunkedEncodingPolicy { ALWAYS, NEVER, BODY_FILE }
+    enum FileIdMethod { RANDOM, REQUEST_HASH, RESPONSE_HASH, REQUEST_RESPONSE_HASH }
 
     int DEFAULT_PORT = 8080;
     int DYNAMIC_PORT = 0;
@@ -79,4 +80,5 @@ public interface Options {
     boolean getGzipDisabled();
     boolean getStubRequestLoggingDisabled();
     boolean getStubCorsEnabled();
+    FileIdMethod getFileIdMethod();
 }

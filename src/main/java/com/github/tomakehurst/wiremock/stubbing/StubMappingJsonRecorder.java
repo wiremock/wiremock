@@ -47,7 +47,14 @@ public class StubMappingJsonRecorder implements RequestListener {
         this.filesFileSource = filesFileSource;
         this.admin = admin;
         this.headersToMatch = headersToMatch;
-        idGenerator = new VeryShortIdGenerator();
+        switch (admin.getOptions().getFileIdMethod()) {
+            case RANDOM:
+                idGenerator = new VeryShortRandomIdGenerator();
+                break;
+            default:
+                idGenerator = new HashIdGenerator(admin.getOptions().getFileIdMethod());
+                break;
+        }
     }
 
     @Override
@@ -129,8 +136,8 @@ public class StubMappingJsonRecorder implements RequestListener {
     }
 
     private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
-        String fileId = idGenerator.generate();
         byte[] body = bodyDecompressedIfRequired(response);
+        String fileId = idGenerator.generate(request, response, body);
 
         String mappingFileName = UniqueFilenameGenerator.generate(request.getUrl(), "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(

@@ -201,6 +201,11 @@ public class WarConfiguration implements Options {
     }
 
     @Override
+    public FileIdMethod getFileIdMethod() {
+        return FileIdMethod.RANDOM;
+    }
+
+    @Override
     public BrowserProxySettings browserProxySettings() {
         return BrowserProxySettings.DISABLED;
     }

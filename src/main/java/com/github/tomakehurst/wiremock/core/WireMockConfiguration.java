@@ -111,6 +111,7 @@ public class WireMockConfiguration implements Options {
     private String permittedSystemKeys = null;
 
     private boolean stubCorsEnabled = false;
+    private FileIdMethod fileIdMethod = FileIdMethod.RANDOM;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -414,6 +415,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration fileIdMethod(FileIdMethod fileIdMethod) {
+        this.fileIdMethod = fileIdMethod;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -573,6 +579,11 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getStubCorsEnabled() {
         return stubCorsEnabled;
+    }
+
+    @Override
+    public FileIdMethod getFileIdMethod() {
+        return fileIdMethod;
     }
 
     @Override

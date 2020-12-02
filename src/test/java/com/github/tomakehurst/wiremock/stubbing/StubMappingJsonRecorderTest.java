@@ -584,7 +584,7 @@ public class StubMappingJsonRecorderTest {
 
 	private IdGenerator fixedIdGenerator(final String id) {
 	    return new IdGenerator() {
-            public String generate() {
+            public String generate(Request request, Response response, byte[] responseBytes) {
                 return id;
             }
         };
