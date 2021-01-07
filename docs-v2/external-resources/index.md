@@ -112,3 +112,5 @@ CDN:<br>
 ## MockLab
 
 [Build a Paypal sandbox for load testing in 10 minutes](https://www.mocklab.io/blog/build-a-paypal-sandbox-for-load-testing/)
+
+[Mock REST API tutorial](https://www.mocklab.io/docs/mock-rest-api/)
