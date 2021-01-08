@@ -1,9 +1,8 @@
 version: 2
-# https://dependabot.com/#how-it-works
 updates:
-  - package-ecosystem: "gradle"
-    # Look for `pom.xml` in the `root` directory. It will recursively scan any submodules.
-    directory: "/"
-    schedule:
-      # Check for updates once a day. This can be changed later on to `weekly` if desired.
-      interval: "daily"
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
