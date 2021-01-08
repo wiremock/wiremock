@@ -1,7 +1,7 @@
 version: 2
 # https://dependabot.com/#how-it-works
 updates:
-  - package-ecosystem: "maven"
+  - package-ecosystem: "gradle"
     # Look for `pom.xml` in the `root` directory. It will recursively scan any submodules.
     directory: "/"
     schedule:
