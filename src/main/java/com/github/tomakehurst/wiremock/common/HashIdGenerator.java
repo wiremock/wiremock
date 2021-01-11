@@ -17,15 +17,8 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
-import com.google.common.base.Charsets;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 
 import java.util.*;
 
@@ -34,7 +27,19 @@ import static com.github.tomakehurst.wiremock.core.Options.FileIdMethod.*;
 public class HashIdGenerator implements IdGenerator {
 
     private final Options.FileIdMethod method;
-    private final byte[] separator = "\n".getBytes(Charsets.UTF_8);
+
+    public static class HashRequestResponseId extends RequestResponseId {
+        public final HashDetails hashDetails;
+        private HashRequestResponseId(String id, HashDetails details) {
+            super(id);
+            this.hashDetails = details;
+        }
+    }
+
+    public static class HashDetails {
+        public Map<String, Object> request = null;
+        public Map<String, Object> response = null;
+    };
 
     public HashIdGenerator(Options.FileIdMethod method) {
         if (method != REQUEST_HASH && method != RESPONSE_HASH && method != REQUEST_RESPONSE_HASH)
@@ -43,76 +48,79 @@ public class HashIdGenerator implements IdGenerator {
     }
 
     @Override
-    public String generate(Request request, Response response, byte[] bodyBytes) {
+    public HashRequestResponseId generate(Request request, Response response, byte[] bodyBytes) {
         // Explicitly pull properties from the request/response instead of relying on toString()
         // to be stable and implemented consistently between different implementations of the
         // interface.
+        HashDetails hashDetails = new HashDetails();
 
-        ByteArrayDataOutput buffer = ByteStreams.newDataOutput();
         if (method == REQUEST_HASH || method == REQUEST_RESPONSE_HASH) {
+            hashDetails.request = new TreeMap<>();
+
             // GET, POST, etc.
-            write(buffer, request.getMethod().getName());
+            hashDetails.request.put("method", request.getMethod().getName());
+
             // /some/api/endpoint?query=blah&k=etc
-            write(buffer, request.getUrl());
+            hashDetails.request.put("url", request.getUrl());
+
             // ALL the http headers in the request
             // Should we include all headers?  Headers like Cache-Control: If-Modified-Since could break the hash...
-            writeHeaders(buffer, request.getHeaders());
+            hashDetails.request.put("headers", request.getHeaders());
+
             // ALL the cookies in the request
             String[] cookies = request.getCookies().keySet().toArray(new String[0]);
             Arrays.sort(cookies);
-            for (String cookie : cookies) write(buffer, cookie);
-            // Write the request body, if there is one.
+            hashDetails.request.put("cookies", cookies);
+
             byte[] requestBody = request.getBody();
-            if (requestBody != null)
-                buffer.write(requestBody);
-            buffer.write(separator);
+            hashDetails.request.put("bodyHash", requestBody != null ? Arrays.hashCode(requestBody) : null);
+            // it's OK to truncate as we're including a hash of the actual data
+            hashDetails.request.put("body", truncateStringIfNecessary(request.getBodyAsString(), 500));
+
             // If this is a multi-part (form upload) request, add each part to the buffer
             Collection<Request.Part> parts = request.getParts();
             if (parts != null) {
+                List<Map<String, Object>> multiParts = new ArrayList<>();
                 for (Request.Part part : parts) {
-                    write(buffer, part.getName());
-                    writeHeaders(buffer, part.getHeaders());
-                    if (part.getBody() != null && part.getBody().asBytes() != null)
-                        buffer.write(part.getBody().asBytes());
-                    buffer.write(separator);
+                    Map<String, Object> partDetails = new TreeMap<>();
+                    partDetails.put("name", part.getName());
+                    partDetails.put("headers", part.getHeaders());
+                    byte[] partBytes = (part.getBody() != null && part.getBody().asBytes() != null) ? part.getBody().asBytes() : null;
+                    partDetails.put("bodyHash", partBytes != null ? Arrays.hashCode(partBytes) : null);
+                    multiParts.add(partDetails);
                 }
+                hashDetails.request.put("multiparts", multiParts);
             }
         }
         if (method == RESPONSE_HASH || method == REQUEST_RESPONSE_HASH) {
+            hashDetails.response = new TreeMap<>();
+
             // 200, 404, 500, etc.
-            write(buffer, Integer.toString(response.getStatus()));
-            buffer.write(separator);
+            hashDetails.response.put("status", response.getStatus());
             if (response.getStatusMessage() != null)
-                write(buffer, response.getStatusMessage());
-            buffer.write(separator);
+                hashDetails.response.put("message", response.getStatusMessage());
+
             // ALL the http headers in the response
-            writeHeaders(buffer, response.getHeaders());
-            // Write the response body, if there is one.
-            if (bodyBytes != null)
-                buffer.write(bodyBytes);
+            hashDetails.response.put("headers", response.getHeaders());
+            hashDetails.response.put("bodyHash", bodyBytes != null ? Arrays.hashCode(bodyBytes) : null);
+            // it's OK to truncate as we're including a hash of the actual data
+            hashDetails.response.put("body", truncateStringIfNecessary(response.getBodyAsString(), 500));
         }
-        HashCode code = Hashing.farmHashFingerprint64().hashBytes(buffer.toByteArray());
-        return code.toString(); // returns a sequence of hex values representing the binary hash code
+
+        String json = Json.write(hashDetails);
+        // Convert to an "unsigned" int to ensure there are no negative values
+        // output.
+        String hashCode = String.format("%08X", (long)json.hashCode() - Integer.MIN_VALUE);
+        return new HashRequestResponseId(hashCode, hashDetails);
     }
 
-    private void write(ByteArrayDataOutput buffer, String content) {
-        buffer.write(content.getBytes(Charsets.UTF_8));
-        buffer.write(separator);
-    }
-
-    private void writeHeaders(ByteArrayDataOutput buffer, HttpHeaders headers) {
-        if (headers != null) {
-            HttpHeader[] sortedHeaders = headers.all().toArray(new HttpHeader[0]);
-            Arrays.sort(sortedHeaders, Comparator.comparing(HttpHeader::key));
-            for (HttpHeader header : sortedHeaders) {
-                write(buffer, header.key());
-                buffer.write(separator);
-                for (String value : header.values()) {
-                    write(buffer, value);
-                    buffer.write(separator);
-                }
-            }
-        }
+    private String truncateStringIfNecessary(String bodyAsString, int maxCharacters) {
+        if (bodyAsString == null)
+            return null;
+        if (bodyAsString.length() <= maxCharacters)
+            return bodyAsString;
+        int truncated = bodyAsString.length() - maxCharacters;
+        return bodyAsString.substring(0, maxCharacters) + "... (" + truncated + " characters have been truncated)";
     }
 
 }

@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,42 +48,42 @@ public class HashIdGeneratorTest {
                 .withUrl("/test/response").build();
     }
 
-    List<Function<MockRequestBuilder, String>> requestBuilders = List.of(
+    List<Function<MockRequestBuilder, ImmutablePair<String,String>>> requestBuilders = List.of(
             (builder) -> {
                 builder
                         .withMethod(GET)
                         .withUrl("/test/api");
-                return "88e04074b5bb2477";
+                return ImmutablePair.of("3F49E892","{\r\n  \"request\" : {\r\n    \"body\" : \"\",\r\n    \"bodyHash\" : 1,\r\n    \"cookies\" : [ ],\r\n    \"headers\" : { },\r\n    \"method\" : \"GET\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api\"\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .withMethod(POST);
-                return "f0daf32057f5784d";
+                return ImmutablePair.of("06217964","{\r\n  \"request\" : {\r\n    \"body\" : \"\",\r\n    \"bodyHash\" : 1,\r\n    \"cookies\" : [ ],\r\n    \"headers\" : { },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api\"\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .withUrl("/test/api2");
-                return "d9ccd2a80b7b30bb";
+                return ImmutablePair.of("D330ACAE","{\r\n  \"request\" : {\r\n    \"body\" : \"\",\r\n    \"bodyHash\" : 1,\r\n    \"cookies\" : [ ],\r\n    \"headers\" : { },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .withBody("k1=v1&k2=v2");
-                return "4420e6eb18094702";
+                return ImmutablePair.of("5D3F01AF","{\r\n  \"request\" : {\r\n    \"body\" : \"k1=v1&k2=v2\",\r\n    \"bodyHash\" : -1571478275,\r\n    \"cookies\" : [ ],\r\n    \"headers\" : { },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .withHeader("Accept-Content", "text/plain");
-                return "08484c66aac5d890";
+                return ImmutablePair.of("6A5E8E9D","{\r\n  \"request\" : {\r\n    \"body\" : \"k1=v1&k2=v2\",\r\n    \"bodyHash\" : -1571478275,\r\n    \"cookies\" : [ ],\r\n    \"headers\" : {\r\n      \"Accept-Content\" : \"text/plain\"\r\n    },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .withHeader("Accept-Content", "text/xml");
-                return "e7ef0864f16d9c24";
+                return ImmutablePair.of("B8E04D7C","{\r\n  \"request\" : {\r\n    \"body\" : \"k1=v1&k2=v2\",\r\n    \"bodyHash\" : -1571478275,\r\n    \"cookies\" : [ ],\r\n    \"headers\" : {\r\n      \"Accept-Content\" : [ \"text/plain\", \"text/xml\" ]\r\n    },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .withCookie("Color-Scheme", "blue");
-                return "ae7f7f1435bdc6e3";
+                return ImmutablePair.of("AAA67DF3","{\r\n  \"request\" : {\r\n    \"body\" : \"k1=v1&k2=v2\",\r\n    \"bodyHash\" : -1571478275,\r\n    \"cookies\" : [ \"Color-Scheme\" ],\r\n    \"headers\" : {\r\n      \"Accept-Content\" : [ \"text/plain\", \"text/xml\" ]\r\n    },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
             },
             (builder) -> {
                 Collection<Request.Part> parts = new ArrayList<>();
@@ -90,54 +91,62 @@ public class HashIdGeneratorTest {
                 part.header("Content-Disposition", "attachment");
                 parts.add(part);
                 builder.withMultiparts(parts);
-                return "54367eb484beb336";
+                return ImmutablePair.of("4625080E","{\r\n  \"request\" : {\r\n    \"body\" : \"k1=v1&k2=v2\",\r\n    \"bodyHash\" : -1571478275,\r\n    \"cookies\" : [ \"Color-Scheme\" ],\r\n    \"headers\" : {\r\n      \"Accept-Content\" : [ \"text/plain\", \"text/xml\" ]\r\n    },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ {\r\n      \"bodyHash\" : 45440525,\r\n      \"headers\" : {\r\n        \"Content-Disposition\" : \"attachment\"\r\n      },\r\n      \"name\" : \"favorite-cat-poem.txt\"\r\n    } ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
+            },
+            (builder) -> {
+                builder.withBody("{'data0':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999','data1':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999','data2':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999'}'data3':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999','data4':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999'}");
+                return ImmutablePair.of("6A8D455B","{\r\n  \"request\" : {\r\n    \"body\" : \"{'data0':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999','data1':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999','data2':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999'}'data3':'0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999','data4':'0000000000111111111122222222223333333333444444... (56 characters have been truncated)\",\r\n    \"bodyHash\" : -763273856,\r\n    \"cookies\" : [ \"Color-Scheme\" ],\r\n    \"headers\" : {\r\n      \"Accept-Content\" : [ \"text/plain\", \"text/xml\" ]\r\n    },\r\n    \"method\" : \"POST\",\r\n    \"multiparts\" : [ {\r\n      \"bodyHash\" : 45440525,\r\n      \"headers\" : {\r\n        \"Content-Disposition\" : \"attachment\"\r\n      },\r\n      \"name\" : \"favorite-cat-poem.txt\"\r\n    } ],\r\n    \"url\" : \"/test/api2\"\r\n  }\r\n}");
             }
     );
 
-    List<Function<Response.Builder, String>> responseBuilders = List.of(
+    List<Function<Response.Builder, ImmutablePair<String,String>>> responseBuilders = List.of(
             (builder) -> {
                 builder
                         .status(200);
-                return "d5859a17f3b32b3e";
+                return ImmutablePair.of("9EDFE657","{\r\n  \"response\" : {\r\n    \"body\" : \"\",\r\n    \"bodyHash\" : 1,\r\n    \"headers\" : { },\r\n    \"status\" : 200\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .statusMessage("OK");
-                return "9362a550c8dbcb91";
+                return ImmutablePair.of("342D4AB9","{\r\n  \"response\" : {\r\n    \"body\" : \"\",\r\n    \"bodyHash\" : 1,\r\n    \"headers\" : { },\r\n    \"message\" : \"OK\",\r\n    \"status\" : 200\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .body("Lorem Ipsum");
-                return "dcd68c9f636a0ac8";
+                return ImmutablePair.of("916A38EF","{\r\n  \"response\" : {\r\n    \"body\" : \"Lorem Ipsum\",\r\n    \"bodyHash\" : -358969414,\r\n    \"headers\" : { },\r\n    \"message\" : \"OK\",\r\n    \"status\" : 200\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .body("Lorem Ipsum -- what the heck is that?");
-                return "08262f0ce16902de";
+                return ImmutablePair.of("1B121734","{\r\n  \"response\" : {\r\n    \"body\" : \"Lorem Ipsum -- what the heck is that?\",\r\n    \"bodyHash\" : 1158347372,\r\n    \"headers\" : { },\r\n    \"message\" : \"OK\",\r\n    \"status\" : 200\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .headers(new HttpHeaders(
                                 httpHeader("Content-Type", "text/plain"),
                                 httpHeader("Cache-Control", "no-cache")));
-                return "5678bb9c965729e6";
+                return ImmutablePair.of("516A332B","{\r\n  \"response\" : {\r\n    \"body\" : \"Lorem Ipsum -- what the heck is that?\",\r\n    \"bodyHash\" : 1158347372,\r\n    \"headers\" : {\r\n      \"Content-Type\" : \"text/plain\",\r\n      \"Cache-Control\" : \"no-cache\"\r\n    },\r\n    \"message\" : \"OK\",\r\n    \"status\" : 200\r\n  }\r\n}");
             },
             (builder) -> {
                 builder
                         .status(404)
                         .statusMessage("Not found")
                         .body("We couldn't find the thing you were looking for.");
-                return "7175ce7acd0b75f3";
+                return ImmutablePair.of("928C5090","{\r\n  \"response\" : {\r\n    \"body\" : \"We couldn't find the thing you were looking for.\",\r\n    \"bodyHash\" : 109342669,\r\n    \"headers\" : {\r\n      \"Content-Type\" : \"text/plain\",\r\n      \"Cache-Control\" : \"no-cache\"\r\n    },\r\n    \"message\" : \"Not found\",\r\n    \"status\" : 404\r\n  }\r\n}");
             }
     );
 
     static int itemCount = 0;
-    static <BUILDER, ITEM_TYPE> Map<ITEM_TYPE, String> build(Function<Integer, BUILDER> builderFactory, Function<BUILDER, ITEM_TYPE> converter, List<Function<BUILDER, String>> builders) {
-        Map<ITEM_TYPE, String> items = new HashMap<>();
+    static <BUILDER, ITEM_TYPE, EXPECTED_TYPE> Map<ITEM_TYPE, EXPECTED_TYPE> build(
+            Function<Integer, BUILDER> builderFactory,
+            Function<BUILDER, ITEM_TYPE> converter,
+            List<Function<BUILDER, EXPECTED_TYPE>> builders)
+    {
+        Map<ITEM_TYPE, EXPECTED_TYPE> items = new HashMap<>();
         for (int countToApply = 1; countToApply <= builders.size(); countToApply++) {
             BUILDER builder = builderFactory.apply(itemCount);
             itemCount++;
-            String expectedId = "";
+            EXPECTED_TYPE expectedId = null;
             // Each request/response builds on the one before with one additional change.
             for (int i = 0; i < countToApply; i++) {
                 expectedId = builders.get(i).apply(builder);
@@ -149,8 +158,8 @@ public class HashIdGeneratorTest {
 
     @Test
     public void requestTest() {
-        final IdGenerator generator = new HashIdGenerator(REQUEST_HASH);
-        final IdGenerator responseHashGenerator = new HashIdGenerator(RESPONSE_HASH);
+        final HashIdGenerator generator = new HashIdGenerator(REQUEST_HASH);
+        final HashIdGenerator responseHashGenerator = new HashIdGenerator(RESPONSE_HASH);
 
         Response response = response()
                 .status(200)
@@ -160,26 +169,25 @@ public class HashIdGeneratorTest {
                         httpHeader("Cache-Control", "no-cache")))
                 .build();
 
-        Map<Request, String> requests = build(
+        Map<Request, ImmutablePair<String,String>> requests = build(
                 (count) -> new MockRequestBuilder(context, "Request #"+ count),
                 (builder) -> builder.build(),
                 requestBuilders);
         Set<String> uniqueHashes = new HashSet<>();
         Set<String> responseHashes = new HashSet<>();
 
-        for (Map.Entry<Request,String> entry : requests.entrySet()) {
+        for (Map.Entry<Request,ImmutablePair<String, String>> entry : requests.entrySet()) {
             Request request = entry.getKey();
-            final String id = generator.generate(request, response, response.getBody());
-            assertThat("Request with expected hash " + entry.getValue() + " produced the wrong hash", id, equalTo(entry.getValue()));
+            HashIdGenerator.HashRequestResponseId id = generator.generate(request, response, response.getBody());
+            assertThat("Request with expected hash " + entry.getValue().getLeft() + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(entry.getValue().getRight()));
+            assertThat("Request with expected hash " + entry.getValue().getLeft() + " produced the wrong hash", id.value(), equalTo(entry.getValue().getLeft()));
 
-            int sizeBefore = uniqueHashes.size();
-            uniqueHashes.add(id);
-            int sizeAfter = uniqueHashes.size();
-            assertThat("Each request should generate a new hash", sizeAfter, equalTo(sizeBefore + 1));
+            boolean isNew = uniqueHashes.add(id.value());
+            assertThat("Each request should generate a new hash", isNew, equalTo(true));
 
-            final String responseHashId = responseHashGenerator.generate(request, response, response.getBody());
-            assertThat(responseHashId, not(equalTo(id)));
-            responseHashes.add(responseHashId);
+            final HashIdGenerator.HashRequestResponseId responseHashId = responseHashGenerator.generate(request, response, response.getBody());
+            assertThat(responseHashId.value(), not(equalTo(id.value())));
+            responseHashes.add(responseHashId.value());
 
             // The same response is used each time so there should only be one hash returned by hash generator
             // with mode = RESPONSE_HASH.
@@ -189,29 +197,28 @@ public class HashIdGeneratorTest {
 
     @Test
     public void responseTest() {
-        final IdGenerator generator = new HashIdGenerator(RESPONSE_HASH);
-        final IdGenerator requestHashGenerator = new HashIdGenerator(REQUEST_HASH);
+        final HashIdGenerator generator = new HashIdGenerator(RESPONSE_HASH);
+        final HashIdGenerator requestHashGenerator = new HashIdGenerator(REQUEST_HASH);
 
-        Map<Response, String> responses = build(
+        Map<Response, ImmutablePair<String,String>> responses = build(
                 (count) -> response(),
                 (builder) -> builder.build(),
                 responseBuilders);
         Set<String> uniqueHashes = new HashSet<>();
         Set<String> requestHashes = new HashSet<>();
 
-        for (Map.Entry<Response,String> entry : responses.entrySet()) {
+        for (Map.Entry<Response,ImmutablePair<String,String>> entry : responses.entrySet()) {
             Response response = entry.getKey();
-            final String id = generator.generate(requestForResponseTest, response, response.getBody());
-            assertThat("Response with expected hash " + entry.getValue() + " produced the wrong hash", id, equalTo(entry.getValue()));
+            final HashIdGenerator.HashRequestResponseId id = generator.generate(requestForResponseTest, response, response.getBody());
+            assertThat("Response with expected hash " + entry.getValue().getLeft() + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(entry.getValue().getRight()));
+            assertThat("Response with expected hash " + entry.getValue().getLeft() + " produced the wrong hash", id.value(), equalTo(entry.getValue().getLeft()));
 
-            int sizeBefore = uniqueHashes.size();
-            uniqueHashes.add(id);
-            int sizeAfter = uniqueHashes.size();
-            assertThat("Each response should generate a new hash", sizeAfter, equalTo(sizeBefore + 1));
+            boolean isNew = uniqueHashes.add(id.value());
+            assertThat("Each response should generate a new hash", isNew, equalTo(true));
 
-            final String requestHashId = requestHashGenerator.generate(requestForResponseTest, response, response.getBody());
-            assertThat(requestHashId, not(equalTo(id)));
-            requestHashes.add(requestHashId);
+            final HashIdGenerator.HashRequestResponseId requestHashId = requestHashGenerator.generate(requestForResponseTest, response, response.getBody());
+            assertThat(requestHashId.value(), not(equalTo(id.value())));
+            requestHashes.add(requestHashId.value());
 
             // The same request is used each time so there should only be one hash returned by hash generator
             // with mode = REQUEST_HASH.
@@ -230,27 +237,29 @@ public class HashIdGeneratorTest {
 
     @Test
     public void requestResponseTest() {
-        Map<Request, String> requests = build(
+        Map<Request, ImmutablePair<String, String>> requests = build(
                 (count) -> new MockRequestBuilder(context, "Request #"+ count),
                 (builder) -> builder.build(),
                 requestBuilders);
-        Map<Response, String> responses = build(
+        Map<Response, ImmutablePair<String, String>> responses = build(
                 (count) -> response(),
                 (builder) -> builder.build(),
                 responseBuilders);
-        Set<String> uniqueHashes = new HashSet<>();
+        LinkedHashSet<String> uniqueHashes = new LinkedHashSet<>();
+        ArrayList<String> hashDetails = new ArrayList<>();
 
-        final IdGenerator generator = new HashIdGenerator(REQUEST_RESPONSE_HASH);
+        final HashIdGenerator generator = new HashIdGenerator(REQUEST_RESPONSE_HASH);
 
-        for (Map.Entry<Request,String> requestEntry : requests.entrySet()) {
+        for (Map.Entry<Request,ImmutablePair<String, String>> requestEntry : requests.entrySet()) {
             Request request = requestEntry.getKey();
-            for (Map.Entry<Response,String> responseEntry : responses.entrySet()) {
+            for (Map.Entry<Response,ImmutablePair<String, String>> responseEntry : responses.entrySet()) {
                 Response response = responseEntry.getKey();
-                final String id = generator.generate(request, response, response.getBody());
-                int sizeBefore = uniqueHashes.size();
-                uniqueHashes.add(id);
-                int sizeAfter = uniqueHashes.size();
-                assertThat("Each request/response combination should generate a new hash", sizeAfter, equalTo(sizeBefore + 1));
+                final HashIdGenerator.HashRequestResponseId id = generator.generate(request, response, response.getBody());
+                boolean isNew = uniqueHashes.add(id.value());
+                String detailsJson = Json.write(id.hashDetails);
+                int previousInstance = hashDetails.indexOf(detailsJson);
+                hashDetails.add(detailsJson);
+                assertThat("Each request/response combination should generate a new hash (previous instance = " + previousInstance +")", isNew, equalTo(true));
             }
         }
         assertThat(uniqueHashes.size(), equalTo(requests.size() * responses.size()));

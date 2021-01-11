@@ -25,13 +25,13 @@ public class VeryShortRandomIdGenerator implements IdGenerator {
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     @Override
-    public String generate(Request _request, Response _response, byte[] _bodyBytes) {
+    public RequestResponseId generate(Request _request, Response _response, byte[] _bodyBytes) {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 5; i++) {
             sb.append(randomChar());
         }
         
-        return sb.toString();
+        return new RequestResponseId(sb.toString());
     }
     
     private static char randomChar() {

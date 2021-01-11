@@ -20,5 +20,5 @@ import com.github.tomakehurst.wiremock.http.Response;
 
 public interface IdGenerator {
 
-    String generate(Request request, Response response, byte[] bodyBytes);
+    RequestResponseId generate(Request request, Response response, byte[] bodyBytes);
 }

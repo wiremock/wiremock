@@ -27,8 +27,8 @@ public class VeryShortRandomIdGeneratorTest {
         final IdGenerator generator = new VeryShortRandomIdGenerator();
         
         for (int i = 0; i < 1000; i++) {
-            final String id = generator.generate(null, null, null);
-            assertThat(id, matches("[A-Za-z0-9]{5}"));
+            final RequestResponseId id = generator.generate(null, null, null);
+            assertThat(id.value(), matches("[A-Za-z0-9]{5}"));
         }
     }
     
