@@ -185,6 +185,10 @@ responses.
 * **REQUEST_RESPONSE_HASH**
 ID is a hash based on both the HTTP request and response.
 
+`--hash-exclude-headers`: Comma separated list of headers (request or
+response headers) to ignore when creating a hash or the request and/or
+response.
+
 `--help`: Show command line help
 
 ## Configuring WireMock using the Java client

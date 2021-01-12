@@ -52,7 +52,7 @@ public class StubMappingJsonRecorder implements RequestListener {
                 idGenerator = new VeryShortRandomIdGenerator();
                 break;
             default:
-                idGenerator = new HashIdGenerator(admin.getOptions().getFileIdMethod());
+                idGenerator = new HashIdGenerator(admin.getOptions().getFileIdMethod(), admin.getOptions().getHashHeadersToIgnore());
                 break;
         }
     }

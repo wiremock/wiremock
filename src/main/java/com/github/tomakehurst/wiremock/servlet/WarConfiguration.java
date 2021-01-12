@@ -32,11 +32,13 @@ import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 
 import javax.servlet.ServletContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
 
@@ -203,6 +205,11 @@ public class WarConfiguration implements Options {
     @Override
     public FileIdMethod getFileIdMethod() {
         return FileIdMethod.RANDOM;
+    }
+
+    @Override
+    public Set<String> getHashHeadersToIgnore() {
+        return ImmutableSet.of();
     }
 
     @Override

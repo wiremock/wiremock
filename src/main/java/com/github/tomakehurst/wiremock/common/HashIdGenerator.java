@@ -17,16 +17,22 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.core.Options.FileIdMethod.*;
 
 public class HashIdGenerator implements IdGenerator {
 
     private final Options.FileIdMethod method;
+    private final Set<CaseInsensitiveKey> hashHeadersToIgnore;
 
     public static class HashRequestResponseId extends RequestResponseId {
         public final HashDetails hashDetails;
@@ -42,9 +48,14 @@ public class HashIdGenerator implements IdGenerator {
     };
 
     public HashIdGenerator(Options.FileIdMethod method) {
+        this(method, ImmutableSet.of());
+    }
+
+    public HashIdGenerator(Options.FileIdMethod method, Set<String> hashHeadersToIgnore) {
         if (method != REQUEST_HASH && method != RESPONSE_HASH && method != REQUEST_RESPONSE_HASH)
             throw new IllegalArgumentException("FileIdMethod is not supported: " + method);
         this.method = method;
+        this.hashHeadersToIgnore = hashHeadersToIgnore.stream().map(key -> new CaseInsensitiveKey(key)).collect(Collectors.toSet());
     }
 
     @Override
@@ -63,9 +74,7 @@ public class HashIdGenerator implements IdGenerator {
             // /some/api/endpoint?query=blah&k=etc
             hashDetails.request.put("url", request.getUrl());
 
-            // ALL the http headers in the request
-            // Should we include all headers?  Headers like Cache-Control: If-Modified-Since could break the hash...
-            hashDetails.request.put("headers", request.getHeaders());
+            hashDetails.request.put("headers", request.getHeaders().excluding(hashHeadersToIgnore));
 
             // ALL the cookies in the request
             String[] cookies = request.getCookies().keySet().toArray(new String[0]);
@@ -100,8 +109,8 @@ public class HashIdGenerator implements IdGenerator {
             if (response.getStatusMessage() != null)
                 hashDetails.response.put("message", response.getStatusMessage());
 
-            // ALL the http headers in the response
-            hashDetails.response.put("headers", response.getHeaders());
+            hashDetails.response.put("headers", response.getHeaders().excluding(hashHeadersToIgnore));
+
             hashDetails.response.put("bodyHash", bodyBytes != null ? Arrays.hashCode(bodyBytes) : null);
             // it's OK to truncate as we're including a hash of the actual data
             hashDetails.response.put("body", truncateStringIfNecessary(response.getBodyAsString(), 500));
@@ -122,5 +131,6 @@ public class HashIdGenerator implements IdGenerator {
         int truncated = bodyAsString.length() - maxCharacters;
         return bodyAsString.substring(0, maxCharacters) + "... (" + truncated + " characters have been truncated)";
     }
+
 
 }

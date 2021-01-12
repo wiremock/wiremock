@@ -5,13 +5,18 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.core.Options.FileIdMethod.*;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
@@ -136,22 +141,34 @@ public class HashIdGeneratorTest {
             }
     );
 
+    static class HashableJson<ITEM_TYPE> {
+        public final ITEM_TYPE item;
+        public final String expectedHash;
+        public final String expectedJson;
+        public HashableJson(ITEM_TYPE item, String expectedHash, String expectedJson) {
+            this.item = item;
+            this.expectedHash = expectedHash;
+            this.expectedJson = expectedJson;
+        }
+    }
+
     static int itemCount = 0;
-    static <BUILDER, ITEM_TYPE, EXPECTED_TYPE> Map<ITEM_TYPE, EXPECTED_TYPE> build(
+
+    static <BUILDER, ITEM_TYPE> List<HashableJson<ITEM_TYPE>> build(
             Function<Integer, BUILDER> builderFactory,
             Function<BUILDER, ITEM_TYPE> converter,
-            List<Function<BUILDER, EXPECTED_TYPE>> builders)
+            List<Function<BUILDER, ImmutablePair<String, String>>> builders)
     {
-        Map<ITEM_TYPE, EXPECTED_TYPE> items = new HashMap<>();
+        List<HashableJson<ITEM_TYPE>> items = new ArrayList<>();
         for (int countToApply = 1; countToApply <= builders.size(); countToApply++) {
             BUILDER builder = builderFactory.apply(itemCount);
             itemCount++;
-            EXPECTED_TYPE expectedId = null;
+            ImmutablePair<String, String> expectedId = null;
             // Each request/response builds on the one before with one additional change.
             for (int i = 0; i < countToApply; i++) {
                 expectedId = builders.get(i).apply(builder);
             }
-            items.put(converter.apply(builder), expectedId);
+            items.add(new HashableJson(converter.apply(builder), expectedId.getLeft(), expectedId.getRight()));
         }
         return items;
     }
@@ -169,18 +186,18 @@ public class HashIdGeneratorTest {
                         httpHeader("Cache-Control", "no-cache")))
                 .build();
 
-        Map<Request, ImmutablePair<String,String>> requests = build(
+        List<HashableJson<Request>> requests = build(
                 (count) -> new MockRequestBuilder(context, "Request #"+ count),
                 (builder) -> builder.build(),
                 requestBuilders);
         Set<String> uniqueHashes = new HashSet<>();
         Set<String> responseHashes = new HashSet<>();
 
-        for (Map.Entry<Request,ImmutablePair<String, String>> entry : requests.entrySet()) {
-            Request request = entry.getKey();
+        for (HashableJson<Request> entry : requests) {
+            Request request = entry.item;
             HashIdGenerator.HashRequestResponseId id = generator.generate(request, response, response.getBody());
-            assertThat("Request with expected hash " + entry.getValue().getLeft() + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(entry.getValue().getRight()));
-            assertThat("Request with expected hash " + entry.getValue().getLeft() + " produced the wrong hash", id.value(), equalTo(entry.getValue().getLeft()));
+            assertThat("Request with expected hash " + entry.expectedHash + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(entry.expectedJson));
+            assertThat("Request with expected hash " + entry.expectedHash + " produced the wrong hash", id.value(), equalTo(entry.expectedHash));
 
             boolean isNew = uniqueHashes.add(id.value());
             assertThat("Each request should generate a new hash", isNew, equalTo(true));
@@ -196,22 +213,64 @@ public class HashIdGeneratorTest {
     }
 
     @Test
+    public void requestTestIgnoringHeaders()
+    {
+        final HashIdGenerator generator = new HashIdGenerator(REQUEST_HASH, ImmutableSet.of("Accept-Content"));
+
+        Response response = response()
+                .status(200)
+                .body("Lorem Ipsum")
+                .headers(new HttpHeaders(
+                        httpHeader("Content-Type", "text/plain"),
+                        httpHeader("Cache-Control", "no-cache")))
+                .build();
+
+        List<HashableJson<Request>> requests = build(
+                (count) -> new MockRequestBuilder(context, "Request #"+ count),
+                (builder) -> builder.build(),
+                requestBuilders);
+
+        Consumer<Integer> testRequest = (index) -> {
+            HashableJson<Request> item = requests.get(index);
+            Request request = item.item;
+            HashIdGenerator.HashRequestResponseId id = generator.generate(request, response, response.getBody());
+
+            String expectedJson = item.expectedJson;
+            String expectedHash = item.expectedHash;
+
+            // Strip out headers and updated the expected hash
+            Pattern pattern = Pattern.compile("(.*?\"headers\" : )(\\{.*?\\})(.*)", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(expectedJson);
+            if (matcher.matches()) {
+                expectedJson = matcher.replaceFirst("$1{ }$3");
+                expectedHash = String.format("%08X", (long)expectedJson.hashCode() - Integer.MIN_VALUE);
+            }
+
+            assertThat("Request #" + index + " with expected hash " + item.expectedHash + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(expectedJson));
+            assertThat("Request #" + index + " with expected hash " + item.expectedHash + " produced the wrong hash", id.value(), equalTo(expectedHash));
+        };
+
+        for (int i = 0; i < requests.size(); i++)
+            testRequest.accept(i);
+    }
+
+    @Test
     public void responseTest() {
         final HashIdGenerator generator = new HashIdGenerator(RESPONSE_HASH);
         final HashIdGenerator requestHashGenerator = new HashIdGenerator(REQUEST_HASH);
 
-        Map<Response, ImmutablePair<String,String>> responses = build(
+        List<HashableJson<Response>> responses = build(
                 (count) -> response(),
                 (builder) -> builder.build(),
                 responseBuilders);
         Set<String> uniqueHashes = new HashSet<>();
         Set<String> requestHashes = new HashSet<>();
 
-        for (Map.Entry<Response,ImmutablePair<String,String>> entry : responses.entrySet()) {
-            Response response = entry.getKey();
+        for (HashableJson<Response> entry : responses) {
+            Response response = entry.item;
             final HashIdGenerator.HashRequestResponseId id = generator.generate(requestForResponseTest, response, response.getBody());
-            assertThat("Response with expected hash " + entry.getValue().getLeft() + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(entry.getValue().getRight()));
-            assertThat("Response with expected hash " + entry.getValue().getLeft() + " produced the wrong hash", id.value(), equalTo(entry.getValue().getLeft()));
+            assertThat("Response with expected hash " + entry.expectedHash + " produced the wrong JSON", Json.write(id.hashDetails), equalTo(entry.expectedJson));
+            assertThat("Response with expected hash " + entry.expectedHash + " produced the wrong hash", id.value(), equalTo(entry.expectedHash));
 
             boolean isNew = uniqueHashes.add(id.value());
             assertThat("Each response should generate a new hash", isNew, equalTo(true));
@@ -237,11 +296,11 @@ public class HashIdGeneratorTest {
 
     @Test
     public void requestResponseTest() {
-        Map<Request, ImmutablePair<String, String>> requests = build(
+        List<HashableJson<Request>> requests = build(
                 (count) -> new MockRequestBuilder(context, "Request #"+ count),
                 (builder) -> builder.build(),
                 requestBuilders);
-        Map<Response, ImmutablePair<String, String>> responses = build(
+        List<HashableJson<Response>> responses = build(
                 (count) -> response(),
                 (builder) -> builder.build(),
                 responseBuilders);
@@ -250,10 +309,10 @@ public class HashIdGeneratorTest {
 
         final HashIdGenerator generator = new HashIdGenerator(REQUEST_RESPONSE_HASH);
 
-        for (Map.Entry<Request,ImmutablePair<String, String>> requestEntry : requests.entrySet()) {
-            Request request = requestEntry.getKey();
-            for (Map.Entry<Response,ImmutablePair<String, String>> responseEntry : responses.entrySet()) {
-                Response response = responseEntry.getKey();
+        for (HashableJson<Request> requestEntry : requests) {
+            Request request = requestEntry.item;
+            for (HashableJson<Response> responseEntry : responses) {
+                Response response = responseEntry.item;
                 final HashIdGenerator.HashRequestResponseId id = generator.generate(request, response, response.getBody());
                 boolean isNew = uniqueHashes.add(id.value());
                 String detailsJson = Json.write(id.hashDetails);

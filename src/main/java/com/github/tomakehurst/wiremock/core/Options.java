@@ -34,6 +34,7 @@ import com.google.common.base.Optional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface Options {
 
@@ -81,4 +82,5 @@ public interface Options {
     boolean getStubRequestLoggingDisabled();
     boolean getStubCorsEnabled();
     FileIdMethod getFileIdMethod();
+    Set<String> getHashHeadersToIgnore();
 }

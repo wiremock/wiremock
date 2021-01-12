@@ -45,6 +45,7 @@ import com.google.common.collect.*;
 import com.google.common.io.Resources;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -113,6 +114,7 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_CA_KEYSTORE_PASSWORD = "ca-keystore-password";
     private static final String HTTPS_CA_KEYSTORE_TYPE = "ca-keystore-type";
     private static final String FILE_ID_METHOD = "file-id-method";
+    private static final String HASH_EXCLUDE_HEADERS = "hash-exclude-headers";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -172,6 +174,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_CA_KEYSTORE_PASSWORD, "Password for the alternative CA keystore.").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo(DEFAULT_CA_KESTORE_PASSWORD);
         optionParser.accepts(HTTPS_CA_KEYSTORE_TYPE, "Type of the alternative CA keystore (jks or pkcs12).").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo("jks");
         optionParser.accepts(FILE_ID_METHOD, "Method used to calculate file IDs for mappings.").withRequiredArg().ofType(FileIdMethod.class).defaultsTo(FileIdMethod.RANDOM);
+        optionParser.accepts(HASH_EXCLUDE_HEADERS, "A comma separated list of headers to exclude when calculating a request/response hash (see --" + FILE_ID_METHOD + ")").withRequiredArg();
 
         optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -529,6 +532,8 @@ public class CommandLineOptions implements Options {
             builder.put(RECORD_MAPPINGS, recordMappingsEnabled())
                     .put(MATCH_HEADERS, matchingHeaders())
                     .put(FILE_ID_METHOD, getFileIdMethod());
+            if (!getHashHeadersToIgnore().isEmpty())
+                builder.put(HASH_EXCLUDE_HEADERS, StringUtils.join(getHashHeadersToIgnore(),", "));
         }
 
         builder.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())
@@ -605,6 +610,14 @@ public class CommandLineOptions implements Options {
     @Override
     public FileIdMethod getFileIdMethod() {
         return (FileIdMethod) optionSet.valueOf(FILE_ID_METHOD);
+    }
+
+    @Override
+    public Set<String> getHashHeadersToIgnore() {
+        if (!optionSet.has(HASH_EXCLUDE_HEADERS))
+            return ImmutableSet.of();
+        String[] toIgnore = ((String)optionSet.valueOf(HASH_EXCLUDE_HEADERS)).split(",");
+        return ImmutableSet.<String>builder().add(toIgnore).build();
     }
 
     @SuppressWarnings("unchecked")
