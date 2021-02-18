@@ -289,6 +289,12 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void returnsCorrectlyParsedJettyIdleTimeout() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-idle-timeout", "2000");
+        assertThat(options.jettySettings().getIdleTimeout().get(), is(2000L));
+    }
+
+    @Test
     public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));

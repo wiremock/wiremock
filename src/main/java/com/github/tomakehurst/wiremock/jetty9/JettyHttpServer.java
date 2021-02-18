@@ -349,6 +349,10 @@ public class JettyHttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+
+        if (jettySettings.getIdleTimeout().isPresent()) {
+            connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

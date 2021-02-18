@@ -93,6 +93,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
+    private static final String JETTY_IDLE_TIMEOUT = "jetty-idle-timeout";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
@@ -152,6 +153,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(JETTY_STOP_TIMEOUT, "Timeout in milliseconds for Jetty to stop").withRequiredArg();
+        optionParser.accepts(JETTY_IDLE_TIMEOUT, "Idle timeout in milliseconds for Jetty connections").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
@@ -314,6 +316,10 @@ public class CommandLineOptions implements Options {
 
         if (optionSet.hasArgument(JETTY_STOP_TIMEOUT)) {
             builder = builder.withStopTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_STOP_TIMEOUT)));
+        }
+
+        if (optionSet.hasArgument(JETTY_IDLE_TIMEOUT)) {
+            builder = builder.withIdleTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_IDLE_TIMEOUT)));
         }
 
         return builder.build();

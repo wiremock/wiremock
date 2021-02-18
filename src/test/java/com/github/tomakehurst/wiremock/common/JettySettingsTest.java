@@ -42,6 +42,7 @@ public class JettySettingsTest {
         ensurePresent(jettySettings.getAcceptQueueSize());
         ensurePresent(jettySettings.getRequestHeaderSize());
         ensureLongPresent(jettySettings.getStopTimeout());
+        ensureLongPresent(jettySettings.getIdleTimeout());
     }
 
     @Test
@@ -55,6 +56,7 @@ public class JettySettingsTest {
         assertFalse(jettySettings.getAcceptQueueSize().isPresent());
         assertFalse(jettySettings.getRequestHeaderSize().isPresent());
         assertFalse(jettySettings.getStopTimeout().isPresent());
+        assertFalse(jettySettings.getIdleTimeout().isPresent());
     }
 
     private void ensurePresent(Optional<Integer> optional) {
