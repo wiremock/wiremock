@@ -35,7 +35,8 @@ public class JettySettingsTest {
         builder.withAcceptors(number)
                 .withAcceptQueueSize(number)
                 .withRequestHeaderSize(number)
-                .withStopTimeout(longNumber);
+                .withStopTimeout(longNumber)
+                .withIdleTimeout(longNumber);
         JettySettings jettySettings = builder.build();
 
         ensurePresent(jettySettings.getAcceptors());
