@@ -35,7 +35,7 @@ repositories {
 def jacksonVersion = '2.11.0'
 def versions = [
         handlebars     : '4.2.0',
-        jetty          : '9.4.30.v20200611',
+        jetty          : '9.4.36.v20210114',
         guava          : '29.0-jre',
         jackson        : jacksonVersion,
         jacksonDatabind: jacksonVersion,
