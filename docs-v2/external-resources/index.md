@@ -63,6 +63,9 @@ Python client by Cody Lee:<br>
 NodeJS wrapper:<br>
 [https://www.npmjs.com/package/wiremock](https://www.npmjs.com/package/wiremock)
 
+NodeJS + TypeScript client:<br>
+[https://www.npmjs.com/package/wiremock-captain](https://www.npmjs.com/package/wiremock-captain)
+
 
 ## Articles
 
