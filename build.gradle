@@ -56,7 +56,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$versions.jetty", {
         exclude group: 'org.conscrypt'
     }
-    compile 'org.conscrypt:conscrypt-openjdk-uber:2.2.1'
+    compile 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     compile "com.google.guava:guava:$versions.guava"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
