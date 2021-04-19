@@ -117,7 +117,7 @@ dependencies {
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
     testCompile 'org.apache.httpcomponents:httpmime:4.5'
 
-    testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
+    testRuntime 'org.slf4j:slf4j-log4j12:1.7.30'
     testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
     testCompile ('net.jockx:littleproxy:1.1.3') {
