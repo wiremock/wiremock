@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.jetty94;
 
 import org.eclipse.jetty.io.Connection;
 import org.eclipse.jetty.io.EndPoint;
+import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
@@ -63,11 +64,13 @@ class ManInTheMiddleSslConnectHandler extends AbstractHandler {
         EndPoint endpoint = httpChannel.getEndPoint();
         endpoint.setConnection(null);
 
-        Connection connection = sslConnectionFactory.newConnection(connector, endpoint);
-        endpoint.setConnection(connection);
+        SslConnection sslConnection = (SslConnection) sslConnectionFactory.newConnection(connector, endpoint);
+        // Unpacking this prevents the ClassCastException in HttpInputOverHTTP
+        Connection httpConnection = sslConnection.getDecryptedEndPoint().getConnection();
+        endpoint.setConnection(httpConnection);
 
         endpoint.onOpen();
-        connection.onOpen();
+        sslConnection.onOpen();
     }
 
     private void sendConnectResponse(HttpServletResponse response) throws IOException {
