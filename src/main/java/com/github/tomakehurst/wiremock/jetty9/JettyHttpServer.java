@@ -99,10 +99,14 @@ public class JettyHttpServer implements HttpServer {
             httpsConnector = null;
         }
 
+        applyAdditionalServerConfiguration(jettyServer, options);
+
         jettyServer.setHandler(createHandler(options, adminRequestHandler, stubRequestHandler));
 
         finalizeSetup(options);
     }
+
+    protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {}
 
     protected HandlerCollection createHandler(Options options, AdminRequestHandler adminRequestHandler, StubRequestHandler stubRequestHandler) {
         Notifier notifier = options.notifier();
