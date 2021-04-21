@@ -218,6 +218,7 @@ shadowJar {
     mergeServiceFiles()
 
     exclude 'META-INF/maven/javax.servlet/**'
+    exclude 'module-info.class'
 }
 
 def repoUser
