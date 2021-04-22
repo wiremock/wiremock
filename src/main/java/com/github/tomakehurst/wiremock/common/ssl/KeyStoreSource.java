@@ -1,12 +1,7 @@
 package com.github.tomakehurst.wiremock.common.ssl;
 
 import com.github.tomakehurst.wiremock.common.Source;
-import com.google.common.io.ByteStreams;
-import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
