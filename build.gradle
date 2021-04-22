@@ -35,7 +35,8 @@ repositories {
 def jacksonVersion = '2.11.0'
 def versions = [
         handlebars     : '4.2.0',
-        jetty          : '9.4.30.v20200611',
+//        jetty          : '9.4.34.v20201102', // Last working version
+        jetty          : '9.4.40.v20210413',
         guava          : '29.0-jre',
         jackson        : jacksonVersion,
         jacksonDatabind: jacksonVersion,
@@ -56,7 +57,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$versions.jetty", {
         exclude group: 'org.conscrypt'
     }
-    compile 'org.conscrypt:conscrypt-openjdk-uber:2.2.1'
+    compile 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     compile "com.google.guava:guava:$versions.guava"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
@@ -105,7 +106,7 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
-    testCompile 'org.mockito:mockito-core:2.28.2'
+    testCompile 'org.mockito:mockito-core:3.9.0'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
     testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.4.12'
     testCompile 'org.awaitility:awaitility:2.0.0'
