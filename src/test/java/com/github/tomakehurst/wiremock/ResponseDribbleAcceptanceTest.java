@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static com.github.tomakehurst.wiremock.testsupport.Assumptions.doNotRunOnMacOSXInCI;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -59,6 +60,8 @@ public class ResponseDribbleAcceptanceTest {
 
     @Test
     public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled() throws Exception {
+        doNotRunOnMacOSXInCI();
+
         stubFor(get("/delayedDribble").willReturn(
                 ok()
                     .withBody(BODY_BYTES)
@@ -77,6 +80,8 @@ public class ResponseDribbleAcceptanceTest {
 
     @Test
     public void servesAStringBodyInChunks() throws Exception {
+        doNotRunOnMacOSXInCI();
+        
         final int TOTAL_TIME = 500;
 
         stubFor(get("/delayedDribble").willReturn(
@@ -96,6 +101,8 @@ public class ResponseDribbleAcceptanceTest {
 
     @Test
     public void requestIsSuccessfulAndBelowSocketTimeoutWhenDribbleIsDisabled() throws Exception {
+        doNotRunOnMacOSXInCI();
+
         stubFor(get("/nonDelayedDribble").willReturn(
                 ok()
                     .withBody(BODY_BYTES)));
