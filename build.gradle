@@ -73,7 +73,7 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-    compile 'net.javacrumbs.json-unit:json-unit-core:2.19.0'
+    compile 'net.javacrumbs.json-unit:json-unit-core:2.25.0'
     compile "com.jayway.jsonpath:json-path:2.4.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
@@ -116,7 +116,7 @@ dependencies {
     testCompile 'org.awaitility:awaitility:2.0.0'
     testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.4"
-    testCompile 'org.scala-lang:scala-library:2.11.12'
+    testCompile 'org.scala-lang:scala-library:2.13.5'
 
     testCompile "org.eclipse.jetty:jetty-client:$versions.jetty"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
