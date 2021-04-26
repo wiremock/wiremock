@@ -162,6 +162,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 
 `--disable-request-logging`: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled. 
 
+`--disable-banner`: Prevent WireMock logo from being printed on startup 
+
 `--permitted-system-keys`: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to `wiremock.*`.
 
 `--enable-stub-cors`: Enable automatic sending of cross-origin (CORS) response headers. Defaults to off.
