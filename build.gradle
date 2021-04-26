@@ -32,6 +32,10 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    runningOnCI = System.getenv('CI') == 'true'
+}
+
 def jacksonVersion = '2.11.0'
 def versions = [
         handlebars     : '4.2.0',
@@ -139,7 +143,7 @@ test {
 
     exclude 'ignored/**'
 
-    maxParallelForks = 3
+    maxParallelForks = runningOnCI ? 1 : 3
 
     testLogging {
         events "FAILED", "SKIPPED"
