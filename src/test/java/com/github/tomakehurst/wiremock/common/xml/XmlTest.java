@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.common.xml;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -51,7 +52,7 @@ public class XmlTest {
 
         XmlDocument xmlDocument = Xml.parse(xml);
 
-        assertThat(xmlDocument.toString(), is("<one>\n" +
+        assertThat(xmlDocument.toString(), equalsMultiLine("<one>\n" +
                 "  <two>\n" +
                 "    <three name=\"3\"/>\n" +
                 "  </two>\n" +
@@ -85,7 +86,7 @@ public class XmlTest {
         XmlDocument xmlDocument = Xml.parse(xml);
         ListOrSingle<XmlNode> nodes = xmlDocument.findNodes("/one/two");
 
-        assertThat(nodes.getFirst().toString(), is("<two>\n" +
+        assertThat(nodes.getFirst().toString(), equalsMultiLine("<two>\n" +
                 "  <three name=\"3\"/>\n" +
                 "</two>"));
     }
