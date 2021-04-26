@@ -77,7 +77,7 @@ dependencies {
     compile "com.jayway.jsonpath:json-path:2.4.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
-    compile "org.ow2.asm:asm:7.0"
+    compile "org.ow2.asm:asm:9.1"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "net.sf.jopt-simple:jopt-simple:5.0.3"
     compileOnly("junit:junit:4.13") {
@@ -115,9 +115,9 @@ dependencies {
 
     testCompile "org.eclipse.jetty:jetty-client:$versions.jetty"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
-    testCompile 'org.apache.httpcomponents:httpmime:4.5'
+    testCompile 'org.apache.httpcomponents:httpmime:4.5.13'
 
-    testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
+    testRuntime 'org.slf4j:slf4j-log4j12:1.7.30'
     testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
     testCompile ('net.jockx:littleproxy:1.1.3') {
