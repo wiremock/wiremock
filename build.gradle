@@ -44,7 +44,7 @@ def versions = [
         guava          : '29.0-jre',
         jackson        : jacksonVersion,
         jacksonDatabind: jacksonVersion,
-        xmlUnit        : '2.7.0'
+        xmlUnit        : '2.8.2'
 ]
 
 dependencies {
