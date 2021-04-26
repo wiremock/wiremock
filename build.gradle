@@ -91,11 +91,6 @@ dependencies {
         exclude group: 'org.mozilla', module: 'rhino'
     }
 
-    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4', {
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
-    }
-
     compile 'commons-fileupload:commons-fileupload:1.4'
 
     testCompile "junit:junit:4.13"
