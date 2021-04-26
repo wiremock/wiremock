@@ -111,7 +111,7 @@ dependencies {
     testCompile 'org.awaitility:awaitility:2.0.0'
     testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.4"
-    testCompile 'org.scala-lang:scala-library:2.11.12'
+    testCompile 'org.scala-lang:scala-library:2.13.5'
 
     testCompile "org.eclipse.jetty:jetty-client:$versions.jetty"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
