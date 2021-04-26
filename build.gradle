@@ -73,7 +73,7 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-    compile 'net.javacrumbs.json-unit:json-unit-core:2.19.0'
+    compile 'net.javacrumbs.json-unit:json-unit-core:2.25.0'
     compile "com.jayway.jsonpath:json-path:2.4.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
@@ -91,7 +91,7 @@ dependencies {
         exclude group: 'org.mozilla', module: 'rhino'
     }
 
-    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4', {
+    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.11', {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
     }
