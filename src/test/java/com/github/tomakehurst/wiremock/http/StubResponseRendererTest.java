@@ -36,7 +36,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
 public class StubResponseRendererTest {
-    private static final int EXECUTE_WITHOUT_SLEEP_MILLIS = 100;
+    private static final int TEST_TIMEOUT = 500;
 
     private Mockery context;
     private FileSource fileSource;
@@ -53,7 +53,7 @@ public class StubResponseRendererTest {
         stubResponseRenderer = new StubResponseRenderer(fileSource, globalSettingsHolder, null, responseTransformers);
     }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
+    @Test(timeout = TEST_TIMEOUT)
     public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
@@ -62,7 +62,7 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(100L));
     }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
+    @Test(timeout = TEST_TIMEOUT)
     public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
@@ -71,7 +71,7 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(1000L));
     }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
+    @Test(timeout = TEST_TIMEOUT)
     public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
@@ -87,7 +87,7 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(2000L));
     }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
+    @Test(timeout = TEST_TIMEOUT)
     public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().delayDistribution(new DelayDistribution() {
             @Override
@@ -101,7 +101,7 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(123L));
     }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
+    @Test(timeout = TEST_TIMEOUT)
     public void shouldCombineFixedDelayDistributionDelay() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().delayDistribution(new DelayDistribution() {
             @Override
