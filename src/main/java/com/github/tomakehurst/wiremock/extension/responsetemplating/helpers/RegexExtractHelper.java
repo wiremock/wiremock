@@ -40,15 +40,18 @@ public class RegexExtractHelper extends HandlebarsHelper<Object> {
         Matcher matcher = regex.matcher(context.toString());
 
         while (matcher.find()) {
-            groups.add(matcher.group());
+
+            if (options.params.length == 1) {
+                return matcher.group();
+            }
+
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                groups.add(matcher.group(i));
+            }
         }
 
         if (groups.isEmpty()) {
             return handleError("Nothing matched " + regexString);
-        }
-
-        if (options.params.length == 1) {
-            return groups.get(0);
         }
 
         String variableName = options.param(1);
