@@ -19,7 +19,7 @@ plugins {
     id 'idea'
     id 'eclipse'
     id 'project-report'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 group = 'com.github.tomakehurst'
