@@ -10,6 +10,7 @@ import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
@@ -38,6 +39,27 @@ public class Jetty94HttpServer extends JettyHttpServer {
         httpConfig.setSendServerVersion(false);
         httpConfig.addCustomizer(new SecureRequestCustomizer());
         return httpConfig;
+    }
+
+    @Override
+    protected ServerConnector createHttpConnector(
+            String bindAddress,
+            int port,
+            JettySettings jettySettings,
+            NetworkTrafficListener listener) {
+
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
+
+        HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfig);
+
+        return createServerConnector(
+                bindAddress,
+                jettySettings,
+                port,
+                listener,
+                new HttpConnectionFactory(httpConfig),
+                h2c
+        );
     }
 
     @Override
