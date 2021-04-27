@@ -216,6 +216,7 @@ shadowJar {
 
     exclude 'META-INF/maven/javax.servlet/**'
     exclude 'module-info.class'
+    exclude 'handlebars-*.js'
 }
 
 def repoUser
