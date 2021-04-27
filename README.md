@@ -53,3 +53,10 @@ To build both JARs (thin and standalone):
 ```
 
 The built JAR will be placed under ``build/libs``.
+
+To publish both JARs to your local Maven repository:
+
+```bash
+./gradlew publishToMavenLocal
+```
+

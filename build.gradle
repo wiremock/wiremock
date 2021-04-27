@@ -382,6 +382,8 @@ task checkReleasePreconditions {
 }
 publish.dependsOn checkReleasePreconditions, writeThinJarPom
 
+publishToMavenLocal.dependsOn checkReleasePreconditions, writeThinJarPom, jar, shadowJar
+
 task addGitTag {
     doLast {
         if (!shouldPublishLocally) {
