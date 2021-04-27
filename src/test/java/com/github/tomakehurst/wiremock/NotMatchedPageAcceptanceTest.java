@@ -221,6 +221,17 @@ public class NotMatchedPageAcceptanceTest {
         assertThat(response.content(), containsString("| X-My-Header: modified value"));
     }
 
+    @Test
+    public void showsNotFoundDiffMessageForNonStandardHttpMethods() {
+        configure();
+        stubFor(request("PAAARP", urlPathEqualTo("/pip")).willReturn(ok()));
+
+        WireMockResponse response = testClient.request("PAAARP", "/pop");
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), containsString("Request was not matched"));
+    }
+
     private void configure() {
         configure(wireMockConfig().dynamicPort());
     }
