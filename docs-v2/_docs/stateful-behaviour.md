@@ -66,45 +66,47 @@ The JSON equivalent for the above three stubs is:
 
 ```json
 {
-    "scenarioName": "To do list",
-    "requiredScenarioState": "Started",
-    "request": {
-        "method": "GET",
-        "url": "/todo/items"
+  "mappings": [
+    {
+        "scenarioName": "To do list",
+        "requiredScenarioState": "Started",
+        "request": {
+            "method": "GET",
+            "url": "/todo/items"
+        },
+        "response": {
+            "status": 200,
+            "body" : "<items><item>Buy milk</item></items>"
+        }
     },
-    "response": {
-        "status": 200,
-        "body" : "<items><item>Buy milk</item></items>"
-    }
-}
-
-{
-    "scenarioName": "To do list",
-    "requiredScenarioState": "Started",
-    "newScenarioState": "Cancel newspaper item added",
-    "request": {
-        "method": "POST",
-        "url": "/todo/items",
-        "bodyPatterns": [
-            { "contains": "Cancel newspaper subscription" }
-         ]
+    {
+        "scenarioName": "To do list",
+        "requiredScenarioState": "Started",
+        "newScenarioState": "Cancel newspaper item added",
+        "request": {
+            "method": "POST",
+            "url": "/todo/items",
+            "bodyPatterns": [
+                { "contains": "Cancel newspaper subscription" }
+             ]
+        },
+        "response": {
+            "status": 201
+        }
     },
-    "response": {
-        "status": 201
+    {
+        "scenarioName": "To do list",
+        "requiredScenarioState": "Cancel newspaper item added",
+        "request": {
+            "method": "GET",
+            "url": "/todo/items"
+        },
+        "response": {
+            "status": 200,
+            "body" : "<items><item>Buy milk</item><item>Cancel newspaper subscription</item></items>"
+        }
     }
-}
-
-{
-    "scenarioName": "To do list",
-    "requiredScenarioState": "Cancel newspaper item added",
-    "request": {
-        "method": "GET",
-        "url": "/todo/items"
-    },
-    "response": {
-        "status": 200,
-        "body" : "<items><item>Buy milk</item><item>Cancel newspaper subscription</item></items>"
-    }
+  ]
 }
 ```
 
