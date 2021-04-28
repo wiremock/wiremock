@@ -117,6 +117,7 @@ public class CommandLineOptions implements Options {
     private final OptionSet optionSet;
     private final FileSource fileSource;
     private final MappingsSource mappingsSource;
+    private final Map<String, Extension> extensions;
 
     private String helpText;
     private Integer actualHttpPort;
@@ -181,9 +182,35 @@ public class CommandLineOptions implements Options {
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+        extensions = buildExtensions();
 
         actualHttpPort = null;
 	}
+
+	private Map<String, Extension> buildExtensions() {
+        ImmutableMap.Builder<String, Extension> builder = ImmutableMap.builder();
+        if (optionSet.has(EXTENSIONS)) {
+            String classNames = (String) optionSet.valueOf(EXTENSIONS);
+            builder.putAll(ExtensionLoader.load(classNames.split(",")));
+        }
+
+        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, true);
+        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, false);
+        }
+
+        return builder.build();
+    }
+
+    private void contributeResponseTemplateTransformer(ImmutableMap.Builder<String, Extension> builder, boolean global) {
+        ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
+                .global(global)
+                .maxCacheEntries(getMaxTemplateCacheEntries())
+                .permittedSystemKeys(getPermittedSystemKeys())
+                .build();
+        builder.put(transformer.getName(), transformer);
+    }
 
     private void validate() {
         if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
@@ -360,32 +387,7 @@ public class CommandLineOptions implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-        ImmutableMap.Builder<String, T> builder = ImmutableMap.builder();
-        if (optionSet.has(EXTENSIONS)) {
-            String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            builder.putAll ((Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
-                classNames.split(",")),
-                valueAssignableFrom(extensionType))
-            );
-        }
-
-        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(true)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(false)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        }
-
-        return builder.build();
+        return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
     }
 
     @Override

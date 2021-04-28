@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -44,6 +45,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertSame;
 
 public class CommandLineOptionsTest {
 
@@ -575,6 +577,16 @@ public class CommandLineOptionsTest {
         String options = new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target", "localhost", "--trust-proxy-target", "example.com").toString();
         assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
         assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));
+    }
+
+    @Test
+    public void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
+        CommandLineOptions options = new CommandLineOptions("--local-response-templating");
+
+        Object one = options.extensionsOfType(StubLifecycleListener.class).get(ResponseTemplateTransformer.NAME);
+        Object two = options.extensionsOfType(ResponseDefinitionTransformer.class).get(ResponseTemplateTransformer.NAME);
+
+        assertSame(one, two);
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
