@@ -23,7 +23,7 @@ plugins {
 }
 
 group = 'com.github.tomakehurst'
-version = '2.27.2'
+version = '2.28.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
