@@ -74,6 +74,7 @@ dependencies {
     compile "com.jayway.jsonpath:json-path:2.5.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
+    compile "net.minidev:json-smart:2.4.6" // Pinning this above the transitive version from json-path to get CVE fix
     compile "org.ow2.asm:asm:9.1"
     compile "org.slf4j:slf4j-api:1.7.30"
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
