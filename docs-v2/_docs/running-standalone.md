@@ -58,7 +58,7 @@ authenticate with a proxy target that require client authentication. See
 and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
 details.
 
-`--keystore-type`: The HTTPS trust store type. Usually JKS or PKCS12.
+`--truststore-type`: The HTTPS trust store type. Usually JKS or PKCS12.
 
 `--truststore-password`: Optional password to the trust store. Defaults
 to "password" if not specified.
