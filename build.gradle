@@ -19,11 +19,11 @@ plugins {
     id 'idea'
     id 'eclipse'
     id 'project-report'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
 
 group = 'com.github.tomakehurst'
-version = '2.28.0'
+version = '2.27.2-1'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -32,15 +32,13 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    runningOnCI = System.getenv('CI') == 'true'
-}
-
+def jacksonVersion = '2.11.0'
 def versions = [
         handlebars     : '4.2.0',
         jetty          : '9.4.40.v20210413',
         guava          : '30.1.1-jre',
-        jackson        : '2.12.3',
+        jackson        : jacksonVersion,
+        jacksonDatabind: jacksonVersion,
         xmlUnit        : '2.8.2'
 ]
 
@@ -63,25 +61,33 @@ dependencies {
     compile "com.google.guava:guava:$versions.guava"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
-    compile "org.apache.httpcomponents:httpclient:4.5.13"
+        "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
+    compile "org.apache.httpcomponents:httpclient:4.5.13", {
+        exclude group: 'commons-codec', module: 'commons-code'
+    }
+    compile "commons-codec:commons-codec:1.14"
     compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
         exclude group: 'junit', module: 'junit'
     }
     compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-    compile 'net.javacrumbs.json-unit:json-unit-core:2.25.0'
-    compile "com.jayway.jsonpath:json-path:2.5.0", {
+    compile 'net.javacrumbs.json-unit:json-unit-core:2.19.0'
+    compile "com.jayway.jsonpath:json-path:2.4.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
+        exclude group: 'net.minidev', module: 'json-smart'
     }
-    compile "net.minidev:json-smart:2.4.6" // Pinning this above the transitive version from json-path to get CVE fix
+    compile "net.minidev:json-smart:2.4.1"
     compile "org.ow2.asm:asm:9.1"
-    compile "org.slf4j:slf4j-api:1.7.30"
+    compile "org.slf4j:slf4j-api:1.7.30", {
+        exclude group: 'log4j',module:'log4j'
+    }
+    compile "org.apache.logging.log4j:log4j-api:2.13.3"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:2.13.3"
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
     compileOnly("junit:junit:4.13.2") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
-    compile 'org.apache.commons:commons-lang3:3.12.0'
+    compile 'org.apache.commons:commons-lang3:3.7'
     compile "com.github.jknack:handlebars:$versions.handlebars", {
         exclude group: 'org.mozilla', module: 'rhino'
     }
@@ -89,40 +95,57 @@ dependencies {
         exclude group: 'org.mozilla', module: 'rhino'
     }
 
-    compile 'commons-fileupload:commons-fileupload:1.4'
+    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4', {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+    }
 
-    testCompile "junit:junit:4.13"
+    compile 'commons-fileupload:commons-fileupload:1.4',  {
+        exclude group: 'commons-io', module: 'commons-io'
+    }
+    compile "commons-io:commons-io:2.8.0"
+
+    testCompile "junit:junit:4.13.2"
     testCompile "org.hamcrest:hamcrest-all:1.3"
-    testCompile("org.jmock:jmock:2.5.1") {
+    testCompile("org.jmock:jmock:2.12.0") {
         exclude group: "junit", module: "junit-dep"
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
-    testCompile("org.jmock:jmock-junit4:2.5.1") {
+    testCompile("org.jmock:jmock-junit4:2.12.0") {
         exclude group: "junit", module: "junit-dep"
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
-    testCompile 'org.mockito:mockito-core:3.9.0'
+    testCompile 'org.mockito:mockito-core:2.28.2'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
     testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.0'
-    testCompile 'org.awaitility:awaitility:4.0.3'
+    testCompile 'org.awaitility:awaitility:2.0.0'
     testCompile "com.googlecode.jarjar:jarjar:1.3"
-    testCompile "commons-io:commons-io:2.8.0"
-    testCompile 'org.scala-lang:scala-library:2.13.5'
+    testCompile "commons-io:commons-io:2.8"
+    testCompile 'org.scala-lang:scala-library:2.11.12'
 
     testCompile "org.eclipse.jetty:jetty-client:$versions.jetty"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
-    testCompile 'org.apache.httpcomponents:httpmime:4.5.13'
+    testCompile ('org.apache.httpcomponents:httpmime:4.5') {
+        exclude group: 'commons-codec', module: 'commons-code'
+    }
+    testCompile "commons-codec:commons-codec:1.14"
 
-    testRuntime 'org.slf4j:slf4j-log4j12:1.7.30'
+    testRuntime ('org.slf4j:slf4j-log4j12:1.7.30') {
+        exclude group: 'log4j', module: 'log4j'
+    }
+    testRuntime "org.apache.logging.log4j:log4j-api:2.13.3"
+    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.13.3"
     testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
     testCompile ('net.jockx:littleproxy:1.1.3') {
         exclude group: 'com.google.guava', module: 'guava'
         exclude group: 'org.apache.commons', module: 'commons-lang3'
         exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'io.netty', module: 'netty-all'
     }
+    testCompile "io.netty:netty-all:4.1.63.Final"
 }
 
 compileTestJava {
@@ -136,7 +159,7 @@ test {
 
     exclude 'ignored/**'
 
-    maxParallelForks = runningOnCI ? 1 : 3
+    maxParallelForks = 3
 
     testLogging {
         events "FAILED", "SKIPPED"
@@ -216,8 +239,6 @@ shadowJar {
     mergeServiceFiles()
 
     exclude 'META-INF/maven/javax.servlet/**'
-    exclude 'module-info.class'
-    exclude 'handlebars-*.js'
 }
 
 def repoUser
@@ -382,8 +403,6 @@ task checkReleasePreconditions {
     }
 }
 publish.dependsOn checkReleasePreconditions, writeThinJarPom
-
-publishToMavenLocal.dependsOn checkReleasePreconditions, writeThinJarPom, jar, shadowJar
 
 task addGitTag {
     doLast {
