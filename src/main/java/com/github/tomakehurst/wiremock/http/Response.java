@@ -178,6 +178,7 @@ public class Response {
         public static Builder like(Response response) {
             Builder responseBuilder = new Builder();
             responseBuilder.status = response.getStatus();
+            responseBuilder.statusMessage = response.getStatusMessage();
             responseBuilder.bodyStream = response.bodyStreamSource;
             responseBuilder.headers = response.getHeaders();
             responseBuilder.configured = response.wasConfigured();
