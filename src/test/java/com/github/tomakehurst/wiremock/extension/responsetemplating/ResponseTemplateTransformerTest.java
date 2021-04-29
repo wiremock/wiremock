@@ -852,6 +852,20 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformer.getCacheSize(), is(0L));
     }
 
+    @Test
+    public void arrayStyleQueryParametersCanBeResolvedViaLookupHelper() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                        .url("/things?ids[]=111&ids[]=222&ids[]=333"),
+                aResponse().withBody(
+                        "1: {{lookup request.query 'ids[].0'}}, 2: {{lookup request.query 'ids[].1'}}, 3: {{lookup request.query 'ids[].2'}}"
+                )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+                "1: 111, 2: 222, 3: 333"
+        ));
+    }
+
     private String transform(String responseBodyTemplate) {
         return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
     }
