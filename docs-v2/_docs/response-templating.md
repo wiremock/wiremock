@@ -198,6 +198,22 @@ For instance, given a request URL like `/multi-query?things=1&things=2&things=3`
 > The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
 > with another String value. 
 
+
+### Getting values with keys containing special characters
+
+Certain characters have special meaning in Handlebars and therefore can't be used in key names when referencing values.
+If you need to access keys containing these characters you can use the `lookup` helper, which permits you to pass the key
+name as a string literal and thus avoid the restriction.
+
+Probably the most common occurrence of this issue is with array-style query parameters, so for instance if your request
+URLs you're matching are of the form `/stuff?ids[]=111&ids[]=222&ids[]=333` then you can access these values like:
+
+{% raw %}
+```
+{{lookup request.query 'ids[].1'}} // Will return 222
+```
+{% endraw %} 
+
 ## Using transformer parameters
 
 Parameter values can be passed to the transformer as shown below (or dynamically added to the parameters map programmatically in custom transformers).
