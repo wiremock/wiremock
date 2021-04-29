@@ -85,6 +85,12 @@ public class MatchesJsonPathPattern extends PathPattern {
     protected MatchResult isAdvancedMatch(String value) {
         try {
             String expressionResult = getExpressionResult(value);
+
+            // Bit of a hack, but otherwise empty array results aren't matched as absent()
+            if ("[ ]".equals(expressionResult) && valuePattern.getClass().isAssignableFrom(AbsentPattern.class)) {
+                expressionResult = null;
+            }
+
             return valuePattern.match(expressionResult);
         } catch (SubExpressionException e) {
             notifier().info(e.getMessage());
