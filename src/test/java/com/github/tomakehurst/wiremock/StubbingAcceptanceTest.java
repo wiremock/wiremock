@@ -709,6 +709,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(code, is(200));
 	}
 
+	@Test
+	public void matchesQueryCharactersThatStriclyShouldBeEscapedInEitherForm() {
+		stubFor(get(urlPathEqualTo("/test"))
+				.withQueryParam("filter[id]", equalTo("1"))
+				.willReturn(ok()));
+
+		assertThat(testClient.get("/test?filter[id]=1").statusCode(), is(200));
+		assertThat(testClient.get("/test?filter%5Bid%5D=1").statusCode(), is(200));
+	}
+
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 		connection.setRequestMethod("GET");
