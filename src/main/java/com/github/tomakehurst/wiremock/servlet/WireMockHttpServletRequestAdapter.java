@@ -25,9 +25,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
-import com.google.common.base.Function;
+import com.google.common.base.*;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
@@ -57,6 +56,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     private final HttpServletRequest request;
     private final MultipartRequestConfigurer multipartRequestConfigurer;
     private byte[] cachedBody;
+    private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
     private String urlPrefixToRemove;
     private Collection<Part> cachedMultiparts;
 
@@ -66,6 +66,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
         this.request = request;
         this.multipartRequestConfigurer = multipartRequestConfigurer;
         this.urlPrefixToRemove = urlPrefixToRemove;
+
+        cachedQueryParams = Suppliers.memoize(new Supplier<Map<String, QueryParameter>>() {
+            @Override
+            public Map<String, QueryParameter> get() {
+                return splitQuery(request.getQueryString());
+            }
+        });
     }
 
     @Override
@@ -242,9 +249,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return firstNonNull((splitQuery(request.getQueryString())
-                .get(key)),
-            QueryParameter.absent(key));
+        Map<String, QueryParameter> queryParams = cachedQueryParams.get();
+        return firstNonNull(
+                queryParams.get(key),
+                QueryParameter.absent(key)
+        );
     }
 
     @Override
