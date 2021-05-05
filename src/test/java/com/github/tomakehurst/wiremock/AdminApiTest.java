@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -52,8 +52,10 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonStringPartEquals;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -982,7 +984,21 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(allStubs.size(), is(2));
         assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
         assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
+    }
 
+    @Test
+    public void findsNearMissesByRequest() {
+        wm.stubFor(post("/things").willReturn(ok()));
+        testClient.postJson("/anything", "{}");
+
+        String nearMissRequestJson = "{\n" +
+                "  \"method\": \"GET\",\n" +
+                "  \"url\": \"/thing\"\n" +
+                "}";
+        WireMockResponse response = testClient.postJson("/__admin/near-misses/request", nearMissRequestJson);
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), jsonPartEquals("nearMisses[0].request.url", "/thing"));
     }
 
     public static class TestExtendedSettingsData {
