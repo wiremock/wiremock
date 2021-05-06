@@ -89,7 +89,8 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
                 NO_PROXY,
                 clientTrustStoreSettings,
                 /* trustSelfSignedCertificates = */false,
-                trustedHosts
+                trustedHosts,
+                false
         );
     }
 

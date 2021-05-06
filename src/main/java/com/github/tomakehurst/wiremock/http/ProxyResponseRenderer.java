@@ -21,12 +21,12 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import javax.net.ssl.SSLException;
 import java.io.ByteArrayInputStream;
@@ -46,6 +46,8 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 public class ProxyResponseRenderer implements ResponseRenderer {
 
     private static final int MINUTES = 1000 * 60;
+    private static final int DEFAULT_SO_TIMEOUT = 5 * MINUTES;
+
     private static final String TRANSFER_ENCODING = "transfer-encoding";
     private static final String CONTENT_ENCODING = "content-encoding";
     private static final String CONTENT_LENGTH = "content-length";
@@ -56,8 +58,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
             "connection"
     );
 
-    private final HttpClient client;
-    private final HttpClient scepticalClient;
+    private final CloseableHttpClient reverseProxyClient;
+    private final CloseableHttpClient forwardProxyClient;
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
     private final GlobalSettingsHolder globalSettingsHolder;
@@ -74,8 +76,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     ) {
         this.globalSettingsHolder = globalSettingsHolder;
         this.trustAllProxyTargets = trustAllProxyTargets;
-        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
-        scepticalClient = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, false, trustedProxyTargets);
+        reverseProxyClient = HttpClientFactory.createClient(1000, DEFAULT_SO_TIMEOUT, proxySettings, trustStoreSettings, true, Collections.<String>emptyList(), true);
+        forwardProxyClient = HttpClientFactory.createClient(1000, DEFAULT_SO_TIMEOUT, proxySettings, trustStoreSettings, trustAllProxyTargets, trustAllProxyTargets ? Collections.emptyList() : trustedProxyTargets, false);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
@@ -88,10 +90,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         addRequestHeaders(httpRequest, responseDefinition);
 
         addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
-        HttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
-        try {
-            HttpResponse httpResponse = client.execute(httpRequest);
-
+        CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
+        try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
                     .headers(headersFrom(httpResponse, responseDefinition))
@@ -120,11 +120,11 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                 .build();
     }
 
-    private HttpClient buildClient(boolean browserProxyRequest) {
-	    if (browserProxyRequest && !trustAllProxyTargets) {
-            return scepticalClient;
+    private CloseableHttpClient buildClient(boolean browserProxyRequest) {
+	    if (browserProxyRequest) {
+            return forwardProxyClient;
         } else {
-            return this.client;
+            return reverseProxyClient;
         }
     }
 
