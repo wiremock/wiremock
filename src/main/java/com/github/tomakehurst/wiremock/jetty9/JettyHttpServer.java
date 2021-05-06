@@ -435,7 +435,8 @@ public class JettyHttpServer implements HttpServer {
         Resources.getResource("assets/swagger-ui/index.html");
 
         adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-        adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        ServletHolder swaggerUiServletHolder = adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        swaggerUiServletHolder.setAsyncSupported(false);
         adminContext.addServlet(DefaultServlet.class, "/recorder/*");
 
         ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
