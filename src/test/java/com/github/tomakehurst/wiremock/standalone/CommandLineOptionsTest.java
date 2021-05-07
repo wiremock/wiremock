@@ -129,6 +129,15 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void defaultsTrustStorePasswordIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore"
+        );
+        assertThat(options.httpsSettings().trustStorePassword(), is("password"));
+    }
+
+    @Test
     public void setsHttpsKeyStorePathOptions() {
         CommandLineOptions options = new CommandLineOptions(
                 "--https-port", "8443",
