@@ -132,7 +132,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
         optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
-        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
+        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
