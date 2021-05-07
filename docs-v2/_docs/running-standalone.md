@@ -274,7 +274,19 @@ JSON files containing multiple stub mappings can also be used. These are of the 
 
 
 ## Pushing JSON files to a remote WireMock instance
-You can push a collection of mappings to a remote  
+You can push a collection of stub mappings and associated files to a remote WireMock or MockLab instance via the
+Java API as follows:
+
+```java
+WireMock wireMock = WireMock.create()
+    .scheme("http")
+    .host("my-wiremock.example.com")
+    .port(80)
+    .build();
+
+// The root directory of the WireMock project, under which the mappings and __files directories should be found
+wireMock.loadMappingsFrom("/wiremock-stuff");
+``` 
 
 
 ## File serving
