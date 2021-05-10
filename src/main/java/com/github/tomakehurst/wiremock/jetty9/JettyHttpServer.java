@@ -58,6 +58,7 @@ public class JettyHttpServer implements HttpServer {
 
     static {
         System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
+        System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", "true");
     }
 
     private final Server jettyServer;
