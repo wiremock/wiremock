@@ -24,6 +24,7 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -718,11 +719,22 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/test?filter[id]=1").statusCode(), is(200));
 		assertThat(testClient.get("/test?filter%5Bid%5D=1").statusCode(), is(200));
 	}
+	
+	@Test
+	public void matchesExactContentTypeEncodingSpecified() throws Exception {
+		String contentType = "application/json; charset=UTF-8";
+		String url = "/request-content-type-case";
+
+		stubFor(post(url).withHeader("Content-Type", equalTo(contentType)).willReturn(ok()));
+
+		WireMockResponse response = testClient.post(url, new StringEntity("{}"), withHeader("Content-Type", contentType));
+		assertThat(response.statusCode(), is(200));
+	}
 
 	@Test
 	public void returnsContentTypeHeaderEncodingInCorrectCase() {
 		String contentType = "application/json; charset=UTF-8";
-		String url = "/content-type-case";
+		String url = "/response-content-type-case";
 
 		stubFor(get(url).willReturn(ok("{}").withHeader("Content-Type", contentType)));
 
