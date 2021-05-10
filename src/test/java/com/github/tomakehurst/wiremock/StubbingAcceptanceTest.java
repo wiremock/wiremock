@@ -719,6 +719,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/test?filter%5Bid%5D=1").statusCode(), is(200));
 	}
 
+	@Test
+	public void returnsContentTypeHeaderEncodingInCorrectCase() {
+		String contentType = "application/json; charset=UTF-8";
+		String url = "/content-type-case";
+
+		stubFor(get(url).willReturn(ok("{}").withHeader("Content-Type", contentType)));
+
+		assertThat(testClient.get(url).firstHeader("Content-Type"), is(contentType));
+	}
+
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 		connection.setRequestMethod("GET");
