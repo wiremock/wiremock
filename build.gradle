@@ -376,6 +376,7 @@ publishing {
 
             pom.packaging 'jar'
             pom.withXml {
+                asNode().appendNode('description', 'A web service test double for all occasions - standalone edition')
                 asNode().children().last() + pomInfo
             }
         }
