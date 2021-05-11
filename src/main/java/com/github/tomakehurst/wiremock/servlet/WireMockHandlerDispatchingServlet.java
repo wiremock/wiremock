@@ -38,6 +38,7 @@ import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
@@ -213,7 +214,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             }
         }
 
-        if (chunkedEncodingPolicy == NEVER || (chunkedEncodingPolicy == BODY_FILE && response.hasInlineBody())) {
+        if ((chunkedEncodingPolicy == NEVER || (chunkedEncodingPolicy == BODY_FILE && response.hasInlineBody())) &&
+                httpServletResponse.getHeader(CONTENT_LENGTH) == null) {
             httpServletResponse.setContentLength(response.getBody().length);
         }
 
