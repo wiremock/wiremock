@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-01-07T17:35:00+00:00">
+  <meta property="article:published_time" content="2021-05-11T19:09:23+01:00">
   
     <link rel="next" href="/docs/extending-wiremock/" title="Extending WireMock">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Download and Installation">
     <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containingWireMock plus all its dependencies.">
-    <meta itemprop="datePublished" content="January 07, 2021">
+    <meta itemprop="datePublished" content="May 11, 2021">
     
 
     <div class="page__inner-wrap">
@@ -370,36 +370,23 @@ conflicting versions of its dependencies. The standalone JAR is also runnable (s
 <p>The Java 7 distribution is aimed primarily at Android developers and enterprise Java teams still using JRE7. Some of its
 dependencies are not set to the latest versions e.g. Jetty 9.2.x is used, as this is the last minor version to retain Java 7 compatibility.</p>
 
-<p>The Java 8+ build endeavours to track the latest version of all its major dependencies. This is usually the version you should choose by default.</p>
+<p>The Java 8+ build endeavours to track the latest version of all its major dependencies.</p>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>The Java 7 version is now deprecated in the 2.x line and version 2.27.2 is the last release available. It’s strongly
+recommended that you use the Java 8 releases if possible.</p>
+</blockquote>
 
 <h2 id="maven-dependencies">Maven dependencies</h2>
-
-<p>Java 7:</p>
-
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div></div>
-
-<p>Java 7 standalone:</p>
-
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div></div>
 
 <p>Java 8:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.28.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
@@ -409,6 +396,26 @@ dependencies are not set to the latest versions e.g. Jetty 9.2.x is used, as thi
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8-standalone<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.28.0<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>Java 7 (deprecated):</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>Java 7 standalone (deprecated):</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
     <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
@@ -416,29 +423,29 @@ dependencies are not set to the latest versions e.g. Jetty 9.2.x is used, as thi
 
 <h2 id="gradle-dependencies">Gradle dependencies</h2>
 
-<p>Java 7:</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock:2.27.2"</span>
-</code></pre></div></div>
-
-<p>Java 7 standalone:</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-standalone:2.27.2"</span>
-</code></pre></div></div>
-
 <p>Java 8:</p>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.27.2"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.28.0"</span>
 </code></pre></div></div>
 
 <p>Java 8 standalone:</p>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8-standalone:2.27.2"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8-standalone:2.28.0"</span>
+</code></pre></div></div>
+
+<p>Java 7 (deprecated):</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock:2.27.2"</span>
+</code></pre></div></div>
+
+<p>Java 7 standalone (deprecated):</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-standalone:2.27.2"</span>
 </code></pre></div></div>
 
 <h2 id="direct-download">Direct download</h2>
 
-<p>If you want to run WireMock as a standalone process you can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.27.2/wiremock-jre8-standalone-2.27.2.jar">download the standalone JAR from
+<p>If you want to run WireMock as a standalone process you can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.28.0/wiremock-jre8-standalone-2.28.0.jar">download the standalone JAR from
 here</a>.</p>
 
         

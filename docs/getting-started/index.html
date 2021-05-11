@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-01-07T17:35:00+00:00">
+  <meta property="article:published_time" content="2021-05-11T19:09:23+01:00">
   
     <link rel="next" href="/docs/https/" title="HTTPS">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Getting Started">
     <meta itemprop="description" content="Installation">
-    <meta itemprop="datePublished" content="January 07, 2021">
+    <meta itemprop="datePublished" content="May 11, 2021">
     
 
     <div class="page__inner-wrap">
@@ -370,14 +370,14 @@
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.28.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
 
 <h3 id="gradle">Gradle</h3>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.27.2"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.28.0"</span>
 </code></pre></div></div>
 
 <p>WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
@@ -402,20 +402,18 @@ the following to your test class (or a superclass of it):</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exampleTest</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/my/resource"</span><span class="o">))</span>
-            <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Accept"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"text/xml"</span><span class="o">))</span>
-            <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
-                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
-                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"text/xml"</span><span class="o">)</span>
-                <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"&lt;response&gt;Some content&lt;/response&gt;"</span><span class="o">)));</span>
+    <span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/my/resource"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"xml"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"text/xml"</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"&lt;response&gt;SUCCESS&lt;/response&gt;"</span><span class="o">)));</span>
 
     <span class="nc">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="n">myHttpServiceCallingObject</span><span class="o">.</span><span class="na">doSomething</span><span class="o">();</span>
-
     <span class="n">assertTrue</span><span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">wasSuccessful</span><span class="o">());</span>
 
-    <span class="n">verify</span><span class="o">(</span><span class="n">postRequestedFor</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/my/resource/[a-z0-9]+"</span><span class="o">))</span>
-            <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matching</span><span class="o">(</span><span class="s">".*&lt;message&gt;1234&lt;/message&gt;.*"</span><span class="o">))</span>
-            <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="n">notMatching</span><span class="o">(</span><span class="s">"application/json"</span><span class="o">)));</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">postRequestedFor</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/my/resource"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matching</span><span class="o">(</span><span class="s">".*message-1234.*"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"text/xml"</span><span class="o">)));</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
@@ -493,7 +491,7 @@ the Java API, JSON over HTTP or JSON files.</p>
 
 <p>This will start the server on port 8080:</p>
 
-<p>You can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.27.2/wiremock-standalone-2.27.2.jar">download the standalone JAR from
+<p>You can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.28.0/wiremock-standalone-2.28.0.jar">download the standalone JAR from
 here</a>.</p>
 
 <p>See <a href="/docs/running-standalone/">Running as a Standalone Process</a> running-standalone for more details and commandline options.</p>

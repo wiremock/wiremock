@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-01-07T17:35:00+00:00">
+  <meta property="article:published_time" content="2021-05-11T19:09:23+01:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="January 07, 2021">
+    <meta itemprop="datePublished" content="May 11, 2021">
     
 
     <div class="page__inner-wrap">
@@ -369,9 +369,9 @@
 <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.27.2/wiremock-standalone-2.27.2.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.28.0/wiremock-jre8-standalone-2.28.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.27.2.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.28.0.jar
 </code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
@@ -410,7 +410,7 @@ authenticate with a proxy target that require client authentication. See
 and <a href="/docs/proxying#running-as-a-browser-proxy">Running as a browser proxy</a> for
 details.</p>
 
-<p><code class="highlighter-rouge">--keystore-type</code>: The HTTPS trust store type. Usually JKS or PKCS12.</p>
+<p><code class="highlighter-rouge">--truststore-type</code>: The HTTPS trust store type. Usually JKS or PKCS12.</p>
 
 <p><code class="highlighter-rouge">--truststore-password</code>: Optional password to the trust store. Defaults
 to “password” if not specified.</p>
@@ -513,6 +513,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 <p><code class="highlighter-rouge">--disable-gzip</code>: Prevent response bodies from being gzipped.</p>
 
 <p><code class="highlighter-rouge">--disable-request-logging</code>: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled.</p>
+
+<p><code class="highlighter-rouge">--disable-banner</code>: Prevent WireMock logo from being printed on startup</p>
 
 <p><code class="highlighter-rouge">--permitted-system-keys</code>: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to <code class="highlighter-rouge">wiremock.*</code>.</p>
 
@@ -617,7 +619,18 @@ More content
 </blockquote>
 
 <h2 id="pushing-json-files-to-a-remote-wiremock-instance">Pushing JSON files to a remote WireMock instance</h2>
-<p>You can push a collection of mappings to a remote</p>
+<p>You can push a collection of stub mappings and associated files to a remote WireMock or MockLab instance via the
+Java API as follows:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span> <span class="n">wireMock</span> <span class="o">=</span> <span class="nc">WireMock</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">scheme</span><span class="o">(</span><span class="s">"http"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">host</span><span class="o">(</span><span class="s">"my-wiremock.example.com"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">80</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// The root directory of the WireMock project, under which the mappings and __files directories should be found</span>
+<span class="n">wireMock</span><span class="o">.</span><span class="na">loadMappingsFrom</span><span class="o">(</span><span class="s">"/wiremock-stuff"</span><span class="o">);</span>
+</code></pre></div></div>
 
 <h2 id="file-serving">File serving</h2>
 
