@@ -1,6 +1,6 @@
 {
   "name": "wiremock-docs",
-  "version": "2.19.1",
+  "version": "2.28.0",
   "description": "WireMock documentation processor",
   "engines": {
     "node": ">= 0.10.0"
