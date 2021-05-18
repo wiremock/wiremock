@@ -54,6 +54,8 @@ import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
 
+    private long timeout = DEFAULT_TIMEOUT;
+    private boolean disableOptimizeXmlFactoriesLoading = false;
     private int portNumber = DEFAULT_PORT;
     private boolean httpDisabled = false;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
@@ -127,6 +129,11 @@ public class WireMockConfiguration implements Options {
 
     public static WireMockConfiguration options() {
         return wireMockConfig();
+    }
+
+    public WireMockConfiguration timeout(int timeout) {
+        this.timeout = timeout;
+        return this;
     }
 
     public WireMockConfiguration port(int portNumber) {
@@ -580,6 +587,21 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getStubCorsEnabled() {
         return stubCorsEnabled;
+    }
+
+    @Override
+    public long timeout() {
+        return timeout;
+    }
+
+    @Override
+    public boolean getDisableOptimizeXmlFactoriesLoading() {
+        return disableOptimizeXmlFactoriesLoading;
+    }
+
+    public WireMockConfiguration disableOptimizeXmlFactoriesLoading(boolean disableOptimizeXmlFactoriesLoading) {
+        this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
+        return this;
     }
 
     @Override
