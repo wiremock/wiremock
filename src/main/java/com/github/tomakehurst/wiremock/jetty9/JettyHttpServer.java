@@ -31,6 +31,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -41,6 +42,8 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -55,10 +58,6 @@ public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
     private static final int DEFAULT_ACCEPTORS = 3;
-
-    static {
-        System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
-    }
 
     private final Server jettyServer;
     private final ServerConnector httpConnector;
@@ -101,7 +100,13 @@ public class JettyHttpServer implements HttpServer {
 
         applyAdditionalServerConfiguration(jettyServer, options);
 
-        jettyServer.setHandler(createHandler(options, adminRequestHandler, stubRequestHandler));
+        final HandlerCollection handlers = createHandler(options, adminRequestHandler, stubRequestHandler);
+        jettyServer.setHandler(new HandlerCollection(ArrayUtils.insert(0, handlers.getHandlers(), new AbstractHandler() {
+            @Override
+            public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) {
+                baseRequest.getHttpChannel().getState().setTimeout(options.timeout());
+            }
+        })));
 
         finalizeSetup(options);
     }
