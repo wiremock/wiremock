@@ -114,6 +114,7 @@ public class WireMockConfiguration implements Options {
     private String permittedSystemKeys = null;
 
     private boolean stubCorsEnabled = false;
+    private boolean disableStrictHttpHeaders;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -601,6 +602,16 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration disableOptimizeXmlFactoriesLoading(boolean disableOptimizeXmlFactoriesLoading) {
         this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
+        return this;
+    }
+
+    @Override
+    public boolean getDisableStrictHttpHeaders() {
+        return disableStrictHttpHeaders;
+    }
+
+    public WireMockConfiguration disableStrictHttpHeaders(boolean disableStrictHttpHeaders) {
+        this.disableStrictHttpHeaders = disableStrictHttpHeaders;
         return this;
     }
 
