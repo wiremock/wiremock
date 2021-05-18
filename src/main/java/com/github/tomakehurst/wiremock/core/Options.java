@@ -82,4 +82,5 @@ public interface Options {
     boolean getStubCorsEnabled();
     long timeout();
     boolean getDisableOptimizeXmlFactoriesLoading();
+    boolean getDisableStrictHttpHeaders();
 }

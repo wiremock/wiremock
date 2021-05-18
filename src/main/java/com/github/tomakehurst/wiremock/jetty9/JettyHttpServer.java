@@ -28,6 +28,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
@@ -58,10 +59,7 @@ public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
     private static final int DEFAULT_ACCEPTORS = 3;
-
-    static {
-        System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", "true");
-    }
+    private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
 
     private final Server jettyServer;
     private final ServerConnector httpConnector;
@@ -74,6 +72,11 @@ public class JettyHttpServer implements HttpServer {
             AdminRequestHandler adminRequestHandler,
             StubRequestHandler stubRequestHandler
     ) {
+        if (!options.getDisableStrictHttpHeaders() && STRICT_HTTP_HEADERS_APPLIED.isFalse()) {
+            System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", String.valueOf(true));
+            STRICT_HTTP_HEADERS_APPLIED.setTrue();
+        }
+
         jettyServer = createServer(options);
 
         NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(options.networkTrafficListener());

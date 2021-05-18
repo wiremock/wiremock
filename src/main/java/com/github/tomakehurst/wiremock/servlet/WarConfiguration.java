@@ -211,6 +211,11 @@ public class WarConfiguration implements Options {
     }
 
     @Override
+    public boolean getDisableStrictHttpHeaders() {
+        return false;
+    }
+
+    @Override
     public BrowserProxySettings browserProxySettings() {
         return BrowserProxySettings.DISABLED;
     }

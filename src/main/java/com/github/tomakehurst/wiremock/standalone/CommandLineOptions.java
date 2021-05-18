@@ -114,6 +114,7 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_CA_KEYSTORE_PASSWORD = "ca-keystore-password";
     private static final String HTTPS_CA_KEYSTORE_TYPE = "ca-keystore-type";
     private static final String DISABLE_OPTIMIZE_XML_FACTORIES_LOADING = "disable-optimize-xml-factories-loading";
+    private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -133,6 +134,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(TIMEOUT, "The default global timeout.");
         optionParser.accepts(DISABLE_OPTIMIZE_XML_FACTORIES_LOADING, "Whether to disable optimize XML factories loading or not.");
+        optionParser.accepts(DISABLE_STRICT_HTTP_HEADERS, "Whether to disable strict HTTP header handling of Jetty or not.");
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
         optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg().defaultsTo("password");
@@ -618,6 +620,11 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getDisableOptimizeXmlFactoriesLoading() {
         return optionSet.has(DISABLE_OPTIMIZE_XML_FACTORIES_LOADING);
+    }
+
+    @Override
+    public boolean getDisableStrictHttpHeaders() {
+        return optionSet.has(DISABLE_STRICT_HTTP_HEADERS);
     }
 
     @SuppressWarnings("unchecked")
