@@ -16,10 +16,10 @@ description: Running WireMock as a standalone mock server.
 The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.
 
-Once you have [downloaded the standalone JAR](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar) you can run it simply by doing this:
+Once you have [downloaded the standalone JAR](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/{{ site.wiremock_version }}/wiremock-jre8-standalone-{{ site.wiremock_version }}.jar) you can run it simply by doing this:
 
 ```bash
-$ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar
+$ java -jar wiremock-jre8-standalone-{{ site.wiremock_version }}.jar
 ```
 
 ## Command line options
@@ -274,7 +274,19 @@ JSON files containing multiple stub mappings can also be used. These are of the 
 
 
 ## Pushing JSON files to a remote WireMock instance
-You can push a collection of mappings to a remote  
+You can push a collection of stub mappings and associated files to a remote WireMock or MockLab instance via the
+Java API as follows:
+
+```java
+WireMock wireMock = WireMock.create()
+    .scheme("http")
+    .host("my-wiremock.example.com")
+    .port(80)
+    .build();
+
+// The root directory of the WireMock project, under which the mappings and __files directories should be found
+wireMock.loadMappingsFrom("/wiremock-stuff");
+``` 
 
 
 ## File serving

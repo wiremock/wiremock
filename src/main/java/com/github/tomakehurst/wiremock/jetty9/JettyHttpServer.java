@@ -59,6 +59,10 @@ public class JettyHttpServer implements HttpServer {
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
     private static final int DEFAULT_ACCEPTORS = 3;
 
+    static {
+        System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", "true");
+    }
+
     private final Server jettyServer;
     private final ServerConnector httpConnector;
     private final ServerConnector httpsConnector;
@@ -440,7 +444,8 @@ public class JettyHttpServer implements HttpServer {
         Resources.getResource("assets/swagger-ui/index.html");
 
         adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-        adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        ServletHolder swaggerUiServletHolder = adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        swaggerUiServletHolder.setAsyncSupported(false);
         adminContext.addServlet(DefaultServlet.class, "/recorder/*");
 
         ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");

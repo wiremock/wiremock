@@ -23,18 +23,22 @@ import com.github.tomakehurst.wiremock.http.ssl.TrustEverythingStrategy;
 import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
 import com.github.tomakehurst.wiremock.http.ssl.TrustSpecificHostsStrategy;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.TextUtils;
 
 import javax.net.ssl.SSLContext;
@@ -59,13 +63,21 @@ public class HttpClientFactory {
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
     public static final int DEFAULT_TIMEOUT = 30000;
 
+    private static final ConnectionKeepAliveStrategy NO_KEEP_ALIVE = new ConnectionKeepAliveStrategy() {
+        @Override
+        public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+            return 0;
+        }
+    };
+
     public static CloseableHttpClient createClient(
             int maxConnections,
             int timeoutMilliseconds,
             ProxySettings proxySettings,
             KeyStoreSettings trustStoreSettings,
             boolean trustSelfSignedCertificates,
-            final List<String> trustedHosts) {
+            final List<String> trustedHosts,
+            boolean useSystemProperties) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -77,7 +89,12 @@ public class HttpClientFactory {
                 .setMaxConnPerRoute(maxConnections)
                 .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
-                .useSystemProperties();
+                .setConnectionReuseStrategy(NoConnectionReuseStrategy.INSTANCE)
+                .setKeepAliveStrategy(NO_KEEP_ALIVE);
+
+        if (useSystemProperties) {
+            builder.useSystemProperties();
+        }
 
         if (proxySettings != NO_PROXY) {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
@@ -144,8 +161,9 @@ public class HttpClientFactory {
             int maxConnections,
             int timeoutMilliseconds,
             ProxySettings proxySettings,
-            KeyStoreSettings trustStoreSettings) {
-        return createClient(maxConnections, timeoutMilliseconds, proxySettings, trustStoreSettings, true, Collections.<String>emptyList());
+            KeyStoreSettings trustStoreSettings,
+            boolean useSystemProperties) {
+        return createClient(maxConnections, timeoutMilliseconds, proxySettings, trustStoreSettings, true, Collections.<String>emptyList(), useSystemProperties);
     }
 
     private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, boolean trustSelfSignedCertificates, List<String> trustedHosts) {
@@ -191,7 +209,7 @@ public class HttpClientFactory {
     }
 
     public static CloseableHttpClient createClient(int maxConnections, int timeoutMilliseconds) {
-        return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE);
+        return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE, true);
     }
 
 	public static CloseableHttpClient createClient(int timeoutMilliseconds) {
@@ -199,7 +217,7 @@ public class HttpClientFactory {
 	}
 
     public static CloseableHttpClient createClient(ProxySettings proxySettings) {
-        return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE);
+        return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE, true);
     }
 
     public static CloseableHttpClient createClient() {
