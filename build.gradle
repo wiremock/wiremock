@@ -71,7 +71,7 @@ dependencies {
     }
     compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
     compile 'net.javacrumbs.json-unit:json-unit-core:2.26.0'
-    compile "com.jayway.jsonpath:json-path:2.5.0", {
+    compile "com.jayway.jsonpath:json-path:2.6.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
     compile "net.minidev:json-smart:2.4.7" // Pinning this above the transitive version from json-path to get CVE fix
