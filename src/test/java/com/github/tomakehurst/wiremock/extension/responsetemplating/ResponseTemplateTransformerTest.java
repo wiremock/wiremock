@@ -866,6 +866,30 @@ public class ResponseTemplateTransformerTest {
         ));
     }
 
+    @Test
+    public void generatesARandomInt() {
+        assertThat(transform("{{randomInt}}"), matchesPattern("[\\-0-9]+"));
+        assertThat(transform("{{randomInt lower=5 upper=9}}"), matchesPattern("[5-9]"));
+        assertThat(transformToInt("{{randomInt upper=54323}}"), lessThanOrEqualTo(9));
+        assertThat(transformToInt("{{randomInt lower=-24}}"), greaterThanOrEqualTo(-24));
+    }
+
+    @Test
+    public void generatesARandomDecimal() {
+        assertThat(transform("{{randomDecimal}}"), matchesPattern("[\\-0-9\\.E]+"));
+        assertThat(transformToDouble("{{randomDecimal lower=-10.1 upper=-0.9}}"), allOf(greaterThanOrEqualTo(-10.1), lessThanOrEqualTo(-0.9)));
+        assertThat(transformToDouble("{{randomDecimal upper=12.5}}"), lessThanOrEqualTo(12.5));
+        assertThat(transformToDouble("{{randomDecimal lower=-24.01}}"), greaterThanOrEqualTo(-24.01));
+    }
+
+    private Integer transformToInt(String responseBodyTemplate) {
+        return Integer.parseInt(transform(responseBodyTemplate));
+    }
+
+    private Double transformToDouble(String responseBodyTemplate) {
+        return Double.parseDouble(transform(responseBodyTemplate));
+    }
+
     private String transform(String responseBodyTemplate) {
         return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
     }

@@ -153,6 +153,24 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context, options);
         }
+    },
+
+    randomInt {
+        private final RandomIntHelper helper = new RandomIntHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(null, options);
+        }
+    },
+
+    randomDecimal {
+        private final RandomDecimalHelper helper = new RandomDecimalHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(null, options);
+        }
     }
 
 
