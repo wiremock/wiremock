@@ -198,6 +198,24 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context, options);
         }
+    },
+
+    matches {
+        private final MatchesRegexHelper helper = new MatchesRegexHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    contains {
+        private final ContainsHelper helper = new ContainsHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
     }
 
 
