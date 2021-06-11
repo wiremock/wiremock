@@ -189,6 +189,15 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context, options);
         }
+    },
+
+    parseJson {
+        private final ParseJsonHelper helper = new ParseJsonHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
     }
 
 

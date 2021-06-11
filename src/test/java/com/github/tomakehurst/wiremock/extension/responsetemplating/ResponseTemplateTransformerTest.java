@@ -895,6 +895,48 @@ public class ResponseTemplateTransformerTest {
         assertThat(transform("{{array}}"), is("[]"));
     }
 
+    @Test
+    public void parsesJsonLiteralToAMapOfMapsVariable() {
+        String result = transform("{{#parseJson 'parsedObj'}}\n" +
+                "{\n" +
+                "  \"name\": \"transformed\"\n" +
+                "}\n" +
+                "{{/parseJson}}\n" +
+                "{{parsedObj.name}}");
+
+        assertThat(result, equalToCompressingWhiteSpace("transformed"));
+    }
+
+    @Test
+    public void parsesJsonVariableToAMapOfMapsVariable() {
+        String result = transform("{{#assign 'json'}}\n" +
+                "{\n" +
+                "  \"name\": \"transformed\"\n" +
+                "}\n" +
+                "{{/assign}}\n" +
+                "{{parseJson json 'parsedObj'}}\n" +
+                "{{parsedObj.name}}\n");
+
+        assertThat(result, equalToCompressingWhiteSpace("transformed"));
+    }
+
+    @Test
+    public void parsesJsonVariableToAndReturns() {
+        String result = transform("{{#assign 'json'}}\n" +
+                "{\n" +
+                "  \"name\": \"transformed\"\n" +
+                "}\n" +
+                "{{/assign}}\n" +
+                "{{lookup (parseJson json) 'name'}}");
+
+        assertThat(result, equalToCompressingWhiteSpace("transformed"));
+    }
+
+    @Test
+    public void parseJsonReportsInvalidParameterErrors() {
+        assertThat(transform("{{parseJson}}"), is("[ERROR: Missing required JSON string parameter]"));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
