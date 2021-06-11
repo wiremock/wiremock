@@ -180,6 +180,15 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context, options);
         }
+    },
+
+    array {
+        private final ArrayHelper helper = new ArrayHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
     }
 
 
