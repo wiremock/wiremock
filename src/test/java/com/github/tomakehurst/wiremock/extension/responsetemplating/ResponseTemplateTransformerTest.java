@@ -882,6 +882,13 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformToDouble("{{randomDecimal lower=-24.01}}"), greaterThanOrEqualTo(-24.01));
     }
 
+    @Test
+    public void generatesARangeOfNumbersInAnArray() {
+        assertThat(transform("{{range 3 8}}"), is("[3, 4, 5, 6, 7, 8]"));
+        assertThat(transform("{{range -2 2}}"), is("[-2, -1, 0, 1, 2]"));
+        assertThat(transform("{{range 555}}"), is("[ERROR: The range helper requires both lower and upper bounds as integer parameters]"));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
