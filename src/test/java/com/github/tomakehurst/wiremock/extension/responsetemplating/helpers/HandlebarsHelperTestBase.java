@@ -78,11 +78,19 @@ public abstract class HandlebarsHelperTestBase {
     }
 
     protected Options createOptions(String optionParam, RenderCache renderCache) {
-        Context context = Context.newBuilder(null)
-                .combine("renderCache", renderCache)
-                .build();
+        Context context = createContext(renderCache);
 
         return new Options(null, null, null, context, null, null,
                            new Object[]{optionParam}, null, new ArrayList<String>(0));
+    }
+
+    protected Context createContext() {
+        return createContext(renderCache);
+    }
+
+    private Context createContext(RenderCache renderCache) {
+        return Context.newBuilder(null)
+            .combine("renderCache", renderCache)
+            .build();
     }
 }

@@ -308,7 +308,7 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is("5"));
     }
-    
+
     @Test
     public void areConditionalHelpersLoaded() {
 
@@ -322,9 +322,9 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is("y"));
     }
-    
-    
-    
+
+
+
 
     @Test
     public void proxyBaseUrlWithAdditionalRequestHeader() {
@@ -359,6 +359,32 @@ public class ResponseTemplateTransformerTest {
                 Parameters.empty());
 
         assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my &#x27;single quotes&#x27;\"}"));
+    }
+
+    @Test
+    public void jsonPathValueDefaultsToEmptyString() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json").
+                body("{\"a\": \"1\"}"),
+            aResponse()
+                .withBody("{{jsonPath request.body '$.b'}}").build(),
+            noFileSource(),
+            Parameters.empty());
+        assertThat(responseDefinition.getBody(), is(""));
+    }
+
+    @Test
+    public void jsonPathValueDefaultCanBeProvided() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json").
+                body("{\"a\": \"1\"}"),
+            aResponse()
+                .withBody("{{jsonPath request.body '$.b' default='foo'}}").build(),
+            noFileSource(),
+            Parameters.empty());
+        assertThat(responseDefinition.getBody(), is("foo"));
     }
 
     @Test
