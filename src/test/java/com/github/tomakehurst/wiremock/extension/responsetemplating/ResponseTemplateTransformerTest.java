@@ -889,6 +889,12 @@ public class ResponseTemplateTransformerTest {
         assertThat(transform("{{range 555}}"), is("[ERROR: The range helper requires both lower and upper bounds as integer parameters]"));
     }
 
+    @Test
+    public void generatesAnArrayLiteral() {
+        assertThat(transform("{{array 1 'two' true}}"), is("[1, two, true]"));
+        assertThat(transform("{{array}}"), is("[]"));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
