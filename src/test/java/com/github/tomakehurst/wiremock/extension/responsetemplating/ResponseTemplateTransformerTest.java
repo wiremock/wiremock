@@ -973,6 +973,47 @@ public class ResponseTemplateTransformerTest {
         assertThat(transform("{{parseJson}}"), is("[ERROR: Missing required JSON string parameter]"));
     }
 
+    @Test
+    public void conditionalBranchingOnStringMatchesRegexInline() {
+        assertThat(transform("{{#if (matches '123' '[0-9]+')}}YES{{/if}}"), is("YES"));
+        assertThat(transform("{{#if (matches 'abc' '[0-9]+')}}YES{{/if}}"), is(""));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringMatchesRegexBlock() {
+        assertThat(transform("{{#matches '123' '[0-9]+'}}YES{{/matches}}"), is("YES"));
+        assertThat(transform("{{#matches 'abc' '[0-9]+'}}YES{{/matches}}"), is(""));
+    }
+
+    @Test
+    public void matchesRegexReturnsErrorIfMissingParameter() {
+        assertThat(transform("{{#matches '123'}}YES{{/matches}}"),
+                   is("[ERROR: You must specify the string to be matched and the regular expression]"));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringContainsInline() {
+        assertThat(transform("{{#if (contains 'abcde' 'abc')}}YES{{/if}}"), is("YES"));
+        assertThat(transform("{{#if (contains 'abcde' '123')}}YES{{/if}}"), is(""));
+    }
+
+    @Test
+    public void stringContainsCopesWithNullString() {
+        assertThat(transform("{{#if (contains 'abcde' request.query.nonexist)}}YES{{/if}}"), is(""));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringContainsBlock() {
+        assertThat(transform("{{#contains 'abcde' 'abc'}}YES{{/contains}}"), is("YES"));
+        assertThat(transform("{{#contains 'abcde' '123'}}YES{{/contains}}"), is(""));
+    }
+
+    @Test
+    public void conditionalBranchingOnArrayContainsBlock() {
+        assertThat(transform("{{#contains (array 'a' 'b' 'c') 'a'}}YES{{/contains}}"), is("YES"));
+        assertThat(transform("{{#contains (array 'a' 'b' 'c') 'z'}}YES{{/contains}}"), is(""));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
