@@ -47,6 +47,9 @@ public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
             case "UUID":
                 rawValue = UUID.randomUUID().toString();
                 break;
+            case "HEXADECIMAL":
+                rawValue = RandomStringUtils.random(length, "ABCDEF0123456789");
+                break;
             default:
                 rawValue = RandomStringUtils.randomAscii(length);
                 break;

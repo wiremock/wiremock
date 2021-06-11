@@ -452,6 +452,7 @@ Random strings of various kinds can be generated:
 {{randomValue length=10 type='NUMERIC'}}
 {{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
 {{randomValue type='UUID'}}
+{{randomValue length=32 type='HEXADECIMAL' uppercase=true}}
 ```
 {% endraw %}
 
