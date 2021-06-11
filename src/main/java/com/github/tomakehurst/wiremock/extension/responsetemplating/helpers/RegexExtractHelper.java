@@ -51,7 +51,10 @@ public class RegexExtractHelper extends HandlebarsHelper<Object> {
         }
 
         if (groups.isEmpty()) {
-            return handleError("Nothing matched " + regexString);
+            Object defaultValue = options.hash("default");
+            return defaultValue != null ?
+                    defaultValue :
+                    handleError("Nothing matched " + regexString);
         }
 
         String variableName = options.param(1);
