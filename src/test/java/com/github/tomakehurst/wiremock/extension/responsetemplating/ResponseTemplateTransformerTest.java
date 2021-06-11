@@ -1014,6 +1014,15 @@ public class ResponseTemplateTransformerTest {
         assertThat(transform("{{#contains (array 'a' 'b' 'c') 'z'}}YES{{/contains}}"), is(""));
     }
 
+    @Test
+    public void mathematicalOperations() {
+        assertThat(transform("{{math 1 '+' 2}}"), is("3"));
+        assertThat(transform("{{math 4 '-' 2}}"), is("2"));
+        assertThat(transform("{{math 2 '*' 3}}"), is("6"));
+        assertThat(transform("{{math 8 '/' 2}}"), is("4"));
+        assertThat(transform("{{math 10 '%' 3}}"), is("1"));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
