@@ -714,6 +714,16 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void returnsReasonableDefaultWhenRegexExtractDoesNotMatchAnything() {
+        assertThat(transform("{{regexExtract 'abc' '[0-9]+'}}"), is("[ERROR: Nothing matched [0-9]+]"));
+    }
+
+    @Test
+    public void regexExtractSupportsSpecifyingADefaultForWhenNothingMatches() {
+        assertThat(transform("{{regexExtract 'abc' '[0-9]+' default='my default value'}}"), is("my default value"));
+    }
+
+    @Test
     public void calculateStringSize() {
         String body = transform("{{size 'abcde'}}");
         assertThat(body, is("5"));
