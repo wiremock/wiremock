@@ -26,7 +26,9 @@ import org.junit.Before;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -81,7 +83,7 @@ public abstract class HandlebarsHelperTestBase {
         Context context = createContext(renderCache);
 
         return new Options(null, null, null, context, null, null,
-                           new Object[]{optionParam}, null, new ArrayList<String>(0));
+                           new Object[]{optionParam}, emptyMap(), new ArrayList<String>(0));
     }
 
     protected Context createContext() {
