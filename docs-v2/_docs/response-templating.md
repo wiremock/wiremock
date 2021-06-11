@@ -390,6 +390,14 @@ And for the same JSON the following will render `{ "inner": "Stuff" }`:
 ```
 {% endraw %}
 
+Default value can be specified if the path evaluates to null or undefined:
+
+{% raw %}
+```
+{{jsonPath request.body '$.size' default='M'}}
+```
+{% endraw %}
+
 
 ## Date and time helpers
 A helper is present to render the current date/time, with the ability to specify the format ([via Java's SimpleDateFormat](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)) and offset.
