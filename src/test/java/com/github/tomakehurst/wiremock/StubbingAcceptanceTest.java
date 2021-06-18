@@ -38,7 +38,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -47,6 +48,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
+import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
@@ -739,6 +742,54 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		stubFor(get(url).willReturn(ok("{}").withHeader("Content-Type", contentType)));
 
 		assertThat(testClient.get(url).firstHeader("Content-Type"), is(contentType));
+	}
+
+	@Test
+	public void matchesOnLiteralZonedDate() {
+		stubFor(post("/date")
+				.withRequestBody(matchingJsonPath("$.date", before("2021-10-11T00:00:00Z")))
+				.willReturn(ok()));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2021-06-22T23:59:59Z\"\n" +
+				"}"
+			).statusCode(), is(200));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2121-06-22T23:59:59Z\"\n" +
+				"}"
+		).statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesOnNowOffsetDate() {
+		stubFor(post("/offset-date")
+				.withRequestBody(matchingJsonPath("$.date", isNow()
+						.expectedOffset(1, HOURS)
+						.truncateActual(FIRST_MINUTE_OF_HOUR)
+						.truncateExpected(FIRST_MINUTE_OF_HOUR)))
+				.willReturn(ok()));
+
+		String good = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1).toString();
+		String bad =  ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1).minusMinutes(1).toString();
+
+		assertThat(testClient.postJson(
+				"/offset-date",
+				"{\n" +
+				"  \"date\": \"" + good + "\"\n" +
+				"}"
+		).statusCode(), is(200));
+
+		assertThat(testClient.postJson(
+				"/offset-date",
+				"{\n" +
+				"  \"date\": \"" + bad + "\"\n" +
+				"}"
+		).statusCode(), is(404));
 	}
 
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {

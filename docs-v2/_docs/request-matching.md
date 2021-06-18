@@ -1017,3 +1017,205 @@ JSON:
 }
 ```
 
+## Dates and times
+
+Dates and times can be matched in several ways. Three comparison operators are available: `before`, `after` and
+`equalToDateTime`, all of which have the same set of parameters.
+
+Additionally, the expected value can be either literal (fixed) or an offset from the current date. Both the expected and
+actual dates can be truncated in various ways.
+
+### Literal date/times
+
+You can match an incoming date/time against a fixed value e.g. "match if the X-Munged-Date request header is after x":
+
+Java:
+
+```java
+stubFor(post("/dates")
+  .withHeader("X-Munged-Date", after("2021-05-01T00:00:00Z"))
+  .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "url" : "/dates",
+    "method" : "POST",
+    "headers" : {
+      "X-Munged-Date" : {
+        "after" : "2021-05-01T00:00:00Z"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  }
+}
+```
+
+### Offset
+
+You can also match in incoming value against the current date/time or an offset from it:
+
+Java:
+
+```java
+stubFor(post("/dates")
+  .withHeader("X-Munged-Date", beforeNow().expectedOffset(3, DateTimeUnit.DAYS)) 
+  .withHeader("X-Finalised-Date", before("now +2 months")) // This form and beforeNow() are equivalent
+  .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "url" : "/dates",
+    "method" : "POST",
+    "headers" : {
+      "X-Munged-Date" : {
+        "before" : "now +3 days"
+      },
+      "X-Finalised-Date" : {
+        "before" : "now +2 months"
+      }
+    }
+  }
+}
+```
+
+### Local vs. Zoned
+
+Both the expected and actual date/time values can either have timezone information or not. For instance a
+date in ISO8601 format could be zoned: `2021-06-24T13:40:27+01:00` or `2021-06-24T12:40:27Z`, or local: `2021-06-24T12:40:27`.
+
+Likewise a date/time in RFC 1123 (HTTP standard) format is also zoned: `Tue, 01 Jun 2021 15:16:17 GMT`.
+
+Whether the expected and actual values are zoned or not affects whether they can be matched and how. Generally, the best
+approach is to try to ensure you're using the same on both sides - if you're expected a zoned actual date, then use one
+as the expected date also, plus the equivalent for local dates.
+
+If the expected date is zoned and the actual is local, the match will always be negative since no sensbile comparison can
+be done in this circumstance.
+
+However, if the expected date is local and the actual is zoned, the timezone will be stripped from the actual value and the
+comparison will be attempted.
+
+### Date formats
+
+By default these matchers will attempt to parse date/times in ISO8601 format, plus the three standard formats defined by
+HTTP RFCs 1123, 1036 and asctime (taken from C but also valid for specifying HTTP dates).
+
+It is also possible to specify your own format using
+[Java's date format strings](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns).
+
+Java:
+
+```java
+stubFor(post("/dates")
+  .withHeader("X-Munged-Date",
+    equalToDateTime("2021-06-24T00:00:00").actualFormat("dd/MM/yyyy"))
+  .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "url" : "/dates",
+    "method" : "POST",
+    "headers" : {
+      "X-Munged-Date" : {
+        "equalToDateTime" : "2021-06-24T00:00:00",
+        "actualFormat" : "dd/MM/yyyy"
+      }
+    }
+  }
+}
+```
+
+### Truncation
+
+Both the expected and actual date/times can be truncated in various ways e.g. to the first hour of the day. When using
+offset from now as the expected date with truncation, the truncation will be applied first followed by the offsetting.
+
+Truncation is useful if you want to create expressions like "before the end of this month" or "equal to the current hour".
+
+It can usefully be combined with offsetting so e.g. if the match required is "after the 15th of this month" we could do
+as follows.
+
+Java:
+
+```java
+stubFor(post("/dates")
+  .withRequestBody(matchingJsonPath(
+      "$.completedDate",
+      after("now +15 days").truncateExpected(FIRST_DAY_OF_MONTH))
+  )
+  .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "url" : "/dates",
+    "method" : "POST",
+    "bodyPatterns" : [{
+      "matchesJsonPath" : {
+        "expression" : "$.completedDate",
+        "after" : "now +15 days",
+        "truncateExpected" : "first day of month"
+      }
+    }]
+  }
+}
+```
+
+Truncating the actual value can be useful when checking for equality with literal date/times e.g. to say "is in March 2020":
+
+```java
+stubFor(post("/dates")
+  .withRequestBody(matchingJsonPath(
+    "$.completedDate",
+    equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+  )
+  .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "url" : "/dates",
+    "method" : "POST",
+    "bodyPatterns" : [{
+      "matchesJsonPath" : {
+        "expression" : "$.completedDate",
+        "equalToDateTime" : "2020-03-01T00:00:00Z",
+        "truncateActual" : "first day of month"
+      }
+    }]
+  }
+}
+```
+
+
+The full list of available truncations is:
+
+* `first minute of hour`
+* `first hour of day`
+* `first day of month`
+* `first day of next month`
+* `last day of month`
+* `first day of year`
+* `first day of next year`
+* `last day of year`
+

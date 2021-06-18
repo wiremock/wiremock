@@ -17,9 +17,8 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.*;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -226,6 +225,30 @@ public class WireMock {
 
     public static StringValuePattern notMatching(String regex) {
         return new NegativeRegexPattern(regex);
+    }
+
+    public static BeforeDateTimePattern before(String dateTimeSpec) {
+	    return new BeforeDateTimePattern(dateTimeSpec);
+    }
+
+    public static BeforeDateTimePattern beforeNow() {
+	    return new BeforeDateTimePattern("now");
+    }
+
+    public static EqualToDateTimePattern equalToDateTime(String dateTimeSpec) {
+	    return new EqualToDateTimePattern(dateTimeSpec);
+    }
+
+    public static EqualToDateTimePattern isNow() {
+        return new EqualToDateTimePattern("now");
+    }
+
+    public static AfterDateTimePattern after(String dateTimeSpec) {
+        return new AfterDateTimePattern(dateTimeSpec);
+    }
+
+    public static AfterDateTimePattern afterNow() {
+        return new AfterDateTimePattern("now");
     }
 
     public static StringValuePattern absent() {
