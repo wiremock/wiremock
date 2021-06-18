@@ -30,6 +30,7 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
@@ -313,6 +314,45 @@ public class MatchesJsonPathPatternTest {
         StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(AbsentPattern.class));
         assertThat(subMatcher.nullSafeIsAbsent(), is(true));
+    }
+
+    @Test
+    public void correctlyDeserialisesWhenSubMatcherHasExtraParameters() {
+        StringValuePattern stringValuePattern = Json.read(
+                "{                                       \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalToJson\": \"{}\",        \n" +
+                "        \"ignoreExtraElements\": true,  \n" +
+                "        \"ignoreArrayOrder\": true   \n" +
+                "    }                                   \n" +
+                "}",
+                StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+
+        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        assertThat(subMatcher, instanceOf(EqualToJsonPattern.class));
+        assertThat(subMatcher.getExpected(), jsonEquals("{}"));
+        assertThat(((EqualToJsonPattern) subMatcher).isIgnoreExtraElements(), is(true));
+        assertThat(((EqualToJsonPattern) subMatcher).isIgnoreArrayOrder(), is(true));
+    }
+
+    @Test
+    public void correctlySerialisesWhenSubMatcherHasExtraParameters() {
+        StringValuePattern matcher = new MatchesJsonPathPattern("$..thing", WireMock.equalToJson("{}", true, true));
+
+        String json = Json.write(matcher);
+
+        assertThat(json, jsonEquals(
+                "{                                       \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalToJson\": \"{}\",        \n" +
+                "        \"ignoreExtraElements\": true,  \n" +
+                "        \"ignoreArrayOrder\": true      \n" +
+                "    }                                   \n" +
+                "}"));
     }
 
     @Test(expected = JsonException.class)
