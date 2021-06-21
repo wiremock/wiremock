@@ -72,4 +72,14 @@ public class DateTimeTruncationTest {
         ZonedDateTime output = DateTimeTruncation.LAST_DAY_OF_YEAR.truncate(input);
         assertThat(output, is(ZonedDateTime.parse("2021-12-31T00:00:00Z")));
     }
+
+    @Test
+    public void parsesFromFriendlyString() {
+        assertThat(DateTimeTruncation.fromString("last day of year"), is(DateTimeTruncation.LAST_DAY_OF_YEAR));
+    }
+
+    @Test
+    public void toStringReturnsFriendlyString() {
+        assertThat(DateTimeTruncation.FIRST_DAY_OF_MONTH.toString(), is("first day of month"));
+    }
 }

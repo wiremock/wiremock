@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Locale;
 import java.util.function.Function;
 
 import static java.time.temporal.ChronoUnit.*;
@@ -30,6 +31,11 @@ public enum DateTimeTruncation {
 
     public ZonedDateTime truncate(ZonedDateTime input) {
         return fn.apply(input);
+    }
+
+    @Override
+    public String toString() {
+        return name().replace('_', ' ').toLowerCase();
     }
 
     public static DateTimeTruncation fromString(String value) {

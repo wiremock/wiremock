@@ -52,6 +52,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("contains", ContainsPattern.class)
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
+            .put("before", BeforeDateTimePattern.class)
             .put("anything", AnythingPattern.class)
             .put("absent", AbsentPattern.class)
             .build();
@@ -79,6 +80,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return deserialiseMatchesXPathPattern(rootNode);
         } else if (patternClass.equals(EqualToPattern.class)) {
             return deserializeEqualTo(rootNode);
+        } else if (patternClass.equals(BeforeDateTimePattern.class)) {
+            return deserialiseDateTimePattern(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
@@ -194,6 +197,22 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
 
         return new MatchesXPathPattern(expression, namespaces, valuePattern);
+    }
+
+    private BeforeDateTimePattern deserialiseDateTimePattern(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("before")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+        }
+
+        JsonNode dateTimeNode = rootNode.findValue("before");
+        JsonNode formatNode = rootNode.findValue("format");
+        JsonNode truncateNode = rootNode.findValue("truncate");
+
+        return new BeforeDateTimePattern(
+                dateTimeNode.textValue(),
+                formatNode != null ? formatNode.textValue() : null,
+                truncateNode != null ? truncateNode.textValue() : null
+        );
     }
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {

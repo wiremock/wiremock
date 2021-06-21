@@ -3,15 +3,15 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
+import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.MONTHS;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -31,7 +31,7 @@ public class DateTimePatternsTest {
     public void doesNotMatchLocalISO8601BeforeZonedLiteralDateTime() {
         StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
-        // Shouldn't match even if it's apparently right as a local -> zoned comparison does not make sense
+        // Shouldn't match even if it's apparently correct as a local -> zoned comparison does not make sense
         assertFalse(matcher.match("2021-06-01T15:15:15").isExactMatch());
         assertFalse(matcher.match("2021-07-01T23:59:59").isExactMatch());
     }
@@ -154,6 +154,65 @@ public class DateTimePatternsTest {
         TemporalAdjuster truncateToMonth = TemporalAdjusters.firstDayOfMonth();
         ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, DAYS);
         ZonedDateTime bad = ZonedDateTime.now().with(truncateToMonth).plus(16, DAYS);
+
+        assertTrue(matcher.match(good.toString()).isExactMatch());
+        assertFalse(matcher.match(bad.toString()).isExactMatch());
+    }
+
+    @Test
+    public void serialisesLiteralDateTimeAndFormatFormToJson() {
+        StringValuePattern matcher = WireMock.before("2021-06-01T00:00:00", "dd/MM/yyyy");
+
+        assertThat(Json.write(matcher), jsonEquals("{\n" +
+            "  \"before\": \"2021-06-01T00:00:00\",\n" +
+            "  \"format\": \"dd/MM/yyyy\"\n" +
+            "}"));
+    }
+
+    @Test
+    public void serialisesOffsetAndTruncationFormToJson() {
+        StringValuePattern matcher = WireMock.beforeNow(15, DateTimeUnit.DAYS, DateTimeTruncation.FIRST_DAY_OF_MONTH);
+
+        assertThat(Json.write(matcher), jsonEquals("{\n" +
+                "  \"before\": \"15 days\",\n" +
+                "  \"truncate\": \"first day of month\"\n" +
+                "}"));
+    }
+
+    @Test
+    public void deserialisesLiteralDateAndTimeWithFormatFromJson() {
+        StringValuePattern matcher = Json.read("{\n" +
+                "  \"before\": \"2021-06-15T00:00:00\",\n" +
+                "  \"format\": \"dd/MM/yyyy\"\n" +
+                "}", BeforeDateTimePattern.class);
+
+        assertTrue(matcher.match("01/06/2021").isExactMatch());
+        assertFalse(matcher.match("01/07/2021").isExactMatch());
+    }
+
+    @Test
+    public void deserialisesPositiveOffsetAndTruncateFormFromJson() {
+        StringValuePattern matcher = Json.read("{\n" +
+                "  \"before\": \"15 days\",\n" +
+                "  \"truncate\": \"first day of month\"\n" +
+                "}", BeforeDateTimePattern.class);
+
+        TemporalAdjuster truncateToMonth = TemporalAdjusters.firstDayOfMonth();
+        ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().with(truncateToMonth).plus(16, DAYS);
+
+        assertTrue(matcher.match(good.toString()).isExactMatch());
+        assertFalse(matcher.match(bad.toString()).isExactMatch());
+    }
+
+    @Test
+    public void deserialisesNegativeOffsetFormFromJson() {
+        StringValuePattern matcher = Json.read("{\n" +
+                "  \"before\": \"-15 days\"\n" +
+                "}", BeforeDateTimePattern.class);
+
+        ZonedDateTime good = ZonedDateTime.now().minus(16, DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().minus(14, DAYS);
 
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());

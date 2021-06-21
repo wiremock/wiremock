@@ -61,6 +61,10 @@ public class DateTimeOffset {
         return amount;
     }
 
+    public DateTimeTruncation getTruncation() {
+        return truncation;
+    }
+
     public Date shift(Date date) {
         final ZonedDateTime input = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Z"));
         ZonedDateTime output = shift(input);

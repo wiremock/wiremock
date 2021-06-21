@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
+import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,27 +35,66 @@ public class BeforeDateTimePattern extends StringValuePattern {
 
     private final ZonedDateTime zonedDateTime;
     private final LocalDateTime localDateTime;
+    private final String actualDateTimeFormat;
     private final DateTimeFormatter actualDateTimeFormatter;
     private final DateTimeOffset dateOffset;
 
-    public BeforeDateTimePattern(@JsonProperty("before") String dateTimeString) {
-        this(dateTimeString, null);
+    public BeforeDateTimePattern(String dateTimeString) {
+        this(dateTimeString, null, null);
     }
 
     public BeforeDateTimePattern(DateTimeOffset dateOffset) {
-        super("now " + dateOffset.toString());
+        super(dateOffset.toString());
         this.dateOffset = dateOffset;
         localDateTime = null;
         zonedDateTime = null;
+        this.actualDateTimeFormat = null;
         actualDateTimeFormatter = null;
     }
 
-    public BeforeDateTimePattern(String dateTimeString, String actualDateFormat) {
-        super(dateTimeString);
-        zonedDateTime = parseZonedOrNull(dateTimeString);
-        localDateTime = parseLocalOrNull(dateTimeString);
+    public BeforeDateTimePattern(
+            @JsonProperty("before") String dateTimeSpec,
+            @JsonProperty("format") String actualDateFormat,
+            @JsonProperty("truncate") String truncate
+    ) {
+        super(dateTimeSpec);
+
+        if (isNowOffsetExpression(dateTimeSpec)) {
+            zonedDateTime = null;
+            localDateTime = null;
+
+            DateTimeTruncation truncation = truncate != null ?
+                    DateTimeTruncation.fromString(truncate) :
+                    DateTimeTruncation.NONE;
+            dateOffset = DateTimeOffset.fromString(dateTimeSpec, truncation);
+        } else {
+            zonedDateTime = parseZonedOrNull(dateTimeSpec);
+            localDateTime = parseLocalOrNull(dateTimeSpec);
+            dateOffset = null;
+        }
+
+        this.actualDateTimeFormat = actualDateFormat;
         actualDateTimeFormatter = actualDateFormat != null ? DateTimeFormatter.ofPattern(actualDateFormat) : null;
-        dateOffset = null;
+    }
+
+    private static boolean isNowOffsetExpression(String dateTimeSpec) {
+        return dateTimeSpec.matches("^\\-?[0-9]+ [a-zA-Z]+$");
+    }
+
+    public String getBefore() {
+        return expectedValue;
+    }
+
+    public String getFormat() {
+        return actualDateTimeFormat;
+    }
+
+    public String getTruncate() {
+        if (isNowOffset() && dateOffset.getTruncation() != null) {
+            return dateOffset.getTruncation().toString();
+        }
+
+        return null;
     }
 
     @Override
