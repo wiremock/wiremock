@@ -72,6 +72,20 @@ public class DateTimeOffsetTest {
     }
 
     @Test
+    public void parsesPositiveLongForm() {
+        DateTimeOffset offset = DateTimeOffset.fromString("now +101 years");
+        assertThat(offset.getAmountUnit(), is(DateTimeUnit.YEARS));
+        assertThat(offset.getAmount(), is(101));
+    }
+
+    @Test
+    public void parsesNegativeLongForm() {
+        DateTimeOffset offset = DateTimeOffset.fromString("now -5 months");
+        assertThat(offset.getAmountUnit(), is(DateTimeUnit.MONTHS));
+        assertThat(offset.getAmount(), is(-5));
+    }
+
+    @Test
     public void returnsCorrectToString() {
         assertThat(DateTimeOffset.fromString("123 minutes").toString(), is("123 minutes"));
         assertThat(DateTimeOffset.fromString("-72 hours").toString(), is("-72 hours"));

@@ -137,8 +137,19 @@ public class DateTimePatternsTest {
     }
 
     @Test
+    public void matchesAgainstNow() {
+        StringValuePattern matcher = WireMock.beforeNow();
+
+        String right = ZonedDateTime.now().minusDays(2).toString();
+        assertTrue(matcher.match(right).isExactMatch());
+
+        String wrong = ZonedDateTime.now().plusHours(4).toString();
+        assertFalse(matcher.match(wrong).isExactMatch());
+    }
+
+    @Test
     public void matchesAgainstOffsetFromNow() {
-        StringValuePattern matcher = WireMock.beforeNow("-5 days");
+        StringValuePattern matcher = WireMock.before("now -5 days");
 
         String right = ZonedDateTime.now().minusDays(7).toString();
         assertTrue(matcher.match(right).isExactMatch());

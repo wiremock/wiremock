@@ -235,12 +235,12 @@ public class WireMock {
         return new BeforeDateTimePattern(dateTime, actualDateFormat, null);
     }
 
-    public static StringValuePattern beforeNow(DateTimeTruncation truncation, String offset) {
-        return new BeforeDateTimePattern(DateTimeOffset.fromString(offset, truncation));
+    public static StringValuePattern beforeNow() {
+	    return new BeforeDateTimePattern("now");
     }
 
-    public static StringValuePattern beforeNow(String offset) {
-        return new BeforeDateTimePattern(DateTimeOffset.fromString(offset));
+    public static StringValuePattern beforeNow(DateTimeTruncation truncation, String offset) {
+        return new BeforeDateTimePattern(DateTimeOffset.fromString(offset, truncation));
     }
 
     public static StringValuePattern beforeNow(int amount, DateTimeUnit amountUnit) {

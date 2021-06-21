@@ -39,8 +39,8 @@ public class BeforeDateTimePattern extends StringValuePattern {
     private final DateTimeFormatter actualDateTimeFormatter;
     private final DateTimeOffset dateOffset;
 
-    public BeforeDateTimePattern(String dateTimeString) {
-        this(dateTimeString, null, null);
+    public BeforeDateTimePattern(String dateTimeSpec) {
+        this(dateTimeSpec, null, null);
     }
 
     public BeforeDateTimePattern(DateTimeOffset dateOffset) {
@@ -78,7 +78,8 @@ public class BeforeDateTimePattern extends StringValuePattern {
     }
 
     private static boolean isNowOffsetExpression(String dateTimeSpec) {
-        return dateTimeSpec.matches("^\\-?[0-9]+ [a-zA-Z]+$");
+        return  dateTimeSpec.equalsIgnoreCase("now") ||
+                dateTimeSpec.replaceAll("(?i)now ", "").matches("^[\\-+]?[0-9]+ [a-zA-Z]+$");
     }
 
     public String getBefore() {

@@ -21,7 +21,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import static com.github.tomakehurst.wiremock.common.DateTimeUnit.SECONDS;
+
 public class DateTimeOffset {
+
+    public static final DateTimeOffset NONE = new DateTimeOffset(0, SECONDS);
 
     private final DateTimeUnit amountUnit;
     private final int amount;
@@ -32,13 +36,25 @@ public class DateTimeOffset {
     }
 
     public static DateTimeOffset fromString(String offset, DateTimeTruncation truncation) {
-        String[] parts = offset.split(" ");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Offset must be of the form <amount> <unit> e.g. 8 seconds");
+        if (offset.equalsIgnoreCase("now")) {
+            return NONE;
         }
 
-        int amount = Integer.parseInt(parts[0]);
-        DateTimeUnit amountUnit = DateTimeUnit.valueOf(parts[1].toUpperCase());
+        String[] parts = offset.split(" ");
+        if (parts.length < 2 || parts.length > 3) {
+            throw new IllegalArgumentException("Offset can be of the short form <amount> <unit> e.g. 8 seconds or long form now +/-<amount> <unit> e.g. now +5 years");
+        }
+
+        int amount;
+        DateTimeUnit amountUnit;
+
+        if (parts.length == 2) {
+            amount = Integer.parseInt(parts[0]);
+            amountUnit = DateTimeUnit.valueOf(parts[1].toUpperCase());
+        } else {
+            amount = Integer.parseInt(parts[1]);
+            amountUnit = DateTimeUnit.valueOf(parts[2].toUpperCase());
+        }
 
         return new DateTimeOffset(amount, amountUnit, truncation);
     }
@@ -66,12 +82,20 @@ public class DateTimeOffset {
     }
 
     public Date shift(Date date) {
+        if (this == NONE) {
+            return date;
+        }
+
         final ZonedDateTime input = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Z"));
         ZonedDateTime output = shift(input);
         return Date.from(output.toInstant());
     }
 
     public ZonedDateTime shift(ZonedDateTime dateTime) {
+        if (this == NONE) {
+            return dateTime;
+        }
+
         return truncation.truncate(dateTime)
                          .plus(amount, amountUnit.toTemporalUnit());
     }
