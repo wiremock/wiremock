@@ -29,13 +29,8 @@ public class DateTimeOffset {
 
     private final DateTimeUnit amountUnit;
     private final int amount;
-    private final DateTimeTruncation truncation;
 
     public static DateTimeOffset fromString(String offset) {
-        return fromString(offset, DateTimeTruncation.NONE);
-    }
-
-    public static DateTimeOffset fromString(String offset, DateTimeTruncation truncation) {
         if (offset.equalsIgnoreCase("now")) {
             return NONE;
         }
@@ -56,17 +51,12 @@ public class DateTimeOffset {
             amountUnit = DateTimeUnit.valueOf(parts[2].toUpperCase());
         }
 
-        return new DateTimeOffset(amount, amountUnit, truncation);
+        return new DateTimeOffset(amount, amountUnit);
     }
 
     public DateTimeOffset(int amount, DateTimeUnit amountUnit) {
-        this(amount, amountUnit, DateTimeTruncation.NONE);
-    }
-
-    public DateTimeOffset(int amount, DateTimeUnit amountUnit, DateTimeTruncation truncation) {
         this.amountUnit = amountUnit;
         this.amount = amount;
-        this.truncation = truncation;
     }
 
     public DateTimeUnit getAmountUnit() {
@@ -75,10 +65,6 @@ public class DateTimeOffset {
 
     public int getAmount() {
         return amount;
-    }
-
-    public DateTimeTruncation getTruncation() {
-        return truncation;
     }
 
     public Date shift(Date date) {
@@ -96,8 +82,7 @@ public class DateTimeOffset {
             return dateTime;
         }
 
-        return truncation.truncate(dateTime)
-                         .plus(amount, amountUnit.toTemporalUnit());
+        return dateTime.plus(amount, amountUnit.toTemporalUnit());
     }
 
     @Override

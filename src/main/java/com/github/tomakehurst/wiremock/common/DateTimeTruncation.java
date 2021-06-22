@@ -2,14 +2,11 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Locale;
 import java.util.function.Function;
 
 import static java.time.temporal.ChronoUnit.*;
 
 public enum DateTimeTruncation {
-
-    NONE(input -> input),
 
     FIRST_SECOND_OF_MINUTE(input -> input.truncatedTo(MINUTES)),
     FIRST_MINUTE_OF_HOUR(input -> input.truncatedTo(HOURS)),

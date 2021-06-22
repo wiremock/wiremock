@@ -231,24 +231,28 @@ public class WireMock {
 	    return new BeforeDateTimePattern(dateTime);
     }
 
-    public static StringValuePattern before(String dateTime, String actualDateFormat) {
-        return new BeforeDateTimePattern(dateTime, actualDateFormat, null);
+    public static StringValuePattern before(String dateTimeSpec, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
+	    return new BeforeDateTimePattern(dateTimeSpec, null, truncateExpected, truncateActual);
+    }
+
+    public static StringValuePattern before(String dateTimeSpec, String actualDateFormat) {
+        return new BeforeDateTimePattern(dateTimeSpec, actualDateFormat, (DateTimeTruncation) null, null);
     }
 
     public static StringValuePattern beforeNow() {
 	    return new BeforeDateTimePattern("now");
     }
 
-    public static StringValuePattern beforeNow(DateTimeTruncation truncation, String offset) {
-        return new BeforeDateTimePattern(DateTimeOffset.fromString(offset, truncation));
-    }
-
     public static StringValuePattern beforeNow(int amount, DateTimeUnit amountUnit) {
-        return new BeforeDateTimePattern(new DateTimeOffset(amount, amountUnit));
+        return beforeNow(amount, amountUnit, null, null);
     }
 
-    public static StringValuePattern beforeNow(int amount, DateTimeUnit amountUnit, DateTimeTruncation truncation) {
-	    return new BeforeDateTimePattern(new DateTimeOffset(amount, amountUnit, truncation));
+    public static StringValuePattern beforeNow(int amount, DateTimeUnit amountUnit, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
+	    return new BeforeDateTimePattern(new DateTimeOffset(amount, amountUnit), truncateExpected, truncateActual);
+    }
+
+    public static StringValuePattern equalToDateTime(String dateTimeSpec) {
+	    return new EqualToDateTimePattern(dateTimeSpec);
     }
 
     public static StringValuePattern absent() {

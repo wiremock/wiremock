@@ -53,6 +53,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
             .put("before", BeforeDateTimePattern.class)
+            .put("equalToDateTime", EqualToDateTimePattern.class)
             .put("anything", AnythingPattern.class)
             .put("absent", AbsentPattern.class)
             .build();
@@ -80,28 +81,32 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return deserialiseMatchesXPathPattern(rootNode);
         } else if (patternClass.equals(EqualToPattern.class)) {
             return deserializeEqualTo(rootNode);
-        } else if (patternClass.equals(BeforeDateTimePattern.class)) {
-            return deserialiseDateTimePattern(rootNode);
+        } else if (AbstractDateTimePattern.class.isAssignableFrom(patternClass)) {
+            final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
+            String matcherName = mainFieldEntry.getKey();
+            return deserialiseDateTimePattern(rootNode, matcherName);
         }
 
-        Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
+        final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
+        if (!mainFieldEntry.getValue().isTextual()) {
+            throw new JsonMappingException(mainFieldEntry.getKey() + " operand must be a non-null string");
+        }
+        String operand = mainFieldEntry.getValue().textValue();
+        try {
+            Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
+            return constructor.newInstance(operand);
+        } catch (Exception e) {
+            return throwUnchecked(e, StringValuePattern.class);
+        }
+    }
 
-        Map.Entry<String, JsonNode> entry = find(rootNode.fields(), new Predicate<Map.Entry<String, JsonNode>>() {
+    private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
+        return find(rootNode.fields(), new Predicate<Map.Entry<String, JsonNode>>() {
             @Override
             public boolean apply(Map.Entry<String, JsonNode> input) {
                 return PATTERNS.keySet().contains(input.getKey());
             }
         });
-
-        if (!entry.getValue().isTextual()) {
-            throw new JsonMappingException(entry.getKey() + " operand must be a non-null string");
-        }
-        String operand = entry.getValue().textValue();
-        try {
-            return constructor.newInstance(operand);
-        } catch (Exception e) {
-            return throwUnchecked(e, StringValuePattern.class);
-        }
     }
 
     private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
@@ -199,20 +204,30 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         return new MatchesXPathPattern(expression, namespaces, valuePattern);
     }
 
-    private BeforeDateTimePattern deserialiseDateTimePattern(JsonNode rootNode) throws JsonMappingException {
-        if (!rootNode.has("before")) {
-            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+    private StringValuePattern deserialiseDateTimePattern(JsonNode rootNode, String matcherName) throws JsonMappingException {
+        JsonNode dateTimeNode = rootNode.findValue(matcherName);
+        JsonNode formatNode = rootNode.findValue("format");
+        JsonNode truncateExpectedNode = rootNode.findValue("truncateExpectedNode");
+        JsonNode truncateActualNode = rootNode.findValue("truncateActual");
+
+        switch (matcherName) {
+            case "before":
+                return new BeforeDateTimePattern(
+                        dateTimeNode.textValue(),
+                        formatNode != null ? formatNode.textValue() : null,
+                        truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+                        truncateActualNode != null ? truncateActualNode.textValue() : null
+                );
+            case "equalToDateTime":
+                return new EqualToDateTimePattern(
+                        dateTimeNode.textValue(),
+                        formatNode != null ? formatNode.textValue() : null,
+                        truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+                        truncateActualNode != null ? truncateActualNode.textValue() : null
+                );
         }
 
-        JsonNode dateTimeNode = rootNode.findValue("before");
-        JsonNode formatNode = rootNode.findValue("format");
-        JsonNode truncateNode = rootNode.findValue("truncate");
-
-        return new BeforeDateTimePattern(
-                dateTimeNode.textValue(),
-                formatNode != null ? formatNode.textValue() : null,
-                truncateNode != null ? truncateNode.textValue() : null
-        );
+        throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
     }
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {

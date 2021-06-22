@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DateTimePatternsTest {
+public class BeforeDateTimePatternTest {
 
     @Test
     public void matchesZonedISO8601BeforeZonedLiteralDateTime() {
@@ -160,7 +160,7 @@ public class DateTimePatternsTest {
 
     @Test
     public void truncatesActualDateToSpecifiedUnitWhenUsingLiteralBound() {
-        StringValuePattern matcher = WireMock.beforeNow(DateTimeTruncation.FIRST_DAY_OF_MONTH, "15 days"); // Before the 15th of this month
+        StringValuePattern matcher = WireMock.before("15 days", null, DateTimeTruncation.FIRST_DAY_OF_MONTH); // Before the 15th of this month
 
         TemporalAdjuster truncateToMonth = TemporalAdjusters.firstDayOfMonth();
         ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, DAYS);
@@ -181,12 +181,27 @@ public class DateTimePatternsTest {
     }
 
     @Test
-    public void serialisesOffsetAndTruncationFormToJson() {
-        StringValuePattern matcher = WireMock.beforeNow(15, DateTimeUnit.DAYS, DateTimeTruncation.FIRST_DAY_OF_MONTH);
+    public void serialisesOffsetWithActualTruncationFormToJson() {
+        StringValuePattern matcher = WireMock.beforeNow(15, DateTimeUnit.DAYS, null, DateTimeTruncation.FIRST_DAY_OF_MONTH);
 
         assertThat(Json.write(matcher), jsonEquals("{\n" +
-                "  \"before\": \"15 days\",\n" +
-                "  \"truncate\": \"first day of month\"\n" +
+                "  \"before\": \"now +15 days\",\n" +
+                "  \"truncateActual\": \"first day of month\"\n" +
+                "}"));
+    }
+
+    @Test
+    public void serialisesOffsetWithExpectedAndActualTruncationFormToJson() {
+        StringValuePattern matcher = WireMock.beforeNow(
+                15, DateTimeUnit.DAYS,
+                DateTimeTruncation.FIRST_HOUR_OF_DAY,
+                DateTimeTruncation.FIRST_DAY_OF_MONTH
+        );
+
+        assertThat(Json.write(matcher), jsonEquals("{\n" +
+                "  \"before\": \"now +15 days\",\n" +
+                "  \"truncateExpected\": \"first hour of day\",\n" +
+                "  \"truncateActual\": \"first day of month\"\n" +
                 "}"));
     }
 
@@ -205,7 +220,7 @@ public class DateTimePatternsTest {
     public void deserialisesPositiveOffsetAndTruncateFormFromJson() {
         StringValuePattern matcher = Json.read("{\n" +
                 "  \"before\": \"15 days\",\n" +
-                "  \"truncate\": \"first day of month\"\n" +
+                "  \"truncateActual\": \"first day of month\"\n" +
                 "}", BeforeDateTimePattern.class);
 
         TemporalAdjuster truncateToMonth = TemporalAdjusters.firstDayOfMonth();

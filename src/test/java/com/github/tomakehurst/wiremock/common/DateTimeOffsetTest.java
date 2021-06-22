@@ -117,15 +117,6 @@ public class DateTimeOffsetTest {
         assertThat(ISO8601.format(finalDate), is("2018-04-19T12:01:01Z"));
     }
 
-    @Test
-    public void truncatesBeforeOffsettingWhenSpecified() {
-        DateTimeOffset offset = DateTimeOffset.fromString("-6 days", DateTimeTruncation.LAST_DAY_OF_MONTH);
-        ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
-        ZonedDateTime output = offset.shift(input);
-
-        assertThat(output, is(ZonedDateTime.parse("2021-06-24T00:00:00Z")));
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionWhenUnparseableStringProvided() {
         DateTimeOffset.fromString("101");

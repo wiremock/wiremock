@@ -7,22 +7,18 @@ import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
-public class BeforeDateTimePattern extends AbstractDateTimePattern {
+public class EqualToDateTimePattern extends AbstractDateTimePattern {
 
-    public BeforeDateTimePattern(String dateTimeSpec) {
-        super(dateTimeSpec);
+    public EqualToDateTimePattern(String dateTimeSpec) {
+        super(dateTimeSpec, null, (DateTimeTruncation) null, null);
     }
 
-    public BeforeDateTimePattern(String dateTimeSpec, String actualDateFormat, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
-        super(dateTimeSpec, actualDateFormat, truncateExpected, truncateActual);
-    }
-
-    public BeforeDateTimePattern(DateTimeOffset dateOffset, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
+    public EqualToDateTimePattern(DateTimeOffset dateOffset, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
         super(dateOffset, truncateExpected, truncateActual);
     }
 
-    public BeforeDateTimePattern(
-            @JsonProperty("before") String dateTimeSpec,
+    public EqualToDateTimePattern(
+            @JsonProperty("equalToDateTime") String dateTimeSpec,
             @JsonProperty("format") String actualDateFormat,
             @JsonProperty("truncateExpected") String truncateExpected,
             @JsonProperty("truncateActual") String truncateActual
@@ -36,22 +32,22 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
         return new AbstractDateTimeMatchResult(zonedExpected, localExpected, zonedActual, localActual) {
             @Override
             protected boolean matchZonedZoned() {
-                return zonedActual.isBefore(zonedExpected);
+                return zonedActual.isEqual(zonedExpected);
             }
 
             @Override
             protected boolean matchLocalLocal() {
-                return localActual.isBefore(localExpected);
+                return localActual.isEqual(localExpected);
             }
 
             @Override
             protected boolean matchLocalZoned() {
-                return zonedActual.toLocalDateTime().isBefore(localExpected);
+                return zonedActual.toLocalDateTime().isEqual(localExpected);
             }
         };
     }
 
-    public String getBefore() {
+    public String getEqualToDateTime() {
         return expectedValue;
     }
 }
