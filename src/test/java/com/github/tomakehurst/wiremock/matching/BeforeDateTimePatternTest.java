@@ -1,16 +1,17 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
-import static java.time.temporal.ChronoUnit.DAYS;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_DAY_OF_MONTH;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_HOUR_OF_DAY;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -130,7 +131,7 @@ public class BeforeDateTimePatternTest {
 
     @Test
     public void matchesActualDateAccordingToSpecifiedFormat() {
-        StringValuePattern matcher = WireMock.before("2021-06-14", "dd/MM/yyyy");
+        StringValuePattern matcher = WireMock.before("2021-06-14").actualDateTimeFormat("dd/MM/yyyy");
 
         assertTrue(matcher.match("01/06/2021").isExactMatch());
         assertFalse(matcher.match("01/07/2021").isExactMatch());
@@ -160,11 +161,11 @@ public class BeforeDateTimePatternTest {
 
     @Test
     public void truncatesActualDateToSpecifiedUnitWhenUsingLiteralBound() {
-        StringValuePattern matcher = WireMock.before("15 days", null, DateTimeTruncation.FIRST_DAY_OF_MONTH); // Before the 15th of this month
+        StringValuePattern matcher = WireMock.before("15 days").truncateActual(FIRST_DAY_OF_MONTH); // Before the 15th of this month
 
         TemporalAdjuster truncateToMonth = TemporalAdjusters.firstDayOfMonth();
-        ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, DAYS);
-        ZonedDateTime bad = ZonedDateTime.now().with(truncateToMonth).plus(16, DAYS);
+        ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, ChronoUnit.DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().with(truncateToMonth).plus(16, ChronoUnit.DAYS);
 
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());
@@ -172,7 +173,7 @@ public class BeforeDateTimePatternTest {
 
     @Test
     public void serialisesLiteralDateTimeAndFormatFormToJson() {
-        StringValuePattern matcher = WireMock.before("2021-06-01T00:00:00", "dd/MM/yyyy");
+        StringValuePattern matcher = WireMock.before("2021-06-01T00:00:00").actualDateTimeFormat("dd/MM/yyyy");
 
         assertThat(Json.write(matcher), jsonEquals("{\n" +
             "  \"before\": \"2021-06-01T00:00:00\",\n" +
@@ -182,7 +183,7 @@ public class BeforeDateTimePatternTest {
 
     @Test
     public void serialisesOffsetWithActualTruncationFormToJson() {
-        StringValuePattern matcher = WireMock.beforeNow(15, DateTimeUnit.DAYS, null, DateTimeTruncation.FIRST_DAY_OF_MONTH);
+        StringValuePattern matcher = WireMock.beforeNow().offset(15, DateTimeUnit.DAYS).truncateActual(FIRST_DAY_OF_MONTH);
 
         assertThat(Json.write(matcher), jsonEquals("{\n" +
                 "  \"before\": \"now +15 days\",\n" +
@@ -192,11 +193,10 @@ public class BeforeDateTimePatternTest {
 
     @Test
     public void serialisesOffsetWithExpectedAndActualTruncationFormToJson() {
-        StringValuePattern matcher = WireMock.beforeNow(
-                15, DateTimeUnit.DAYS,
-                DateTimeTruncation.FIRST_HOUR_OF_DAY,
-                DateTimeTruncation.FIRST_DAY_OF_MONTH
-        );
+        StringValuePattern matcher = WireMock.beforeNow()
+                .offset(15, DateTimeUnit.DAYS)
+                .truncateExpected(FIRST_HOUR_OF_DAY)
+                .truncateActual(FIRST_DAY_OF_MONTH);
 
         assertThat(Json.write(matcher), jsonEquals("{\n" +
                 "  \"before\": \"now +15 days\",\n" +
@@ -224,8 +224,8 @@ public class BeforeDateTimePatternTest {
                 "}", BeforeDateTimePattern.class);
 
         TemporalAdjuster truncateToMonth = TemporalAdjusters.firstDayOfMonth();
-        ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, DAYS);
-        ZonedDateTime bad = ZonedDateTime.now().with(truncateToMonth).plus(16, DAYS);
+        ZonedDateTime good = ZonedDateTime.now().with(truncateToMonth).plus(14, ChronoUnit.DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().with(truncateToMonth).plus(16, ChronoUnit.DAYS);
 
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());
@@ -237,8 +237,8 @@ public class BeforeDateTimePatternTest {
                 "  \"before\": \"-15 days\"\n" +
                 "}", BeforeDateTimePattern.class);
 
-        ZonedDateTime good = ZonedDateTime.now().minus(16, DAYS);
-        ZonedDateTime bad = ZonedDateTime.now().minus(14, DAYS);
+        ZonedDateTime good = ZonedDateTime.now().minus(16, ChronoUnit.DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().minus(14, ChronoUnit.DAYS);
 
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());

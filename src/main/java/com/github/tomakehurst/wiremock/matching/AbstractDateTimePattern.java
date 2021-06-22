@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
+import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,35 +33,29 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
     private final ZonedDateTime zonedDateTime;
     private final LocalDateTime localDateTime;
-    private final String actualDateTimeFormat;
-    private final DateTimeFormatter actualDateTimeFormatter;
-    private final DateTimeOffset dateOffset;
-    private final DateTimeTruncation truncateExpected;
-    private final DateTimeTruncation truncateActual;
+    private String actualDateTimeFormat;
+    private DateTimeFormatter actualDateTimeFormatter;
+    private DateTimeOffset dateOffset;
+    private DateTimeTruncation truncateExpected;
+    private DateTimeTruncation truncateActual;
 
-    public AbstractDateTimePattern(String dateTimeSpec) {
-        this(dateTimeSpec, null, null, (DateTimeTruncation) null);
+    protected AbstractDateTimePattern(String dateTimeSpec) {
+        this(dateTimeSpec, null, (DateTimeTruncation) null, null);
     }
 
-    public AbstractDateTimePattern(DateTimeOffset offset, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
+    protected AbstractDateTimePattern(DateTimeOffset offset, String actualDateTimeFormat, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
         super(buildExpectedString(offset));
         this.dateOffset = offset;
         localDateTime = null;
         zonedDateTime = null;
-        this.actualDateTimeFormat = null;
-        actualDateTimeFormatter = null;
+        this.actualDateTimeFormat = actualDateTimeFormat;
+        actualDateTimeFormatter = actualDateTimeFormat != null ? DateTimeFormatter.ofPattern(actualDateTimeFormat) : null;
         this.truncateExpected = truncateExpected;
         this.truncateActual = truncateActual;
     }
 
-    private static String buildExpectedString(DateTimeOffset dateTimeOffset) {
-        return dateTimeOffset.getAmount() >= 0 ?
-                "now +" + dateTimeOffset :
-                "now " + dateTimeOffset;
-    }
-
     // Call this from JSON creator constructor in subclasses
-    public AbstractDateTimePattern(
+    protected AbstractDateTimePattern(
             String dateTimeSpec,
             String actualDateFormat,
             String truncateExpected,
@@ -74,7 +69,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         );
     }
 
-    public AbstractDateTimePattern(
+    protected AbstractDateTimePattern(
             String dateTimeSpec,
             String actualDateFormat,
             DateTimeTruncation truncateExpected,
@@ -99,9 +94,55 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         this.truncateActual = truncateActual;
     }
 
+    @Override
+    public String getValue() {
+        if (expectedValue.equals("now") && dateOffset != null) {
+            return buildExpectedString(dateOffset);
+        }
+
+        return expectedValue;
+    }
+
+    private static String buildExpectedString(DateTimeOffset dateTimeOffset) {
+        return dateTimeOffset.getAmount() >= 0 ?
+                "now +" + dateTimeOffset :
+                "now " + dateTimeOffset;
+    }
+
     private static boolean isNowOffsetExpression(String dateTimeSpec) {
         return  dateTimeSpec.equalsIgnoreCase("now") ||
                 dateTimeSpec.replaceAll("(?i)now ", "").matches("^[\\-+]?[0-9]+ [a-zA-Z]+$");
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractDateTimePattern> T actualDateTimeFormat(String format) {
+        this.actualDateTimeFormat = format;
+        this.actualDateTimeFormatter = DateTimeFormatter.ofPattern(format);
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractDateTimePattern> T offset(int amount, DateTimeUnit unit) {
+        this.dateOffset = new DateTimeOffset(amount, unit);
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractDateTimePattern> T offset(DateTimeOffset offset) {
+        this.dateOffset = offset;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractDateTimePattern> T truncateExpected(DateTimeTruncation truncation) {
+        this.truncateExpected = truncation;
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractDateTimePattern> T truncateActual(DateTimeTruncation truncation) {
+        this.truncateActual = truncation;
+        return (T) this;
     }
 
     public String getFormat() {

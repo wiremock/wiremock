@@ -53,6 +53,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
             .put("before", BeforeDateTimePattern.class)
+            .put("after", AfterDateTimePattern.class)
             .put("equalToDateTime", EqualToDateTimePattern.class)
             .put("anything", AnythingPattern.class)
             .put("absent", AbsentPattern.class)
@@ -61,15 +62,14 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     @Override
     public StringValuePattern deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
         JsonNode rootNode = parser.readValueAsTree();
-
-        if (isAbsent(rootNode)) {
-            return AbsentPattern.ABSENT;
-        }
-
         return buildStringValuePattern(rootNode);
     }
 
     public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
+        if (isAbsent(rootNode)) {
+            return AbsentPattern.ABSENT;
+        }
+
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
@@ -213,6 +213,13 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         switch (matcherName) {
             case "before":
                 return new BeforeDateTimePattern(
+                        dateTimeNode.textValue(),
+                        formatNode != null ? formatNode.textValue() : null,
+                        truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+                        truncateActualNode != null ? truncateActualNode.textValue() : null
+                );
+            case "after":
+                return new AfterDateTimePattern(
                         dateTimeNode.textValue(),
                         formatNode != null ? formatNode.textValue() : null,
                         truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,

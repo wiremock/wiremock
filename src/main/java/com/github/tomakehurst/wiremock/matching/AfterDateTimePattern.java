@@ -1,19 +1,20 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.DateTimeOffset;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
-public class EqualToDateTimePattern extends AbstractDateTimePattern {
+public class AfterDateTimePattern extends AbstractDateTimePattern {
 
-    public EqualToDateTimePattern(String dateTimeSpec) {
-        super(dateTimeSpec, null, (DateTimeTruncation) null, null);
+    public AfterDateTimePattern(String dateTimeSpec) {
+        super(dateTimeSpec);
     }
 
-    public EqualToDateTimePattern(
-            @JsonProperty("equalToDateTime") String dateTimeSpec,
+    public AfterDateTimePattern(
+            @JsonProperty("after") String dateTimeSpec,
             @JsonProperty("format") String actualDateFormat,
             @JsonProperty("truncateExpected") String truncateExpected,
             @JsonProperty("truncateActual") String truncateActual
@@ -27,22 +28,22 @@ public class EqualToDateTimePattern extends AbstractDateTimePattern {
         return new AbstractDateTimeMatchResult(zonedExpected, localExpected, zonedActual, localActual) {
             @Override
             protected boolean matchZonedZoned() {
-                return zonedActual.isEqual(zonedExpected);
+                return zonedActual.isAfter(zonedExpected);
             }
 
             @Override
             protected boolean matchLocalLocal() {
-                return localActual.isEqual(localExpected);
+                return localActual.isAfter(localExpected);
             }
 
             @Override
             protected boolean matchLocalZoned() {
-                return zonedActual.toLocalDateTime().isEqual(localExpected);
+                return zonedActual.toLocalDateTime().isAfter(localExpected);
             }
         };
     }
 
-    public String getEqualToDateTime() {
+    public String getAfter() {
         return getValue();
     }
 }

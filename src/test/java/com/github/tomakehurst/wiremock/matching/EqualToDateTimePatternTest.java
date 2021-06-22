@@ -52,11 +52,10 @@ public class EqualToDateTimePatternTest {
 
     @Test
     public void serialisesToJson() {
-        EqualToDateTimePattern matcher = new EqualToDateTimePattern(
-                DateTimeOffset.fromString("now -5 days"),
-                DateTimeTruncation.LAST_DAY_OF_MONTH,
-                DateTimeTruncation.FIRST_DAY_OF_YEAR
-        );
+        EqualToDateTimePattern matcher = WireMock.isNow()
+                .offset(DateTimeOffset.fromString("now -5 days"))
+                .truncateExpected(DateTimeTruncation.LAST_DAY_OF_MONTH)
+                .truncateActual(DateTimeTruncation.FIRST_DAY_OF_YEAR);
 
         assertThat(Json.write(matcher), jsonEquals("{\n" +
                 "  \"equalToDateTime\": \"now -5 days\",\n" +

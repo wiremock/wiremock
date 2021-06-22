@@ -1,8 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.DateTimeOffset;
-import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -11,14 +9,6 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
 
     public BeforeDateTimePattern(String dateTimeSpec) {
         super(dateTimeSpec);
-    }
-
-    public BeforeDateTimePattern(String dateTimeSpec, String actualDateFormat, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
-        super(dateTimeSpec, actualDateFormat, truncateExpected, truncateActual);
-    }
-
-    public BeforeDateTimePattern(DateTimeOffset dateOffset, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
-        super(dateOffset, truncateExpected, truncateActual);
     }
 
     public BeforeDateTimePattern(
@@ -52,6 +42,6 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
     }
 
     public String getBefore() {
-        return expectedValue;
+        return getValue();
     }
 }
