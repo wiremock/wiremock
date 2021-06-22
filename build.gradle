@@ -107,7 +107,7 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
-    testCompile 'org.mockito:mockito-core:3.11.0'
+    testCompile 'org.mockito:mockito-core:3.11.2'
     testCompile 'net.javacrumbs.json-unit:json-unit:2.26.0'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
     testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.0'
