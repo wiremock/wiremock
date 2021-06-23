@@ -15,7 +15,7 @@ public class AfterDateTimePattern extends AbstractDateTimePattern {
 
     public AfterDateTimePattern(
             @JsonProperty("after") String dateTimeSpec,
-            @JsonProperty("format") String actualDateFormat,
+            @JsonProperty("actualFormat") String actualDateFormat,
             @JsonProperty("truncateExpected") String truncateExpected,
             @JsonProperty("truncateActual") String truncateActual
     ) {

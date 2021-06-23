@@ -5,11 +5,9 @@ import com.github.tomakehurst.wiremock.common.*;
 import org.junit.Test;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.HOURS;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -43,10 +41,23 @@ public class AfterDateTimePatternTest {
 
     @Test
     public void matchesZonedToNowOffset() {
-        StringValuePattern matcher = WireMock.afterNow().offset(27, DateTimeUnit.MINUTES);
+        StringValuePattern matcher = WireMock.afterNow().expectedOffset(27, DateTimeUnit.MINUTES);
 
         ZonedDateTime good = ZonedDateTime.now().plusHours(1);
         ZonedDateTime bad = ZonedDateTime.now().minusMinutes(1);
+        assertTrue(matcher.match(good.toString()).isExactMatch());
+        assertFalse(matcher.match(bad.toString()).isExactMatch());
+    }
+
+    @Test
+    public void matchesNowWithExpectedAndActualTruncated() {
+        StringValuePattern matcher = WireMock.afterNow()
+                .truncateExpected(DateTimeTruncation.FIRST_DAY_OF_MONTH)
+                .truncateActual(DateTimeTruncation.LAST_DAY_OF_MONTH);
+
+        ZonedDateTime good = ZonedDateTime.now();
+        ZonedDateTime bad = ZonedDateTime.now().minusMonths(1).minusHours(1);
+
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());
     }
@@ -62,7 +73,7 @@ public class AfterDateTimePatternTest {
     @Test
     public void serialisesToJson() {
         AfterDateTimePattern matcher = WireMock.afterNow()
-                .offset(DateTimeOffset.fromString("now -5 days"))
+                .expectedOffset(DateTimeOffset.fromString("now -5 days"))
                 .truncateExpected(DateTimeTruncation.LAST_DAY_OF_MONTH)
                 .truncateActual(DateTimeTruncation.FIRST_DAY_OF_YEAR);
 
@@ -75,17 +86,15 @@ public class AfterDateTimePatternTest {
 
     @Test
     public void deserialisesFromJson() {
-        StringValuePattern matcher = Json.read("{\n" +
+        AfterDateTimePattern matcher = Json.read("{\n" +
                 "  \"after\": \"now\",\n" +
                 "  \"truncateExpected\": \"first hour of day\",\n" +
-                "  \"truncateActual\": \"first hour of day\"\n" +
+                "  \"truncateActual\": \"last day of year\"\n" +
                 "}", AfterDateTimePattern.class);
 
-        ZonedDateTime good = ZonedDateTime.now().truncatedTo(DAYS).plusHours(1);
-        ZonedDateTime bad = ZonedDateTime.now().truncatedTo(DAYS).minusHours(5);
-
-        assertTrue(matcher.match(good.toString()).isExactMatch());
-        assertFalse(matcher.match(bad.toString()).isExactMatch());
+        assertThat(matcher.getExpected(), is("now +0 seconds"));
+        assertThat(matcher.getTruncateExpected(), is("first hour of day"));
+        assertThat(matcher.getTruncateActual(), is("last day of year"));
     }
 
 }

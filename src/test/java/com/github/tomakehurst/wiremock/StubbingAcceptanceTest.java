@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
-import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -40,10 +38,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -773,13 +769,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void matchesOnNowOffsetDate() {
 		stubFor(post("/offset-date")
 				.withRequestBody(matchingJsonPath("$.date", isNow()
-						.offset(1, HOURS)
+						.expectedOffset(1, HOURS)
 						.truncateActual(FIRST_MINUTE_OF_HOUR)
 						.truncateExpected(FIRST_MINUTE_OF_HOUR)))
 				.willReturn(ok()));
 
 		String good = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1).toString();
-		String bad = ZonedDateTime.now().plusHours(1).toString();
+		String bad =  ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1).minusMinutes(1).toString();
 
 		assertThat(testClient.postJson(
 				"/offset-date",

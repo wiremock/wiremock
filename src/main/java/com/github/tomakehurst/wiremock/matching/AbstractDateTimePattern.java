@@ -35,9 +35,8 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     private final ZonedDateTime zonedDateTime;
     private final LocalDateTime localDateTime;
     private String actualDateTimeFormat;
-//    private DateTimeFormatter actualDateTimeFormatter;
     private DateTimeParser actualDateTimeParser;
-    private DateTimeOffset dateOffset;
+    private DateTimeOffset expectedOffset;
     private DateTimeTruncation truncateExpected;
     private DateTimeTruncation truncateActual;
 
@@ -47,7 +46,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
     protected AbstractDateTimePattern(DateTimeOffset offset, String actualDateTimeFormat, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
         super(buildExpectedString(offset));
-        this.dateOffset = offset;
+        this.expectedOffset = offset;
         localDateTime = null;
         zonedDateTime = null;
         this.actualDateTimeFormat = actualDateTimeFormat;
@@ -82,11 +81,11 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         if (isNowOffsetExpression(dateTimeSpec)) {
             zonedDateTime = null;
             localDateTime = null;
-            dateOffset = DateTimeOffset.fromString(dateTimeSpec);
+            expectedOffset = DateTimeOffset.fromString(dateTimeSpec);
         } else {
             zonedDateTime = parseZonedOrNull(dateTimeSpec);
             localDateTime = parseLocalOrNull(dateTimeSpec);
-            dateOffset = null;
+            expectedOffset = null;
         }
 
         this.actualDateTimeFormat = actualDateFormat;
@@ -98,8 +97,8 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
     @Override
     public String getValue() {
-        if (expectedValue.equals("now") && dateOffset != null) {
-            return buildExpectedString(dateOffset);
+        if (expectedValue.equals("now") && expectedOffset != null) {
+            return buildExpectedString(expectedOffset);
         }
 
         return expectedValue;
@@ -117,21 +116,21 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDateTimePattern> T actualDateTimeFormat(String format) {
+    public <T extends AbstractDateTimePattern> T actualFormat(String format) {
         this.actualDateTimeFormat = format;
         this.actualDateTimeParser = DateTimeParser.forFormat(format);
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDateTimePattern> T offset(int amount, DateTimeUnit unit) {
-        this.dateOffset = new DateTimeOffset(amount, unit);
+    public <T extends AbstractDateTimePattern> T expectedOffset(int amount, DateTimeUnit unit) {
+        this.expectedOffset = new DateTimeOffset(amount, unit);
         return (T) this;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractDateTimePattern> T offset(DateTimeOffset offset) {
-        this.dateOffset = offset;
+    public <T extends AbstractDateTimePattern> T expectedOffset(DateTimeOffset offset) {
+        this.expectedOffset = offset;
         return (T) this;
     }
 
@@ -147,7 +146,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         return (T) this;
     }
 
-    public String getFormat() {
+    public String getActualFormat() {
         return actualDateTimeFormat;
     }
 
@@ -165,29 +164,32 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
     @Override
     public MatchResult match(String value) {
-        final ZonedDateTime zonedActual = parseZonedOrNull(value, actualDateTimeParser);
+        final ZonedDateTime zonedActual = truncateActual != null ?
+                truncateActual.truncate(parseZonedOrNull(value, actualDateTimeParser)) :
+                parseZonedOrNull(value, actualDateTimeParser);
+
         final LocalDateTime localActual = parseLocalOrNull(value, actualDateTimeParser);
 
         final ZonedDateTime zonedExpectedDateTime = isNowOffset() ?
-                getShiftedAndOffsetNow() :
+                calculateExpectedFromNow() :
                 zonedDateTime;
 
         return getMatchResult(zonedExpectedDateTime, localDateTime, zonedActual, localActual);
     }
 
-    private ZonedDateTime getShiftedAndOffsetNow() {
+    private ZonedDateTime calculateExpectedFromNow() {
         final ZonedDateTime now = ZonedDateTime.now();
-        final ZonedDateTime truncated = truncateActual != null ?
-                truncateActual.truncate(now) :
+        final ZonedDateTime truncated = truncateExpected != null ?
+                truncateExpected.truncate(now) :
                 now;
 
-        return dateOffset.shift(truncated);
+        return expectedOffset.shift(truncated);
     }
 
     protected abstract MatchResult getMatchResult(ZonedDateTime zonedExpected, LocalDateTime localExpected, ZonedDateTime zonedActual, LocalDateTime localActual);
 
     private boolean isNowOffset() {
-        return dateOffset != null;
+        return expectedOffset != null;
     }
 
     private static ZonedDateTime parseZonedOrNull(String dateTimeString) {

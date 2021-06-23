@@ -206,8 +206,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     private StringValuePattern deserialiseDateTimePattern(JsonNode rootNode, String matcherName) throws JsonMappingException {
         JsonNode dateTimeNode = rootNode.findValue(matcherName);
-        JsonNode formatNode = rootNode.findValue("format");
-        JsonNode truncateExpectedNode = rootNode.findValue("truncateExpectedNode");
+        JsonNode formatNode = rootNode.findValue("actualFormat");
+        JsonNode truncateExpectedNode = rootNode.findValue("truncateExpected");
         JsonNode truncateActualNode = rootNode.findValue("truncateActual");
 
         switch (matcherName) {

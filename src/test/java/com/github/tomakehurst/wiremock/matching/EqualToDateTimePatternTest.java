@@ -46,7 +46,7 @@ public class EqualToDateTimePatternTest {
     @Test
     public void matchesActualInUnixTimeFormat() {
         String dateTime = "2021-06-14T12:13:14Z";
-        StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualDateTimeFormat("unix");
+        StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualFormat("unix");
 
         String good = String.valueOf(Instant.parse(dateTime).getEpochSecond());
         String bad = String.valueOf(Instant.parse(dateTime).minusMillis(10).getEpochSecond());
@@ -58,7 +58,7 @@ public class EqualToDateTimePatternTest {
     @Test
     public void matchesActualInEpochTimeFormat() {
         String dateTime = "2021-06-14T12:13:14Z";
-        StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualDateTimeFormat("epoch");
+        StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualFormat("epoch");
 
         String good = String.valueOf(Instant.parse(dateTime).toEpochMilli());
         String bad = String.valueOf(Instant.parse(dateTime).minusMillis(10).toEpochMilli());
@@ -78,7 +78,7 @@ public class EqualToDateTimePatternTest {
     @Test
     public void serialisesToJson() {
         EqualToDateTimePattern matcher = WireMock.isNow()
-                .offset(DateTimeOffset.fromString("now -5 days"))
+                .expectedOffset(DateTimeOffset.fromString("now -5 days"))
                 .truncateExpected(DateTimeTruncation.LAST_DAY_OF_MONTH)
                 .truncateActual(DateTimeTruncation.FIRST_DAY_OF_YEAR);
 
