@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
+import com.github.tomakehurst.wiremock.common.DateTimeParser;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 
@@ -23,18 +24,19 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     private static final DateTimeFormatter RFC_1036_DATE_TIME = DateTimeFormatter.ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz").withLocale(US);
     private static final DateTimeFormatter ASCTIME1 = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy").withZone(ZoneId.of("GMT"));
     private static final DateTimeFormatter ASCTIME2 = DateTimeFormatter.ofPattern("EEE MMM  d HH:mm:ss yyyy").withZone(ZoneId.of("GMT"));
-    private static final List<DateTimeFormatter> ZONED_FORMATTERS = asList(
-            ISO_ZONED_DATE_TIME,
-            RFC_1123_DATE_TIME,
-            RFC_1036_DATE_TIME,
-            ASCTIME1,
-            ASCTIME2
+    private static final List<DateTimeParser> ZONED_PARSERS = asList(
+            DateTimeParser.forFormatter(ISO_ZONED_DATE_TIME),
+            DateTimeParser.forFormatter(RFC_1123_DATE_TIME),
+            DateTimeParser.forFormatter(RFC_1036_DATE_TIME),
+            DateTimeParser.forFormatter(ASCTIME1),
+            DateTimeParser.forFormatter(ASCTIME2)
     );
 
     private final ZonedDateTime zonedDateTime;
     private final LocalDateTime localDateTime;
     private String actualDateTimeFormat;
-    private DateTimeFormatter actualDateTimeFormatter;
+//    private DateTimeFormatter actualDateTimeFormatter;
+    private DateTimeParser actualDateTimeParser;
     private DateTimeOffset dateOffset;
     private DateTimeTruncation truncateExpected;
     private DateTimeTruncation truncateActual;
@@ -49,7 +51,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         localDateTime = null;
         zonedDateTime = null;
         this.actualDateTimeFormat = actualDateTimeFormat;
-        actualDateTimeFormatter = actualDateTimeFormat != null ? DateTimeFormatter.ofPattern(actualDateTimeFormat) : null;
+        this.actualDateTimeParser = actualDateTimeFormat != null ? DateTimeParser.forFormat(actualDateTimeFormat) : null;
         this.truncateExpected = truncateExpected;
         this.truncateActual = truncateActual;
     }
@@ -88,7 +90,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         }
 
         this.actualDateTimeFormat = actualDateFormat;
-        actualDateTimeFormatter = actualDateFormat != null ? DateTimeFormatter.ofPattern(actualDateFormat) : null;
+        this.actualDateTimeParser = actualDateTimeFormat != null ? DateTimeParser.forFormat(actualDateTimeFormat) : null;
 
         this.truncateExpected = truncateExpected;
         this.truncateActual = truncateActual;
@@ -117,7 +119,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     @SuppressWarnings("unchecked")
     public <T extends AbstractDateTimePattern> T actualDateTimeFormat(String format) {
         this.actualDateTimeFormat = format;
-        this.actualDateTimeFormatter = DateTimeFormatter.ofPattern(format);
+        this.actualDateTimeParser = DateTimeParser.forFormat(format);
         return (T) this;
     }
 
@@ -163,8 +165,8 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
     @Override
     public MatchResult match(String value) {
-        final ZonedDateTime zonedActual = parseZonedOrNull(value, actualDateTimeFormatter);
-        final LocalDateTime localActual = parseLocalOrNull(value, actualDateTimeFormatter);
+        final ZonedDateTime zonedActual = parseZonedOrNull(value, actualDateTimeParser);
+        final LocalDateTime localActual = parseLocalOrNull(value, actualDateTimeParser);
 
         final ZonedDateTime zonedExpectedDateTime = isNowOffset() ?
                 getShiftedAndOffsetNow() :
@@ -189,23 +191,23 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     }
 
     private static ZonedDateTime parseZonedOrNull(String dateTimeString) {
-        return parseZonedOrNull(dateTimeString, (DateTimeFormatter) null);
+        return parseZonedOrNull(dateTimeString, (DateTimeParser) null);
     }
 
-    private static ZonedDateTime parseZonedOrNull(String dateTimeString, DateTimeFormatter formatter) {
-        final List<DateTimeFormatter> formatters = formatter != null ? singletonList(formatter) : ZONED_FORMATTERS;
-        return parseZonedOrNull(dateTimeString, formatters);
+    private static ZonedDateTime parseZonedOrNull(String dateTimeString, DateTimeParser parser) {
+        final List<DateTimeParser> parsers = parser != null ? singletonList(parser) : ZONED_PARSERS;
+        return parseZonedOrNull(dateTimeString, parsers);
     }
 
-    private static ZonedDateTime parseZonedOrNull(String dateTimeString, List<DateTimeFormatter> formatters) {
-        if (formatters.isEmpty()) {
+    private static ZonedDateTime parseZonedOrNull(String dateTimeString, List<DateTimeParser> parsers) {
+        if (parsers.isEmpty()) {
             return null;
         }
 
         try {
-            return ZonedDateTime.parse(dateTimeString, formatters.get(0));
+            return parsers.get(0).parseZonedDateTime(dateTimeString);
         } catch (DateTimeParseException e) {
-            return parseZonedOrNull(dateTimeString, formatters.subList(1, formatters.size()));
+            return parseZonedOrNull(dateTimeString, parsers.subList(1, parsers.size()));
         }
     }
 
@@ -213,15 +215,15 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         return parseLocalOrNull(dateTimeString, null);
     }
 
-    private static LocalDateTime parseLocalOrNull(String dateTimeString, DateTimeFormatter formatter) {
+    private static LocalDateTime parseLocalOrNull(String dateTimeString, DateTimeParser parser) {
         try {
-            return formatter != null ?
-                    LocalDateTime.parse(dateTimeString, formatter) :
+            return parser != null ?
+                    parser.parseLocalDateTime(dateTimeString) :
                     LocalDateTime.parse(dateTimeString);
         } catch (DateTimeParseException ignored) {
             try {
-                return (formatter != null ?
-                            LocalDate.parse(dateTimeString, formatter) :
+                return (parser != null ?
+                            parser.parseLocalDate(dateTimeString) :
                             LocalDate.parse(dateTimeString))
                         .atStartOfDay();
             } catch (DateTimeParseException ignored2) {

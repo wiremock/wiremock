@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -40,6 +41,30 @@ public class EqualToDateTimePatternTest {
 
         assertTrue(matcher.match("2021-06-14T12:13:14Z").isExactMatch());
         assertFalse(matcher.match("1921-06-14T12:13:14Z").isExactMatch());
+    }
+
+    @Test
+    public void matchesActualInUnixTimeFormat() {
+        String dateTime = "2021-06-14T12:13:14Z";
+        StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualDateTimeFormat("unix");
+
+        String good = String.valueOf(Instant.parse(dateTime).getEpochSecond());
+        String bad = String.valueOf(Instant.parse(dateTime).minusMillis(10).getEpochSecond());
+
+        assertTrue(matcher.match(good).isExactMatch());
+        assertFalse(matcher.match(bad).isExactMatch());
+    }
+
+    @Test
+    public void matchesActualInEpochTimeFormat() {
+        String dateTime = "2021-06-14T12:13:14Z";
+        StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualDateTimeFormat("epoch");
+
+        String good = String.valueOf(Instant.parse(dateTime).toEpochMilli());
+        String bad = String.valueOf(Instant.parse(dateTime).minusMillis(10).toEpochMilli());
+
+        assertTrue(matcher.match(good).isExactMatch());
+        assertFalse(matcher.match(bad).isExactMatch());
     }
 
     @Test
