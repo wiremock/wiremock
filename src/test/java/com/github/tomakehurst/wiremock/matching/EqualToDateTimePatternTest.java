@@ -28,6 +28,14 @@ public class EqualToDateTimePatternTest {
     }
 
     @Test
+    public void matchesLiteralDateTimesWithDifferentZones() {
+        StringValuePattern matcher = WireMock.equalToDateTime("2021-06-24T13:40:27+01:00");
+
+        assertTrue(matcher.match("2021-06-24T12:40:27Z").isExactMatch());
+        assertFalse(matcher.match("2021-06-24T13:40:27Z").isExactMatch());
+    }
+
+    @Test
     public void matchesLocalToLocal() {
         StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14");
 
