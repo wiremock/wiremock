@@ -792,6 +792,57 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		).statusCode(), is(404));
 	}
 
+	@Test
+	public void matchesWithLogicalAnd() {
+		stubFor(post("/date")
+				.withRequestBody(matchingJsonPath("$.date",
+						after("2020-05-01T00:00:00Z").and(before("2021-05-01T00:00:00Z"))))
+				.willReturn(ok()));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2020-12-31T00:00:00Z\"\n" +
+				"}"
+		).statusCode(), is(200));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2011-12-31T00:00:00Z\"\n" +
+				"}"
+		).statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesQueryParametersWithLogicalOr() {
+		stubFor(get(urlPathEqualTo("/or"))
+				.withQueryParam("q", equalTo("thingtofind").or(absent()))
+				.willReturn(ok()));
+
+		assertThat(testClient.get("/or").statusCode(), is(200));
+		assertThat(testClient.get("/or?q=thingtofind").statusCode(), is(200));
+		assertThat(testClient.get("/or?q=wrong").statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesHeadersWithLogicalOr() {
+		stubFor(get(urlPathEqualTo("/or"))
+				.withHeader("X-Maybe",
+						equalTo("one")
+						.or(containing("two")
+						.or(matching("thre{2}"))
+						.or(absent())
+				))
+				.willReturn(ok()));
+
+		assertThat(testClient.get("/or").statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "one")).statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "two222")).statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "three")).statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "wrong")).statusCode(), is(404));
+	}
+
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 		connection.setRequestMethod("GET");
