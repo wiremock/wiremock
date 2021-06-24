@@ -255,6 +255,14 @@ public class WireMock {
         return AbsentPattern.ABSENT;
     }
 
+    public static StringValuePattern and(StringValuePattern... matchers) {
+	    return new LogicalAnd(matchers);
+    }
+
+    public static StringValuePattern or(StringValuePattern... matchers) {
+	    return new LogicalOr(matchers);
+    }
+
     public void saveMappings() {
         admin.saveMappings();
     }

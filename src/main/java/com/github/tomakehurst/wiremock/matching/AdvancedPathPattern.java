@@ -7,9 +7,9 @@ public class AdvancedPathPattern {
     public final String expression;
 
     @JsonUnwrapped
-    public final StringValuePattern submatcher;
+    public final ContentPattern<?> submatcher;
 
-    public AdvancedPathPattern(String expression, StringValuePattern submatcher) {
+    public AdvancedPathPattern(String expression, ContentPattern<?> submatcher) {
         this.expression = expression;
         this.submatcher = submatcher;
     }

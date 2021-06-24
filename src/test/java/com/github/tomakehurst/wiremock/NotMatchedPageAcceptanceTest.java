@@ -190,6 +190,20 @@ public class NotMatchedPageAcceptanceTest {
     }
 
     @Test
+    public void showsDescriptiveDiffLineForLogicalOrWithAbsent() {
+        configure();
+
+        stubFor(get(urlPathEqualTo("/or"))
+                .withHeader("X-Maybe", equalTo("one").or(absent()))
+                .willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/or", withHeader("X-Maybe", "wrong"));
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample-logical-or.txt")));
+    }
+
+    @Test
     public void requestValuesTransformedByRequestFilterAreShownInDiff() {
         configure(wireMockConfig().extensions(new StubRequestFilter() {
             @Override

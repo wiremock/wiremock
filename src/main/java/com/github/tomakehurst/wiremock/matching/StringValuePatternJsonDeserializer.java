@@ -17,10 +17,12 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -30,10 +32,7 @@ import org.xmlunit.diff.ComparisonType;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.tryFind;
@@ -57,6 +56,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("equalToDateTime", EqualToDateTimePattern.class)
             .put("anything", AnythingPattern.class)
             .put("absent", AbsentPattern.class)
+            .put("and", LogicalAnd.class)
+            .put("or", LogicalOr.class)
             .build();
 
     @Override
@@ -85,6 +86,10 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
             String matcherName = mainFieldEntry.getKey();
             return deserialiseDateTimePattern(rootNode, matcherName);
+        } else if (patternClass.equals(LogicalAnd.class)) {
+            return deserializeAnd(rootNode);
+        } else if (patternClass.equals(LogicalOr.class)) {
+            return deserializeOr(rootNode);
         }
 
         final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
@@ -235,6 +240,38 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         }
 
         throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+    }
+
+    private LogicalAnd deserializeAnd(JsonNode node) throws JsonMappingException {
+        JsonNode operandsNode = node.get("and");
+        if (!operandsNode.isArray()) {
+            throw new JsonMappingException("and field must be an array of matchers");
+        }
+
+        JsonParser parser = Json.getObjectMapper().treeAsTokens(node.get("and"));
+
+        try {
+            List<StringValuePattern> operands = parser.readValueAs(new TypeReference<List<StringValuePattern>>() {});
+            return new LogicalAnd(operands);
+        } catch (IOException e) {
+            return throwUnchecked(e, LogicalAnd.class);
+        }
+    }
+
+    private LogicalOr deserializeOr(JsonNode node) throws JsonMappingException {
+        JsonNode operandsNode = node.get("or");
+        if (!operandsNode.isArray()) {
+            throw new JsonMappingException("and field must be an array of matchers");
+        }
+
+        JsonParser parser = Json.getObjectMapper().treeAsTokens(node.get("or"));
+
+        try {
+            List<StringValuePattern> operands = parser.readValueAs(new TypeReference<List<StringValuePattern>>() {});
+            return new LogicalOr(operands);
+        } catch (IOException e) {
+            return throwUnchecked(e, LogicalOr.class);
+        }
     }
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {

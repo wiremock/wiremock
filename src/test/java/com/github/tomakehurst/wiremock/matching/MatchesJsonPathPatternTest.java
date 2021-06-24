@@ -292,7 +292,7 @@ public class MatchesJsonPathPatternTest {
         assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
         assertThat(stringValuePattern.getExpected(), is("$..thing"));
 
-        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(EqualToPattern.class));
         assertThat(subMatcher.getExpected(), is("the value"));
     }
@@ -311,9 +311,9 @@ public class MatchesJsonPathPatternTest {
         assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
         assertThat(stringValuePattern.getExpected(), is("$..thing"));
 
-        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(AbsentPattern.class));
-        assertThat(subMatcher.nullSafeIsAbsent(), is(true));
+        assertThat(((StringValuePattern) subMatcher).nullSafeIsAbsent(), is(true));
     }
 
     @Test
@@ -331,7 +331,7 @@ public class MatchesJsonPathPatternTest {
 
         assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
 
-        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(EqualToJsonPattern.class));
         assertThat(subMatcher.getExpected(), jsonEquals("{}"));
         assertThat(((EqualToJsonPattern) subMatcher).isIgnoreExtraElements(), is(true));
