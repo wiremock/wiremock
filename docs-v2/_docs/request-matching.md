@@ -1215,7 +1215,7 @@ JSON:
 }
 ```
 
-
+<div id="all-truncations"></div>
 The full list of available truncations is:
 
 * `first minute of hour`

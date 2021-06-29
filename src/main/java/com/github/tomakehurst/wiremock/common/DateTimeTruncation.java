@@ -15,10 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 import java.util.function.Function;
 
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.*;
 
 public enum DateTimeTruncation {
@@ -43,6 +46,11 @@ public enum DateTimeTruncation {
 
     public ZonedDateTime truncate(ZonedDateTime input) {
         return fn.apply(input);
+    }
+
+    public Date truncate(Date input) {
+        final ZonedDateTime zonedInput = input.toInstant().atZone(UTC);
+        return Date.from(truncate(zonedInput).toInstant());
     }
 
     @Override

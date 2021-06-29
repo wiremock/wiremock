@@ -440,6 +440,16 @@ Dates can be parsed from other model elements:
 {% endraw %}
 
 
+Dates can be truncated to e.g. first day of month using the `truncateDate` helper:
+
+{% raw %}
+```
+{{date (truncateDate (parseDate request.headers.MyDate) 'first day of month')}}
+```
+{% endraw %}
+
+See the [full list of truncations here](/docs/request-matching/#all-truncations).
+
 ## Random value helper
 Random strings of various kinds can be generated:
 
