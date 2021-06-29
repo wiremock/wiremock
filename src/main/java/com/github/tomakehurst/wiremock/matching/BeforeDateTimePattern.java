@@ -22,6 +22,14 @@ import java.time.ZonedDateTime;
 
 public class BeforeDateTimePattern extends AbstractDateTimePattern {
 
+    public BeforeDateTimePattern(ZonedDateTime zonedDateTime) {
+        super(zonedDateTime);
+    }
+
+    public BeforeDateTimePattern(LocalDateTime localDateTime) {
+        super(localDateTime);
+    }
+
     public BeforeDateTimePattern(String dateTimeSpec) {
         super(dateTimeSpec);
     }

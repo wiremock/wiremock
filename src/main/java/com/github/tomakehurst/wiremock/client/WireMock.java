@@ -36,6 +36,8 @@ import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -231,6 +233,14 @@ public class WireMock {
 	    return new BeforeDateTimePattern(dateTimeSpec);
     }
 
+    public static BeforeDateTimePattern before(ZonedDateTime dateTime) {
+	    return new BeforeDateTimePattern(dateTime);
+    }
+
+    public static BeforeDateTimePattern before(LocalDateTime dateTime) {
+	    return new BeforeDateTimePattern(dateTime);
+    }
+
     public static BeforeDateTimePattern beforeNow() {
 	    return new BeforeDateTimePattern("now");
     }
@@ -239,12 +249,28 @@ public class WireMock {
 	    return new EqualToDateTimePattern(dateTimeSpec);
     }
 
+    public static EqualToDateTimePattern equalToDateTime(ZonedDateTime dateTime) {
+	    return new EqualToDateTimePattern(dateTime);
+    }
+
+    public static EqualToDateTimePattern equalToDateTime(LocalDateTime dateTime) {
+	    return new EqualToDateTimePattern(dateTime);
+    }
+
     public static EqualToDateTimePattern isNow() {
         return new EqualToDateTimePattern("now");
     }
 
     public static AfterDateTimePattern after(String dateTimeSpec) {
         return new AfterDateTimePattern(dateTimeSpec);
+    }
+
+    public static AfterDateTimePattern after(ZonedDateTime dateTime) {
+        return new AfterDateTimePattern(dateTime);
+    }
+
+    public static AfterDateTimePattern after(LocalDateTime dateTime) {
+        return new AfterDateTimePattern(dateTime);
     }
 
     public static AfterDateTimePattern afterNow() {

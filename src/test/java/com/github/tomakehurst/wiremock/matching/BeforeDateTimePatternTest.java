@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
@@ -269,6 +270,18 @@ public class BeforeDateTimePatternTest {
 
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());
+    }
+
+    @Test
+    public void acceptsJavaZonedDateTimeAsExpected() {
+        BeforeDateTimePattern matcher = WireMock.before(ZonedDateTime.parse("2020-08-29T00:00:00Z"));
+        assertTrue(matcher.match("2019-01-01T00:00:00Z").isExactMatch());
+    }
+
+    @Test
+    public void acceptsJavaLocalDateTimeAsExpected() {
+        BeforeDateTimePattern matcher = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
+        assertTrue(matcher.match("2019-01-01T00:00:00").isExactMatch());
     }
 
 }

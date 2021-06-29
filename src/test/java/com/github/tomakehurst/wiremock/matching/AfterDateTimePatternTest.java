@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 
@@ -110,6 +111,18 @@ public class AfterDateTimePatternTest {
         assertThat(matcher.getExpected(), is("now +0 seconds"));
         assertThat(matcher.getTruncateExpected(), is("first hour of day"));
         assertThat(matcher.getTruncateActual(), is("last day of year"));
+    }
+
+    @Test
+    public void acceptsJavaZonedDateTimeAsExpected() {
+        AfterDateTimePattern matcher = WireMock.after(ZonedDateTime.parse("2020-08-29T00:00:00Z"));
+        assertTrue(matcher.match("2021-01-01T00:00:00Z").isExactMatch());
+    }
+
+    @Test
+    public void acceptsJavaLocalDateTimeAsExpected() {
+        AfterDateTimePattern matcher = WireMock.after(LocalDateTime.parse("2020-08-29T00:00:00"));
+        assertTrue(matcher.match("2021-01-01T00:00:00").isExactMatch());
     }
 
 }

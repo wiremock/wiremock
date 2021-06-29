@@ -110,6 +110,33 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
         this.truncateActual = truncateActual;
     }
 
+    public AbstractDateTimePattern(ZonedDateTime zonedDateTime) {
+        this(zonedDateTime.toString(), zonedDateTime, null, null, null, null, null);
+    }
+
+    public AbstractDateTimePattern(LocalDateTime localDateTime) {
+        this(localDateTime.toString(), null, localDateTime, null, null, null, null);
+    }
+
+    private AbstractDateTimePattern(
+            String dateTimeSpec,
+            ZonedDateTime zonedDateTime,
+            LocalDateTime localDateTime,
+            DateTimeOffset expectedOffset,
+            String actualDatetimeFormat,
+            DateTimeTruncation truncateExpected,
+            DateTimeTruncation truncateActual
+    ) {
+        super(dateTimeSpec);
+        this.zonedDateTime = zonedDateTime;
+        this.localDateTime = localDateTime;
+        this.expectedOffset = expectedOffset;
+        this.actualDateTimeFormat = actualDatetimeFormat;
+        this.actualDateTimeParser = actualDateTimeFormat != null ? DateTimeParser.forFormat(actualDateTimeFormat) : null;
+        this.truncateExpected = truncateExpected;
+        this.truncateActual = truncateActual;
+    }
+
     @Override
     public String getValue() {
         if (expectedValue.equals("now") && expectedOffset != null) {
