@@ -431,11 +431,19 @@ the UNIX timestamp in seconds.
 {% endraw %}
 
 
-Dates can be parsed from other model elements:
+Dates can be parsed using the `parseDate` helper:
 
 {% raw %}
 ```
-{{date (parseDate request.headers.MyDate) offset='-1 days'}}
+// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
+// We wrap in the date helper in order to print the result as a string.
+{{date (parseDate request.headers.MyDate)}}
+
+// Parse using a custom date format
+{{date (parseDate request.headers.MyDate format='dd/MM/yyyy')}}
+
+// Format can also be unix (epoch seconds) or epoch (epoch milliseconds)
+{{date (parseDate request.headers.MyDate format='unix')}}
 ```
 {% endraw %}
 
@@ -444,6 +452,8 @@ Dates can be truncated to e.g. first day of month using the `truncateDate` helpe
 
 {% raw %}
 ```
+// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
+// then the result of the following will be 2021-06-01T00:00:00Z
 {{date (truncateDate (parseDate request.headers.MyDate) 'first day of month')}}
 ```
 {% endraw %}

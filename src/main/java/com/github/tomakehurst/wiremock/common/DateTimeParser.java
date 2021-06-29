@@ -17,10 +17,31 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalQueries;
+import java.util.Date;
+import java.util.List;
 
 import static java.time.ZoneOffset.UTC;
+import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+import static java.util.Arrays.asList;
+import static java.util.Locale.US;
 
 public class DateTimeParser {
+
+    private static final DateTimeFormatter RFC_1036_DATE_TIME = DateTimeFormatter.ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz").withLocale(US);
+    private static final DateTimeFormatter ASCTIME1 = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy").withZone(ZoneId.of("GMT"));
+    private static final DateTimeFormatter ASCTIME2 = DateTimeFormatter.ofPattern("EEE MMM  d HH:mm:ss yyyy").withZone(ZoneId.of("GMT"));
+
+    public static final List<DateTimeParser> ZONED_PARSERS = asList(
+            DateTimeParser.forFormatter(ISO_ZONED_DATE_TIME),
+            DateTimeParser.forFormatter(RFC_1123_DATE_TIME),
+            DateTimeParser.forFormatter(RFC_1036_DATE_TIME),
+            DateTimeParser.forFormatter(ASCTIME1),
+            DateTimeParser.forFormatter(ASCTIME2)
+    );
 
     private final DateTimeFormatter dateTimeFormatter;
     private final boolean isUnix;
@@ -91,4 +112,26 @@ public class DateTimeParser {
 
         return null;
     }
+
+    public Date parseDate(String dateTimeString) {
+        if (isUnix || isEpoch) {
+            return Date.from(parseZonedDateTime(dateTimeString).toInstant());
+        }
+
+        if (dateTimeFormatter == null) {
+            return null;
+        }
+
+        final TemporalAccessor parseResult = dateTimeFormatter.parse(dateTimeString);
+        if (parseResult.query(TemporalQueries.zone()) != null) {
+            return Date.from(Instant.from(parseResult));
+        }
+
+        if (parseResult.query(TemporalQueries.localTime()) != null) {
+            return Date.from(LocalDateTime.from(parseResult).toInstant(UTC));
+        }
+
+        return Date.from(LocalDate.from(parseResult).atStartOfDay(UTC).toInstant());
+    }
+
 }
