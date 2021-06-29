@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
 import com.github.tomakehurst.wiremock.common.DateTimeParser;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
@@ -56,7 +57,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
     private DateTimeTruncation truncateActual;
 
     protected AbstractDateTimePattern(String dateTimeSpec) {
-        this(dateTimeSpec, null, (DateTimeTruncation) null, null);
+        this(dateTimeSpec, null, (DateTimeTruncation) null, null, null, null);
     }
 
     protected AbstractDateTimePattern(DateTimeOffset offset, String actualDateTimeFormat, DateTimeTruncation truncateExpected, DateTimeTruncation truncateActual) {
@@ -75,13 +76,17 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
             String dateTimeSpec,
             String actualDateFormat,
             String truncateExpected,
-            String truncateActual
+            String truncateActual,
+            Integer expectedOffsetAmount,
+            DateTimeUnit expectedOffsetUnit
     ) {
         this(
                 dateTimeSpec,
                 actualDateFormat,
                 truncateExpected != null ? DateTimeTruncation.fromString(truncateExpected) : null,
-                truncateActual != null ? DateTimeTruncation.fromString(truncateActual) : null
+                truncateActual != null ? DateTimeTruncation.fromString(truncateActual) : null,
+                expectedOffsetAmount,
+                expectedOffsetUnit
         );
     }
 
@@ -89,14 +94,18 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
             String dateTimeSpec,
             String actualDateFormat,
             DateTimeTruncation truncateExpected,
-            DateTimeTruncation truncateActual
+            DateTimeTruncation truncateActual,
+            Integer expectedOffsetAmount,
+            DateTimeUnit expectedOffsetUnit
     ) {
         super(dateTimeSpec);
 
         if (isNowOffsetExpression(dateTimeSpec)) {
             zonedDateTime = null;
             localDateTime = null;
-            expectedOffset = DateTimeOffset.fromString(dateTimeSpec);
+            expectedOffset = expectedOffsetAmount != null && expectedOffsetUnit != null ?
+                    new DateTimeOffset(expectedOffsetAmount, expectedOffsetUnit) :
+                    DateTimeOffset.fromString(dateTimeSpec);
         } else {
             zonedDateTime = parseZonedOrNull(dateTimeSpec);
             localDateTime = parseLocalOrNull(dateTimeSpec);

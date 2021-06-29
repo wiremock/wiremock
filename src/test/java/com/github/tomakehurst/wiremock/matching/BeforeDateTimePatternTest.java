@@ -243,9 +243,6 @@ public class BeforeDateTimePatternTest {
 
         assertThat(matcher.getExpected(), is("2021-06-15T00:00:00"));
         assertThat(matcher.getActualFormat(), is("dd/MM/yyyy"));
-
-//        assertTrue(matcher.match("01/06/2021").isExactMatch());
-//        assertFalse(matcher.match("01/07/2021").isExactMatch());
     }
 
     @Test
@@ -264,6 +261,21 @@ public class BeforeDateTimePatternTest {
         StringValuePattern matcher = Json.read("{\n" +
                 "  \"before\": \"-15 days\"\n" +
                 "}", BeforeDateTimePattern.class);
+
+        ZonedDateTime good = ZonedDateTime.now().minus(16, ChronoUnit.DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().minus(14, ChronoUnit.DAYS);
+
+        assertTrue(matcher.match(good.toString()).isExactMatch());
+        assertFalse(matcher.match(bad.toString()).isExactMatch());
+    }
+
+    @Test
+    public void deserialisesOffsetWithSeparateAmountAndUnitAttributesFromJson() {
+        BeforeDateTimePattern matcher = Json.read("{\n" +
+                "  \"before\": \"now\",\n" +
+                "  \"expectedOffset\": -15,\n" +
+                "  \"expectedOffsetUnit\": \"days\"\n" +
+                "}\n", BeforeDateTimePattern.class);
 
         ZonedDateTime good = ZonedDateTime.now().minus(16, ChronoUnit.DAYS);
         ZonedDateTime bad = ZonedDateTime.now().minus(14, ChronoUnit.DAYS);
