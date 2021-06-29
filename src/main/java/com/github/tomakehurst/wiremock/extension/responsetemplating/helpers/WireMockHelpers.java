@@ -91,6 +91,14 @@ public enum WireMockHelpers implements Helper<Object> {
             return helper.apply(context.toString(), options);
         }
     },
+    truncateDate {
+        private final TruncateDateTimeHelper helper = new TruncateDateTimeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
 
     trim {
         private final StringTrimHelper helper = new StringTrimHelper();

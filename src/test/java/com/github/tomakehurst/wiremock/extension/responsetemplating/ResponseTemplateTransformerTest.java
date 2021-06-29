@@ -1023,6 +1023,12 @@ public class ResponseTemplateTransformerTest {
         assertThat(transform("{{math 10 '%' 3}}"), is("1"));
     }
 
+    @Test
+    public void dateTruncation() {
+        assertThat(transform("{{date (truncateDate (parseDate '2021-06-29T11:22:33Z') 'first hour of day')}}"),
+                   is("2021-06-29T00:00:00Z"));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
