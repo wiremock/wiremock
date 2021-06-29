@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -111,6 +112,21 @@ public class AfterDateTimePatternTest {
         assertThat(matcher.getExpected(), is("now +0 seconds"));
         assertThat(matcher.getTruncateExpected(), is("first hour of day"));
         assertThat(matcher.getTruncateActual(), is("last day of year"));
+    }
+
+    @Test
+    public void deserialisesOffsetWithSeparateAmountAndUnitAttributesFromJson() {
+        AfterDateTimePattern matcher = Json.read("{\n" +
+                "  \"after\": \"now\",\n" +
+                "  \"expectedOffset\": -15,\n" +
+                "  \"expectedOffsetUnit\": \"days\"\n" +
+                "}\n", AfterDateTimePattern.class);
+
+        ZonedDateTime good = ZonedDateTime.now().minus(14, ChronoUnit.DAYS);
+        ZonedDateTime bad = ZonedDateTime.now().minus(16, ChronoUnit.DAYS);
+
+        assertTrue(matcher.match(good.toString()).isExactMatch());
+        assertFalse(matcher.match(bad.toString()).isExactMatch());
     }
 
     @Test

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.common.DateTimeOffset;
+import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -214,6 +216,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         JsonNode formatNode = rootNode.findValue("actualFormat");
         JsonNode truncateExpectedNode = rootNode.findValue("truncateExpected");
         JsonNode truncateActualNode = rootNode.findValue("truncateActual");
+        JsonNode expectedOffsetAmountNode = rootNode.findValue("expectedOffset");
+        JsonNode expectedOffsetUnitNode = rootNode.findValue("expectedOffsetUnit");
 
         switch (matcherName) {
             case "before":
@@ -221,21 +225,27 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
                         dateTimeNode.textValue(),
                         formatNode != null ? formatNode.textValue() : null,
                         truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-                        truncateActualNode != null ? truncateActualNode.textValue() : null
+                        truncateActualNode != null ? truncateActualNode.textValue() : null,
+                        expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+                        expectedOffsetUnitNode != null ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase()) : null
                 );
             case "after":
                 return new AfterDateTimePattern(
                         dateTimeNode.textValue(),
                         formatNode != null ? formatNode.textValue() : null,
                         truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-                        truncateActualNode != null ? truncateActualNode.textValue() : null
+                        truncateActualNode != null ? truncateActualNode.textValue() : null,
+                        expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+                        expectedOffsetUnitNode != null ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase()) : null
                 );
             case "equalToDateTime":
                 return new EqualToDateTimePattern(
                         dateTimeNode.textValue(),
                         formatNode != null ? formatNode.textValue() : null,
                         truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-                        truncateActualNode != null ? truncateActualNode.textValue() : null
+                        truncateActualNode != null ? truncateActualNode.textValue() : null,
+                        expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+                        expectedOffsetUnitNode != null ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase()) : null
                 );
         }
 
