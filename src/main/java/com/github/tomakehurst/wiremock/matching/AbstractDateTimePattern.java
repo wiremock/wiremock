@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
 import com.github.tomakehurst.wiremock.common.DateTimeParser;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
@@ -29,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.common.DateTimeParser.ZONED_PARSERS;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Arrays.asList;
@@ -36,17 +36,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Locale.US;
 
 public abstract class AbstractDateTimePattern extends StringValuePattern {
-
-    private static final DateTimeFormatter RFC_1036_DATE_TIME = DateTimeFormatter.ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz").withLocale(US);
-    private static final DateTimeFormatter ASCTIME1 = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss yyyy").withZone(ZoneId.of("GMT"));
-    private static final DateTimeFormatter ASCTIME2 = DateTimeFormatter.ofPattern("EEE MMM  d HH:mm:ss yyyy").withZone(ZoneId.of("GMT"));
-    private static final List<DateTimeParser> ZONED_PARSERS = asList(
-            DateTimeParser.forFormatter(ISO_ZONED_DATE_TIME),
-            DateTimeParser.forFormatter(RFC_1123_DATE_TIME),
-            DateTimeParser.forFormatter(RFC_1036_DATE_TIME),
-            DateTimeParser.forFormatter(ASCTIME1),
-            DateTimeParser.forFormatter(ASCTIME2)
-    );
 
     private final ZonedDateTime zonedDateTime;
     private final LocalDateTime localDateTime;
