@@ -1035,6 +1035,11 @@ Java:
 stubFor(post("/dates")
   .withHeader("X-Munged-Date", after("2021-05-01T00:00:00Z"))
   .willReturn(ok()));
+
+// You can also use a ZonedDateTime or LocalDateTime object
+stubFor(post("/dates")
+  .withHeader("X-Munged-Date", after(ZonedDateTime.parse("2021-05-01T00:00:00Z")))
+  .willReturn(ok()));
 ```
 
 JSON:
@@ -1081,7 +1086,10 @@ JSON:
         "before" : "now +3 days"
       },
       "X-Finalised-Date" : {
-        "before" : "now +2 months"
+        // This is equivalent to "now +2 months"
+        "before" : "now",
+        "expectedOffset": 2,
+        "expectedOffsetUnit": "months"
       }
     }
   }
@@ -1219,3 +1227,133 @@ The full list of available truncations is:
 * `first day of next year`
 * `last day of year`
 
+
+## Logical AND and OR
+
+You can combine two or more matchers in an AND expression.
+
+Java:
+
+```java
+// Both statements are equivalent
+
+stubFor(get(urlPathEqualTo("/and"))
+    .withHeader("X-Some-Value", and(
+        matching("[a-z]+"),
+        containing("magicvalue"))
+    )
+    .willReturn(ok()));
+
+stubFor(get(urlPathEqualTo("/and"))
+    .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+    .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "urlPath": "/and",
+    "method": "GET",
+    "headers": {
+      "X-Some-Value": {
+        "and": [
+          {
+            "matches": "[a-z]+"
+          },
+          {
+            "contains": "magicvalue"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Similarly you can also construct an OR expression.
+
+Java:
+
+```java
+// Both statements are equivalent
+
+stubFor(get(urlPathEqualTo("/or"))
+  .withQueryParam("search", or(
+        matching("[a-z]+"),
+        absent())
+  )
+  .willReturn(ok()));
+
+stubFor(get(urlPathEqualTo("/or"))
+    .withQueryParam("search", matching("[a-z]+").or(absent()))
+    .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "urlPath" : "/or",
+    "method" : "GET",
+    "queryParameters" : {
+      "search" : {
+        "or" : [ {
+          "matches" : "[a-z]+"
+        }, {
+          "absent" : true
+        } ]
+      }
+    }
+  }
+}
+```
+
+### Combining date matchers as JSONPath/XPath sub-matchers
+
+As an example of how various matchers can be combined, suppose we want to match if a field named `date` in a JSON request body
+is a date/time between two points.
+
+We can do this by extracting the field using `matchesJsonPath` then matching the result
+of this against the `before` and `after` matchers AND'd together.
+
+Java:
+
+```java
+stubFor(post("/date-range")
+    .withRequestBody(matchingJsonPath("$.date",
+        before("2022-01-01T00:00:00").and(
+        after("2020-01-01T00:00:00"))))
+    .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "url" : "/date-range",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : {
+        "expression" : "$.date",
+        "and" : [ {
+          "before" : "2022-01-01T00:00:00"
+        }, {
+          "after" : "2020-01-01T00:00:00"
+        } ]
+      }
+    } ]
+  }
+}
+```
+
+This would match the following JSON request body:
+
+```json
+{
+  "date": "2021-01-01T00:00:00"
+}
+```
