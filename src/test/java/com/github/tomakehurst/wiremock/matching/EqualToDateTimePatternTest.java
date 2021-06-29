@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -125,5 +126,17 @@ public class EqualToDateTimePatternTest {
 
         assertTrue(matcher.match(good.toString()).isExactMatch());
         assertFalse(matcher.match(bad.toString()).isExactMatch());
+    }
+
+    @Test
+    public void acceptsJavaZonedDateTimeAsExpected() {
+        EqualToDateTimePattern matcher = WireMock.equalToDateTime(ZonedDateTime.parse("2020-08-29T00:00:00Z"));
+        assertTrue(matcher.match("2020-08-29T00:00:00Z").isExactMatch());
+    }
+
+    @Test
+    public void acceptsJavaLocalDateTimeAsExpected() {
+        EqualToDateTimePattern matcher = WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
+        assertTrue(matcher.match("2020-08-29T00:00:00").isExactMatch());
     }
 }

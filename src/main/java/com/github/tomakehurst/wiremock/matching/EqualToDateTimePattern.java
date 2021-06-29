@@ -23,6 +23,14 @@ import java.time.ZonedDateTime;
 
 public class EqualToDateTimePattern extends AbstractDateTimePattern {
 
+    public EqualToDateTimePattern(ZonedDateTime zonedDateTime) {
+        super(zonedDateTime);
+    }
+
+    public EqualToDateTimePattern(LocalDateTime localDateTime) {
+        super(localDateTime);
+    }
+
     public EqualToDateTimePattern(String dateTimeSpec) {
         super(dateTimeSpec, null, (DateTimeTruncation) null, null);
     }
