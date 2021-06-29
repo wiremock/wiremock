@@ -17,6 +17,7 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
@@ -574,6 +575,57 @@ public class Examples extends AcceptanceTestBase {
                         "$.completedDate",
                         equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
                 )
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalAnd() {
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", and(
+                        matching("[a-z]+"),
+                        containing("magicvalue"))
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalOr() {
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", or(
+                        matching("[a-z]+"),
+                        absent())
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void jsonPathAndDates() {
+        stubFor(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                        after("2020-01-01T00:00:00"))))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                                after("2020-01-01T00:00:00"))))
                 .willReturn(ok()).build()));
     }
 
