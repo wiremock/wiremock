@@ -70,7 +70,7 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-    compile 'net.javacrumbs.json-unit:json-unit-core:2.26.0'
+    compile 'net.javacrumbs.json-unit:json-unit-core:2.27.0'
     compile "com.jayway.jsonpath:json-path:2.6.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
