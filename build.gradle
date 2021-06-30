@@ -76,7 +76,7 @@ dependencies {
     }
     compile "net.minidev:json-smart:2.4.7" // Pinning this above the transitive version from json-path to get CVE fix
     compile "org.ow2.asm:asm:9.2"
-    compile "org.slf4j:slf4j-api:1.7.30"
+    compile "org.slf4j:slf4j-api:1.7.31"
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
     compileOnly("junit:junit:4.13.2") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
