@@ -110,7 +110,7 @@ dependencies {
     testCompile 'org.mockito:mockito-core:3.11.2'
     testCompile 'net.javacrumbs.json-unit:json-unit:2.26.0'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
-    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.0'
+    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.1'
     testCompile 'org.awaitility:awaitility:4.1.0'
     testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.10.0"
