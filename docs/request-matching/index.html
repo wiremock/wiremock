@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-06-07T17:55:12+01:00">
+  <meta property="article:published_time" content="2021-06-30T17:43:39+01:00">
   
     <link rel="next" href="/docs/response-templating/" title="Response Templating">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Request Matching">
     <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
-    <meta itemprop="datePublished" content="June 07, 2021">
+    <meta itemprop="datePublished" content="June 30, 2021">
     
 
     <div class="page__inner-wrap">
@@ -1298,6 +1298,330 @@ via the API.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
+<h2 id="dates-and-times">Dates and times</h2>
+
+<p>Dates and times can be matched in several ways. Three comparison operators are available: <code class="highlighter-rouge">before</code>, <code class="highlighter-rouge">after</code> and
+<code class="highlighter-rouge">equalToDateTime</code>, all of which have the same set of parameters.</p>
+
+<p>Additionally, the expected value can be either literal (fixed) or an offset from the current date. Both the expected and
+actual dates can be truncated in various ways.</p>
+
+<h3 id="literal-datetimes">Literal date/times</h3>
+
+<p>You can match an incoming date/time against a fixed value e.g. “match if the X-Munged-Date request header is after x”:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/dates"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Munged-Date"</span><span class="o">,</span> <span class="n">after</span><span class="o">(</span><span class="s">"2021-05-01T00:00:00Z"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+
+<span class="c1">// You can also use a ZonedDateTime or LocalDateTime object</span>
+<span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/dates"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Munged-Date"</span><span class="o">,</span> <span class="n">after</span><span class="o">(</span><span class="nc">ZonedDateTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">"2021-05-01T00:00:00Z"</span><span class="o">)))</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/dates"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"X-Munged-Date"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"after"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-05-01T00:00:00Z"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="offset">Offset</h3>
+
+<p>You can also match in incoming value against the current date/time or an offset from it:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/dates"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Munged-Date"</span><span class="o">,</span> <span class="n">beforeNow</span><span class="o">().</span><span class="na">expectedOffset</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nc">DateTimeUnit</span><span class="o">.</span><span class="na">DAYS</span><span class="o">))</span> 
+  <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Finalised-Date"</span><span class="o">,</span> <span class="n">before</span><span class="o">(</span><span class="s">"now +2 months"</span><span class="o">))</span> <span class="c1">// This form and beforeNow() are equivalent</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/dates"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"X-Munged-Date"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"before"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"now +3 days"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"X-Finalised-Date"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="err">//</span><span class="w"> </span><span class="err">This</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">equivalent</span><span class="w"> </span><span class="err">to</span><span class="w"> </span><span class="s2">"now +2 months"</span><span class="w">
+        </span><span class="nl">"before"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"now"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"expectedOffset"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"expectedOffsetUnit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"months"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="local-vs-zoned">Local vs. Zoned</h3>
+
+<p>Both the expected and actual date/time values can either have timezone information or not. For instance a
+date in ISO8601 format could be zoned: <code class="highlighter-rouge">2021-06-24T13:40:27+01:00</code> or <code class="highlighter-rouge">2021-06-24T12:40:27Z</code>, or local: <code class="highlighter-rouge">2021-06-24T12:40:27</code>.</p>
+
+<p>Likewise a date/time in RFC 1123 (HTTP standard) format is also zoned: <code class="highlighter-rouge">Tue, 01 Jun 2021 15:16:17 GMT</code>.</p>
+
+<p>Whether the expected and actual values are zoned or not affects whether they can be matched and how. Generally, the best
+approach is to try to ensure you’re using the same on both sides - if you’re expected a zoned actual date, then use one
+as the expected date also, plus the equivalent for local dates.</p>
+
+<p>If the expected date is zoned and the actual is local, the match will always be negative since no sensbile comparison can
+be done in this circumstance.</p>
+
+<p>However, if the expected date is local and the actual is zoned, the timezone will be stripped from the actual value and the
+comparison will be attempted.</p>
+
+<h3 id="date-formats">Date formats</h3>
+
+<p>By default these matchers will attempt to parse date/times in ISO8601 format, plus the three standard formats defined by
+HTTP RFCs 1123, 1036 and asctime (taken from C but also valid for specifying HTTP dates).</p>
+
+<p>It is also possible to specify your own format using
+<a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns">Java’s date format strings</a>.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/dates"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Munged-Date"</span><span class="o">,</span>
+    <span class="n">equalToDateTime</span><span class="o">(</span><span class="s">"2021-06-24T00:00:00"</span><span class="o">).</span><span class="na">actualFormat</span><span class="o">(</span><span class="s">"dd/MM/yyyy"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/dates"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"X-Munged-Date"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"equalToDateTime"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-06-24T00:00:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"actualFormat"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"dd/MM/yyyy"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="truncation">Truncation</h3>
+
+<p>Both the expected and actual date/times can be truncated in various ways e.g. to the first hour of the day. When using
+offset from now as the expected date with truncation, the truncation will be applied first followed by the offsetting.</p>
+
+<p>Truncation is useful if you want to create expressions like “before the end of this month” or “equal to the current hour”.</p>
+
+<p>It can usefully be combined with offsetting so e.g. if the match required is “after the 15th of this month” we could do
+as follows.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/dates"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span>
+      <span class="s">"$.completedDate"</span><span class="o">,</span>
+      <span class="n">after</span><span class="o">(</span><span class="s">"now +15 days"</span><span class="o">).</span><span class="na">truncateExpected</span><span class="o">(</span><span class="no">FIRST_DAY_OF_MONTH</span><span class="o">))</span>
+  <span class="o">)</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/dates"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nl">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"expression"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.completedDate"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"after"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"now +15 days"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"truncateExpected"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"first day of month"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Truncating the actual value can be useful when checking for equality with literal date/times e.g. to say “is in March 2020”:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/dates"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span>
+    <span class="s">"$.completedDate"</span><span class="o">,</span>
+    <span class="n">equalToDateTime</span><span class="o">(</span><span class="s">"2020-03-01T00:00:00Z"</span><span class="o">).</span><span class="na">truncateActual</span><span class="o">(</span><span class="no">FIRST_DAY_OF_MONTH</span><span class="o">))</span>
+  <span class="o">)</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/dates"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nl">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"expression"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.completedDate"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"equalToDateTime"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-03-01T00:00:00Z"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"truncateActual"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"first day of month"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<div id="all-truncations"></div>
+<p>The full list of available truncations is:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">first minute of hour</code></li>
+  <li><code class="highlighter-rouge">first hour of day</code></li>
+  <li><code class="highlighter-rouge">first day of month</code></li>
+  <li><code class="highlighter-rouge">first day of next month</code></li>
+  <li><code class="highlighter-rouge">last day of month</code></li>
+  <li><code class="highlighter-rouge">first day of year</code></li>
+  <li><code class="highlighter-rouge">first day of next year</code></li>
+  <li><code class="highlighter-rouge">last day of year</code></li>
+</ul>
+
+<h2 id="logical-and-and-or">Logical AND and OR</h2>
+
+<p>You can combine two or more matchers in an AND expression.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Both statements are equivalent</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/and"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Some-Value"</span><span class="o">,</span> <span class="n">and</span><span class="o">(</span>
+        <span class="n">matching</span><span class="o">(</span><span class="s">"[a-z]+"</span><span class="o">),</span>
+        <span class="n">containing</span><span class="o">(</span><span class="s">"magicvalue"</span><span class="o">))</span>
+    <span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/and"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Some-Value"</span><span class="o">,</span> <span class="n">matching</span><span class="o">(</span><span class="s">"[a-z]+"</span><span class="o">).</span><span class="na">and</span><span class="o">(</span><span class="n">containing</span><span class="o">(</span><span class="s">"magicvalue"</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/and"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"X-Some-Value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"matches"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[a-z]+"</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"contains"</span><span class="p">:</span><span class="w"> </span><span class="s2">"magicvalue"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Similarly you can also construct an OR expression.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Both statements are equivalent</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/or"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">"search"</span><span class="o">,</span> <span class="n">or</span><span class="o">(</span>
+        <span class="n">matching</span><span class="o">(</span><span class="s">"[a-z]+"</span><span class="o">),</span>
+        <span class="n">absent</span><span class="o">())</span>
+  <span class="o">)</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/or"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">"search"</span><span class="o">,</span> <span class="n">matching</span><span class="o">(</span><span class="s">"[a-z]+"</span><span class="o">).</span><span class="na">or</span><span class="o">(</span><span class="n">absent</span><span class="o">()))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/or"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"queryParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"search"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"or"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"matches"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"[a-z]+"</span><span class="w">
+        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"absent"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="combining-date-matchers-as-jsonpathxpath-sub-matchers">Combining date matchers as JSONPath/XPath sub-matchers</h3>
+
+<p>As an example of how various matchers can be combined, suppose we want to match if a field named <code class="highlighter-rouge">date</code> in a JSON request body
+is a date/time between two points.</p>
+
+<p>We can do this by extracting the field using <code class="highlighter-rouge">matchesJsonPath</code> then matching the result
+of this against the <code class="highlighter-rouge">before</code> and <code class="highlighter-rouge">after</code> matchers AND’d together.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/date-range"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.date"</span><span class="o">,</span>
+        <span class="n">before</span><span class="o">(</span><span class="s">"2022-01-01T00:00:00"</span><span class="o">).</span><span class="na">and</span><span class="o">(</span>
+        <span class="n">after</span><span class="o">(</span><span class="s">"2020-01-01T00:00:00"</span><span class="o">))))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/date-range"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"expression"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.date"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"and"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"before"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-01-01T00:00:00"</span><span class="w">
+        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"after"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-01-01T00:00:00"</span><span class="w">
+        </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This would match the following JSON request body:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-01T00:00:00"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
 
         
       </section>

@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-06-07T17:55:12+01:00">
+  <meta property="article:published_time" content="2021-06-30T17:43:39+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="June 07, 2021">
+    <meta itemprop="datePublished" content="June 30, 2021">
     
 
     <div class="page__inner-wrap">
@@ -670,6 +670,38 @@ can be used in further helpers.</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer'}}
 </code></pre></div></div>
 
+<p>Default value can be specified if the path evaluates to null or undefined:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.size' default='M'}}
+</code></pre></div></div>
+
+<h2 id="parse-json-helper">Parse JSON helper</h2>
+<p>The <code class="highlighter-rouge">parseJson</code> helper will parse the input into a map-of-maps. It will assign the result to a variable if a name is specified,
+otherwise the result will be returned.</p>
+
+<p>It can accept the JSON from a block:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#parseJson 'parsedObj'}}
+{
+  "name": "transformed"
+}
+{{/parseJson}}
+
+{{!- Now we can access the object as usual --}}
+{{parsedObj.name}}
+</code></pre></div></div>
+
+<p>Or as a parameter:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{parseJson request.body 'bodyJson'}}
+{{bodyJson.name}}
+</code></pre></div></div>
+
+<p>Without assigning to a variable:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup (parseJson request.body) 'name'}}
+</code></pre></div></div>
+
 <h2 id="date-and-time-helpers">Date and time helpers</h2>
 <p>A helper is present to render the current date/time, with the ability to specify the format (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">via Java’s SimpleDateFormat</a>) and offset.</p>
 
@@ -692,10 +724,27 @@ the UNIX timestamp in seconds.</p>
 {{now offset='2 years' format='unix'}}
 </code></pre></div></div>
 
-<p>Dates can be parsed from other model elements:</p>
+<p>Dates can be parsed using the <code class="highlighter-rouge">parseDate</code> helper:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{date (parseDate request.headers.MyDate) offset='-1 days'}}
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
+// We wrap in the date helper in order to print the result as a string.
+{{date (parseDate request.headers.MyDate)}}
+
+// Parse using a custom date format
+{{date (parseDate request.headers.MyDate format='dd/MM/yyyy')}}
+
+// Format can also be unix (epoch seconds) or epoch (epoch milliseconds)
+{{date (parseDate request.headers.MyDate format='unix')}}
 </code></pre></div></div>
+
+<p>Dates can be truncated to e.g. first day of month using the <code class="highlighter-rouge">truncateDate</code> helper:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
+// then the result of the following will be 2021-06-01T00:00:00Z
+{{date (truncateDate (parseDate request.headers.MyDate) 'first day of month')}}
+</code></pre></div></div>
+
+<p>See the <a href="/docs/request-matching/#all-truncations">full list of truncations here</a>.</p>
 
 <h2 id="random-value-helper">Random value helper</h2>
 <p>Random strings of various kinds can be generated:</p>
@@ -707,6 +756,7 @@ the UNIX timestamp in seconds.</p>
 {{randomValue length=10 type='NUMERIC'}}
 {{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
 {{randomValue type='UUID'}}
+{{randomValue length=32 type='HEXADECIMAL' uppercase=true}}
 </code></pre></div></div>
 
 <h2 id="pick-random-helper">Pick random helper</h2>
@@ -718,6 +768,91 @@ the UNIX timestamp in seconds.</p>
 <p>Or from a list passed as a parameter:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom (jsonPath request.body '$.names')}}}
+</code></pre></div></div>
+
+<h2 id="random-number-helpers">Random number helpers</h2>
+<p>These helpers produce random numbers of the desired type. By returning actual typed numbers rather than strings
+we can use them for further work e.g. by doing arithemetic with the <code class="highlighter-rouge">math</code> helper or randomising the bound in a <code class="highlighter-rouge">range</code>.</p>
+
+<p>Random integers can be produced with lower and/or upper bounds, or neither:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomInt}}
+{{randomInt lower=5 upper=9}}
+{{randomInt upper=54323}}
+{{randomInt lower=-24}}
+</code></pre></div></div>
+
+<p>Likewise decimals can be produced with or without bounds:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomDecimal}}
+{{randomDecimal lower=-10.1 upper=-0.9}}
+{{randomDecimal upper=12.5}}
+{{randomDecimal lower=-24.01}}
+</code></pre></div></div>
+
+<h2 id="math-helper">Math helper</h2>
+<p>The <code class="highlighter-rouge">math</code> (or maths, depending where you are) helper performs common arithmetic operations. It can accept integers, decimals
+or strings as its operands and will always yield a number as its output rather than a string.</p>
+
+<p>Addition, subtraction, multiplication, division and remainder (mod) are supported:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{math 1 '+' 2}}
+{{math 4 '-' 2}}
+{{math 2 '*' 3}}
+{{math 8 '/' 2}}
+{{math 10 '%' 3}}
+</code></pre></div></div>
+
+<h2 id="range-helper">Range helper</h2>
+<p>The <code class="highlighter-rouge">range</code> helper will produce an array of integers between the bounds specified:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{range 3 8}}
+{{range -2 2}}
+</code></pre></div></div>
+
+<p>This can be usefully combined with <code class="highlighter-rouge">randomInt</code> and <code class="highlighter-rouge">each</code> to output random length, repeating pieces of content e.g.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (range 0 (randomInt lower=1 upper=10)) as |index|}}
+id: {{index}}
+{{/each}}
+</code></pre></div></div>
+
+<h2 id="array-literal-helper">Array literal helper</h2>
+<p>The <code class="highlighter-rouge">array</code> helper will produce an array from the list of parameters specified. The values can be any valid type.
+Providing no parameters will result in an empty array.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{array 1 'two' true}}
+{{array}}
+</code></pre></div></div>
+
+<h2 id="contains-helper">Contains helper</h2>
+<p>The <code class="highlighter-rouge">contains</code> helper returns a boolean value indicating whether the string or array passed as the first parameter
+contains the string passed in the second.</p>
+
+<p>It can be used as parameter to the <code class="highlighter-rouge">if</code> helper:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (contains 'abcde' 'abc')}}YES{{/if}}
+{{#if (contains (array 'a' 'b' 'c') 'a')}}YES{{/if}}
+</code></pre></div></div>
+
+<p>Or as a block element on its own:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#contains 'abcde' 'abc'}}YES{{/contains}}
+{{#contains (array 'a' 'b' 'c') 'a'}}YES{{/contains}}
+</code></pre></div></div>
+
+<h2 id="matches-helper">Matches helper</h2>
+<p>The <code class="highlighter-rouge">matches</code> helper returns a boolean value indicating whether the string passed as the first parameter matches the
+regular expression passed in the second:</p>
+
+<p>Like the <code class="highlighter-rouge">contains</code> helper it can be used as parameter to the <code class="highlighter-rouge">if</code> helper:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (matches '123' '[0-9]+')}}YES{{/if}}
+</code></pre></div></div>
+
+<p>Or as a block element on its own:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#matches '123' '[0-9]+'}}YES{{/matches}}
 </code></pre></div></div>
 
 <h2 id="string-trim-helper">String trim helper</h2>
@@ -792,6 +927,11 @@ indicating that values should be URL decoded. The folowing example will parse th
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
 {{parts.0}},{{parts.1}},{{parts.2}}
+</code></pre></div></div>
+
+<p>Optionally, a default value can be specified for when there is no match.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract 'abc' '[0-9]+' default='my default value'}}
 </code></pre></div></div>
 
 <h2 id="size-helper">Size helper</h2>
