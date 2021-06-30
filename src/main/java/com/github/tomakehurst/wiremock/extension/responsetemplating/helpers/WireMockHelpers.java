@@ -227,7 +227,7 @@ public enum WireMockHelpers implements Helper<Object> {
     },
 
     math {
-        private final MathHelper helper = new MathHelper();
+        private final MathsHelper helper = new MathsHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {

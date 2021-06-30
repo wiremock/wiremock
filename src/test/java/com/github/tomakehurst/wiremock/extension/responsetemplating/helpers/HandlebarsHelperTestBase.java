@@ -57,8 +57,8 @@ public abstract class HandlebarsHelperTestBase {
     }
 
     @SuppressWarnings("unchecked")
-    protected <R, C> R renderHelperValue(Helper<C> helper, C content, String parameter) throws IOException {
-        return (R) helper.apply(content, createOptions(parameter));
+    protected <R, C> R renderHelperValue(Helper<C> helper, C content, Object... parameters) throws IOException {
+        return (R) helper.apply(content, createOptions(parameters));
     }
 
     protected <T> void testHelper(Helper<T> helper,
@@ -75,15 +75,15 @@ public abstract class HandlebarsHelperTestBase {
         assertThat(helper.apply(content, createOptions(optionParam)).toString(), expected);
     }
 
-    protected Options createOptions(String optionParam) {
-        return createOptions(optionParam, renderCache);
+    protected Options createOptions(Object... optionParams) {
+        return createOptions(renderCache, optionParams);
     }
 
-    protected Options createOptions(String optionParam, RenderCache renderCache) {
+    protected Options createOptions(RenderCache renderCache, Object... optionParams) {
         Context context = createContext(renderCache);
 
         return new Options(null, null, null, context, null, null,
-                           new Object[]{optionParam}, emptyMap(), new ArrayList<String>(0));
+                           optionParams, emptyMap(), new ArrayList<String>(0));
     }
 
     protected Context createContext() {
