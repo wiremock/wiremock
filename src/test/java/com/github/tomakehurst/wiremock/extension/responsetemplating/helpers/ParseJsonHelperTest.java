@@ -48,6 +48,22 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
         assertThat(result, hasEntry("testKey2", "val2"));
     }
 
+    @Test
+    public void parseANestedJsonObject() throws Exception {
+        String inputJson = "{\"parent\": {\"child\": \"val\"}}";
+        Object output = render(inputJson, new Object[]{}, TagType.VAR);
+
+        // Check parent level
+        assertThat(output, instanceOf(Map.class));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(1));
+        assertThat(result, hasKey("parent"));
+        // Check child level
+        assertThat(result.get("parent"), instanceOf(Map.class));
+        Map<String, Object> parent = (Map<String, Object>) result.get("parent");
+        assertThat(parent, hasEntry("child", "val"));
+    }
+
     private Object render(Object context, Object[] params, TagType tagType) throws IOException {
         return helper.apply(context,
             new Options.Builder(null, null, tagType, createContext(), null)
