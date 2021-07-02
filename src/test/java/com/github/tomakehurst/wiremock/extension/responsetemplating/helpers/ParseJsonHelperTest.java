@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -75,6 +77,21 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
         assertThat(result.get("parent"), instanceOf(Map.class));
         Map<String, Object> parent = (Map<String, Object>) result.get("parent");
         assertThat(parent, hasEntry("child", "val"));
+    }
+
+    @Test
+    public void parsesJsonWithTopLevelArray() throws Exception {
+        String inputJson = "[{\"key\": \"val\"}]";
+        Object output = render(inputJson, new Object[]{}, TagType.VAR);
+
+        // Check list returns
+        assertThat(output, instanceOf(ArrayList.class));
+        ArrayList<Object> result = (ArrayList<Object>) output;
+        assertThat(result, hasSize(1));
+        // Check inner is a map
+        assertThat(result.get(0), instanceOf(Map.class));
+        Map<String, Object> inner = (Map<String, Object>) result.get(0);
+        assertThat(inner, hasEntry("key", "val"));
     }
 
     private Object render(Object context, Object[] params, TagType tagType) throws IOException {
