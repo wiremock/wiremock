@@ -49,6 +49,19 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
+    public void parsesAJsonObjectContainingArray() throws Exception {
+        String inputJson = "{\"arr\": [\"one\", \"two\", \"three\"]}";
+        Object output = render(inputJson, new Object[]{}, TagType.VAR);
+
+        assertThat(output, instanceOf(Map.class));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(1));
+        assertThat(result, hasKey("arr"));
+        assertThat(result.get("arr"), instanceOf(ArrayList.class));
+        assertThat(result, hasEntry("arr", Arrays.asList(new String[]{"one", "two", "three"})));
+    }
+
+    @Test
     public void parseANestedJsonObject() throws Exception {
         String inputJson = "{\"parent\": {\"child\": \"val\"}}";
         Object output = render(inputJson, new Object[]{}, TagType.VAR);
