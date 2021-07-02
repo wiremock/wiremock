@@ -1,0 +1,58 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
+
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.TagType;
+import com.github.jknack.handlebars.Context;
+import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
+public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
+    private ParseJsonHelper helper;
+
+    @Before
+    public void init() {
+        helper = new ParseJsonHelper();
+    }
+
+    @Test
+    public void parsesASimpleJsonObject() throws Exception {
+        String inputJson = "{\"testKey1\": \"val1\", \"testKey2\": \"val2\"}";
+        Object output = render(inputJson, new Object[]{}, TagType.VAR);
+
+        String expectedJson = "Test";
+        assertThat(output, instanceOf(Map.class));
+        assertThat((Map<String, Object>)output, aMapWithSize(2));
+        assertThat((Map<String, Object>)output, hasEntry("testKey1", "val1"));
+        assertThat((Map<String, Object>)output, hasEntry("testKey2", "val2"));
+    }
+
+    private Object render(Object context, Object[] params, TagType tagType) throws IOException {
+        return helper.apply(context,
+            new Options.Builder(null, null, tagType, createContext(), null)
+                .setParams(params)
+                .build()
+        );
+    }
+}
