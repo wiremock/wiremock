@@ -41,11 +41,11 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
         String inputJson = "{\"testKey1\": \"val1\", \"testKey2\": \"val2\"}";
         Object output = render(inputJson, new Object[]{}, TagType.VAR);
 
-        String expectedJson = "Test";
         assertThat(output, instanceOf(Map.class));
-        assertThat((Map<String, Object>)output, aMapWithSize(2));
-        assertThat((Map<String, Object>)output, hasEntry("testKey1", "val1"));
-        assertThat((Map<String, Object>)output, hasEntry("testKey2", "val2"));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(2));
+        assertThat(result, hasEntry("testKey1", "val1"));
+        assertThat(result, hasEntry("testKey2", "val2"));
     }
 
     private Object render(Object context, Object[] params, TagType tagType) throws IOException {
