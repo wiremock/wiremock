@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
 import com.github.jknack.handlebars.Context;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
