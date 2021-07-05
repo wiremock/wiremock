@@ -83,4 +83,22 @@ public class LoggedResponseDefinitionTransformerTest {
             .build();
         assertEquals(expected, aTransformer().apply(response));
     }
+
+    @Test
+    public void transformsWhenNoHeadersArePresent() {
+        final byte[] body = new byte[] { 0x1, 0xc, 0x3, 0xb, 0x1 };
+        final LoggedResponse response = LoggedResponse.from(Response
+                .response()
+                .status(500)
+                .body(body)
+                .headers(null)
+                .build()
+        );
+
+        final ResponseDefinition expected = responseDefinition()
+                .withStatus(500)
+                .withBody(body)
+                .build();
+        assertEquals(expected, aTransformer().apply(response));
+    }
 }
