@@ -910,6 +910,7 @@ public class ResponseTemplateTransformerTest {
     public void generatesARandomInt() {
         assertThat(transform("{{randomInt}}"), matchesPattern("[\\-0-9]+"));
         assertThat(transform("{{randomInt lower=5 upper=9}}"), matchesPattern("[5-9]"));
+        assertThat(transform("{{randomInt lower='5' upper='9'}}"), matchesPattern("[5-9]"));
         assertThat(transformToInt("{{randomInt upper=54323}}"), lessThanOrEqualTo(9));
         assertThat(transformToInt("{{randomInt lower=-24}}"), greaterThanOrEqualTo(-24));
     }
