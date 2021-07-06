@@ -918,8 +918,13 @@ public class ResponseTemplateTransformerTest {
     public void generatesARandomDecimal() {
         assertThat(transform("{{randomDecimal}}"), matchesPattern("[\\-0-9\\.E]+"));
         assertThat(transformToDouble("{{randomDecimal lower=-10.1 upper=-0.9}}"), allOf(greaterThanOrEqualTo(-10.1), lessThanOrEqualTo(-0.9)));
+        assertThat(transformToDouble("{{randomDecimal lower='-10.1' upper='-0.9'}}"), allOf(greaterThanOrEqualTo(-10.1), lessThanOrEqualTo(-0.9)));
         assertThat(transformToDouble("{{randomDecimal upper=12.5}}"), lessThanOrEqualTo(12.5));
         assertThat(transformToDouble("{{randomDecimal lower=-24.01}}"), greaterThanOrEqualTo(-24.01));
+        assertThat(transformToDouble("{{randomDecimal lower=-1 upper=1}}"), Matchers.allOf(
+                greaterThanOrEqualTo(-1.0),
+                lessThanOrEqualTo(1.0)
+        ));
     }
 
     @Test
