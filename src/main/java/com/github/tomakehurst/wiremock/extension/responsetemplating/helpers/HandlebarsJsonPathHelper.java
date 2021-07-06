@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
 
     private final Configuration config = Configuration
@@ -73,13 +75,17 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
         RenderCache.Key cacheKey = RenderCache.Key.keyFor(Object.class, jsonPath, jsonDocument);
         Object value = renderCache.get(cacheKey);
         if (value == null) {
-            value = jsonDocument.read(jsonPath);
-            if (value == null && options.hash != null) {
-                value = options.hash("default");
+            Object defaultValue = options.hash != null ? options.hash("default") : null;
+            try {
+                value = jsonDocument.read(jsonPath);
+            } catch (Exception e) {
+                value = defaultValue;
             }
+
             if (value == null) {
-                value = "";
+                value = firstNonNull(defaultValue, "");
             }
+
             renderCache.put(cacheKey, value);
         }
 
