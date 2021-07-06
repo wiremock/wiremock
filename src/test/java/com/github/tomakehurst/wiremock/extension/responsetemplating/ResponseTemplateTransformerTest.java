@@ -1029,6 +1029,12 @@ public class ResponseTemplateTransformerTest {
                    is("2021-06-29T00:00:00Z"));
     }
 
+    @Test
+    public void formatDecimalAsCurrencyWithLocale() {
+        assertThat(transform("{{{numberFormat 123.456 'currency' 'en_GB'}}}"),
+                   is("£123.46"));
+    }
+
     private Integer transformToInt(String responseBodyTemplate) {
         return Integer.parseInt(transform(responseBodyTemplate));
     }
