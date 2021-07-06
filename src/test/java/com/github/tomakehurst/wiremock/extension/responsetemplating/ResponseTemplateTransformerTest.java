@@ -30,6 +30,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -921,6 +925,7 @@ public class ResponseTemplateTransformerTest {
     @Test
     public void generatesARangeOfNumbersInAnArray() {
         assertThat(transform("{{range 3 8}}"), is("[3, 4, 5, 6, 7, 8]"));
+        assertThat(transform("{{range '3' '8'}}"), is("[3, 4, 5, 6, 7, 8]"));
         assertThat(transform("{{range -2 2}}"), is("[-2, -1, 0, 1, 2]"));
         assertThat(transform("{{range 555}}"), is("[ERROR: The range helper requires both lower and upper bounds as integer parameters]"));
     }
@@ -1033,6 +1038,24 @@ public class ResponseTemplateTransformerTest {
     public void formatDecimalAsCurrencyWithLocale() {
         assertThat(transform("{{{numberFormat 123.456 'currency' 'en_GB'}}}"),
                    is("£123.46"));
+    }
+
+    @Test
+    public void singleValuedListOrSingleIsUnwrappedWhenUsedWithBuiltInEq() {
+        String result = transform(
+                mockRequest().url("/?q=123"),
+                ok("{{#eq request.query.q '123'}}YES{{/eq}}")
+        ).getBody();
+
+        assertThat(result, is("YES"));
+    }
+
+    @Test
+    public void canTruncateARenderableDate() {
+        String result = transform("{{date (truncateDate (now) 'first day of month') format='yyyy-MM-dd'}}");
+
+        String expectedDate = ZonedDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().toString();
+        assertThat(result, is(expectedDate));
     }
 
     private Integer transformToInt(String responseBodyTemplate) {

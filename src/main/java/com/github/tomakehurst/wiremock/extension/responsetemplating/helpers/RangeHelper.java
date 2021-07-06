@@ -22,12 +22,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HelperUtils.coerceToInt;
+
 public class RangeHelper extends HandlebarsHelper<Object> {
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
-        Integer lowerBound = context instanceof Integer ? (Integer) context : null;
-        Integer upperBound = options.params.length > 0 ? options.param(0) : null;
+        Integer lowerBound = coerceToInt(context);
+        Integer upperBound = options.params.length > 0 ? coerceToInt(options.param(0)) : null;
 
         if (lowerBound == null || upperBound == null) {
             return handleError("The range helper requires both lower and upper bounds as integer parameters");

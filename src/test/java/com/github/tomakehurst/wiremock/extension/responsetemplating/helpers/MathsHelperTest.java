@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
