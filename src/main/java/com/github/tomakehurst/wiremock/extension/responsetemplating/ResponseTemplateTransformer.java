@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.ParameterNormalisingHelperWrapper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -114,12 +115,21 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
 
+        decorateHelpersWithParameterUnwrapper();
+
         this.maxCacheEntries = maxCacheEntries;
         CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
         if (maxCacheEntries != null) {
             cacheBuilder.maximumSize(maxCacheEntries);
         }
         cache = cacheBuilder.build();
+    }
+
+    private void decorateHelpersWithParameterUnwrapper() {
+        handlebars.helpers().forEach(entry -> {
+            Helper<?> newHelper = new ParameterNormalisingHelperWrapper((Helper<Object>) entry.getValue());
+            handlebars.registerHelper(entry.getKey(), newHelper);
+        });
     }
 
     @Override

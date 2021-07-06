@@ -21,15 +21,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class RenderableDate {
+public class RenderableDate extends Date {
     private static final long DIVIDE_MILLISECONDS_TO_SECONDS = 1000L;
 
-    private final Date date;
     private final String format;
     private final String timezoneName;
 
     public RenderableDate(Date date, String format, String timezone) {
-        this.date = date;
+        super(date.getTime());
         this.format = format;
         this.timezoneName = timezone;
     }
@@ -38,19 +37,19 @@ public class RenderableDate {
     public String toString() {
         if (format != null) {
             if (format.equals("epoch")) {
-                return String.valueOf(date.getTime());
+                return String.valueOf(getTime());
             }
 
             if (format.equals("unix")) {
-                return String.valueOf(date.getTime() / DIVIDE_MILLISECONDS_TO_SECONDS);
+                return String.valueOf(getTime() / DIVIDE_MILLISECONDS_TO_SECONDS);
             }
 
             return formatCustom();
         }
 
         return timezoneName != null ?
-            ISO8601Utils.format(date, false, TimeZone.getTimeZone(timezoneName)) :
-            ISO8601Utils.format(date, false);
+                ISO8601Utils.format(this, false, TimeZone.getTimeZone(timezoneName)) :
+                ISO8601Utils.format(this, false);
     }
 
     private String formatCustom() {
@@ -59,6 +58,6 @@ public class RenderableDate {
             TimeZone zone = TimeZone.getTimeZone(timezoneName);
             dateFormat.setTimeZone(zone);
         }
-        return dateFormat.format(date);
+        return dateFormat.format(this);
     }
 }
