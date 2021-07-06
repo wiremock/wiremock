@@ -65,13 +65,13 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void incluesAnErrorInTheResponseBodyWhenTheJsonPathExpressionReturnsNothing() {
+    public void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
                 mockRequest()
                     .url("/json")
                     .body("{\"a\": {\"test\": \"success\"}}"),
                 aResponse()
-                    .withBody("{\"test\": \"{{jsonPath request.body '$.b.test'}}\"}").build(),
+                    .withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -213,11 +213,20 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void rendersDefaultValueWhenJsonValueUndefined() throws Exception {
+    public void rendersDefaultValueWhenShallowJsonValueUndefined() throws Exception {
         Map<String, Object> options = ImmutableMap.<String, Object>of(
             "default", "0"
         );
         String output = render("{}", "$.test", options);
+        assertThat(output, is("0"));
+    }
+
+    @Test
+    public void rendersDefaultValueWhenDeepJsonValueUndefined() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of(
+                "default", "0"
+        );
+        String output = render("{}", "$.outer.inner[0]", options);
         assertThat(output, is("0"));
     }
 
