@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.List;
 
 public class ParseJsonHelper extends HandlebarsHelper<Object> {
 
@@ -44,15 +45,21 @@ public class ParseJsonHelper extends HandlebarsHelper<Object> {
             variableName = options.params.length > 0 ? options.param(0) : null;
         }
 
-        Map<String, Object> map = json != null ?
-                Json.read(json.toString(), new TypeReference<Map<String, Object>>() {}) :
-                null;
+        Object result = null;
+        if(json != null) {
+            String jsonAsString = json.toString().trim();
+            if(jsonAsString.startsWith("[") && jsonAsString.endsWith("]")) {
+                result = Json.read(jsonAsString, new TypeReference<List<Object>>() {});
+            } else {
+                result = Json.read(jsonAsString, new TypeReference<Map<String, Object>>() {});
+            }
+        }
 
         if (variableName != null) {
-            options.context.data(variableName, map);
+            options.context.data(variableName, result);
             return null;
         }
 
-        return map;
+        return result;
     }
 }
