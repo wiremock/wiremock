@@ -27,4 +27,28 @@ public class ResponseDefinitionTest {
 
         assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
     }
+
+    @Test
+    public void doesNotRemoveRequestPathPrefixWhenPrefixToRemoveDoesNotMatch() {
+        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.proxy.url")
+                .withProxyUrlPrefixToRemove("/no/match")
+                .build();
+
+        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+
+        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+    }
+
+    @Test
+    public void removesRequestPathPrefixWhenPrefixToRemoveMatches() {
+        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.proxy.url")
+                .withProxyUrlPrefixToRemove("/path")
+                .build();
+
+        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+
+        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url"));
+    }
 }

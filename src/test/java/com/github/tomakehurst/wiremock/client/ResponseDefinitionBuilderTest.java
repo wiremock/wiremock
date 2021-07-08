@@ -93,66 +93,75 @@ public class ResponseDefinitionBuilderTest {
     }
 
     @Test
-    public void proxyResponseDefinitionWithoutExtraHeadersIsNotInResponseDefinition() {
+    public void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinition() {
         ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .proxiedFrom("http://my.domain")
                 .build();
 
         assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+        assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
     }
 
     @Test
-    public void proxyResponseDefinitionWithoutExtraHeadersIsNotInResponseDefinitionWithJsonBody() {
+    public void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithJsonBody() {
         ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .proxiedFrom("http://my.domain")
                 .withJsonBody(Json.read("{}", JsonNode.class))
                 .build();
 
         assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+        assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
     }
 
     @Test
-    public void proxyResponseDefinitionWithoutExtraHeadersIsNotInResponseDefinitionWithBinaryBody() {
+    public void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithBinaryBody() {
         ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .proxiedFrom("http://my.domain")
                 .withBody(new byte[] { 0x01 })
                 .build();
 
         assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+        assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
     }
 
     @Test
-    public void proxyResponseDefinitionWithExtraHeadersIsInResponseDefinition() {
+    public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinition() {
         ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .proxiedFrom("http://my.domain")
                 .withAdditionalRequestHeader("header", "value")
+                .withProxyUrlPrefixToRemove("/remove")
                 .build();
 
         assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(),
                 equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+        assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
     }
 
     @Test
-    public void proxyResponseDefinitionWithExtraHeadersIsInResponseDefinitionWithJsonBody() {
+    public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithJsonBody() {
         ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .proxiedFrom("http://my.domain")
                 .withAdditionalRequestHeader("header", "value")
+                .withProxyUrlPrefixToRemove("/remove")
                 .withJsonBody(Json.read("{}", JsonNode.class))
                 .build();
 
         assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(),
                 equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+        assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
     }
 
     @Test
-    public void proxyResponseDefinitionWithExtraHeadersIsInResponseDefinitionWithBinaryBody() {
+    public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithBinaryBody() {
         ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .proxiedFrom("http://my.domain")
                 .withAdditionalRequestHeader("header", "value")
+                .withProxyUrlPrefixToRemove("/remove")
                 .withBody(new byte[] { 0x01 })
                 .build();
 
         assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(),
                 equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+        assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
     }
 }

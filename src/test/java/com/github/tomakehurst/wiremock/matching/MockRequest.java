@@ -220,7 +220,7 @@ public class MockRequest implements Request {
 
     @Override
     public boolean isBrowserProxyRequest() {
-        return false;
+        return isBrowserProxyRequest;
     }
 
     @Override
