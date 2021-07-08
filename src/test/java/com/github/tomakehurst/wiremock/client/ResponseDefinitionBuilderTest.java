@@ -30,14 +30,26 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
 import org.junit.Test;
 
+import java.util.Collections;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 
 public class ResponseDefinitionBuilderTest {
 
@@ -78,5 +90,69 @@ public class ResponseDefinitionBuilderTest {
         ResponseDefinition copiedResponseDefinition = ResponseDefinitionBuilder.like(originalResponseDefinition).build();
 
         assertThat(copiedResponseDefinition, is(originalResponseDefinition));
+    }
+
+    @Test
+    public void proxyResponseDefinitionWithoutExtraHeadersIsNotInResponseDefinition() {
+        ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.domain")
+                .build();
+
+        assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+    }
+
+    @Test
+    public void proxyResponseDefinitionWithoutExtraHeadersIsNotInResponseDefinitionWithJsonBody() {
+        ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.domain")
+                .withJsonBody(Json.read("{}", JsonNode.class))
+                .build();
+
+        assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+    }
+
+    @Test
+    public void proxyResponseDefinitionWithoutExtraHeadersIsNotInResponseDefinitionWithBinaryBody() {
+        ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.domain")
+                .withBody(new byte[] { 0x01 })
+                .build();
+
+        assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+    }
+
+    @Test
+    public void proxyResponseDefinitionWithExtraHeadersIsInResponseDefinition() {
+        ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.domain")
+                .withAdditionalRequestHeader("header", "value")
+                .build();
+
+        assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(),
+                equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+    }
+
+    @Test
+    public void proxyResponseDefinitionWithExtraHeadersIsInResponseDefinitionWithJsonBody() {
+        ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.domain")
+                .withAdditionalRequestHeader("header", "value")
+                .withJsonBody(Json.read("{}", JsonNode.class))
+                .build();
+
+        assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(),
+                equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+    }
+
+    @Test
+    public void proxyResponseDefinitionWithExtraHeadersIsInResponseDefinitionWithBinaryBody() {
+        ResponseDefinition proxyDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.domain")
+                .withAdditionalRequestHeader("header", "value")
+                .withBody(new byte[] { 0x01 })
+                .build();
+
+        assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(),
+                equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
     }
 }
