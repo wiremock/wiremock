@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.TagType;
 import com.github.jknack.handlebars.Context;
 import org.junit.Before;
@@ -139,7 +140,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
     
     private Object render(Object context, Object[] params, TagType tagType) throws IOException {
         return helper.apply(context,
-            new Options.Builder(null, null, tagType, createContext(), null)
+            new Options.Builder(null, null, tagType, createContext(), Template.EMPTY)
                 .setParams(params)
                 .build()
         );
