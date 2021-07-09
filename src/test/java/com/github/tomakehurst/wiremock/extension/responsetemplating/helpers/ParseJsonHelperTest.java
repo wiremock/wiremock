@@ -93,6 +93,50 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
         assertThat(inner, hasEntry("key", "val"));
     }
 
+    @Test
+    public void parsesNullJsonIfSection() throws Exception {
+        String inputJson = null;
+        Object output = render(inputJson, new Object[]{}, TagType.SECTION);
+
+        // Check that it returns empty object
+        assertThat(output, instanceOf(Map.class));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(0));
+    }
+
+    @Test
+    public void parsesNullJsonIfNotSection() throws Exception {
+        String inputJson = null;
+        Object output = render(inputJson, new Object[]{}, TagType.VAR);
+
+        // Check that it returns empty object
+        assertThat(output, instanceOf(Map.class));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(0));
+    }
+
+    @Test
+    public void parsesEmptyJsonIfSection() throws Exception {
+        String inputJson = "{}";
+        Object output = render(inputJson, new Object[]{}, TagType.SECTION);
+
+        // Check that it returns empty object
+        assertThat(output, instanceOf(Map.class));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(0));
+    }
+
+    @Test
+    public void parsesEmptyJsonIfNotSection() throws Exception {
+        String inputJson = "{}";
+        Object output = render(inputJson, new Object[]{}, TagType.VAR);
+
+        // Check that it returns empty object
+        assertThat(output, instanceOf(Map.class));
+        Map<String, Object> result = (Map<String, Object>) output;
+        assertThat(result, aMapWithSize(0));
+    }
+    
     private Object render(Object context, Object[] params, TagType tagType) throws IOException {
         return helper.apply(context,
             new Options.Builder(null, null, tagType, createContext(), null)
