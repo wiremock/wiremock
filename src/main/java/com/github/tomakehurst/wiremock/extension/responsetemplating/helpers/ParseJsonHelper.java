@@ -31,10 +31,10 @@ public class ParseJsonHelper extends HandlebarsHelper<Object> {
     public Object apply(Object context, Options options) throws IOException {
         CharSequence json;
         String variableName;
-        Map<String, Object> emptyJson = new HashMap<String, Object>();
+        Object result = new HashMap<String, Object>();
 
         // Edge case if null JSON object passed in
-        if(context == null) { return emptyJson; }
+        if(context == null) { return result; }
 
         boolean hasContext = context != options.context.model();
 
@@ -50,13 +50,12 @@ public class ParseJsonHelper extends HandlebarsHelper<Object> {
             variableName = options.params.length > 0 ? options.param(0) : null;
         }
 
-        Object result = emptyJson;
         if(json != null) {
             String jsonAsString = json.toString().trim();
 
             // Edge case if JSON object is empty {}
             String jsonAsStringWithoutSpace = jsonAsString.replaceAll("\\s", "");
-            if(jsonAsStringWithoutSpace.equals("{}") || jsonAsStringWithoutSpace.equals("")) { return emptyJson; }
+            if(jsonAsStringWithoutSpace.equals("{}") || jsonAsStringWithoutSpace.equals("")) { return result; }
 
             if(jsonAsString.startsWith("[") && jsonAsString.endsWith("]")) {
                 result = Json.read(jsonAsString, new TypeReference<List<Object>>() {});
