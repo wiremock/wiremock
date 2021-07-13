@@ -2,7 +2,7 @@ WireMock - a web service test double for all occasions
 ======================================================
 
 [![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
 
 Key Features
