@@ -18,13 +18,17 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
@@ -84,14 +88,17 @@ public class MatchesJsonPathPattern extends PathPattern {
 
     protected MatchResult isAdvancedMatch(String value) {
         try {
-            String expressionResult = getExpressionResult(value);
+            ListOrSingle<String> expressionResult = getExpressionResult(value);
 
             // Bit of a hack, but otherwise empty array results aren't matched as absent()
-            if ("[ ]".equals(expressionResult) && valuePattern.getClass().isAssignableFrom(AbsentPattern.class)) {
-                expressionResult = null;
+            if ((expressionResult == null || expressionResult.isEmpty()) && AbsentPattern.class.isAssignableFrom(valuePattern.getClass())) {
+                expressionResult = ListOrSingle.of((String) null);
             }
 
-            return valuePattern.match(expressionResult);
+            return expressionResult.stream()
+                    .map(valuePattern::match)
+                    .min(Comparator.comparingDouble(MatchResult::getDistance))
+                    .orElse(MatchResult.noMatch());
         } catch (SubExpressionException e) {
             notifier().info(e.getMessage());
             return MatchResult.noMatch();
@@ -99,7 +106,7 @@ public class MatchesJsonPathPattern extends PathPattern {
     }
 
     @Override
-    public String getExpressionResult(final String value) {
+    public ListOrSingle<String> getExpressionResult(final String value) {
         // For performance reason, don't try to parse XML value
         if (value != null && value.trim().startsWith("<")) {
             final String message = String.format(
@@ -128,13 +135,16 @@ public class MatchesJsonPathPattern extends PathPattern {
             throw new SubExpressionException(message, e);
         }
 
-        String expressionResult;
-        if (obj instanceof Number || obj instanceof String || obj instanceof Boolean) {
-            expressionResult = String.valueOf(obj);
-        } else if (obj instanceof Map || obj instanceof Collection) {
-            expressionResult = Json.write(obj);
+        ListOrSingle<String> expressionResult;
+        if (obj instanceof Map || EqualToJsonPattern.class.isAssignableFrom(valuePattern.getClass())) {
+            expressionResult = ListOrSingle.of(Json.write(obj));
+        } else if (obj instanceof List) {
+            final List<String> stringValues = ((List<?>) obj).stream().map(Object::toString).collect(toList());
+            expressionResult = ListOrSingle.of(stringValues);
+        } else if (obj instanceof Number || obj instanceof String || obj instanceof Boolean) {
+            expressionResult = ListOrSingle.of(String.valueOf(obj));
         } else {
-            expressionResult = null;
+            expressionResult = ListOrSingle.of();
         }
 
         return expressionResult;

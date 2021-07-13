@@ -410,6 +410,23 @@ public class MatchesJsonPathPatternTest {
         assertTrue(result.isExactMatch());
     }
 
+    @Test
+    public void matchesCorrectlyWhenSubMatcherIsUsedAndExpressionReturnsASingleItemArray() {
+        String json = "{\n" +
+                "   \"searchCriteria\": {\n" +
+                "      \"customerId\": \"104903\",\n" +
+                "      \"date\": \"01/01/2021\"\n" +
+                "   }\n" +
+                "}";
+
+        MatchResult result = matchingJsonPath(
+                "$.searchCriteria[?(@.customerId == '104903')].date",
+                equalToDateTime("2021-01-01T00:00:00").actualFormat("dd/MM/yyyy"))
+            .match(json);
+
+        assertTrue(result.isExactMatch());
+    }
+
     private void expectInfoNotification(final String message) {
         final Notifier notifier = context.mock(Notifier.class);
         context.checking(new Expectations() {{
