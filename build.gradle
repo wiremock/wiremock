@@ -22,18 +22,6 @@ plugins {
 }
 
 group = 'com.github.tomakehurst'
-version = '2.30.0'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
-ext {
-    runningOnCI = System.getenv('CI') == 'true'
-}
 
 def versions = [
         handlebars     : '4.2.0',
@@ -134,27 +122,102 @@ dependencies {
     testCompile "io.netty:netty-all:4.1.65.Final"
 }
 
-compileTestJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs += '-XDenableSunApiLintControl'
-}
+allprojects {
+    ext {
+        runningOnCI = System.getenv('CI') == 'true'
 
-test {
-    // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
-    systemProperty 'user.timezone', 'Australia/Sydney'
+        repoUser =     this.hasProperty('sonatypeUser')     ? sonatypeUser : 'default'
+        repoPassword = this.hasProperty('sonatypePassword') ? sonatypePassword : 'default'
 
-    exclude 'ignored/**'
+        pomInfo = {
+            name 'WireMock'
+            description 'A web service test double for all occasions'
+            url 'http://wiremock.org'
+            scm {
+                connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+                developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+                url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+            }
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            developers {
+                developer {
+                    id 'tomakehurst'
+                    name 'Tom Akehurst'
+                }
+            }
+        }
+    }
 
-    maxParallelForks = runningOnCI ? 1 : 3
+    repositories {
+        mavenCentral()
+    }
 
-    testLogging {
-        events "FAILED", "SKIPPED"
-        exceptionFormat "full"
+    version = '2.30.0'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    compileJava {
+        options.encoding = 'UTF-8'
+
+        // silences warnings about compiling against `sun` packages
+        options.compilerArgs += '-XDenableSunApiLintControl'
+    }
+
+    compileTestJava {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += '-XDenableSunApiLintControl'
+    }
+
+    test {
+        // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
+        systemProperty 'user.timezone', 'Australia/Sydney'
+
+        exclude 'ignored/**'
+
+        maxParallelForks = runningOnCI ? 1 : 3
+
+        testLogging {
+            events "FAILED", "SKIPPED"
+            exceptionFormat "full"
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    task testJar(type: Jar, dependsOn: testClasses) {
+        classifier = 'tests'
+        from sourceSets.test.output
+    }
+
+    publishing {
+        repositories {
+            maven {
+                url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+                credentials {
+                    username repoUser
+                    password repoPassword
+                }
+            }
+        }
     }
 }
 
 final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
-
 task npmInstall(type: Exec) {
     workingDir DOCS_DIR
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
@@ -226,25 +289,6 @@ shadowJar {
     exclude 'handlebars-*.js'
 }
 
-def repoUser
-def repoPassword
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-task testJar(type: Jar, dependsOn: testClasses) {
-    classifier = 'tests'
-    from sourceSets.test.output
-}
-
-
 def thinJarPomPath = "${project.buildDir}/publications/thinJar/pom-default.xml"
 def standaloneJarPomPath = "${project.buildDir}/publications/standaloneJar/pom-default.xml"
 
@@ -254,52 +298,8 @@ artifacts {
     standaloneJarPom file(standaloneJarPomPath)
 }
 
-compileJava {
-    options.encoding = 'UTF-8'
-
-    // silences warnings about compiling against `sun` packages
-    options.compilerArgs += '-XDenableSunApiLintControl'
-}
-
 javadoc {
     exclude "**/CertificateAuthority.java"
-}
-
-if (!this.hasProperty('sonatypeUser')) {
-    repoUser = 'default'
-} else {
-    repoUser = sonatypeUser
-}
-
-if (!this.hasProperty('sonatypePassword')) {
-    repoPassword = 'default'
-} else {
-    repoPassword = sonatypePassword
-}
-
-
-def pomInfo = {
-    name 'WireMock'
-    description 'A web service test double for all occasions'
-    url 'http://wiremock.org'
-    scm {
-        connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-        developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-        url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-    }
-    licenses {
-        license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/license/LICENSE-2.0.txt'
-            distribution 'repo'
-        }
-    }
-    developers {
-        developer {
-            id 'tomakehurst'
-            name 'Tom Akehurst'
-        }
-    }
 }
 
 task writeThinJarPom {
@@ -325,15 +325,6 @@ signing {
 }
 
 publishing {
-    repositories {
-        maven {
-            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            credentials {
-                username repoUser
-                password repoPassword
-            }
-        }
-    }
     publications {
         thinJar(MavenPublication) {
             artifactId = "${jar.baseName}"
