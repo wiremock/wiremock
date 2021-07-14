@@ -2,7 +2,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 buildscript {
     repositories {
-        jcenter()
         maven {
             url "https://oss.sonatype.org"
         }
@@ -177,9 +176,6 @@ task generateApiDocs(type: Exec) {
 
 processResources.dependsOn generateApiDocs
 
-
-def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
-
 configurations {
     shadowJar
     thinJarPom
@@ -331,17 +327,10 @@ signing {
 publishing {
     repositories {
         maven {
-
-            def localRepo = file("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
-            def repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
-
-            url repoUrl
-
-            if (!shouldPublishLocally) {
-                credentials {
-                    username repoUser
-                    password repoPassword
-                }
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username repoUser
+                password repoPassword
             }
         }
     }
@@ -389,19 +378,17 @@ task checkReleasePreconditions {
     doLast {
         def REQUIRED_GIT_BRANCH = 'master'
         def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-        assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
+        assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
     }
 }
 publish.dependsOn checkReleasePreconditions, writeThinJarPom
 
-publishToMavenLocal.dependsOn checkReleasePreconditions, writeThinJarPom, jar, shadowJar
+publishToMavenLocal.dependsOn writeThinJarPom, jar, shadowJar
 
 task addGitTag {
     doLast {
-        if (!shouldPublishLocally) {
-            println "git tag ${version}".execute().text
-            println "git push origin --tags".execute().text
-        }
+        println "git tag ${version}".execute().text
+        println "git push origin --tags".execute().text
     }
 }
 
