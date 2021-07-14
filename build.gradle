@@ -92,7 +92,7 @@ dependencies {
     compile 'commons-fileupload:commons-fileupload:1.4',  {
         exclude group: 'commons-io', module: 'commons-io'
     }
-    compile "commons-io:commons-io:2.10.0"
+    compile "commons-io:commons-io:2.11.0"
 
     testCompile "junit:junit:4.13"
     testCompile "org.hamcrest:hamcrest-core:2.2"
