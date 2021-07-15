@@ -1,19 +1,22 @@
 package org.wiremock.webhooks;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.wiremock.webhooks.interceptors.WebhookTransformer;
 
@@ -24,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.HttpClientFactory.getHttpRequestFor;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -44,12 +46,29 @@ public class Webhooks extends PostServeAction {
       this.transformers = transformers;
     }
 
+    @JsonCreator
     public Webhooks() {
-      this(Executors.newScheduledThreadPool(10), HttpClientFactory.createClient(), new ArrayList<WebhookTransformer>());
+      this(Executors.newScheduledThreadPool(10), createHttpClient(), new ArrayList<>());
     }
 
     public Webhooks(WebhookTransformer... transformers) {
-      this(Executors.newScheduledThreadPool(10), HttpClientFactory.createClient(), Arrays.asList(transformers));
+      this(Executors.newScheduledThreadPool(10), createHttpClient(), Arrays.asList(transformers));
+    }
+
+    private static CloseableHttpClient createHttpClient() {
+        return HttpClientBuilder.create()
+                .disableAuthCaching()
+                .disableAutomaticRetries()
+                .disableCookieManagement()
+                .disableRedirectHandling()
+                .disableContentCompression()
+                .setMaxConnTotal(1000)
+                .setMaxConnPerRoute(1000)
+                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(30000).build())
+                .setConnectionReuseStrategy(NoConnectionReuseStrategy.INSTANCE)
+                .setKeepAliveStrategy((response, context) -> 0)
+                .build();
     }
 
     @Override
@@ -62,14 +81,19 @@ public class Webhooks extends PostServeAction {
         final Notifier notifier = notifier();
 
         scheduler.schedule(
-            new Runnable() {
-                @Override
-                public void run() {
-                    WebhookDefinition definition = parameters.as(WebhookDefinition.class);
-                    for (WebhookTransformer transformer: transformers) {
-                        definition = transformer.transform(serveEvent, definition);
+                () -> {
+                    WebhookDefinition definition;
+                    HttpUriRequest request;
+                    try {
+                        definition = WebhookDefinition.from(parameters);
+                        for (WebhookTransformer transformer : transformers) {
+                            definition = transformer.transform(serveEvent, definition);
+                        }
+                        request = buildRequest(definition);
+                    } catch (Exception e) {
+                        notifier().error("Exception thrown while configuring webhook", e);
+                        return;
                     }
-                    HttpUriRequest request = buildRequest(definition);
 
                     try (CloseableHttpResponse response = httpClient.execute(request)) {
                         notifier.info(
@@ -80,32 +104,28 @@ public class Webhooks extends PostServeAction {
                                 EntityUtils.toString(response.getEntity())
                             )
                         );
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         notifier().error(String.format("Failed to fire webhook %s %s", definition.getMethod(), definition.getUrl()), e);
                     }
-                }
-            },
+                },
             0L,
             SECONDS
         );
     }
 
     private static HttpUriRequest buildRequest(WebhookDefinition definition) {
-        HttpUriRequest request = getHttpRequestFor(
-                definition.getMethod(),
-                definition.getUrl().toString()
-        );
+        final RequestBuilder requestBuilder = RequestBuilder.create(definition.getMethod().getName())
+                .setUri(definition.getUrl());
 
         for (HttpHeader header: definition.getHeaders().all()) {
-            request.addHeader(header.key(), header.firstValue());
+            requestBuilder.addHeader(header.key(), header.firstValue());
         }
 
         if (definition.getMethod().hasEntity()) {
-            HttpEntityEnclosingRequestBase entityRequest = (HttpEntityEnclosingRequestBase) request;
-            entityRequest.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
+            requestBuilder.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
         }
 
-        return request;
+        return requestBuilder.build();
     }
 
     public static WebhookDefinition webhook() {

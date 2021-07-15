@@ -25,11 +25,14 @@ import static org.junit.Assert.assertThat;
 import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.util.concurrent.CountDownLatch;
+
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Rule;
@@ -120,7 +123,7 @@ public class WebhooksAcceptanceTest {
                 .withUrl("http://localhost:" + targetServer.port() + "/callback"))
         );
 
-        verify(0, postRequestedFor(anyUrl()));
+        verify(0, getRequestedFor(anyUrl()));
 
         client.post("/something-async", new StringEntity("", TEXT_PLAIN));
 
@@ -129,6 +132,37 @@ public class WebhooksAcceptanceTest {
         verify(1, getRequestedFor(urlEqualTo("/callback"))
             .withHeader(ConstantHttpHeaderWebhookTransformer.key,
                 equalTo(ConstantHttpHeaderWebhookTransformer.value)));
+    }
+
+    @Test
+    public void webhookCanBeConfiguredFromJson() throws Exception {
+        client.postJson("/__admin/mappings", "{\n" +
+                "  \"request\" : {\n" +
+                "    \"urlPath\" : \"/hook\",\n" +
+                "    \"method\" : \"POST\"\n" +
+                "  },\n" +
+                "  \"response\" : {\n" +
+                "    \"status\" : 204\n" +
+                "  },\n" +
+                "  \"postServeActions\" : {\n" +
+                "    \"webhook\" : {\n" +
+                "      \"headers\" : {\n" +
+                "        \"Content-Type\" : \"application/json\"\n" +
+                "      },\n" +
+                "      \"method\" : \"POST\",\n" +
+                "      \"body\" : \"{ \\\"result\\\": \\\"SUCCESS\\\" }\",\n" +
+                "      \"url\" : \"http://localhost:" + targetServer.port() + "/callback\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+
+        verify(0, postRequestedFor(anyUrl()));
+
+        client.post("/hook", new StringEntity("", TEXT_PLAIN));
+
+        waitForRequestToTargetServer();
+
+        verify(postRequestedFor(urlPathEqualTo("/callback")));
     }
 
     private void waitForRequestToTargetServer() throws Exception {
