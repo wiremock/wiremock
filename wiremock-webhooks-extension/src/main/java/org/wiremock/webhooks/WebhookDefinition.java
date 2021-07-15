@@ -3,14 +3,19 @@ package org.wiremock.webhooks;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class WebhookDefinition {
@@ -20,6 +25,27 @@ public class WebhookDefinition {
     private List<HttpHeader> headers;
     private Body body = Body.none();
 
+    public static WebhookDefinition from(Parameters parameters) {
+        return new WebhookDefinition(
+                RequestMethod.fromString(parameters.getString("method", "GET")),
+                URI.create(parameters.getString("url")),
+                toHttpHeaders(parameters.getMetadata("headers")),
+                parameters.getString("body", null),
+                parameters.getString("base64Body", null)
+        );
+    }
+
+    private static HttpHeaders toHttpHeaders(Metadata headerMap) {
+        return new HttpHeaders(
+                headerMap.entrySet().stream()
+                    .map(entry -> new HttpHeader(
+                            entry.getKey(),
+                            entry.getValue() != null ? entry.getValue().toString() : null)
+                    )
+                    .collect(Collectors.toList())
+        );
+    }
+
     @JsonCreator
     public WebhookDefinition(@JsonProperty("method") RequestMethod method,
                              @JsonProperty("url") URI url,
@@ -28,8 +54,13 @@ public class WebhookDefinition {
                              @JsonProperty("base64Body") String base64Body) {
         this.method = method;
         this.url = url;
-        this.headers = newArrayList(headers.all());
-        this.body = Body.fromOneOf(null, body, null, base64Body);
+        this.headers = new ArrayList<>(headers.all());
+
+        if (body != null) {
+            this.body = new Body(body);
+        } else if (base64Body != null) {
+            this.body = new Body(decodeBase64(base64Body));
+        }
     }
 
     public WebhookDefinition() {
