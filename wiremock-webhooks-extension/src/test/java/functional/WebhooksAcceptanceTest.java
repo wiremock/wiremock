@@ -1,46 +1,29 @@
 package functional;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.reset;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.wiremock.webhooks.Webhooks.webhook;
-
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import java.util.concurrent.CountDownLatch;
-
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.wiremock.webhooks.Webhooks;
-import testsupport.ConstantHttpHeaderWebhookTransformer;
 import testsupport.TestNotifier;
 import testsupport.WireMockTestClient;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
+import static org.wiremock.webhooks.Webhooks.webhook;
 
 public class WebhooksAcceptanceTest {
 
@@ -48,10 +31,6 @@ public class WebhooksAcceptanceTest {
     public WireMockRule targetServer = new WireMockRule(options().dynamicPort());
 
     CountDownLatch latch;
-
-    Webhooks webhooks = new Webhooks(
-        new ConstantHttpHeaderWebhookTransformer()
-    );
 
     TestNotifier notifier = new TestNotifier();
     WireMockTestClient client;
@@ -61,16 +40,13 @@ public class WebhooksAcceptanceTest {
         options()
             .dynamicPort()
             .notifier(notifier)
-            .extensions(webhooks));
+            .extensions(new Webhooks()));
 
     @Before
     public void init() {
-        targetServer.addMockServiceRequestListener(new RequestListener() {
-            @Override
-            public void requestReceived(Request request, Response response) {
-                if (request.getUrl().startsWith("/callback")) {
-                    latch.countDown();
-                }
+        targetServer.addMockServiceRequestListener((request, response) -> {
+            if (request.getUrl().startsWith("/callback")) {
+                latch.countDown();
             }
         });
         reset();
@@ -93,6 +69,7 @@ public class WebhooksAcceptanceTest {
                 .withMethod(POST)
                 .withUrl("http://localhost:" + targetServer.port() + "/callback")
                 .withHeader("Content-Type", "application/json")
+                .withHeader("X-Multi", "one", "two")
                 .withBody("{ \"result\": \"SUCCESS\" }"))
         );
 
@@ -107,6 +84,11 @@ public class WebhooksAcceptanceTest {
             .withRequestBody(equalToJson("{ \"result\": \"SUCCESS\" }"))
         );
 
+        List<String> multiHeaderValues = targetServer.findAll(postRequestedFor(urlEqualTo("/callback")))
+                .get(0)
+                .header("X-Multi").values();
+        assertThat(multiHeaderValues, hasItems("one", "two"));
+
         assertThat(notifier.getInfoMessages(), hasItem(allOf(
             containsString("Webhook POST request to"),
             containsString("/callback returned status"),
@@ -115,45 +97,37 @@ public class WebhooksAcceptanceTest {
     }
 
     @Test
-    public void firesMinimalWebhookWithTransformerApplied() throws Exception {
-        rule.stubFor(post(urlPathEqualTo("/something-async"))
-            .willReturn(aResponse().withStatus(200))
-            .withPostServeAction("webhook", webhook()
-                .withMethod(GET)
-                .withUrl("http://localhost:" + targetServer.port() + "/callback"))
-        );
-
-        verify(0, getRequestedFor(anyUrl()));
-
-        client.post("/something-async", new StringEntity("", TEXT_PLAIN));
-
-        waitForRequestToTargetServer();
-
-        verify(1, getRequestedFor(urlEqualTo("/callback"))
-            .withHeader(ConstantHttpHeaderWebhookTransformer.key,
-                equalTo(ConstantHttpHeaderWebhookTransformer.value)));
-    }
-
-    @Test
     public void webhookCanBeConfiguredFromJson() throws Exception {
+        latch = new CountDownLatch(2);
+
         client.postJson("/__admin/mappings", "{\n" +
-                "  \"request\" : {\n" +
-                "    \"urlPath\" : \"/hook\",\n" +
-                "    \"method\" : \"POST\"\n" +
+                "  \"request\": {\n" +
+                "    \"urlPath\": \"/hook\",\n" +
+                "    \"method\": \"POST\"\n" +
                 "  },\n" +
-                "  \"response\" : {\n" +
-                "    \"status\" : 204\n" +
+                "  \"response\": {\n" +
+                "    \"status\": 204\n" +
                 "  },\n" +
-                "  \"postServeActions\" : {\n" +
-                "    \"webhook\" : {\n" +
-                "      \"headers\" : {\n" +
-                "        \"Content-Type\" : \"application/json\"\n" +
-                "      },\n" +
-                "      \"method\" : \"POST\",\n" +
-                "      \"body\" : \"{ \\\"result\\\": \\\"SUCCESS\\\" }\",\n" +
-                "      \"url\" : \"http://localhost:" + targetServer.port() + "/callback\"\n" +
+                "  \"postServeActions\": [\n" +
+                "    {\n" +
+                "      \"name\": \"webhook\",\n" +
+                "      \"parameters\": {\n" +
+                "        \"headers\": {\n" +
+                "          \"Content-Type\": \"application/json\"\n" +
+                "        },\n" +
+                "        \"method\": \"POST\",\n" +
+                "        \"body\": \"{ \\\"result\\\": \\\"SUCCESS\\\" }\",\n" +
+                "        \"url\" : \"http://localhost:" + targetServer.port() + "/callback1\"\n" +
+                "      }\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"name\": \"webhook\",\n" +
+                "      \"parameters\": {\n" +
+                "        \"method\": \"POST\",\n" +
+                "        \"url\" : \"http://localhost:" + targetServer.port() + "/callback2\"\n" +
+                "      }\n" +
                 "    }\n" +
-                "  }\n" +
+                "  ]\n" +
                 "}");
 
         verify(0, postRequestedFor(anyUrl()));
@@ -162,13 +136,12 @@ public class WebhooksAcceptanceTest {
 
         waitForRequestToTargetServer();
 
-        verify(postRequestedFor(urlPathEqualTo("/callback")));
+        verify(postRequestedFor(urlPathEqualTo("/callback1")));
+        verify(postRequestedFor(urlPathEqualTo("/callback2")));
     }
 
     private void waitForRequestToTargetServer() throws Exception {
-        latch.await(2, SECONDS);
-        assertThat("Timed out waiting for target server to receive a request",
-            latch.getCount(), is(0L));
+        assertTrue("Timed out waiting for target server to receive a request", latch.await(2, SECONDS));
     }
 
 }
