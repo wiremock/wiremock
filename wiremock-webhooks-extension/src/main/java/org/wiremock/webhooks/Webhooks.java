@@ -118,10 +118,12 @@ public class Webhooks extends PostServeAction {
                 .setUri(definition.getUrl());
 
         for (HttpHeader header: definition.getHeaders().all()) {
-            requestBuilder.addHeader(header.key(), header.firstValue());
+            for (String value: header.values()) {
+                requestBuilder.addHeader(header.key(), value);
+            }
         }
 
-        if (definition.getMethod().hasEntity()) {
+        if (definition.getMethod().hasEntity() && definition.hasBody()) {
             requestBuilder.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
         }
 

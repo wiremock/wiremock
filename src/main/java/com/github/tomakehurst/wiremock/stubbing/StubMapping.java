@@ -15,19 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -49,7 +50,7 @@ public class StubMapping {
 	private String requiredScenarioState;
 	private String newScenarioState;
 
-    private Map<String, Parameters> postServeActions;
+    private List<PostServeActionDefinition> postServeActions;
 
     private Metadata metadata;
 
@@ -205,12 +206,31 @@ public class StubMapping {
 		return thisPriority - otherPriority;
 	}
 
-    public Map<String, Parameters> getPostServeActions() {
+    public List<PostServeActionDefinition> getPostServeActions() {
         return postServeActions;
     }
 
-    public void setPostServeActions(Map<String, Parameters> postServeActions) {
-        this.postServeActions = postServeActions;
+	public void setPostServeActions(List<PostServeActionDefinition> postServeActions) {
+    	this.postServeActions = postServeActions;
+	}
+
+    @SuppressWarnings("unchecked")
+	@JsonProperty("postServeActions")
+    public void setPostServeActions(Object postServeActions) {
+    	if (postServeActions == null) {
+    		return;
+		}
+
+    	// Ensure backwards compatibility with object/map form
+    	if (Map.class.isAssignableFrom(postServeActions.getClass())) {
+			this.postServeActions = ((Map<String, Parameters>) postServeActions).entrySet().stream()
+					.map(entry -> new PostServeActionDefinition(entry.getKey(), Parameters.from(entry.getValue())))
+					.collect(Collectors.toList());
+		} else if (List.class.isAssignableFrom(postServeActions.getClass())) {
+    		this.postServeActions = ((List<Map<String, Object>>) postServeActions).stream()
+					.map(item -> Json.mapToObject(item, PostServeActionDefinition.class))
+					.collect(Collectors.toList());
+		}
     }
 
     public Metadata getMetadata() {

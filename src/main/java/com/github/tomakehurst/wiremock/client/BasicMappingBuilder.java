@@ -17,18 +17,21 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
@@ -42,7 +45,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private UUID id = UUID.randomUUID();
 	private String name;
     private boolean isPersistent = false;
-    private Map<String, Parameters> postServeActions = newLinkedHashMap();
+    private List<PostServeActionDefinition> postServeActions = newArrayList();
     private Metadata metadata;
 
     BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
@@ -173,7 +176,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         Parameters params = parameters instanceof Parameters ?
             (Parameters) parameters :
             Parameters.of(parameters);
-        postServeActions.put(extensionName, params);
+        postServeActions.add(new PostServeActionDefinition(extensionName, params));
         return this;
     }
 

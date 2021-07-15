@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -29,6 +30,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -124,10 +126,10 @@ public class ServeEvent {
     }
 
     @JsonIgnore
-    public Map<String, Parameters> getPostServeActions() {
+    public List<PostServeActionDefinition> getPostServeActions() {
         return stubMapping != null && stubMapping.getPostServeActions() != null ?
             getStubMapping().getPostServeActions() :
-            Collections.<String, Parameters>emptyMap();
+            Collections.emptyList();
     }
 
     public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServeEvent, LoggedRequest>() {

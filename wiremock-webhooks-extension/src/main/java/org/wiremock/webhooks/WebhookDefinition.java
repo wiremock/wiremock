@@ -12,11 +12,14 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 
 public class WebhookDefinition {
     
@@ -29,21 +32,38 @@ public class WebhookDefinition {
         return new WebhookDefinition(
                 RequestMethod.fromString(parameters.getString("method", "GET")),
                 URI.create(parameters.getString("url")),
-                toHttpHeaders(parameters.getMetadata("headers")),
+                toHttpHeaders(parameters.getMetadata("headers", null)),
                 parameters.getString("body", null),
                 parameters.getString("base64Body", null)
         );
     }
 
     private static HttpHeaders toHttpHeaders(Metadata headerMap) {
+        if (headerMap == null || headerMap.isEmpty()) {
+            return null;
+        }
+
         return new HttpHeaders(
                 headerMap.entrySet().stream()
                     .map(entry -> new HttpHeader(
                             entry.getKey(),
-                            entry.getValue() != null ? entry.getValue().toString() : null)
+                            getHeaderValues(entry.getValue()))
                     )
                     .collect(Collectors.toList())
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Collection<String> getHeaderValues(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+
+        if (obj instanceof List) {
+            return ((List<String>) obj);
+        }
+
+        return singletonList(obj.toString());
     }
 
     @JsonCreator
@@ -54,7 +74,7 @@ public class WebhookDefinition {
                              @JsonProperty("base64Body") String base64Body) {
         this.method = method;
         this.url = url;
-        this.headers = new ArrayList<>(headers.all());
+        this.headers = headers != null ? new ArrayList<>(headers.all()) : null;
 
         if (body != null) {
             this.body = new Body(body);
@@ -128,5 +148,10 @@ public class WebhookDefinition {
     public WebhookDefinition withBinaryBody(byte[] body) {
         this.body = new Body(body);
         return this;
+    }
+
+    @JsonIgnore
+    public boolean hasBody() {
+        return body != null && body.isPresent();
     }
 }
