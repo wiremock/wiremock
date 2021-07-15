@@ -129,45 +129,13 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     public AdminRequestHandler buildAdminRequestHandler() {
-        AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
-            options.extensionsOfType(AdminApiExtension.class).values(),
-            options.getNotMatchedRenderer()
-        );
-        return new AdminRequestHandler(
-            adminRoutes,
-            this,
-            new BasicResponseRenderer(),
-            options.getAdminAuthenticator(),
-            options.getHttpsRequiredForAdminApi(),
-            getAdminRequestFilters()
-        );
+        return new AdminRequestHandlerFactory(). // TODO: field? Static?
+        buildAdminRequestHandler(this, options, getAdminRequestFilters());
     }
 
     public StubRequestHandler buildStubRequestHandler() {
-        Map<String, PostServeAction> postServeActions = options.extensionsOfType(PostServeAction.class);
-        BrowserProxySettings browserProxySettings = options.browserProxySettings();
-        return new StubRequestHandler(
-            this,
-            new StubResponseRenderer(
-                options.filesRoot().child(FILES_ROOT),
-                getGlobalSettingsHolder(),
-                new ProxyResponseRenderer(
-                    options.proxyVia(),
-                    options.httpsSettings().trustStore(),
-                    options.shouldPreserveHostHeader(),
-                    options.proxyHostHeader(),
-                    globalSettingsHolder,
-                    browserProxySettings.trustAllProxyTargets(),
-                    browserProxySettings.trustedProxyTargets()
-                ),
-                ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
-            ),
-            this,
-            postServeActions,
-            requestJournal,
-            getStubRequestFilters(),
-            options.getStubRequestLoggingDisabled()
-        );
+        return new StubRequestHandlerFactory(). // TODO: field? Static?
+                buildStubRequestHandler(this, this, options, globalSettingsHolder, requestJournal, getStubRequestFilters());
     }
 
     private List<RequestFilter> getAdminRequestFilters() {
