@@ -23,6 +23,10 @@ public class TemplateEngine {
     private final Cache<Object, HandlebarsOptimizedTemplate> cache;
     private final Long maxCacheEntries;
 
+    public TemplateEngine(Map<String, Helper<?>> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
+        this(new Handlebars(), helpers, maxCacheEntries, permittedSystemKeys);
+    }
+
     public TemplateEngine(Handlebars handlebars, Map<String, Helper<?>> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
         this.handlebars = handlebars;
         this.maxCacheEntries = maxCacheEntries;
