@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-06-30T17:43:39+01:00">
+  <meta property="article:published_time" content="2021-07-16T18:47:01+01:00">
   
     <link rel="next" href="/docs/response-templating/" title="Response Templating">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Request Matching">
     <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
-    <meta itemprop="datePublished" content="June 30, 2021">
+    <meta itemprop="datePublished" content="July 16, 2021">
     
 
     <div class="page__inner-wrap">
@@ -1384,11 +1384,11 @@ date in ISO8601 format could be zoned: <code class="highlighter-rouge">2021-06-2
 approach is to try to ensure you’re using the same on both sides - if you’re expected a zoned actual date, then use one
 as the expected date also, plus the equivalent for local dates.</p>
 
-<p>If the expected date is zoned and the actual is local, the match will always be negative since no sensbile comparison can
-be done in this circumstance.</p>
+<p>If the expected date is zoned and the actual is local, the actual date will assume the system timezone before the
+comparison is attempted.</p>
 
-<p>However, if the expected date is local and the actual is zoned, the timezone will be stripped from the actual value and the
-comparison will be attempted.</p>
+<p>If the expected date is local and the actual is zoned, the timezone will be stripped from the actual value before the
+comparison is attempted.</p>
 
 <h3 id="date-formats">Date formats</h3>
 
