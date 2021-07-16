@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -65,6 +66,19 @@ public class EqualToDateTimePatternTest {
 
         assertTrue(matcher.match("2021-06-14T12:13:14Z").isExactMatch());
         assertFalse(matcher.match("1921-06-14T12:13:14Z").isExactMatch());
+    }
+
+    @Test
+    public void matchesZonedToLocal() {
+        String localExpected = "2021-06-14T12:13:14";
+        String zonedExpected = LocalDateTime.parse(localExpected).atZone(ZoneId.systemDefault()).toString();
+        StringValuePattern matcher = WireMock.equalToDateTime(zonedExpected);
+
+        String good = localExpected;
+        String bad = LocalDateTime.parse(localExpected).minusSeconds(1).toString();
+
+        assertTrue(matcher.match(good).isExactMatch());
+        assertFalse(matcher.match(bad).isExactMatch());
     }
 
     @Test

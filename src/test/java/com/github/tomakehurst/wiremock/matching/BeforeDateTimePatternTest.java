@@ -45,11 +45,10 @@ public class BeforeDateTimePatternTest {
     }
 
     @Test
-    public void doesNotMatchLocalISO8601BeforeZonedLiteralDateTime() {
+    public void matchesZonedExpectedWithLocalActual() {
         StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
-        // Shouldn't match even if it's apparently correct as a local -> zoned comparison does not make sense
-        assertFalse(matcher.match("2021-06-01T15:15:15").isExactMatch());
+        assertTrue(matcher.match("2021-06-01T15:15:15").isExactMatch());
         assertFalse(matcher.match("2021-07-01T23:59:59").isExactMatch());
     }
 
