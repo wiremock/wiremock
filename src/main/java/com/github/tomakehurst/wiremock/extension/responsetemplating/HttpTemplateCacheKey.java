@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import java.util.Objects;
 
-public class TemplateCacheKey {
+public class HttpTemplateCacheKey {
 
     public enum ResponseElement { BODY, PROXY_URL, HEADER }
 
@@ -28,23 +28,23 @@ public class TemplateCacheKey {
     private final String name;
     private final Integer index;
 
-    public static TemplateCacheKey forInlineBody(ResponseDefinition responseDefinition) {
-        return new TemplateCacheKey(responseDefinition, ResponseElement.BODY, "[inlineBody]", null);
+    public static HttpTemplateCacheKey forInlineBody(ResponseDefinition responseDefinition) {
+        return new HttpTemplateCacheKey(responseDefinition, ResponseElement.BODY, "[inlineBody]", null);
     }
 
-    public static TemplateCacheKey forFileBody(ResponseDefinition responseDefinition, String filename) {
-        return new TemplateCacheKey(responseDefinition, ResponseElement.BODY, filename, null);
+    public static HttpTemplateCacheKey forFileBody(ResponseDefinition responseDefinition, String filename) {
+        return new HttpTemplateCacheKey(responseDefinition, ResponseElement.BODY, filename, null);
     }
 
-    public static TemplateCacheKey forHeader(ResponseDefinition responseDefinition, String headerName, int valueIndex) {
-        return new TemplateCacheKey(responseDefinition, ResponseElement.HEADER, headerName, valueIndex);
+    public static HttpTemplateCacheKey forHeader(ResponseDefinition responseDefinition, String headerName, int valueIndex) {
+        return new HttpTemplateCacheKey(responseDefinition, ResponseElement.HEADER, headerName, valueIndex);
     }
 
-    public static TemplateCacheKey forProxyUrl(ResponseDefinition responseDefinition) {
-        return new TemplateCacheKey(responseDefinition, ResponseElement.PROXY_URL, "[proxyUrl]", null);
+    public static HttpTemplateCacheKey forProxyUrl(ResponseDefinition responseDefinition) {
+        return new HttpTemplateCacheKey(responseDefinition, ResponseElement.PROXY_URL, "[proxyUrl]", null);
     }
 
-    private TemplateCacheKey(ResponseDefinition responseDefinition, ResponseElement element, String name, Integer index) {
+    private HttpTemplateCacheKey(ResponseDefinition responseDefinition, ResponseElement element, String name, Integer index) {
         this.responseDefinition = responseDefinition;
         this.element = element;
         this.name = name;
@@ -55,7 +55,7 @@ public class TemplateCacheKey {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TemplateCacheKey that = (TemplateCacheKey) o;
+        HttpTemplateCacheKey that = (HttpTemplateCacheKey) o;
         return responseDefinition.equals(that.responseDefinition) &&
                 element == that.element &&
                 name.equals(that.name) &&
