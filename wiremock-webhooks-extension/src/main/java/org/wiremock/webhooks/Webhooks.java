@@ -1,7 +1,6 @@
 package org.wiremock.webhooks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.github.jknack.handlebars.Handlebars;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -10,7 +9,6 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTempl
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableMap;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -22,16 +20,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
@@ -51,7 +44,6 @@ public class Webhooks extends PostServeAction {
         this.transformers = transformers;
 
         this.templateEngine = new TemplateEngine(
-                new Handlebars(),
                 Collections.emptyMap(),
                 null,
                 Collections.emptySet()
@@ -127,10 +119,12 @@ public class Webhooks extends PostServeAction {
     }
 
     private WebhookDefinition applyTemplating(WebhookDefinition webhookDefinition, ServeEvent serveEvent) {
-        final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
-                .put("parameters", firstNonNull(webhookDefinition.getExtraParameters(), Collections.<String, Object>emptyMap()))
-                .put("originalRequest", RequestTemplateModel.from(serveEvent.getRequest()))
-                .build();
+
+        final Map<String, Object> model = new HashMap<>();
+        model.put("parameters", webhookDefinition.getExtraParameters() != null ?
+                webhookDefinition.getExtraParameters() :
+                Collections.<String, Object>emptyMap());
+        model.put("originalRequest", RequestTemplateModel.from(serveEvent.getRequest()));
 
         WebhookDefinition renderedWebhookDefinition = webhookDefinition
                 .withUrl(renderTemplate(model, webhookDefinition.getUrl()))
