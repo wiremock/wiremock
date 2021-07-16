@@ -1,15 +1,18 @@
 package org.wiremock.webhooks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.github.jknack.handlebars.Handlebars;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.config.SocketConfig;
@@ -18,41 +21,50 @@ import org.apache.http.impl.NoConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.wiremock.webhooks.interceptors.WebhookTransformer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.http.HttpClientFactory.getHttpRequestFor;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 
 public class Webhooks extends PostServeAction {
 
     private final ScheduledExecutorService scheduler;
     private final CloseableHttpClient httpClient;
     private final List<WebhookTransformer> transformers;
+    private final TemplateEngine templateEngine;
 
     private Webhooks(
             ScheduledExecutorService scheduler,
             CloseableHttpClient httpClient,
             List<WebhookTransformer> transformers) {
-      this.scheduler = scheduler;
-      this.httpClient = httpClient;
-      this.transformers = transformers;
+        this.scheduler = scheduler;
+        this.httpClient = httpClient;
+        this.transformers = transformers;
+
+        this.templateEngine = new TemplateEngine(
+                new Handlebars(),
+                Collections.emptyMap(),
+                null,
+                Collections.emptySet()
+        );
     }
 
     @JsonCreator
     public Webhooks() {
-      this(Executors.newScheduledThreadPool(10), createHttpClient(), new ArrayList<>());
+        this(Executors.newScheduledThreadPool(10), createHttpClient(), new ArrayList<>());
     }
 
     public Webhooks(WebhookTransformer... transformers) {
-      this(Executors.newScheduledThreadPool(10), createHttpClient(), Arrays.asList(transformers));
+        this(Executors.newScheduledThreadPool(10), createHttpClient(), Arrays.asList(transformers));
     }
 
     private static CloseableHttpClient createHttpClient() {
@@ -89,6 +101,7 @@ public class Webhooks extends PostServeAction {
                         for (WebhookTransformer transformer : transformers) {
                             definition = transformer.transform(serveEvent, definition);
                         }
+                        definition = applyTemplating(definition, serveEvent);
                         request = buildRequest(definition);
                     } catch (Exception e) {
                         notifier().error("Exception thrown while configuring webhook", e);
@@ -97,33 +110,61 @@ public class Webhooks extends PostServeAction {
 
                     try (CloseableHttpResponse response = httpClient.execute(request)) {
                         notifier.info(
-                            String.format("Webhook %s request to %s returned status %s\n\n%s",
-                                definition.getMethod(),
-                                definition.getUrl(),
-                                response.getStatusLine(),
-                                EntityUtils.toString(response.getEntity())
-                            )
+                                String.format("Webhook %s request to %s returned status %s\n\n%s",
+                                        definition.getMethod(),
+                                        definition.getUrl(),
+                                        response.getStatusLine(),
+                                        EntityUtils.toString(response.getEntity())
+                                )
                         );
                     } catch (Exception e) {
                         notifier().error(String.format("Failed to fire webhook %s %s", definition.getMethod(), definition.getUrl()), e);
                     }
                 },
-            0L,
-            SECONDS
+                0L,
+                SECONDS
         );
     }
 
+    private WebhookDefinition applyTemplating(WebhookDefinition webhookDefinition, ServeEvent serveEvent) {
+        final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
+                .put("parameters", firstNonNull(webhookDefinition.getExtraParameters(), Collections.<String, Object>emptyMap()))
+                .put("originalRequest", RequestTemplateModel.from(serveEvent.getRequest()))
+                .build();
+
+        WebhookDefinition renderedWebhookDefinition = webhookDefinition
+                .withUrl(renderTemplate(model, webhookDefinition.getUrl()))
+                .withMethod(renderTemplate(model, webhookDefinition.getMethod()))
+                .withHeaders(
+                        webhookDefinition.getHeaders().all().stream()
+                                .map(header -> new HttpHeader(header.key(), header.values().stream()
+                                        .map(value -> renderTemplate(model, value))
+                                        .collect(toList()))
+                                ).collect(toList())
+                );
+
+        if (webhookDefinition.getBody() != null) {
+            renderedWebhookDefinition = webhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBody()));
+        }
+
+        return renderedWebhookDefinition;
+    }
+
+    private String renderTemplate(Object context, String value) {
+        return templateEngine.getUncachedTemplate(value).apply(context);
+    }
+
     private static HttpUriRequest buildRequest(WebhookDefinition definition) {
-        final RequestBuilder requestBuilder = RequestBuilder.create(definition.getMethod().getName())
+        final RequestBuilder requestBuilder = RequestBuilder.create(definition.getMethod())
                 .setUri(definition.getUrl());
 
-        for (HttpHeader header: definition.getHeaders().all()) {
-            for (String value: header.values()) {
+        for (HttpHeader header : definition.getHeaders().all()) {
+            for (String value : header.values()) {
                 requestBuilder.addHeader(header.key(), value);
             }
         }
 
-        if (definition.getMethod().hasEntity() && definition.hasBody()) {
+        if (definition.getRequestMethod().hasEntity() && definition.hasBody()) {
             requestBuilder.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
         }
 

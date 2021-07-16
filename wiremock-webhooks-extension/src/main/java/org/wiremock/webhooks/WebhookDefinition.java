@@ -1,8 +1,6 @@
 package org.wiremock.webhooks;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Body;
@@ -11,10 +9,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
@@ -23,18 +18,20 @@ import static java.util.Collections.singletonList;
 
 public class WebhookDefinition {
     
-    private RequestMethod method;
-    private URI url;
+    private String method;
+    private String url;
     private List<HttpHeader> headers;
     private Body body = Body.none();
+    private Parameters parameters;
 
     public static WebhookDefinition from(Parameters parameters) {
         return new WebhookDefinition(
-                RequestMethod.fromString(parameters.getString("method", "GET")),
-                URI.create(parameters.getString("url")),
+                parameters.getString("method", "GET"),
+                parameters.getString("url"),
                 toHttpHeaders(parameters.getMetadata("headers", null)),
                 parameters.getString("body", null),
-                parameters.getString("base64Body", null)
+                parameters.getString("base64Body", null),
+                parameters
         );
     }
 
@@ -67,11 +64,12 @@ public class WebhookDefinition {
     }
 
     @JsonCreator
-    public WebhookDefinition(@JsonProperty("method") RequestMethod method,
-                             @JsonProperty("url") URI url,
-                             @JsonProperty("headers") HttpHeaders headers,
-                             @JsonProperty("body") String body,
-                             @JsonProperty("base64Body") String base64Body) {
+    public WebhookDefinition(String method,
+                             String url,
+                             HttpHeaders headers,
+                             String body,
+                             String base64Body,
+                             Parameters parameters) {
         this.method = method;
         this.url = url;
         this.headers = headers != null ? new ArrayList<>(headers.all()) : null;
@@ -81,16 +79,23 @@ public class WebhookDefinition {
         } else if (base64Body != null) {
             this.body = new Body(decodeBase64(base64Body));
         }
+
+        this.parameters = parameters;
     }
 
     public WebhookDefinition() {
     }
 
-    public RequestMethod getMethod() {
+    public String getMethod() {
         return method;
     }
 
-    public URI getUrl() {
+    @JsonIgnore
+    public RequestMethod getRequestMethod() {
+        return RequestMethod.fromString(method);
+    }
+
+    public String getUrl() {
         return url;
     }
 
@@ -107,22 +112,32 @@ public class WebhookDefinition {
     }
 
     @JsonIgnore
+    public Parameters getExtraParameters() {
+        return parameters;
+    }
+
+    @JsonIgnore
     public byte[] getBinaryBody() {
         return body.asBytes();
     }
 
-    public WebhookDefinition withMethod(RequestMethod method) {
+    public WebhookDefinition withMethod(String method) {
         this.method = method;
         return this;
     }
 
+    public WebhookDefinition withMethod(RequestMethod method) {
+        this.method = method.getName();
+        return this;
+    }
+
     public WebhookDefinition withUrl(URI url) {
-        this.url = url;
+        this.url = url.toString();
         return this;
     }
 
     public WebhookDefinition withUrl(String url) {
-        withUrl(URI.create(url));
+        this.url = url;
         return this;
     }
 
@@ -147,6 +162,21 @@ public class WebhookDefinition {
 
     public WebhookDefinition withBinaryBody(byte[] body) {
         this.body = new Body(body);
+        return this;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getOtherFields() {
+        return parameters;
+    }
+
+    @JsonAnySetter
+    public WebhookDefinition withExtraParameter(String key, Object value) {
+        if (parameters == null) {
+            parameters = new Parameters();
+        }
+
+        this.parameters.put(key, value);
         return this;
     }
 

@@ -1,7 +1,10 @@
 package functional;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,6 +22,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -28,7 +32,7 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 public class WebhooksAcceptanceTest {
 
     @Rule
-    public WireMockRule targetServer = new WireMockRule(options().dynamicPort());
+    public WireMockRule targetServer = new WireMockRule(options().dynamicPort().notifier(new ConsoleNotifier(true)));
 
     CountDownLatch latch;
 
@@ -138,6 +142,80 @@ public class WebhooksAcceptanceTest {
 
         verify(postRequestedFor(urlPathEqualTo("/callback1")));
         verify(postRequestedFor(urlPathEqualTo("/callback2")));
+    }
+
+    @Test
+    public void appliesTemplatingToUrlMethodHeadersAndBodyViaDSL() throws Exception {
+        rule.stubFor(post(urlPathEqualTo("/templating"))
+                .willReturn(ok())
+                .withPostServeAction("webhook", webhook()
+                        .withMethod("{{jsonPath originalRequest.body '$.method'}}")
+                        .withUrl("http://localhost:" + targetServer.port() + "{{{jsonPath originalRequest.body '$.callbackPath'}}}")
+                        .withHeader("X-Single", "{{math 1 '+' 2}}")
+                        .withHeader("X-Multi", "{{math 3 'x' 2}}", "{{parameters.one}}")
+                        .withBody("{{jsonPath originalRequest.body '$.name'}}")
+                        .withExtraParameter("one", "param-one-value"))
+        );
+
+        verify(0, postRequestedFor(anyUrl()));
+
+        client.postJson("/templating", "{\n" +
+                "  \"callbackPath\": \"/callback/123\",\n" +
+                "  \"method\": \"POST\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}");
+
+        waitForRequestToTargetServer();
+
+        LoggedRequest request = targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
+
+        assertThat(request.header("X-Single").firstValue(), is("3"));
+        assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+        assertThat(request.getBodyAsString(), is("Tom"));
+    }
+
+    @Test
+    public void appliesTemplatingToUrlMethodHeadersAndBodyViaJSON() throws Exception {
+        client.postJson("/__admin/mappings", "{\n" +
+                "  \"id\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n" +
+                "  \"request\" : {\n" +
+                "    \"urlPath\" : \"/templating\",\n" +
+                "    \"method\" : \"POST\"\n" +
+                "  },\n" +
+                "  \"response\" : {\n" +
+                "    \"status\" : 200\n" +
+                "  },\n" +
+                "  \"uuid\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n" +
+                "  \"postServeActions\" : [{\n" +
+                "    \"name\" : \"webhook\",\n" +
+                "    \"parameters\" : {\n" +
+                "      \"method\" : \"{{jsonPath originalRequest.body '$.method'}}\",\n" +
+                "      \"url\" : \"" + "http://localhost:" + targetServer.port() + "{{{jsonPath originalRequest.body '$.callbackPath'}}}\",\n" +
+                "      \"headers\" : {\n" +
+                "        \"X-Single\" : \"{{math 1 '+' 2}}\",\n" +
+                "        \"X-Multi\" : [ \"{{math 3 'x' 2}}\", \"{{parameters.one}}\" ]\n" +
+                "      },\n" +
+                "      \"body\" : \"{{jsonPath originalRequest.body '$.name'}}\",\n" +
+                "      \"one\" : \"param-one-value\"\n" +
+                "    }\n" +
+                "  }]\n" +
+                "}\n");
+
+        verify(0, postRequestedFor(anyUrl()));
+
+        client.postJson("/templating", "{\n" +
+                "  \"callbackPath\": \"/callback/123\",\n" +
+                "  \"method\": \"POST\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}");
+
+        waitForRequestToTargetServer();
+
+        LoggedRequest request = targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
+
+        assertThat(request.header("X-Single").firstValue(), is("3"));
+        assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
+        assertThat(request.getBodyAsString(), is("Tom"));
     }
 
     private void waitForRequestToTargetServer() throws Exception {
