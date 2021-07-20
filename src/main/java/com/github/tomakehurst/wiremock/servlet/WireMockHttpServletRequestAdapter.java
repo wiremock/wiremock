@@ -242,12 +242,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
             builder.put(cookie.getName(), cookie.getValue());
         }
 
-        return Maps.transformValues(builder.build().asMap(), new Function<Collection<String>, Cookie>() {
-            @Override
-            public Cookie apply(Collection<String> input) {
-                return new Cookie(null, ImmutableList.copyOf(input));
-            }
-        });
+        return Maps.transformValues(builder.build().asMap(),
+                                    input -> new Cookie(null, ImmutableList.copyOf(input)));
     }
 
     @Override
