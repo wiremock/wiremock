@@ -382,6 +382,7 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
         mockServiceContext.setAttribute(Options.ChunkedEncodingPolicy.class.getName(), chunkedEncodingPolicy);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
+        servletHolder.setInitOrder(1);
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
