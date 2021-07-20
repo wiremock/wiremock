@@ -33,7 +33,7 @@ public final class Json {
     public static class PrivateView {}
     public static class PublicView {}
 
-    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<ObjectMapper>() {
+    private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder = new InheritableThreadLocal<ObjectMapper>() {
         @Override
         protected ObjectMapper initialValue() {
             ObjectMapper objectMapper = new ObjectMapper();
