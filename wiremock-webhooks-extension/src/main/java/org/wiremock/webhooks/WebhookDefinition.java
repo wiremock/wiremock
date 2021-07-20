@@ -3,10 +3,7 @@ package org.wiremock.webhooks;
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.Body;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 
 import java.net.URI;
 import java.util.*;
@@ -22,6 +19,7 @@ public class WebhookDefinition {
     private String url;
     private List<HttpHeader> headers;
     private Body body = Body.none();
+    private DelayDistribution delay;
     private Parameters parameters;
 
     public static WebhookDefinition from(Parameters parameters) {
@@ -31,6 +29,7 @@ public class WebhookDefinition {
                 toHttpHeaders(parameters.getMetadata("headers", null)),
                 parameters.getString("body", null),
                 parameters.getString("base64Body", null),
+                getDelayDistribution(parameters.getMetadata("delay", null)),
                 parameters
         );
     }
@@ -63,12 +62,21 @@ public class WebhookDefinition {
         return singletonList(obj.toString());
     }
 
+    private static DelayDistribution getDelayDistribution(Metadata delayParams) {
+        if (delayParams == null) {
+            return null;
+        }
+
+        return delayParams.as(DelayDistribution.class);
+    }
+
     @JsonCreator
     public WebhookDefinition(String method,
                              String url,
                              HttpHeaders headers,
                              String body,
                              String base64Body,
+                             DelayDistribution delay,
                              Parameters parameters) {
         this.method = method;
         this.url = url;
@@ -80,6 +88,7 @@ public class WebhookDefinition {
             this.body = new Body(decodeBase64(base64Body));
         }
 
+        this.delay = delay;
         this.parameters = parameters;
     }
 
@@ -109,6 +118,15 @@ public class WebhookDefinition {
 
     public String getBody() {
         return body.isBinary() ? null : body.asString();
+    }
+
+    public DelayDistribution getDelay() {
+        return delay;
+    }
+
+    @JsonIgnore
+    public long getDelaySampleMillis() {
+        return delay != null ? delay.sampleMillis() : 0L;
     }
 
     @JsonIgnore
@@ -162,6 +180,16 @@ public class WebhookDefinition {
 
     public WebhookDefinition withBinaryBody(byte[] body) {
         this.body = new Body(body);
+        return this;
+    }
+
+    public WebhookDefinition withFixedDelay(int delayMilliseconds) {
+        this.delay = new FixedDelayDistribution(delayMilliseconds);
+        return this;
+    }
+
+    public WebhookDefinition withDelay(DelayDistribution delay) {
+        this.delay = delay;
         return this;
     }
 

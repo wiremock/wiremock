@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.*;
 import static java.util.stream.Collectors.toList;
 
 public class Webhooks extends PostServeAction {
@@ -84,37 +84,38 @@ public class Webhooks extends PostServeAction {
     public void doAction(final ServeEvent serveEvent, final Admin admin, final Parameters parameters) {
         final Notifier notifier = notifier();
 
+        WebhookDefinition definition;
+        HttpUriRequest request;
+        try {
+            definition = WebhookDefinition.from(parameters);
+            for (WebhookTransformer transformer : transformers) {
+                definition = transformer.transform(serveEvent, definition);
+            }
+            definition = applyTemplating(definition, serveEvent);
+            request = buildRequest(definition);
+        } catch (Exception e) {
+            notifier().error("Exception thrown while configuring webhook", e);
+            return;
+        }
+
+        final WebhookDefinition finalDefinition = definition;
         scheduler.schedule(
                 () -> {
-                    WebhookDefinition definition;
-                    HttpUriRequest request;
-                    try {
-                        definition = WebhookDefinition.from(parameters);
-                        for (WebhookTransformer transformer : transformers) {
-                            definition = transformer.transform(serveEvent, definition);
-                        }
-                        definition = applyTemplating(definition, serveEvent);
-                        request = buildRequest(definition);
-                    } catch (Exception e) {
-                        notifier().error("Exception thrown while configuring webhook", e);
-                        return;
-                    }
-
                     try (CloseableHttpResponse response = httpClient.execute(request)) {
                         notifier.info(
                                 String.format("Webhook %s request to %s returned status %s\n\n%s",
-                                        definition.getMethod(),
-                                        definition.getUrl(),
+                                        finalDefinition.getMethod(),
+                                        finalDefinition.getUrl(),
                                         response.getStatusLine(),
                                         EntityUtils.toString(response.getEntity())
                                 )
                         );
                     } catch (Exception e) {
-                        notifier().error(String.format("Failed to fire webhook %s %s", definition.getMethod(), definition.getUrl()), e);
+                        notifier().error(String.format("Failed to fire webhook %s %s", finalDefinition.getMethod(), finalDefinition.getUrl()), e);
                     }
                 },
-                0L,
-                SECONDS
+                finalDefinition.getDelaySampleMillis(),
+                MILLISECONDS
         );
     }
 

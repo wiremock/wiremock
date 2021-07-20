@@ -3,8 +3,10 @@ package functional;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Stopwatch;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
@@ -216,6 +219,68 @@ public class WebhooksAcceptanceTest {
         assertThat(request.header("X-Single").firstValue(), is("3"));
         assertThat(request.header("X-Multi").values(), hasItems("6", "param-one-value"));
         assertThat(request.getBodyAsString(), is("Tom"));
+    }
+
+    @Test
+    public void addsFixedDelayViaDSL() throws Exception {
+        final int DELAY_MILLISECONDS = 1_000;
+
+        rule.stubFor(post(urlPathEqualTo("/delayed"))
+                .willReturn(ok())
+                .withPostServeAction("webhook", webhook()
+                        .withFixedDelay(DELAY_MILLISECONDS)
+                        .withMethod(RequestMethod.GET)
+                        .withUrl("http://localhost:" + targetServer.port() + "/callback"))
+        );
+
+        verify(0, postRequestedFor(anyUrl()));
+
+        client.post("/delayed", new StringEntity("", TEXT_PLAIN));
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        waitForRequestToTargetServer();
+        stopwatch.stop();
+
+        double elapsedMilliseconds = stopwatch.elapsed(MILLISECONDS);
+        assertThat(elapsedMilliseconds, closeTo(DELAY_MILLISECONDS, 500.0));
+
+        verify(1, getRequestedFor(urlEqualTo("/callback")));
+    }
+
+    @Test
+    public void addsRandomDelayViaJSON() throws Exception {
+        client.postJson("/__admin/mappings", "{\n" +
+                "  \"request\" : {\n" +
+                "    \"urlPath\" : \"/delayed\",\n" +
+                "    \"method\" : \"POST\"\n" +
+                "  },\n" +
+                "  \"postServeActions\" : [{\n" +
+                "    \"name\" : \"webhook\",\n" +
+                "    \"parameters\" : {\n" +
+                "      \"method\" : \"GET\",\n" +
+                "      \"url\" : \"" + "http://localhost:" + targetServer.port() + "/callback\",\n" +
+                "      \"delay\" : {\n" +
+                "        \"type\" : \"uniform\",\n" +
+                "        \"lower\": 500,\n" +
+                "        \"upper\": 1000\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }]\n" +
+                "}");
+
+        verify(0, postRequestedFor(anyUrl()));
+
+        client.post("/delayed", new StringEntity("", TEXT_PLAIN));
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        waitForRequestToTargetServer();
+        stopwatch.stop();
+
+        long elapsedMilliseconds = stopwatch.elapsed(MILLISECONDS);
+        assertThat(elapsedMilliseconds, greaterThanOrEqualTo(500L));
+        assertThat(elapsedMilliseconds, lessThanOrEqualTo(1500L));
+
+        verify(1, getRequestedFor(urlEqualTo("/callback")));
     }
 
     private void waitForRequestToTargetServer() throws Exception {
