@@ -16,14 +16,20 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.*;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@RunWith(Enclosed.class)
 public class BrowserProxyAcceptanceTest {
 
     @ClassRule
@@ -36,7 +42,7 @@ public class BrowserProxyAcceptanceTest {
     private WireMockTestClient testClient;
 
     @Before
-    public void addAResourceToProxy() {
+    public void init() {
         testClient = new WireMockTestClient(target.port());
 
         proxy = new WireMockServer(wireMockConfig()
@@ -68,6 +74,24 @@ public class BrowserProxyAcceptanceTest {
 
     private String url(String pathAndQuery) {
         return "http://localhost:" + target.port() + pathAndQuery;
+    }
+
+    public static class Disabled {
+
+        @Rule
+        public WireMockRule wmWithoutBrowserProxy = new WireMockRule(wireMockConfig().dynamicPort(), false);
+
+        @Test
+        public void browserProxyIsReportedAsFalseInRequestLogWhenDisabled() {
+            WireMockTestClient testClient = new WireMockTestClient(wmWithoutBrowserProxy.port());
+
+            testClient.getViaProxy("http://whereever/whatever", wmWithoutBrowserProxy.port());
+
+            LoggedRequest request = wmWithoutBrowserProxy.findRequestsMatching(getRequestedFor(urlPathEqualTo("/whatever")).build())
+                    .getRequests()
+                    .get(0);
+            assertThat(request.isBrowserProxyRequest(), is(false));
+        }
     }
 
 }
