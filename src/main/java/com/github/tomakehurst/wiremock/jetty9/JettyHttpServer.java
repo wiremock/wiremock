@@ -121,6 +121,7 @@ public class JettyHttpServer implements HttpServer {
                 options.getAsynchronousResponseSettings(),
                 options.getChunkedEncodingPolicy(),
                 options.getStubCorsEnabled(),
+                options.browserProxySettings().enabled(),
                 notifier
         );
 
@@ -367,6 +368,7 @@ public class JettyHttpServer implements HttpServer {
             AsynchronousResponseSettings asynchronousResponseSettings,
             Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
             boolean stubCorsEnabled,
+            boolean browserProxyingEnabled,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -381,7 +383,9 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
         mockServiceContext.setAttribute(Options.ChunkedEncodingPolicy.class.getName(), chunkedEncodingPolicy);
+        mockServiceContext.setAttribute("browserProxyingEnabled", browserProxyingEnabled);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
+        servletHolder.setInitOrder(1);
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");

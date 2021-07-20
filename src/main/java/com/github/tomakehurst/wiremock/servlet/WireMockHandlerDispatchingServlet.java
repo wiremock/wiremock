@@ -38,6 +38,7 @@ import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
@@ -62,6 +63,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	private boolean shouldForwardToFilesContext;
 	private MultipartRequestConfigurer multipartRequestConfigurer;
 	private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
+	private boolean browserProxyingEnabled;
 
 	@Override
 	public void init(ServletConfig config) {
@@ -93,6 +95,10 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		chunkedEncodingPolicy = chunkedEncodingPolicyAttr != null ?
                 (Options.ChunkedEncodingPolicy) chunkedEncodingPolicyAttr :
                 Options.ChunkedEncodingPolicy.ALWAYS;
+
+        browserProxyingEnabled = Boolean.parseBoolean(
+                firstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString()
+        );
 	}
 
 	private String getNormalizedMappedUnder(ServletConfig config) {
@@ -115,7 +121,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 
-		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder);
+		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder, browserProxyingEnabled);
 
 		ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
 		requestHandler.handle(request, responder);
