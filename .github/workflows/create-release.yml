@@ -7,8 +7,6 @@ on:
   push:
     tags:
       - "*-ui"
-    branches:
-      - new-gui
 
 jobs:
   build:
@@ -26,8 +24,8 @@ jobs:
       - name: Set output
         id: vars
         run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags:10}
-          echo ::set-output name=version::${GITHUB_REF#refs/tags:10%-ui}
+          echo ::set-output name=tag::$(echo $GITHUB_REF | cut -d / -f 3)
+          echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3 | sed 's/.\{3\}$//')
       - name: Check output
         env:
           RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
@@ -35,5 +33,5 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ steps.vars.outputs.tag }}
-          echo VERSION
+          echo $VERSION
           echo ${{ steps.vars.outputs.version }}
