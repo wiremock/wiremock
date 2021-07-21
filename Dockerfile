@@ -6,7 +6,7 @@ USER wiremock
 
 WORKDIR /home/wiremock
 
-RUN  curl -L "https://github.com/holomekc/wiremock/releases/download/2.27.2-ui/wiremock-standalone-2.27.2.jar" -o /home/wiremock/wiremock.jar
+RUN  curl -L "https://github.com/holomekc/wiremock/releases/download/2.29.1/wiremock-standalone-2.29.1.jar" -o /home/wiremock/wiremock.jar
 
 CMD java -XX:+PrintFlagsFinal $JAVA_OPTIONS -jar /home/wiremock/wiremock.jar
 
