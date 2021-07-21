@@ -50,6 +50,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
     compile "org.eclipse.jetty:jetty-proxy:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-rewrite:$versions.jetty"
     compile "org.eclipse.jetty.http2:http2-server:$versions.jetty"
     compile "org.eclipse.jetty:jetty-alpn-server:$versions.jetty"
     compile "org.eclipse.jetty:jetty-alpn-conscrypt-server:$versions.jetty", {
@@ -58,6 +59,11 @@ dependencies {
     compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$versions.jetty", {
         exclude group: 'org.conscrypt'
     }
+    compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: "${versions.jetty}"
+    compile 'io.jsonwebtoken:jjwt-api:0.10.6'
+    compile 'io.jsonwebtoken:jjwt-impl:0.10.6'
+    compile 'io.jsonwebtoken:jjwt-jackson:0.10.6'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.62'
     compile 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     compile "com.google.guava:guava:$versions.guava"
@@ -404,6 +410,36 @@ task addGitTag {
         }
     }
 }
+
+final WEBAPP_DIR = project(':').rootDir.getAbsolutePath() + '/webapp/wiremock'
+
+task npmInstallWebapp(type: Exec) {
+    workingDir WEBAPP_DIR
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npm', 'i'
+    } else {
+        commandLine 'npm', 'i'
+    }
+}
+
+task generateWebapp(type: Exec) {
+    dependsOn npmInstallWebapp
+    workingDir WEBAPP_DIR
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npm', 'run', 'prod'
+    } else {
+        commandLine 'npm', 'run', 'prod'
+    }
+}
+
+jar.dependsOn generateWebapp
+processResources.dependsOn generateWebapp
+
+task deleteGeneratedWebapp(type: Delete) {
+    delete "src/main/resources/assets/webapp"
+}
+
+clean.dependsOn deleteGeneratedWebapp
 
 jar.dependsOn generateApiDocs
 signThinJarPublication.dependsOn writeThinJarPom

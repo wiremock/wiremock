@@ -31,8 +31,6 @@ import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.rewrite.handler.RedirectPatternRule;
-import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.*;
@@ -43,13 +41,14 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -59,10 +58,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer.ADD_DYNAMIC_FILTER_KEY;
 
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
-    private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
+    private static final String[] GZIPPABLE_METHODS = new String[]{"POST", "PUT", "PATCH", "DELETE"};
     private static final int DEFAULT_ACCEPTORS = 3;
 
     static {
@@ -116,7 +116,8 @@ public class JettyHttpServer implements HttpServer {
         this.finalizeSetup(options);
     }
 
-    protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {}
+    protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {
+    }
 
     protected HandlerCollection createHandler(final Options options, final AdminRequestHandler adminRequestHandler,
                                               final StubRequestHandler stubRequestHandler) {
@@ -172,8 +173,9 @@ public class JettyHttpServer implements HttpServer {
     private static void setGZippableMethods(HandlerWrapper gzipHandler, Class<?> gzipHandlerClass) {
         try {
             Method addIncludedMethods = gzipHandlerClass.getDeclaredMethod("addIncludedMethods", String[].class);
-            addIncludedMethods.invoke(gzipHandler, new Object[] { GZIPPABLE_METHODS });
-        } catch (Exception ignored) {}
+            addIncludedMethods.invoke(gzipHandler, new Object[]{GZIPPABLE_METHODS});
+        } catch (Exception ignored) {
+        }
     }
 
     protected void finalizeSetup(final Options options) {
@@ -302,7 +304,7 @@ public class JettyHttpServer implements HttpServer {
                 "http/1.1"
         );
         ConnectionFactory[] connectionFactories = ArrayUtils.addAll(
-                new ConnectionFactory[] { sslConnectionFactory, httpConnectionFactory },
+                new ConnectionFactory[]{sslConnectionFactory, httpConnectionFactory},
                 buildAdditionalConnectionFactories(httpsSettings, httpConnectionFactory, sslConnectionFactory)
         );
 
@@ -319,7 +321,7 @@ public class JettyHttpServer implements HttpServer {
             HttpsSettings httpsSettings,
             HttpConnectionFactory httpConnectionFactory,
             SslConnectionFactory sslConnectionFactory) {
-        return new ConnectionFactory[] {};
+        return new ConnectionFactory[]{};
     }
 
     // Override this for platform-specific impls
@@ -450,14 +452,9 @@ public class JettyHttpServer implements HttpServer {
 
         adminContext.addServlet(DefaultServlet.class, "/webapp/*");
 
-        try {
-            final ServerContainer wsContainer = WebSocketServerContainerInitializer.configureContext(adminContext);
-            wsContainer.addEndpoint(WebSocketEndpoint.class);
-        } catch (final DeploymentException | ServletException e) {
-            e.printStackTrace();
-        }
-
-        //        ServerContainer wsContainer = WebSocketServerContainerInitializer;
+        WebSocketServerContainerInitializer.configure(adminContext, (servletContext, serverContainer) -> {
+            serverContainer.addEndpoint(WebSocketEndpoint.class);
+        });
 
         final RewriteHandler rewrite = new RewriteHandler();
         rewrite.setRewriteRequestURI(true);
@@ -468,9 +465,9 @@ public class JettyHttpServer implements HttpServer {
         rewriteRule.setReplacement("/index.html");
         rewrite.addRule(rewriteRule);
 
-        adminContext.setHandler(rewrite);
+        adminContext.insertHandler(rewrite);
 
-        final ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
