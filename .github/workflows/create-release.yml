@@ -27,11 +27,42 @@ jobs:
           echo ::set-output name=tag::$(echo $GITHUB_REF | cut -d / -f 3)
           echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3 | sed 's/.\{3\}$//')
       - name: Check output
-        env:
-          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
-          VERSION: ${{ steps.vars.outputs.version }}
         run: |
-          echo $RELEASE_VERSION
           echo ${{ steps.vars.outputs.tag }}
-          echo $VERSION
           echo ${{ steps.vars.outputs.version }}
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.jdk }}
+          distribution: 'adopt'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Set up node using nvm
+        uses: dcodeIO/setup-node-nvm@v4
+        with:
+          node-version: 8.12.0
+      - name: Build
+        run: ./gradlew jar shadowJar
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          release_name: ${{ steps.vars.outputs.tag }}
+          body: test
+          draft: true
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/libs/wiremock-jre8-${{ steps.vars.outputs.version }}.jar
+          asset_name: wiremock-jre8-${{ steps.vars.outputs.version }}.jar
+          asset_content_type: application/java-archive
