@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ ubuntu-latest ]
         jdk: [ 8 ]
     runs-on: ${{ matrix.os }}
     env:
@@ -24,7 +24,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set output
         id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo ::set-output name=version::${GITHUB_REF#refs/*/%-ui}
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Set up JDK
@@ -46,8 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: ${{ steps.vars.outputs.tag }}
+          release_name: ${{ steps.vars.outputs.tag }}
           body: test
           draft: true
           prerelease: false
@@ -58,6 +60,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/libs/wiremock-jre8-${{ version }}.jar
-          asset_name: wiremock-jre8-${{ version }}.jar
+          asset_path: ./build/libs/wiremock-jre8-${{ steps.vars.outputs.version }}.jar
+          asset_name: wiremock-jre8-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive
