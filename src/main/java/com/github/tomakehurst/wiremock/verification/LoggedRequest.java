@@ -262,7 +262,7 @@ public class LoggedRequest implements Request {
     }
 
     public String getLoggedDateString() {
-        return Dates.format(loggedDate);
+        return loggedDate != null ? Dates.format(loggedDate) : null;
     }
 
     @Override

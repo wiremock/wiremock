@@ -24,6 +24,7 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -37,7 +38,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -46,6 +48,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
+import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
@@ -707,6 +711,136 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		int code = getStatusCodeUsingJavaUrlConnection(url);
 
 		assertThat(code, is(200));
+	}
+
+	@Test
+	public void matchesQueryCharactersThatStriclyShouldBeEscapedInEitherForm() {
+		stubFor(get(urlPathEqualTo("/test"))
+				.withQueryParam("filter[id]", equalTo("1"))
+				.willReturn(ok()));
+
+		assertThat(testClient.get("/test?filter[id]=1").statusCode(), is(200));
+		assertThat(testClient.get("/test?filter%5Bid%5D=1").statusCode(), is(200));
+	}
+	
+	@Test
+	public void matchesExactContentTypeEncodingSpecified() throws Exception {
+		String contentType = "application/json; charset=UTF-8";
+		String url = "/request-content-type-case";
+
+		stubFor(post(url).withHeader("Content-Type", equalTo(contentType)).willReturn(ok()));
+
+		WireMockResponse response = testClient.post(url, new StringEntity("{}"), withHeader("Content-Type", contentType));
+		assertThat(response.statusCode(), is(200));
+	}
+
+	@Test
+	public void returnsContentTypeHeaderEncodingInCorrectCase() {
+		String contentType = "application/json; charset=UTF-8";
+		String url = "/response-content-type-case";
+
+		stubFor(get(url).willReturn(ok("{}").withHeader("Content-Type", contentType)));
+
+		assertThat(testClient.get(url).firstHeader("Content-Type"), is(contentType));
+	}
+
+	@Test
+	public void matchesOnLiteralZonedDate() {
+		stubFor(post("/date")
+				.withRequestBody(matchingJsonPath("$.date", before("2021-10-11T00:00:00Z")))
+				.willReturn(ok()));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2021-06-22T23:59:59Z\"\n" +
+				"}"
+			).statusCode(), is(200));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2121-06-22T23:59:59Z\"\n" +
+				"}"
+		).statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesOnNowOffsetDate() {
+		stubFor(post("/offset-date")
+				.withRequestBody(matchingJsonPath("$.date", isNow()
+						.expectedOffset(1, HOURS)
+						.truncateActual(FIRST_MINUTE_OF_HOUR)
+						.truncateExpected(FIRST_MINUTE_OF_HOUR)))
+				.willReturn(ok()));
+
+		String good = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1).toString();
+		String bad =  ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1).minusMinutes(1).toString();
+
+		assertThat(testClient.postJson(
+				"/offset-date",
+				"{\n" +
+				"  \"date\": \"" + good + "\"\n" +
+				"}"
+		).statusCode(), is(200));
+
+		assertThat(testClient.postJson(
+				"/offset-date",
+				"{\n" +
+				"  \"date\": \"" + bad + "\"\n" +
+				"}"
+		).statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesWithLogicalAnd() {
+		stubFor(post("/date")
+				.withRequestBody(matchingJsonPath("$.date",
+						after("2020-05-01T00:00:00Z").and(before("2021-05-01T00:00:00Z"))))
+				.willReturn(ok()));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2020-12-31T00:00:00Z\"\n" +
+				"}"
+		).statusCode(), is(200));
+
+		assertThat(testClient.postJson(
+				"/date",
+				"{\n" +
+				"  \"date\": \"2011-12-31T00:00:00Z\"\n" +
+				"}"
+		).statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesQueryParametersWithLogicalOr() {
+		stubFor(get(urlPathEqualTo("/or"))
+				.withQueryParam("q", equalTo("thingtofind").or(absent()))
+				.willReturn(ok()));
+
+		assertThat(testClient.get("/or").statusCode(), is(200));
+		assertThat(testClient.get("/or?q=thingtofind").statusCode(), is(200));
+		assertThat(testClient.get("/or?q=wrong").statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesHeadersWithLogicalOr() {
+		stubFor(get(urlPathEqualTo("/or"))
+				.withHeader("X-Maybe",
+						equalTo("one")
+						.or(containing("two")
+						.or(matching("thre{2}"))
+						.or(absent())
+				))
+				.willReturn(ok()));
+
+		assertThat(testClient.get("/or").statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "one")).statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "two222")).statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "three")).statusCode(), is(200));
+		assertThat(testClient.get("/or", withHeader("X-Maybe", "wrong")).statusCode(), is(404));
 	}
 
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {

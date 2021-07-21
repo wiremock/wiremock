@@ -54,20 +54,18 @@ Now you're ready to write a test case like this:
 ```java
 @Test
 public void exampleTest() {
-    stubFor(get(urlEqualTo("/my/resource"))
-            .withHeader("Accept", equalTo("text/xml"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "text/xml")
-                .withBody("<response>Some content</response>")));
+    stubFor(post("/my/resource")
+        .withHeader("Content-Type", containing("xml"))
+        .willReturn(ok()
+            .withHeader("Content-Type", "text/xml")
+            .withBody("<response>SUCCESS</response>")));
 
     Result result = myHttpServiceCallingObject.doSomething();
-
     assertTrue(result.wasSuccessful());
 
-    verify(postRequestedFor(urlMatching("/my/resource/[a-z0-9]+"))
-            .withRequestBody(matching(".*<message>1234</message>.*"))
-            .withHeader("Content-Type", notMatching("application/json")));
+    verify(postRequestedFor(urlPathEqualTo("/my/resource"))
+        .withRequestBody(matching(".*message-1234.*"))
+        .withHeader("Content-Type", equalTo("text/xml")));
 }
 ```
 
@@ -152,7 +150,7 @@ the Java API, JSON over HTTP or JSON files.
 This will start the server on port 8080:
 
 You can [download the standalone JAR from
-here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar).
+here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/{{ site.wiremock_version }}/wiremock-jre8-standalone-{{ site.wiremock_version }}.jar).
 
 See [Running as a Standalone Process](/docs/running-standalone/) running-standalone for more details and commandline options.
 

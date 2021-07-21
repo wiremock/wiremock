@@ -67,6 +67,7 @@ public class JettyHttpServer implements HttpServer {
 
     static {
         System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
+        System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", "true");
     }
 
     private final Server jettyServer;
@@ -108,10 +109,14 @@ public class JettyHttpServer implements HttpServer {
             this.httpsConnector = null;
         }
 
-        this.jettyServer.setHandler(this.createHandler(options, adminRequestHandler, stubRequestHandler));
+        applyAdditionalServerConfiguration(jettyServer, options);
+
+        jettyServer.setHandler(createHandler(options, adminRequestHandler, stubRequestHandler));
 
         this.finalizeSetup(options);
     }
+
+    protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {}
 
     protected HandlerCollection createHandler(final Options options, final AdminRequestHandler adminRequestHandler,
                                               final StubRequestHandler stubRequestHandler) {
@@ -357,6 +362,10 @@ public class JettyHttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+
+        if (jettySettings.getIdleTimeout().isPresent()) {
+            connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -435,7 +444,8 @@ public class JettyHttpServer implements HttpServer {
         Resources.getResource("assets/swagger-ui/index.html");
 
         adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-        adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        ServletHolder swaggerUiServletHolder = adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        swaggerUiServletHolder.setAsyncSupported(false);
         adminContext.addServlet(DefaultServlet.class, "/recorder/*");
 
         adminContext.addServlet(DefaultServlet.class, "/webapp/*");

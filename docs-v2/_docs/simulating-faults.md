@@ -152,7 +152,7 @@ To use, instantiate a `new UniformDistribution(15, 25)`, or via JSON:
 
 ## Chunked Dribble Delay
 
-In addition to fixed and random delays, you can dibble your response back in chunks. 
+In addition to fixed and random delays, you can dribble your response back in chunks. 
 This is useful for simulating a slow network and testing deterministic timeouts. 
 
 Use `#withChunkedDribbleDelay` on the stub to pass in the desired chunked response, it takes two parameters:

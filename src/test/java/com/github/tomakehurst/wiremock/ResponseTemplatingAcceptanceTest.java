@@ -236,6 +236,15 @@ public class ResponseTemplatingAcceptanceTest {
             assertThat(response.content(), is("{\"Key\":\"Hello world 2!\"}"));
         }
 
+        @Test
+        public void canLookupSquareBracketedQueryParameters() {
+            wm.stubFor(get(urlPathEqualTo("/squares"))
+                    .willReturn(ok("ID: {{lookup request.query 'filter[id]'}}")));
+
+            assertThat(client.get("/squares?filter[id]=321").content(), is("ID: 321"));
+            assertThat(client.get("/squares?filter%5Bid%5D=321").content(), is("ID: 321"));
+        }
+
     }
 
     public static class RestrictedSystemPropertiesAndEnvVars {

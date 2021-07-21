@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -44,6 +45,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertSame;
 
 public class CommandLineOptionsTest {
 
@@ -124,6 +126,15 @@ public class CommandLineOptionsTest {
         assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
         assertThat(options.httpsSettings().trustStoreType(), is("PKCS12"));
         assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
+    }
+
+    @Test
+    public void defaultsTrustStorePasswordIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore"
+        );
+        assertThat(options.httpsSettings().trustStorePassword(), is("password"));
     }
 
     @Test
@@ -259,9 +270,9 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultsContainerThreadsTo14() {
+    public void defaultsContainerThreadsTo25() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.containerThreads(), is(14));
+        assertThat(options.containerThreads(), is(25));
     }
 
     @Test
@@ -286,6 +297,12 @@ public class CommandLineOptionsTest {
     public void returnsCorrectlyParsedJettyStopTimeout() {
         CommandLineOptions options = new CommandLineOptions("--jetty-stop-timeout", "1000");
         assertThat(options.jettySettings().getStopTimeout().get(), is(1000L));
+    }
+
+    @Test
+    public void returnsCorrectlyParsedJettyIdleTimeout() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-idle-timeout", "2000");
+        assertThat(options.jettySettings().getIdleTimeout().get(), is(2000L));
     }
 
     @Test
@@ -569,6 +586,16 @@ public class CommandLineOptionsTest {
         String options = new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target", "localhost", "--trust-proxy-target", "example.com").toString();
         assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
         assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));
+    }
+
+    @Test
+    public void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
+        CommandLineOptions options = new CommandLineOptions("--local-response-templating");
+
+        Object one = options.extensionsOfType(StubLifecycleListener.class).get(ResponseTemplateTransformer.NAME);
+        Object two = options.extensionsOfType(ResponseDefinitionTransformer.class).get(ResponseTemplateTransformer.NAME);
+
+        assertSame(one, two);
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

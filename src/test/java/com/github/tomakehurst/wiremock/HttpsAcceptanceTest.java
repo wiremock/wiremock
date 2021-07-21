@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -123,9 +124,15 @@ public class HttpsAcceptanceTest {
                 aResponse()
                         .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-        exception.expect(SocketException.class);
-        exception.expectMessage("Connection reset");
-        httpClient.execute(new HttpGet(url("/connection/reset"))).getEntity();
+        try {
+            httpClient.execute(new HttpGet(url("/connection/reset"))).getEntity();
+            fail("Expected a SocketException or SSLException to be thrown");
+        } catch (Exception e) {
+            assertThat(e.getClass().getName(), Matchers.anyOf(
+                    is(SocketException.class.getName()),
+                    is(SSLException.class.getName())
+            ));
+        }
     }
 
     @Test
@@ -210,9 +217,13 @@ public class HttpsAcceptanceTest {
 
         try {
             contentFor(url("/https-test")); // this lacks the required client certificate
-            fail("Expected a SocketException or SSLHandshakeException to be thrown");
+            fail("Expected a SocketException, SSLHandshakeException or SSLException to be thrown");
         } catch (Exception e) {
-            assertThat(e.getClass().getName(), Matchers.anyOf(is(SocketException.class.getName()), is(SSLHandshakeException.class.getName())));
+            assertThat(e.getClass().getName(), Matchers.anyOf(
+                    is(SocketException.class.getName()),
+                    is(SSLHandshakeException.class.getName()),
+                    is(SSLException.class.getName())
+            ));
         }
     }
 

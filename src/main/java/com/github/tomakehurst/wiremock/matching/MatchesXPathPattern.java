@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -95,24 +96,17 @@ public class MatchesXPathPattern extends PathPattern {
     }
 
     @Override
-    public String getExpressionResult(String value) {
+    public ListOrSingle<String> getExpressionResult(String value) {
         ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
         if (nodeList == null || nodeList.size() == 0) {
-            return null;
+            return ListOrSingle.of();
         }
 
-        SortedSet<Pair<XmlNode, MatchResult>> results = newTreeSet(new Comparator<Pair<XmlNode, MatchResult>>() {
-            @Override
-            public int compare(Pair<XmlNode, MatchResult> one, Pair<XmlNode, MatchResult> two) {
-                return one.b.compareTo(two.b);
-            }
-        });
-
-        for (XmlNode node: nodeList) {
-            results.add(new Pair<>(node, valuePattern.match(node.toString())));
-        }
-
-        return results.last().a.toString();
+        return ListOrSingle.of(
+                nodeList.stream()
+                .map(XmlNode::toString)
+                .collect(Collectors.toList())
+        );
     }
 
     private ListOrSingle<XmlNode> findXmlNodes(String value) {

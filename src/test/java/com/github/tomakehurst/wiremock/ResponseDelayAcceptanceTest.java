@@ -44,10 +44,10 @@ import static org.junit.Assert.assertTrue;
 
 public class ResponseDelayAcceptanceTest {
 
-    private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
+    private static final int SOCKET_TIMEOUT_MILLISECONDS = 1000;
     private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 2;
     private static final int SHORTER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS / 2;
-    private static final int BRIEF_DELAY_TO_ALLOW_CALL_TO_BE_MADE_MILLISECONDS = 150;
+    private static final int BRIEF_DELAY_TO_ALLOW_CALL_TO_BE_MADE_MILLISECONDS = 300;
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT, Options.DYNAMIC_PORT);
