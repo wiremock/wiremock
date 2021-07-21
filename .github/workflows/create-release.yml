@@ -7,6 +7,8 @@ on:
   push:
     tags:
       - "*-ui"
+    branches:
+      - new-gui
 
 jobs:
   build:
@@ -33,3 +35,5 @@ jobs:
         run: |
           echo $RELEASE_VERSION
           echo ${{ steps.vars.outputs.tag }}
+          echo VERSION
+          echo ${{ steps.vars.outputs.version }}
