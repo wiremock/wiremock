@@ -64,5 +64,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/libs/wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
-          asset_name: wiremock-jre8-${{ steps.vars.outputs.version }}.jar
+          asset_name: wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive
