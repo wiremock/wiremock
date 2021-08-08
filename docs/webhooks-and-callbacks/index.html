@@ -1,0 +1,749 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Webhooks and Callbacks - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Configuring WireMock to fire outbound HTTP requests when specific stubs are matched.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Webhooks and Callbacks">
+
+
+
+
+  <meta property="og:description" content="Configuring WireMock to fire outbound HTTP requests when specific stubs are matched.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2021-08-08T17:04:22+01:00">
+  
+  
+    <link rel="prev" href="/docs/verifying/" title="Verifying">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
+            
+
+          
+
+          <li class="masthead__menu-item">
+            <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=primary-nav&utm_campaign=mocklab" title="MockLab" target="_blank">
+              <img src="/images/mocklab_logo_transparent.png" style="height: 23px; width: auto; margin-right: 5px; vertical-align: top;" />
+              MockLab
+            </a>
+          </li>
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/download-and-installation/">
+
+        Download and Installation
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/">
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/">
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/">
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback (New)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback-legacy/">
+
+        Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/webhooks-and-callbacks/" class="nav__list-item--selected">
+        
+
+        Webhooks and Callbacks
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/">
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+      <li>
+        <a href="/docs/spring-boot/">
+
+        Spring Boot
+      </a>
+      
+      <li>
+        <a href="/docs/stub-metadata/">
+
+        Stub Metadata
+      </a>
+      
+      <li>
+        <a href="/docs/api/">
+
+        Admin API Reference
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Webhooks and Callbacks">
+    <meta itemprop="description" content="WireMock can make asynchronous outbound HTTP calls when an incoming request is matched to a specific stub. This patternis commonly referred to as webhooks or callbacks and is a common design in APIs that need to proactively notify their clientsof events or perform long-running processing asynchronously without blocking.">
+    <meta itemprop="datePublished" content="August 08, 2021">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Webhooks and Callbacks
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>WireMock can make asynchronous outbound HTTP calls when an incoming request is matched to a specific stub. This pattern
+is commonly referred to as webhooks or callbacks and is a common design in APIs that need to proactively notify their clients
+of events or perform long-running processing asynchronously without blocking.</p>
+
+<h2 id="enabling-webhooks">Enabling webhooks</h2>
+<p>Webhooks are provided via a WireMock extension, so this must be added when starting WireMock.</p>
+
+<h3 id="java">Java</h3>
+<p>If you’re starting WireMock programmatically the webhooks extension must be added to your classpath.</p>
+
+<p>Maven:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.wiremock<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>wiremock-webhooks-extension<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.30.0<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>Gradle:</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"org.wiremock:wiremock-webhooks-extension:2.30.0"</span>
+</code></pre></div></div>
+
+<p>Then when creating the <code class="highlighter-rouge">WireMockServer</code> or <code class="highlighter-rouge">WireMockRule</code> the extension must be passed via the configuration object
+in the constructor:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="nc">Webhooks</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+</code></pre></div></div>
+
+<h3 id="standalone">Standalone</h3>
+
+<p>To use the webhooks extension with standalone WireMock you must download the extension JAR file and add it to the Java classpath
+on the startup command line:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-cp</span> wiremock-jre8-standalone-2.30.0.jar:wiremock-webhooks-extension-2.30.0.jar <span class="se">\</span>
+  com.github.tomakehurst.wiremock.standalone.WireMockServerRunner <span class="se">\</span>
+  <span class="nt">--extensions</span> org.wiremock.webhooks.Webhooks
+</code></pre></div></div>
+
+<p>You can <a href="https://repo1.maven.org/maven2/org/wiremock/wiremock-webhooks-extension/2.30.0/wiremock-webhooks-extension-2.30.0.jar">download the webhooks extension JAR here</a>.</p>
+
+<h2 id="a-simple-single-webhook">A simple, single webhook</h2>
+<p>You can trigger a single webhook request to a fixed URL, with fixed data like this:</p>
+
+<p>Java:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">webhooks</span><span class="o">.</span><span class="na">Webhooks</span><span class="o">.*;</span>
+<span class="o">...</span>
+  
+<span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/something-async"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">withPostServeAction</span><span class="o">(</span><span class="s">"webhook"</span><span class="o">,</span> <span class="n">webhook</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withMethod</span><span class="o">(</span><span class="no">POST</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withUrl</span><span class="o">(</span><span class="s">"http://my-target-host/callback"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"application/json"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{ \"result\": \"SUCCESS\" }"</span><span class="o">))</span>
+  <span class="o">);</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/something-async"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"postServeActions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+    </span><span class="nl">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"webhook"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"parameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://my-target-host/callback"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"body"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"{ </span><span class="se">\"</span><span class="s2">result</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">SUCCESS</span><span class="se">\"</span><span class="s2"> }"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="using-data-from-the-original-request">Using data from the original request</h2>
+
+<p>Webhooks use the same <a href="/docs/response-templating/">templating system</a> as WireMock responses. This means that any of the
+configuration fields can be provided with a template expression which will be resolved before firing the webhook.</p>
+
+<p>Similarly to response templates the original request data is available, although in this case it is named <code class="highlighter-rouge">originalRequest</code>.</p>
+
+<p>Supposing we wanted to pass a transaction ID from the original (triggering) request and insert it into the JSON request
+body sent by the webhook call.</p>
+
+<p>For an original request body JSON like this:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"transactionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12345"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We could construct a JSON request body in the webhook like this:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templating"</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">withPostServeAction</span><span class="o">(</span><span class="s">"webhook"</span><span class="o">,</span> <span class="n">webhook</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">withMethod</span><span class="o">(</span><span class="no">POST</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">withUrl</span><span class="o">(</span><span class="s">"http://my-target-host/callback"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"application/json"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{ \"message\": \"success\", \"transactionId\": \"{{jsonPath originalRequest.body '$.transactionId'}}\" }"</span><span class="o">)</span>
+  <span class="o">);</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/templating"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"postServeActions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+    </span><span class="nl">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"webhook"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"parameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://my-target-host/callback"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"body"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"{ </span><span class="se">\"</span><span class="s2">message</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">success</span><span class="se">\"</span><span class="s2">, </span><span class="se">\"</span><span class="s2">transactionId</span><span class="se">\"</span><span class="s2">: </span><span class="se">\"</span><span class="s2">{{jsonPath originalRequest.body '$.transactionId'}}</span><span class="se">\"</span><span class="s2"> }"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>Webhook templates currently do not support system or environment variables.</p>
+</blockquote>
+
+<h2 id="implementing-a-callback-using-templating">Implementing a callback using templating</h2>
+<p>To implement the callback pattern, where the original request contains the target to be called on completion of a long-running task,
+we can use templating on the URL and method.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/something-async"</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">withPostServeAction</span><span class="o">(</span><span class="s">"webhook"</span><span class="o">,</span> <span class="n">webhook</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">withMethod</span><span class="o">(</span><span class="s">"{{jsonPath originalRequest.body '$.callbackMethod'}}"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">withUrl</span><span class="o">(</span><span class="s">"{{jsonPath originalRequest.body '$.callbackUrl'}}"</span><span class="o">))</span>
+  <span class="o">);</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/something-async"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"postServeActions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+    </span><span class="nl">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"webhook"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"parameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"{{jsonPath originalRequest.body '$.callbackMethod'}}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"{{jsonPath originalRequest.body '$.callbackUrl'}}"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="adding-delays">Adding delays</h2>
+<p>A fixed or random delay can be added before the webhook call is made, using the same style of <a href="/docs/simulating-faults/">delay parameters as stubs</a>.</p>
+
+<h3 id="fixed-delays">Fixed delays</h3>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/delayed"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">withPostServeAction</span><span class="o">(</span><span class="s">"webhook"</span><span class="o">,</span> <span class="n">webhook</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withFixedDelay</span><span class="o">(</span><span class="mi">1000</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withMethod</span><span class="o">(</span><span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withUrl</span><span class="o">(</span><span class="s">"http://my-target-host/callback"</span><span class="o">)</span>
+    <span class="o">)</span>
+<span class="o">);</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/delayed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"postServeActions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+    </span><span class="nl">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"webhook"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"parameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://my-target-host/callback"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"delay"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"fixed"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"milliseconds"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="random-delays">Random delays</h3>
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/delayed"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">withPostServeAction</span><span class="o">(</span><span class="s">"webhook"</span><span class="o">,</span> <span class="n">webhook</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withDelay</span><span class="o">(</span><span class="k">new</span> <span class="nc">UniformDistribution</span><span class="o">(</span><span class="mi">500</span><span class="o">,</span> <span class="mi">1000</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">withMethod</span><span class="o">(</span><span class="nc">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withUrl</span><span class="o">(</span><span class="s">"http://my-target-host/callback"</span><span class="o">)</span>
+    <span class="o">)</span>
+<span class="o">);</span>
+</code></pre></div></div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/delayed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"postServeActions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+    </span><span class="nl">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"webhook"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"parameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://my-target-host/callback"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"delay"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"uniform"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"lower"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"upper"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2021 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
+  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
+</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  function sendNavigatedToMockLabEvent(location) {
+    ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
+  }
+
+  window.onload = function () {
+    $("a[title='MockLab']").click(function() {
+      ga('send', 'event', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1);
+      sendNavigatedToMockLabEvent('primary_nav');
+    });
+
+    $("a[title='Consulting Services']").click(function() {
+      ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
+    });
+
+    if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
+      window.setTimeout(function () {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+            effect: 'fade',
+            duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function () {
+              ga('send', 'event', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1);
+              sendNavigatedToMockLabEvent();
+              window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+        ga('send', 'event', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0);
+      }, 500);
+
+    }
+
+    $("#mocklab-callout-learn-more").click(function() {
+      ga('send', 'event', 'mocklab_homepage_section', 'learn_more_clicked', 'Learn More clicked', 1);
+      sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+
+    $("#mocklab-callout-try-it-now").click(function() {
+      ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
+      sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+  };
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  </body>
+</html>
+
