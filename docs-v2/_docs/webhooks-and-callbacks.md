@@ -219,9 +219,10 @@ Java:
 wm.stubFor(post(urlPathEqualTo("/delayed"))
     .willReturn(ok())
     .withPostServeAction("webhook", webhook()
-    .withFixedDelay(1000)
-    .withMethod(RequestMethod.GET)
-    .withUrl("http://my-target-host/callback"))
+      .withFixedDelay(1000)
+      .withMethod(RequestMethod.GET)
+      .withUrl("http://my-target-host/callback")
+    )
 );
 ```
 
@@ -257,9 +258,10 @@ Java:
 wm.stubFor(post(urlPathEqualTo("/delayed"))
     .willReturn(ok())
     .withPostServeAction("webhook", webhook()
-    .withDelay(new UniformDistribution(500, 1000))
-    .withMethod(RequestMethod.GET)
-    .withUrl("http://my-target-host/callback"))
+      .withDelay(new UniformDistribution(500, 1000))
+      .withMethod(RequestMethod.GET)
+      .withUrl("http://my-target-host/callback")
+    )
 );
 ```
 
