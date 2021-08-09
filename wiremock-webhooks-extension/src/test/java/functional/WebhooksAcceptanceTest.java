@@ -284,7 +284,7 @@ public class WebhooksAcceptanceTest {
     }
 
     private void waitForRequestToTargetServer() throws Exception {
-        assertTrue("Timed out waiting for target server to receive a request", latch.await(2, SECONDS));
+        assertTrue("Timed out waiting for target server to receive a request", latch.await(5, SECONDS));
     }
 
 }
