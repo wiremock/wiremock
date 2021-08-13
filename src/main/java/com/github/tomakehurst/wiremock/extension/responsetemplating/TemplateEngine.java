@@ -37,7 +37,6 @@ public class TemplateEngine {
         cache = cacheBuilder.build();
 
         addHelpers(helpers, permittedSystemKeys);
-        decorateHelpersWithParameterUnwrapper();
     }
 
     private void addHelpers(Map<String, Helper<?>> helpers, Set<String> permittedSystemKeys) {
@@ -67,14 +66,6 @@ public class TemplateEngine {
         for (Map.Entry<String, Helper<?>> entry: helpers.entrySet()) {
             this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void decorateHelpersWithParameterUnwrapper() {
-        handlebars.helpers().forEach(entry -> {
-            Helper<?> newHelper = new ParameterNormalisingHelperWrapper((Helper<Object>) entry.getValue());
-            handlebars.registerHelper(entry.getKey(), newHelper);
-        });
     }
 
     public HandlebarsOptimizedTemplate getTemplate(final Object key, final String content) {
