@@ -1047,16 +1047,6 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
-    public void singleValuedListOrSingleIsUnwrappedWhenUsedWithBuiltInEq() {
-        String result = transform(
-                mockRequest().url("/?q=123"),
-                ok("{{#eq request.query.q '123'}}YES{{/eq}}")
-        ).getBody();
-
-        assertThat(result, is("YES"));
-    }
-
-    @Test
     public void canTruncateARenderableDate() {
         String result = transform("{{date (truncateDate (now) 'first day of month') format='yyyy-MM-dd'}}");
 
