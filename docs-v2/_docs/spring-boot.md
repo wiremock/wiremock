@@ -8,7 +8,7 @@ description: Running WireMock with Spring Boot.
 The team behind Spring Cloud Contract have created a library to support running WireMock using the "ambient" HTTP server.
 It also simplifies some aspects of configuration and eliminates some common issues that occur when running Spring Boot and WireMock together. 
 
-See [Spring Cloud Contract WireMock](https://cloud.spring.io/spring-cloud-contract/reference/html/project-features.html#features-wiremock) for details.
+See [Spring Cloud Contract WireMock](https://docs.spring.io/spring-cloud-contract/docs/current/reference/html/project-features.html#features-wiremock) for details.
 
 
 The article [Faking OAuth2 Single Sign-on in Spring](https://engineering.pivotal.io/post/faking_oauth_sso/)

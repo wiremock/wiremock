@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
@@ -32,6 +33,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.junit.After;
 import org.junit.Test;
 
@@ -190,6 +193,20 @@ public class NotMatchedPageAcceptanceTest {
     }
 
     @Test
+    public void showsDescriptiveDiffLineForLogicalOrWithAbsent() {
+        configure();
+
+        stubFor(get(urlPathEqualTo("/or"))
+                .withHeader("X-Maybe", equalTo("one").or(absent()))
+                .willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/or", withHeader("X-Maybe", "wrong"));
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample-logical-or.txt")));
+    }
+
+    @Test
     public void requestValuesTransformedByRequestFilterAreShownInDiff() {
         configure(wireMockConfig().extensions(new StubRequestFilter() {
             @Override
@@ -219,6 +236,33 @@ public class NotMatchedPageAcceptanceTest {
 
         assertThat(response.statusCode(), is(404));
         assertThat(response.content(), containsString("| X-My-Header: modified value"));
+    }
+
+    @Test
+    public void showsNotFoundDiffMessageForNonStandardHttpMethods() {
+        configure();
+        stubFor(request("PAAARP", urlPathEqualTo("/pip")).willReturn(ok()));
+
+        WireMockResponse response = testClient.request("PAAARP", "/pop");
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), containsString("Request was not matched"));
+    }
+
+    @Test
+    public void showsNotFoundDiffMessageWhenRequestBodyIsGZipped() {
+        configure();
+        stubFor(post(urlPathEqualTo("/gzip"))
+                .withHeader("Content-Encoding", equalToIgnoreCase("gzip"))
+                .withRequestBody(equalToJson("{\"id\":\"ok\"}"))
+                .willReturn(ok())
+        );
+
+        ByteArrayEntity entity = new ByteArrayEntity(Gzip.gzip("{\"id\":\"wrong\"}"));
+        WireMockResponse response = testClient.post("/gzip", entity, withHeader("Content-Encoding", "gzip"));
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), containsString("Request was not matched"));
     }
 
     private void configure() {

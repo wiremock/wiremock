@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.Router;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
@@ -27,6 +28,8 @@ import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -42,6 +45,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -70,12 +75,12 @@ public class PostServeActionExtensionTest {
             .dynamicPort()
             .extensions(new NamedCounterAction()));
 
-        wm.stubFor(get(urlPathEqualTo("/count-me"))
-            .withPostServeAction("count-request",
-                counterNameParameter()
-                    .withName("things")
-            )
-            .willReturn(aResponse()));
+        StubMapping stubMapping = wm.stubFor(get(urlPathEqualTo("/count-me"))
+                .withPostServeAction("count-request",
+                        counterNameParameter()
+                                .withName("things")
+                )
+                .willReturn(aResponse()));
 
         client.get("/count-me");
         client.get("/count-me");
@@ -85,6 +90,18 @@ public class PostServeActionExtensionTest {
         await()
             .atMost(5, SECONDS)
             .until(getContent("/__admin/named-counter/things"), is("4"));
+
+        // We should serialise out in array form
+        assertThat(client.get("/__admin/mappings/" + stubMapping.getId()).content(),
+                   jsonPartEquals("postServeActions",
+                            "[\n" +
+                            "    {\n" +
+                            "      \"name\": \"count-request\",\n" +
+                            "      \"parameters\": {\n" +
+                            "        \"counterName\": \"things\"\n" +
+                            "      }\n" +
+                            "    }\n" +
+                            "  ]"));
     }
 
     @Test
@@ -129,6 +146,114 @@ public class PostServeActionExtensionTest {
         await()
             .atMost(5, SECONDS)
             .until(getValue(finalStatus), is(418));
+    }
+
+    @Test
+    public void canBeSpecifiedAsAJsonObject() {
+        initWithOptions(options()
+                .dynamicPort()
+                .notifier(new ConsoleNotifier(true))
+                .extensions(new NamedCounterAction()));
+
+        WireMockResponse response = client.postJson("/__admin/mappings", "{\n" +
+                "  \"request\" : {\n" +
+                "    \"urlPath\" : \"/count-me\",\n" +
+                "    \"method\" : \"GET\"\n" +
+                "  },\n" +
+                "  \"response\" : {\n" +
+                "    \"status\" : 200\n" +
+                "  },\n" +
+                "  \"postServeActions\": {\n" +
+                "    \"count-request\": {\n" +
+                "      \"counterName\": \"things\"\n" +
+                "    } \n" +
+                "  }\n" +
+                "}");
+
+        assertThat(response.content(), response.statusCode(), is(201));
+
+        client.get("/count-me");
+        client.get("/count-me");
+
+        await()
+                .atMost(5, SECONDS)
+                .until(getContent("/__admin/named-counter/things"), is("2"));
+    }
+
+    @Test
+    public void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
+        initWithOptions(options()
+                .dynamicPort()
+                .notifier(new ConsoleNotifier(true))
+                .extensions(new NamedCounterAction()));
+
+        wm.stubFor(get(urlPathEqualTo("/count-me"))
+                .willReturn(ok())
+                .withPostServeAction("count-request",
+                        counterNameParameter()
+                                .withName("one")
+                ).withPostServeAction("count-request",
+                        counterNameParameter()
+                                .withName("two")
+                ));
+
+        client.get("/count-me");
+        client.get("/count-me");
+        client.get("/count-me");
+
+        await()
+                .atMost(5, SECONDS)
+                .until(getContent("/__admin/named-counter/one"), is("3"));
+
+        await()
+                .atMost(5, SECONDS)
+                .until(getContent("/__admin/named-counter/two"), is("3"));
+    }
+
+    @Test
+    public void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
+        initWithOptions(options()
+                .dynamicPort()
+                .notifier(new ConsoleNotifier(true))
+                .extensions(new NamedCounterAction()));
+
+        WireMockResponse response = client.postJson("/__admin/mappings", "{\n" +
+                "  \"request\": {\n" +
+                "    \"urlPath\": \"/count-me\",\n" +
+                "    \"method\": \"GET\"\n" +
+                "  },\n" +
+                "  \"response\": {\n" +
+                "    \"status\": 200\n" +
+                "  },\n" +
+                "  \"postServeActions\": [\n" +
+                "    {\n" +
+                "      \"name\": \"count-request\",\n" +
+                "      \"parameters\": {\n" +
+                "        \"counterName\": \"one\"  \n" +
+                "      }\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"name\": \"count-request\",\n" +
+                "      \"parameters\": {\n" +
+                "        \"counterName\": \"two\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}");
+
+        assertThat(response.content(), response.statusCode(), is(201));
+
+        client.get("/count-me");
+        client.get("/count-me");
+        client.get("/count-me");
+
+        await()
+                .atMost(5, SECONDS)
+                .until(getContent("/__admin/named-counter/one"), is("3"));
+
+        await()
+                .atMost(5, SECONDS)
+                .until(getContent("/__admin/named-counter/two"), is("3"));
     }
 
     private Callable<Integer> getValue(final AtomicInteger value) {

@@ -17,14 +17,25 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.Pair.pair;
 
 public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
 
@@ -36,11 +47,11 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
             return AbsentPattern.ABSENT;
         }
 
-        if (!rootNode.has("binaryEqualTo")) {
-            return new StringValuePatternJsonDeserializer().buildStringValuePattern(rootNode);
+        if (rootNode.has("binaryEqualTo")) {
+            return deserializeBinaryEqualTo(rootNode);
         }
 
-        return deserializeBinaryEqualTo(rootNode);
+        return new StringValuePatternJsonDeserializer().buildStringValuePattern(rootNode);
     }
 
     private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode) throws JsonMappingException {

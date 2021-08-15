@@ -91,6 +91,14 @@ public enum WireMockHelpers implements Helper<Object> {
             return helper.apply(context.toString(), options);
         }
     },
+    truncateDate {
+        private final TruncateDateTimeHelper helper = new TruncateDateTimeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
 
     trim {
         private final StringTrimHelper helper = new StringTrimHelper();
@@ -153,7 +161,78 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context, options);
         }
-    }
+    },
 
+    randomInt {
+        private final RandomIntHelper helper = new RandomIntHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(null, options);
+        }
+    },
+
+    randomDecimal {
+        private final RandomDecimalHelper helper = new RandomDecimalHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(null, options);
+        }
+    },
+
+    range {
+        private final RangeHelper helper = new RangeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    array {
+        private final ArrayHelper helper = new ArrayHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    parseJson {
+        private final ParseJsonHelper helper = new ParseJsonHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    matches {
+        private final MatchesRegexHelper helper = new MatchesRegexHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    contains {
+        private final ContainsHelper helper = new ContainsHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    math {
+        private final MathsHelper helper = new MathsHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    }
 
 }

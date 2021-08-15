@@ -42,6 +42,23 @@ public class WireMockConfigurationTest {
     }
 
     @Test
+    public void testJettyIdleTimeout() {
+        Long expectedIdleTimeout = 500L;
+        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().jettyIdleTimeout(expectedIdleTimeout);
+        Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
+
+        assertThat(jettyIdleTimeout.isPresent(), is(true));
+        assertThat(jettyIdleTimeout.get(), is(expectedIdleTimeout));
+    }
+
+    @Test
+    public void testJettyIdleTimeoutNotSet() {
+        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
+        Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
+        assertThat(jettyIdleTimeout.isPresent(), is(false));
+    }
+
+    @Test
     public void shouldUseQueuedThreadPoolByDefault() {
         int maxThreads = 20;
         WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().containerThreads(maxThreads);

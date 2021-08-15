@@ -63,9 +63,9 @@ public class Urls {
         for (String queryElement: pairs) {
             int firstEqualsIndex = queryElement.indexOf('=');
             if (firstEqualsIndex == -1) {
-                builder.putAll(queryElement, "");
+                builder.putAll(decode(queryElement), "");
             } else {
-                String key = queryElement.substring(0, firstEqualsIndex);
+                String key = decode(queryElement.substring(0, firstEqualsIndex));
                 String value = decode(queryElement.substring(firstEqualsIndex + 1));
                 builder.putAll(key, value);
             }

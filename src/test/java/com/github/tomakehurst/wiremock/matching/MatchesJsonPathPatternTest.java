@@ -30,8 +30,11 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MatchesJsonPathPatternTest {
 
@@ -289,7 +292,7 @@ public class MatchesJsonPathPatternTest {
         assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
         assertThat(stringValuePattern.getExpected(), is("$..thing"));
 
-        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(EqualToPattern.class));
         assertThat(subMatcher.getExpected(), is("the value"));
     }
@@ -308,9 +311,48 @@ public class MatchesJsonPathPatternTest {
         assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
         assertThat(stringValuePattern.getExpected(), is("$..thing"));
 
-        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(AbsentPattern.class));
-        assertThat(subMatcher.nullSafeIsAbsent(), is(true));
+        assertThat(((StringValuePattern) subMatcher).nullSafeIsAbsent(), is(true));
+    }
+
+    @Test
+    public void correctlyDeserialisesWhenSubMatcherHasExtraParameters() {
+        StringValuePattern stringValuePattern = Json.read(
+                "{                                       \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalToJson\": \"{}\",        \n" +
+                "        \"ignoreExtraElements\": true,  \n" +
+                "        \"ignoreArrayOrder\": true   \n" +
+                "    }                                   \n" +
+                "}",
+                StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        assertThat(subMatcher, instanceOf(EqualToJsonPattern.class));
+        assertThat(subMatcher.getExpected(), jsonEquals("{}"));
+        assertThat(((EqualToJsonPattern) subMatcher).isIgnoreExtraElements(), is(true));
+        assertThat(((EqualToJsonPattern) subMatcher).isIgnoreArrayOrder(), is(true));
+    }
+
+    @Test
+    public void correctlySerialisesWhenSubMatcherHasExtraParameters() {
+        StringValuePattern matcher = new MatchesJsonPathPattern("$..thing", WireMock.equalToJson("{}", true, true));
+
+        String json = Json.write(matcher);
+
+        assertThat(json, jsonEquals(
+                "{                                       \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalToJson\": \"{}\",        \n" +
+                "        \"ignoreExtraElements\": true,  \n" +
+                "        \"ignoreArrayOrder\": true      \n" +
+                "    }                                   \n" +
+                "}"));
     }
 
     @Test(expected = JsonException.class)
@@ -348,6 +390,41 @@ public class MatchesJsonPathPatternTest {
 
         assertThat(pattern1, Matchers.equalTo(pattern3));
         assertThat(pattern1.hashCode(), Matchers.equalTo(pattern3.hashCode()));
+    }
+
+    @Test
+    public void treatsAnEmptyArrayExpressionResultAsAbsent() {
+        String json = "{\n" +
+                "  \"Books\": [\n" +
+                "    {\n" +
+                "      \"Author\": {\n" +
+                "        \"Name\": \"1234567\",\n" +
+                "        \"Price\": \"2.2\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        MatchResult result = matchingJsonPath("$..[?(@.Author.ISBN)]", absent()).match(json);
+
+        assertTrue(result.isExactMatch());
+    }
+
+    @Test
+    public void matchesCorrectlyWhenSubMatcherIsUsedAndExpressionReturnsASingleItemArray() {
+        String json = "{\n" +
+                "   \"searchCriteria\": {\n" +
+                "      \"customerId\": \"104903\",\n" +
+                "      \"date\": \"01/01/2021\"\n" +
+                "   }\n" +
+                "}";
+
+        MatchResult result = matchingJsonPath(
+                "$.searchCriteria[?(@.customerId == '104903')].date",
+                equalToDateTime("2021-01-01T00:00:00").actualFormat("dd/MM/yyyy"))
+            .match(json);
+
+        assertTrue(result.isExactMatch());
     }
 
     private void expectInfoNotification(final String message) {

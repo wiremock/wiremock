@@ -156,7 +156,7 @@ WireMock uses a root Certificate Authority private key to sign a certificate for
 By default, WireMock will use a CA key store at `$HOME/.wiremock/ca-keystore.jks`.
 If this key store does not exist, WireMock will generate it with a new secure private key which should be entirely private to the system on which WireMock is running.
 You can provide a key store containing such a private key & certificate yourself using the `--ca-keystore`, `--ca-keystore-password` & `--ca-keystore-type` options.
-> See [this script](https://github.com/tomakehurst/wiremock/blob/master/scripts/create-ca-cert.sh)
+> See [this script](https://github.com/tomakehurst/wiremock/blob/master/scripts/create-ca-keystore.sh)
 > for an example of how to build a key & valid self-signed root certificate called
 > ca-cert.crt already imported into a keystore called ca-cert.jks.
 

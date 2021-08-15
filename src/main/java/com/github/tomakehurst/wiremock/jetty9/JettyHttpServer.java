@@ -58,6 +58,7 @@ public class JettyHttpServer implements HttpServer {
 
     static {
         System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
+        System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", "true");
     }
 
     private final Server jettyServer;
@@ -99,10 +100,14 @@ public class JettyHttpServer implements HttpServer {
             httpsConnector = null;
         }
 
+        applyAdditionalServerConfiguration(jettyServer, options);
+
         jettyServer.setHandler(createHandler(options, adminRequestHandler, stubRequestHandler));
 
         finalizeSetup(options);
     }
+
+    protected void applyAdditionalServerConfiguration(Server jettyServer, Options options) {}
 
     protected HandlerCollection createHandler(Options options, AdminRequestHandler adminRequestHandler, StubRequestHandler stubRequestHandler) {
         Notifier notifier = options.notifier();
@@ -116,6 +121,7 @@ public class JettyHttpServer implements HttpServer {
                 options.getAsynchronousResponseSettings(),
                 options.getChunkedEncodingPolicy(),
                 options.getStubCorsEnabled(),
+                options.browserProxySettings().enabled(),
                 notifier
         );
 
@@ -349,6 +355,10 @@ public class JettyHttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+
+        if (jettySettings.getIdleTimeout().isPresent()) {
+            connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -358,6 +368,7 @@ public class JettyHttpServer implements HttpServer {
             AsynchronousResponseSettings asynchronousResponseSettings,
             Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
             boolean stubCorsEnabled,
+            boolean browserProxyingEnabled,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -372,7 +383,9 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
         mockServiceContext.setAttribute(Options.ChunkedEncodingPolicy.class.getName(), chunkedEncodingPolicy);
+        mockServiceContext.setAttribute("browserProxyingEnabled", browserProxyingEnabled);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
+        servletHolder.setInitOrder(1);
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
@@ -427,7 +440,8 @@ public class JettyHttpServer implements HttpServer {
         Resources.getResource("assets/swagger-ui/index.html");
 
         adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-        adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        ServletHolder swaggerUiServletHolder = adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+        swaggerUiServletHolder.setAsyncSupported(false);
         adminContext.addServlet(DefaultServlet.class, "/recorder/*");
 
         ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");

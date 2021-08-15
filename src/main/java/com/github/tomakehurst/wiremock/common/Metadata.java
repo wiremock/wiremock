@@ -68,6 +68,15 @@ public class Metadata extends LinkedHashMap<String, Object> {
         return new Metadata((Map<String, ?>) get(key));
     }
 
+    public Metadata getMetadata(String key, Metadata defaultValue) {
+        if (!containsKey(key)) {
+            return defaultValue;
+        }
+
+        checkArgument(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+        return new Metadata((Map<String, ?>) get(key));
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T checkPresenceValidityAndCast(String key, Class<T> type) {
         checkKeyPresent(key);
