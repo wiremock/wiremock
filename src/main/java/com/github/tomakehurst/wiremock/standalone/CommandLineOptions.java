@@ -93,6 +93,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
+    private static final String JETTY_IDLE_TIMEOUT = "jetty-idle-timeout";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
@@ -116,6 +117,7 @@ public class CommandLineOptions implements Options {
     private final OptionSet optionSet;
     private final FileSource fileSource;
     private final MappingsSource mappingsSource;
+    private final Map<String, Extension> extensions;
 
     private String helpText;
     private Integer actualHttpPort;
@@ -130,12 +132,12 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
         optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
-        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
-        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg().defaultsTo("password");
+        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).requiredIf(HTTPS_TRUSTSTORE_PASSWORD).withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEY_MANAGER_PASSWORD, "Key manager password for use with the alternative keystore.").withRequiredArg().defaultsTo("password");
-        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
+        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
@@ -152,6 +154,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(JETTY_STOP_TIMEOUT, "Timeout in milliseconds for Jetty to stop").withRequiredArg();
+        optionParser.accepts(JETTY_IDLE_TIMEOUT, "Idle timeout in milliseconds for Jetty connections").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
@@ -179,9 +182,35 @@ public class CommandLineOptions implements Options {
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+        extensions = buildExtensions();
 
         actualHttpPort = null;
 	}
+
+	private Map<String, Extension> buildExtensions() {
+        ImmutableMap.Builder<String, Extension> builder = ImmutableMap.builder();
+        if (optionSet.has(EXTENSIONS)) {
+            String classNames = (String) optionSet.valueOf(EXTENSIONS);
+            builder.putAll(ExtensionLoader.load(classNames.split(",")));
+        }
+
+        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, true);
+        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, false);
+        }
+
+        return builder.build();
+    }
+
+    private void contributeResponseTemplateTransformer(ImmutableMap.Builder<String, Extension> builder, boolean global) {
+        ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
+                .global(global)
+                .maxCacheEntries(getMaxTemplateCacheEntries())
+                .permittedSystemKeys(getPermittedSystemKeys())
+                .build();
+        builder.put(transformer.getName(), transformer);
+    }
 
     private void validate() {
         if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
@@ -316,6 +345,10 @@ public class CommandLineOptions implements Options {
             builder = builder.withStopTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_STOP_TIMEOUT)));
         }
 
+        if (optionSet.hasArgument(JETTY_IDLE_TIMEOUT)) {
+            builder = builder.withIdleTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_IDLE_TIMEOUT)));
+        }
+
         return builder.build();
     }
 
@@ -354,32 +387,7 @@ public class CommandLineOptions implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-        ImmutableMap.Builder<String, T> builder = ImmutableMap.builder();
-        if (optionSet.has(EXTENSIONS)) {
-            String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            builder.putAll ((Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
-                classNames.split(",")),
-                valueAssignableFrom(extensionType))
-            );
-        }
-
-        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(true)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(false)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        }
-
-        return builder.build();
+        return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
     }
 
     @Override

@@ -32,6 +32,10 @@ import static com.google.common.base.Charsets.UTF_8;
 public class Gzip {
 
     public static byte[] unGzip(byte[] gzippedContent) {
+        if (gzippedContent.length == 0) {
+            return new byte[0];
+        }
+
         try {
             GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(gzippedContent));
             return ByteStreams.toByteArray(gzipInputStream);

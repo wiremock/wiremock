@@ -39,6 +39,11 @@ public class NotFoundHandler extends ErrorHandler {
     }
 
     @Override
+    public boolean errorPageForMethod(String method) {
+        return true;
+    }
+
+    @Override
     public void handle(String target, final Request baseRequest, final HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (response.getStatus() == 404) {
 

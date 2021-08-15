@@ -1,77 +1,72 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.jetty94;
 
-import org.eclipse.jetty.io.Connection;
-import org.eclipse.jetty.io.EndPoint;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.proxy.ConnectHandler;
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.util.Promise;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.Closeable;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
 
-import static org.eclipse.jetty.http.HttpMethod.CONNECT;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
-/**
- * A Handler for the HTTP CONNECT method that, instead of opening up a
- * TCP tunnel between the downstream and upstream sockets, turns the connection
- * into an SSL connection allowing this server to handle it.
- */
-class ManInTheMiddleSslConnectHandler extends AbstractHandler {
+public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
 
-    private final SslConnectionFactory sslConnectionFactory;
+    private final ServerConnector mitmProxyConnector;
 
-    ManInTheMiddleSslConnectHandler(SslConnectionFactory sslConnectionFactory) {
-        this.sslConnectionFactory = sslConnectionFactory;
+    public ManInTheMiddleSslConnectHandler(ServerConnector mitmProxyConnector) {
+        this.mitmProxyConnector = mitmProxyConnector;
     }
 
     @Override
-    protected void doStart() throws Exception {
-        super.doStart();
-        sslConnectionFactory.start();
-    }
+    protected void connectToServer(HttpServletRequest request, String ignoredHost, int ignoredPort, Promise<SocketChannel> promise) {
+        SocketChannel channel = null;
+        try
+        {
+            channel = SocketChannel.open();
+            channel.socket().setTcpNoDelay(true);
+            channel.configureBlocking(false);
 
-    @Override
-    protected void doStop() throws Exception {
-        super.doStop();
-        sslConnectionFactory.stop();
-    }
+            String host = firstNonNull(mitmProxyConnector.getHost(), "localhost");
+            int port = mitmProxyConnector.getLocalPort();
+            InetSocketAddress address = newConnectAddress(host, port);
 
-    @Override
-    public void handle(
-        String target,
-        Request baseRequest,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) throws IOException {
-        if (CONNECT.is(request.getMethod())) {
-            baseRequest.setHandled(true);
-            handleConnect(baseRequest, response);
+            channel.connect(address);
+            promise.succeeded(channel);
+        }
+        catch (Throwable x)
+        {
+            close(channel);
+            promise.failed(x);
         }
     }
 
-    private void handleConnect(
-        Request baseRequest,
-        HttpServletResponse response
-    ) throws IOException {
-        sendConnectResponse(response);
-
-        HttpChannel httpChannel = baseRequest.getHttpChannel();
-        Connector connector = httpChannel.getConnector();
-        EndPoint endpoint = httpChannel.getEndPoint();
-        endpoint.setConnection(null);
-
-        Connection connection = sslConnectionFactory.newConnection(connector, endpoint);
-        endpoint.setConnection(connection);
-
-        endpoint.onOpen();
-        connection.onOpen();
-    }
-
-    private void sendConnectResponse(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getOutputStream().close();
+    private void close(Closeable closeable)
+    {
+        try
+        {
+            if (closeable != null)
+                closeable.close();
+        }
+        catch (Throwable x)
+        {
+            LOG.ignore(x);
+        }
     }
 }
