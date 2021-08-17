@@ -1,0 +1,78 @@
+package com.github.tomakehurst.wiremock.junit5;
+
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@TestMethodOrder(OrderAnnotation.class)
+public class JUnitJupiterExtensionStaticMultiInstanceTest {
+
+    CloseableHttpClient client;
+
+    @RegisterExtension
+    public static WireMockExtension wm1 = WireMockExtension.newInstance()
+            .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+            .configureStaticDsl(true)
+            .build();
+
+    @RegisterExtension
+    public static WireMockExtension wm2 = WireMockExtension.newInstance()
+            .options(wireMockConfig().dynamicPort().extensions(new ResponseTemplateTransformer(true)))
+            .build();
+
+    @BeforeEach
+    public void init() {
+        client = HttpClientFactory.createClient();
+    }
+
+    @Test
+    @Order(1)
+    public void extension_field_provides_wiremock_info() throws Exception {
+        WireMockRuntimeInfo wm1RuntimeInfo = wm1.getRuntimeInfo();
+        assertDoesNotThrow(wm1RuntimeInfo::getHttpsPort);
+
+        stubFor(get("/wm1").willReturn(ok()));
+        HttpGet request = new HttpGet(wm1RuntimeInfo.getHttpsBaseUrl() + "/wm1");
+        try (CloseableHttpResponse response = client.execute(request)) {
+            assertThat(response.getStatusLine().getStatusCode(), is(200));
+        }
+
+        WireMockRuntimeInfo wm2RuntimeInfo = wm2.getRuntimeInfo();
+        wm2.stubFor(get("/wm2").willReturn(ok("{{request.path.0}}")));
+        request = new HttpGet(wm2RuntimeInfo.getHttpBaseUrl() + "/wm2");
+        try (CloseableHttpResponse response = client.execute(request)) {
+            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(EntityUtils.toString(response.getEntity()), is("wm2")); // Ensures templating is enabled
+        }
+    }
+
+    @Test
+    @Order(2)
+    public void wiremock_is_reset_between_tests() throws Exception {
+        WireMockRuntimeInfo wm1RuntimeInfo = wm1.getRuntimeInfo();
+
+        assertTrue(getAllServeEvents().isEmpty(), "The request log should be empty");
+
+        HttpGet request = new HttpGet(wm1RuntimeInfo.getHttpsBaseUrl() + "/wm1");
+        try (CloseableHttpResponse response = client.execute(request)) {
+            assertThat(response.getStatusLine().getStatusCode(), is(404));
+        }
+    }
+
+}
