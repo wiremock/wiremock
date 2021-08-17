@@ -174,6 +174,14 @@ public class WireMockServer implements Container, Stubbing, Admin {
         shutdownThread.start();
     }
 
+    public boolean isHttpEnabled() {
+        return !options.getHttpDisabled();
+    }
+
+    public boolean isHttpsEnabled() {
+        return options.httpsSettings().enabled();
+    }
+
     public int port() {
         checkState(
             isRunning() && !options.getHttpDisabled(),
