@@ -1,25 +1,34 @@
 package com.github.tomakehurst.wiremock.junit5;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.jupiter.api.extension.*;
+
+import java.util.List;
 
 public class WireMockExtension extends WireMockServer implements ParameterResolver, BeforeEachCallback, BeforeAllCallback, AfterEachCallback, AfterAllCallback {
 
     private final boolean configureStaticDsl;
+    private final boolean failOnUnmatchedRequests;
 
     private boolean isNonStatic = false;
 
     public WireMockExtension() {
         super(WireMockConfiguration.options().dynamicPort());
         configureStaticDsl = true;
+        failOnUnmatchedRequests = false;
     }
 
-    public WireMockExtension(Options options, boolean configureStaticDsl) {
+    public WireMockExtension(Options options, boolean configureStaticDsl, boolean failOnUnmatchedRequests) {
         super(options);
         this.configureStaticDsl = configureStaticDsl;
+        this.failOnUnmatchedRequests = failOnUnmatchedRequests;
     }
 
     public static Builder newInstance() {
@@ -87,6 +96,10 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
 
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
+        if (failOnUnmatchedRequests) {
+            checkForUnmatchedRequests();
+        }
+
         if (isNonStatic) {
             stopServerIfRunning();
         }
@@ -100,6 +113,7 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
 
         private Options options = WireMockConfiguration.wireMockConfig().dynamicPort();
         private boolean configureStaticDsl = false;
+        private boolean failOnUnmatchedRequests = false;
 
         public Builder options(Options options) {
             this.options = options;
@@ -111,8 +125,13 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
             return this;
         }
 
+        public Builder failOnUnmatchedRequests(boolean failOnUnmatched) {
+            this.failOnUnmatchedRequests = failOnUnmatched;
+            return this;
+        }
+
         public WireMockExtension build() {
-            return new WireMockExtension(options, configureStaticDsl);
+            return new WireMockExtension(options, configureStaticDsl, failOnUnmatchedRequests);
         }
     }
 }
