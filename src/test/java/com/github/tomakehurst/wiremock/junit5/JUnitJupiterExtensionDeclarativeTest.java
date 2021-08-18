@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(WireMockExtension.class)
-public class JUnitJupiterExtensionSingleInstanceTest {
+public class JUnitJupiterExtensionDeclarativeTest {
 
     CloseableHttpClient client;
 
