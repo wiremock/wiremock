@@ -1,12 +1,13 @@
 ---
 layout: docs
-title: 'The JUnit 4.x Rule'
+title: 'JUnit 4 and Vintage Usage'
 toc_rank: 20
 redirect_from: "/junit-rule.html"
 description: The WireMock JUnit rule.
 ---
 
-The JUnit rule provides a convenient way to include WireMock in your
+WireMock includes a JUnit rule, compatible with JUnit 4.x and JUnit 5 Vintage.
+This provides a convenient way to manage one or more WireMock instances in your
 test cases. It handles the lifecycle for you, starting the server before
 each test method and stopping afterwards.
 
