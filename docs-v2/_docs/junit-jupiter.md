@@ -22,7 +22,7 @@ in your test or lifecycle methods.
 public class DeclarativeWireMockTest {
 
     @Test
-    public void test_something_with_wiremock(WireMockRuntimeInfo wmRuntimeInfo) {
+    void test_something_with_wiremock(WireMockRuntimeInfo wmRuntimeInfo) {
         // The static DSL will be configured for you
         stubFor(get("/static-dsl").willReturn(ok()));
       
@@ -52,19 +52,19 @@ over configuration.
 public class ProgrammaticWireMockTest {
 
     @RegisterExtension
-    public static WireMockExtension wm1 = WireMockExtension.newInstance()
+    static WireMockExtension wm1 = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .build();
 
     @RegisterExtension
-    public static WireMockExtension wm2 = WireMockExtension.newInstance()
+    static WireMockExtension wm2 = WireMockExtension.newInstance()
             .options(wireMockConfig()
                      .dynamicPort()
                      .extensions(new ResponseTemplateTransformer(true)))
             .build();
 
     @Test
-    public void test_something_with_wiremock() {
+    void test_something_with_wiremock() {
         // You can get ports, base URL etc. via WireMockRuntimeInfo
         WireMockRuntimeInfo wm1RuntimeInfo = wm1.getRuntimeInfo();
         int httpsPort = wm1RuntimeInfo.getHttpsPort();
@@ -97,18 +97,18 @@ this by calling `configureStaticDsl(true)` on the extension builder. The configu
 public class AutomaticStaticDslConfigTest {
 
     @RegisterExtension
-    public static WireMockExtension wm1 = WireMockExtension.newInstance()
+    static WireMockExtension wm1 = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .configureStaticDsl(true)
             .build();
 
     @RegisterExtension
-    public static WireMockExtension wm2 = WireMockExtension.newInstance()
+    static WireMockExtension wm2 = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .build();
 
     @Test
-    public void test_something_with_wiremock() {
+    void test_something_with_wiremock() {
         // Will communicate with the instance called wm1
         stubFor(get("/static-dsl").willReturn(ok()));
         

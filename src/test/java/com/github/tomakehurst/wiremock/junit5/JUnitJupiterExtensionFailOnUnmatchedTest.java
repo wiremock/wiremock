@@ -21,7 +21,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
     CloseableHttpClient client = HttpClientFactory.createClient();
 
     @Test
-    public void throws_a_verification_exception_when_an_unmatched_request_is_made_during_the_test() throws Exception {
+    void throws_a_verification_exception_when_an_unmatched_request_is_made_during_the_test() throws Exception {
         WireMockExtension extension = WireMockExtension.newInstance()
                 .failOnUnmatchedRequests(true)
                 .build();
@@ -38,7 +38,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
     }
 
     @Test
-    public void does_not_throw_a_verification_exception_when_fail_on_unmatched_disabled() throws Exception {
+    void does_not_throw_a_verification_exception_when_fail_on_unmatched_disabled() throws Exception {
         WireMockExtension extension = WireMockExtension.newInstance()
                 .failOnUnmatchedRequests(false)
                 .build();
