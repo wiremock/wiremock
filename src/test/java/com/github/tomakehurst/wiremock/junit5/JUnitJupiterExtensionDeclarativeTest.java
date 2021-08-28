@@ -21,12 +21,12 @@ public class JUnitJupiterExtensionDeclarativeTest {
     CloseableHttpClient client;
 
     @BeforeEach
-    public void init() {
+    void init() {
         client = HttpClientFactory.createClient();
     }
 
     @Test
-    public void provides_wiremock_info_as_method_parameter(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    void provides_wiremock_info_as_method_parameter(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
         assertNotNull(wmRuntimeInfo);
         assertNotNull(wmRuntimeInfo.getWireMock());
 

@@ -26,24 +26,24 @@ public class JUnitJupiterExtensionStaticMultiInstanceTest {
     CloseableHttpClient client;
 
     @RegisterExtension
-    public static WireMockExtension wm1 = WireMockExtension.newInstance()
+    static WireMockExtension wm1 = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
             .configureStaticDsl(true)
             .build();
 
     @RegisterExtension
-    public static WireMockExtension wm2 = WireMockExtension.newInstance()
+    static WireMockExtension wm2 = WireMockExtension.newInstance()
             .options(wireMockConfig().dynamicPort().extensions(new ResponseTemplateTransformer(true)))
             .build();
 
     @BeforeEach
-    public void init() {
+    void init() {
         client = HttpClientFactory.createClient();
     }
 
     @Test
     @Order(1)
-    public void extension_field_provides_wiremock_info() throws Exception {
+    void extension_field_provides_wiremock_info() throws Exception {
         WireMockRuntimeInfo wm1RuntimeInfo = wm1.getRuntimeInfo();
         assertDoesNotThrow(wm1RuntimeInfo::getHttpsPort);
 
@@ -64,7 +64,7 @@ public class JUnitJupiterExtensionStaticMultiInstanceTest {
 
     @Test
     @Order(2)
-    public void wiremock_is_reset_between_tests() throws Exception {
+    void wiremock_is_reset_between_tests() throws Exception {
         WireMockRuntimeInfo wm1RuntimeInfo = wm1.getRuntimeInfo();
 
         assertTrue(getAllServeEvents().isEmpty(), "The request log should be empty");
