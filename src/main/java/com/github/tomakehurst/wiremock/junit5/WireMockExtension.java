@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,9 +80,20 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     private Options resolveOptions(ExtensionContext extensionContext) {
         return extensionContext.getElement()
                 .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
-                .<Options>map(annotation -> WireMockConfiguration.options().port(annotation.httpPort()))
+                .<Options>map(this::buildOptionsFromWireMockTestAnnotation)
                 .orElse(Optional.ofNullable(this.options)
                                 .orElse(DEFAULT_OPTIONS));
+    }
+
+    private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
+        WireMockConfiguration options = WireMockConfiguration.options();
+        options.port(annotation.httpPort());
+
+        if (annotation.httpsEnabled()) {
+            options.httpsPort(annotation.httpsPort());
+        }
+
+        return options;
     }
 
     private void stopServerIfRunning() {

@@ -14,4 +14,7 @@ public @interface WireMockTest {
 
     int httpPort() default 0;
 
+    boolean httpsEnabled() default false;
+    int httpsPort() default 0;
+
 }
