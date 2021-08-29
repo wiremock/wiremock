@@ -166,7 +166,7 @@ allprojects {
         mavenCentral()
     }
 
-    version = '2.31.0'
+    version = '2.31.0-beta-2'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -327,6 +327,15 @@ publishing {
     repositories {
         maven {
             url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username repoUser
+                password repoPassword
+            }
+        }
+
+        maven {
+            name 'snapshots'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
             credentials {
                 username repoUser
                 password repoPassword
