@@ -504,7 +504,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
         return wireMockApp.getGlobalSettings();
     }
 
-    protected void checkForUnmatchedRequests() {
+    public void checkForUnmatchedRequests() {
         List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
         if (!unmatchedRequests.isEmpty()) {
             List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
