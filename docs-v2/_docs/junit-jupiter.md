@@ -11,28 +11,28 @@ It supports two modes of operation - declarative (simple, not configurable) and 
 These are both explained in detail below.
 
 ## Basic usage - declarative
-The extension can be invoked by your test class declaratively via the `@ExtendWith` annotation. This will run a single 
-WireMock server on a random port, HTTP only (no HTTPS).
+The extension can be applied to your test class declaratively by annotating it with `@WireMockTest`. This will run a single 
+WireMock server, defaulting to a random port, HTTP only (no HTTPS).
 
 To get the running port number, base URL or a DSL instance you can declare a parameter of type `WireMockRuntimeInfo`
 in your test or lifecycle methods.
 
 ```java
-@ExtendWith(WireMockExtension.class)
+@WireMockTest
 public class DeclarativeWireMockTest {
 
     @Test
     void test_something_with_wiremock(WireMockRuntimeInfo wmRuntimeInfo) {
-        // The static DSL will be configured for you
+        // The static DSL will be automatically configured for you
         stubFor(get("/static-dsl").willReturn(ok()));
       
         // Instance DSL can be obtained from the runtime info parameter
         WireMock wireMock = wmRuntimeInfo.getWireMock();
         wireMock.register(get("/instance-dsl").willReturn(ok()));
-        
+       
+        // Info such as port numbers is also available
         int port = wmRuntimeInfo.getHttpPort();
         
-        // Do some testing...
     }
 }
 ```
@@ -42,6 +42,37 @@ In the above example a WireMock server will be started before the first test met
 last test method has completed.
 
 Stub mappings and requests will be reset before each test method.
+
+
+### Fixing the port number
+If you need to run WireMock on a fixed port you can pass this via the `httpPort` parameter to the extension annotation:
+
+```java
+@WireMockTest(httpPort = 8080)
+public class FixedPortDeclarativeWireMockTest {
+    ...
+}
+```
+
+### Enabling HTTPS
+You can also enable HTTPS via the `httpsEnabled` annotation parameter. By default a random port will be assigned:
+
+```java
+@WireMockTest(httpsEnabled = true)
+public class HttpsRandomPortDeclarativeWireMockTest {
+    ...
+}
+```
+
+But like with the HTTP port you can also fix the HTTPS port number via the `httpsPort` parameter: 
+
+```java
+@WireMockTest(httpsEnabled = true, httpsPort = 8443)
+public class HttpsFixedPortDeclarativeWireMockTest {
+    ...
+}
+```
+
 
 
 ## Advanced usage - programmatic
