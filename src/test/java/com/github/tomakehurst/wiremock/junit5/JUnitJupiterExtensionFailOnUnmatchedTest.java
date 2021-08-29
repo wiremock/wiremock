@@ -5,20 +5,37 @@ import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.jupiter.api.Nested;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.ExtensionContext;
+
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
-    CloseableHttpClient client = HttpClientFactory.createClient();
+    Mockery context;
+    CloseableHttpClient client;
+    ExtensionContext extensionContext;
+
+    @BeforeEach
+    void init() {
+        client = HttpClientFactory.createClient();
+
+        context = new Mockery();
+        extensionContext = context.mock(ExtensionContext.class);
+        context.checking(new Expectations() {{
+            oneOf(extensionContext).getElement(); will(returnValue(Optional.empty()));
+        }});
+    }
 
     @Test
     void throws_a_verification_exception_when_an_unmatched_request_is_made_during_the_test() throws Exception {
@@ -26,7 +43,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
                 .failOnUnmatchedRequests(true)
                 .build();
 
-        extension.beforeEach(null);
+        extension.beforeEach(extensionContext);
 
         extension.stubFor(get("/found").willReturn(ok()));
 
@@ -34,7 +51,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
             assertThat(response.getStatusLine().getStatusCode(), is(404));
         }
 
-        assertThrows(VerificationException.class, () -> extension.afterEach(null));
+        assertThrows(VerificationException.class, () -> extension.afterEach(extensionContext));
     }
 
     @Test
@@ -43,7 +60,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
                 .failOnUnmatchedRequests(false)
                 .build();
 
-        extension.beforeEach(null);
+        extension.beforeEach(extensionContext);
 
         extension.stubFor(get("/found").willReturn(ok()));
 
@@ -51,7 +68,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
             assertThat(response.getStatusLine().getStatusCode(), is(404));
         }
 
-        assertDoesNotThrow(() -> extension.afterEach(null));
+        assertDoesNotThrow(() -> extension.afterEach(extensionContext));
     }
 
 

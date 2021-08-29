@@ -6,27 +6,35 @@ import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.DslWrapper;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.jupiter.api.extension.*;
+import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.List;
+import java.util.Optional;
 
-public class WireMockExtension extends WireMockServer implements ParameterResolver, BeforeEachCallback, BeforeAllCallback, AfterEachCallback, AfterAllCallback {
+import static com.google.common.base.MoreObjects.firstNonNull;
+
+public class WireMockExtension extends DslWrapper implements ParameterResolver, BeforeEachCallback, BeforeAllCallback, AfterEachCallback, AfterAllCallback {
+
+    private static final Options DEFAULT_OPTIONS = WireMockConfiguration.options().dynamicPort();
 
     private final boolean configureStaticDsl;
     private final boolean failOnUnmatchedRequests;
 
+    private Options options;
+    private WireMockServer wireMockServer;
     private boolean isNonStatic = false;
 
     public WireMockExtension() {
-        super(WireMockConfiguration.options().dynamicPort());
         configureStaticDsl = true;
         failOnUnmatchedRequests = false;
     }
 
     public WireMockExtension(Options options, boolean configureStaticDsl, boolean failOnUnmatchedRequests) {
-        super(options);
+        this.options = options;
         this.configureStaticDsl = configureStaticDsl;
         this.failOnUnmatchedRequests = failOnUnmatchedRequests;
     }
@@ -48,15 +56,19 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
             final ExtensionContext extensionContext) throws ParameterResolutionException {
 
         if (parameterIsWireMockRuntimeInfo(parameterContext)) {
-            return new WireMockRuntimeInfo(this);
+            return new WireMockRuntimeInfo(wireMockServer);
         }
 
         return null;
     }
 
-    private void startServerIfRequired() {
-        if (!isRunning()) {
-            start();
+    private void startServerIfRequired(ExtensionContext extensionContext) {
+        if (wireMockServer == null) {
+            wireMockServer = new WireMockServer(resolveOptions(extensionContext));
+            wireMockServer.start();
+
+            this.admin = wireMockServer;
+            this.stubbing = wireMockServer;
 
             if (configureStaticDsl) {
                 WireMock.configureFor(new WireMock(this));
@@ -64,9 +76,17 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
         }
     }
 
+    private Options resolveOptions(ExtensionContext extensionContext) {
+        return extensionContext.getElement()
+                .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
+                .<Options>map(annotation -> WireMockConfiguration.options().port(annotation.httpPort()))
+                .orElse(Optional.ofNullable(this.options)
+                                .orElse(DEFAULT_OPTIONS));
+    }
+
     private void stopServerIfRunning() {
-        if (isRunning()) {
-            stop();
+        if (wireMockServer.isRunning()) {
+            wireMockServer.stop();
         }
     }
 
@@ -76,14 +96,14 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        startServerIfRequired();
+        startServerIfRequired(context);
     }
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
-        if (!isRunning()) {
+        if (wireMockServer == null) {
             isNonStatic = true;
-            startServerIfRequired();
+            startServerIfRequired(context);
         } else {
             resetToDefaultMappings();
         }
@@ -97,7 +117,7 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
         if (failOnUnmatchedRequests) {
-            checkForUnmatchedRequests();
+            wireMockServer.checkForUnmatchedRequests();
         }
 
         if (isNonStatic) {
@@ -106,7 +126,11 @@ public class WireMockExtension extends WireMockServer implements ParameterResolv
     }
 
     public WireMockRuntimeInfo getRuntimeInfo() {
-        return new WireMockRuntimeInfo(this);
+        return new WireMockRuntimeInfo(wireMockServer);
+    }
+
+    public String baseUrl() {
+        return wireMockServer.baseUrl();
     }
 
     public static class Builder {
