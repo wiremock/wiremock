@@ -166,6 +166,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     }
 
     @Override
+    public ScenarioMappingBuilder persistent(boolean persistent) {
+        this.isPersistent = persistent;
+        return this;
+    }
+
+    @Override
 	public BasicMappingBuilder withBasicAuth(String username, String password) {
 		requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
 		return this;

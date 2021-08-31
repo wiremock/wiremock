@@ -45,6 +45,7 @@ public interface MappingBuilder {
     MappingBuilder withName(String name);
 
     MappingBuilder persistent();
+    MappingBuilder persistent(boolean persistent);
 
     MappingBuilder withBasicAuth(String username, String password);
 
