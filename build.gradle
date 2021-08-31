@@ -26,7 +26,8 @@ def versions = [
         jetty          : '9.4.43.v20210629',
         guava          : '30.1.1-jre',
         jackson        : '2.12.4',
-        xmlUnit        : '2.8.2'
+        xmlUnit        : '2.8.2',
+        junitJupiter   : '5.7.1'
 ]
 
 dependencies {
@@ -63,14 +64,13 @@ dependencies {
     compile "org.ow2.asm:asm:9.2"
     compile "org.slf4j:slf4j-api:1.7.32"
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
+
     compileOnly("junit:junit:4.13.2") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
-    implementation(platform("org.junit:junit-bom:5.7.1"))
-    compileOnly("junit:junit:4.13") {
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-    }
+    compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
     compileOnly("org.junit.jupiter:junit-jupiter")
+
     compile 'org.apache.commons:commons-lang3:3.12.0'
     compile "com.github.jknack:handlebars:$versions.handlebars", {
         exclude group: 'org.mozilla', module: 'rhino'
@@ -85,7 +85,7 @@ dependencies {
     compile "commons-io:commons-io:2.11.0"
 
     testCompile "junit:junit:4.13"
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
