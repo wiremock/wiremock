@@ -43,4 +43,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: gradle-test-report-${{ matrix.os }}
-        path: build/reports/tests
+        path: |
+          build/reports/tests
+          wiremock-webhooks-extension/build/reports/tests
