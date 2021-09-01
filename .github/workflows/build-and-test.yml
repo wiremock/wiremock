@@ -42,5 +42,5 @@ jobs:
     - name: Archive test report
       uses: actions/upload-artifact@v2
       with:
-        name: gradle-test-report
+        name: gradle-test-report-${{ matrix.jdk }}
         path: build/reports/tests
