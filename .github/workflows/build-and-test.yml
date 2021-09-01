@@ -38,4 +38,9 @@ jobs:
     - name: Pre-generate API docs
       run: ./gradlew classes testClasses -x generateApiDocs
     - name: Test WireMock
-      run: ./gradlew test --stacktrace --no-daemon
+      run: ./gradlew check --stacktrace --no-daemon
+    - name: Archive test report
+      uses: actions/upload-artifact@v2
+      with:
+        name: gradle-test-report
+        path: build/reports/tests
