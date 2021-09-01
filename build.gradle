@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 buildscript {
     repositories {
         maven {
@@ -28,7 +26,8 @@ def versions = [
         jetty          : '9.4.43.v20210629',
         guava          : '30.1.1-jre',
         jackson        : '2.12.4',
-        xmlUnit        : '2.8.2'
+        xmlUnit        : '2.8.2',
+        junitJupiter   : '5.7.1'
 ]
 
 dependencies {
@@ -65,9 +64,13 @@ dependencies {
     compile "org.ow2.asm:asm:9.2"
     compile "org.slf4j:slf4j-api:1.7.32"
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
+
     compileOnly("junit:junit:4.13.2") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
+    compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
+    compileOnly("org.junit.jupiter:junit-jupiter")
+
     compile 'org.apache.commons:commons-lang3:3.12.0'
     compile "com.github.jknack:handlebars:$versions.handlebars", {
         exclude group: 'org.mozilla', module: 'rhino'
@@ -82,6 +85,10 @@ dependencies {
     compile "commons-io:commons-io:2.11.0"
 
     testCompile "junit:junit:4.13"
+    testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     testCompile "org.hamcrest:hamcrest-core:2.2"
     testCompile "org.hamcrest:hamcrest-library:2.2"
     testCompile("org.jmock:jmock:2.5.1") {
@@ -95,6 +102,7 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
     testCompile 'org.mockito:mockito-core:3.11.2'
+    testCompile 'org.mockito:mockito-junit-jupiter:2.28.2'
     testCompile 'net.javacrumbs.json-unit:json-unit:2.27.0'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
     testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.1'
@@ -158,7 +166,7 @@ allprojects {
         mavenCentral()
     }
 
-    version = '2.30.1'
+    version = '2.31.0'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -179,7 +187,8 @@ allprojects {
         // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
         systemProperty 'user.timezone', 'Australia/Sydney'
 
-        exclude 'ignored/**'
+    useJUnitPlatform()
+    exclude 'ignored/**'
 
         maxParallelForks = runningOnCI ? 1 : 3
 
@@ -289,6 +298,7 @@ artifacts {
 
 javadoc {
     exclude "**/CertificateAuthority.java"
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 task writeThinJarPom {
@@ -317,6 +327,15 @@ publishing {
     repositories {
         maven {
             url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username repoUser
+                password repoPassword
+            }
+        }
+
+        maven {
+            name 'snapshots'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
             credentials {
                 username repoUser
                 password repoPassword

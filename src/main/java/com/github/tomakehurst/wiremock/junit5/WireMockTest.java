@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension;
+package com.github.tomakehurst.wiremock.junit5;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class PostServeActionDefinition {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    private final String name;
-    private final Parameters parameters;
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(WireMockExtension.class)
+public @interface WireMockTest {
 
-    public PostServeActionDefinition(@JsonProperty("name") String name,
-                                     @JsonProperty("parameters") Parameters parameters) {
-        this.name = name;
-        this.parameters = parameters;
-    }
+    int httpPort() default 0;
 
-    public String getName() {
-        return name;
-    }
+    boolean httpsEnabled() default false;
+    int httpsPort() default 0;
 
-    public Parameters getParameters() {
-        return parameters;
-    }
 }

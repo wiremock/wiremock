@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension;
+package com.github.tomakehurst.wiremock.junit5;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.Test;
 
-public class PostServeActionDefinition {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-    private final String name;
-    private final Parameters parameters;
+@WireMockTest(httpPort = 8765)
+public class JUnitJupiterExtensionDeclarativeWithHttpPortParameterTest {
 
-    public PostServeActionDefinition(@JsonProperty("name") String name,
-                                     @JsonProperty("parameters") Parameters parameters) {
-        this.name = name;
-        this.parameters = parameters;
+    @Test
+    void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+        assertThat(wmRuntimeInfo.getHttpPort(), is(8765));
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Parameters getParameters() {
-        return parameters;
-    }
 }

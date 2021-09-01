@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -172,6 +173,14 @@ public class WireMockServer implements Container, Stubbing, Admin {
             }
         });
         shutdownThread.start();
+    }
+
+    public boolean isHttpEnabled() {
+        return !options.getHttpDisabled();
+    }
+
+    public boolean isHttpsEnabled() {
+        return options.httpsSettings().enabled();
     }
 
     public int port() {
@@ -493,5 +502,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public GetGlobalSettingsResult getGlobalSettings() {
         return wireMockApp.getGlobalSettings();
+    }
+
+    public void checkForUnmatchedRequests() {
+        List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
+        if (!unmatchedRequests.isEmpty()) {
+            List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+            if (nearMisses.isEmpty()) {
+                throw VerificationException.forUnmatchedRequests(unmatchedRequests);
+            } else {
+                throw VerificationException.forUnmatchedNearMisses(nearMisses);
+            }
+        }
     }
 }
