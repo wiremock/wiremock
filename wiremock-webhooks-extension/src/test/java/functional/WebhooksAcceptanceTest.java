@@ -2,7 +2,6 @@ package functional;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -12,6 +11,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.wiremock.webhooks.Webhooks;
+import testsupport.CompositeNotifier;
 import testsupport.TestNotifier;
 import testsupport.WireMockTestClient;
 
@@ -25,7 +25,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -35,11 +34,12 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 public class WebhooksAcceptanceTest {
 
     @Rule
-    public WireMockRule targetServer = new WireMockRule(options().dynamicPort().notifier(new ConsoleNotifier(true)));
+    public WireMockRule targetServer = new WireMockRule(options().dynamicPort().notifier(new ConsoleNotifier("Target", true)));
 
     CountDownLatch latch;
 
-    TestNotifier notifier = new TestNotifier();
+    TestNotifier testNotifier = new TestNotifier();
+    CompositeNotifier notifier = new CompositeNotifier(testNotifier, new ConsoleNotifier("Main", true));
     WireMockTestClient client;
 
     @Rule
@@ -57,7 +57,7 @@ public class WebhooksAcceptanceTest {
             }
         });
         reset();
-        notifier.reset();
+        testNotifier.reset();
         targetServer.stubFor(any(anyUrl())
             .willReturn(aResponse().withStatus(200)));
         latch = new CountDownLatch(1);
@@ -96,7 +96,7 @@ public class WebhooksAcceptanceTest {
                 .header("X-Multi").values();
         assertThat(multiHeaderValues, hasItems("one", "two"));
 
-        assertThat(notifier.getInfoMessages(), hasItem(allOf(
+        assertThat(testNotifier.getInfoMessages(), hasItem(allOf(
             containsString("Webhook POST request to"),
             containsString("/callback returned status"),
             containsString("200")

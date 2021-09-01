@@ -25,9 +25,16 @@ import static java.lang.System.out;
 public class ConsoleNotifier implements Notifier {
 
     private final boolean verbose;
+    private final String prefix;
 
     public ConsoleNotifier(boolean verbose) {
+        this(null, verbose);
+    }
+
+    public ConsoleNotifier(String name, boolean verbose) {
         this.verbose = verbose;
+        this.prefix = name != null ? "[" + name + "] " : "";
+
         if (verbose) {
             info("Verbose logging enabled");
         }
@@ -51,9 +58,9 @@ public class ConsoleNotifier implements Notifier {
         t.printStackTrace(err);
     }
 
-    private static String formatMessage(String message) {
+    private String formatMessage(String message) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String date = df.format(new Date());
-        return String.format("%s %s", date, message);
+        return String.format("%s%s %s", prefix, date, message);
     }
 }
