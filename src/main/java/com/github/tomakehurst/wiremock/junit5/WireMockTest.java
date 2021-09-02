@@ -32,4 +32,6 @@ public @interface WireMockTest {
     boolean httpsEnabled() default false;
     int httpsPort() default 0;
 
+    boolean proxyMode() default false;
+
 }

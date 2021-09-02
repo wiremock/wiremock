@@ -47,6 +47,8 @@ public class JvmProxyConfigAcceptanceTest {
 
     @Test
     public void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+
         wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
         wireMockServer.start();
 
@@ -56,7 +58,6 @@ public class JvmProxyConfigAcceptanceTest {
                               .withHost(equalTo("example.com"))
                 .willReturn(ok("Proxied stuff")));
 
-        CloseableHttpClient httpClient = HttpClientFactory.createClient();
         try (CloseableHttpResponse response = httpClient.execute(new HttpGet("https://example.com/stuff"))) {
             assertThat(EntityUtils.toString(response.getEntity()), is("Proxied stuff"));
         }

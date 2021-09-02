@@ -16,19 +16,14 @@
 package com.github.tomakehurst.wiremock.junit5;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.MappingBuilder;
-import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import com.github.tomakehurst.wiremock.junit.DslWrapper;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-import javax.swing.text.html.Option;
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -44,15 +39,19 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     private WireMockServer wireMockServer;
     private boolean isNonStatic = false;
 
+    private Boolean proxyMode;
+
     public WireMockExtension() {
         configureStaticDsl = true;
         failOnUnmatchedRequests = false;
     }
 
-    public WireMockExtension(Options options, boolean configureStaticDsl, boolean failOnUnmatchedRequests) {
+    // Intended to be called from the builder
+    protected WireMockExtension(Options options, boolean configureStaticDsl, boolean failOnUnmatchedRequests, boolean proxyMode) {
         this.options = options;
         this.configureStaticDsl = configureStaticDsl;
         this.failOnUnmatchedRequests = failOnUnmatchedRequests;
+        this.proxyMode = proxyMode;
     }
 
     public static Builder newInstance() {
@@ -92,6 +91,15 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
         }
     }
 
+    private void setAdditionalOptions(ExtensionContext extensionContext) {
+        if (proxyMode == null) {
+            proxyMode = extensionContext.getElement()
+                    .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
+                    .<Boolean>map(WireMockTest::proxyMode)
+                    .orElse(false);
+        }
+    }
+
     private Options resolveOptions(ExtensionContext extensionContext) {
         return extensionContext.getElement()
                 .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
@@ -101,8 +109,9 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     }
 
     private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
-        WireMockConfiguration options = WireMockConfiguration.options();
-        options.port(annotation.httpPort());
+        WireMockConfiguration options = WireMockConfiguration.options()
+            .port(annotation.httpPort())
+            .enableBrowserProxying(annotation.proxyMode());
 
         if (annotation.httpsEnabled()) {
             options.httpsPort(annotation.httpsPort());
@@ -124,6 +133,7 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         startServerIfRequired(context);
+        setAdditionalOptions(context);
     }
 
     @Override
@@ -133,6 +143,12 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
             startServerIfRequired(context);
         } else {
             resetToDefaultMappings();
+        }
+
+        setAdditionalOptions(context);
+
+        if (proxyMode) {
+            JvmProxyConfigurer.configureFor(wireMockServer);
         }
     }
 
@@ -150,6 +166,10 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
         if (isNonStatic) {
             stopServerIfRunning();
         }
+
+        if (proxyMode) {
+            JvmProxyConfigurer.restorePrevious();
+        }
     }
 
     public WireMockRuntimeInfo getRuntimeInfo() {
@@ -165,6 +185,7 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
         private Options options = WireMockConfiguration.wireMockConfig().dynamicPort();
         private boolean configureStaticDsl = false;
         private boolean failOnUnmatchedRequests = false;
+        private boolean proxyMode = false;
 
         public Builder options(Options options) {
             this.options = options;
@@ -181,8 +202,17 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
             return this;
         }
 
+        public Builder proxyMode(boolean proxyMode) {
+            this.proxyMode = proxyMode;
+            return this;
+        }
+
         public WireMockExtension build() {
-            return new WireMockExtension(options, configureStaticDsl, failOnUnmatchedRequests);
+            if (proxyMode && !options.browserProxySettings().enabled() && (options instanceof WireMockConfiguration)) {
+                ((WireMockConfiguration) options).enableBrowserProxying(true);
+            }
+
+            return new WireMockExtension(options, configureStaticDsl, failOnUnmatchedRequests, proxyMode);
         }
     }
 }
