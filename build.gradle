@@ -27,7 +27,7 @@ def versions = [
         guava          : '30.1.1-jre',
         jackson        : '2.12.4',
         xmlUnit        : '2.8.2',
-        junitJupiter   : '5.7.1'
+        junitJupiter   : '5.7.2'
 ]
 
 dependencies {
