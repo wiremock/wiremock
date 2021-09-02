@@ -154,3 +154,89 @@ By default, in either the declarative or programmatic form, if the WireMock inst
 test run an assertion error will be thrown and the test will fail.
 
 This behavior can be changed by calling `.failOnUnmatchedRequests(false)` on the extension builder when using the programmatic form.
+
+
+## Proxy mode
+The JUnit Jupiter extension can be configured to enable "proxy mode" which simplifies configuration and supports
+[multi-domain mocking](/docs/multi-domain-mocking/).
+
+### Declarative
+In declarative mode this is done by setting the `proxyMode = true` in the annotation declaration. Then, provided your app's
+HTTP client honours the JVM's proxy system properties, you can specify different domain (host) names when creating stubs:
+
+```java
+@WireMockTest(proxyMode = true)
+public class JUnitJupiterExtensionJvmProxyDeclarativeTest {
+
+  CloseableHttpClient client;
+
+  @BeforeEach
+  void init() {
+    client = HttpClientBuilder.create()
+      .useSystemProperties() // This must be enabled for auto proxy config
+      .build();
+  }
+
+  @Test
+  void configures_jvm_proxy_and_enables_browser_proxying() throws Exception {
+    stubFor(get("/things")
+      .withHost(equalTo("one.my.domain"))
+      .willReturn(ok("1")));
+
+    stubFor(get("/things")
+      .withHost(equalTo("two.my.domain"))
+      .willReturn(ok("2")));
+
+    assertThat(getContent("http://one.my.domain/things"), is("1"));
+    assertThat(getContent("http://two.my.domain/things"), is("2"));
+  }
+
+  private String getContent(String url) throws Exception {
+    try (CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+      return EntityUtils.toString(response.getEntity());
+    }
+  }
+}
+```
+
+### Programmatic
+Proxy mode can be enabled via the extension builder when using the programmatic form:
+
+```java
+public class JUnitJupiterProgrammaticProxyTest {
+
+  @RegisterExtension
+  static WireMockExtension wm = WireMockExtension.newInstance()
+    .proxyMode(true)
+    .build();
+
+  CloseableHttpClient client;
+
+  @BeforeEach
+  void init() {
+    client = HttpClientBuilder.create()
+      .useSystemProperties() // This must be enabled for auto proxy config
+      .build();
+  }
+
+  @Test
+  void configures_jvm_proxy_and_enables_browser_proxying() throws Exception {
+    wm.stubFor(get("/things")
+      .withHost(equalTo("one.my.domain"))
+      .willReturn(ok("1")));
+
+    wm.stubFor(get("/things")
+      .withHost(equalTo("two.my.domain"))
+      .willReturn(ok("2")));
+
+    assertThat(getContent("http://one.my.domain/things"), is("1"));
+    assertThat(getContent("http://two.my.domain/things"), is("2"));
+  }
+
+  private String getContent(String url) throws Exception {
+    try (CloseableHttpResponse response = client.execute(new HttpGet(url))) {
+      return EntityUtils.toString(response.getEntity());
+    }
+  }
+}
+```
