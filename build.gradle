@@ -187,8 +187,8 @@ allprojects {
         // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
         systemProperty 'user.timezone', 'Australia/Sydney'
 
-    useJUnitPlatform()
-    exclude 'ignored/**'
+        useJUnitPlatform()
+        exclude 'ignored/**'
 
         maxParallelForks = runningOnCI ? 1 : 3
 
