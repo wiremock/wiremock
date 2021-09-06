@@ -17,6 +17,7 @@ import testsupport.WireMockTestClient;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -95,6 +96,8 @@ public class WebhooksAcceptanceTest {
                 .get(0)
                 .header("X-Multi").values();
         assertThat(multiHeaderValues, hasItems("one", "two"));
+
+        System.out.println("All info notifications:\n" + String.join("\n", testNotifier.getInfoMessages()));
 
         assertThat(testNotifier.getInfoMessages(), hasItem(allOf(
             containsString("Webhook POST request to"),
