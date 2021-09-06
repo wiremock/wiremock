@@ -15,7 +15,6 @@
  */
 package testsupport;
 
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 
@@ -28,8 +27,6 @@ public class TestNotifier implements Notifier {
     private List<String> error;
 
     private Notifier previousNotifier;
-
-    private final ConsoleNotifier consoleNotifier = new ConsoleNotifier(true);
 
     public TestNotifier() {
         this.info = new ArrayList<>();
@@ -50,19 +47,16 @@ public class TestNotifier implements Notifier {
     @Override
     public void info(String message) {
         this.info.add(message);
-        consoleNotifier.info(message);
     }
 
     @Override
     public void error(String message) {
         this.error.add(message);
-        consoleNotifier.error(message);
     }
 
     @Override
     public void error(String message, Throwable t) {
         this.error.add(message);
-        consoleNotifier.error(message, t);
     }
 
     public List<String> getInfoMessages() { return info; }
