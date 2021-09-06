@@ -39,6 +39,20 @@ jobs:
       run: ./gradlew classes testClasses -x generateApiDocs
     - name: Test WireMock
       run: ./gradlew check --stacktrace --no-daemon
+
+    - name: Archive WireMock test report - Windows
+      if: ${{ contains(matrix.os, 'windows') }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: wiremock-core-test-report-${{ matrix.os }}
+        path: build\reports\tests
+    - name: Archive Webhooks test report - Windows
+      if: ${{ contains(matrix.os, 'windows') }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: wiremock-webhooks-extension-test-report-${{ matrix.os }}
+        path: wiremock-webhooks-extension\build\reports\tests
+
     - name: Archive WireMock test report
       uses: actions/upload-artifact@v2
       with:
