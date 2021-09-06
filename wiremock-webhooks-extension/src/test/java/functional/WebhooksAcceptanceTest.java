@@ -2,8 +2,11 @@ package functional;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import org.apache.http.entity.StringEntity;
@@ -34,10 +37,26 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 
 public class WebhooksAcceptanceTest {
 
-    @Rule
-    public WireMockRule targetServer = new WireMockRule(options().dynamicPort().notifier(new ConsoleNotifier("Target", true)));
-
     CountDownLatch latch;
+
+    @Rule
+    public WireMockRule targetServer = new WireMockRule(options()
+            .dynamicPort()
+            .extensions(new PostServeAction() {
+                @Override
+                public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
+                    if (serveEvent.getRequest().getUrl().startsWith("/callback")) {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public String getName() {
+                    return "test-latch";
+                }
+            })
+            .notifier(new ConsoleNotifier("Target", true))
+    );
 
     TestNotifier testNotifier = new TestNotifier();
     CompositeNotifier notifier = new CompositeNotifier(testNotifier, new ConsoleNotifier("Main", true));
@@ -52,11 +71,6 @@ public class WebhooksAcceptanceTest {
 
     @Before
     public void init() {
-        targetServer.addMockServiceRequestListener((request, response) -> {
-            if (request.getUrl().startsWith("/callback")) {
-                latch.countDown();
-            }
-        });
         reset();
         testNotifier.reset();
         targetServer.stubFor(any(anyUrl())
