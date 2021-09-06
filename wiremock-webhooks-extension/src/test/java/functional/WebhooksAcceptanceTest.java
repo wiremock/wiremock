@@ -97,7 +97,7 @@ public class WebhooksAcceptanceTest {
                 .header("X-Multi").values();
         assertThat(multiHeaderValues, hasItems("one", "two"));
 
-        System.out.println("All info notifications:\n" + String.join("\n", testNotifier.getInfoMessages()));
+        System.out.println("All info notifications:\n" + testNotifier.getInfoMessages().stream().map(message -> message.replace("\n", "\n>>> ")).collect(Collectors.joining("\n>>> ")));
 
         assertThat(testNotifier.getInfoMessages(), hasItem(allOf(
             containsString("Webhook POST request to"),
