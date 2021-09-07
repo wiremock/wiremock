@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-08-13T15:02:22+01:00">
+  <meta property="article:published_time" content="2021-09-07T12:06:27+01:00">
   
     <link rel="next" href="/docs/extending-wiremock/" title="Extending WireMock">
   
@@ -228,9 +228,15 @@
       </a>
       
       <li>
-        <a href="/docs/junit-rule/">
+        <a href="/docs/junit-extensions/">
 
-        The JUnit 4.x Rule
+        JUnit 4 and Vintage Usage
+      </a>
+      
+      <li>
+        <a href="/docs/junit-jupiter/">
+
+        JUnit 5+ Jupiter Usage
       </a>
       
       <li>
@@ -273,6 +279,12 @@
         <a href="/docs/proxying/">
 
         Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/multi-domain-mocking/">
+
+        Multi-domain Mocking
       </a>
       
       <li>
@@ -355,7 +367,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Download and Installation">
     <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containingWireMock plus all its dependencies.">
-    <meta itemprop="datePublished" content="August 13, 2021">
+    <meta itemprop="datePublished" content="September 07, 2021">
     
 
     <div class="page__inner-wrap">
@@ -392,7 +404,7 @@ recommended that you use the Java 8 releases if possible.</p>
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.30.1<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.31.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
@@ -402,7 +414,7 @@ recommended that you use the Java 8 releases if possible.</p>
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.30.1<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.31.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
@@ -431,12 +443,12 @@ recommended that you use the Java 8 releases if possible.</p>
 
 <p>Java 8:</p>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.30.1"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.31.0"</span>
 </code></pre></div></div>
 
 <p>Java 8 standalone:</p>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8-standalone:2.30.1"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8-standalone:2.31.0"</span>
 </code></pre></div></div>
 
 <p>Java 7 (deprecated):</p>
@@ -451,7 +463,7 @@ recommended that you use the Java 8 releases if possible.</p>
 
 <h2 id="direct-download">Direct download</h2>
 
-<p>If you want to run WireMock as a standalone process you can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.30.1/wiremock-jre8-standalone-2.30.1.jar">download the standalone JAR from
+<p>If you want to run WireMock as a standalone process you can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.31.0/wiremock-jre8-standalone-2.31.0.jar">download the standalone JAR from
 here</a>.</p>
 
         
