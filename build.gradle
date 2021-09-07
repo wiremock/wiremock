@@ -405,7 +405,7 @@ jar.dependsOn generateApiDocs
 signThinJarPublication.dependsOn writeThinJarPom
 
 task release {
-    dependsOn clean, jar, shadowJar, publish, addGitTag
+    dependsOn clean, jar, shadowJar, publishAllPublicationsToMavenRepository, addGitTag
 }
 
 task 'bump-patch-version' {

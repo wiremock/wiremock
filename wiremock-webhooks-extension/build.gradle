@@ -93,3 +93,7 @@ publishing {
 }
 
 publish.dependsOn shadowJar
+
+task release {
+    dependsOn clean, shadowJar, publishAllPublicationsToMavenRepository
+}
