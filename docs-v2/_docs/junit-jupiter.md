@@ -7,7 +7,7 @@ description: Running WireMock with the JUnit 5 Jupiter test framework.
 
 The JUnit Jupiter extension simplifies running of one or more WireMock instances in a Jupiter test class.
 
-It supports two modes of operation - declarative (simple, not configurable) and programmatic (less simple, configurable).
+It supports two modes of operation - declarative (simple, limited configuration options) and programmatic (less simple, very configurable).
 These are both explained in detail below.
 
 ## Basic usage - declarative
@@ -33,6 +33,7 @@ public class DeclarativeWireMockTest {
         // Info such as port numbers is also available
         int port = wmRuntimeInfo.getHttpPort();
         
+        // Do some testing...
     }
 }
 ```
