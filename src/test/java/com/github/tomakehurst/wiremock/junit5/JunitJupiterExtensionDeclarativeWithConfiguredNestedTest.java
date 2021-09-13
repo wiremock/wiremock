@@ -15,42 +15,42 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 @WireMockTest(httpPort = 8765)
 class JunitJupiterExtensionDeclarativeWithConfiguredNestedTest {
+  @Test
+  void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+    assertThat(wmRuntimeInfo.getHttpPort(), is(8765));
+  }
+
+  @Nested
+  @WireMockTest(httpPort = 8766)
+  class RunsOn8766 {
     @Test
     void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
-        assertThat(wmRuntimeInfo.getHttpPort(), is(8765));
+      assertThat(wmRuntimeInfo.getHttpPort(), is(8766));
     }
+  }
 
-    @Nested
-    @WireMockTest(httpPort = 8766)
-    class RunsOn8766 {
-        @Test
-        void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
-            assertThat(wmRuntimeInfo.getHttpPort(), is(8766));
-        }
+  @Nested
+  @WireMockTest(httpPort = 8767)
+  class RunsOn8767 {
+    @Test
+    void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+      assertThat(wmRuntimeInfo.getHttpPort(), is(8767));
     }
+  }
 
-    @Nested
-    @WireMockTest(httpPort = 8767)
-    class RunsOn8767 {
-        @Test
-        void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
-            assertThat(wmRuntimeInfo.getHttpPort(), is(8767));
-        }
+  @Nested
+  class RunsOnInheritedPort {
+    @Test
+    void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+      assertThat(wmRuntimeInfo.getHttpPort(), is(8765));
     }
-
-    @Nested
-    class RunsOnInheritedPort {
-        @Test
-        void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
-            assertThat(wmRuntimeInfo.getHttpPort(), is(8765));
-        }
-    }
+  }
 }

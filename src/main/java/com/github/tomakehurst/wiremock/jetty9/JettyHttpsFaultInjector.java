@@ -15,87 +15,91 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.google.common.base.Charsets;
+import java.io.IOException;
+import java.net.Socket;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.Socket;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-
 public class JettyHttpsFaultInjector implements FaultInjector {
 
-    private static final byte[] GARBAGE = "lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(Charsets.UTF_8);
+  private static final byte[] GARBAGE =
+      "lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(Charsets.UTF_8);
 
-    private final Response response;
-    private final Socket socket;
+  private final Response response;
+  private final Socket socket;
 
-    public JettyHttpsFaultInjector(HttpServletResponse response) {
-        this.response = JettyUtils.unwrapResponse(response);
-        this.socket = JettyUtils.getTlsSocket(this.response);
+  public JettyHttpsFaultInjector(HttpServletResponse response) {
+    this.response = JettyUtils.unwrapResponse(response);
+    this.socket = JettyUtils.getTlsSocket(this.response);
+  }
+
+  @Override
+  public void connectionResetByPeer() {
+    try {
+      socket.setSoLinger(true, 0);
+      socket.close();
+    } catch (IOException e) {
+      throwUnchecked(e);
     }
+  }
 
-    @Override
-    public void connectionResetByPeer() {
-        try {
-            socket.setSoLinger(true, 0);
-            socket.close();
-        } catch (IOException e) {
-            throwUnchecked(e);
-        }
+  @Override
+  public void emptyResponseAndCloseConnection() {
+    try {
+      socket.close();
+    } catch (IOException e) {
+      throwUnchecked(e);
     }
+  }
 
-    @Override
-    public void emptyResponseAndCloseConnection() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            throwUnchecked(e);
-        }
+  @Override
+  public void malformedResponseChunk() {
+    try {
+      response.setStatus(200);
+      response.flushBuffer();
+      writeGarbageThenCloseSocket();
+    } catch (IOException e) {
+      throwUnchecked(e);
     }
+  }
 
-    @Override
-    public void malformedResponseChunk() {
-        try {
-            response.setStatus(200);
-            response.flushBuffer();
-            writeGarbageThenCloseSocket();
-        } catch (IOException e) {
-            throwUnchecked(e);
-        }
+  @Override
+  public void randomDataAndCloseConnection() {
+    writeGarbageThenCloseSocket();
+  }
 
-    }
-
-    @Override
-    public void randomDataAndCloseConnection() {
-        writeGarbageThenCloseSocket();
-    }
-
-    private void writeGarbageThenCloseSocket() {
-        response.getHttpOutput().getHttpChannel().getEndPoint().write(new Callback() {
-            @Override
-            public void succeeded() {
+  private void writeGarbageThenCloseSocket() {
+    response
+        .getHttpOutput()
+        .getHttpChannel()
+        .getEndPoint()
+        .write(
+            new Callback() {
+              @Override
+              public void succeeded() {
                 try {
-                    socket.close();
+                  socket.close();
                 } catch (IOException e) {
-                    notifier().error("Failed to close socket after Garbage write succeeded", e);
+                  notifier().error("Failed to close socket after Garbage write succeeded", e);
                 }
-            }
+              }
 
-            @Override
-            public void failed(Throwable x) {
+              @Override
+              public void failed(Throwable x) {
                 try {
-                    socket.close();
+                  socket.close();
                 } catch (IOException e) {
-                    notifier().error("Failed to close socket after Garbage write failed", e);
+                  notifier().error("Failed to close socket after Garbage write failed", e);
                 }
-            }
-        }, BufferUtil.toBuffer(GARBAGE));
-    }
-
+              }
+            },
+            BufferUtil.toBuffer(GARBAGE));
+  }
 }

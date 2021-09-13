@@ -17,8 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 public class InvalidParameterException extends ClientError {
 
-    public InvalidParameterException(Errors errors) {
-        super(errors);
-    }
-
+  public InvalidParameterException(Errors errors) {
+    super(errors);
+  }
 }

@@ -17,35 +17,34 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
-
 import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
 
 public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
 
-    @Override
-    public Object apply(Date context, Options options) throws IOException {
-        String format = options.hash("format", null);
-        String offset = options.hash("offset", null);
-        String timezone = options.hash("timezone", null);
+  @Override
+  public Object apply(Date context, Options options) throws IOException {
+    String format = options.hash("format", null);
+    String offset = options.hash("offset", null);
+    String timezone = options.hash("timezone", null);
 
-        ZoneId zoneId;
-        Date date;
+    ZoneId zoneId;
+    Date date;
 
-        if (context instanceof RenderableDate) {
-            date = context;
-            RenderableDate renderableDate = (RenderableDate) context;
-            zoneId = renderableDate.getTimezone();
-        } else {
-            date = context != null ? context : new Date();
-            zoneId = timezone != null ? ZoneId.of(timezone) : null;
-        }
-
-        if (offset != null) {
-            date = DateTimeOffset.fromString(offset).shift(date);
-        }
-
-        return new RenderableDate(date, format, zoneId);
+    if (context instanceof RenderableDate) {
+      date = context;
+      RenderableDate renderableDate = (RenderableDate) context;
+      zoneId = renderableDate.getTimezone();
+    } else {
+      date = context != null ? context : new Date();
+      zoneId = timezone != null ? ZoneId.of(timezone) : null;
     }
+
+    if (offset != null) {
+      date = DateTimeOffset.fromString(offset).shift(date);
+    }
+
+    return new RenderableDate(date, format, zoneId);
+  }
 }

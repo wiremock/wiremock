@@ -30,55 +30,54 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
+
+import java.io.IOException;
+import java.io.OutputStream;
 import org.apache.hc.client5.http.entity.mime.AbstractContentBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
-
 public class MultipartBody extends AbstractContentBody {
-    private final String name;
-    private final byte[] body;
+  private final String name;
+  private final byte[] body;
 
-    MultipartBody(String name, byte[] body) {
-        super(ContentType.APPLICATION_OCTET_STREAM);
-        Args.notEmpty(name, "Name was empty");
-        Args.notNull(body, "Body was null");
-        this.name = name;
-        this.body = body;
-    }
+  MultipartBody(String name, byte[] body) {
+    super(ContentType.APPLICATION_OCTET_STREAM);
+    Args.notEmpty(name, "Name was empty");
+    Args.notNull(body, "Body was null");
+    this.name = name;
+    this.body = body;
+  }
 
-    MultipartBody(String name, String body, ContentType contentType) {
-        super(contentType);
-        Args.notEmpty(name, "Name was empty");
-        Args.notEmpty(body, "Body was null");
-        this.name = name;
-        this.body = bytesFromString(body, contentType.getCharset());
-    }
+  MultipartBody(String name, String body, ContentType contentType) {
+    super(contentType);
+    Args.notEmpty(name, "Name was empty");
+    Args.notEmpty(body, "Body was null");
+    this.name = name;
+    this.body = bytesFromString(body, contentType.getCharset());
+  }
 
-    public static MultipartBody part(String name, byte[] body) {
-        return new MultipartBody(name, body);
-    }
+  public static MultipartBody part(String name, byte[] body) {
+    return new MultipartBody(name, body);
+  }
 
-    public static MultipartBody part(String name, String body, ContentType contentType) {
-        return new MultipartBody(name, body, contentType);
-    }
+  public static MultipartBody part(String name, String body, ContentType contentType) {
+    return new MultipartBody(name, body, contentType);
+  }
 
-    @Override
-    public String getFilename() {
-        return name;
-    }
+  @Override
+  public String getFilename() {
+    return name;
+  }
 
-    @Override
-    public void writeTo(OutputStream out) throws IOException {
-        out.write(body);
-    }
+  @Override
+  public void writeTo(OutputStream out) throws IOException {
+    out.write(body);
+  }
 
-    @Override
-    public long getContentLength() {
-        return body.length;
-    }
+  @Override
+  public long getContentLength() {
+    return body.length;
+  }
 }

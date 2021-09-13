@@ -15,52 +15,52 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static java.lang.System.err;
+import static java.lang.System.out;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static java.lang.System.err;
-import static java.lang.System.out;
-
 public class ConsoleNotifier implements Notifier {
 
-    private final boolean verbose;
-    private final String prefix;
+  private final boolean verbose;
+  private final String prefix;
 
-    public ConsoleNotifier(boolean verbose) {
-        this(null, verbose);
+  public ConsoleNotifier(boolean verbose) {
+    this(null, verbose);
+  }
+
+  public ConsoleNotifier(String name, boolean verbose) {
+    this.verbose = verbose;
+    this.prefix = name != null ? "[" + name + "] " : "";
+
+    if (verbose) {
+      info("Verbose logging enabled");
     }
+  }
 
-    public ConsoleNotifier(String name, boolean verbose) {
-        this.verbose = verbose;
-        this.prefix = name != null ? "[" + name + "] " : "";
-
-        if (verbose) {
-            info("Verbose logging enabled");
-        }
+  @Override
+  public void info(String message) {
+    if (verbose) {
+      out.println(formatMessage(message));
     }
+  }
 
-    @Override
-    public void info(String message) {
-        if (verbose) {
-            out.println(formatMessage(message));
-        }
-    }
+  @Override
+  public void error(String message) {
+    err.println(formatMessage(message));
+  }
 
-    @Override
-    public void error(String message) {
-        err.println(formatMessage(message));
-    }
+  @Override
+  public void error(String message, Throwable t) {
+    err.println(formatMessage(message));
+    t.printStackTrace(err);
+  }
 
-    @Override
-    public void error(String message, Throwable t) {
-        err.println(formatMessage(message));
-        t.printStackTrace(err);
-    }
-
-    private String formatMessage(String message) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        String date = df.format(new Date());
-        return String.format("%s%s %s", prefix, date, message);
-    }
+  private String formatMessage(String message) {
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    String date = df.format(new Date());
+    return String.format("%s%s %s", prefix, date, message);
+  }
 }

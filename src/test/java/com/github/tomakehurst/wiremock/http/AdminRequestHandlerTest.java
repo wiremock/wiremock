@@ -15,53 +15,56 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.io.UnsupportedEncodingException;
-
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.io.UnsupportedEncodingException;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 public class AdminRequestHandlerTest {
 
-    private Notifier notifier = mock(Notifier.class);
-    @RegisterExtension
-    private WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
+  private Notifier notifier = mock(Notifier.class);
 
-    @Test
-    public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-        WireMockTestClient client = new WireMockTestClient(wm.getPort());
+  @RegisterExtension
+  private WireMockExtension wm =
+      WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
-        String postHeaderABCName = "ABC";
-        String postHeaderABCValue = "abc123";
-        String postBody = "{\n" +
-                "    \"request\": {\n" +
-                "        \"method\": \"GET\",\n" +
-                "        \"url\": \"/some/thing\"\n" +
-                "    },\n" +
-                "    \"response\": {\n" +
-                "        \"status\": 200,\n" +
-                "        \"body\": \"Hello world!\",\n" +
-                "        \"headers\": {\n" +
-                "            \"Content-Type\": \"text/plain\"\n" +
-                "        }\n" +
-                "    }\n" +
-                "}";
+  @Test
+  public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
+    WireMockTestClient client = new WireMockTestClient(wm.getPort());
 
-        client.post("/__admin/mappings", new StringEntity(postBody),
-                withHeader(postHeaderABCName, postHeaderABCValue));
+    String postHeaderABCName = "ABC";
+    String postHeaderABCValue = "abc123";
+    String postBody =
+        "{\n"
+            + "    \"request\": {\n"
+            + "        \"method\": \"GET\",\n"
+            + "        \"url\": \"/some/thing\"\n"
+            + "    },\n"
+            + "    \"response\": {\n"
+            + "        \"status\": 200,\n"
+            + "        \"body\": \"Hello world!\",\n"
+            + "        \"headers\": {\n"
+            + "            \"Content-Type\": \"text/plain\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}";
 
-        verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
-        verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
-        verify(notifier).info(contains(postBody));
-    }
+    client.post(
+        "/__admin/mappings",
+        new StringEntity(postBody),
+        withHeader(postHeaderABCName, postHeaderABCValue));
 
+    verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
+    verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
+    verify(notifier).info(contains(postBody));
+  }
 }

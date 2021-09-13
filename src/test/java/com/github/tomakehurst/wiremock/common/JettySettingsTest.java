@@ -15,58 +15,57 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.google.common.base.Optional;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class JettySettingsTest {
 
-    private static final int number = 1234;
-    private static final long longNumber = Long.MAX_VALUE;
+  private static final int number = 1234;
+  private static final long longNumber = Long.MAX_VALUE;
 
-    @Test
-    public void testBuilderWithValues() {
-        JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
-        builder.withAcceptors(number)
-                .withAcceptQueueSize(number)
-                .withRequestHeaderSize(number)
-                .withResponseHeaderSize(number)
-                .withStopTimeout(longNumber)
-                .withIdleTimeout(longNumber);
-      
-        JettySettings jettySettings = builder.build();
+  @Test
+  public void testBuilderWithValues() {
+    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    builder
+        .withAcceptors(number)
+        .withAcceptQueueSize(number)
+        .withRequestHeaderSize(number)
+        .withResponseHeaderSize(number)
+        .withStopTimeout(longNumber)
+        .withIdleTimeout(longNumber);
 
-        ensurePresent(jettySettings.getAcceptors());
-        ensurePresent(jettySettings.getAcceptQueueSize());
-        ensurePresent(jettySettings.getRequestHeaderSize());
-        ensurePresent(jettySettings.getResponseHeaderSize());
-        ensureLongPresent(jettySettings.getStopTimeout());
-        ensureLongPresent(jettySettings.getIdleTimeout());
-    }
+    JettySettings jettySettings = builder.build();
 
-    @Test
-    public void testBuilderWithNoValues() {
+    ensurePresent(jettySettings.getAcceptors());
+    ensurePresent(jettySettings.getAcceptQueueSize());
+    ensurePresent(jettySettings.getRequestHeaderSize());
+    ensurePresent(jettySettings.getResponseHeaderSize());
+    ensureLongPresent(jettySettings.getStopTimeout());
+    ensureLongPresent(jettySettings.getIdleTimeout());
+  }
 
+  @Test
+  public void testBuilderWithNoValues() {
 
-        JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
-        JettySettings jettySettings = builder.build();
+    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    JettySettings jettySettings = builder.build();
 
-        assertFalse(jettySettings.getAcceptors().isPresent());
-        assertFalse(jettySettings.getAcceptQueueSize().isPresent());
-        assertFalse(jettySettings.getRequestHeaderSize().isPresent());
-        assertFalse(jettySettings.getStopTimeout().isPresent());
-        assertFalse(jettySettings.getIdleTimeout().isPresent());
-    }
+    assertFalse(jettySettings.getAcceptors().isPresent());
+    assertFalse(jettySettings.getAcceptQueueSize().isPresent());
+    assertFalse(jettySettings.getRequestHeaderSize().isPresent());
+    assertFalse(jettySettings.getStopTimeout().isPresent());
+    assertFalse(jettySettings.getIdleTimeout().isPresent());
+  }
 
-    private void ensurePresent(Optional<Integer> optional) {
-        assertTrue(optional.isPresent());
-        assertEquals(Integer.valueOf(number), optional.get());
-    }
+  private void ensurePresent(Optional<Integer> optional) {
+    assertTrue(optional.isPresent());
+    assertEquals(Integer.valueOf(number), optional.get());
+  }
 
-    private void ensureLongPresent(Optional<Long> optional) {
-        assertTrue(optional.isPresent());
-        assertEquals(Long.valueOf(longNumber), optional.get());
-    }
-
+  private void ensureLongPresent(Optional<Long> optional) {
+    assertTrue(optional.isPresent());
+    assertEquals(Long.valueOf(longNumber), optional.get());
+  }
 }

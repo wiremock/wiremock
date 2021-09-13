@@ -15,33 +15,35 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import org.junit.jupiter.api.Test;
-
 import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.FULL;
 import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.IDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
+
 public class SnapshotOutputFormatterTest {
-    @Test
-    public void fromStringDefault() {
-        assertEquals(FULL, SnapshotOutputFormatter.fromString(null));
-    }
+  @Test
+  public void fromStringDefault() {
+    assertEquals(FULL, SnapshotOutputFormatter.fromString(null));
+  }
 
-    @Test
-    public void fromStringWithInvalidFormat() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            SnapshotOutputFormatter.fromString("invalid output format");
+  @Test
+  public void fromStringWithInvalidFormat() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          SnapshotOutputFormatter.fromString("invalid output format");
         });
-    }
+  }
 
-    @Test
-    public void fromStringWithFull() {
-        assertEquals(FULL, SnapshotOutputFormatter.fromString("full"));
-    }
+  @Test
+  public void fromStringWithFull() {
+    assertEquals(FULL, SnapshotOutputFormatter.fromString("full"));
+  }
 
-    @Test
-    public void fromStringWithIds() {
-        assertEquals(IDS, SnapshotOutputFormatter.fromString("ids"));
-    }
+  @Test
+  public void fromStringWithIds() {
+    assertEquals(IDS, SnapshotOutputFormatter.fromString("ids"));
+  }
 }

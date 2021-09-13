@@ -15,38 +15,41 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class TextFileTest {
-    @Test
-    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "This test can only be run on non-Windows " +
-            "its behaviour is OS specific")
-    public void returnsPathToFileOnLinuxSystems() throws Exception {
-        TextFile textFile = new TextFile(new URI("file://home/bob/myfile.txt"));
+  @Test
+  @DisabledOnOs(
+      value = OS.WINDOWS,
+      disabledReason = "This test can only be run on non-Windows " + "its behaviour is OS specific")
+  public void returnsPathToFileOnLinuxSystems() throws Exception {
+    TextFile textFile = new TextFile(new URI("file://home/bob/myfile.txt"));
 
-        String path = textFile.getPath();
+    String path = textFile.getPath();
 
-        assertEquals("/home/bob/myfile.txt", path);
-    }
+    assertEquals("/home/bob/myfile.txt", path);
+  }
 
-    @Test
-    @EnabledOnOs(value = OS.WINDOWS, disabledReason = "This test can only be run on Windows " +
-            "because File uses FileSystem in its constructor " +
-            "and its behaviour is OS specific")
-    public void returnsPathToFileOnWindowsSystems() throws Exception {
-        TextFile textFile = new TextFile(new URI("file:/C:/Users/bob/myfile.txt"));
+  @Test
+  @EnabledOnOs(
+      value = OS.WINDOWS,
+      disabledReason =
+          "This test can only be run on Windows "
+              + "because File uses FileSystem in its constructor "
+              + "and its behaviour is OS specific")
+  public void returnsPathToFileOnWindowsSystems() throws Exception {
+    TextFile textFile = new TextFile(new URI("file:/C:/Users/bob/myfile.txt"));
 
-        Path path = Paths.get(textFile.getPath());
+    Path path = Paths.get(textFile.getPath());
 
-        assertEquals(Paths.get("C:/Users/bob/myfile.txt"), path);
-    }
+    assertEquals(Paths.get("C:/Users/bob/myfile.txt"), path);
+  }
 }
