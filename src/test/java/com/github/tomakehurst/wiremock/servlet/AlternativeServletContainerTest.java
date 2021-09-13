@@ -15,6 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -24,37 +29,36 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class AlternativeServletContainerTest {
 
-    @RegisterExtension
-    public WireMockExtension wm = WireMockExtension.newInstance().options(options().httpServerFactory(new AltHttpServerFactory())).build();
-    private WireMockTestClient client;
+  @RegisterExtension
+  public WireMockExtension wm =
+      WireMockExtension.newInstance()
+          .options(options().httpServerFactory(new AltHttpServerFactory()))
+          .build();
 
-    @BeforeEach
-    public void init() {
-        client = new WireMockTestClient(wm.getPort());
-        WireMock.configureFor(wm.getPort());
-    }
+  private WireMockTestClient client;
 
-    @Test
-    public void supportsAlternativeHttpServerForBasicStub() {
-        stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withStatus(204)));
+  @BeforeEach
+  public void init() {
+    client = new WireMockTestClient(wm.getPort());
+    WireMock.configureFor(wm.getPort());
+  }
 
-        assertThat(client.get("/alt-server").statusCode(), is(204));
-    }
+  @Test
+  public void supportsAlternativeHttpServerForBasicStub() {
+    stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withStatus(204)));
 
-    @Test
-    public void supportsAlternativeHttpServerForFaultInjection() {
-        stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
+    assertThat(client.get("/alt-server").statusCode(), is(204));
+  }
 
-        WireMockResponse response = client.get("/alt-server");
+  @Test
+  public void supportsAlternativeHttpServerForFaultInjection() {
+    stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
 
-        assertThat(response.statusCode(), is(418));
-        assertThat(response.content(), is("No fault injector is configured!"));
-    }
+    WireMockResponse response = client.get("/alt-server");
+
+    assertThat(response.statusCode(), is(418));
+    assertThat(response.content(), is("No fault injector is configured!"));
+  }
 }

@@ -15,28 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class ContainsPatternTest {
 
-    @Test
-    public void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {
-        assertTrue(
-            WireMock.containing("thing").match("mythings").isExactMatch()
-        );
-    }
+  @Test
+  public void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {
+    assertTrue(WireMock.containing("thing").match("mythings").isExactMatch());
+  }
 
-    @Test
-    public void returnsNoMatchWhenExpectedValueNotContainedInTestValue() {
-        MatchResult matchResult = WireMock.containing("thing").match("otherstuff");
-        assertFalse(matchResult.isExactMatch());
-        assertThat(matchResult.getDistance(), is(1.0));
-    }
-
+  @Test
+  public void returnsNoMatchWhenExpectedValueNotContainedInTestValue() {
+    MatchResult matchResult = WireMock.containing("thing").match("otherstuff");
+    assertFalse(matchResult.isExactMatch());
+    assertThat(matchResult.getDistance(), is(1.0));
+  }
 }

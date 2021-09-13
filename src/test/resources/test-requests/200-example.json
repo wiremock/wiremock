@@ -1,9 +1,7 @@
-{ 													
-	"request": {									
-		"method": "GET",						
-		"url": "/canned/resource/1"						
-	},												
-	"response": {									
-		"status": 200								
-	}												
+{
+  "request": {
+    "method": "GET",
+    "url": "/canned/resource/1"
+  },
+  "response": {"status": 200}
 }

@@ -26,87 +26,92 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.Syst
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class TemplateEngine {
 
-    private final Handlebars handlebars;
-    private final Cache<Object, HandlebarsOptimizedTemplate> cache;
-    private final Long maxCacheEntries;
+  private final Handlebars handlebars;
+  private final Cache<Object, HandlebarsOptimizedTemplate> cache;
+  private final Long maxCacheEntries;
 
-    public TemplateEngine(Map<String, Helper<?>> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
-        this(new Handlebars(), helpers, maxCacheEntries, permittedSystemKeys);
+  public TemplateEngine(
+      Map<String, Helper<?>> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
+    this(new Handlebars(), helpers, maxCacheEntries, permittedSystemKeys);
+  }
+
+  public TemplateEngine(
+      Handlebars handlebars,
+      Map<String, Helper<?>> helpers,
+      Long maxCacheEntries,
+      Set<String> permittedSystemKeys) {
+    this.handlebars = handlebars;
+    this.maxCacheEntries = maxCacheEntries;
+    CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+    if (maxCacheEntries != null) {
+      cacheBuilder.maximumSize(maxCacheEntries);
+    }
+    cache = cacheBuilder.build();
+
+    addHelpers(helpers, permittedSystemKeys);
+  }
+
+  private void addHelpers(Map<String, Helper<?>> helpers, Set<String> permittedSystemKeys) {
+    for (StringHelpers helper : StringHelpers.values()) {
+      if (!helper.name().equals("now")) {
+        this.handlebars.registerHelper(helper.name(), helper);
+      }
     }
 
-    public TemplateEngine(Handlebars handlebars, Map<String, Helper<?>> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
-        this.handlebars = handlebars;
-        this.maxCacheEntries = maxCacheEntries;
-        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-        if (maxCacheEntries != null) {
-            cacheBuilder.maximumSize(maxCacheEntries);
-        }
-        cache = cacheBuilder.build();
-
-        addHelpers(helpers, permittedSystemKeys);
+    for (NumberHelper helper : NumberHelper.values()) {
+      this.handlebars.registerHelper(helper.name(), helper);
     }
 
-    private void addHelpers(Map<String, Helper<?>> helpers, Set<String> permittedSystemKeys) {
-        for (StringHelpers helper: StringHelpers.values()) {
-            if (!helper.name().equals("now")) {
-                this.handlebars.registerHelper(helper.name(), helper);
-            }
-        }
-
-        for (NumberHelper helper: NumberHelper.values()) {
-            this.handlebars.registerHelper(helper.name(), helper);
-        }
-
-        for (ConditionalHelpers helper: ConditionalHelpers.values()) {
-            this.handlebars.registerHelper(helper.name(), helper);
-        }
-
-        this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
-
-        //Add all available wiremock helpers
-        for (WireMockHelpers helper: WireMockHelpers.values()) {
-            this.handlebars.registerHelper(helper.name(), helper);
-        }
-
-        this.handlebars.registerHelper("systemValue", new SystemValueHelper(new SystemKeyAuthoriser(permittedSystemKeys)));
-
-        for (Map.Entry<String, Helper<?>> entry: helpers.entrySet()) {
-            this.handlebars.registerHelper(entry.getKey(), entry.getValue());
-        }
+    for (ConditionalHelpers helper : ConditionalHelpers.values()) {
+      this.handlebars.registerHelper(helper.name(), helper);
     }
 
-    public HandlebarsOptimizedTemplate getTemplate(final Object key, final String content) {
-        if (maxCacheEntries != null && maxCacheEntries < 1) {
-            return getUncachedTemplate(content);
-        }
+    this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
 
-        try {
-            return cache.get(key, () -> new HandlebarsOptimizedTemplate(handlebars, content));
-        } catch (ExecutionException e) {
-            return Exceptions.throwUnchecked(e, HandlebarsOptimizedTemplate.class);
-        }
+    // Add all available wiremock helpers
+    for (WireMockHelpers helper : WireMockHelpers.values()) {
+      this.handlebars.registerHelper(helper.name(), helper);
     }
 
-    public HandlebarsOptimizedTemplate getUncachedTemplate(final String content) {
-        return new HandlebarsOptimizedTemplate(handlebars, content);
+    this.handlebars.registerHelper(
+        "systemValue", new SystemValueHelper(new SystemKeyAuthoriser(permittedSystemKeys)));
+
+    for (Map.Entry<String, Helper<?>> entry : helpers.entrySet()) {
+      this.handlebars.registerHelper(entry.getKey(), entry.getValue());
+    }
+  }
+
+  public HandlebarsOptimizedTemplate getTemplate(final Object key, final String content) {
+    if (maxCacheEntries != null && maxCacheEntries < 1) {
+      return getUncachedTemplate(content);
     }
 
-    public long getCacheSize() {
-        return cache.size();
+    try {
+      return cache.get(key, () -> new HandlebarsOptimizedTemplate(handlebars, content));
+    } catch (ExecutionException e) {
+      return Exceptions.throwUnchecked(e, HandlebarsOptimizedTemplate.class);
     }
+  }
 
-    public void invalidateCache() {
-        cache.invalidateAll();
-    }
+  public HandlebarsOptimizedTemplate getUncachedTemplate(final String content) {
+    return new HandlebarsOptimizedTemplate(handlebars, content);
+  }
 
-    public Long getMaxCacheEntries() {
-        return maxCacheEntries;
-    }
+  public long getCacheSize() {
+    return cache.size();
+  }
+
+  public void invalidateCache() {
+    cache.invalidateAll();
+  }
+
+  public Long getMaxCacheEntries() {
+    return maxCacheEntries;
+  }
 }

@@ -15,14 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.Collection;
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
@@ -30,33 +22,42 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
+import java.util.Collection;
+import java.util.List;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] {
-               // trusted                     certificateCN validCertificate?
-                { TRUST_NOBODY,               "localhost",  true  },
-                { singletonList("other.com"), "localhost",  true  },
-                { singletonList("localhost"), "other.com",  true  },
-                { singletonList("localhost"), "other.com",  false },
-                { singletonList("localhost"), "localhost",  true  },
-                { singletonList("localhost"), "localhost",  false },
+public class HttpClientFactoryAcceptsTrustedCertificatesTest
+    extends HttpClientFactoryCertificateVerificationTest {
+
+  public static Collection<Object[]> data() {
+    return asList(
+        new Object[][] {
+          // trusted                     certificateCN validCertificate?
+          {TRUST_NOBODY, "localhost", true},
+          {singletonList("other.com"), "localhost", true},
+          {singletonList("localhost"), "other.com", true},
+          {singletonList("localhost"), "other.com", false},
+          {singletonList("localhost"), "localhost", true},
+          {singletonList("localhost"), "localhost", false},
         });
-    }
+  }
 
-    @MethodSource("data")
-    @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-    public void certificatesAreAccepted(List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
+  @MethodSource("data")
+  @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
+  public void certificatesAreAccepted(
+      List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
-        startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
+    startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
-        server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
+    server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-        CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
+    CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
 
-        String result = getEntityAsStringAndCloseStream(response);
+    String result = getEntityAsStringAndCloseStream(response);
 
-        assertEquals("Hello World", result);
-    }
-
+    assertEquals("Hello World", result);
+  }
 }

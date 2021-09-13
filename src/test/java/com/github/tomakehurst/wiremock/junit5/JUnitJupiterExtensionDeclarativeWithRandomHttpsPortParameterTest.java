@@ -15,38 +15,37 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 @WireMockTest(httpsEnabled = true)
 public class JUnitJupiterExtensionDeclarativeWithRandomHttpsPortParameterTest {
 
-    CloseableHttpClient client;
+  CloseableHttpClient client;
 
-    @BeforeEach
-    void init() {
-        client = HttpClientFactory.createClient();
+  @BeforeEach
+  void init() {
+    client = HttpClientFactory.createClient();
+  }
+
+  @Test
+  void runs_on_a_random_port_when_enabled(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+    assertTrue(wmRuntimeInfo.isHttpsEnabled(), "Expected HTTPS to be enabled");
+
+    stubFor(get("/thing").willReturn(ok()));
+
+    HttpGet request = new HttpGet(wmRuntimeInfo.getHttpsBaseUrl() + "/thing");
+    try (CloseableHttpResponse response = client.execute(request)) {
+      assertThat(response.getCode(), is(200));
     }
-
-    @Test
-    void runs_on_a_random_port_when_enabled(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
-        assertTrue(wmRuntimeInfo.isHttpsEnabled(), "Expected HTTPS to be enabled");
-
-        stubFor(get("/thing").willReturn(ok()));
-
-        HttpGet request = new HttpGet(wmRuntimeInfo.getHttpsBaseUrl() + "/thing");
-        try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getCode(), is(200));
-        }
-    }
-
+  }
 }

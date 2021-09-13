@@ -15,37 +15,37 @@
  */
 package com.github.tomakehurst.wiremock.admin.model;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import org.junit.jupiter.api.Test;
+
 public class QueryParamsTest {
 
-    @Test
-    public void returnsEmptyStringWhenNoParametersPresent() {
-        assertThat(QueryParams.EMPTY.toString(), is(""));
-    }
+  @Test
+  public void returnsEmptyStringWhenNoParametersPresent() {
+    assertThat(QueryParams.EMPTY.toString(), is(""));
+  }
 
-    @Test
-    public void correctlyRendersASingleQueryParamWithSingleValueAsString() {
-        assertThat(QueryParams.single("param", "123").toString(), is("?param=123"));
-    }
+  @Test
+  public void correctlyRendersASingleQueryParamWithSingleValueAsString() {
+    assertThat(QueryParams.single("param", "123").toString(), is("?param=123"));
+  }
 
-    @Test
-    public void correctlyRendersASingleQueryParamWithMultipleValuesAsString() {
-        assertThat(QueryParams.single("param", "123", "blah", "456").toString(), is("?param=123&param=blah&param=456"));
-    }
+  @Test
+  public void correctlyRendersASingleQueryParamWithMultipleValuesAsString() {
+    assertThat(
+        QueryParams.single("param", "123", "blah", "456").toString(),
+        is("?param=123&param=blah&param=456"));
+  }
 
-    @Test
-    public void correctlyRendersMultipleQueryParamsWithMixedSingleAndMultipleValuesAsString() {
-        QueryParams queryParams = new QueryParams();
-        queryParams.put("one", singletonList("1"));
-        queryParams.put("two", asList("2", "three"));
-        assertThat(queryParams.toString(), is("?one=1&two=2&two=three"));
-    }
+  @Test
+  public void correctlyRendersMultipleQueryParamsWithMixedSingleAndMultipleValuesAsString() {
+    QueryParams queryParams = new QueryParams();
+    queryParams.put("one", singletonList("1"));
+    queryParams.put("two", asList("2", "three"));
+    assertThat(queryParams.toString(), is("?one=1&two=2&two=three"));
+  }
 }

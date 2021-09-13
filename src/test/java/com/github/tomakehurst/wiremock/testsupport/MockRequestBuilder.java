@@ -15,14 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.http.*;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.collect.Lists.newArrayList;
@@ -30,123 +22,130 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static org.mockito.Mockito.when;
 
+import com.github.tomakehurst.wiremock.http.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import org.mockito.Mockito;
+
 public class MockRequestBuilder {
 
-	private String url = "/";
-	private RequestMethod method = GET;
-	private String clientIp = "x.x.x.x";
-	private List<HttpHeader> individualHeaders = newArrayList();
-	private Map<String, Cookie> cookies = newHashMap();
-	private List<QueryParameter> queryParameters = newArrayList();
-	private String body = "";
-	private String bodyAsBase64 = "";
-	private Collection<Request.Part> multiparts = newArrayList();
+  private String url = "/";
+  private RequestMethod method = GET;
+  private String clientIp = "x.x.x.x";
+  private List<HttpHeader> individualHeaders = newArrayList();
+  private Map<String, Cookie> cookies = newHashMap();
+  private List<QueryParameter> queryParameters = newArrayList();
+  private String body = "";
+  private String bodyAsBase64 = "";
+  private Collection<Request.Part> multiparts = newArrayList();
 
-	private boolean browserProxyRequest = false;
-	private String mockName;
+  private boolean browserProxyRequest = false;
+  private String mockName;
 
-	public MockRequestBuilder() {
-	}
+  public MockRequestBuilder() {}
 
-	public MockRequestBuilder(String mockName) {
-		this.mockName = mockName;
-	}
+  public MockRequestBuilder(String mockName) {
+    this.mockName = mockName;
+  }
 
-	public static MockRequestBuilder aRequest() {
-		return new MockRequestBuilder();
-	}
+  public static MockRequestBuilder aRequest() {
+    return new MockRequestBuilder();
+  }
 
-	public static MockRequestBuilder aRequest(String mockName) {
-		return new MockRequestBuilder(mockName);
-	}
+  public static MockRequestBuilder aRequest(String mockName) {
+    return new MockRequestBuilder(mockName);
+  }
 
-	public MockRequestBuilder withUrl(String url) {
-		this.url = url;
-		return this;
-	}
+  public MockRequestBuilder withUrl(String url) {
+    this.url = url;
+    return this;
+  }
 
-	public MockRequestBuilder withQueryParameter(String key, String... values) {
-		queryParameters.add(new QueryParameter(key, Arrays.asList(values)));
-		return this;
-	}
+  public MockRequestBuilder withQueryParameter(String key, String... values) {
+    queryParameters.add(new QueryParameter(key, Arrays.asList(values)));
+    return this;
+  }
 
-	public MockRequestBuilder withMethod(RequestMethod method) {
-		this.method = method;
-		return this;
-	}
+  public MockRequestBuilder withMethod(RequestMethod method) {
+    this.method = method;
+    return this;
+  }
 
-	public MockRequestBuilder withClientIp(String clientIp) {
-		this.clientIp = clientIp;
-		return this;
-	}
+  public MockRequestBuilder withClientIp(String clientIp) {
+    this.clientIp = clientIp;
+    return this;
+  }
 
-	public MockRequestBuilder withHeader(String key, String value) {
-		individualHeaders.add(new HttpHeader(key, value));
-		return this;
-	}
+  public MockRequestBuilder withHeader(String key, String value) {
+    individualHeaders.add(new HttpHeader(key, value));
+    return this;
+  }
 
-	public MockRequestBuilder withCookie(String key, String value) {
-		cookies.put(key, new Cookie(value));
-		return this;
-	}
+  public MockRequestBuilder withCookie(String key, String value) {
+    cookies.put(key, new Cookie(value));
+    return this;
+  }
 
-	public MockRequestBuilder withBody(String body) {
-		this.body = body;
-		return this;
-	}
+  public MockRequestBuilder withBody(String body) {
+    this.body = body;
+    return this;
+  }
 
-	public MockRequestBuilder withBodyAsBase64(String bodyAsBase64) {
-		this.bodyAsBase64 = bodyAsBase64;
-		return this;
-	}
+  public MockRequestBuilder withBodyAsBase64(String bodyAsBase64) {
+    this.bodyAsBase64 = bodyAsBase64;
+    return this;
+  }
 
-	public MockRequestBuilder asBrowserProxyRequest() {
-		this.browserProxyRequest = true;
-		return this;
-	}
+  public MockRequestBuilder asBrowserProxyRequest() {
+    this.browserProxyRequest = true;
+    return this;
+  }
 
-	public MockRequestBuilder withMultiparts(Collection<Request.Part> parts) {
-		this.multiparts = parts;
-		return this;
-	}
+  public MockRequestBuilder withMultiparts(Collection<Request.Part> parts) {
+    this.multiparts = parts;
+    return this;
+  }
 
-	public Request build() {
-		final HttpHeaders headers = new HttpHeaders(individualHeaders);
+  public Request build() {
+    final HttpHeaders headers = new HttpHeaders(individualHeaders);
 
-		final Request request = mockName == null ? Mockito.mock(Request.class) : Mockito.mock(Request.class, mockName);
-		when(request.getUrl()).thenReturn(url);
-		when(request.getMethod()).thenReturn(method);
-		when(request.getClientIp()).thenReturn(clientIp);
-		for (HttpHeader header : headers.all()) {
-			when(request.containsHeader(header.key())).thenReturn(true);
-			when(request.getHeader(header.key())).thenReturn(header.firstValue());
-		}
+    final Request request =
+        mockName == null ? Mockito.mock(Request.class) : Mockito.mock(Request.class, mockName);
+    when(request.getUrl()).thenReturn(url);
+    when(request.getMethod()).thenReturn(method);
+    when(request.getClientIp()).thenReturn(clientIp);
+    for (HttpHeader header : headers.all()) {
+      when(request.containsHeader(header.key())).thenReturn(true);
+      when(request.getHeader(header.key())).thenReturn(header.firstValue());
+    }
 
-		for (HttpHeader header : headers.all()) {
-			when(request.header(header.key())).thenReturn(header);
-			if (header.key().equals(ContentTypeHeader.KEY) && header.isPresent()) {
-				when(request.contentTypeHeader()).thenReturn(new ContentTypeHeader(header.firstValue()));
-			}
-		}
+    for (HttpHeader header : headers.all()) {
+      when(request.header(header.key())).thenReturn(header);
+      if (header.key().equals(ContentTypeHeader.KEY) && header.isPresent()) {
+        when(request.contentTypeHeader()).thenReturn(new ContentTypeHeader(header.firstValue()));
+      }
+    }
 
-		for (QueryParameter queryParameter : queryParameters) {
-			when(request.queryParameter(queryParameter.key())).thenReturn(queryParameter);
-		}
+    for (QueryParameter queryParameter : queryParameters) {
+      when(request.queryParameter(queryParameter.key())).thenReturn(queryParameter);
+    }
 
-		when(request.header(Mockito.any(String.class))).thenReturn(httpHeader("key", "value"));
+    when(request.header(Mockito.any(String.class))).thenReturn(httpHeader("key", "value"));
 
-		when(request.getHeaders()).thenReturn(headers);
-		when(request.getAllHeaderKeys()).thenReturn(newLinkedHashSet(headers.keys()));
-		when(request.containsHeader(Mockito.any(String.class))).thenReturn(false);
-		when(request.getCookies()).thenReturn(cookies);
-		when(request.getBody()).thenReturn(body.getBytes());
-		when(request.getBodyAsString()).thenReturn(body);
-		when(request.getBodyAsBase64()).thenReturn(bodyAsBase64);
-		when(request.getAbsoluteUrl()).thenReturn("http://localhost:8080" + url);
-		when(request.isBrowserProxyRequest()).thenReturn(browserProxyRequest);
-		when(request.isMultipart()).thenReturn(multiparts != null && !multiparts.isEmpty());
-		when(request.getParts()).thenReturn(multiparts);
+    when(request.getHeaders()).thenReturn(headers);
+    when(request.getAllHeaderKeys()).thenReturn(newLinkedHashSet(headers.keys()));
+    when(request.containsHeader(Mockito.any(String.class))).thenReturn(false);
+    when(request.getCookies()).thenReturn(cookies);
+    when(request.getBody()).thenReturn(body.getBytes());
+    when(request.getBodyAsString()).thenReturn(body);
+    when(request.getBodyAsBase64()).thenReturn(bodyAsBase64);
+    when(request.getAbsoluteUrl()).thenReturn("http://localhost:8080" + url);
+    when(request.isBrowserProxyRequest()).thenReturn(browserProxyRequest);
+    when(request.isMultipart()).thenReturn(multiparts != null && !multiparts.isEmpty());
+    when(request.getParts()).thenReturn(multiparts);
 
-		return request;
-	}
+    return request;
+  }
 }

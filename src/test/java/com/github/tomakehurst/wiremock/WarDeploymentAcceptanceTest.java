@@ -15,6 +15,14 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.Network;
@@ -26,91 +34,84 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
-
 public class WarDeploymentAcceptanceTest {
 
-	private Server jetty;
-	
-	private WireMockTestClient testClient;
-	
-	@BeforeEach
-	public void init() throws Exception {
-        String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
-		WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
+  private Server jetty;
 
-		int port = attemptToStartOnRandomPort(context);
+  private WireMockTestClient testClient;
 
-		WireMock.configureFor("localhost", port, "/wiremock");
-		testClient = new WireMockTestClient(port);
-	}
+  @BeforeEach
+  public void init() throws Exception {
+    String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
+    WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
 
-	private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
-		int port;
+    int port = attemptToStartOnRandomPort(context);
 
-		int attemptsRemaining = 3;
-		while (true) {
-			port = Network.findFreePort();
-			jetty = new Server(port);
-			jetty.setHandler(context);
-			try {
-				jetty.start();
-				break;
-			} catch (Exception e) {
-				attemptsRemaining--;
-				if (attemptsRemaining > 0) {
-					continue;
-				}
+    WireMock.configureFor("localhost", port, "/wiremock");
+    testClient = new WireMockTestClient(port);
+  }
 
-				throw e;
-			}
-		}
-		return port;
-	}
+  private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
+    int port;
 
-	@AfterEach
-	public void cleanup() throws Exception {
-		jetty.stop();
-		WireMock.configure();
-	}
-	
-	@Test
-	public void servesBakedInStubResponse() {
-		WireMockResponse response = testClient.get("/wiremock/api/mytest");
-		assertThat(response.content(), containsString("YES"));
-	}
-	
-	@Test
-	public void acceptsAndReturnsStubMapping() {
-		givenThat(get(urlEqualTo("/war/stub")).willReturn(
-				aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
-		
-		assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
-	}
-
-    @Test
-    public void tryingToShutDownGives500() {
-        try {
-            shutdownServer();
-            fail("Expected a VerificationException");
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString("500"));
+    int attemptsRemaining = 3;
+    while (true) {
+      port = Network.findFreePort();
+      jetty = new Server(port);
+      jetty.setHandler(context);
+      try {
+        jetty.start();
+        break;
+      } catch (Exception e) {
+        attemptsRemaining--;
+        if (attemptsRemaining > 0) {
+          continue;
         }
-    }
 
-    @Test
-    public void tryingToSaveMappingsGives500() {
-        try {
-            saveAllMappings();
-            fail("Expected a VerificationException");
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString("500"));
-        }
+        throw e;
+      }
     }
+    return port;
+  }
+
+  @AfterEach
+  public void cleanup() throws Exception {
+    jetty.stop();
+    WireMock.configure();
+  }
+
+  @Test
+  public void servesBakedInStubResponse() {
+    WireMockResponse response = testClient.get("/wiremock/api/mytest");
+    assertThat(response.content(), containsString("YES"));
+  }
+
+  @Test
+  public void acceptsAndReturnsStubMapping() {
+    givenThat(
+        get(urlEqualTo("/war/stub"))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
+
+    assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
+  }
+
+  @Test
+  public void tryingToShutDownGives500() {
+    try {
+      shutdownServer();
+      fail("Expected a VerificationException");
+    } catch (VerificationException e) {
+      assertThat(e.getMessage(), containsString("500"));
+    }
+  }
+
+  @Test
+  public void tryingToSaveMappingsGives500() {
+    try {
+      saveAllMappings();
+      fail("Expected a VerificationException");
+    } catch (VerificationException e) {
+      assertThat(e.getMessage(), containsString("500"));
+    }
+  }
 }

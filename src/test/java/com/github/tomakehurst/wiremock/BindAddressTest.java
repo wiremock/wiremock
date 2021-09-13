@@ -15,24 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Collections;
-import java.util.Enumeration;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -42,88 +24,107 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.Enumeration;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class BindAddressTest {
 
-    private String localhost = "127.0.0.1";
-    private String nonBindAddress;
-    private WireMockServer wireMockServer;
+  private String localhost = "127.0.0.1";
+  private String nonBindAddress;
+  private WireMockServer wireMockServer;
 
-    final CloseableHttpClient client = HttpClientFactory.createClient();
+  final CloseableHttpClient client = HttpClientFactory.createClient();
 
-    @BeforeEach
-    public void prepare() throws Exception {
-        nonBindAddress = getIpAddressOtherThan(localhost);
+  @BeforeEach
+  public void prepare() throws Exception {
+    nonBindAddress = getIpAddressOtherThan(localhost);
 
-        assumeFalse(nonBindAddress == null,
-            "Impossible to validate the binding address. This machine has only a one Ip address [" + localhost + "]");
+    assumeFalse(
+        nonBindAddress == null,
+        "Impossible to validate the binding address. This machine has only a one Ip address ["
+            + localhost
+            + "]");
 
-        wireMockServer = new WireMockServer(wireMockConfig()
-            .bindAddress(localhost)
-            .dynamicPort()
-            .dynamicHttpsPort()
-        );
-        wireMockServer.start();
+    wireMockServer =
+        new WireMockServer(
+            wireMockConfig().bindAddress(localhost).dynamicPort().dynamicHttpsPort());
+    wireMockServer.start();
 
-        wireMockServer.stubFor(get(urlPathEqualTo("/bind-test"))
-            .willReturn(aResponse().withStatus(200)));
+    wireMockServer.stubFor(
+        get(urlPathEqualTo("/bind-test")).willReturn(aResponse().withStatus(200)));
+  }
+
+  @AfterEach
+  public void stop() {
+    if (wireMockServer != null) {
+      wireMockServer.stop();
     }
+  }
 
-    @AfterEach
-    public void stop() {
-        if (wireMockServer != null) {
-            wireMockServer.stop();
+  @Test
+  public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
+    executeGetIn(localhost);
+    try {
+      executeGetIn(nonBindAddress);
+      fail("Should not accept HTTP connection to [" + nonBindAddress + "]");
+    } catch (Exception ex) {
+    }
+  }
+
+  @Test
+  public void shouldRespondInTheBindAddressOnlyOnHttps() throws Exception {
+    int localhostStatus = getStatusViaHttps(localhost);
+    assertThat(localhostStatus, is(200));
+
+    try {
+      getStatusViaHttps(nonBindAddress);
+      fail("Should not accept HTTPS connection to [" + nonBindAddress + "]");
+    } catch (Exception e) {
+    }
+  }
+
+  private int getStatusViaHttps(String host) throws Exception {
+    ClassicHttpResponse localhostResponse =
+        client.execute(
+            ClassicRequestBuilder.get(
+                    "https://" + host + ":" + wireMockServer.httpsPort() + "/bind-test")
+                .build());
+
+    int status = localhostResponse.getCode();
+    EntityUtils.consume(localhostResponse.getEntity());
+    return status;
+  }
+
+  private void executeGetIn(String address) {
+    WireMockTestClient wireMockClient = new WireMockTestClient(wireMockServer.port(), address);
+    WireMockResponse response = wireMockClient.get("/bind-test");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  private String getIpAddressOtherThan(String lopbackAddress) throws SocketException {
+    Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+    for (NetworkInterface netInterface : Collections.list(networkInterfaces)) {
+      Enumeration<InetAddress> inetAddresses = netInterface.getInetAddresses();
+      for (InetAddress address : Collections.list(inetAddresses)) {
+        if (address instanceof Inet4Address && !address.getHostAddress().equals(lopbackAddress)) {
+          return address.getHostAddress();
         }
+      }
     }
-
-    @Test
-    public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
-        executeGetIn(localhost);
-        try {
-            executeGetIn(nonBindAddress);
-            fail("Should not accept HTTP connection to [" + nonBindAddress + "]");
-        } catch (Exception ex) {
-        }
-    }
-
-    @Test
-    public void shouldRespondInTheBindAddressOnlyOnHttps() throws Exception {
-        int localhostStatus = getStatusViaHttps(localhost);
-        assertThat(localhostStatus, is(200));
-
-        try {
-            getStatusViaHttps(nonBindAddress);
-            fail("Should not accept HTTPS connection to [" + nonBindAddress + "]");
-        } catch (Exception e) {
-        }
-    }
-
-    private int getStatusViaHttps(String host) throws Exception {
-        ClassicHttpResponse localhostResponse = client.execute(ClassicRequestBuilder
-            .get("https://" + host + ":" + wireMockServer.httpsPort() + "/bind-test")
-            .build()
-        );
-
-        int status = localhostResponse.getCode();
-        EntityUtils.consume(localhostResponse.getEntity());
-        return status;
-    }
-
-    private void executeGetIn(String address) {
-        WireMockTestClient wireMockClient = new WireMockTestClient(wireMockServer.port(), address);
-        WireMockResponse response = wireMockClient.get("/bind-test");
-        assertThat(response.statusCode(), is(200));
-    }
-
-    private String getIpAddressOtherThan(String lopbackAddress) throws SocketException {
-        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        for (NetworkInterface netInterface : Collections.list(networkInterfaces)) {
-            Enumeration<InetAddress> inetAddresses = netInterface.getInetAddresses();
-            for (InetAddress address : Collections.list(inetAddresses)) {
-                if (address instanceof Inet4Address && !address.getHostAddress().equals(lopbackAddress)) {
-                    return address.getHostAddress();
-                }
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

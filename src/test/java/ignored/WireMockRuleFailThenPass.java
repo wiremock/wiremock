@@ -15,21 +15,21 @@
  */
 package ignored;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 public class WireMockRuleFailThenPass {
 
-    // Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions on subsequent (otherwise passing) tests
-    @Test
-    public void fail() {
-        assertTrue(false);
-    }
+  // Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions
+  // on subsequent (otherwise passing) tests
+  @Test
+  public void fail() {
+    assertTrue(false);
+  }
 
-    @Test
-    public void succeed() {
-        assertTrue(true);
-    }
-
+  @Test
+  public void succeed() {
+    assertTrue(true);
+  }
 }

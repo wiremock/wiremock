@@ -15,28 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import javax.net.ssl.SSLEngine;
-
 import java.net.Socket;
 import java.security.cert.X509Certificate;
+import javax.net.ssl.SSLEngine;
 
-public class TrustSelfSignedStrategy implements
-        org.apache.hc.core5.ssl.TrustStrategy,
+public class TrustSelfSignedStrategy
+    implements org.apache.hc.core5.ssl.TrustStrategy,
         com.github.tomakehurst.wiremock.http.ssl.TrustStrategy {
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType) {
-        return chain.length == 1;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType) {
+    return chain.length == 1;
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
-        return chain.length == 1;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
+    return chain.length == 1;
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
-        return chain.length == 1;
-    }
-
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+    return chain.length == 1;
+  }
 }

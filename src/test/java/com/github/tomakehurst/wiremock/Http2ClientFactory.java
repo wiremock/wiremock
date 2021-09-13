@@ -24,19 +24,18 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Http2ClientFactory {
 
-    public static HttpClient create() {
-        SslContextFactory sslContextFactory = new SslContextFactory.Client(true);
-        HttpClientTransport transport = new HttpClientTransportOverHTTP2(
-                new HTTP2Client());
-        HttpClient httpClient = new HttpClient(transport, sslContextFactory);
+  public static HttpClient create() {
+    SslContextFactory sslContextFactory = new SslContextFactory.Client(true);
+    HttpClientTransport transport = new HttpClientTransportOverHTTP2(new HTTP2Client());
+    HttpClient httpClient = new HttpClient(transport, sslContextFactory);
 
-        httpClient.setFollowRedirects(false);
-        try {
-            httpClient.start();
-        } catch (Exception e) {
-            return Exceptions.throwUnchecked(e, HttpClient.class);
-        }
-
-        return httpClient;
+    httpClient.setFollowRedirects(false);
+    try {
+      httpClient.start();
+    } catch (Exception e) {
+      return Exceptions.throwUnchecked(e, HttpClient.class);
     }
+
+    return httpClient;
+  }
 }

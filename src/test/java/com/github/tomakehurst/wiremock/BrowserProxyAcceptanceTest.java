@@ -15,6 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -24,68 +29,66 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 class BrowserProxyAcceptanceTest {
 
+  @RegisterExtension
+  public static WireMockExtension target = WireMockExtension.newInstance().build();
+
+  private WireMockServer proxy;
+  private WireMockTestClient testClient;
+
+  @BeforeEach
+  public void init() {
+    testClient = new WireMockTestClient(target.getPort());
+
+    proxy = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+    proxy.start();
+  }
+
+  @AfterEach
+  public void stopServer() {
+    if (proxy.isRunning()) {
+      proxy.stop();
+    }
+  }
+
+  @Test
+  public void canProxyHttp() {
+    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+    assertThat(
+        testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
+  }
+
+  @Test
+  public void passesQueryParameters() {
+    target.stubFor(
+        get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
+
+    assertThat(
+        testClient.getViaProxy(target.url("/search?q=things&limit=10"), proxy.port()).statusCode(),
+        is(200));
+  }
+
+  @Nested
+  class Disabled {
+
     @RegisterExtension
-    public static WireMockExtension target = WireMockExtension.newInstance().build();
-
-    private WireMockServer proxy;
-    private WireMockTestClient testClient;
-
-    @BeforeEach
-    public void init() {
-        testClient = new WireMockTestClient(target.getPort());
-
-        proxy = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .enableBrowserProxying(true));
-        proxy.start();
-    }
-
-    @AfterEach
-    public void stopServer() {
-        if (proxy.isRunning()) {
-            proxy.stop();
-        }
-    }
+    public WireMockExtension wmWithoutBrowserProxy = WireMockExtension.newInstance().build();
 
     @Test
-    public void canProxyHttp() {
-        target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+    public void browserProxyIsReportedAsFalseInRequestLogWhenDisabled() {
+      int httpPort = wmWithoutBrowserProxy.getPort();
+      WireMockTestClient testClient = new WireMockTestClient(httpPort);
 
-        assertThat(testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
+      testClient.getViaProxy("http://whereever/whatever", httpPort);
+
+      LoggedRequest request =
+          wmWithoutBrowserProxy
+              .findRequestsMatching(getRequestedFor(urlPathEqualTo("/whatever")).build())
+              .getRequests()
+              .get(0);
+      assertThat(request.isBrowserProxyRequest(), is(false));
     }
-
-    @Test
-    public void passesQueryParameters() {
-        target.stubFor(get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
-
-        assertThat(testClient.getViaProxy(target.url("/search?q=things&limit=10"), proxy.port()).statusCode(), is(200));
-    }
-
-    @Nested
-    class Disabled {
-
-        @RegisterExtension
-        public WireMockExtension wmWithoutBrowserProxy = WireMockExtension.newInstance().build();
-
-        @Test
-        public void browserProxyIsReportedAsFalseInRequestLogWhenDisabled() {
-            int httpPort = wmWithoutBrowserProxy.getPort();
-            WireMockTestClient testClient = new WireMockTestClient(httpPort);
-
-            testClient.getViaProxy("http://whereever/whatever", httpPort);
-
-            LoggedRequest request = wmWithoutBrowserProxy.findRequestsMatching(getRequestedFor(urlPathEqualTo("/whatever")).build())
-                    .getRequests()
-                    .get(0);
-            assertThat(request.isBrowserProxyRequest(), is(false));
-        }
-    }
-
+  }
 }

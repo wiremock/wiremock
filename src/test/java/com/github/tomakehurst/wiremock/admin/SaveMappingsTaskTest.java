@@ -15,39 +15,39 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
+
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import java.net.HttpURLConnection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.net.HttpURLConnection;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.verify;
-
 public class SaveMappingsTaskTest {
 
-    private Admin mockAdmin = Mockito.mock(Admin.class);
-    private Request mockRequest = Mockito.mock(Request.class);
+  private Admin mockAdmin = Mockito.mock(Admin.class);
+  private Request mockRequest = Mockito.mock(Request.class);
 
-    private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
+  private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
-    @Test
-    public void delegatesSavingMappingsToAdmin() {
+  @Test
+  public void delegatesSavingMappingsToAdmin() {
+    saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
+
+    verify(mockAdmin).saveMappings();
+  }
+
+  @Test
+  public void returnsOkResponse() {
+    ResponseDefinition response =
         saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
-        verify(mockAdmin).saveMappings();
-    }
-
-    @Test
-    public void returnsOkResponse() {
-        ResponseDefinition response = saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
-
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
-        verify(mockAdmin).saveMappings();
-    }
+    assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+    verify(mockAdmin).saveMappings();
+  }
 }
