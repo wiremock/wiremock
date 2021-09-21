@@ -109,6 +109,10 @@ int port = wireMockRule.port();
 int httpsPort = wireMockRule.httpsPort();
 ```
 
+## Writing a test with JUnit 5.x
+
+See [JUnit 5+ Jupiter Usage](/docs/junit-jupiter/) for various JUnit 5 usage scenarios.
+
 ## Non-JUnit and general Java usage
 
 If you're not using JUnit or neither of the WireMock rules manage its
