@@ -78,7 +78,7 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     }
 
     private void startServerIfRequired(ExtensionContext extensionContext) {
-        if (wireMockServer == null) {
+        if (wireMockServer == null || !wireMockServer.isRunning()) {
             wireMockServer = new WireMockServer(resolveOptions(extensionContext));
             wireMockServer.start();
 
@@ -105,13 +105,13 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
                 .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
                 .<Options>map(this::buildOptionsFromWireMockTestAnnotation)
                 .orElse(Optional.ofNullable(this.options)
-                                .orElse(DEFAULT_OPTIONS));
+                        .orElse(DEFAULT_OPTIONS));
     }
 
     private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
         WireMockConfiguration options = WireMockConfiguration.options()
-            .port(annotation.httpPort())
-            .enableBrowserProxying(annotation.proxyMode());
+                .port(annotation.httpPort())
+                .enableBrowserProxying(annotation.proxyMode());
 
         if (annotation.httpsEnabled()) {
             options.httpsPort(annotation.httpsPort());
