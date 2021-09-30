@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

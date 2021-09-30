@@ -26,6 +26,8 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Optional;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 public class WireMockExtension extends DslWrapper implements ParameterResolver, BeforeEachCallback, BeforeAllCallback, AfterEachCallback, AfterAllCallback {
 
     private static final Options DEFAULT_OPTIONS = WireMockConfiguration.options().dynamicPort();
@@ -76,55 +78,40 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     }
 
     private void startServerIfRequired(ExtensionContext extensionContext) {
-        if (wireMockServer == null) {
-            startNewServer(resolveOptions(extensionContext));
-        } else if (!wireMockServer.isRunning()) {
-            Optional<WireMockTest> annotation = findWireMockTestAnnotation(extensionContext);
+        if (wireMockServer == null || !wireMockServer.isRunning()) {
+            wireMockServer = new WireMockServer(resolveOptions(extensionContext));
+            wireMockServer.start();
 
-            if (annotation.isPresent()) {
-                startNewServer(buildOptionsFromWireMockTestAnnotation(annotation.get()));
-            } else {
-                wireMockServer.start();
+            this.admin = wireMockServer;
+            this.stubbing = wireMockServer;
+
+            if (configureStaticDsl) {
+                WireMock.configureFor(new WireMock(this));
             }
-        }
-    }
-
-    private void startNewServer(Options options) {
-        wireMockServer = new WireMockServer(options);
-        wireMockServer.start();
-
-        this.admin = wireMockServer;
-        this.stubbing = wireMockServer;
-
-        if (configureStaticDsl) {
-            WireMock.configureFor(new WireMock(this));
         }
     }
 
     private void setAdditionalOptions(ExtensionContext extensionContext) {
         if (proxyMode == null) {
-            proxyMode = findWireMockTestAnnotation(extensionContext)
+            proxyMode = extensionContext.getElement()
+                    .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
                     .<Boolean>map(WireMockTest::proxyMode)
                     .orElse(false);
         }
     }
 
     private Options resolveOptions(ExtensionContext extensionContext) {
-        return findWireMockTestAnnotation(extensionContext)
+        return extensionContext.getElement()
+                .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
                 .<Options>map(this::buildOptionsFromWireMockTestAnnotation)
                 .orElse(Optional.ofNullable(this.options)
-                                .orElse(DEFAULT_OPTIONS));
-    }
-
-    private Optional<WireMockTest> findWireMockTestAnnotation(ExtensionContext extensionContext) {
-        return extensionContext.getElement()
-                .flatMap(annotatedElement -> AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class));
+                        .orElse(DEFAULT_OPTIONS));
     }
 
     private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
         WireMockConfiguration options = WireMockConfiguration.options()
-            .port(annotation.httpPort())
-            .enableBrowserProxying(annotation.proxyMode());
+                .port(annotation.httpPort())
+                .enableBrowserProxying(annotation.proxyMode());
 
         if (annotation.httpsEnabled()) {
             options.httpsPort(annotation.httpsPort());
