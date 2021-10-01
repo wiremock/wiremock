@@ -18,9 +18,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class HostnameHelper extends HandlebarsHelper<Object> {

@@ -20,15 +20,12 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
-import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Iterables.filter;

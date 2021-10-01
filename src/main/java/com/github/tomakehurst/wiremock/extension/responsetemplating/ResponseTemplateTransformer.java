@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class ResponseTemplateTransformer extends ResponseDefinitionTransformer implements StubLifecycleListener {

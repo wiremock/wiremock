@@ -23,11 +23,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)

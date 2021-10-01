@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Strings;
-import com.google.common.net.MediaType;
-
 import java.nio.charset.Charset;
 
 import static com.google.common.net.MediaType.OCTET_STREAM;

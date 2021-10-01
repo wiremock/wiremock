@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 
 import java.io.IOException;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

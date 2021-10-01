@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
-
 import java.util.Map;
 
 import static java.lang.System.lineSeparator;

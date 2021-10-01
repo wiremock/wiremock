@@ -19,12 +19,10 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.stream.Collectors;

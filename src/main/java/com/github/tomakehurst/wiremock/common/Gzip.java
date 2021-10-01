@@ -27,7 +27,6 @@ import java.util.zip.GZIPOutputStream;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
-import static com.google.common.base.Charsets.UTF_8;
 
 public class Gzip {
 

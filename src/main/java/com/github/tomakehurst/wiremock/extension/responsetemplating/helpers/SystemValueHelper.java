@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAut
 import org.apache.commons.lang3.StringUtils;
 
 import java.security.AccessControlException;
-import java.util.regex.Pattern;
 
 public class SystemValueHelper extends HandlebarsHelper<Object> {
 

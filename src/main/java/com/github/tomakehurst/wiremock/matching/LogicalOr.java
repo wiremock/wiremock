@@ -19,8 +19,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static java.util.Arrays.asList;
 
 public class LogicalOr extends StringValuePattern {

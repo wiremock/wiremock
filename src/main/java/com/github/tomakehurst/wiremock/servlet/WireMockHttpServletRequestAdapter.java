@@ -34,11 +34,9 @@ import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.Charsets.UTF_8;

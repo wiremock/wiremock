@@ -16,24 +16,15 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.Map;
-
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {

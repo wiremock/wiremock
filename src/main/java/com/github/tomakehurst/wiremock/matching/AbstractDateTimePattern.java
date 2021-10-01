@@ -22,18 +22,12 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.DateTimeParser.ZONED_PARSERS;
-import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
-import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.Locale.US;
 
 public abstract class AbstractDateTimePattern extends StringValuePattern {
 

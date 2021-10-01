@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http.multipart;
 
-import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;

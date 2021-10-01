@@ -20,10 +20,8 @@ import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapt
 import com.google.common.base.Function;
 import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;

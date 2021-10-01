@@ -17,9 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate;
 
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;

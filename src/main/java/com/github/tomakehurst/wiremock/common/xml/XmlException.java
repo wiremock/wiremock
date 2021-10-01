@@ -20,8 +20,6 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.xpath.XPathExpressionException;
-
 public class XmlException extends InvalidInputException {
 
     protected XmlException(Errors errors) {

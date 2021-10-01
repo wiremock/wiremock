@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
 public class NamedCustomMatcherLine extends DiffLine<Request> {
 

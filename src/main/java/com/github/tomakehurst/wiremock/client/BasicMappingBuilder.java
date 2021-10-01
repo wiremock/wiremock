@@ -32,7 +32,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newLinkedHashMap;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 

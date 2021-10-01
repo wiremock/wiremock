@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.common.xml;
 
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
 import javax.xml.xpath.XPathExpressionException;
 
 public class XPathException extends InvalidInputException {

@@ -19,9 +19,6 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 /**

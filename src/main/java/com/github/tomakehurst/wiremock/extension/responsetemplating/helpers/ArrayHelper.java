@@ -19,9 +19,6 @@ import com.github.jknack.handlebars.Options;
 import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static java.util.Arrays.asList;
 
 public class ArrayHelper extends HandlebarsHelper<Object> {

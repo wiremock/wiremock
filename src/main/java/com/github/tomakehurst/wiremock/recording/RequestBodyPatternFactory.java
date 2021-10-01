@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 /**
  * Factory for the StringValuePattern to use in a recorded stub mapping to match request bodies

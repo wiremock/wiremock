@@ -17,10 +17,8 @@ package com.github.tomakehurst.wiremock.jetty9;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 

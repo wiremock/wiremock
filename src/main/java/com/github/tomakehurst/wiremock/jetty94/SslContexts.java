@@ -19,13 +19,10 @@ import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateAuthority;
 import com.github.tomakehurst.wiremock.http.ssl.CertificateGenerationUnsupportedException;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
-import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
-import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.IOException;

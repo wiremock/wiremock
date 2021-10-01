@@ -25,8 +25,6 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.google.common.net.MediaType;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
