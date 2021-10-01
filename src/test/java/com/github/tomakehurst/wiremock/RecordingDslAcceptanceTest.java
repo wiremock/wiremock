@@ -29,6 +29,7 @@ import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.entity.StringEntity;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -57,6 +58,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     private String targetBaseUrl;
     private File fileRoot;
 
+    @BeforeEach
     public void init() {
         fileRoot = setupTempFileRoot();
         proxyingService = new WireMockServer(wireMockConfig()

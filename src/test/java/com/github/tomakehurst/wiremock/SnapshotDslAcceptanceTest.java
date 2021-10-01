@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -53,6 +54,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     private WireMock adminClient;
     private StubMapping proxyStub;
 
+    @BeforeEach
     public void init() {
         proxyingService = new WireMockServer(wireMockConfig()
             .dynamicPort()
