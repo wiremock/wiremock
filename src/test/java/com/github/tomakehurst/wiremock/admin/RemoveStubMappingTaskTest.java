@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
 
@@ -43,7 +43,7 @@ public class RemoveStubMappingTaskTest {
     private OldRemoveStubMappingTask removeStubMappingTask;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         context = new Mockery();

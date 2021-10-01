@@ -26,14 +26,11 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
@@ -59,7 +56,7 @@ public class StubMappingJsonRecorderTest {
 
 	private Mockery context;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		context = new Mockery();
 		mappingsFileSource = context.mock(FileSource.class, "mappingsFileSource");
@@ -597,7 +594,7 @@ public class StubMappingJsonRecorderTest {
             int i = headerLine.indexOf(':');
 
             if (i <= 0) {
-                Assert.fail("Invalid header expected line: " + headerLine);
+                Assertions.fail("Invalid header expected line: " + headerLine);
             }
 
             Collection<String> params = new ArrayList<>();

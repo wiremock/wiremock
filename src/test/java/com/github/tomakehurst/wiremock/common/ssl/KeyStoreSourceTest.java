@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common.ssl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.Key;
 import java.security.KeyStore;

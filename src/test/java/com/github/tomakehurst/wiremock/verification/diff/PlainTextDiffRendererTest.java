@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -35,14 +35,13 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PlainTextDiffRendererTest {
 
     PlainTextDiffRenderer diffRenderer;
 
-    @Before
+    @BeforeEach
     public void init() {
         diffRenderer = new PlainTextDiffRenderer(Collections.<String, RequestMatcherExtension>singletonMap("my-custom-matcher", new MyCustomMatcher()));
     }

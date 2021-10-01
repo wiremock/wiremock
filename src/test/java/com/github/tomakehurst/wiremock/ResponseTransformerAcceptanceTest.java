@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 

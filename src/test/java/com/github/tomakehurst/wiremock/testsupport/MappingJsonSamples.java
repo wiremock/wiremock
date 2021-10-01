@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.common.Encoding;
-
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 
 public class MappingJsonSamples {

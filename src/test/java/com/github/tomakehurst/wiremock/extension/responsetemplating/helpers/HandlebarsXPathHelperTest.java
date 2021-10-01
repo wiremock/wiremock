@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsXPathHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new HandlebarsXPathHelper();
     }

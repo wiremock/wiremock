@@ -37,10 +37,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -60,10 +58,11 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class HttpsAcceptanceTest {
 
@@ -71,10 +70,7 @@ public class HttpsAcceptanceTest {
     private WireMockServer proxy;
     private HttpClient httpClient;
 
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
-
-    @After
+    @AfterEach
     public void serverShutdown() {
         if (wireMockServer != null) {
             wireMockServer.stop();
@@ -95,29 +91,26 @@ public class HttpsAcceptanceTest {
 
     @Test
     public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
-        // HTTP
-        exceptionRule.expect(IllegalStateException.class);
-        exceptionRule.expectMessage("Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped.");
-        // HTTPS
-        WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
-        wireMockServer = new WireMockServer(config);
-        wireMockServer.start();
-        WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
-        httpClient = HttpClientFactory.createClient();
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            // HTTPS
+            WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
+            wireMockServer = new WireMockServer(config);
+            wireMockServer.start();
+            WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
+            httpClient = HttpClientFactory.createClient();
 
-        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+            stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
-        wireMockServer.port();
-        assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+            wireMockServer.port();
+            assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+        });
+        assertTrue(exception.getMessage().contains("Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped."));
     }
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void connectionResetByPeerFault() throws IOException {
-        assumeFalse("This feature does not work on Windows " +
-            "because of differing native socket behaviour", SystemUtils.IS_OS_WINDOWS);
+        assumeFalse(SystemUtils.IS_OS_WINDOWS, "This feature does not work on Windows " +
+            "because of differing native socket behaviour");
 
         startServerWithDefaultKeystore();
         stubFor(get(urlEqualTo("/connection/reset")).willReturn(
@@ -166,10 +159,12 @@ public class HttpsAcceptanceTest {
         getAndAssertUnderlyingExceptionInstanceClass(url("/random/data"), ProtocolException.class);
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void throwsExceptionWhenBadAlternativeKeystore() {
-        String testKeystorePath = Resources.getResource("bad-keystore").toString();
-        startServerWithKeystore(testKeystorePath);
+        assertThrows(Exception.class, () -> {
+            String testKeystorePath = Resources.getResource("bad-keystore").toString();
+            startServerWithKeystore(testKeystorePath);
+        });
     }
 
     @Test
@@ -297,7 +292,7 @@ public class HttpsAcceptanceTest {
             thrown = true;
         }
 
-        assertTrue("No exception was thrown", thrown);
+        assertTrue(thrown, "No exception was thrown");
     }
 
     private String contentFor(String url) throws Exception {

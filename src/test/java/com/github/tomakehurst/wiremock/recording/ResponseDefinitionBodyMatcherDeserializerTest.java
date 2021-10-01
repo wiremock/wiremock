@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ResponseDefinitionBodyMatcherDeserializerTest {
     @Test
@@ -38,7 +38,7 @@ public class ResponseDefinitionBodyMatcherDeserializerTest {
         for (String input : testCases.keySet()) {
             Long expected = testCases.get(input);
             Long actual = ResponseDefinitionBodyMatcherDeserializer.parseFilesize(input);
-            assertEquals("Failed with " + input, expected, actual);
+            assertEquals(expected, actual, "Failed with " + input);
         }
     }
 

@@ -22,11 +22,10 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -148,12 +147,12 @@ public class RequestFilterAcceptanceTest {
         proxyTarget.stop();
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         url = "/" + RandomStringUtils.randomAlphabetic(5);
     }
 
-    @After
+    @AfterEach
     public void stopServer() {
         wm.stop();
     }

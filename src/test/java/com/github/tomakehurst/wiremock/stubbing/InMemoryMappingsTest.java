@@ -21,9 +21,9 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -45,7 +45,7 @@ public class InMemoryMappingsTest {
     private Mockery context;
     private Notifier notifier;
 
-    @Before
+    @BeforeEach
     public void init() {
         mappings = new InMemoryStubMappings();
         context = new Mockery();
@@ -53,7 +53,7 @@ public class InMemoryMappingsTest {
         notifier = context.mock(Notifier.class);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         LocalNotifier.set(null);
     }

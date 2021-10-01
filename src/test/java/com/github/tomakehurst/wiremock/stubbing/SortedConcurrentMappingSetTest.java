@@ -20,8 +20,8 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
@@ -36,7 +36,7 @@ public class SortedConcurrentMappingSetTest {
 	
 	private SortedConcurrentMappingSet mappingSet;
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		mappingSet = new SortedConcurrentMappingSet();
 	}

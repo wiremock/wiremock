@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +30,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.withName;
 import static com.google.common.collect.Iterables.find;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
@@ -97,11 +98,13 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/stateful/resource").content(), is("Expected content"));
 	}
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void settingScenarioNameToNullCausesException() {
-        get(urlEqualTo("/some/resource"))
-                .willReturn(aResponse())
-                .inScenario(null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            get(urlEqualTo("/some/resource"))
+                    .willReturn(aResponse())
+                    .inScenario(null);
+        });
     }
 
     @Test

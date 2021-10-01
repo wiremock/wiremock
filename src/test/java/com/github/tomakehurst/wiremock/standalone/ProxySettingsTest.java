@@ -16,16 +16,19 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ProxySettingsTest {
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void throwsExceptionWhenHostPartNotSpecified() {
-        ProxySettings.fromString(":8090");
+        assertThrows(IllegalArgumentException.class, () -> {
+            ProxySettings.fromString(":8090");
+        });
     }
 
     @Test

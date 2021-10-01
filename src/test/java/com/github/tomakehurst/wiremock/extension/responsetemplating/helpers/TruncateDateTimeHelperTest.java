@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -31,7 +31,7 @@ public class TruncateDateTimeHelperTest extends HandlebarsHelperTestBase {
 
     private TruncateDateTimeHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new TruncateDateTimeHelper();
     }

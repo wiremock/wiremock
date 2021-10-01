@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -35,7 +35,7 @@ public class AlternativeServletContainerTest {
     public WireMockRule wm = new WireMockRule(options().httpServerFactory(new AltHttpServerFactory()));
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
         client = new WireMockTestClient(wm.port());
         WireMock.configureFor(wm.port());

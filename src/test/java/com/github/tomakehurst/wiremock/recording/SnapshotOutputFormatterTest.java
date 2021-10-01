@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.FULL;
 import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.IDS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SnapshotOutputFormatterTest {
     @Test
@@ -27,9 +28,11 @@ public class SnapshotOutputFormatterTest {
         assertEquals(FULL, SnapshotOutputFormatter.fromString(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void fromStringWithInvalidFormat() {
-        SnapshotOutputFormatter.fromString("invalid output format");
+        assertThrows(IllegalArgumentException.class, () -> {
+            SnapshotOutputFormatter.fromString("invalid output format");
+        });
     }
 
     @Test

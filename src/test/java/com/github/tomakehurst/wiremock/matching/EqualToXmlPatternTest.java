@@ -25,10 +25,10 @@ import com.google.common.collect.ImmutableSet;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.ComparisonType;
 
 import java.util.Locale;
@@ -40,7 +40,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.xmlunit.diff.ComparisonType.*;
 
 public class EqualToXmlPatternTest {
@@ -50,7 +50,7 @@ public class EqualToXmlPatternTest {
     @Rule
     public WireMockRule wm = new WireMockRule(options().dynamicPort());
 
-    @Before
+    @BeforeEach
     public void init() {
         context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
@@ -60,7 +60,7 @@ public class EqualToXmlPatternTest {
         Locale.setDefault(Locale.ENGLISH);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         LocalNotifier.set(null);
     }

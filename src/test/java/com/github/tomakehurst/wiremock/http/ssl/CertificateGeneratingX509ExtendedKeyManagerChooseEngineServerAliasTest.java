@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
@@ -30,7 +30,9 @@ import java.security.spec.RSAPublicKeySpec;
 
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.KEY_STORE_WITH_CA_PATH;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.*;
 import javax.servlet.descriptor.JspConfigDescriptor;
@@ -29,12 +29,13 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ServletContextFileSourceTest {
     
     private ServletContextFileSource fileSource;
     
-    @Before
+    @BeforeEach
     public void init() {
         fileSource = new ServletContextFileSource(new MockServletContext(), "filesource");
     }
@@ -50,14 +51,18 @@ public class ServletContextFileSourceTest {
                 fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
     }
     
-    @Test(expected=UnsupportedOperationException.class)
+    @Test
     public void throwsUnsupportedExceptionWhenAttemptingToWrite() {
-        fileSource.writeTextFile("filename", "filecontents");
+        assertThrows(UnsupportedOperationException.class, () -> {
+            fileSource.writeTextFile("filename", "filecontents");
+        });
     }
     
-    @Test(expected=UnsupportedOperationException.class)
+    @Test
     public void throwsUnsupportedExceptionWhenAttemptingToCreate() {
-        fileSource.createIfNecessary();
+        assertThrows(UnsupportedOperationException.class, () -> {
+            fileSource.createIfNecessary();
+        });
     }
     
     

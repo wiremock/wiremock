@@ -17,10 +17,8 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static org.apache.commons.lang3.JavaVersion.JAVA_1_8;
@@ -29,10 +27,10 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class EqualToJsonTest {
 
@@ -596,6 +594,6 @@ public class EqualToJsonTest {
     }
 
     private static void assumeJava8OrHigher() {
-        assumeThat(isJavaVersionAtLeast(JAVA_1_8), is(true));
+        assumeTrue(isJavaVersionAtLeast(JAVA_1_8));
     }
 }

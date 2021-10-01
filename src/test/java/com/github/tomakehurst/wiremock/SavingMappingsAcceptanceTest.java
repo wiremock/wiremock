@@ -24,9 +24,9 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -56,13 +56,13 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
         }
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setupServer() {
         resetFileSourceRoot();
         setupServer(wireMockConfig().fileSource(new SingleRootFileSource(FILE_SOURCE_ROOT)));
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         resetFileSourceRoot();
         reset();

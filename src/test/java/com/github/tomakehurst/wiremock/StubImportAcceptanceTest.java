@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +35,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
 
     private static Admin admin;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         admin = wireMockServer;
     }

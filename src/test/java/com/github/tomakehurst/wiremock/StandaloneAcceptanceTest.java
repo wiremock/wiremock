@@ -29,10 +29,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.rules.ExpectedException;
 
 import java.io.*;
@@ -56,7 +56,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class StandaloneAcceptanceTest {
 	private static final String FILES = "__files";
@@ -76,11 +77,8 @@ public class StandaloneAcceptanceTest {
 
 	private File mappingsDirectory;
 	private File filesDirectory;
-
-	@Rule
-    public ExpectedException expectException = ExpectedException.none();
 	
-	@Before
+	@BeforeEach
 	public void init() throws Exception {
 		if (FILE_SOURCE_ROOT.exists()) {
             FileUtils.deleteDirectory(FILE_SOURCE_ROOT);
@@ -96,7 +94,7 @@ public class StandaloneAcceptanceTest {
 		WireMock.configure();
 	}
 	
-	@After
+	@AfterEach
 	public void stopServerRunner() {
 		runner.stop();
 		if (otherServer != null) {
@@ -444,14 +442,19 @@ public class StandaloneAcceptanceTest {
     public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
         writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-        expectException.expectMessage(allOf(
+		RuntimeException exception = assertThrows(RuntimeException.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				startRunner();
+			}
+		});
+        assertThat(exception.getMessage(), allOf(
             containsString("Error loading file"),
             containsString("bad-mapping.json"),
             containsString("Unrecognized field \"requesttttt\""),
             containsString("class com.github.tomakehurst.wiremock.stubbing.StubMapping"),
             containsString("not marked as ignorable")
         ));
-        startRunner();
     }
 
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {

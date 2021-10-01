@@ -20,10 +20,10 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
@@ -34,7 +34,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class ResponseTemplatingAcceptanceTest {
@@ -49,7 +48,7 @@ public class ResponseTemplatingAcceptanceTest {
                 .extensions(new ResponseTemplateTransformer(false))
         );
 
-        @Before
+        @BeforeEach
         public void init() {
             client = new WireMockTestClient(wm.port());
         }
@@ -85,7 +84,7 @@ public class ResponseTemplatingAcceptanceTest {
                 .extensions(new ResponseTemplateTransformer(true))
         );
 
-        @Before
+        @BeforeEach
         public void init() {
             client = new WireMockTestClient(wm.port());
         }
@@ -262,7 +261,7 @@ public class ResponseTemplatingAcceptanceTest {
                 )
         );
 
-        @Before
+        @BeforeEach
         public void init() {
             client = new WireMockTestClient(wm.port());
         }

@@ -16,8 +16,12 @@
 package com.github.tomakehurst.wiremock;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.*;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,17 +32,19 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodName.class)
 public class DeadlockTest {
 
     private static final int READ_TIMEOUT = 500;
 
     private static WireMockServer wireMockServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         wireMockServer = new WireMockServer(options()
                 .dynamicPort()
@@ -47,12 +53,12 @@ public class DeadlockTest {
         wireMockServer.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         wireMockServer.stop();
     }
 
-    @Before
+    @BeforeEach
     public void reset() {
         System.out.println("reset");
         wireMockServer.resetAll();

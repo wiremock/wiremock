@@ -22,8 +22,8 @@ import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
 import org.apache.http.client.HttpClient;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -43,23 +43,24 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
 
     protected static final List<String> TRUST_NOBODY = emptyList();
 
-    private final List<String> trustedHosts;
-    private final String certificateCN;
-    private final boolean validCertificate;
+    private List<String> trustedHosts;
+    private String certificateCN;
+    private boolean validCertificate;
+
     protected WireMockServer server = null;
     protected HttpClient client;
 
-    protected HttpClientFactoryCertificateVerificationTest(
-        List<String> trustedHosts,
-        String certificateCN,
-        boolean validCertificate
+    public void initHttpClientFactoryCertificateVerificationTest(
+            List<String> trustedHosts,
+            String certificateCN,
+            boolean validCertificate
     ) {
         this.trustedHosts = trustedHosts;
         this.certificateCN = certificateCN;
         this.validCertificate = validCertificate;
     }
 
-    @Before
+    @BeforeEach
     public void startServerAndBuildClient() throws Exception {
 
         InMemoryKeyStore ks = new InMemoryKeyStore(JKS, new Secret("password"));
@@ -109,7 +110,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         );
     }
 
-    @After
+    @AfterEach
     public void stopServer() {
         if (server != null) {
             server.stop();

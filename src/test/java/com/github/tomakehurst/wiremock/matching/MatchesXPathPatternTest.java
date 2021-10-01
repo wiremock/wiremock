@@ -18,9 +18,8 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.Matchers;
 import org.json.JSONException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
@@ -28,9 +27,9 @@ import java.util.Collections;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MatchesXPathPatternTest {
 
@@ -44,7 +43,7 @@ public class MatchesXPathPatternTest {
         StringValuePattern pattern = WireMock.matchingXPath("//planet[@name='Earth']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
-        assertTrue("Expected XPath match", match.isExactMatch());
+        assertTrue(match.isExactMatch(), "Expected XPath match");
         assertThat(match.getDistance(), is(0.0));
     }
 
@@ -57,7 +56,7 @@ public class MatchesXPathPatternTest {
         StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
-        assertFalse("Expected XPath non-match", match.isExactMatch());
+        assertFalse(match.isExactMatch(), "Expected XPath non-match");
         assertThat(match.getDistance(), is(1.0));
     }
 
@@ -70,7 +69,7 @@ public class MatchesXPathPatternTest {
         StringValuePattern pattern = WireMock.matchingXPath("//\\\\&&&&&");
 
         MatchResult match = pattern.match(mySolarSystemXML);
-        assertFalse("Expected XPath non-match", match.isExactMatch());
+        assertFalse(match.isExactMatch(), "Expected XPath non-match");
         assertThat(match.getDistance(), is(1.0));
     }
 
@@ -83,7 +82,7 @@ public class MatchesXPathPatternTest {
         StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
-        assertFalse("Expected XPath non-match", match.isExactMatch());
+        assertFalse(match.isExactMatch(), "Expected XPath non-match");
         assertThat(match.getDistance(), is(1.0));
     }
 

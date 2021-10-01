@@ -17,9 +17,9 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -35,7 +35,7 @@ public class SingleUnmatchedRequestTest {
 
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
         client = new WireMockTestClient(wm.port());
     }

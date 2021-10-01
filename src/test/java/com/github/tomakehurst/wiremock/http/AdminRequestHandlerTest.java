@@ -21,9 +21,9 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
 
@@ -37,12 +37,12 @@ public class AdminRequestHandlerTest {
     private WireMockServer wm;
     private WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
         context = new Mockery();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         if (wm != null) {
             wm.stop();

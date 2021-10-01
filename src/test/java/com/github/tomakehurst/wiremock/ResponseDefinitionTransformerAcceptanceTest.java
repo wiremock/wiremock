@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -32,6 +32,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseDefinitionTransformerAcceptanceTest {
@@ -120,12 +121,14 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         assertThat(response.content(), is("Non-global transformed body"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     @SuppressWarnings("unchecked")
     public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
-        new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
+        assertThrows(IllegalArgumentException.class, () -> {
+            new WireMockServer(wireMockConfig()
+                    .dynamicPort()
+                    .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
+        });
     }
 
     @Test
@@ -160,7 +163,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         client = new WireMockTestClient(wm.port());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         if (wm != null) {
             wm.stop();

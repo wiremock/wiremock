@@ -26,12 +26,10 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import ignored.ManyUnmatchedRequestsTest;
 import ignored.SingleUnmatchedRequestTest;
 import org.apache.http.entity.StringEntity;
-import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
@@ -43,6 +41,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Enclosed.class)
@@ -51,9 +51,6 @@ public class NearMissesRuleAcceptanceTest {
     public static class NearMissesRuleTest {
 
         static TestNotifier testNotifier = new TestNotifier();
-
-        @Rule
-        public ExpectedException thrown = ExpectedException.none();
 
         @ClassRule
         public static WireMockRule wm = new WireMockRule(options()
@@ -64,7 +61,7 @@ public class NearMissesRuleAcceptanceTest {
 
         WireMockTestClient client;
 
-        @Before
+        @BeforeEach
         public void init() {
             client = new WireMockTestClient(wm.port());
             testNotifier.reset();
@@ -121,12 +118,13 @@ public class NearMissesRuleAcceptanceTest {
 
         @Test
         public void shouldFindNearMatch() {
-            thrown.expect(VerificationException.class);
-            thrown.expectMessage("No requests exactly matched. Most similar request was:");
+            Throwable exception = assertThrows(VerificationException.class, () -> {
 
-            client.get("/123");
+                client.get("/123");
 
-            wm.verify(getRequestedFor(urlPathEqualTo("/")));
+                wm.verify(getRequestedFor(urlPathEqualTo("/")));
+            });
+            assertTrue(exception.getMessage().contains("No requests exactly matched. Most similar request was:"));
         }
 
         private static String runTestAndGetMessage(Class<?> testClass) {
@@ -166,7 +164,7 @@ public class NearMissesRuleAcceptanceTest {
 
         WireMockTestClient client;
 
-        @Before
+        @BeforeEach
         public void init() {
             client = new WireMockTestClient(wm.port());
             wm.resetAll();

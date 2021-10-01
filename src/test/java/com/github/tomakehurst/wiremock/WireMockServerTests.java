@@ -19,15 +19,12 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -39,12 +36,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WireMockServerTests {
 
-    @Rule
-    public final TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir
+    public File tempDir;
 
     @Test
     public void instantiationWithEmptyFileSource() throws IOException {
-        Options options = new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir.getRoot()));
+        Options options = new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir));
 
         WireMockServer wireMockServer = null;
         try {
@@ -111,9 +108,9 @@ public class WireMockServerTests {
     // https://github.com/tomakehurst/wiremock/issues/193
     @Test
     public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
-        WireMockServer wireMockServer = new WireMockServer(DYNAMIC_PORT, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", DYNAMIC_PORT));
+        WireMockServer wireMockServer = new WireMockServer(DYNAMIC_PORT, new SingleRootFileSource(tempDir), false, new ProxySettings("proxy.company.com", DYNAMIC_PORT));
         wireMockServer.start();
-        wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir.getRoot() + "/mappings"), new SingleRootFileSource(tempDir.getRoot() + "/__files"));
+        wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir + "/mappings"), new SingleRootFileSource(tempDir + "/__files"));
         wireMockServer.stubFor(get(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
 
         WireMockTestClient client = new WireMockTestClient(wireMockServer.port());

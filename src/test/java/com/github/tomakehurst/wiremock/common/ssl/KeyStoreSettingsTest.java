@@ -15,12 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common.ssl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.KeyStore;
 
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class KeyStoreSettingsTest {
 
@@ -40,10 +41,12 @@ public class KeyStoreSettingsTest {
         assertNotNull(keyStore);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void failsWhenTrustStoreNotFound() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings("test-unknownstore", "", "jks");
-        trustStoreSettings.loadStore();
+        assertThrows(IllegalArgumentException.class, () -> {
+            KeyStoreSettings trustStoreSettings = new KeyStoreSettings("test-unknownstore", "", "jks");
+            trustStoreSettings.loadStore();
+        });
     }
 
 }

@@ -8,14 +8,14 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JUnit5ProxyTest {
 
@@ -26,12 +26,12 @@ public class JUnit5ProxyTest {
             .useSystemProperties() // This must be enabled for auto-configuration of proxy settings to work
             .build();
 
-    @Before
+    @BeforeEach
     public void init() {
         JvmProxyConfigurer.configureFor(wm);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         JvmProxyConfigurer.restorePrevious();
     }

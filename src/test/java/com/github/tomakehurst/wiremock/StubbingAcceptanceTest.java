@@ -29,9 +29,9 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsInstanceOf;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
@@ -60,11 +60,13 @@ import static java.util.Collections.singletonList;
 import static org.apache.http.entity.ContentType.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupServer() {
 		setupServerWithMappingsInFileRoot();
 	}
@@ -368,18 +370,19 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void connectionResetByPeerFault() {
 		stubFor(get(urlEqualTo("/connection/reset")).willReturn(
                 aResponse()
                 .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-		exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
-		exception.expectMessage("java.net.SocketException: Connection reset");
-		testClient.get("/connection/reset");
+		SocketException socketException = (SocketException) assertThrows(RuntimeException.class, new Executable() {
+			@Override
+			public void execute() throws Throwable {
+				testClient.get("/connection/reset");
+			}
+		}).getCause();
+		assertEquals("java.net.SocketException: Connection reset", socketException.toString());
 	}
 
 	@Test
@@ -877,6 +880,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			thrown = true;
 		}
 
-		assertTrue("No exception was thrown", thrown);
+		assertTrue(thrown, "No exception was thrown");
 	}
 }

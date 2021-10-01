@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,18 +30,19 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PortNumberTest {
 
     private List<WireMockServer> createdServers;
 
-    @Before
+    @BeforeEach
     public void setup() {
         createdServers = new ArrayList<WireMockServer>();
     }
 
-    @After
+    @AfterEach
     public void stopServers() {
         for (WireMockServer wireMockServer : createdServers) {
             if(wireMockServer.isRunning()) {
@@ -74,21 +75,27 @@ public class PortNumberTest {
         assertThat(wireMockServer.httpsPort(), is(httpsPort));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
-        createServer(wireMockConfig().port(Network.findFreePort())).port();
+        assertThrows(IllegalStateException.class, () -> {
+            createServer(wireMockConfig().port(Network.findFreePort())).port();
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
-        createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort();
+        assertThrows(IllegalStateException.class, () -> {
+            createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort();
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void serverWithoutHttpsThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
-        WireMockServer wireMockServer = createServer(wireMockConfig().port(Network.findFreePort()));
-        wireMockServer.start();
-        wireMockServer.httpsPort();
+        assertThrows(IllegalStateException.class, () -> {
+            WireMockServer wireMockServer = createServer(wireMockConfig().port(Network.findFreePort()));
+            wireMockServer.start();
+            wireMockServer.httpsPort();
+        });
     }
 
     @Test

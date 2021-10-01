@@ -22,16 +22,16 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResponseDefinitionTest {
 
@@ -65,7 +65,7 @@ public class ResponseDefinitionTest {
     public void copyPreservesConfiguredFlag() {
         ResponseDefinition response = ResponseDefinition.notConfigured();
         ResponseDefinition copiedResponse = copyOf(response);
-        assertFalse("Should be not configured", copiedResponse.wasConfigured());
+        assertFalse(copiedResponse.wasConfigured(), "Should be not configured");
     }
 
     private static final String STRING_BODY =

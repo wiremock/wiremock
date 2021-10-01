@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static org.hamcrest.MatcherAssert.assertThat;

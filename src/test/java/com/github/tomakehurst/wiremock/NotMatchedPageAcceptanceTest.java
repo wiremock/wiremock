@@ -27,18 +27,13 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -58,7 +53,7 @@ public class NotMatchedPageAcceptanceTest {
     WireMockServer wm;
     WireMockTestClient testClient;
 
-    @After
+    @AfterEach
     public void stop() {
         wm.stop();
     }

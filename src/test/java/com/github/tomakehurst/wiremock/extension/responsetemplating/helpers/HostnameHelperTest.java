@@ -19,8 +19,8 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,7 +34,7 @@ public class HostnameHelperTest {
     private HostnameHelper helper;
     private String hostname;
 
-    @Before
+    @BeforeEach
     public void init() throws UnknownHostException {
         helper = new HostnameHelper();
         hostname = InetAddress.getLocalHost().getHostName();

@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -27,10 +27,10 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Ignore("Very slow and not likely to change any time soon")
+@Disabled("Very slow and not likely to change any time soon")
 public class LogTimingAcceptanceTest extends AcceptanceTestBase {
 
-    @BeforeClass
+    @BeforeAll
     public static void setupServer() {
         setupServer(options().asynchronousResponseEnabled(true).asynchronousResponseThreads(5));
     }

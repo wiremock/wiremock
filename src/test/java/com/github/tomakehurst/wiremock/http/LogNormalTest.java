@@ -15,9 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class LogNormalTest {
 
     // To test properly we would need something like a normality test.

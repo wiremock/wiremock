@@ -32,8 +32,8 @@ import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledExcept
 import com.google.common.base.Optional;
 import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
@@ -52,8 +52,9 @@ import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRe
 import static java.lang.System.lineSeparator;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @RunWith(Enclosed.class)
 public class VerificationAcceptanceTest {
@@ -72,22 +73,28 @@ public class VerificationAcceptanceTest {
             verify(anyRequestedFor(urlEqualTo("/this/got/requested?query")));
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlEqualsWhenQueryMissing() {
-            testClient.get("/this/got/requested?query");
-            verify(getRequestedFor(urlEqualTo("/this/got/requested")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested?query");
+                verify(getRequestedFor(urlEqualTo("/this/got/requested")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlEqualsWhenPathShorter() {
-            testClient.get("/this/got/requested?query");
-            verify(getRequestedFor(urlEqualTo("/this/got/requeste?query")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested?query");
+                verify(getRequestedFor(urlEqualTo("/this/got/requeste?query")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlEqualsWhenExtraPathPresent() {
-            testClient.get("/this/got/requested?query");
-            verify(getRequestedFor(urlEqualTo("/this/got/requested/?query")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested?query");
+                verify(getRequestedFor(urlEqualTo("/this/got/requested/?query")));
+            });
         }
 
         @Test
@@ -96,16 +103,20 @@ public class VerificationAcceptanceTest {
             verify(getRequestedFor(urlPathEqualTo("/this/got/requested")));
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlPathEqualsWhenPathShorter() {
-            testClient.get("/this/got/requested?query");
-            verify(getRequestedFor(urlPathEqualTo("/this/got/requeste")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested?query");
+                verify(getRequestedFor(urlPathEqualTo("/this/got/requeste")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlPathEqualsWhenExtraPathPresent() {
-            testClient.get("/this/got/requested?query");
-            verify(getRequestedFor(urlPathEqualTo("/this/got/requested/")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested?query");
+                verify(getRequestedFor(urlPathEqualTo("/this/got/requested/")));
+            });
         }
 
         @Test
@@ -114,22 +125,28 @@ public class VerificationAcceptanceTest {
             verify(getRequestedFor(urlPathMatching("/(.*?)/got/.*")));
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlPathPatternWhenOnlyPrefixMatching() {
-            testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlPathMatching("/(.*?)/got/")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested");
+                verify(getRequestedFor(urlPathMatching("/(.*?)/got/")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionOnUrlPathPatternWhenOnlySuffixMatching() {
-            testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlPathMatching("/got/.*")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested");
+                verify(getRequestedFor(urlPathMatching("/got/.*")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionWhenNoMatch() {
-            testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlEqualTo("/this/did/not")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/this/got/requested");
+                verify(getRequestedFor(urlEqualTo("/this/did/not")));
+            });
         }
 
         @Test
@@ -170,12 +187,14 @@ public class VerificationAcceptanceTest {
             assertThat(headers.getHeader("X-Thing").values().get(1), is("Two"));
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void throwsVerificationExceptionWhenHeadersDoNotMatch() {
-            testClient.put("/to/modify", withHeader("Content-Type", "application/json"), withHeader("Encoding", "LATIN-1"));
-            verify(putRequestedFor(urlEqualTo("/to/modify"))
-                    .withHeader("Content-Type", equalTo("application/json"))
-                    .withHeader("Encoding", notMatching("LATIN-1")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.put("/to/modify", withHeader("Content-Type", "application/json"), withHeader("Encoding", "LATIN-1"));
+                verify(putRequestedFor(urlEqualTo("/to/modify"))
+                        .withHeader("Content-Type", equalTo("application/json"))
+                        .withHeader("Encoding", notMatching("LATIN-1")));
+            });
         }
 
         private static final String SAMPLE_JSON =
@@ -260,27 +279,33 @@ public class VerificationAcceptanceTest {
             verify(getRequestedFor(urlPathEqualTo("/spacey-query")).withQueryParam("param", equalTo("My Value")));
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void verifyIsFalseWithQueryParamNotMatched() {
-            testClient.get("/query?param=my-value");
-            verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("wrong-value")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/query?param=my-value");
+                verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("wrong-value")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void verifyIsFalseWhenExpectedQueryParamMissing() {
-            testClient.get("/query");
-            verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("my-value")));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/query");
+                verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("my-value")));
+            });
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void resetErasesCounters() {
-            testClient.get("/count/this");
-            testClient.get("/count/this");
-            testClient.get("/count/this");
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/count/this");
+                testClient.get("/count/this");
+                testClient.get("/count/this");
 
-            WireMock.reset();
+                WireMock.reset();
 
-            verify(getRequestedFor(urlEqualTo("/count/this")));
+                verify(getRequestedFor(urlEqualTo("/count/this")));
+            });
         }
 
         @Test
@@ -305,16 +330,20 @@ public class VerificationAcceptanceTest {
             verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyLessThanCountWithEqualRequests() {
-            getCountableRequests(5);
-            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(5);
+                verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyLessThanCountWithMoreRequests() {
-            getCountableRequests(6);
-            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(6);
+                verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
         @Test
@@ -329,16 +358,20 @@ public class VerificationAcceptanceTest {
             verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyLessThanOrExactlyCountWithMoreRequests() {
-            getCountableRequests(6);
-            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(6);
+                verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyExactCountWithLessRequests() {
-            getCountableRequests(4);
-            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(4);
+                verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
         @Test
@@ -347,16 +380,20 @@ public class VerificationAcceptanceTest {
             verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyExactCountWithMoreRequests() {
-            getCountableRequests(6);
-            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(6);
+                verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyMoreThanOrExactlyCountWithLessRequests() {
-            getCountableRequests(4);
-            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(4);
+                verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
         @Test
@@ -371,16 +408,20 @@ public class VerificationAcceptanceTest {
             verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyMoreThanCountWithLessRequests() {
-            getCountableRequests(4);
-            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(4);
+                verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void doesNotVerifyMoreThanCountWithEqualRequests() {
-            getCountableRequests(5);
-            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            assertThrows(VerificationException.class, () -> {
+                getCountableRequests(5);
+                verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+            });
         }
 
         @Test
@@ -397,11 +438,13 @@ public class VerificationAcceptanceTest {
                     .withoutHeader("Accept"));
         }
 
-        @Test(expected=VerificationException.class)
+        @Test
         public void failsVerificationWhenAbsentHeaderPresent() {
-            testClient.get("/without/another/header", withHeader("Content-Type", "application/json"));
-            verify(getRequestedFor(urlEqualTo("/without/another/header"))
-                    .withoutHeader("Content-Type"));
+            assertThrows(VerificationException.class, () -> {
+                testClient.get("/without/another/header", withHeader("Content-Type", "application/json"));
+                verify(getRequestedFor(urlEqualTo("/without/another/header"))
+                        .withoutHeader("Content-Type"));
+            });
         }
 
         @Test
@@ -411,11 +454,13 @@ public class VerificationAcceptanceTest {
                     .withRequestBody(absent()));
         }
 
-        @Test(expected = VerificationException.class)
+        @Test
         public void failsVerificationWhenAbsentBodyPresent() throws Exception {
-            testClient.post("/no/body", new StringEntity("not absent"));
-            verify(postRequestedFor(urlEqualTo("/no/body"))
-                    .withRequestBody(absent()));
+            assertThrows(VerificationException.class, () -> {
+                testClient.post("/no/body", new StringEntity("not absent"));
+                verify(postRequestedFor(urlEqualTo("/no/body"))
+                        .withRequestBody(absent()));
+            });
         }
 
         @Test
@@ -768,14 +813,18 @@ public class VerificationAcceptanceTest {
             .disableRequestJournal(),
             false);
 
-        @Test(expected=RequestJournalDisabledException.class)
+        @Test
         public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
-            verify(getRequestedFor(urlEqualTo("/whatever")));
+            assertThrows(RequestJournalDisabledException.class, () -> {
+                verify(getRequestedFor(urlEqualTo("/whatever")));
+            });
         }
 
-        @Test(expected=RequestJournalDisabledException.class)
+        @Test
         public void findAllThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
-            findAll(getRequestedFor(urlEqualTo("/whatever")));
+            assertThrows(RequestJournalDisabledException.class, () -> {
+                findAll(getRequestedFor(urlEqualTo("/whatever")));
+            });
         }
     }
 

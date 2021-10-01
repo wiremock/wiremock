@@ -16,13 +16,14 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.text.DateFormat;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DateTimeOffsetTest {
@@ -117,14 +118,18 @@ public class DateTimeOffsetTest {
         assertThat(ISO8601.format(finalDate), is("2018-04-19T12:01:01Z"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void throwsExceptionWhenUnparseableStringProvided() {
-        DateTimeOffset.fromString("101");
+        assertThrows(IllegalArgumentException.class, () -> {
+            DateTimeOffset.fromString("101");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void throwsExceptionWhenUnparseableUnitProvided() {
-        DateTimeOffset.fromString("101 squillions");
+        assertThrows(IllegalArgumentException.class, () -> {
+            DateTimeOffset.fromString("101 squillions");
+        });
     }
 
 

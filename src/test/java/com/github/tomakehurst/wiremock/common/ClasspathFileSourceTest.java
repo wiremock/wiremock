@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ClasspathFileSourceTest {
 
@@ -112,9 +112,9 @@ public class ClasspathFileSourceTest {
 
     @Test
     public void correctlyReportsExistence() {
-        assertTrue("Expected to exist", new ClasspathFileSource("filesource/subdir").exists());
-        assertTrue("Expected to exist", new ClasspathFileSource("META-INF/maven/com.google.guava").exists());
-        assertFalse("Expected not to exist", new ClasspathFileSource("not/exist").exists());
+        assertTrue(new ClasspathFileSource("filesource/subdir").exists(), "Expected to exist");
+        assertTrue(new ClasspathFileSource("META-INF/maven/com.google.guava").exists(), "Expected to exist");
+        assertFalse(new ClasspathFileSource("not/exist").exists(), "Expected not to exist");
     }
 
     @Test

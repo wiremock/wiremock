@@ -25,8 +25,8 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Function;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -34,7 +34,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
 import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NEAR_MISS_COUNT;
 import static com.google.common.collect.FluentIterable.from;
 import static org.hamcrest.Matchers.is;
@@ -50,7 +49,7 @@ public class NearMissCalculatorTest {
     RequestJournal requestJournal;
     Scenarios scenarios;
 
-    @Before
+    @BeforeEach
     public void init() {
         context = new Mockery();
 
