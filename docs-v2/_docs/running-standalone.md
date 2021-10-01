@@ -298,6 +298,29 @@ matching the URL exists. For example if a file exists
 `/things/myfile.html` then hitting
 `http://<host>:<port>/things/myfile.html` will serve the file.
 
+## Packaging the stubs into a standalone JAR
+
+If you want to package your stubs into the standalone JAR, so you can distribute an executable JAR with all the stubs intact, you can do this using the `--load-resources-from-classpath` option.
+
+For example, let's say have the following directory structure:
+
+```
+src/main/resources
+src/main/resources/wiremock-stuff
+src/main/resources/wiremock-stuff/__files
+src/main/resources/wiremock-stuff/mappings
+```
+
+You could then run the packaged JAR as:
+
+```
+java -jar custom-wiremock.jar --load-resources-from-classpath 'wiremock-stuff'
+```
+
+Which will load your files and mappings from the packaged JAR.
+
+Note that it is not currently possible to load from the root of the classpath.
+
 ### Shutting Down
 
 To shutdown the server, either call `WireMock.shutdownServer()` or post
