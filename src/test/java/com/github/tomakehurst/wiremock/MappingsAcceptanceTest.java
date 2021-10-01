@@ -145,7 +145,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	public void readsJsonMapping() {
 		WireMockResponse response = testClient.get("/testjsonmapping");
 		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
+		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3],\"bignumber\":1234567890.12}"));
 	}
 
     @Test
