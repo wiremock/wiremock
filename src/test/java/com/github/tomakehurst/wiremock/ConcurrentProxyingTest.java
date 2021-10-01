@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -34,22 +37,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConcurrentProxyingTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort(), false);
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().build();
 
-    @Rule
-    public WireMockRule target = new WireMockRule(options().dynamicPort().usingFilesUnderDirectory(defaultTestFilesRoot()), false);
+    @RegisterExtension
+    public WireMockExtension target = WireMockExtension.newInstance()
+            .options(options().dynamicPort().usingFilesUnderDirectory(defaultTestFilesRoot())).build();
 
     WireMockTestClient client;
 
     @Test
     public void concurrent() throws Exception {
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
 
         wm.stubFor(any(anyUrl())
             .atPriority(10)
             .willReturn(aResponse()
-                .proxiedFrom("http://localhost:" + target.port())));
+                .proxiedFrom("http://localhost:" + target.getRuntimeInfo().getHttpPort())));
 
         ExecutorService executor = Executors.newFixedThreadPool(20);
 
