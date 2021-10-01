@@ -19,9 +19,9 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -38,7 +38,7 @@ public class XmlHandlingAcceptanceTest {
 
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
         client = new WireMockTestClient(wm.port());
 

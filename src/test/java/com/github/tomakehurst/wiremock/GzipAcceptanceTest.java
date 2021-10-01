@@ -25,10 +25,10 @@ import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.eclipse.jetty.util.Jetty;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -37,8 +37,8 @@ import static com.github.tomakehurst.wiremock.common.Gzip.unGzipToString;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 @RunWith(Enclosed.class)
 public class GzipAcceptanceTest {
@@ -98,7 +98,7 @@ public class GzipAcceptanceTest {
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
             testClient = new WireMockTestClient(wm.port());
         }
@@ -135,7 +135,7 @@ public class GzipAcceptanceTest {
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
             testClient = new WireMockTestClient(wm.port());
         }

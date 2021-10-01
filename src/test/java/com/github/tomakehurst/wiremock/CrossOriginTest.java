@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -41,7 +41,7 @@ public class CrossOriginTest {
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
             testClient = new WireMockTestClient(wm.port());
         }
@@ -80,7 +80,7 @@ public class CrossOriginTest {
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
             testClient = new WireMockTestClient(wm.port());
         }
