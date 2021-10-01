@@ -19,10 +19,7 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.DateTimeParser;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.DateTimeParser.ZONED_PARSERS;
@@ -39,16 +36,16 @@ public class ParseDateHelper extends HandlebarsHelper<String> {
             parseOrNull(dateTimeString, DateTimeParser.forFormat(format));
     }
 
-    private static Date parseOrNull(String dateTimeString) {
+    private static RenderableDate parseOrNull(String dateTimeString) {
         return parseOrNull(dateTimeString, (DateTimeParser) null);
     }
 
-    private static Date parseOrNull(String dateTimeString, DateTimeParser parser) {
+    private static RenderableDate parseOrNull(String dateTimeString, DateTimeParser parser) {
         final List<DateTimeParser> parsers = parser != null ? singletonList(parser) : ZONED_PARSERS;
         return parseOrNull(dateTimeString, parsers);
     }
 
-    private static Date parseOrNull(String dateTimeString, List<DateTimeParser> parsers) {
+    private static RenderableDate parseOrNull(String dateTimeString, List<DateTimeParser> parsers) {
         if (parsers.isEmpty()) {
             return null;
         }

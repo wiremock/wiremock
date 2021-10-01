@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -1047,10 +1049,22 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
-    public void canTruncateARenderableDate() {
+    public void canTruncateARenderableDateToFirstOfMonth() {
         String result = transform("{{date (truncateDate (now) 'first day of month') format='yyyy-MM-dd'}}");
 
         String expectedDate = ZonedDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().toString();
+        assertThat(result, is(expectedDate));
+    }
+
+    @Test
+    public void canTruncateARenderableDateToFirstHourOfDay() {
+        String result = transform("{{date (truncateDate (now) 'first hour of day') format='yyyy-MM-dd\\'T\\'HH:mm'}}");
+
+        String expectedDate = ZonedDateTime.now().truncatedTo(DAYS).toLocalDateTime().toString();
+
+        System.out.println(System.getProperty("user.timezone"));
+        System.out.println("expected: " + expectedDate + ", actual: " + result);
+
         assertThat(result, is(expectedDate));
     }
 
