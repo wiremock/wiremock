@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -27,6 +28,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -37,19 +39,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class CustomMatchingAcceptanceTest {
 
     @SuppressWarnings("unchecked")
-    @Rule
-    public WireMockRule wmRule = new WireMockRule(options()
-        .dynamicPort()
-        .extensions(MyExtensionRequestMatcher.class),
-        false);
+    @RegisterExtension
+    public WireMockExtension wmRule = WireMockExtension.newInstance()
+        .options(options()
+                .dynamicPort()
+                .extensions(MyExtensionRequestMatcher.class))
+        .build();
 
     WireMockTestClient client;
     WireMock wm;
 
     @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wmRule.port());
-        wm = WireMock.create().port(wmRule.port()).build();
+        client = new WireMockTestClient(wmRule.getRuntimeInfo().getHttpPort());
+        wm = WireMock.create().port(wmRule.getRuntimeInfo().getHttpPort()).build();
     }
 
     @Test
