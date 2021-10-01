@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -23,15 +24,15 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.junit.Before;
 import org.junit.Rule;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CustomMatchingAcceptanceTest {
@@ -46,7 +47,7 @@ public class CustomMatchingAcceptanceTest {
     WireMockTestClient client;
     WireMock wm;
 
-    @BeforeEach
+    @Before
     public void init() {
         client = new WireMockTestClient(wmRule.port());
         wm = WireMock.create().port(wmRule.port()).build();
@@ -107,14 +108,12 @@ public class CustomMatchingAcceptanceTest {
         assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
     }
 
-    @Test
+    @Test(expected = AdminException.class)
     public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
-        assertThrows(AdminException.class, () -> {
-            wm.register(get(urlPathMatching("/the/.*/one"))
-                    .andMatching(new MyRequestMatcher())
-                    .willReturn(ok())
-            );
-        });
+        wm.register(get(urlPathMatching("/the/.*/one"))
+                .andMatching(new MyRequestMatcher())
+                .willReturn(ok())
+        );
     }
 
     public static class MyRequestMatcher extends RequestMatcherExtension {

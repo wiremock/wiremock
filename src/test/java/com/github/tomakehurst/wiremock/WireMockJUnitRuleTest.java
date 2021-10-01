@@ -29,11 +29,11 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -74,7 +74,7 @@ public class WireMockJUnitRuleTest {
         @Rule
         public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
 
-        @BeforeEach
+        @Before
         public void init() {
             WireMock.configureFor(wireMockRule.port());
         }
@@ -100,7 +100,7 @@ public class WireMockJUnitRuleTest {
         @Rule
         public WireMockClassRule instanceRule = classRule;
 
-        @BeforeEach
+        @Before
         public void init() {
             WireMock.configureFor(classRule.port());
         }

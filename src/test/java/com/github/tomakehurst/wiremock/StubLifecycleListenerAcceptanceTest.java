@@ -22,12 +22,12 @@ import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,26 +35,24 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.*;
 
 public class StubLifecycleListenerAcceptanceTest {
 
     TestStubLifecycleListener loggingListener = new TestStubLifecycleListener();
     ExceptionThrowingStubLifecycleListener exceptionThrowingListener = new ExceptionThrowingStubLifecycleListener();
 
-    @TempDir
-    public static File tempDir;
+    @ClassRule
+    public static TemporaryFolder tempDir = new TemporaryFolder();
 
     @Rule
     public WireMockRule wm = new WireMockRule(options()
             .dynamicPort()
-            .withRootDirectory(tempDir.getAbsolutePath())
+            .withRootDirectory(tempDir.getRoot().getAbsolutePath())
             .extensions(loggingListener, exceptionThrowingListener));
 
-    @BeforeEach
+    @Before
     public void init() {
         loggingListener.events.clear();
         exceptionThrowingListener.throwException = false;

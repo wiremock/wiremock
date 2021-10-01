@@ -26,10 +26,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.http.util.EntityUtils;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -56,7 +56,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
 
     static CloseableHttpClient client;
 
-    @BeforeAll
+    @BeforeClass
     public static void init() {
         client = HttpClientBuilder.create()
                 .setDnsResolver(new CustomLocalTldDnsResolver("internal"))

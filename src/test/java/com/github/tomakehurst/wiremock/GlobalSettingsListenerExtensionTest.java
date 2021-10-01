@@ -21,10 +21,10 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
 public class GlobalSettingsListenerExtensionTest {
@@ -47,7 +47,7 @@ public class GlobalSettingsListenerExtensionTest {
                 .dynamicPort()
                 .extensions(listener));
 
-        @BeforeEach
+        @Before
         public void init() {
             listener.events.clear();
         }

@@ -23,9 +23,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Rule;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -50,7 +50,7 @@ public class ResponseDribbleAcceptanceTest {
 
     private HttpClient httpClient;
 
-    @BeforeEach
+    @Before
     public void init() throws IOException {
         stubFor(get("/warmup").willReturn(ok()));
         httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
