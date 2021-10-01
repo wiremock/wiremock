@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
@@ -113,9 +115,13 @@ public class DateTimeParser {
         return null;
     }
 
-    public Date parseDate(String dateTimeString) {
+    public RenderableDate parseDate(String dateTimeString) {
         if (isUnix || isEpoch) {
-            return Date.from(parseZonedDateTime(dateTimeString).toInstant());
+            return new RenderableDate(
+                    Date.from(parseZonedDateTime(dateTimeString).toInstant()),
+                    null,
+                    null
+            );
         }
 
         if (dateTimeFormatter == null) {
@@ -123,15 +129,19 @@ public class DateTimeParser {
         }
 
         final TemporalAccessor parseResult = dateTimeFormatter.parse(dateTimeString);
-        if (parseResult.query(TemporalQueries.zone()) != null) {
-            return Date.from(Instant.from(parseResult));
+        final ZoneId timezoneId = parseResult.query(TemporalQueries.zone());
+
+        Date date;
+
+        if (timezoneId != null) {
+            date = Date.from(Instant.from(parseResult));
+        } else if (parseResult.query(TemporalQueries.localTime()) != null) {
+            date = Date.from(LocalDateTime.from(parseResult).toInstant(UTC));
+        } else {
+            date = Date.from(LocalDate.from(parseResult).atStartOfDay(UTC).toInstant());
         }
 
-        if (parseResult.query(TemporalQueries.localTime()) != null) {
-            return Date.from(LocalDateTime.from(parseResult).toInstant(UTC));
-        }
-
-        return Date.from(LocalDate.from(parseResult).atStartOfDay(UTC).toInstant());
+        return new RenderableDate(date, null, timezoneId);
     }
 
 }

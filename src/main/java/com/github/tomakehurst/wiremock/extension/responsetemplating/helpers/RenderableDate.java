@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -25,12 +26,20 @@ public class RenderableDate extends Date {
     private static final long DIVIDE_MILLISECONDS_TO_SECONDS = 1000L;
 
     private final String format;
-    private final String timezoneName;
+    private final ZoneId timezone;
 
-    public RenderableDate(Date date, String format, String timezone) {
+    public RenderableDate(Date date, String format, ZoneId timezone) {
         super(date.getTime());
         this.format = format;
-        this.timezoneName = timezone;
+        this.timezone = timezone;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public ZoneId getTimezone() {
+        return timezone;
     }
 
     @Override
@@ -47,15 +56,15 @@ public class RenderableDate extends Date {
             return formatCustom();
         }
 
-        return timezoneName != null ?
-                ISO8601Utils.format(this, false, TimeZone.getTimeZone(timezoneName)) :
+        return timezone != null ?
+                ISO8601Utils.format(this, false, TimeZone.getTimeZone(timezone)) :
                 ISO8601Utils.format(this, false);
     }
 
     private String formatCustom() {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        if (timezoneName != null) {
-            TimeZone zone = TimeZone.getTimeZone(timezoneName);
+        if (timezone != null) {
+            TimeZone zone = TimeZone.getTimeZone(timezone);
             dateFormat.setTimeZone(zone);
         }
         return dateFormat.format(this);
