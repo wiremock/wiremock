@@ -142,9 +142,9 @@ allprojects {
             description 'A web service test double for all occasions'
             url 'http://wiremock.org'
             scm {
-                connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-                developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-                url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+                connection 'https://github.com/wiremock/wiremock.git'
+                developerConnection 'https://github.com/wiremock/wiremock.git'
+                url 'https://github.com/wiremock/wiremock'
             }
             licenses {
                 license {
