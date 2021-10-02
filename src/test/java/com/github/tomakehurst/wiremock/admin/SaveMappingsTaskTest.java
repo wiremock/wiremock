@@ -22,24 +22,25 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.HttpURLConnection;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class SaveMappingsTaskTest {
 
+    @RegisterExtension
     private JUnit5Mockery context = new JUnit5Mockery();
     private Admin mockAdmin;
     private Request mockRequest;
 
     private SaveMappingsTask saveMappingsTask;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockAdmin = context.mock(Admin.class);
         mockRequest = context.mock(Request.class);

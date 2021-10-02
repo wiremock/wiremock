@@ -29,8 +29,9 @@ import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.Collections;
 
@@ -45,13 +46,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class AdminRequestHandlerTest {
+	@RegisterExtension
 	private JUnit5Mockery context = new JUnit5Mockery();
 	private Admin admin;
     private MockHttpResponder httpResponder;
 
     private AdminRequestHandler handler;
 
-	@Before
+	@BeforeEach
 	public void init() {
         admin = context.mock(Admin.class);
         httpResponder = new MockHttpResponder();

@@ -20,8 +20,9 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
@@ -31,9 +32,11 @@ import static org.hamcrest.Matchers.is;
 public class SnapshotStubMappingBodyExtractorTest {
     private FileSource filesSource;
     private SnapshotStubMappingBodyExtractor bodyExtractor;
+
+    @RegisterExtension
     private JUnit5Mockery context = new JUnit5Mockery();
 
-    @Before
+    @BeforeEach
     public void init() {
         filesSource = context.mock(FileSource.class, "filesFileSource");
         bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);

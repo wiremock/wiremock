@@ -25,6 +25,7 @@ import org.jmock.junit5.JUnit5Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.Optional;
 
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
+    @RegisterExtension
     JUnit5Mockery context = new JUnit5Mockery();
     CloseableHttpClient client;
     ExtensionContext extensionContext;

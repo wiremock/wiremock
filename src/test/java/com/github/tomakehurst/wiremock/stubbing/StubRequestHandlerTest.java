@@ -31,8 +31,9 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.Collections;
 
@@ -46,6 +47,7 @@ import static org.hamcrest.Matchers.is;
 
 public class StubRequestHandlerTest {
 
+	@RegisterExtension
 	private JUnit5Mockery context = new JUnit5Mockery();
 	private StubServer stubServer;
 	private ResponseRenderer responseRenderer;
@@ -55,7 +57,7 @@ public class StubRequestHandlerTest {
 
 	private StubRequestHandler requestHandler;
 
-	@Before
+	@BeforeEach
 	public void init() {
         stubServer = context.mock(StubServer.class);
 		responseRenderer = context.mock(ResponseRenderer.class);

@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
 import org.jmock.junit5.JUnit5Mockery;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.nio.charset.StandardCharsets;
 
@@ -31,7 +32,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ContentTypeHeaderTest {
-	
+
+	@RegisterExtension
 	private JUnit5Mockery context = new JUnit5Mockery();
 
 	@Test

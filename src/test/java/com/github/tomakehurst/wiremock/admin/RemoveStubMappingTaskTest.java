@@ -23,8 +23,9 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.HttpURLConnection;
 
@@ -36,6 +37,7 @@ public class RemoveStubMappingTaskTest {
 
     private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
+    @RegisterExtension
     private JUnit5Mockery context = new JUnit5Mockery();
     private Admin mockAdmin;
 
@@ -43,7 +45,7 @@ public class RemoveStubMappingTaskTest {
     private OldRemoveStubMappingTask removeStubMappingTask;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         mockAdmin = context.mock(Admin.class);

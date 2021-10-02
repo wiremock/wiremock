@@ -23,8 +23,9 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.absent;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
@@ -39,9 +40,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MatchesJsonPathPatternTest {
 
+    @RegisterExtension
     private JUnit5Mockery context = new JUnit5Mockery();
 
     @Test
@@ -354,8 +357,9 @@ public class MatchesJsonPathPatternTest {
                 "}"));
     }
 
-    @Test(expected = JsonException.class)
+    @Test
     public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithMissingExpression() {
+        assertThrows(JsonException.class, () ->
         Json.read(
             "{                                      \n" +
                 "    \"matchesJsonPath\": {              \n" +
@@ -363,11 +367,12 @@ public class MatchesJsonPathPatternTest {
                 "        \"equalTo\": \"the value\"      \n" +
                 "    }                                   \n" +
                 "}",
-            StringValuePattern.class);
+            StringValuePattern.class));
     }
 
-    @Test(expected = JsonException.class)
+    @Test
     public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithBadValuePatternName() {
+        assertThrows(JsonException.class, () ->
         Json.read(
             "{                                      \n" +
                 "    \"matchesJsonPath\": {              \n" +
@@ -375,7 +380,7 @@ public class MatchesJsonPathPatternTest {
                 "        \"badOperator\": \"the value\"  \n" +
                 "    }                                   \n" +
                 "}",
-            StringValuePattern.class);
+            StringValuePattern.class));
     }
 
     @Test
@@ -434,7 +439,7 @@ public class MatchesJsonPathPatternTest {
         LocalNotifier.set(notifier);
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         LocalNotifier.set(null);
     }

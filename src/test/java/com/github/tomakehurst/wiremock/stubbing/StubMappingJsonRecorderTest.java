@@ -25,9 +25,10 @@ import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.*;
 
@@ -51,9 +52,10 @@ public class StubMappingJsonRecorderTest {
 	private FileSource filesFileSource;
     private Admin admin;
 
+    @RegisterExtension
 	private JUnit5Mockery context = new JUnit5Mockery();
 
-	@Before
+	@BeforeEach
 	public void init() {
 		mappingsFileSource = context.mock(FileSource.class, "mappingsFileSource");
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
@@ -590,7 +592,7 @@ public class StubMappingJsonRecorderTest {
             int i = headerLine.indexOf(':');
 
             if (i <= 0) {
-                Assert.fail("Invalid header expected line: " + headerLine);
+                Assertions.fail("Invalid header expected line: " + headerLine);
             }
 
             Collection<String> params = new ArrayList<>();

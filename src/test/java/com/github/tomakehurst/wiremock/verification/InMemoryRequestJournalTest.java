@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
-import org.jmock.Mockery;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -34,9 +34,11 @@ public class InMemoryRequestJournalTest {
 
     private ServeEvent serveEvent1, serveEvent2, serveEvent3;
 
-    @Before
+    @RegisterExtension
+    private JUnit5Mockery context = new JUnit5Mockery();
+
+    @BeforeEach
     public void createTestRequests() {
-        JUnit5Mockery context = new JUnit5Mockery();
         serveEvent1 = ServeEvent.of(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
         serveEvent2 = ServeEvent.of(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
         serveEvent3 = ServeEvent.of(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
@@ -56,7 +58,6 @@ public class InMemoryRequestJournalTest {
 
     @Test
     public void resettingTheJournalClearsAllEntries() throws Exception {
-        JUnit5Mockery context = new JUnit5Mockery();
         LoggedRequest loggedRequest = createFrom(aRequest(context)
                 .withUrl("/for/logging")
                 .build());

@@ -25,7 +25,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.jmock.junit5.JUnit5Mockery;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
@@ -33,6 +34,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class SnapshotStubMappingGeneratorTest {
+
+    @RegisterExtension
+    private JUnit5Mockery mockery = new JUnit5Mockery();
+
     @Test
     public void apply() {
         final RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("/foo");
@@ -68,10 +73,10 @@ public class SnapshotStubMappingGeneratorTest {
         };
     }
 
-    private static ServeEvent serveEvent() {
+    private ServeEvent serveEvent() {
         return new ServeEvent(
             null,
-            LoggedRequest.createFrom(aRequest(new JUnit5Mockery()).build()),
+            LoggedRequest.createFrom(aRequest(mockery).build()),
             null,
             null,
             LoggedResponse.from(Response.notConfigured()),
