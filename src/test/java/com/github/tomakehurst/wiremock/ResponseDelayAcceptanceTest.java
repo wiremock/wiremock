@@ -159,7 +159,7 @@ public class ResponseDelayAcceptanceTest {
                     aResponse()
                             .withStatus(200)
                             .withFixedDelay(LONGER_THAN_SOCKET_TIMEOUT)));
-            httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.getRuntimeInfo().getHttpPort())));
+            httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
         });
     }
 
@@ -170,7 +170,7 @@ public class ResponseDelayAcceptanceTest {
                         .withStatus(200)
                         .withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
-        final HttpResponse execute = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.getRuntimeInfo().getHttpPort())));
+        final HttpResponse execute = httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
         assertThat(execute.getStatusLine().getStatusCode(), is(200));
     }
 
@@ -218,7 +218,7 @@ public class ResponseDelayAcceptanceTest {
             @Override
             public void run() {
                 try {
-                    HttpGet request = new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.getRuntimeInfo().getHttpPort()));
+                    HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
                     final HttpResponse execute = httpClient.execute(request);
                     assertThat(execute.getStatusLine().getStatusCode(), is(200));
                     success.set(true);
