@@ -409,7 +409,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 aResponse()
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
-		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
+		getAndAssertUnderlyingExceptionInstanceClass("/random/data", NoHttpResponseException.class);
 	}
 
 	@Test

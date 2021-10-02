@@ -117,7 +117,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), URIScheme.HTTPS);
+        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), URIScheme.HTTPS.getId());
         assertThat(response.content(), is("Got it"));
     }
 

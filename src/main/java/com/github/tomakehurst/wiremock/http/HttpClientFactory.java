@@ -31,8 +31,10 @@ import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 import java.security.*;
 import java.util.Collections;
@@ -68,11 +70,14 @@ public class HttpClientFactory {
                 .disableCookieManagement()
                 .disableRedirectHandling()
                 .disableContentCompression()
-                //TODO Set equivalent properties 
-//                .setMaxConnTotal(maxConnections)
-//                .setMaxConnPerRoute(maxConnections)
-//                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
-//                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                        .setDefaultSocketConfig(SocketConfig.custom()
+                                .setSoTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
+                                .build())
+                        .setMaxConnPerRoute(maxConnections)
+                        .setMaxConnTotal(maxConnections)
+                        .setValidateAfterInactivity(TimeValue.ofSeconds(5))  // TODO Verify duration
+                        .build())
                 .setConnectionReuseStrategy((request, response, context) -> false)
                 .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS);
 
@@ -197,9 +202,9 @@ public class HttpClientFactory {
         return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE, true);
     }
 
-	public static CloseableHttpClient createClient(int timeoutMilliseconds) {
-		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
-	}
+    public static CloseableHttpClient createClient(int timeoutMilliseconds) {
+        return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
+    }
 
     public static CloseableHttpClient createClient(ProxySettings proxySettings) {
         return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE, true);
