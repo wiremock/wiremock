@@ -1,24 +1,10 @@
 package functional;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.reset;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.wiremock.webhooks.Webhooks.webhook;
-
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import java.util.concurrent.CountDownLatch;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,10 +14,34 @@ import testsupport.TestNotifier;
 import testsupport.ThrowingWebhookTransformer;
 import testsupport.WireMockTestClient;
 
+import java.util.concurrent.CountDownLatch;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.wiremock.webhooks.Webhooks.webhook;
+
 public class FailingWebhookTest {
 
   @Rule
-  public WireMockRule targetServer = new WireMockRule(options().dynamicPort());
+  public WireMockRule targetServer = new WireMockRule(options().dynamicPort()
+      .extensions(new PostServeAction() {
+        @Override
+        public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
+          if (serveEvent.getRequest().getUrl().startsWith("/callback")) {
+            latch.countDown();
+          }
+        }
+
+        @Override
+        public String getName() {
+          return "test-latch";
+        }
+      }));
 
   CountDownLatch latch;
 
@@ -51,11 +61,6 @@ public class FailingWebhookTest {
 
   @Before
   public void init() {
-    targetServer.addMockServiceRequestListener((request, response) -> {
-        if (request.getUrl().startsWith("/callback")) {
-          latch.countDown();
-        }
-      });
     reset();
     notifier.reset();
     targetServer.stubFor(any(anyUrl())
