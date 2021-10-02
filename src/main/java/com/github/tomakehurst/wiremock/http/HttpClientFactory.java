@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.http.ssl.*;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.impl.DefaultAuthenticationStrategy;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -83,7 +84,7 @@ public class HttpClientFactory {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
             builder.setProxy(proxyHost);
             if(!isEmpty(proxySettings.getUsername()) && !isEmpty(proxySettings.getPassword())) {
-                //TODO builder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
+                builder.setProxyAuthenticationStrategy(new DefaultAuthenticationStrategy()); // TODO Verify
                 BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(
                         new AuthScope(proxySettings.host(), proxySettings.port()),

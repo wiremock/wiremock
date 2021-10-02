@@ -37,13 +37,11 @@ import org.apache.hc.core5.ssl.TrustStrategy;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
@@ -107,12 +105,12 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse getViaProxy(String url, int proxyPort) {
-        return getViaProxy(url, proxyPort, HttpHost.DEFAULT_SCHEME);
+        return getViaProxy(url, proxyPort, HttpHost.DEFAULT_SCHEME.getId());
     }
 
-    public WireMockResponse getViaProxy(String url, int proxyPort, URIScheme defaultScheme) {
+    public WireMockResponse getViaProxy(String url, int proxyPort, String defaultScheme) {
         URI targetUri = URI.create(url);
-        HttpHost proxy = new HttpHost(defaultScheme.getId(), address, proxyPort);
+        HttpHost proxy = new HttpHost(defaultScheme, address, proxyPort);
         HttpClient httpClientUsingProxy = HttpClientBuilder.create()
             .disableAuthCaching()
             .disableAutomaticRetries()
