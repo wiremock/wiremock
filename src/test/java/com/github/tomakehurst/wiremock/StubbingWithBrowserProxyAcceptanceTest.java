@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -26,10 +26,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.http.util.EntityUtils;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -44,15 +43,14 @@ public class StubbingWithBrowserProxyAcceptanceTest {
 
     static final String EXPECTED_RESPONSE_BODY = "Got it";
 
-    @ClassRule
-    public static WireMockClassRule wm = new WireMockClassRule(wireMockConfig()
-            .dynamicPort()
-            .enableBrowserProxying(true)
-            .notifier(new ConsoleNotifier(true))
-    );
-
-    @Rule
-    public WireMockClassRule instance = wm;
+    @RegisterExtension
+    public static WireMockExtension wm = WireMockExtension.newInstance()
+            .configureStaticDsl(true)
+            .options(wireMockConfig()
+                    .dynamicPort()
+                    .enableBrowserProxying(true)
+                    .notifier(new ConsoleNotifier(true)))
+            .build();
 
     static CloseableHttpClient client;
 
@@ -60,7 +58,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
     public static void init() {
         client = HttpClientBuilder.create()
                 .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                .setProxy(new HttpHost("localhost", wm.port()))
+                .setProxy(new HttpHost("localhost", wm.getRuntimeInfo().getHttpPort()))
                 .build();
     }
 
