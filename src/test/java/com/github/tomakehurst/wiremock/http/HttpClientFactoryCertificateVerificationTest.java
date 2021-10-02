@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
 import org.apache.http.client.HttpClient;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -54,13 +53,14 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
             List<String> trustedHosts,
             String certificateCN,
             boolean validCertificate
-    ) {
+    ) throws Exception {
         this.trustedHosts = trustedHosts;
         this.certificateCN = certificateCN;
         this.validCertificate = validCertificate;
+
+        startServerAndBuildClient();
     }
 
-    @BeforeEach
     public void startServerAndBuildClient() throws Exception {
 
         InMemoryKeyStore ks = new InMemoryKeyStore(JKS, new Secret("password"));

@@ -48,7 +48,7 @@ public class HttpClientFactoryRejectsUntrustedCertificatesTest extends HttpClien
 
     @MethodSource("data")
     @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-    public void certificatesAreRejectedAsExpected(List<String> trustedHosts, String certificateCN, boolean validCertificate) {
+    public void certificatesAreRejectedAsExpected(List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
         initHttpClientFactoryCertificateVerificationTest(trustedHosts, certificateCN, validCertificate);
 
