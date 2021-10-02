@@ -17,12 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.http.HttpVersion;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -71,7 +70,7 @@ public class Http2AcceptanceTest {
 
         HttpGet get = new HttpGet("https://localhost:" + wm.httpsPort() + "/thing");
         try (CloseableHttpResponse response = client.execute(get)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
     }
 }

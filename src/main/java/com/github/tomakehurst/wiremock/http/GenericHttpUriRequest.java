@@ -15,21 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 
 import java.net.URI;
 
-public class GenericHttpUriRequest extends HttpRequestBase {
-
-    private final String methodName;
+public class GenericHttpUriRequest extends HttpUriRequestBase {
 
     public GenericHttpUriRequest(String methodName, String url) {
-        this.methodName = methodName;
-        setURI(URI.create(url));
+        super(methodName, URI.create(url));
     }
 
-    @Override
-    public String getMethod() {
-        return methodName;
-    }
 }

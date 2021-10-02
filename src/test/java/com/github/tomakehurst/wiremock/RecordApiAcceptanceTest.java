@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransform
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,9 +39,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJs
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.find;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 

@@ -15,20 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
-import org.apache.http.*;
-import org.apache.http.client.entity.GzipCompressingEntity;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 
-import javax.net.ssl.SSLException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -36,10 +35,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.net.ssl.SSLException;
+
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
@@ -95,7 +96,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
         try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
             return response()
-                    .status(httpResponse.getStatusLine().getStatusCode())
+                    .status(httpResponse.getCode())
                     .headers(headersFrom(httpResponse, responseDefinition))
                     .body(getEntityAsByteArrayAndCloseStream(httpResponse))
                     .fromProxy(true)
@@ -118,7 +119,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private Response proxyResponseError(String type, HttpUriRequest request, Exception e) {
         return response()
                 .status(HTTP_INTERNAL_ERROR)
-                .body((type + " failure trying to make a proxied request from WireMock to " + request.getURI()) + "\r\n" + e.getMessage())
+                .body((type + " failure trying to make a proxied request from WireMock to " + request.getRequestUri()) + "\r\n" + e.getMessage())
                 .build();
     }
 
@@ -132,7 +133,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     private HttpHeaders headersFrom(HttpResponse httpResponse, ResponseDefinition responseDefinition) {
 	    List<HttpHeader> httpHeaders = new LinkedList<>();
-	    for (Header header : httpResponse.getAllHeaders()) {
+	    for (Header header : httpResponse.getHeaders()) {
 	        if (responseHeaderShouldBeTransferred(header.getName())) {
                 httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
             }
@@ -186,11 +187,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         return !FORBIDDEN_RESPONSE_HEADERS.contains(lowerCaseKey) && !lowerCaseKey.startsWith("access-control");
     }
 
-    private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) {
+    private static void addBodyIfPostPutOrPatch(ClassicHttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest();
 		if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
-			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
-            requestWithEntity.setEntity(buildEntityFrom(originalRequest));
+			httpRequest.setEntity(buildEntityFrom(originalRequest));
 		}
 	}
 
@@ -208,7 +208,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
         return applyGzipWrapperIfRequired(
             originalRequest,
-            new ByteArrayEntity(originalRequest.getBody())
+            new ByteArrayEntity(originalRequest.getBody(), ContentType.DEFAULT_BINARY)
         );
     }
 

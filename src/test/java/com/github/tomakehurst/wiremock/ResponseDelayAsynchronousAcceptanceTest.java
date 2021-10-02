@@ -19,9 +19,9 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.base.Stopwatch;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,11 +33,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 public class ResponseDelayAsynchronousAcceptanceTest {
 
@@ -66,7 +68,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
 
         for (Future<TimedHttpResponse> response: responses) {
             TimedHttpResponse timedResponse = response.get();
-            assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
+            assertThat(timedResponse.response.getCode(), is(200));
             assertThat(timedResponse.milliseconds, greaterThan((double) SHORTER_THAN_SOCKET_TIMEOUT));
         }
     }
@@ -79,7 +81,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
 
         for (Future<TimedHttpResponse> response: responses) {
             TimedHttpResponse timedResponse = response.get();
-            assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
+            assertThat(timedResponse.response.getCode(), is(200));
             assertThat(timedResponse.milliseconds, greaterThan(100.0));
         }
     }

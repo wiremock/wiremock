@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -53,7 +53,7 @@ public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientF
 
         server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-        HttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
+        ClassicHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
 
         String result = getEntityAsStringAndCloseStream(response);
 

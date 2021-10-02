@@ -21,30 +21,26 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.ProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -54,13 +50,22 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.KEY_STORE_PATH;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
@@ -69,7 +74,7 @@ public class HttpsAcceptanceTest {
 
     private WireMockServer wireMockServer;
     private WireMockServer proxy;
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -252,7 +257,7 @@ public class HttpsAcceptanceTest {
 
         HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy");
         HttpResponse response = httpClient.execute(get);
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        assertThat(response.getCode(), is(200));
     }
 
     @Test
@@ -266,7 +271,7 @@ public class HttpsAcceptanceTest {
 
         HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
         HttpResponse response = httpClient.execute(get);
-        assertThat(response.getStatusLine().getStatusCode(), is(500));
+        assertThat(response.getCode(), is(500));
     }
 
     private String url(String path) {
@@ -302,7 +307,7 @@ public class HttpsAcceptanceTest {
 
     private String contentFor(String url) throws Exception {
         HttpGet get = new HttpGet(url);
-        HttpResponse response = httpClient.execute(get);
+        ClassicHttpResponse response = httpClient.execute(get);
         String content = EntityUtils.toString(response.getEntity());
         return content;
     }
@@ -353,24 +358,26 @@ public class HttpsAcceptanceTest {
         KeyStore trustStore = readKeyStore(clientTrustStore, trustStorePassword);
 
         SSLContext sslcontext = SSLContexts.custom()
-                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                .loadTrustMaterial((chain, authType) -> true)
                 .loadKeyMaterial(trustStore, trustStorePassword.toCharArray())
                 .setKeyStoreType("pkcs12")
                 .setProtocol("TLS")
                 .build();
 
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+        SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
                 sslcontext,
                 null, // supported protocols
                 null,  // supported cipher suites
                 NoopHostnameVerifier.INSTANCE);
 
+        PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create().setSSLSocketFactory(sslSocketFactory).build();
+
         CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(sslsf)
+                .setConnectionManager(connectionManager)
                 .build();
 
         HttpGet get = new HttpGet(url);
-        HttpResponse response = httpClient.execute(get);
+        CloseableHttpResponse response = httpClient.execute(get);
         String content = EntityUtils.toString(response.getEntity());
         return content;
     }

@@ -17,15 +17,17 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.apache.http.HttpHost;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.hc.client5.http.DnsResolver;
+import org.apache.hc.client5.http.SystemDefaultDnsResolver;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.conn.DnsResolver;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.SystemDefaultDnsResolver;
-import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -59,7 +61,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
     @BeforeClass
     public static void init() {
         client = HttpClientBuilder.create()
-                .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                //TODO .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
                 .setProxy(new HttpHost("localhost", wm.port()))
                 .build();
     }
@@ -71,7 +73,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://righthost.internal/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://righthost.internal/mypath").build();
         makeRequestAndAssertOk(request);
     }
 
@@ -82,7 +84,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://wronghost.internal/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://wronghost.internal/mypath").build();
         makeRequestAndAssertNotOk(request);
     }
 
@@ -92,7 +94,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://whatever.internal/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://whatever.internal/mypath").build();
         makeRequestAndAssertOk(request);
     }
     
@@ -103,7 +105,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://localhost:1234/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://localhost:1234/mypath").build();
         makeRequestAndAssertOk(request);
     }
 
@@ -114,7 +116,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://localhost:4321/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://localhost:4321/mypath").build();
         makeRequestAndAssertNotOk(request);
     }
 
@@ -125,7 +127,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://whatever/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://whatever/mypath").build();
         makeRequestAndAssertOk(request);
     }
 
@@ -136,17 +138,17 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .willReturn(ok(EXPECTED_RESPONSE_BODY))
         );
 
-        HttpUriRequest request = RequestBuilder.get("http://whatever/mypath").build();
+        ClassicHttpRequest request = ClassicRequestBuilder.get("http://whatever/mypath").build();
         makeRequestAndAssertNotOk(request);
     }
     
-    private void makeRequestAndAssertOk(HttpUriRequest request) throws Exception {
+    private void makeRequestAndAssertOk(ClassicHttpRequest request) throws Exception {
         try (CloseableHttpResponse response = client.execute(request)) {
             assertThat(EntityUtils.toString(response.getEntity()), is(EXPECTED_RESPONSE_BODY));
         }
     }
 
-    private void makeRequestAndAssertNotOk(HttpUriRequest request) throws Exception {
+    private void makeRequestAndAssertNotOk(ClassicHttpRequest request) throws Exception {
         try (CloseableHttpResponse response = client.execute(request)) {
             assertThat(EntityUtils.toString(response.getEntity()), not(is(EXPECTED_RESPONSE_BODY)));
         }
@@ -169,5 +171,11 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 return new SystemDefaultDnsResolver().resolve(host);
             }
         }
+
+		@Override
+		public String resolveCanonicalHostname(String host) throws UnknownHostException {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
 }

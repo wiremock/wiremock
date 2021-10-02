@@ -21,9 +21,9 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.core5.http.HttpResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,9 +37,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.Thread.sleep;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseDelayAcceptanceTest {
@@ -175,7 +175,7 @@ public class ResponseDelayAcceptanceTest {
                         .withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
         final HttpResponse execute = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
-        assertThat(execute.getStatusLine().getStatusCode(), is(200));
+        assertThat(execute.getCode(), is(200));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class ResponseDelayAcceptanceTest {
                 try {
                     HttpGet request = new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port()));
                     final HttpResponse execute = httpClient.execute(request);
-                    assertThat(execute.getStatusLine().getStatusCode(), is(200));
+                    assertThat(execute.getCode(), is(200));
                     success.set(true);
                 } catch (Throwable e) {
                     e.printStackTrace();

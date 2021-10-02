@@ -30,11 +30,12 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import org.apache.hc.client5.http.entity.mime.AbstractContentBody;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.util.Args;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.AbstractContentBody;
-import org.apache.http.util.Args;
 
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 
@@ -74,11 +75,6 @@ public class MultipartBody extends AbstractContentBody {
     @Override
     public void writeTo(OutputStream out) throws IOException {
         out.write(body);
-    }
-
-    @Override
-    public String getTransferEncoding() {
-        return "7bit";
     }
 
     @Override

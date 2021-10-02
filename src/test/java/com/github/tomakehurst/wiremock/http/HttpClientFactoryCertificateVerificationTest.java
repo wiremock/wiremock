@@ -21,7 +21,8 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.After;
 import org.junit.Before;
 
@@ -47,7 +48,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
     private final String certificateCN;
     private final boolean validCertificate;
     protected WireMockServer server = null;
-    protected HttpClient client;
+    protected CloseableHttpClient client;
 
     protected HttpClientFactoryCertificateVerificationTest(
         List<String> trustedHosts,

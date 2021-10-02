@@ -15,13 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
-
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -34,18 +27,24 @@ import com.google.common.base.Stopwatch;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.GzipCompressingEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -53,12 +52,12 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ProxyAcceptanceTest {
 
@@ -224,7 +223,7 @@ public class ProxyAcceptanceTest {
 		
         proxy.register(post(urlEqualTo("/binary")).willReturn(aResponse().proxiedFrom("http://localhost:" + server.getAddress().getPort()).withBody(bytes)));
         
-        WireMockResponse post = testClient.post("/binary", new ByteArrayEntity(bytes));
+        WireMockResponse post = testClient.post("/binary", new ByteArrayEntity(bytes, ContentType.DEFAULT_BINARY));
 		assertThat(post.statusCode(), is(200));
 		assertThat(post.binaryContent(), Matchers.equalTo(bytes));
 	}
@@ -252,7 +251,7 @@ public class ProxyAcceptanceTest {
         CloseableHttpClient httpClient = HttpClientFactory.createClient();
         HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
             assertThat(response.getFirstHeader("Content-Length").getValue(), is("4"));
         }
     }
@@ -268,7 +267,7 @@ public class ProxyAcceptanceTest {
         CloseableHttpClient httpClient = HttpClientFactory.createClient();
         HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
             assertThat(response.getFirstHeader("Content-Length").getValue(), is("4"));
         }
     }
@@ -460,7 +459,7 @@ public class ProxyAcceptanceTest {
     }
 
     /**
-     * NOTE: {@link org.apache.http.client.HttpClient} always has a / when the context path is empty.
+     * NOTE: {@link org.apache.hc.core5.http.client.HttpClient} always has a / when the context path is empty.
      * This is also the behaviour of curl (see e.g. <a href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
      */
     @Test

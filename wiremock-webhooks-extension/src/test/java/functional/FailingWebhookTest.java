@@ -11,18 +11,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.util.concurrent.CountDownLatch;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,14 +51,11 @@ public class FailingWebhookTest {
 
   @Before
   public void init() {
-    targetServer.addMockServiceRequestListener(new RequestListener() {
-      @Override
-      public void requestReceived(Request request, Response response) {
+    targetServer.addMockServiceRequestListener((request, response) -> {
         if (request.getUrl().startsWith("/callback")) {
           latch.countDown();
         }
-      }
-    });
+      });
     reset();
     notifier.reset();
     targetServer.stubFor(any(anyUrl())

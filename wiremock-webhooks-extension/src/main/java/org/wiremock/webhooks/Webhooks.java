@@ -9,23 +9,22 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTempl
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.NoConnectionReuseStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.util.TimeValue;
 
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
 
 public class Webhooks extends PostServeAction {
@@ -66,12 +65,13 @@ public class Webhooks extends PostServeAction {
                 .disableCookieManagement()
                 .disableRedirectHandling()
                 .disableContentCompression()
-                .setMaxConnTotal(1000)
-                .setMaxConnPerRoute(1000)
-                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(30000).build())
-                .setConnectionReuseStrategy(NoConnectionReuseStrategy.INSTANCE)
-                .setKeepAliveStrategy((response, context) -> 0)
+                // TODO Set equivalent properties
+                //.setMaxConnTotal(1000)
+                //.setMaxConnPerRoute(1000)
+                //.setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
+                //.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(30000).build())
+                .setConnectionReuseStrategy((request, response, context) -> false)
+                .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS)
                 .build();
     }
 
@@ -85,7 +85,7 @@ public class Webhooks extends PostServeAction {
         final Notifier notifier = notifier();
 
         WebhookDefinition definition;
-        HttpUriRequest request;
+        ClassicHttpRequest request;
         try {
             definition = WebhookDefinition.from(parameters);
             for (WebhookTransformer transformer : transformers) {
@@ -106,7 +106,7 @@ public class Webhooks extends PostServeAction {
                                 String.format("Webhook %s request to %s returned status %s\n\n%s",
                                         finalDefinition.getMethod(),
                                         finalDefinition.getUrl(),
-                                        response.getStatusLine(),
+                                        response.getCode(),
                                         EntityUtils.toString(response.getEntity())
                                 )
                         );
@@ -149,8 +149,8 @@ public class Webhooks extends PostServeAction {
         return templateEngine.getUncachedTemplate(value).apply(context);
     }
 
-    private static HttpUriRequest buildRequest(WebhookDefinition definition) {
-        final RequestBuilder requestBuilder = RequestBuilder.create(definition.getMethod())
+    private static ClassicHttpRequest buildRequest(WebhookDefinition definition) {
+        final ClassicRequestBuilder requestBuilder = ClassicRequestBuilder.create(definition.getMethod())
                 .setUri(definition.getUrl());
 
         for (HttpHeader header : definition.getHeaders().all()) {
@@ -160,7 +160,7 @@ public class Webhooks extends PostServeAction {
         }
 
         if (definition.getRequestMethod().hasEntity() && definition.hasBody()) {
-            requestBuilder.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
+            requestBuilder.setEntity(new ByteArrayEntity(definition.getBinaryBody(), ContentType.DEFAULT_BINARY));
         }
 
         return requestBuilder.build();

@@ -24,14 +24,15 @@ import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.HttpHost;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.DnsResolver;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.SystemDefaultDnsResolver;
+import org.apache.hc.client5.http.DnsResolver;
+import org.apache.hc.client5.http.SystemDefaultDnsResolver;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.URIScheme;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.Origin;
@@ -39,7 +40,6 @@ import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.*;
 
-import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -54,7 +54,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import javax.net.ssl.SSLContext;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
@@ -113,7 +117,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), "https");
+        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), URIScheme.HTTPS);
         assertThat(response.content(), is("Got it"));
     }
 
@@ -248,8 +252,8 @@ public class HttpsBrowserProxyAcceptanceTest {
 
             // given
             CloseableHttpClient httpClient = HttpClients.custom()
-                    .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                    .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                    //TODO .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                    //TODO .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
                     .setProxy(new HttpHost("localhost", proxyWithCustomCaKeyStore.port()))
                     .build();
 
@@ -278,8 +282,8 @@ public class HttpsBrowserProxyAcceptanceTest {
 
         // given
         CloseableHttpClient httpClient = HttpClients.custom()
-                .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                //TODO .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                //TODO .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
                 .setProxy(new HttpHost("localhost", proxy.port()))
                 .build();
 
@@ -372,6 +376,12 @@ public class HttpsBrowserProxyAcceptanceTest {
             } else {
                 return new SystemDefaultDnsResolver().resolve(host);
             }
+        }
+
+        @Override
+        public String resolveCanonicalHostname(String host) throws UnknownHostException {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 
