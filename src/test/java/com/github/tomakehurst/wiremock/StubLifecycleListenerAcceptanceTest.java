@@ -19,12 +19,12 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.NotPermittedException;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.hamcrest.Matchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
@@ -48,11 +48,12 @@ public class StubLifecycleListenerAcceptanceTest {
     @TempDir
     public static File tempDir;
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options()
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options()
             .dynamicPort()
             .withRootDirectory(tempDir.getAbsolutePath())
-            .extensions(loggingListener, exceptionThrowingListener));
+            .extensions(loggingListener, exceptionThrowingListener))
+    .build();
 
     @BeforeEach
     public void init() {
@@ -110,7 +111,7 @@ public class StubLifecycleListenerAcceptanceTest {
 
     @Test
     public void sensibleExceptionIsThrownWhenRemoteAndExceptionThrownFromListener() {
-        WireMock wmRemote = new WireMock(wm.port());
+        WireMock wmRemote = new WireMock(wm.getRuntimeInfo().getHttpPort());
         exceptionThrowingListener.throwException = true;
 
         try {
