@@ -22,28 +22,27 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.absent;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToDateTime;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MatchesJsonPathPatternTest {
 
-    private Mockery context;
-
-    @Before
-    public void init() {
-        context = new Mockery();
-    }
+    private JUnit5Mockery context = new JUnit5Mockery();
 
     @Test
     public void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
@@ -430,7 +429,7 @@ public class MatchesJsonPathPatternTest {
     private void expectInfoNotification(final String message) {
         final Notifier notifier = context.mock(Notifier.class);
         context.checking(new Expectations() {{
-            one(notifier).info(message);
+            oneOf(notifier).info(message);
         }});
         LocalNotifier.set(notifier);
     }

@@ -15,12 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.http.*;
-import java.util.Collection;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.jmock.junit5.JUnit5Mockery;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +38,7 @@ import static com.google.common.collect.Sets.newLinkedHashSet;
 
 public class MockRequestBuilder {
 
-	private final Mockery context;
+	private JUnit5Mockery context;
 	private String url = "/";
 	private RequestMethod method = GET;
 	private String clientIp = "x.x.x.x";
@@ -46,20 +52,20 @@ public class MockRequestBuilder {
 	private boolean browserProxyRequest = false;
 	private String mockName;
 
-	public MockRequestBuilder(Mockery context) {
+	public MockRequestBuilder(JUnit5Mockery context) {
 		this.context = context;
 	}
 
-	public MockRequestBuilder(Mockery context, String mockName) {
+	public MockRequestBuilder(JUnit5Mockery context, String mockName) {
 		this.mockName = mockName;
 		this.context = context;
 	}
 
-	public static MockRequestBuilder aRequest(Mockery context) {
+	public static MockRequestBuilder aRequest(JUnit5Mockery context) {
 		return new MockRequestBuilder(context);
 	}
 
-	public static MockRequestBuilder aRequest(Mockery context, String mockName) {
+	public static MockRequestBuilder aRequest(JUnit5Mockery context, String mockName) {
 		return new MockRequestBuilder(context, mockName);
 	}
 

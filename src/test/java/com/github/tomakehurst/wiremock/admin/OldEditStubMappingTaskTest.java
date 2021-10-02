@@ -22,21 +22,21 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
 
 import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildJsonStringFor;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class OldEditStubMappingTaskTest {
 
 	private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
-	private Mockery context;
+	private JUnit5Mockery context = new JUnit5Mockery();
 	private Admin mockAdmin;
 
 	private Request mockRequest;
@@ -46,7 +46,6 @@ public class OldEditStubMappingTaskTest {
 	@Before
 	public void setUp() {
 
-		context = new Mockery();
 		mockAdmin = context.mock(Admin.class);
 		mockRequest = context.mock(Request.class);
 

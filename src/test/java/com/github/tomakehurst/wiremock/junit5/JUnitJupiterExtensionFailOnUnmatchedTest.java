@@ -21,7 +21,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
-    Mockery context;
+    JUnit5Mockery context = new JUnit5Mockery();
     CloseableHttpClient client;
     ExtensionContext extensionContext;
 
@@ -45,7 +45,6 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
     void init() {
         client = HttpClientFactory.createClient();
 
-        context = new Mockery();
         extensionContext = context.mock(ExtensionContext.class);
         context.checking(new Expectations() {{
             oneOf(extensionContext).getElement(); will(returnValue(Optional.empty()));

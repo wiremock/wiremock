@@ -30,11 +30,9 @@ import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Collections;
 
@@ -43,13 +41,12 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@RunWith(JMock.class)
 public class StubRequestHandlerTest {
 
-	private Mockery context;
+	private JUnit5Mockery context = new JUnit5Mockery();
 	private StubServer stubServer;
 	private ResponseRenderer responseRenderer;
 	private MockHttpResponder httpResponder;
@@ -60,7 +57,6 @@ public class StubRequestHandlerTest {
 
 	@Before
 	public void init() {
-		context = new Mockery();
         stubServer = context.mock(StubServer.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
 		httpResponder = new MockHttpResponder();
@@ -105,7 +101,7 @@ public class StubRequestHandlerTest {
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request); will(returnValue(
                 ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
-			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
+			oneOf(listener).requestReceived(with(equal(request)), with(any(Response.class)));
             allowing(responseRenderer).render(with(any(ServeEvent.class)));
                 will(returnValue(new Response.Builder().build()));
 		}});

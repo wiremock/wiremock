@@ -19,17 +19,18 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Collections;
 
@@ -40,12 +41,11 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@RunWith(JMock.class)
 public class AdminRequestHandlerTest {
-	private Mockery context;
+	private JUnit5Mockery context = new JUnit5Mockery();
 	private Admin admin;
     private MockHttpResponder httpResponder;
 
@@ -53,7 +53,6 @@ public class AdminRequestHandlerTest {
 
 	@Before
 	public void init() {
-		context = new Mockery();
         admin = context.mock(Admin.class);
         httpResponder = new MockHttpResponder();
 
@@ -69,7 +68,7 @@ public class AdminRequestHandlerTest {
                 .build();
 
         context.checking(new Expectations() {{
-            one(admin).saveMappings();
+            oneOf(admin).saveMappings();
         }});
 
         handler.handle(request, httpResponder);
@@ -86,7 +85,7 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(admin).resetAll();
+			oneOf(admin).resetAll();
 		}});
 
         handler.handle(request, httpResponder);
@@ -103,7 +102,7 @@ public class AdminRequestHandlerTest {
 				.build();
 
 		context.checking(new Expectations() {{
-			one(admin).resetRequests();
+			oneOf(admin).resetRequests();
 		}});
 
         handler.handle(request, httpResponder);

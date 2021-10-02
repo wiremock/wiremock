@@ -19,30 +19,23 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class AdminRequestHandlerTest {
-    private Mockery context;
+
     private WireMockServer wm;
     private WireMockTestClient client;
 
-    @Before
-    public void init() {
-        context = new Mockery();
-    }
-
-    @After
+    @AfterEach
     public void cleanup() {
         if (wm != null) {
             wm.stop();
@@ -51,7 +44,7 @@ public class AdminRequestHandlerTest {
 
     @Test
     public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-        final Notifier notifier = context.mock(Notifier.class);
+        final Notifier notifier = mock(Notifier.class);
         wm = new WireMockServer(options().dynamicPort().notifier(notifier));
         wm.start();
         client = new WireMockTestClient(wm.port());
@@ -73,16 +66,13 @@ public class AdminRequestHandlerTest {
                 "    }\n" +
                 "}";
 
-        context.checking(new Expectations() {{
-            one(notifier).info(with(allOf(
-                    containsString("Admin request received:\n127.0.0.1 - POST /mappings\n"),
-                    containsString(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"),
-                    containsString(postBody))));
-        }});
 
         client.post("/__admin/mappings", new StringEntity(postBody),
                 withHeader(postHeaderABCName, postHeaderABCValue));
 
-        context.assertIsSatisfied();
+        verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
+        verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
+        verify(notifier).info(contains(postBody));
     }
+
 }

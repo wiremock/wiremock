@@ -19,26 +19,22 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@RunWith(JMock.class)
 public class SnapshotStubMappingBodyExtractorTest {
     private FileSource filesSource;
     private SnapshotStubMappingBodyExtractor bodyExtractor;
-    private Mockery context;
+    private JUnit5Mockery context = new JUnit5Mockery();
 
     @Before
     public void init() {
-        context = new Mockery();
         filesSource = context.mock(FileSource.class, "filesFileSource");
         bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);
     }
@@ -50,7 +46,7 @@ public class SnapshotStubMappingBodyExtractorTest {
             .build();
         context.checking(new Expectations() {{
             // ignore arguments because this test is only for checking stub mapping changes
-            one(filesSource).writeBinaryFile(with(any(String.class)), with(any(byte[].class)));
+            oneOf(filesSource).writeBinaryFile(with(any(String.class)), with(any(byte[].class)));
         }});
         bodyExtractor.extractInPlace(stubMapping);
         assertThat(stubMapping.getResponse().getBodyFileName(), is("foo-" + stubMapping.getId() + ".txt"));
@@ -97,7 +93,7 @@ public class SnapshotStubMappingBodyExtractorTest {
 
     private void setFileExpectations(final String filename, final String body) {
         context.checking(new Expectations() {{
-            one(filesSource).writeBinaryFile(
+            oneOf(filesSource).writeBinaryFile(
                 with(equal(filename)),
                 with(equal(body.getBytes()))
             );

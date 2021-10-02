@@ -16,15 +16,12 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -35,22 +32,17 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@RunWith(JMock.class)
 public class InMemoryMappingsTest {
 
     private InMemoryStubMappings mappings;
-    private Mockery context;
-    private Notifier notifier;
+    private JUnit5Mockery context = new JUnit5Mockery();
 
     @Before
     public void init() {
         mappings = new InMemoryStubMappings();
-        context = new Mockery();
-
-        notifier = context.mock(Notifier.class);
     }
 
     @After

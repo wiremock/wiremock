@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
+import org.jmock.junit5.JUnit5Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,8 +27,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class InMemoryRequestJournalTest {
 
@@ -35,7 +36,7 @@ public class InMemoryRequestJournalTest {
 
     @Before
     public void createTestRequests() {
-        Mockery context = new Mockery();
+        JUnit5Mockery context = new JUnit5Mockery();
         serveEvent1 = ServeEvent.of(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
         serveEvent2 = ServeEvent.of(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
         serveEvent3 = ServeEvent.of(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
@@ -55,7 +56,7 @@ public class InMemoryRequestJournalTest {
 
     @Test
     public void resettingTheJournalClearsAllEntries() throws Exception {
-        Mockery context = new Mockery();
+        JUnit5Mockery context = new JUnit5Mockery();
         LoggedRequest loggedRequest = createFrom(aRequest(context)
                 .withUrl("/for/logging")
                 .build());

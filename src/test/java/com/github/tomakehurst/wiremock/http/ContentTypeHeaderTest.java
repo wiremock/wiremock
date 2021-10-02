@@ -18,29 +18,21 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.jmock.junit5.JUnit5Mockery;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(JMock.class)
 public class ContentTypeHeaderTest {
 	
-	private Mockery context;
-	
-	@Before
-	public void init() {
-		context = new Mockery();
-	}
+	private JUnit5Mockery context = new JUnit5Mockery();
 
 	@Test
 	public void returnsMimeTypeAndCharsetWhenBothPresent() {
@@ -89,13 +81,11 @@ public class ContentTypeHeaderTest {
 		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
 
-	@Test(expected=NullPointerException.class)
+	@Test
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
-		Request request = new MockRequestBuilder(context)
-			.withHeader("Content-Type", null)
-			.build();
-	
-        request.contentTypeHeader();
+		assertThrows(NullPointerException.class, ()-> new MockRequestBuilder(context)
+				.withHeader("Content-Type", null)
+				.build());
 	}
 	
 	@Test
