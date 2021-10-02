@@ -30,15 +30,15 @@ import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.eclipse.jetty.server.ServerConnector;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(JMock.class)
@@ -49,7 +49,7 @@ public class JettyHttpServerTest {
     private StubRequestHandler stubRequestHandler;
     private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
-    @BeforeEach
+    @Before
     public void init() {
         context = new Mockery();
         Admin admin = context.mock(Admin.class);

@@ -27,8 +27,8 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
@@ -51,7 +51,7 @@ public class AdminRequestHandlerTest {
 
     private AdminRequestHandler handler;
 
-	@BeforeEach
+	@Before
 	public void init() {
 		context = new Mockery();
         admin = context.mock(Admin.class);

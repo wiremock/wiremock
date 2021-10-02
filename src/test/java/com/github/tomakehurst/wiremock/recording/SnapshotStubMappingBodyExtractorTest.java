@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -36,7 +36,7 @@ public class SnapshotStubMappingBodyExtractorTest {
     private SnapshotStubMappingBodyExtractor bodyExtractor;
     private Mockery context;
 
-    @BeforeEach
+    @Before
     public void init() {
         context = new Mockery();
         filesSource = context.mock(FileSource.class, "filesFileSource");

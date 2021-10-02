@@ -25,8 +25,8 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.google.common.collect.ImmutableMap;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -41,9 +41,8 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 @RunWith(JMock.class)
 public class LoggedRequestTest {
@@ -53,7 +52,7 @@ public class LoggedRequestTest {
 
     private Mockery context;
 
-    @BeforeEach
+    @Before
     public void init() {
         context = new Mockery();
         System.out.println(TimeZone.getDefault());

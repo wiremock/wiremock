@@ -20,25 +20,24 @@ import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JMock.class)
 public class ContentTypeHeaderTest {
 	
 	private Mockery context;
 	
-	@BeforeEach
+	@Before
 	public void init() {
 		context = new Mockery();
 	}
@@ -90,16 +89,14 @@ public class ContentTypeHeaderTest {
 		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
 
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
-        assertThrows(NullPointerException.class, () -> {
-            Request request = new MockRequestBuilder(context)
-                    .withHeader("Content-Type", null)
-                    .build();
-
-            request.contentTypeHeader();
-        });
-    }
+		Request request = new MockRequestBuilder(context)
+			.withHeader("Content-Type", null)
+			.build();
+	
+        request.contentTypeHeader();
+	}
 	
 	@Test
 	public void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {
