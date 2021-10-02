@@ -12,12 +12,15 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -65,11 +68,14 @@ public class Webhooks extends PostServeAction {
                 .disableCookieManagement()
                 .disableRedirectHandling()
                 .disableContentCompression()
-                // TODO Set equivalent properties
-                //.setMaxConnTotal(1000)
-                //.setMaxConnPerRoute(1000)
-                //.setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
-                //.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(30000).build())
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                        .setDefaultSocketConfig(SocketConfig.custom()
+                                .setSoTimeout(Timeout.ofMilliseconds(30000))
+                                .build())
+                        .setMaxConnPerRoute(1000)
+                        .setMaxConnTotal(1000)
+                        .setValidateAfterInactivity(TimeValue.ofSeconds(5))  // TODO Verify duration
+                        .build())
                 .setConnectionReuseStrategy((request, response, context) -> false)
                 .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS)
                 .build();
