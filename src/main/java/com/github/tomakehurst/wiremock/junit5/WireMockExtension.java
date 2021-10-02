@@ -178,6 +178,10 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
         return wireMockServer.baseUrl();
     }
 
+    public String url(String path) {
+        return wireMockServer.url(path);
+    }
+
     public static class Builder {
 
         private Options options = WireMockConfiguration.wireMockConfig().dynamicPort();
