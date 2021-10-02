@@ -15,19 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -49,12 +49,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ProxyResponseRendererTest {
 
-    @Rule
-    public WireMockRule origin = new WireMockRule(options()
+    @RegisterExtension
+    public WireMockExtension origin = WireMockExtension.newInstance().options(options()
             .httpDisabled(true)
             .dynamicHttpsPort()
             .keystorePath(generateKeystore().getAbsolutePath())
-    );
+    ).build();
 
     private final ProxyResponseRenderer proxyResponseRenderer = buildProxyResponseRenderer(false);
 
