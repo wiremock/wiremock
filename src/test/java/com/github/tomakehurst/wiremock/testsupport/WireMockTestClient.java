@@ -284,14 +284,15 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse getWithPreemptiveCredentials(String url, int port, String username, String password) {
-        HttpHost target = new HttpHost("localhost", port);
-        CloseableHttpClient httpClient = httpClientWithPreemptiveAuth(target, username, password);
+        CloseableHttpClient httpClient = HttpClients.createDefault();
 
-        AuthCache authCache = new BasicAuthCache();
         BasicScheme basicAuth = new BasicScheme();
-        authCache.put(target, basicAuth);
+        basicAuth.initPreemptive(new UsernamePasswordCredentials(username, password.toCharArray()));
+
+        HttpHost target = new HttpHost("localhost", port);
+
         HttpClientContext localContext = HttpClientContext.create();
-        localContext.setAuthCache(authCache);
+        localContext.resetAuthExchange(target, basicAuth);
 
         try {
             HttpGet httpget = new HttpGet(url);
@@ -314,17 +315,6 @@ public class WireMockTestClient {
             .disableCookieManagement()
             .disableRedirectHandling()
             .disableContentCompression()
-            .build();
-    }
-
-    private static CloseableHttpClient httpClientWithPreemptiveAuth(HttpHost target, String username, String password) {
-        BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(
-            new AuthScope(target),
-            new UsernamePasswordCredentials(username, password.toCharArray()));
-
-        return HttpClients.custom()
-            .setDefaultCredentialsProvider(credsProvider)
             .build();
     }
 
