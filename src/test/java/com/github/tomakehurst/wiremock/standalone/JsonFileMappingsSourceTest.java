@@ -53,13 +53,13 @@ public class JsonFileMappingsSourceTest {
 	}
 
 	private void configureWithMultipleMappingFile() throws Exception {
-		stubMappingFile = File.createTempFile("multi.json", null, tempDir);
+		stubMappingFile = File.createTempFile("multi", ".json", tempDir);
 		Files.copy(new File(filePath("multi-stub/multi.json")), stubMappingFile);
 		load();
 	}
 
 	private void configureWithSingleMappingFile() throws Exception {
-		stubMappingFile = File.createTempFile("single.json", null, tempDir);
+		stubMappingFile = File.createTempFile("single", ".json", tempDir);
 		Files.copy(new File(filePath("multi-stub/single.json")), stubMappingFile);
 		load();
 	}
