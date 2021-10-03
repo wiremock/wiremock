@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.http.ssl.*;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.DefaultAuthenticationStrategy;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -31,7 +32,6 @@ import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -71,12 +71,12 @@ public class HttpClientFactory {
                 .disableRedirectHandling()
                 .disableContentCompression()
                 .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
-                        .setDefaultSocketConfig(SocketConfig.custom()
-                                .setSoTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
-                                .build())
                         .setMaxConnPerRoute(maxConnections)
                         .setMaxConnTotal(maxConnections)
                         .setValidateAfterInactivity(TimeValue.ofSeconds(5))  // TODO Verify duration
+                        .build())
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
                         .build())
                 .setConnectionReuseStrategy((request, response, context) -> false)
                 .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS);

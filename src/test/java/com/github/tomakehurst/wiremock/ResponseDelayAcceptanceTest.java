@@ -164,7 +164,7 @@ public class ResponseDelayAcceptanceTest {
                         .withFixedDelay(LONGER_THAN_SOCKET_TIMEOUT)));
 
         exception.expect(SocketTimeoutException.class);
-        httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
+        httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
     }
 
     @Test
