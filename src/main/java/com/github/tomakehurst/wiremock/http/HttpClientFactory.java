@@ -36,6 +36,7 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
+import java.net.URI;
 import java.security.*;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -234,6 +235,6 @@ public class HttpClientFactory {
         else if (method.equals(PATCH))
             return new HttpPatch(url);
         else
-            return new GenericHttpUriRequest(method.toString(), url);
+            return new HttpUriRequestBase(method.toString(), URI.create(url));
     }
 }
