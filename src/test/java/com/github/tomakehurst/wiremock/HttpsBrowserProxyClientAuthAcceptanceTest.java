@@ -22,7 +22,9 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.ssl.SSLContexts;
@@ -96,7 +98,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
         KeyStore trustStore = readKeyStore(TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
 
         SSLContext sslcontext = SSLContexts.custom()
-                //TODO .loadTrustMaterial(new TrustSelfSignedStrategy())
+                .loadTrustMaterial(new TrustSelfSignedStrategy())
                 .loadKeyMaterial(trustStore, TRUST_STORE_PASSWORD.toCharArray())
                 .build();
 
@@ -106,8 +108,12 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
                 .disableAutomaticRetries()
                 .disableCookieManagement()
                 .disableRedirectHandling()
-                //TODO .setSSLContext(sslcontext)
-                //TODO .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                        .setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+                                .setSslContext(sslcontext)
+                                .setHostnameVerifier(new NoopHostnameVerifier())
+                                .build())
+                        .build())
                 .setProxy(proxyInfo)
                 .build();
     }
