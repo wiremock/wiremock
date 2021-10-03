@@ -15,7 +15,6 @@
  */
 package testsupport;
 
-import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
 import org.apache.hc.client5.http.auth.AuthCache;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -68,8 +67,8 @@ public class WireMockTestClient {
         this(8080);
     }
 
-    private String mockServiceUrlFor(String path) {
-        return String.format(LOCAL_WIREMOCK_ROOT, address, port, path);
+    private URI mockServiceUrlFor(String path) {
+        return URI.create(String.format(LOCAL_WIREMOCK_ROOT, address, port, path));
     }
 
     private String newMappingUrl() {
@@ -91,7 +90,8 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse get(String url, TestHttpHeader... headers) {
-        String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
+        URI uri = URI.create(url);
+        URI actualUrl = uri.isAbsolute() ? uri : mockServiceUrlFor(url);
         HttpUriRequest httpRequest = new HttpGet(actualUrl);
         return executeMethodAndConvertExceptions(httpRequest, headers);
     }
@@ -265,7 +265,7 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse request(final String methodName, String url, TestHttpHeader... headers) {
-        HttpUriRequest httpRequest = new GenericHttpUriRequest(methodName, mockServiceUrlFor(url));
+        HttpUriRequest httpRequest = new HttpUriRequestBase(methodName, mockServiceUrlFor(url));
         return executeMethodAndConvertExceptions(httpRequest, headers);
     }
 
