@@ -19,15 +19,14 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
-import org.apache.http.client.methods.RequestBuilder;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -61,7 +60,9 @@ public class StubbingWithBrowserProxyAcceptanceTest {
     @BeforeClass
     public static void init() {
         client = HttpClientBuilder.create()
-                //TODO .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                        .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                        .build())
                 .setProxy(new HttpHost("localhost", wm.port()))
                 .build();
     }
@@ -172,10 +173,13 @@ public class StubbingWithBrowserProxyAcceptanceTest {
             }
         }
 
-		@Override
-		public String resolveCanonicalHostname(String host) throws UnknownHostException {
-			// TODO Auto-generated method stub
-			return null;
-		}
+        @Override
+        public String resolveCanonicalHostname(String host) throws UnknownHostException {
+            final InetAddress[] resolvedAddresses = resolve(host);
+            if (resolvedAddresses.length > 0) {
+                return resolvedAddresses[0].getCanonicalHostName();
+            }
+            return host;
+        }
     }
 }
