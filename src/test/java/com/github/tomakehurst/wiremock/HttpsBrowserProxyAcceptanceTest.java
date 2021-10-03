@@ -29,6 +29,8 @@ import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.HttpHost;
@@ -251,9 +253,12 @@ public class HttpsBrowserProxyAcceptanceTest {
             KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT, "password");
 
             // given
+            PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                    .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                    .build();
             CloseableHttpClient httpClient = HttpClients.custom()
-                    //TODO .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                    //TODO .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                    .setConnectionManager(connectionManager)
                     .setProxy(new HttpHost("localhost", proxyWithCustomCaKeyStore.port()))
                     .build();
 
@@ -281,9 +286,12 @@ public class HttpsBrowserProxyAcceptanceTest {
         KeyStore trustStore = HttpsAcceptanceTest.readKeyStore(NO_PREEXISTING_KEYSTORE_PATH, "password");
 
         // given
+        PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+                .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
+                .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                .build();
         CloseableHttpClient httpClient = HttpClients.custom()
-                //TODO .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                //TODO .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
+                .setConnectionManager(connectionManager)
                 .setProxy(new HttpHost("localhost", proxy.port()))
                 .build();
 
@@ -370,7 +378,6 @@ public class HttpsBrowserProxyAcceptanceTest {
 
         @Override
         public InetAddress[] resolve(String host) throws UnknownHostException {
-
             if (host.endsWith("." + tldToSendToLocalhost)) {
                 return new InetAddress[] { InetAddress.getLocalHost() };
             } else {
@@ -380,8 +387,11 @@ public class HttpsBrowserProxyAcceptanceTest {
 
         @Override
         public String resolveCanonicalHostname(String host) throws UnknownHostException {
-            // TODO Auto-generated method stub
-            return null;
+            final InetAddress[] resolvedAddresses = resolve(host);
+            if (resolvedAddresses.length > 0) {
+                return resolvedAddresses[0].getCanonicalHostName();
+            }
+            return host;
         }
     }
 
