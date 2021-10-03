@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
@@ -46,7 +46,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 public class ProxyResponseRendererTest {
 
