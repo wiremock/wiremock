@@ -168,7 +168,7 @@ public class HttpsAcceptanceTest {
                 aResponse()
                         .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
-        getAndAssertUnderlyingExceptionInstanceClass(url("/random/data"), ProtocolException.class);
+        getAndAssertUnderlyingExceptionInstanceClass(url("/random/data"), NoHttpResponseException.class);
     }
 
     @Test(expected = Exception.class)
