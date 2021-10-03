@@ -28,8 +28,6 @@ dependencies {
     implementation "org.apache.httpcomponents.client5:httpclient5:5.1"
 
     testImplementation project(":")
-    testImplementation "junit:junit:4.13.2"
-    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.8.1" 
     testImplementation(platform('org.junit:junit-bom:5.8.1'))
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.hamcrest:hamcrest-core:2.2"
