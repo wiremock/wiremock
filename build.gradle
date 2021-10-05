@@ -200,18 +200,13 @@ allprojects {
 
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
-    classifier = 'tests'
+    archiveClassifier.set('tests')
     from sourceSets.test.output
 }
 
@@ -244,15 +239,15 @@ configurations {
 }
 
 jar {
-    baseName = 'wiremock-jre8'
+    archiveBaseName.set('wiremock-jre8')
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
     }
 }
 
 shadowJar {
-    baseName = 'wiremock-jre8-standalone'
-    classifier = ''
+    archiveBaseName.set('wiremock-jre8-standalone')
+    archiveClassifier.set('')
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
     relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -305,7 +300,7 @@ task writeThinJarPom {
     doLast {
         pom {
             project {
-                artifactId = jar.baseName
+                artifactId = jar.getArchiveBaseName().get()
             }
             project(pomInfo)
         }.whenConfigured { MavenPom pom ->
@@ -345,7 +340,7 @@ publishing {
 
     publications {
         thinJar(MavenPublication) {
-            artifactId = "${jar.baseName}"
+            artifactId = "${jar.getArchiveBaseName().get()}"
 
             artifact jar
             artifact sourcesJar
@@ -366,7 +361,7 @@ publishing {
         }
 
         standaloneJar(MavenPublication) { publication ->
-            artifactId = "${jar.baseName}-standalone"
+            artifactId = "${jar.getArchiveBaseName().get()}-standalone"
             project.shadow.component(publication)
 
             artifact sourcesJar
