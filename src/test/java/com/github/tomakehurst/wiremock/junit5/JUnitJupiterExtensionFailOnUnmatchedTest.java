@@ -62,7 +62,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
         extension.stubFor(get("/found").willReturn(ok()));
 
-        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.baseUrl() + "/not-found"))) {
+        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.url("/not-found")))) {
             assertThat(response.getStatusLine().getStatusCode(), is(404));
         }
 
@@ -79,7 +79,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
         extension.stubFor(get("/found").willReturn(ok()));
 
-        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.baseUrl() + "/not-found"))) {
+        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.url("/not-found")))) {
             assertThat(response.getStatusLine().getStatusCode(), is(404));
         }
 
