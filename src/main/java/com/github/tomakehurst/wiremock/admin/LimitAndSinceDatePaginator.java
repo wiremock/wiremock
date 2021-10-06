@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Predicate;
