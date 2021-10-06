@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,9 +35,9 @@ public class InMemoryRequestJournalTest {
     @Before
     public void createTestRequests() {
         Mockery context = new Mockery();
-        serveEvent1 = ServeEvent.of(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
-        serveEvent2 = ServeEvent.of(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
-        serveEvent3 = ServeEvent.of(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
+        serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()), null);
+        serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()), null);
+        serveEvent3 = ServeEvent.of(createFrom(aRequest("log3").withUrl("/logging3").build()), null);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class InMemoryRequestJournalTest {
     @Test
     public void resettingTheJournalClearsAllEntries() throws Exception {
         Mockery context = new Mockery();
-        LoggedRequest loggedRequest = createFrom(aRequest(context)
+        LoggedRequest loggedRequest = createFrom(aRequest()
                 .withUrl("/for/logging")
                 .build());
 

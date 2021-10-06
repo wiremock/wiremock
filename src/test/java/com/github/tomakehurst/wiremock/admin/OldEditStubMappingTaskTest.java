@@ -21,8 +21,6 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,8 +45,8 @@ public class OldEditStubMappingTaskTest {
 	public void setUp() {
 
 		context = new Mockery();
-		mockAdmin = context.mock(Admin.class);
-		mockRequest = context.mock(Request.class);
+		mockAdmin = Mockito.mock(Admin.class);
+		mockRequest = Mockito.mock(Request.class);
 
 		editStubMappingTask = new OldEditStubMappingTask();
 	}

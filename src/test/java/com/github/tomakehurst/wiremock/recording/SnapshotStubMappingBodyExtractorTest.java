@@ -18,9 +18,6 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,16 +27,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(JMock.class)
 public class SnapshotStubMappingBodyExtractorTest {
     private FileSource filesSource;
     private SnapshotStubMappingBodyExtractor bodyExtractor;
-    private Mockery context;
 
     @Before
     public void init() {
-        context = new Mockery();
-        filesSource = context.mock(FileSource.class, "filesFileSource");
+        filesSource = Mockito.mock(FileSource.class, "filesFileSource");
         bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);
     }
 

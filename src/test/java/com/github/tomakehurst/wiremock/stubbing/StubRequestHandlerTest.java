@@ -29,9 +29,6 @@ import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +43,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(JMock.class)
 public class StubRequestHandlerTest {
 
 	private Mockery context;
@@ -61,11 +57,11 @@ public class StubRequestHandlerTest {
 	@Before
 	public void init() {
 		context = new Mockery();
-        stubServer = context.mock(StubServer.class);
-		responseRenderer = context.mock(ResponseRenderer.class);
+        stubServer = Mockito.mock(StubServer.class);
+		responseRenderer = Mockito.mock(ResponseRenderer.class);
 		httpResponder = new MockHttpResponder();
-        admin = context.mock(Admin.class);
-		requestJournal = context.mock(RequestJournal.class);
+        admin = Mockito.mock(Admin.class);
+		requestJournal = Mockito.mock(RequestJournal.class);
 
 		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList(), false);
 
@@ -82,10 +78,10 @@ public class StubRequestHandlerTest {
             );
 
             Response response = response().status(200).body("Body content").build();
-			allowing(responseRenderer).render(with(any(ServeEvent.class))); will(returnValue(response));
+			when(responseRenderer.render(with(any(ServeEvent.class)))).thenReturn(response);
 		}});
 
-		Request request = aRequest(context)
+		Request request = aRequest()
 			.withUrl("/the/required/resource")
 			.withMethod(GET)
 			.build();
@@ -98,8 +94,8 @@ public class StubRequestHandlerTest {
 
 	@Test
 	public void shouldNotifyListenersOnRequest() {
-		final Request request = aRequest(context).build();
-		final RequestListener listener = context.mock(RequestListener.class);
+		final Request request = aRequest().build();
+		final RequestListener listener = Mockito.mock(RequestListener.class);
 		requestHandler.addRequestListener(listener);
 
 		context.checking(new Expectations() {{
@@ -115,7 +111,7 @@ public class StubRequestHandlerTest {
 
 	@Test
 	public void shouldLogInfoOnRequest() {
-		final Request request = aRequest(context)
+		final Request request = aRequest()
 				.withUrl("/")
 				.withMethod(GET)
 				.withClientIp("1.2.3.5")

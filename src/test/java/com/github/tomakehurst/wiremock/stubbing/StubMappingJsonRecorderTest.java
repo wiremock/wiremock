@@ -23,9 +23,6 @@ import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +46,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.skyscreamer.jsonassert.JSONCompareMode.STRICT_ORDER;
 
-@RunWith(JMock.class)
 public class StubMappingJsonRecorderTest {
 
 	private StubMappingJsonRecorder listener;
@@ -62,9 +58,9 @@ public class StubMappingJsonRecorderTest {
 	@Before
 	public void init() {
 		context = new Mockery();
-		mappingsFileSource = context.mock(FileSource.class, "mappingsFileSource");
-		filesFileSource = context.mock(FileSource.class, "filesFileSource");
-        admin = context.mock(Admin.class);
+		mappingsFileSource = Mockito.mock(FileSource.class, "mappingsFileSource");
+		filesFileSource = Mockito.mock(FileSource.class, "filesFileSource");
+        admin = Mockito.mock(Admin.class);
 
         constructRecordingListener(Collections.<String>emptyList());
 	}
@@ -89,14 +85,14 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
-		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+		    when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 					with(equalToJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
 			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.txt")),
                     with(equal("Recorded body content".getBytes(UTF_8))));
 		}});
 
-		Request request = new MockRequestBuilder(context)
+		Request request = new MockRequestBuilder()
 			.withMethod(RequestMethod.GET)
 			.withUrl("/recorded/content")
 			.build();
@@ -129,13 +125,13 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
-	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+	        when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.txt", "Recorded body content".getBytes(UTF_8));
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
             .withMethod(RequestMethod.GET)
             .withUrl("/headered/content")
             .build();
@@ -160,7 +156,7 @@ public class StubMappingJsonRecorderTest {
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
 
-	    listener.requestReceived(new MockRequestBuilder(context)
+	    listener.requestReceived(new MockRequestBuilder()
                 .withMethod(RequestMethod.GET)
                 .withUrl("/headered/content")
                 .build(),
@@ -170,7 +166,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void doesNotWriteFileIfResponseNotFromProxy() {
 	    context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -180,7 +176,7 @@ public class StubMappingJsonRecorderTest {
                 .fromProxy(false)
                 .build();
 
-        listener.requestReceived(new MockRequestBuilder(context)
+        listener.requestReceived(new MockRequestBuilder()
                 .withMethod(RequestMethod.GET)
                 .withUrl("/headered/content")
                 .build(),
@@ -205,14 +201,14 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void includesBodyInRequestPatternIfInRequest() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
                 .withMethod(POST)
                 .withUrl("/body/content")
                 .withHeader("Content-Type", "text/plain")
@@ -262,7 +258,7 @@ public class StubMappingJsonRecorderTest {
         constructRecordingListener(MATCHING_REQUEST_HEADERS);
 
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1, STRICT_ORDER)));
@@ -272,13 +268,13 @@ public class StubMappingJsonRecorderTest {
             ignoring(filesFileSource);
         }});
 
-        Request request1 = new MockRequestBuilder(context, "MockRequestAcceptHtml")
+        Request request1 = new MockRequestBuilder("MockRequestAcceptHtml")
                 .withMethod(GET)
                 .withUrl("/same/url")
                 .withHeader("Accept", "text/html")
                 .build();
 
-        Request request2 = new MockRequestBuilder(context, "MockRequestAcceptJson")
+        Request request2 = new MockRequestBuilder("MockRequestAcceptJson")
 		        .withMethod(GET)
 		        .withUrl("/same/url")
 		        .withHeader("Accept", "application/json")
@@ -310,14 +306,14 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void matchesBodyOnEqualToJsonIfJsonInRequestContentTypeHeader() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
                 .withMethod(POST)
                 .withUrl("/json/content")
                 .withHeader("Content-Type", "application/json ")
@@ -346,14 +342,14 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void matchesBodyOnEqualToXmlIfXmlInRequestContentTypeHeader() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            when(admin.countRequestsMatching(with(any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
                 .withMethod(POST)
                 .withUrl("/xml/content")
                 .withHeader("Content-Type", "text/xml; content-type=utf-8")
@@ -389,7 +385,7 @@ public class StubMappingJsonRecorderTest {
                     with(equal("Recorded body content".getBytes(UTF_8))));
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
                 .withHeader("Accept-Encoding", "gzip")
                 .withMethod(RequestMethod.GET)
                 .withUrl("/gzipped/content")
@@ -466,7 +462,7 @@ public class StubMappingJsonRecorderTest {
             ignoring(filesFileSource);
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
                 .withMethod(RequestMethod.POST)
                 .withHeader("Content-Type", "multipart/form-data")
                 .withUrl("/multipart/content")
@@ -529,7 +525,7 @@ public class StubMappingJsonRecorderTest {
                 with(any(byte[].class)));
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
             .withMethod(RequestMethod.GET)
             .withUrl("/my:oddly;~named!file/url")
             .build();
@@ -559,7 +555,7 @@ public class StubMappingJsonRecorderTest {
                 with(any(byte[].class)));
         }});
 
-        Request request = new MockRequestBuilder(context)
+        Request request = new MockRequestBuilder()
             .withMethod(RequestMethod.GET)
             .withUrl(url)
             .build();

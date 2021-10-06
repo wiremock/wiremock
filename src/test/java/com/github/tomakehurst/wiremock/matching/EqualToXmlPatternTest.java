@@ -23,8 +23,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableSet;
 import org.hamcrest.Matchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,14 +43,12 @@ import static org.xmlunit.diff.ComparisonType.*;
 
 public class EqualToXmlPatternTest {
 
-    private Mockery context;
 
     @Rule
     public WireMockRule wm = new WireMockRule(options().dynamicPort());
 
     @Before
     public void init() {
-        context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
 
         // We assert English XML parser error messages in this test. So we set our default locale to English to make
@@ -304,7 +300,7 @@ public class EqualToXmlPatternTest {
     }
 
     private void expectInfoNotification(final String message) {
-        final Notifier notifier = context.mock(Notifier.class);
+        final Notifier notifier = Mockito.mock(Notifier.class);
         context.checking(new Expectations() {{
             one(notifier).info(with(containsString(message)));
         }});

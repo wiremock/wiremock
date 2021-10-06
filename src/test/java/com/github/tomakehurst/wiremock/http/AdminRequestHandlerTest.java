@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,13 +31,11 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 
 public class AdminRequestHandlerTest {
-    private Mockery context;
     private WireMockServer wm;
     private WireMockTestClient client;
 
     @Before
     public void init() {
-        context = new Mockery();
     }
 
     @After
@@ -51,7 +47,7 @@ public class AdminRequestHandlerTest {
 
     @Test
     public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-        final Notifier notifier = context.mock(Notifier.class);
+        final Notifier notifier = Mockito.mock(Notifier.class);
         wm = new WireMockServer(options().dynamicPort().notifier(notifier));
         wm.start();
         client = new WireMockTestClient(wm.port());

@@ -28,8 +28,6 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.eclipse.jetty.server.ServerConnector;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,25 +39,22 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(JMock.class)
 public class JettyHttpServerTest {
 
-    private Mockery context;
     private AdminRequestHandler adminRequestHandler;
     private StubRequestHandler stubRequestHandler;
     private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
     @Before
     public void init() {
-        context = new Mockery();
-        Admin admin = context.mock(Admin.class);
+        Admin admin = Mockito.mock(Admin.class);
 
         adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList());
-        stubRequestHandler = new StubRequestHandler(context.mock(StubServer.class),
-                context.mock(ResponseRenderer.class),
+        stubRequestHandler = new StubRequestHandler(Mockito.mock(StubServer.class),
+                Mockito.mock(ResponseRenderer.class),
                 admin,
                 Collections.<String, PostServeAction>emptyMap(),
-                context.mock(RequestJournal.class),
+                Mockito.mock(RequestJournal.class),
                 Collections.<RequestFilter>emptyList(),
                 false
         );

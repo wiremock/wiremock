@@ -21,8 +21,6 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import org.hamcrest.Matchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,11 +36,9 @@ import static org.junit.Assert.assertTrue;
 
 public class MatchesJsonPathPatternTest {
 
-    private Mockery context;
 
     @Before
     public void init() {
-        context = new Mockery();
     }
 
     @Test
@@ -428,7 +424,7 @@ public class MatchesJsonPathPatternTest {
     }
 
     private void expectInfoNotification(final String message) {
-        final Notifier notifier = context.mock(Notifier.class);
+        final Notifier notifier = Mockito.mock(Notifier.class);
         context.checking(new Expectations() {{
             one(notifier).info(message);
         }});

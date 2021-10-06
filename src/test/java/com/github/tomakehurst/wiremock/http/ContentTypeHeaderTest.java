@@ -18,8 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +30,6 @@ import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(JMock.class)
 public class ContentTypeHeaderTest {
 	
 	private Mockery context;
@@ -81,7 +78,7 @@ public class ContentTypeHeaderTest {
 	
 	@Test
 	public void fetchesFromRequest() {
-		Request request = new MockRequestBuilder(context)
+		Request request = new MockRequestBuilder()
 			.withHeader("Content-Type", "text/xml")
 			.build();
 		
@@ -91,7 +88,7 @@ public class ContentTypeHeaderTest {
 
 	@Test(expected=NullPointerException.class)
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
-		Request request = new MockRequestBuilder(context)
+		Request request = new MockRequestBuilder()
 			.withHeader("Content-Type", null)
 			.build();
 	
