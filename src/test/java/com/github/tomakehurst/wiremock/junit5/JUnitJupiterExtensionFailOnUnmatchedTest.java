@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.junit5;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -43,7 +43,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
     @BeforeEach
     void init() {
-        client = HttpClientFactory.createClient();
+        client = HttpClient4Factory.createClient();
 
         context = new Mockery();
         extensionContext = context.mock(ExtensionContext.class);
