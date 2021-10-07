@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -287,7 +287,7 @@ public class WireMockJUnitRuleTest {
         public void exposesHttpsOnly() throws Exception {
             wireMockRule.stubFor(any(anyUrl()).willReturn(ok()));
 
-            HttpClient client = HttpClientFactory.createClient();
+            HttpClient client = HttpClient4Factory.createClient();
 
             HttpGet request = new HttpGet("https://localhost:" + wireMockRule.httpsPort() + "/anything");
             HttpResponse response = client.execute(request);

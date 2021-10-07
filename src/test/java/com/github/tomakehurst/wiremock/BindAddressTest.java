@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import com.github.tomakehurst.wiremock.common.HttpClientUtils;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.RequestBuilder;
@@ -47,7 +47,7 @@ public class BindAddressTest {
     private String nonBindAddress;
     private WireMockServer wireMockServer;
 
-    final HttpClient client = HttpClientFactory.createClient();
+    final HttpClient client = HttpClient4Factory.createClient();
 
     @Before
     public void prepare() throws Exception {
