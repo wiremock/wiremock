@@ -22,7 +22,7 @@ import org.apache.http.HttpResponse;
 
 import java.nio.charset.Charset;
 
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
+import static com.github.tomakehurst.wiremock.common.HttpClient4Utils.getEntityAsByteArrayAndCloseStream;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.getFirst;
 

@@ -41,7 +41,7 @@ public class StubMapping {
 	private UUID uuid = UUID.randomUUID();
 	private String name;
 
-	private Boolean persistent;
+	private boolean persistent;
 
 	private RequestPattern request;
 	private ResponseDefinition response;
@@ -102,15 +102,15 @@ public class StubMapping {
 	}
 
     public boolean shouldBePersisted() {
-        return persistent != null && persistent;
-    }
-
-    public Boolean isPersistent() {
         return persistent;
     }
 
+    public Boolean isPersistent() {
+        return persistent ? true : null;
+    }
+
     public void setPersistent(Boolean persistent) {
-        this.persistent = persistent;
+        this.persistent = persistent != null && persistent;
     }
 
     public RequestPattern getRequest() {
