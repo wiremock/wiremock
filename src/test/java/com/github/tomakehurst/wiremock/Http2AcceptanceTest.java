@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -65,7 +65,7 @@ public class Http2AcceptanceTest {
 
     @Test
     public void supportsHttp1_1Connections() throws Exception {
-        CloseableHttpClient client = HttpClientFactory.createClient();
+        CloseableHttpClient client = HttpClient4Factory.createClient();
 
         wm.stubFor(get("/thing").willReturn(ok("HTTP/1.1 response")));
 

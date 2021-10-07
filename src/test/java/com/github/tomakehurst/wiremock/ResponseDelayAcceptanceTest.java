@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -60,7 +60,7 @@ public class ResponseDelayAcceptanceTest {
 
     @Before
     public void init() {
-        httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        httpClient = HttpClient4Factory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
         testClient = new WireMockTestClient(wireMockRule.port());
     }
 

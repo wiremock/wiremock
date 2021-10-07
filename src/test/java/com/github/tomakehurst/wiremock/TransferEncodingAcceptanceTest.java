@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.StringUtils;
@@ -119,7 +119,7 @@ public class TransferEncodingAcceptanceTest {
             .willReturn(ok("stuff")
                     .withHeader("Content-Length", "1234")));
 
-        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
         HttpGet request = new HttpGet(wm.baseUrl() + path);
         try (final CloseableHttpResponse response = httpClient.execute(request)) {
             assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
@@ -135,7 +135,7 @@ public class TransferEncodingAcceptanceTest {
             .willReturn(ok("stuff")
                     .withHeader("Content-Length", "1234")));
 
-        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
         HttpGet request = new HttpGet(wm.baseUrl() + path);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
