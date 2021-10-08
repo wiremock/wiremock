@@ -23,53 +23,46 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.net.HttpURLConnection;
 
 import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildJsonStringFor;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RemoveStubMappingTaskTest {
 
     private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
-    private Admin mockAdmin;
+    private Admin mockAdmin = Mockito.mock(Admin.class);
+    private Request mockRequest = Mockito.mock(Request.class);
 
-    private Request mockRequest;
     private OldRemoveStubMappingTask removeStubMappingTask;
-
 
     @Before
     public void setUp() {
-
-        mockAdmin = Mockito.mock(Admin.class);
-        mockRequest = Mockito.mock(Request.class);
-
         removeStubMappingTask = new OldRemoveStubMappingTask();
-
     }
+
     @Test
     public void delegatesSavingMappingsToAdmin() {
-        context.checking(new Expectations() {{
-            oneOf(mockRequest).getBodyAsString();
-            will(returnValue(buildJsonStringFor(MOCK_MAPPING)));
-            oneOf(mockAdmin).removeStubMapping(with(any(StubMapping.class)));
-        }});
+        when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
         removeStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
+
+        verify(mockAdmin).removeStubMapping(any(StubMapping.class));
     }
     @Test
     public void returnsOKResponse() {
-
-        context.checking(new Expectations() {{
-            oneOf(mockRequest).getBodyAsString();
-            will(returnValue(buildJsonStringFor(MOCK_MAPPING)));
-            oneOf(mockAdmin).removeStubMapping(with(any(StubMapping.class)));
-        }});
+        when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
         ResponseDefinition response = removeStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+        verify(mockAdmin).removeStubMapping(any(StubMapping.class));
     }
 }
