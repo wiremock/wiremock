@@ -38,10 +38,18 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
-import static org.xmlunit.diff.ComparisonType.*;
+import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
+import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
+import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
 public class EqualToXmlPatternTest {
 
@@ -291,7 +299,7 @@ public class EqualToXmlPatternTest {
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
         Notifier notifier = setMockNotificatier();
         equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
-        verify(notifier).info("Failed to process XML. Content is not allowed in prolog.");
+        verify(notifier).info(contains("Failed to process XML. Content is not allowed in prolog."));
     }
 
     @Test
