@@ -23,6 +23,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 
@@ -32,10 +33,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
-    Mockery context;
     CloseableHttpClient client;
     ExtensionContext extensionContext;
 
@@ -44,9 +45,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
         client = HttpClientFactory.createClient();
 
         extensionContext = Mockito.mock(ExtensionContext.class);
-        context.checking(new Expectations() {{
-            oneOf(extensionContext).getElement(); will(returnValue(Optional.empty()));
-        }});
+        when(extensionContext.getElement()).thenReturn(Optional.empty());
     }
 
     @Test

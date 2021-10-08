@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xmlunit.diff.ComparisonType;
 
 import java.util.Locale;
@@ -39,10 +40,10 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.*;
 
 public class EqualToXmlPatternTest {
-
 
     @Rule
     public WireMockRule wm = new WireMockRule(options().dynamicPort());
@@ -288,8 +289,9 @@ public class EqualToXmlPatternTest {
 
     @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
-        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        Notifier notifier = setMockNotificatier();
         equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+        verify(notifier).info("Failed to process XML. Content is not allowed in prolog.");
     }
 
     @Test
@@ -299,12 +301,10 @@ public class EqualToXmlPatternTest {
         assertTrue(pattern.match(xmlWithDtdThatCannotBeFetched).isExactMatch());
     }
 
-    private void expectInfoNotification(final String message) {
-        final Notifier notifier = Mockito.mock(Notifier.class);
-        context.checking(new Expectations() {{
-            one(notifier).info(with(containsString(message)));
-        }});
+    private static Notifier setMockNotificatier() {
+        Notifier notifier = Mockito.mock(Notifier.class);
         LocalNotifier.set(notifier);
+        return notifier;
     }
 
     @Test

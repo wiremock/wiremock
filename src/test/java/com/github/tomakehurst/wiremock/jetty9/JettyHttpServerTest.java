@@ -30,14 +30,14 @@ import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JettyHttpServerTest {
 
