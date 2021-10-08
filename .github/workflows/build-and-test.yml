@@ -60,7 +60,7 @@ jobs:
   publish-test-results:
     name: "Publish Unit Test Results"
     needs: build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     # the build job might be skipped, we don't need to run this job then
     if: success() || failure()
 
