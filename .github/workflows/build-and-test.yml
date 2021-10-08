@@ -30,7 +30,7 @@ jobs:
         java-version: ${{ matrix.jdk }}
         distribution: 'adopt'
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew        
+      run: chmod +x gradlew
     - name: Set up node using nvm
       uses: dcodeIO/setup-node-nvm@v4
       with:
@@ -45,10 +45,29 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: wiremock-core-test-report-${{ matrix.os }}
-        path: build/reports/tests
+        path: |
+          build/reports/tests/test
+          build/test-results/test
     - name: Archive Webhooks test report - ${{ matrix.os }}
       if: always()
       uses: actions/upload-artifact@v2
       with:
         name: wiremock-webhooks-extension-test-report-${{ matrix.os }}
-        path: wiremock-webhooks-extension/build/reports/tests
+        path: |
+          wiremock-webhooks-extension/build/reports/tests/test
+          wiremock-webhooks-extension/build/test-results/test
+
+  publish-test-results:
+    name: "Publish Unit Test Results"
+    needs: build
+    runs-on: ubuntu-latest
+    # the build job might be skipped, we don't need to run this job then
+    if: success() || failure()
+
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@v2
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action/composite@v1
+      with:
+        files: '**/*.xml'
