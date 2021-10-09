@@ -78,11 +78,9 @@ public class ContentTypeHeaderTest {
 
 	@Test(expected = NullPointerException.class)
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
-		Request request = new MockRequestBuilder()
+		new MockRequestBuilder()
 				.withHeader("Content-Type", null)
 				.build();
-
-		request.contentTypeHeader();
 	}
 
 	@Test
