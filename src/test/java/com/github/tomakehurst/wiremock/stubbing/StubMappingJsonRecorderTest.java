@@ -277,8 +277,8 @@ public class StubMappingJsonRecorderTest {
                 argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_2, STRICT_ORDER)));
     }
 
-    private static final String SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY = "{                                                          \n"
-            +
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY = 
+            "{                                                          \n" +
             "  \"request\" : {                                          \n" +
             "    \"url\" : \"/json/content\",                           \n" +
             "    \"method\" : \"POST\",                                 \n" +
@@ -312,8 +312,8 @@ public class StubMappingJsonRecorderTest {
                 argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY, STRICT_ORDER)));
     }
 
-    private static final String SAMPLE_REQUEST_MAPPING_WITH_XML_BODY = "{                                                                  \n"
-            +
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_XML_BODY =
+            "{                                                                  \n" +
             "  \"request\" : {                                                  \n" +
             "    \"url\" : \"/xml/content\",                                    \n" +
             "    \"method\" : \"POST\",                                         \n" +
@@ -444,8 +444,7 @@ public class StubMappingJsonRecorderTest {
                 .withHeader("Content-Type", "multipart/form-data")
                 .withUrl("/multipart/content")
                 .withMultiparts(Arrays.asList(
-                        createPart("binaryFile", "This a file content".getBytes(), "application/octet-stream",
-                                "binaryFile.raw"),
+                        createPart("binaryFile", "This a file content".getBytes(), "application/octet-stream", "binaryFile.raw"),
                         createPart("textFile", "This a file content".getBytes(), "text/plain", "textFile.txt"),
                         createPart("formInput", "I am a field!".getBytes(), null, null)))
                 .build();
@@ -510,8 +509,7 @@ public class StubMappingJsonRecorderTest {
 
         listener.requestReceived(request, response);
 
-        verify(filesFileSource).writeBinaryFile(argThat(containsString("body-my_oddly__named_file-url")),
-                (any(byte[].class)));
+        verify(filesFileSource).writeBinaryFile(argThat(containsString("body-my_oddly__named_file-url")), (any(byte[].class)));
     }
 
     private void assertResultingFileExtension(String url, final String expectedExension) throws Exception {
