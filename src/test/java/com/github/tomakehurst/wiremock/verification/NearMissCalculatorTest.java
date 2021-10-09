@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Function;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -39,6 +38,7 @@ import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NE
 import static com.google.common.collect.FluentIterable.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class NearMissCalculatorTest {
@@ -51,8 +51,8 @@ public class NearMissCalculatorTest {
 
     @Before
     public void init() {
-        stubMappings = Mockito.mock(StubMappings.class);
-        requestJournal = Mockito.mock(RequestJournal.class);
+        stubMappings = mock(StubMappings.class);
+        requestJournal = mock(RequestJournal.class);
         scenarios = new Scenarios();
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     }
