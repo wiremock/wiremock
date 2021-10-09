@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.UnsupportedEncodingException;
 
@@ -32,26 +32,17 @@ import static org.mockito.Mockito.verify;
 
 public class AdminRequestHandlerTest {
 
-	private WireMockServer wm;
-	private WireMockTestClient client;
-
-	@After
-	public void cleanup() {
-		if (wm != null) {
-			wm.stop();
-		}
-	}
+	private Notifier notifier = mock(Notifier.class);
+	@RegisterExtension
+	private WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
 	@Test
 	public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-		final Notifier notifier = mock(Notifier.class);
-		wm = new WireMockServer(options().dynamicPort().notifier(notifier));
-		wm.start();
-		client = new WireMockTestClient(wm.port());
+		WireMockTestClient client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
 
-		final String postHeaderABCName = "ABC";
-		final String postHeaderABCValue = "abc123";
-		final String postBody = "{\n" +
+		String postHeaderABCName = "ABC";
+		String postHeaderABCValue = "abc123";
+		String postBody = "{\n" +
 				"    \"request\": {\n" +
 				"        \"method\": \"GET\",\n" +
 				"        \"url\": \"/some/thing\"\n" +
