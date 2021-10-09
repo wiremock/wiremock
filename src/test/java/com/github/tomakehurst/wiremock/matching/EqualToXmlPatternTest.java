@@ -297,7 +297,8 @@ public class EqualToXmlPatternTest {
 
     @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
-        Notifier notifier = setMockNotificatier();
+        Notifier notifier = Mockito.mock(Notifier.class);
+        LocalNotifier.set(notifier);
         equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
         verify(notifier).info(contains("Failed to process XML. Content is not allowed in prolog."));
     }
@@ -307,12 +308,6 @@ public class EqualToXmlPatternTest {
         String xmlWithDtdThatCannotBeFetched = "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
         EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);
         assertTrue(pattern.match(xmlWithDtdThatCannotBeFetched).isExactMatch());
-    }
-
-    private static Notifier setMockNotificatier() {
-        Notifier notifier = Mockito.mock(Notifier.class);
-        LocalNotifier.set(notifier);
-        return notifier;
     }
 
     @Test
