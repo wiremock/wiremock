@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -31,15 +30,11 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 
 public class SaveMappingsTaskTest {
+
     private Admin mockAdmin = Mockito.mock(Admin.class);
     private Request mockRequest = Mockito.mock(Request.class);
 
-    private SaveMappingsTask saveMappingsTask;
-
-    @Before
-    public void setUp() {
-        saveMappingsTask = new SaveMappingsTask();
-    }
+    private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
     @Test
     public void delegatesSavingMappingsToAdmin() {

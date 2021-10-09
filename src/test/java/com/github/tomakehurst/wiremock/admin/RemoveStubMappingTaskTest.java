@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -41,12 +40,7 @@ public class RemoveStubMappingTaskTest {
     private Admin mockAdmin = Mockito.mock(Admin.class);
     private Request mockRequest = Mockito.mock(Request.class);
 
-    private OldRemoveStubMappingTask removeStubMappingTask;
-
-    @Before
-    public void setUp() {
-        removeStubMappingTask = new OldRemoveStubMappingTask();
-    }
+    private OldRemoveStubMappingTask removeStubMappingTask = new OldRemoveStubMappingTask();
 
     @Test
     public void delegatesSavingMappingsToAdmin() {
