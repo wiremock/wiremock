@@ -23,9 +23,7 @@ import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledForJreRange;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.*;
 
 import java.util.Collections;
 
@@ -173,9 +171,18 @@ public class PlainTextDiffRendererTest {
 
     @Test
     @EnabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
     public void wrapsLargeXmlBodiesAppropriatelyJre11() {
         String output = wrapsLargeXmlBodiesAppropriately();
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11.txt")));
+    }
+
+    @Test
+    @EnabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
+    @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+    public void wrapsLargeXmlBodiesAppropriatelyJre11Windows() {
+        String output = wrapsLargeXmlBodiesAppropriately();
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11_windows.txt")));
     }
 
     private String wrapsLargeXmlBodiesAppropriately() {
