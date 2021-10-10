@@ -17,8 +17,6 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.Map;
 
@@ -109,14 +107,6 @@ public class PlainTextDiffRenderer {
 
     private void writeBlankLine(StringBuilder sb) {
         writeSingleLine(sb, "", null, null);
-    }
-
-    private void writeSingleLine(StringBuilder sb, String left, String right) {
-        writeSingleLine(sb, left, right, null);
-    }
-
-    private void writeSingleLine(StringBuilder sb, String left) {
-        writeSingleLine(sb, left, null);
     }
 
     private void writeSingleLine(StringBuilder sb, String left, String right, String message) {
