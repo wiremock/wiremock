@@ -6,6 +6,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 
 @AnalyzeClasses(packagesOf = WireMockServer.class, importOptions = {
 		ImportOption.DoNotIncludeArchives.class,
@@ -15,11 +16,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class HttpClientTest {
 
 	@ArchTest
-	static ArchRule httpClientShouldNotLeak = noClasses()
+	static ArchRule httpClientShouldNotLeak = freeze(noClasses()
 			.that().resideOutsideOfPackage("..http..")
 			.should().dependOnClassesThat().resideInAPackage("org.apache.hc..")
 			.orShould().dependOnClassesThat().resideInAPackage("org.apache.http..")
 			.as("Apache HttpClient should be limited to http package")
-			.because("we want to make the third party dependency optional");
+			.because("we want to make the third party dependency optional"));
 
 }

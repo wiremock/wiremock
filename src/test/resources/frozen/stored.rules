@@ -1,0 +1,3 @@
+#
+#Mon Oct 11 04:50:39 AEDT 2021
+Apache\ HttpClient\ should\ be\ limited\ to\ http\ package,\ because\ we\ want\ to\ make\ the\ third\ party\ dependency\ optional=80fc52c2-3f87-4067-9443-f0b6e332730b
