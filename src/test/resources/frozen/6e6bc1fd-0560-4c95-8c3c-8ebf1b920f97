@@ -1,0 +1,4 @@
+Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.filesOnly()> is unreferenced in (AbstractFileSource.java:185)
+Method <com.github.tomakehurst.wiremock.junit5.WireMockExtension.buildOptionsFromWireMockTestAnnotation(com.github.tomakehurst.wiremock.junit5.WireMockTest)> is unreferenced in (WireMockExtension.java:110)
+Method <com.github.tomakehurst.wiremock.servlet.WireMockWebContextListener.readMaxRequestJournalEntries(javax.servlet.ServletContext)> is unreferenced in (WireMockWebContextListener.java:55)
+Method <com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer.writeSingleLine(java.lang.StringBuilder, java.lang.String)> is unreferenced in (PlainTextDiffRenderer.java:119)
