@@ -96,7 +96,8 @@ class UnusedCodeTest {
 
 	/**
 	 * Detect methods that are *likely* unused throughout this code base, and the code base of our users.
-	 * This test has the potential to flag false positives, in which case
+	 * This test has the potential to flag false positives, in which case one can update the freeze store.
+	 * Take care not to delete any classes or methods that users might have to come rely on.
 	 */
 	@ArchTest
 	static ArchRule methodsShouldNotBeUnusedFrozen = freeze(methodsShouldNotBeUnused
