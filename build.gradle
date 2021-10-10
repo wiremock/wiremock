@@ -17,6 +17,7 @@ plugins {
     id 'eclipse'
     id 'project-report'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id "org.sonarqube" version "3.3"
 }
 
 group = 'com.github.tomakehurst'
@@ -406,6 +407,14 @@ signThinJarPublication.dependsOn writeThinJarPom
 
 task release {
     dependsOn clean, jar, shadowJar, publishAllPublicationsToMavenRepository, addGitTag
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "wiremock_wiremock"
+        property "sonar.organization", "wiremock"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
 
 task 'bump-patch-version' {
