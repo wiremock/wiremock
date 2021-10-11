@@ -39,6 +39,7 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasFileCo
 import static com.google.common.base.Charsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class StubMappingPersistenceAcceptanceTest {
 
@@ -206,6 +207,16 @@ public class StubMappingPersistenceAcceptanceTest {
 
         removeStub(stubMapping);
         assertThat(mappingFilePath.toFile().exists(), is(false));
+    }
+
+    @Test
+    public void preservesPersistentFlagFalseValue() {
+        UUID id = wm.stubFor(get("/no-persist").persistent(false)).getId();
+
+        StubMapping retrivedStub = wm.getSingleStubMapping(id);
+
+        assertThat(retrivedStub.isPersistent(), notNullValue());
+        assertThat(retrivedStub.isPersistent(), is(false));
     }
 
     private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {

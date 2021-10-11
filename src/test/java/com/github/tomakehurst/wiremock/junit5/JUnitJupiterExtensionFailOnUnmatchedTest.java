@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.junit5;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -42,7 +42,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
     @BeforeEach
     void init() {
-        client = HttpClientFactory.createClient();
+        client = HttpClient4Factory.createClient();
 
         extensionContext = Mockito.mock(ExtensionContext.class);
         when(extensionContext.getElement()).thenReturn(Optional.empty());
@@ -58,7 +58,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
         extension.stubFor(get("/found").willReturn(ok()));
 
-        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.baseUrl() + "/not-found"))) {
+        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.url("/not-found")))) {
             assertThat(response.getStatusLine().getStatusCode(), is(404));
         }
 
@@ -75,7 +75,7 @@ public class JUnitJupiterExtensionFailOnUnmatchedTest {
 
         extension.stubFor(get("/found").willReturn(ok()));
 
-        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.baseUrl() + "/not-found"))) {
+        try (CloseableHttpResponse response = client.execute(new HttpGet(extension.url("/not-found")))) {
             assertThat(response.getStatusLine().getStatusCode(), is(404));
         }
 
