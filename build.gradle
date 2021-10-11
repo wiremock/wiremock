@@ -505,5 +505,5 @@ task 'add-copyright-headers' {
 
 wrapper {
     gradleVersion = '6.6.1'
-    distributionType = Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.BIN
 }
