@@ -21,18 +21,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LogNormalTest {
 
-    // To test properly we would need something like a normality test.
-    // For our purposes, a simple verification is sufficient.
     @Test
     public void samplingLogNormalHasExpectedMean() {
         LogNormal distribution = new LogNormal(90.0, 0.39);
+        samplingLogNormalHasExpectedMean(distribution, 97.1115);
+    }
+
+    @Test
+    public void samplingCappedLogNormalWithHighCapHasExpectedMean() {
+        samplingCappedLogNormalHasExpectedMean(150, 97.1115);
+    }
+    
+    @Test
+    public void samplingCappedLogNormalWithLowerCapHasExpectedMean() {
+        samplingCappedLogNormalHasExpectedMean(130, 91.385);
+    }
+
+    private void samplingCappedLogNormalHasExpectedMean(long maxCapValue, double expectedMean) {
+    	LogNormal distribution = new CappedLogNormal(90.0, 0.39, maxCapValue);
+        samplingLogNormalHasExpectedMean(distribution, expectedMean);   	
+    }
+    
+    // To test properly we would need something like a normality test.
+    // For our purposes, a simple verification is sufficient.
+    private void samplingLogNormalHasExpectedMean(LogNormal distribution, double expectedMean) {
+        
         int n = 10000;
 
         long sum = 0;
         for (int i = 0; i < n; i++) {
-            sum += distribution.sampleMillis();
+        	long val = distribution.sampleMillis();
+            sum += val;
         }
 
-        assertEquals(97.1115, sum / (double) n, 5.0);
+        assertEquals(expectedMean, sum / (double) n, 5.0);
     }
 }
