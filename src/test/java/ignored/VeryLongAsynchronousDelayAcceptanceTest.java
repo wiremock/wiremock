@@ -17,7 +17,7 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -55,7 +55,7 @@ public class VeryLongAsynchronousDelayAcceptanceTest {
 
         wireMockRule.addStubMapping(Json.read(json, StubMapping.class));
 
-        CloseableHttpResponse response = HttpClientFactory.createClient(50, 120000)
+        CloseableHttpResponse response = HttpClient4Factory.createClient(50, 120000)
             .execute(RequestBuilder
             .post("http://localhost:" + wireMockRule.port() + "/faulty/1/path/path")
             .setEntity(new StringEntity("<xml>permissions</xml>"))

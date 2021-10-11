@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -53,7 +53,7 @@ public class ResponseDribbleAcceptanceTest {
     @Before
     public void init() throws IOException {
         stubFor(get("/warmup").willReturn(ok()));
-        httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        httpClient = HttpClient4Factory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
         // Warm up the server
         httpClient.execute(new HttpGet(String.format("http://localhost:%d/warmup", wireMockRule.port())));
     }
