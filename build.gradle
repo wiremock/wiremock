@@ -18,6 +18,7 @@ plugins {
     id 'project-report'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id "org.sonarqube" version "3.3"
+    id 'jacoco'
 }
 
 group = 'com.github.tomakehurst'
@@ -199,6 +200,12 @@ allprojects {
         }
     }
 
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
+    test.finalizedBy jacocoTestReport
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
