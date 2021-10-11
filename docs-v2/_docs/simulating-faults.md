@@ -129,6 +129,38 @@ To use, instantiate a `new LogNormal(median, sigma)`, or via JSON:
 }
 ```
 
+### Capped Lognormal delay
+
+Whilst lognormal distribution is a pretty good approximation of long tailed
+latencies centered on the 50th percentile, downstream production systems 
+often have timeouts configured which would normally artificially truncate the
+long tail. Therefore, the capped log normal takes an extra parameter which is
+the maximum value that the delay distribution should use. This will have the 
+effect of a main spike of responses around the 50th percentile but another
+(generally smaller but that would depend on the sigma value) spike at the
+maximum value.
+
+It takes the same two parameters as lognormal plus an extra one:
+
+-   median - The 50th percentile of latencies.
+-   sigma - Standard deviation. The larger the value, the longer
+    the tail.
+-   maxValue - The maximum value at which any generated value should be capped.
+ A good value to use for this might be the production maximum value or 95th
+ percentile.
+
+
+To use, instantiate a `new CappedLogNormal(median, sigma, maxValue)`, or via JSON:
+
+```json
+"delayDistribution": {
+        "type": "cappedlognormal",
+        "median": 80,
+        "sigma": 0.4,
+        "maxValue": 200
+}
+```
+
 ### Uniform delay
 
 A uniform distribution can be used for simulating a stable latency with

@@ -39,6 +39,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -140,7 +141,24 @@ public class ResponseDelayAcceptanceTest {
 
         assertThat(duration, greaterThanOrEqualTo(60));
     }
+    
+    @Test
+    public void responseWithCappedLogNormalDistributedDelay() {
+        stubFor(get(urlEqualTo("/cappedlognormal/delayed/resource")).willReturn(
+            aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withCappedLogNormalRandomDelay(90, 0.1, 95)));
 
+        long start = System.currentTimeMillis();
+        testClient.get("/lognormal/delayed/resource");
+        int duration = (int) (System.currentTimeMillis() - start);
+
+        assertThat(duration, greaterThanOrEqualTo(60));
+        assertThat(duration, lessThanOrEqualTo(95));
+
+    }
+    
     @Test
     public void responseWithUniformDistributedDelay() {
         stubFor(get(urlEqualTo("/uniform/delayed/resource")).willReturn(
