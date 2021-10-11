@@ -39,19 +39,13 @@ public class CappedLogNormal extends LogNormal {
      */
     @JsonCreator
     public CappedLogNormal(@JsonProperty("median") double median, @JsonProperty("sigma") double sigma, 
-    		@JsonProperty("maxValue") double maxValue) {
-    	super(median, sigma);
-    	this.maxValue = maxValue;
+            @JsonProperty("maxValue") double maxValue) {
+        super(median, sigma);
+        this.maxValue = maxValue;
     }
 
     @Override
     public long sampleMillis() {
-    	long value = Math.round(Math.min(maxValue, super.sampleMillis()));
-    	String capped = "";
-    	if (value == maxValue) {
-    		capped = " (capped)";
-    	}
-    	System.out.println("Capped value: " + value + capped);
-        return value;
+        return Math.round(Math.min(maxValue, super.sampleMillis()));
     }
 }

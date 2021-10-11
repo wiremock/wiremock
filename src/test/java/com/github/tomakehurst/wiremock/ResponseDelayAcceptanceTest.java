@@ -155,8 +155,9 @@ public class ResponseDelayAcceptanceTest {
         int duration = (int) (System.currentTimeMillis() - start);
 
         assertThat(duration, greaterThanOrEqualTo(60));
-        assertThat(duration, lessThanOrEqualTo(95));
-
+        // Ideally we'd check the response time was less than or equal to the CappedLogNormal
+        // maxValue, but of course, there is also arbitrary request latency to take into account.
+        // Following the same pattern as other tests and not checking that for now.
     }
     
     @Test
