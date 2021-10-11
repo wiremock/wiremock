@@ -152,7 +152,7 @@ public class ResponseDelayAcceptanceTest {
                 .withCappedLogNormalRandomDelay(90, 0.1, 95)));
 
         long start = System.currentTimeMillis();
-        testClient.get("/lognormal/delayed/resource");
+        testClient.get("/cappedlognormal/delayed/resource");
         int duration = (int) (System.currentTimeMillis() - start);
 
         assertThat(duration, greaterThanOrEqualTo(60));
