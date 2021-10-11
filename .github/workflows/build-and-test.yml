@@ -56,18 +56,3 @@ jobs:
         path: |
           wiremock-webhooks-extension/build/reports/tests/test
           wiremock-webhooks-extension/build/test-results/test
-
-  publish-test-results:
-    name: "Publish Unit Test Results"
-    needs: build
-    runs-on: ubuntu-latest
-    # the build job might be skipped, we don't need to run this job then
-    if: success() || failure()
-
-    steps:
-    - name: Download Artifacts
-      uses: actions/download-artifact@v2
-    - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action/composite@v1
-      with:
-        files: '**/*.xml'
