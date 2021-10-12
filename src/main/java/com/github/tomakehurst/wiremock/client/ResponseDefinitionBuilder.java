@@ -125,7 +125,7 @@ public class ResponseDefinitionBuilder {
     public ResponseDefinitionBuilder withLogNormalRandomDelay(double medianMilliseconds, double sigma) {
         return withRandomDelay(new LogNormal(medianMilliseconds, sigma));
     }
-    
+
     public ResponseDefinitionBuilder withCappedLogNormalRandomDelay(double medianMilliseconds, double sigma, double maxValueMilliseconds) {
         return withRandomDelay(new CappedLogNormal(medianMilliseconds, sigma, maxValueMilliseconds));
     }    

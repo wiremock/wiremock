@@ -21,10 +21,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Returns log normally distributed values. Takes two parameters, the median (50th percentile) of the lognormal
- * and the standard deviation of the underlying normal distribution.
+ * Returns log normally distributed values, capped at a maximum value to eliminate long tales. Takes three 
+ * parameters, the median (50th percentile) of the lognormal, the standard deviation of the underlying 
+ * normal distribution and the maximum value at which to cap the response delay.
  *
- * The larger the standard deviation the longer the tails.
+ * The larger the standard deviation the larger the secondary spike at the maximum value.
  *
  * @see <a href="https://www.wolframalpha.com/input/?i=lognormaldistribution%28log%2890%29%2C+0.1%29">lognormal example</a>
  */
