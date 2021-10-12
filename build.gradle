@@ -127,7 +127,7 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'io.netty', module: 'netty-all'
     }
-    testCompile "io.netty:netty-all:4.1.68.Final"
+    testCompile "io.netty:netty-all:4.1.69.Final"
 }
 
 allprojects {
