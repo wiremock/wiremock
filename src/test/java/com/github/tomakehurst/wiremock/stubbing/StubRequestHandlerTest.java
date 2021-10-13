@@ -19,22 +19,13 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.http.ResponseRenderer;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Collections;
 
@@ -43,94 +34,84 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(JMock.class)
 public class StubRequestHandlerTest {
 
-	private Mockery context;
 	private StubServer stubServer;
 	private ResponseRenderer responseRenderer;
 	private MockHttpResponder httpResponder;
-    private Admin admin;
+	private Admin admin;
 	private RequestJournal requestJournal;
 
 	private StubRequestHandler requestHandler;
 
 	@Before
 	public void init() {
-		context = new Mockery();
-        stubServer = context.mock(StubServer.class);
-		responseRenderer = context.mock(ResponseRenderer.class);
+		stubServer = mock(StubServer.class);
+		responseRenderer = mock(ResponseRenderer.class);
 		httpResponder = new MockHttpResponder();
-        admin = context.mock(Admin.class);
-		requestJournal = context.mock(RequestJournal.class);
+		admin = mock(Admin.class);
+		requestJournal = mock(RequestJournal.class);
 
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList(), false);
-
-        context.checking(new Expectations() {{
-            allowing(requestJournal);
-        }});
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin,
+			Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList(),false);
 	}
 
 	@Test
 	public void returnsResponseIndicatedByMappings() {
-		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(
-				ServeEvent.of(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")))
-            );
+		when(stubServer.serveStubFor(any(Request.class)))
+			.thenReturn(ServeEvent.of(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")));
 
-            Response response = response().status(200).body("Body content").build();
-			allowing(responseRenderer).render(with(any(ServeEvent.class))); will(returnValue(response));
-		}});
+		Response mockResponse = response().status(200).body("Body content").build();
+		when(responseRenderer.render(any(ServeEvent.class))).thenReturn(mockResponse);
 
-		Request request = aRequest(context)
+		Request request = aRequest()
 			.withUrl("/the/required/resource")
 			.withMethod(GET)
 			.build();
 		requestHandler.handle(request, httpResponder);
-        Response response = httpResponder.response;
+		Response response = httpResponder.response;
 
-        assertThat(response.getStatus(), is(200));
+		assertThat(response.getStatus(), is(200));
 		assertThat(response.getBodyAsString(), is("Body content"));
 	}
 
 	@Test
 	public void shouldNotifyListenersOnRequest() {
-		final Request request = aRequest(context).build();
-		final RequestListener listener = context.mock(RequestListener.class);
+		final Request request = aRequest().build();
+		final RequestListener listener = mock(RequestListener.class);
 		requestHandler.addRequestListener(listener);
 
-		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(request); will(returnValue(
-                ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
-			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
-            allowing(responseRenderer).render(with(any(ServeEvent.class)));
-                will(returnValue(new Response.Builder().build()));
-		}});
+		doReturn(ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured()))
+			.when(stubServer).serveStubFor(request);
+		when(responseRenderer.render(any(ServeEvent.class))).thenReturn(new Response.Builder().build());
 
-        requestHandler.handle(request, httpResponder);
+		requestHandler.handle(request, httpResponder);
+		verify(listener).requestReceived(eq(request), any(Response.class));
 	}
 
 	@Test
 	public void shouldLogInfoOnRequest() {
-		final Request request = aRequest(context)
-				.withUrl("/")
-				.withMethod(GET)
-				.withClientIp("1.2.3.5")
-				.build();
+		final Request request = aRequest()
+			.withUrl("/")
+			.withMethod(GET)
+			.withClientIp("1.2.3.5")
+			.build();
 
-		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(request);
-			    will(returnValue(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request))));
-			allowing(responseRenderer).render(with(any(ServeEvent.class)));
-                will(returnValue(new Response.Builder().build()));
-		}});
+		doReturn(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request)))
+			.when(stubServer).serveStubFor(request);
+		when(responseRenderer.render(any(ServeEvent.class))).thenReturn(new Response.Builder().build());
 
 		TestNotifier notifier = TestNotifier.createAndSet();
 
-        requestHandler.handle(request, httpResponder);
+		requestHandler.handle(request, httpResponder);
 		notifier.revert();
 
 		assertThat(notifier.getErrorMessages().isEmpty(), is(true));
