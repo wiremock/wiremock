@@ -44,15 +44,13 @@ class UnusedCodeTest {
 		}
 	};
 
-	private static ArchRule classesShouldNotBeUnused = classes()
+	@ArchTest
+	static ArchRule classesShouldNotBeUnused = classes()
 			.that(describe("do not implement interface", clazz -> clazz.getAllRawInterfaces().isEmpty()))
 			.and(describe("do not extend class", clazz -> 1 == clazz.getAllRawSuperclasses().size()))
-			.should(beReferencedClass);
-
-	@ArchTest
-	static ArchRule classesShouldNotBeUnusedFrozen = freeze(classesShouldNotBeUnused
+			.should(beReferencedClass)
 			.as("should use all classes")
-			.because("unused classes should be removed"));
+			.because("unused classes should be removed");
 
 	private static ArchCondition<? super JavaMethod> beReferencedMethod = new ArchCondition<JavaMethod>("be referenced") {
 		@Override
