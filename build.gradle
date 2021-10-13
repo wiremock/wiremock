@@ -110,8 +110,6 @@ dependencies {
     testRuntimeOnly "org.slf4j:slf4j-api:1.7.32"
     testRuntimeOnly platform("org.apache.logging.log4j:log4j-bom:2.14.1")
     testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl"
-    testRuntimeOnly "org.apache.logging.log4j:log4j-api"
-    testRuntimeOnly "org.apache.logging.log4j:log4j-core"
     testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
     testImplementation ('net.jockx:littleproxy:1.1.3') {
