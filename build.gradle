@@ -22,7 +22,7 @@ plugins {
 group = 'com.github.tomakehurst'
 
 def versions = [
-        handlebars     : '4.2.1',
+        handlebars     : '4.3.0',
         jetty          : '9.4.44.v20210927',
         guava          : '31.0.1-jre',
         jackson        : '2.13.0',
@@ -91,18 +91,8 @@ dependencies {
 
     testCompile "org.hamcrest:hamcrest-core:2.2"
     testCompile "org.hamcrest:hamcrest-library:2.2"
-    testCompile("org.jmock:jmock:2.5.1") {
-        exclude group: "junit", module: "junit-dep"
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-        exclude group: "org.hamcrest", module: "hamcrest-library"
-    }
-    testCompile("org.jmock:jmock-junit4:2.5.1") {
-        exclude group: "junit", module: "junit-dep"
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-        exclude group: "org.hamcrest", module: "hamcrest-library"
-    }
     testCompile 'org.mockito:mockito-core:3.12.4'
-    testCompile 'org.mockito:mockito-junit-jupiter:3.12.4'
+    testCompile 'org.mockito:mockito-junit-jupiter:4.0.0'
     testCompile 'net.javacrumbs.json-unit:json-unit:2.28.0'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
     testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.1'
@@ -128,7 +118,7 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'io.netty', module: 'netty-all'
     }
-    testCompile "io.netty:netty-all:4.1.68.Final"
+    testCompile "io.netty:netty-all:4.1.69.Final"
 }
 
 allprojects {
@@ -201,18 +191,13 @@ allprojects {
 
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
-    classifier = 'tests'
+    archiveClassifier.set('tests')
     from sourceSets.test.output
 }
 
@@ -245,15 +230,15 @@ configurations {
 }
 
 jar {
-    baseName = 'wiremock-jre8'
+    archiveBaseName.set('wiremock-jre8')
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
     }
 }
 
 shadowJar {
-    baseName = 'wiremock-jre8-standalone'
-    classifier = ''
+    archiveBaseName.set('wiremock-jre8-standalone')
+    archiveClassifier.set('')
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
     relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -306,7 +291,7 @@ task writeThinJarPom {
     doLast {
         pom {
             project {
-                artifactId = jar.baseName
+                artifactId = jar.getArchiveBaseName().get()
             }
             project(pomInfo)
         }.whenConfigured { MavenPom pom ->
@@ -346,7 +331,7 @@ publishing {
 
     publications {
         thinJar(MavenPublication) {
-            artifactId = "${jar.baseName}"
+            artifactId = "${jar.getArchiveBaseName().get()}"
 
             artifact jar
             artifact sourcesJar
@@ -367,7 +352,7 @@ publishing {
         }
 
         standaloneJar(MavenPublication) { publication ->
-            artifactId = "${jar.baseName}-standalone"
+            artifactId = "${jar.getArchiveBaseName().get()}-standalone"
             project.shadow.component(publication)
 
             artifact sourcesJar
@@ -506,5 +491,5 @@ task 'add-copyright-headers' {
 
 wrapper {
     gradleVersion = '6.6.1'
-    distributionType = Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.BIN
 }

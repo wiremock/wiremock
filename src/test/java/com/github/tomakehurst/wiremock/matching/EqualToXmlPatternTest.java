@@ -23,12 +23,11 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableSet;
 import org.hamcrest.Matchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xmlunit.diff.ComparisonType;
 
 import java.util.Locale;
@@ -39,20 +38,26 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.xmlunit.diff.ComparisonType.*;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.verify;
+import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
+import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
+import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
 public class EqualToXmlPatternTest {
-
-    private Mockery context;
 
     @Rule
     public WireMockRule wm = new WireMockRule(options().dynamicPort());
 
     @Before
     public void init() {
-        context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
 
         // We assert English XML parser error messages in this test. So we set our default locale to English to make
@@ -292,8 +297,10 @@ public class EqualToXmlPatternTest {
 
     @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
-        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        Notifier notifier = Mockito.mock(Notifier.class);
+        LocalNotifier.set(notifier);
         equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+        verify(notifier).info(contains("Failed to process XML. Content is not allowed in prolog."));
     }
 
     @Test
@@ -301,14 +308,6 @@ public class EqualToXmlPatternTest {
         String xmlWithDtdThatCannotBeFetched = "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
         EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);
         assertTrue(pattern.match(xmlWithDtdThatCannotBeFetched).isExactMatch());
-    }
-
-    private void expectInfoNotification(final String message) {
-        final Notifier notifier = context.mock(Notifier.class);
-        context.checking(new Expectations() {{
-            one(notifier).info(with(containsString(message)));
-        }});
-        LocalNotifier.set(notifier);
     }
 
     @Test

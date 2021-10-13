@@ -298,7 +298,7 @@ public class HttpsBrowserProxyAcceptanceTest {
         // then no exception is thrown
     }
 
-    @Test(expected = EOFException.class)
+    @Test(expected = IOException.class)
     public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
         new WireMockServer(options()
             .enableBrowserProxying(true)

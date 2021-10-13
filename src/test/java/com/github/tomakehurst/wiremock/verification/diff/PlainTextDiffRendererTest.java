@@ -21,8 +21,9 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.*;
 
 import java.util.Collections;
 
@@ -35,14 +36,13 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PlainTextDiffRendererTest {
 
     PlainTextDiffRenderer diffRenderer;
 
-    @Before
+    @BeforeEach
     public void init() {
         diffRenderer = new PlainTextDiffRenderer(Collections.<String, RequestMatcherExtension>singletonMap("my-custom-matcher", new MyCustomMatcher()));
     }
@@ -163,7 +163,29 @@ public class PlainTextDiffRendererTest {
     }
 
     @Test
-    public void wrapsLargeXmlBodiesAppropriately() {
+    @DisabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
+    public void wrapsLargeXmlBodiesAppropriatelyJre8() {
+        String output = wrapsLargeXmlBodiesAppropriately();
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre8.txt")));
+    }
+
+    @Test
+    @EnabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+    public void wrapsLargeXmlBodiesAppropriatelyJre11() {
+        String output = wrapsLargeXmlBodiesAppropriately();
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11.txt")));
+    }
+
+    @Test
+    @EnabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
+    @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
+    public void wrapsLargeXmlBodiesAppropriatelyJre11Windows() {
+        String output = wrapsLargeXmlBodiesAppropriately();
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11_windows.txt")));
+    }
+
+    private String wrapsLargeXmlBodiesAppropriately() {
         Diff diff = new Diff(post("/thing")
             .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
             .withRequestBody(equalToXml("<deep-things>\n" +
@@ -202,8 +224,7 @@ public class PlainTextDiffRendererTest {
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
-
-        assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml.txt")));
+        return output;
     }
 
     @Test
