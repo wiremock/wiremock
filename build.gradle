@@ -34,17 +34,18 @@ project.ext {
 }
 
 dependencies {
-    api "org.eclipse.jetty:jetty-server:$versions.jetty"
-    api "org.eclipse.jetty:jetty-servlet:$versions.jetty"
-    api "org.eclipse.jetty:jetty-servlets:$versions.jetty"
-    api "org.eclipse.jetty:jetty-webapp:$versions.jetty"
-    api "org.eclipse.jetty:jetty-proxy:$versions.jetty"
-    api "org.eclipse.jetty.http2:http2-server:$versions.jetty"
-    api "org.eclipse.jetty:jetty-alpn-server:$versions.jetty"
-    api "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty"
-    api "org.eclipse.jetty:jetty-alpn-openjdk8-server:$versions.jetty"
-    api "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
-    api "org.eclipse.jetty:jetty-alpn-openjdk8-client:$versions.jetty"
+    api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
+    api "org.eclipse.jetty:jetty-server"
+    api "org.eclipse.jetty:jetty-servlet"
+    api "org.eclipse.jetty:jetty-servlets"
+    api "org.eclipse.jetty:jetty-webapp"
+    api "org.eclipse.jetty:jetty-proxy"
+    api "org.eclipse.jetty.http2:http2-server"
+    api "org.eclipse.jetty:jetty-alpn-server"
+    api "org.eclipse.jetty:jetty-alpn-java-server"
+    api "org.eclipse.jetty:jetty-alpn-openjdk8-server"
+    api "org.eclipse.jetty:jetty-alpn-java-client"
+    api "org.eclipse.jetty:jetty-alpn-openjdk8-client"
 
     api "com.google.guava:guava:$versions.guava"
     api platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
@@ -103,8 +104,8 @@ dependencies {
     testImplementation 'org.scala-lang:scala-library:2.13.6'
     testImplementation 'com.tngtech.archunit:archunit-junit5:0.22.0'
 
-    testImplementation "org.eclipse.jetty:jetty-client:$versions.jetty"
-    testImplementation "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
+    testImplementation "org.eclipse.jetty:jetty-client"
+    testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
 
     testRuntimeOnly "org.slf4j:slf4j-api:1.7.32"
     testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"
