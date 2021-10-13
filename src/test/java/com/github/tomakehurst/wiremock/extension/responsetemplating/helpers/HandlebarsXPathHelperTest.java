@@ -26,8 +26,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -211,7 +211,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                 noFileSource(),
                 Parameters.empty());
 
-        assertThat(responseDefinition.getBody(), equalsMultiLine(
+        assertThat(responseDefinition.getBody(), equalToCompressingWhiteSpace(
                 "<stuff xmlns:th=\"https://thing.com\">\n" +
                 "    <th:thing>One</th:thing>\n" +
                 "    <th:thing>Two</th:thing>\n" +
