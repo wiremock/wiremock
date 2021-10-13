@@ -21,11 +21,9 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +32,9 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(JMock.class)
 public class StubResponseRendererTest {
     private static final int TEST_TIMEOUT = 500;
 
-    private Mockery context;
     private FileSource fileSource;
     private GlobalSettingsHolder globalSettingsHolder;
     private List<ResponseTransformer> responseTransformers;
@@ -46,8 +42,7 @@ public class StubResponseRendererTest {
 
     @Before
     public void init() {
-        context = new Mockery();
-        fileSource = context.mock(FileSource.class);
+        fileSource = Mockito.mock(FileSource.class);
         globalSettingsHolder = new GlobalSettingsHolder();
         responseTransformers = new ArrayList<>();
         stubResponseRenderer = new StubResponseRenderer(fileSource, globalSettingsHolder, null, responseTransformers);

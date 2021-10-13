@@ -15,51 +15,34 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.UnsupportedEncodingException;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class AdminRequestHandlerTest {
-    private Mockery context;
-    private WireMockServer wm;
-    private WireMockTestClient client;
 
-    @Before
-    public void init() {
-        context = new Mockery();
-    }
-
-    @After
-    public void cleanup() {
-        if (wm != null) {
-            wm.stop();
-        }
-    }
+    private Notifier notifier = mock(Notifier.class);
+    @RegisterExtension
+    private WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
     @Test
     public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-        final Notifier notifier = context.mock(Notifier.class);
-        wm = new WireMockServer(options().dynamicPort().notifier(notifier));
-        wm.start();
-        client = new WireMockTestClient(wm.port());
+        WireMockTestClient client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
 
-        final String postHeaderABCName = "ABC";
-        final String postHeaderABCValue = "abc123";
-        final String postBody =
-                "{\n" +
+        String postHeaderABCName = "ABC";
+        String postHeaderABCValue = "abc123";
+        String postBody = "{\n" +
                 "    \"request\": {\n" +
                 "        \"method\": \"GET\",\n" +
                 "        \"url\": \"/some/thing\"\n" +
@@ -73,16 +56,12 @@ public class AdminRequestHandlerTest {
                 "    }\n" +
                 "}";
 
-        context.checking(new Expectations() {{
-            one(notifier).info(with(allOf(
-                    containsString("Admin request received:\n127.0.0.1 - POST /mappings\n"),
-                    containsString(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"),
-                    containsString(postBody))));
-        }});
-
         client.post("/__admin/mappings", new StringEntity(postBody),
                 withHeader(postHeaderABCName, postHeaderABCValue));
 
-        context.assertIsSatisfied();
+        verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
+        verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
+        verify(notifier).info(contains(postBody));
     }
+
 }
