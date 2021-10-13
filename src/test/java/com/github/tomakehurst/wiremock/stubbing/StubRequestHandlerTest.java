@@ -61,23 +61,21 @@ public class StubRequestHandlerTest {
 		requestJournal = mock(RequestJournal.class);
 
 		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin,
-				Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList(),
-				false);
+			Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList(),false);
 	}
 
 	@Test
 	public void returnsResponseIndicatedByMappings() {
 		when(stubServer.serveStubFor(any(Request.class)))
-				.thenReturn(
-						ServeEvent.of(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")));
+			.thenReturn(ServeEvent.of(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")));
 
 		Response mockResponse = response().status(200).body("Body content").build();
 		when(responseRenderer.render(any(ServeEvent.class))).thenReturn(mockResponse);
 
 		Request request = aRequest()
-				.withUrl("/the/required/resource")
-				.withMethod(GET)
-				.build();
+			.withUrl("/the/required/resource")
+			.withMethod(GET)
+			.build();
 		requestHandler.handle(request, httpResponder);
 		Response response = httpResponder.response;
 
@@ -92,7 +90,7 @@ public class StubRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 
 		doReturn(ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured()))
-				.when(stubServer).serveStubFor(request);
+			.when(stubServer).serveStubFor(request);
 		when(responseRenderer.render(any(ServeEvent.class))).thenReturn(new Response.Builder().build());
 
 		requestHandler.handle(request, httpResponder);
@@ -102,13 +100,13 @@ public class StubRequestHandlerTest {
 	@Test
 	public void shouldLogInfoOnRequest() {
 		final Request request = aRequest()
-				.withUrl("/")
-				.withMethod(GET)
-				.withClientIp("1.2.3.5")
-				.build();
+			.withUrl("/")
+			.withMethod(GET)
+			.withClientIp("1.2.3.5")
+			.build();
 
 		doReturn(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request)))
-				.when(stubServer).serveStubFor(request);
+			.when(stubServer).serveStubFor(request);
 		when(responseRenderer.render(any(ServeEvent.class))).thenReturn(new Response.Builder().build());
 
 		TestNotifier notifier = TestNotifier.createAndSet();

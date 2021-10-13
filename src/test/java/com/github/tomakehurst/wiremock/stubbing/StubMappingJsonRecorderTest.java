@@ -520,20 +520,20 @@ public class StubMappingJsonRecorderTest {
             throws Exception {
         when(admin.countRequestsMatching((any(RequestPattern.class)))).thenReturn(VerificationResult.withCount(0));
         Request request = new MockRequestBuilder()
-                .withMethod(RequestMethod.GET)
-                .withUrl(url)
-                .build();
+            .withMethod(RequestMethod.GET)
+            .withUrl(url)
+            .build();
 
         byte[] body = new byte[] { 1 };
 
         Response.Builder responseBuilder = response()
-                .status(200)
-                .fromProxy(true)
-                .body(body);
+            .status(200)
+            .fromProxy(true)
+            .body(body);
 
         if (contentTypeHeader != null) {
             responseBuilder.headers(new HttpHeaders(
-                    HttpHeader.httpHeader("Content-Type", contentTypeHeader)));
+                HttpHeader.httpHeader("Content-Type", contentTypeHeader)));
         }
 
         Response response = responseBuilder.build();
@@ -541,8 +541,8 @@ public class StubMappingJsonRecorderTest {
         listener.requestReceived(request, response);
 
         verify(filesFileSource).writeBinaryFile(
-                argThat(endsWith("." + expectedExension)),
-                (any(byte[].class)));
+            argThat(endsWith("." + expectedExension)),
+            (any(byte[].class)));
     }
 
     private IdGenerator fixedIdGenerator(final String id) {
@@ -553,8 +553,7 @@ public class StubMappingJsonRecorderTest {
         };
     }
 
-    private static Request.Part createPart(final String name, final byte[] data, final String contentType,
-            final String fileName, String... extraHeaderLines) {
+    private static Request.Part createPart(final String name, final byte[] data, final String contentType, final String fileName, String... extraHeaderLines) {
         MockMultipart part = new MockMultipart().name(name).body(data);
 
         for (String headerLine : extraHeaderLines) {

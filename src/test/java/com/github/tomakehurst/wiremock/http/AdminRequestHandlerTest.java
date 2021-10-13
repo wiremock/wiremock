@@ -32,36 +32,36 @@ import static org.mockito.Mockito.verify;
 
 public class AdminRequestHandlerTest {
 
-	private Notifier notifier = mock(Notifier.class);
-	@RegisterExtension
-	private WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
+    private Notifier notifier = mock(Notifier.class);
+    @RegisterExtension
+    private WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
-	@Test
-	public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-		WireMockTestClient client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+    @Test
+    public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
+        WireMockTestClient client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
 
-		String postHeaderABCName = "ABC";
-		String postHeaderABCValue = "abc123";
-		String postBody = "{\n" +
-				"    \"request\": {\n" +
-				"        \"method\": \"GET\",\n" +
-				"        \"url\": \"/some/thing\"\n" +
-				"    },\n" +
-				"    \"response\": {\n" +
-				"        \"status\": 200,\n" +
-				"        \"body\": \"Hello world!\",\n" +
-				"        \"headers\": {\n" +
-				"            \"Content-Type\": \"text/plain\"\n" +
-				"        }\n" +
-				"    }\n" +
-				"}";
+        String postHeaderABCName = "ABC";
+        String postHeaderABCValue = "abc123";
+        String postBody = "{\n" +
+                "    \"request\": {\n" +
+                "        \"method\": \"GET\",\n" +
+                "        \"url\": \"/some/thing\"\n" +
+                "    },\n" +
+                "    \"response\": {\n" +
+                "        \"status\": 200,\n" +
+                "        \"body\": \"Hello world!\",\n" +
+                "        \"headers\": {\n" +
+                "            \"Content-Type\": \"text/plain\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
 
-		client.post("/__admin/mappings", new StringEntity(postBody),
-				withHeader(postHeaderABCName, postHeaderABCValue));
+        client.post("/__admin/mappings", new StringEntity(postBody),
+                withHeader(postHeaderABCName, postHeaderABCValue));
 
-		verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
-		verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
-		verify(notifier).info(contains(postBody));
-	}
+        verify(notifier).info(contains("Admin request received:\n127.0.0.1 - POST /mappings\n"));
+        verify(notifier).info(contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
+        verify(notifier).info(contains(postBody));
+    }
 
 }
