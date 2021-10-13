@@ -61,7 +61,6 @@ dependencies {
     api "com.jayway.jsonpath:json-path:2.6.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
-    api "net.minidev:json-smart:2.4.7" // Pinning this above the transitive version from json-path to get CVE fix
     api "org.ow2.asm:asm:9.2"
     api "org.slf4j:slf4j-api:1.7.32"
     api "net.sf.jopt-simple:jopt-simple:5.0.4"
@@ -120,6 +119,12 @@ dependencies {
         exclude group: 'io.netty', module: 'netty-all'
     }
     testImplementation "io.netty:netty-all:4.1.69.Final"
+
+    constraints {
+        implementation "net.minidev:json-smart:2.4.7", {
+            because 'Pinning this above the transitive version from json-path to get CVE fix'
+        }
+    }
 }
 
 allprojects {
