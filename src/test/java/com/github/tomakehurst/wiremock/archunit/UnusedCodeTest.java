@@ -7,6 +7,7 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchIgnore;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
@@ -71,7 +72,13 @@ class UnusedCodeTest {
 						|| namesOf(m.getRawParameterTypes()).containsAll(namesOf(input.getRawParameterTypes())));
 	}
 
-	private static ArchRule methodsShouldNotBeUnused = methods()
+	/**
+	 * Detect methods that are *likely* unused throughout this code base, and the code base of our users.
+	 * Take care not to delete any classes or methods that users might have to come rely on.
+	 */
+	@ArchTest
+	@ArchIgnore(reason = "Disabled due to the potential for false positives in a public API; use to audit sporadically")
+	static ArchRule methodsShouldNotBeUnused = methods()
 			.that(describe("are not declared in super type",
 					input -> !input.getOwner().getAllRawSuperclasses().stream()
 							.flatMap(c -> c.getMethods().stream()).anyMatch(hasMatchingNameAndParameters(input))))
@@ -90,19 +97,12 @@ class UnusedCodeTest {
 					&& (input.getName().startsWith("get") || input.getName().startsWith("is")))))
 			.and(not(describe("are not builders", input -> input.getParameterTypes().size() <= 1
 					&& input.getOwner().tryGetField(input.getName()).isPresent())))
-			.should(beReferencedMethod);
-
-	/**
-	 * Detect methods that are *likely* unused throughout this code base, and the code base of our users.
-	 * This test has the potential to flag false positives, in which case one can update the freeze store.
-	 * Take care not to delete any classes or methods that users might have to come rely on.
-	 */
-	@ArchTest
-	static ArchRule methodsShouldNotBeUnusedFrozen = freeze(methodsShouldNotBeUnused
+			.should(beReferencedMethod)
 			.as("should use all methods")
-			.because("unused methods should be removed"));
+			.because("unused methods should be removed");
 
-	private static ArchRule nonPublicMethodsShouldNotBeUnused = methods()
+	@ArchTest
+	static ArchRule nonPublicMethodsShouldNotBeUnusedFrozen = freeze(methods()
 			.that(describe("are not declared in super type",
 					input -> !input.getOwner().getAllRawSuperclasses().stream()
 							.flatMap(c -> c.getMethods().stream()).anyMatch(hasMatchingNameAndParameters(input))))
@@ -111,10 +111,7 @@ class UnusedCodeTest {
 							.flatMap(i -> i.getMethods().stream()).anyMatch(hasMatchingNameAndParameters(input))))
 			.and().haveNameNotContaining("lambda")
 			.and().areNotPublic()
-			.should(beReferencedMethod);
-
-	@ArchTest
-	static ArchRule nonPublicMethodsShouldNotBeUnusedFrozen = freeze(nonPublicMethodsShouldNotBeUnused
+			.should(beReferencedMethod)
 			.as("should use all non public methods")
 			.because("unused methods should be removed"));
 
