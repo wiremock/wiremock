@@ -24,9 +24,10 @@ group 'org.wiremock'
 
 dependencies {
     compileOnly project(":")
-    implementation "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+    implementation platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
+    implementation "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "com.fasterxml.jackson.core:jackson-databind"
     implementation("com.github.jknack:handlebars-helpers:$versions.handlebars") {
         exclude group: 'org.mozilla', module: 'rhino'
     }

@@ -47,9 +47,10 @@ dependencies {
     api "org.eclipse.jetty:jetty-alpn-openjdk8-client:$versions.jetty"
 
     api "com.google.guava:guava:$versions.guava"
-    api "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+    api platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
+    api "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "com.fasterxml.jackson.core:jackson-databind"
     api "org.apache.httpcomponents.client5:httpclient5:5.1"
     api "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     api "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
