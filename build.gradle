@@ -230,8 +230,6 @@ task generateApiDocs(type: Exec) {
     }
 }
 
-processResources.dependsOn generateApiDocs
-
 configurations {
     shadowJar
     thinJarPom
@@ -396,7 +394,6 @@ task addGitTag {
     }
 }
 
-jar.dependsOn generateApiDocs
 signThinJarPublication.dependsOn writeThinJarPom
 
 task release {
