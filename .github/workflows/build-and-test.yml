@@ -5,7 +5,7 @@ name: Build and test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, sonarqube ]
   pull_request:
     branches: [ master ]
 
