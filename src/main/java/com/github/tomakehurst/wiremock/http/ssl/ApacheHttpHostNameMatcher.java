@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
+
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLException;
-import java.security.cert.X509Certificate;
 
 public class ApacheHttpHostNameMatcher implements HostNameMatcher {
     @Override

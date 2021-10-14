@@ -36,7 +36,7 @@ public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
 		testClient.get("/a/non-registered/resource");
 
 		assertThat(networkTrafficListener.getAllRequests(), containsString("GET /a/non-registered/resource HTTP/1.1\r\n"));
-		assertThat(networkTrafficListener.getAllRequests(), containsString("Content-Length: 0\r\n"));
+		assertThat(networkTrafficListener.getAllRequests(), containsString("User-Agent: Apache-HttpClient/"));
 		assertThat(networkTrafficListener.getAllResponses(), containsString("HTTP/1.1 404 Not Found\r\n"));
 	}
 }
