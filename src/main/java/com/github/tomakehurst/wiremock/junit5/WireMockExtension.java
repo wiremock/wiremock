@@ -119,9 +119,10 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
     }
 
     private void stopServerIfRunning() {
-        if (wireMockServer.isRunning()) {
+        if (wireMockServer != null && wireMockServer.isRunning()) {
             wireMockServer.stop();
         }
+        wireMockServer = null;
     }
 
     private boolean parameterIsWireMockRuntimeInfo(ParameterContext parameterContext) {
