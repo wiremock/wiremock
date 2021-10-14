@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.google.common.base.Charsets;
-import org.eclipse.jetty.io.SelectChannelEndPoint;
-import org.eclipse.jetty.io.ssl.SslConnection;
-import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;

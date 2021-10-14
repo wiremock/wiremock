@@ -15,46 +15,39 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
-import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
-import com.github.tomakehurst.wiremock.http.ssl.TrustEverythingStrategy;
-import com.github.tomakehurst.wiremock.http.ssl.TrustSelfSignedStrategy;
-import com.github.tomakehurst.wiremock.http.ssl.TrustSpecificHostsStrategy;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.*;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.NoConnectionReuseStrategy;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.ProxyAuthenticationStrategy;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.TextUtils;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.http.ssl.*;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.DefaultAuthenticationStrategy;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
-import javax.net.ssl.SSLContext;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
+import java.net.URI;
+import java.security.*;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.net.ssl.SSLContext;
+
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -62,13 +55,6 @@ public class HttpClientFactory {
 
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
     public static final int DEFAULT_TIMEOUT = 30000;
-
-    private static final ConnectionKeepAliveStrategy NO_KEEP_ALIVE = new ConnectionKeepAliveStrategy() {
-        @Override
-        public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-            return 0;
-        }
-    };
 
     public static CloseableHttpClient createClient(
             int maxConnections,
@@ -85,12 +71,16 @@ public class HttpClientFactory {
                 .disableCookieManagement()
                 .disableRedirectHandling()
                 .disableContentCompression()
-                .setMaxConnTotal(maxConnections)
-                .setMaxConnPerRoute(maxConnections)
-                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
-                .setConnectionReuseStrategy(NoConnectionReuseStrategy.INSTANCE)
-                .setKeepAliveStrategy(NO_KEEP_ALIVE);
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                        .setMaxConnPerRoute(maxConnections)
+                        .setMaxConnTotal(maxConnections)
+                        .setValidateAfterInactivity(TimeValue.ofSeconds(5))  // TODO Verify duration
+                        .build())
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
+                        .build())
+                .setConnectionReuseStrategy((request, response, context) -> false)
+                .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS);
 
         if (useSystemProperties) {
             builder.useSystemProperties();
@@ -100,21 +90,22 @@ public class HttpClientFactory {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
             builder.setProxy(proxyHost);
             if(!isEmpty(proxySettings.getUsername()) && !isEmpty(proxySettings.getPassword())) {
-                builder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
+                builder.setProxyAuthenticationStrategy(new DefaultAuthenticationStrategy()); // TODO Verify
                 BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(
                         new AuthScope(proxySettings.host(), proxySettings.port()),
-                        new UsernamePasswordCredentials(proxySettings.getUsername(), proxySettings.getPassword()));
+                        new UsernamePasswordCredentials(proxySettings.getUsername(), proxySettings.getPassword().toCharArray()));
                 builder.setDefaultCredentialsProvider(credentialsProvider);
             }
         }
 
         final SSLContext sslContext = buildSslContext(trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
         LayeredConnectionSocketFactory sslSocketFactory = buildSslConnectionSocketFactory(sslContext);
-        builder.setSSLSocketFactory(sslSocketFactory);
+        PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create().setSSLSocketFactory(sslSocketFactory).build();
+        builder.setConnectionManager(connectionManager);
 
         return builder.build();
-	}
+    }
 
     private static LayeredConnectionSocketFactory buildSslConnectionSocketFactory(final SSLContext sslContext) {
         final String[] supportedProtocols = split(System.getProperty("https.protocols"));
@@ -212,9 +203,9 @@ public class HttpClientFactory {
         return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE, true);
     }
 
-	public static CloseableHttpClient createClient(int timeoutMilliseconds) {
-		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
-	}
+    public static CloseableHttpClient createClient(int timeoutMilliseconds) {
+        return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
+    }
 
     public static CloseableHttpClient createClient(ProxySettings proxySettings) {
         return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE, true);
@@ -244,6 +235,6 @@ public class HttpClientFactory {
         else if (method.equals(PATCH))
             return new HttpPatch(url);
         else
-            return new GenericHttpUriRequest(method.toString(), url);
+            return new HttpUriRequestBase(method.toString(), URI.create(url));
     }
 }
