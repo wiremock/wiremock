@@ -1,3 +1,7 @@
 #
-#Sun Oct 10 19:04:03 AEDT 2021
-should\ use\ all\ non\ public\ methods,\ because\ unused\ methods\ should\ be\ removed=6e6bc1fd-0560-4c95-8c3c-8ebf1b920f97
+#Fri Oct 15 19:25:52 AEDT 2021
+should\ use\ all\ non\ public\ methods,\ because\ unused\ methods\ should\ be\ removed=unused-methods
+ClassRule\ should\ not\ be\ used,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-classrule
+Rule\ should\ not\ be\ used,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-rule
+RunWith\ should\ not\ be\ used,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-runwith
+org.junit\ should\ not\ be\ used,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-junit4
