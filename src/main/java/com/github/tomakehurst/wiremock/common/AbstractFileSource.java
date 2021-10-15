@@ -181,14 +181,6 @@ public abstract class AbstractFileSource implements FileSource {
         }
     }
 
-    private FileFilter filesOnly() {
-    	return new FileFilter() {
-    		public boolean accept(File file) {
-    			return file.isFile();
-    		}
-    	};
-    }
-
     public static Predicate<BinaryFile> byFileExtension(final String extension) {
         return new Predicate<BinaryFile>() {
             public boolean apply(BinaryFile input) {
