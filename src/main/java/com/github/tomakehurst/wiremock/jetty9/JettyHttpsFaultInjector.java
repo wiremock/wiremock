@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class JettyHttpsFaultInjector implements FaultInjector {
 
@@ -82,7 +83,7 @@ public class JettyHttpsFaultInjector implements FaultInjector {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    notifier().error("Failed to close socket after Garbage write succeeded", e);
                 }
             }
 
@@ -91,7 +92,7 @@ public class JettyHttpsFaultInjector implements FaultInjector {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    notifier().error("Failed to close socket after Garbage write failed", e);
                 }
             }
         }, BufferUtil.toBuffer(GARBAGE));

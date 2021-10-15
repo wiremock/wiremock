@@ -1,4 +1,5 @@
-#
+#Mon Oct 11 02:33:15 AEDT 2021
+no\ classes\ should\ throw\ generic\ exceptions=978ef757-03ab-4f46-9cc7-583f3112305c
 #Fri Oct 15 19:25:52 AEDT 2021
 should\ use\ all\ non\ public\ methods,\ because\ unused\ methods\ should\ be\ removed=unused-methods
 ClassRule\ should\ not\ be\ used,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-classrule
