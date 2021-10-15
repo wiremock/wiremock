@@ -1,7 +1,7 @@
 #
 #Sun Oct 10 19:54:37 AEDT 2021
-fields\ should\ not\ be\ annotated\ with\ @Rule,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=92c61dc9-a844-474c-8413-11cd81aab64a
-fields\ should\ not\ be\ annotated\ with\ @ClassRule,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=7096b87f-4d83-47bb-8d79-fb544753773b
-classes\ should\ not\ be\ annotated\ with\ @RunWith,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=a754cb1a-fe0c-4c01-888f-4e181aeef55a
-no\ classes\ should\ depend\ on\ classes\ that\ reside\ in\ any\ package\ ['org.junit'],\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=164ddf8c-c1f3-402e-8f71-f32e753800f9
-should\ use\ all\ non\ public\ methods,\ because\ unused\ methods\ should\ be\ removed=6e6bc1fd-0560-4c95-8c3c-8ebf1b920f97
+fields\ should\ not\ be\ annotated\ with\ @Rule,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-rule
+fields\ should\ not\ be\ annotated\ with\ @ClassRule,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-classrule
+classes\ should\ not\ be\ annotated\ with\ @RunWith,\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-runwith
+no\ classes\ should\ depend\ on\ classes\ that\ reside\ in\ any\ package\ ['org.junit'],\ because\ we\ want\ to\ migrate\ to\ JUnit\ Jupiter=do-not-use-junit4
+should\ use\ all\ non\ public\ methods,\ because\ unused\ methods\ should\ be\ removed=unused-methods
