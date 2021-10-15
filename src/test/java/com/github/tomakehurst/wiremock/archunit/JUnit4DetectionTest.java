@@ -17,6 +17,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 
+/**
+ * Limit further usage of JUnit 4 throughout our code base, as we want to migrate to JUnit Jupiter as per
+ * https://github.com/wiremock/wiremock/pull/1635. When violations are found either migrate the affected tests to JUnit
+ * Jupiter if reasonably possible, or if not feasible right now instead update the freeze store of accepted violations.
+ */
 @AnalyzeClasses(packagesOf = WireMockServer.class, importOptions = {
 		ImportOption.DoNotIncludeArchives.class,
 		ImportOption.DoNotIncludeJars.class
