@@ -64,7 +64,7 @@ public abstract class StringValuePattern extends ContentPattern<String> {
         }).orNull();
 
         if (constructor == null) {
-            throw new IllegalStateException("Constructor must have a first parameter annotatated with JsonProperty(\"<operator name>\")");
+            throw new IllegalStateException("Constructor must have a first parameter annotated with JsonProperty(\"<operator name>\")");
         }
         JsonProperty jsonPropertyAnnotation = (JsonProperty) constructor.getParameterAnnotations()[0][0];
         return jsonPropertyAnnotation.value();
