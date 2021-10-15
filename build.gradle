@@ -17,6 +17,8 @@ plugins {
     id 'eclipse'
     id 'project-report'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id "org.sonarqube" version "3.3"
+    id 'jacoco'
 }
 
 group = 'com.github.tomakehurst'
@@ -51,6 +53,7 @@ dependencies {
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5.13"
+    compile "org.apache.httpcomponents.client5:httpclient5:5.1"
     compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
         exclude group: 'junit', module: 'junit'
@@ -189,6 +192,12 @@ allprojects {
         }
     }
 
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
+    test.finalizedBy jacocoTestReport
 }
 
 java {
@@ -220,8 +229,6 @@ task generateApiDocs(type: Exec) {
         commandLine 'npm', 'run', 'apidocs'
     }
 }
-
-processResources.dependsOn generateApiDocs
 
 configurations {
     shadowJar
@@ -387,11 +394,18 @@ task addGitTag {
     }
 }
 
-jar.dependsOn generateApiDocs
 signThinJarPublication.dependsOn writeThinJarPom
 
 task release {
     dependsOn clean, jar, shadowJar, publishAllPublicationsToMavenRepository, addGitTag
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "wiremock_wiremock"
+        property "sonar.organization", "wiremock"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
 
 task 'bump-patch-version' {

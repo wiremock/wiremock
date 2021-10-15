@@ -15,25 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
 import static com.google.common.base.Charsets.UTF_8;
 
-public class HttpClientUtils {
+/**
+ * Intended to facilitate the migration to Apache Http Client 5.x only; allows us to keep the test interfaces the same.
+ */
+public class HttpClient4Utils {
 
-	public static String getEntityAsStringAndCloseStream(ClassicHttpResponse httpResponse) {
+	public static String getEntityAsStringAndCloseStream(HttpResponse httpResponse) {
 		HttpEntity entity = httpResponse.getEntity();
 		if (entity != null) {
 			try {
 				String content = EntityUtils.toString(entity, UTF_8.name());
 				entity.getContent().close();
 				return content;
-			} catch (IOException | ParseException ioe) {
+			} catch (IOException ioe) {
 				throw new RuntimeException(ioe);
 			}
 		}
@@ -41,7 +43,7 @@ public class HttpClientUtils {
 		return null;
 	}
 	
-	public static byte[] getEntityAsByteArrayAndCloseStream(ClassicHttpResponse httpResponse) {
+	public static byte[] getEntityAsByteArrayAndCloseStream(HttpResponse httpResponse) {
 		HttpEntity entity = httpResponse.getEntity();
 		if (entity != null) {
 			try {
