@@ -38,7 +38,7 @@ class JUnit4DetectionTest {
 	static ArchRule junit4PackageShouldNotBeUsed = freeze(
 			noClasses()
 					.that(EXCLUDE_WIREMOCKJUNITRULETEST)
-					.should().dependOnClassesThat().resideInAnyPackage("org.junit")
+					.should().dependOnClassesThat().resideInAnyPackage("org.junit", "junit")
 					.as("org.junit should not be used")
 					.because(BECAUSE));
 

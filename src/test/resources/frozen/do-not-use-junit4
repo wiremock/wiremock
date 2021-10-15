@@ -1791,7 +1791,6 @@ Method <com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapperTe
 Method <com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapperTest.transformsSpecifiedHeaders()> is annotated with <org.junit.Test> in (RequestWrapperTest.java:0)
 Method <com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapperTest.transformsTheUrl()> has annotation member of type <org.junit.Test$None> in (RequestWrapperTest.java:0)
 Method <com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapperTest.transformsTheUrl()> is annotated with <org.junit.Test> in (RequestWrapperTest.java:0)
-Method <com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformerTest.proxyBaseUrlWithAdditionalRequestHeader()> calls method <org.junit.Assert.assertNotNull(java.lang.Object)> in (ResponseTemplateTransformerTest.java:347)
 Method <com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthorisorTest.defaultsToWireMockPrefixIfNoPatternsSpecified()> calls method <org.junit.Assert.assertFalse(boolean)> in (SystemKeyAuthorisorTest.java:50)
 Method <com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthorisorTest.defaultsToWireMockPrefixIfNoPatternsSpecified()> calls method <org.junit.Assert.assertTrue(boolean)> in (SystemKeyAuthorisorTest.java:48)
 Method <com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthorisorTest.defaultsToWireMockPrefixIfNoPatternsSpecified()> calls method <org.junit.Assert.assertTrue(boolean)> in (SystemKeyAuthorisorTest.java:49)
