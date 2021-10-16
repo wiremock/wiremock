@@ -90,7 +90,11 @@ public class LoggedRequestTest {
             "      \"loggedDate\" : %d,\n" +
             "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\",\n" +
             "      \"body\" : \"" + REQUEST_BODY + "\",\n" +
+            "      \"scheme\" : \"http\",\n" +
+            "      \"host\" : \"mydomain.com\",\n" +
+            "      \"port\" : -1,\n" +
             "      \"loggedDateString\" : \"" + DATE + "\",\n" +
+            "      \"queryParams\" : { }\n" +
             "    }";
 
     @Test

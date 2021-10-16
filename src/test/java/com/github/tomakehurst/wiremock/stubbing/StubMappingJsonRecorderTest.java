@@ -390,10 +390,9 @@ public class StubMappingJsonRecorderTest {
     private static final String MULTIPART_REQUEST_MAPPING =
                     "{																	\n" +
                     "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n" +
-                    "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n" +
                     "	\"request\": {													\n" +
-                    "		\"method\": \"POST\",										\n" +
                     "		\"url\": \"/multipart/content\",							\n" +
+                    "		\"method\": \"POST\",										\n" +
                     "		\"multipartPatterns\" : [ {									\n" +
                     "			\"name\" : \"binaryFile\",								\n" +
                     "			\"matchingType\" : \"ALL\",								\n" +
@@ -422,7 +421,7 @@ public class StubMappingJsonRecorderTest {
                     "			\"headers\" : {											\n" +
                     "				\"Content-Disposition\" : {							\n" +
                     "					\"contains\" : \"name=\\\"formInput\\\"\"		\n" +
-                    "				},													\n" +
+                    "				}													\n" +
                     "			},														\n" +
                     "			\"bodyPatterns\" : [ {									\n" +
                     "				\"equalTo\" : \"I am a field!\"						\n" +
@@ -432,7 +431,8 @@ public class StubMappingJsonRecorderTest {
                     "	\"response\": {									            	\n" +
                     "		\"status\": 200,							            	\n" +
                     "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"  	\n" +
-                    "	}												            	\n" +
+                    "	},												            	\n" +
+                    "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\"				\n" +
                     "}																	";
 
     @Test

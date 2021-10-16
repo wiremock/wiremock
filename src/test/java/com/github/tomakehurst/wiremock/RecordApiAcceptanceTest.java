@@ -95,7 +95,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        },                                                  \n" +
+            "        }                                                   \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
@@ -392,7 +392,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        },                                                  \n" +
+            "        }                                                   \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
