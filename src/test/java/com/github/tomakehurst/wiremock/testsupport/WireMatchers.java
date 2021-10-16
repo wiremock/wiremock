@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -27,7 +26,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
-import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.*;
 import org.hamcrest.core.IsEqual;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -80,6 +78,7 @@ public class WireMatchers {
 
 	public static Matcher<String> equalToJson(final String expectedJson, final JSONCompareMode jsonCompareMode) {
 		return new TypeSafeMatcher<String>() {
+			private String exceptionMessage;
 
 			@Override
 			public void describeTo(Description desc) {
@@ -87,11 +86,20 @@ public class WireMatchers {
 			}
 
 			@Override
+			protected void describeMismatchSafely(String item, Description desc) {
+				super.describeMismatchSafely(item, desc);
+				if (exceptionMessage != null) {
+					desc.appendText(", exception message: ").appendValue(exceptionMessage);
+				}
+			}
+			
+			@Override
 			public boolean matchesSafely(String actualJson) {
 				try {
 					JSONAssert.assertEquals(expectedJson, actualJson, jsonCompareMode);
 					return true;
 				} catch (Throwable e) {
+					this.exceptionMessage = e.getMessage();
 					return false;
 				}
 			}
