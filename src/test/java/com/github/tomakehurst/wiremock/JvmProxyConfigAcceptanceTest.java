@@ -1,6 +1,6 @@
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import com.google.common.io.ByteStreams;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -47,7 +47,7 @@ public class JvmProxyConfigAcceptanceTest {
 
     @Test
     public void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
-        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
 
         wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
         wireMockServer.start();

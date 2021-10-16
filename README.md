@@ -39,6 +39,7 @@ following guidelines:
 on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
 * Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
 more difficult.
+* Abide by [the Architecture Rules](https://github.com/wiremock/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock/archunit) enforced by ArchUnit.
 
 Building WireMock locally
 -------------------------

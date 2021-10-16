@@ -19,15 +19,14 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.Rend
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
-import java.time.temporal.TemporalQueries;
+import java.time.temporal.*;
 import java.util.Date;
 import java.util.List;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.util.Arrays.asList;
 import static java.util.Locale.US;
 
@@ -137,8 +136,12 @@ public class DateTimeParser {
             date = Date.from(Instant.from(parseResult));
         } else if (parseResult.query(TemporalQueries.localTime()) != null) {
             date = Date.from(LocalDateTime.from(parseResult).toInstant(UTC));
-        } else {
+        } else if (parseResult.query(TemporalQueries.localDate()) != null) {
             date = Date.from(LocalDate.from(parseResult).atStartOfDay(UTC).toInstant());
+        } else if (parseResult.isSupported(MONTH_OF_YEAR)) {
+            date = Date.from(YearMonth.from(parseResult).atDay(1).atStartOfDay(UTC).toInstant());
+        } else {
+            date = Date.from(Year.from(parseResult).atMonth(1).atDay(1).atStartOfDay(UTC).toInstant());
         }
 
         return new RenderableDate(date, null, timezoneId);

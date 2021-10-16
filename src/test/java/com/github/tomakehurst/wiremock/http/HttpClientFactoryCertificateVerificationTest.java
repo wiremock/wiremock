@@ -98,7 +98,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         clientTrustStore.saveAs(clientTrustStoreFile);
         KeyStoreSettings clientTrustStoreSettings = new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password", "jks");
 
-        client = HttpClientFactory.createClient(
+        client = HttpClient4Factory.createClient(
                 1000,
                 5 * 1000 * 60,
                 NO_PROXY,

@@ -26,8 +26,6 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Optional;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 public class WireMockExtension extends DslWrapper implements ParameterResolver, BeforeEachCallback, BeforeAllCallback, AfterEachCallback, AfterAllCallback {
 
     private static final Options DEFAULT_OPTIONS = WireMockConfiguration.options().dynamicPort();
@@ -178,6 +176,10 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
 
     public String baseUrl() {
         return wireMockServer.baseUrl();
+    }
+    
+    public String url(String path) {
+        return wireMockServer.url(path);
     }
 
     public static class Builder {

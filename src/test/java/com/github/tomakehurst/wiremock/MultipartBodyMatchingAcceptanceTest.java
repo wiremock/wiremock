@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -37,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-    HttpClient httpClient = HttpClientFactory.createClient();
+    HttpClient httpClient = HttpClient4Factory.createClient();
 
     @Test
     public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
