@@ -18,15 +18,18 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContentTypeHeaderTest {
 	@Test
@@ -76,11 +79,12 @@ public class ContentTypeHeaderTest {
 		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
-		new MockRequestBuilder()
-				.withHeader("Content-Type", null)
-				.build();
+		MockRequestBuilder builder = new MockRequestBuilder()
+				.withHeader("Content-Type", null);
+
+		assertThrows(NullPointerException.class, builder::build);
 	}
 
 	@Test
@@ -105,5 +109,32 @@ public class ContentTypeHeaderTest {
 	public void returnsDefaultCharsetWhenAbsent() {
 		ContentTypeHeader header = ContentTypeHeader.absent();
 		assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
+	}
+
+	@Test
+	public void returnsNullMimeTypePartWhenHeaderValueIsNull() {
+		ContentTypeHeader header = new ContentTypeHeader(null);
+		assertNull(header.mimeTypePart());
+	}
+
+	@Test
+	public void returnsNullMimeTypePartWhenAbsent() {
+		ContentTypeHeader header = ContentTypeHeader.absent();
+		assertNull(header.mimeTypePart());
+	}
+
+	@Test
+	public void returnsAbsentWhenNoHeaderValue() {
+		ContentTypeHeader header = ContentTypeHeader.absent();
+
+		Assertions.assertFalse(header.encodingPart().isPresent());
+	}
+
+	@Test
+	public void returnsAbsentWhenNoCharset() {
+		ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=");
+
+		Optional<String> encoding = header.encodingPart();
+		assertFalse(encoding.isPresent());
 	}
 }

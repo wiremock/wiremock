@@ -17,24 +17,30 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Optional;
-import java.nio.charset.Charset;
-import static com.google.common.base.Charsets.UTF_8;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.LITERAL;
 
 public class ContentTypeHeader extends HttpHeader {
 
-	public static final String KEY = "Content-Type";
-	
-	private String[] parts;
+    public static final String KEY = "Content-Type";
+    private static final Pattern CHARSET_PATTERN = Pattern.compile("charset\\s*=(.+)");
+    private static final Pattern SEMICOLON_PATTERN = Pattern.compile(";", LITERAL);
 
-	public ContentTypeHeader(String stringValue) {
+    private final String[] parts;
+
+    public ContentTypeHeader(String stringValue) {
         super(KEY, stringValue);
-		parts = stringValue != null ? stringValue.split(";") : new String[0];
-	}
+        parts = stringValue != null ? SEMICOLON_PATTERN.split(stringValue) : new String[0];
+    }
 
     private ContentTypeHeader() {
         super(KEY);
+        parts = new String[0];
     }
 
     public static ContentTypeHeader absent() {
@@ -45,25 +51,27 @@ public class ContentTypeHeader extends HttpHeader {
         return isPresent() ? this : new ContentTypeHeader(stringValue);
     }
 
-	public String mimeTypePart() {
-		return parts != null ? parts[0] : null;
-	}
-	
-	public Optional<String> encodingPart() {
-		for (int i = 1; i < parts.length; i++) {
-			if (parts[i].matches("\\s*charset\\s*=.*") ) {
-				return Optional.of(parts[i].split("=")[1].replace("\"", ""));
-			}
-		}
+    public String mimeTypePart() {
+        return parts.length > 0 ? parts[0] : null;
+    }
 
-		return Optional.absent();
-	}
+    public Optional<String> encodingPart() {
+        for (int i = 1; i < parts.length; i++) {
+            Matcher matcher = CHARSET_PATTERN.matcher(parts[i]);
+            if (matcher.find()) {
+                return Optional.of(StringUtils.unwrap(matcher.group(1), '"'));
+            }
+        }
 
-	public Charset charset() {
-		if (isPresent() && encodingPart().isPresent()) {
-			return Charset.forName(encodingPart().get());
-		}
+        return Optional.absent();
+    }
 
-		return Strings.DEFAULT_CHARSET;
-	}
+    public Charset charset() {
+        Optional<String> e;
+        if (isPresent() && (e = encodingPart()).isPresent()) {
+            return Charset.forName(e.get());
+        }
+
+        return Strings.DEFAULT_CHARSET;
+    }
 }

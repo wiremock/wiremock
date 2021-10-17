@@ -70,17 +70,18 @@ public class ContentTypes {
 
     public static String determineFileExtension(String url, ContentTypeHeader contentTypeHeader, byte[] responseBody) {
         if (contentTypeHeader.isPresent()) {
-            if (contentTypeHeader.mimeTypePart().contains("json")) {
+            String mimeTypePart = contentTypeHeader.mimeTypePart();
+            if (mimeTypePart.contains("json")) {
                 return "json";
             }
-            if (contentTypeHeader.mimeTypePart().contains("xml")) {
+            if (mimeTypePart.contains("xml")) {
                 return "xml";
             }
-            if (contentTypeHeader.mimeTypePart().contains("text")) {
+            if (mimeTypePart.contains("text")) {
                 return "txt";
             }
 
-            String extension = COMMON_MIME_TYPES.get(contentTypeHeader.mimeTypePart());
+            String extension = COMMON_MIME_TYPES.get(mimeTypePart);
             if (extension != null) {
                 return extension;
             }
@@ -126,12 +127,11 @@ public class ContentTypes {
     }
 
     public static boolean determineIsTextFromMimeType(final String mimeType) {
-        return any(TEXT_MIME_TYPE_PATTERNS, new Predicate<String>() {
-            @Override
-            public boolean apply(String pattern) {
-                return mimeType != null && mimeType.matches(pattern);
-            }
-        });
+        if (mimeType == null) {
+            return false;
+        }
+
+        return TEXT_MIME_TYPE_PATTERNS.stream().anyMatch(mimeType::matches);
     }
 
     public static boolean determineIsText(String extension, String mimeType) {
