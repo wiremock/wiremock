@@ -62,12 +62,12 @@ public class JettySettingsTest {
 
     private void ensurePresent(Optional<Integer> optional) {
         assertTrue(optional.isPresent());
-        assertEquals(new Integer(number), optional.get());
+        assertEquals(Integer.valueOf(number), optional.get());
     }
 
     private void ensureLongPresent(Optional<Long> optional) {
         assertTrue(optional.isPresent());
-        assertEquals(new Long(longNumber), optional.get());
+        assertEquals(Long.valueOf(longNumber), optional.get());
     }
 
 }

@@ -19,8 +19,8 @@ package com.github.tomakehurst.wiremock.common;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 
 public class ProxySettingsTest {
 
@@ -81,7 +81,7 @@ public class ProxySettingsTest {
         assertThat(proxySettings.host(), is(PROXYVIA_URL));
         assertThat(proxySettings.port(), is(DEFAULT_PORT));
         assertThat(proxySettings.getUsername(), is(USER));
-        assertThat(proxySettings.getPassword(), isEmptyOrNullString());
+        assertThat(proxySettings.getPassword(), is(emptyOrNullString()));
     }
 
     @Test

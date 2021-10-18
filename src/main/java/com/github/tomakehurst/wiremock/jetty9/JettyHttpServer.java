@@ -151,7 +151,7 @@ public class JettyHttpServer implements HttpServer {
         }
 
         try {
-            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.getDeclaredConstructor().newInstance();
             setGZippableMethods(gzipWrapper, gzipHandlerClass);
             gzipWrapper.setHandler(mockServiceContext);
             handlers.addHandler(gzipWrapper);

@@ -783,7 +783,7 @@ public class VerificationAcceptanceTest {
         @Rule
         public WireMockRule wireMockRule = new WireMockRule(options()
             .dynamicPort()
-            .maxRequestJournalEntries(Optional.of(2)),
+            .maxRequestJournalEntries(2),
             false);
 
         @Test
