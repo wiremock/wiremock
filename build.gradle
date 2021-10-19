@@ -91,6 +91,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.11.2'
 
     testCompile "org.hamcrest:hamcrest-core:2.2"
     testCompile "org.hamcrest:hamcrest-library:2.2"
