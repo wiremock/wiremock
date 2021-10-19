@@ -36,7 +36,8 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class LoggedResponseTest {
     private static String ISO_8859_1_RESPONSE_BODY = "köttfärssås";

@@ -220,8 +220,8 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
         assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
         assertThat(options.proxyVia().port(), is(8080));
-        assertThat(options.proxyVia().getUsername(), isEmptyOrNullString());
-        assertThat(options.proxyVia().getPassword(), isEmptyOrNullString());
+        assertThat(options.proxyVia().getUsername(), is(emptyOrNullString()));
+        assertThat(options.proxyVia().getPassword(), is(emptyOrNullString()));
     }
 
     @Test

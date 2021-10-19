@@ -445,7 +445,7 @@ public class Examples extends AcceptanceTestBase {
             .disableRequestJournal()
 
             // Limit the size of the request log (for the same reason as above).
-            .maxRequestJournalEntries(Optional.of(100))
+            .maxRequestJournalEntries(100)
 
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)

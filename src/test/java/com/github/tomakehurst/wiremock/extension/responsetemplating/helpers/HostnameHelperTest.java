@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HostnameHelperTest {
@@ -48,7 +48,7 @@ public class HostnameHelperTest {
         );
 
         String output = render(optionsHash);
-        assertThat(output, equalToIgnoringWhiteSpace(hostname));
+        assertThat(output, equalToCompressingWhiteSpace(hostname));
     }
 
     private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
