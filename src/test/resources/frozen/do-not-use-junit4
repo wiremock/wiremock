@@ -84,6 +84,8 @@ Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestById()> has
 Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestById()> is annotated with <org.junit.Test> in (AdminApiTest.java:0)
 Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequests()> has annotation member of type <org.junit.Test$None> in (AdminApiTest.java:0)
 Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequests()> is annotated with <org.junit.Test> in (AdminApiTest.java:0)
+Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestsWithInvalidSinceDateReturnsBadRequest()> has annotation member of type <org.junit.Test$None> in (AdminApiTest.java:0)
+Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestsWithInvalidSinceDateReturnsBadRequest()> is annotated with <org.junit.Test> in (AdminApiTest.java:0)
 Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestsWithLimit()> has annotation member of type <org.junit.Test$None> in (AdminApiTest.java:0)
 Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestsWithLimit()> is annotated with <org.junit.Test> in (AdminApiTest.java:0)
 Method <com.github.tomakehurst.wiremock.AdminApiTest.getLoggedRequestsWithLimitAndSinceDate()> has annotation member of type <org.junit.Test$None> in (AdminApiTest.java:0)
