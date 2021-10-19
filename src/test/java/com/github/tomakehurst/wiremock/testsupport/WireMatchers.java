@@ -27,6 +27,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.*;
 import org.hamcrest.core.IsEqual;
@@ -39,6 +40,7 @@ import org.xmlunit.diff.Diff;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -337,7 +339,7 @@ public class WireMatchers {
 
     private static String fileContents(File input) {
         try {
-            return Files.toString(input, Charsets.UTF_8);
+            return FileUtils.readFileToString(input, StandardCharsets.UTF_8);
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }
