@@ -94,7 +94,7 @@ public class X509CertificateSpecification implements CertificateSpecification {
             info.set(X509CertInfo.KEY, new CertificateX509Key(keyPair.getPublic()));
             info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new BigInteger(64, random)));
             info.set(X509CertInfo.ALGORITHM_ID,
-                    new CertificateAlgorithmId(new AlgorithmId(AlgorithmId.sha1WithRSAEncryption_oid)));
+                    new CertificateAlgorithmId(new AlgorithmId(AlgorithmId.SHA256_oid)));
 
             // Sign the cert to identify the algorithm that's used.
             X509CertImpl cert = new X509CertImpl(info);
