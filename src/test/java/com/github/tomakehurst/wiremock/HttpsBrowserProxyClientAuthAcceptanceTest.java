@@ -15,8 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -26,21 +25,21 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 
+import javax.net.ssl.SSLContext;
+
 import static com.github.tomakehurst.wiremock.HttpsAcceptanceTest.readKeyStore;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -51,25 +50,25 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
 
     private static final String NO_PREEXISTING_KEYSTORE_PATH = tempNonExistingPath("wiremock-keystores", "ca-keystore.jks");
 
-    @ClassRule
-    public static WireMockClassRule target = new WireMockClassRule(wireMockConfig()
+    @RegisterExtension
+    public static WireMockExtension target = WireMockExtension.newInstance().options(options()
             .httpDisabled(true)
             .dynamicHttpsPort()
             .needClientAuth(true)
             .trustStorePath(TRUST_STORE_PATH)
-            .trustStorePassword(TRUST_STORE_PASSWORD)
-    );
+            .trustStorePassword(TRUST_STORE_PASSWORD))
+    .build();
 
-    @Rule
-    public WireMockRule proxy = new WireMockRule(wireMockConfig()
+    @RegisterExtension
+    public WireMockExtension proxy = WireMockExtension.newInstance().options(options()
             .dynamicPort()
             .enableBrowserProxying(true)
             .caKeystorePath(NO_PREEXISTING_KEYSTORE_PATH)
             .trustedProxyTargets("localhost")
             .needClientAuth(true) // fine to set this to false, but more "realistic" for it to be true
             .trustStorePath(TRUST_STORE_PATH)
-            .trustStorePassword(TRUST_STORE_PASSWORD)
-    );
+            .trustStorePassword(TRUST_STORE_PASSWORD))
+    .build();
 
     @Test
     public void canDoClientAuthEndToEndWhenProxying() throws Exception {
@@ -99,7 +98,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
                 .loadKeyMaterial(trustStore, TRUST_STORE_PASSWORD.toCharArray())
                 .build();
 
-        HttpHost proxyInfo = new HttpHost("localhost", proxy.port());
+        HttpHost proxyInfo = new HttpHost("localhost", proxy.getRuntimeInfo().getHttpPort());
         return HttpClientBuilder.create()
                 .disableAuthCaching()
                 .disableAutomaticRetries()
