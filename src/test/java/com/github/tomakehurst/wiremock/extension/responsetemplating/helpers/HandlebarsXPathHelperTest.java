@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,19 +26,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsXPathHelper helper;
-    private ResponseTemplateTransformer transformer;
 
     @Before
     public void init() {
         helper = new HandlebarsXPathHelper();
-        this.transformer = new ResponseTemplateTransformer(true);
     }
 
     @Test
@@ -108,6 +105,137 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         testHelperError(helper, null, "/test", is(""));
     }
 
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments() throws Exception {
+        String one = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
+        String two = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
 
+        assertThat(one, is("one"));
+        assertThat(two, is("one"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments() throws Exception {
+        String one = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
+        String two = renderHelperValue(helper, "<test>two</test>", "/test/text()").toString();
+
+        assertThat(one, is("one"));
+        assertThat(two, is("two"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+        String one = renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one/text()").toString();
+        String two = renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/two/text()").toString();
+
+        assertThat(one, is("1"));
+        assertThat(two, is("2"));
+    }
+
+    @Test
+    public void rendersXmlWhenElementIsSelected() throws Exception {
+        String one = renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one").toString();
+        assertThat(one, is("<one>1</one>"));
+    }
+
+    @Test
+    public void supportsIterationOverNodeListWithEachHelper() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .body("<?xml version=\"1.0\"?>\n" +
+                                "<stuff>\n" +
+                                "    <thing>One</thing>\n" +
+                                "    <thing>Two</thing>\n" +
+                                "    <thing>Three</thing>\n" +
+                                "</stuff>"),
+                aResponse()
+                        .withBody("{{#each (xPath request.body '/stuff/thing/text()') as |thing|}}{{thing}} {{/each}}")
+                        .build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("One Two Three "));
+    }
+
+    @Test
+    public void supportsIterationOverElementsWithAttributes() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .body("<?xml version=\"1.0\"?>\n" +
+                                "<stuff>\n" +
+                                "    <thing id=\"1\">One</thing>\n" +
+                                "    <thing id=\"2\">Two</thing>\n" +
+                                "    <thing id=\"3\">Three</thing>\n" +
+                                "</stuff>"),
+                aResponse()
+                        .withBody("{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.attributes.id}}} {{/each}}")
+                        .build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("1 2 3 "));
+    }
+
+    @Test
+    public void supportsIterationOverNamespacedElements() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .body("<?xml version=\"1.0\"?>\n" +
+                                "<stuff xmlns:th=\"https://thing.com\">\n" +
+                                "    <th:thing>One</th:thing>\n" +
+                                "    <th:thing>Two</th:thing>\n" +
+                                "    <th:thing>Three</th:thing>\n" +
+                                "</stuff>"),
+                aResponse()
+                        .withBody("{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.text}}} {{/each}}")
+                        .build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("One Two Three "));
+    }
+
+    @Test
+    public void rendersNamespacedElement() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .body("<?xml version=\"1.0\"?>\n" +
+                                "<stuff xmlns:th=\"https://thing.com\">\n" +
+                                "    <th:thing>One</th:thing>\n" +
+                                "    <th:thing>Two</th:thing>\n" +
+                                "    <th:thing>Three</th:thing>\n" +
+                                "</stuff>"),
+                aResponse()
+                        .withBody("{{{xPath request.body '/stuff'}}}")
+                        .build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), equalToCompressingWhiteSpace(
+                "<stuff xmlns:th=\"https://thing.com\">\n" +
+                "    <th:thing>One</th:thing>\n" +
+                "    <th:thing>Two</th:thing>\n" +
+                "    <th:thing>Three</th:thing>\n" +
+                "</stuff>"));
+    }
+
+    @Test
+    public void rendersElementNames() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .body("<?xml version=\"1.0\"?>\n" +
+                                "<stuff>\n" +
+                                "    <one>1</one>\n" +
+                                "    <two>2</two>\n" +
+                                "    <three>3</three>\n" +
+                                "</stuff>"),
+                aResponse()
+                        .withBody("{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}")
+                        .build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("one two three "));
+    }
 
 }

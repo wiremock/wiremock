@@ -26,6 +26,11 @@ public class ClientError extends RuntimeException {
         this.errors = errors;
     }
 
+    protected ClientError(Throwable cause, Errors errors) {
+        super(Json.write(errors), cause);
+        this.errors = errors;
+    }
+
     public static ClientError fromErrors(Errors errors) {
         Integer errorCode = errors.first().getCode();
         switch (errorCode) {
@@ -33,6 +38,8 @@ public class ClientError extends RuntimeException {
                 return new InvalidInputException(errors);
             case 30:
                 return new NotRecordingException();
+            case 50:
+                return new NotPermittedException(errors);
             default:
                 return new ClientError(errors);
         }

@@ -51,9 +51,9 @@ public class EqualToPattern extends StringValuePattern {
             @Override
             public boolean isExactMatch() {
                 return
-                    shouldMatchCaseInsensitive() ?
-                    value != null && value.equalsIgnoreCase(expectedValue) :
-                    Objects.equals(expectedValue, value);
+                        shouldMatchCaseInsensitive() ?
+                                value != null && value.equalsIgnoreCase(expectedValue) :
+                                Objects.equals(expectedValue, value);
             }
 
             @Override

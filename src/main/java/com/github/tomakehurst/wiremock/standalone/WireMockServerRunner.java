@@ -47,7 +47,7 @@ public class WireMockServerRunner {
     }
 
 	private WireMockServer wireMockServer;
-	
+
 	public void run(String... args) {
 		CommandLineOptions options = new CommandLineOptions(args);
 		if (options.help()) {
@@ -74,7 +74,16 @@ public class WireMockServerRunner {
 
         try {
             wireMockServer.start();
-            options.setResultingPort(wireMockServer.port());
+            boolean https = options.httpsSettings().enabled();
+
+            if (!options.getHttpDisabled()) {
+            	options.setActualHttpPort(wireMockServer.port());
+			}
+
+            if (https) {
+            	options.setActualHttpsPort(wireMockServer.httpsPort());
+			}
+
             if (!options.bannerDisabled()){
                 out.println(BANNER);
                 out.println();
@@ -88,7 +97,7 @@ public class WireMockServerRunner {
             System.exit(1);
         }
     }
-	
+
 	private void addProxyMapping(final String baseUrl) {
 		wireMockServer.loadMappingsUsing(new MappingsLoader() {
 			@Override
@@ -104,7 +113,7 @@ public class WireMockServerRunner {
 			}
 		});
 	}
-	
+
 	public void stop() {
 		if (wireMockServer != null) {
 			wireMockServer.stop();

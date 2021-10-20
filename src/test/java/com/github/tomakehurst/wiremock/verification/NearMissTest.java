@@ -29,7 +29,7 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJs
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 public class NearMissTest {
@@ -74,7 +74,8 @@ public class NearMissTest {
         String json = Json.write(new NearMiss(
             LoggedRequest.createFrom(mockRequest().method(HEAD).url("/nearly-missed-me")),
             get(urlEqualTo("/missed-me")).willReturn(aResponse()).build(),
-            MatchResult.partialMatch(0.5)
+            MatchResult.partialMatch(0.5),
+            null
         ));
 
         assertThat(json, equalToJson(STUB_MAPPING_EXAMPLE, LENIENT));

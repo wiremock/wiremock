@@ -19,11 +19,11 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class UrlsTest {
 
@@ -82,4 +82,68 @@ public class UrlsTest {
         String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/zoo/wire/mock?param=value"));
         assertThat(pathParts, is("foo-bar-zoo-wire-mock"));
     }
+
+    @Test
+    public void splitsQueryFromUrl() {
+        Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b?one=1&one=11&two=2");
+
+        List<String> oneValues = query.get("one").values();
+        assertThat(oneValues, hasItems("1", "11"));
+        assertThat(oneValues, hasItem("11"));
+        assertThat(query.get("two").firstValue(), is("2"));
+    }
+
+    @Test
+    public void splitsQueryFromUrlWithTrailingSlash() {
+        Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/?one=1&one=11&two=2");
+
+        List<String> oneValues = query.get("one").values();
+        assertThat(oneValues, hasItems("1", "11"));
+        assertThat(oneValues, hasItem("11"));
+        assertThat(query.get("two").firstValue(), is("2"));
+    }
+
+    @Test
+    public void splitQueryFromUrlHandlesUrlThatEndsWithQuestionMark() {
+        Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/?");
+        assertThat(query.isEmpty(), is(true));
+    }
+
+    @Test
+    public void splitQueryFromUrlReturnsEmptyWhenNoQuery() {
+        Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b");
+        assertThat(query.isEmpty(), is(true));
+    }
+
+    @Test
+    public void splitQueryFromUrlReturnsEmptyWhenTrailingSlashAndNoQuery() {
+        Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/");
+        assertThat(query.isEmpty(), is(true));
+    }
+
+    @Test
+    public void getsThePathFromAUrlWithAQueryString() {
+        assertThat(Urls.getPath("/one/two/3?q=a"), is("/one/two/3"));
+    }
+
+    @Test
+    public void getsThePathFromAUrlWithoutAQueryString() {
+        assertThat(Urls.getPath("/one/two/3"), is("/one/two/3"));
+    }
+
+    @Test
+    public void getsThePathFromAUrlWithATrailingSlashAndQueryString() {
+        assertThat(Urls.getPath("/one/two/3/?q=a"), is("/one/two/3/"));
+    }
+
+    @Test
+    public void getsThePathFromAUrlWithRootPathAndQuery() {
+        assertThat(Urls.getPath("/?q=a"), is("/"));
+    }
+
+    @Test
+    public void getsThePathFromAUrlWithJustAQuery() {
+        assertThat(Urls.getPath("?q=a"), is(""));
+    }
+
 }

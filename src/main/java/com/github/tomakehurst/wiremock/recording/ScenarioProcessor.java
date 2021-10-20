@@ -45,14 +45,16 @@ public class ScenarioProcessor {
             }
         });
 
+        int scenarioIndex = 0;
         for (Map.Entry<RequestPattern, Collection<StubMapping>> entry: groupsWithMoreThanOneStub.entrySet()) {
-            putStubsInScenario(ImmutableList.copyOf(entry.getValue()));
+            scenarioIndex++;
+            putStubsInScenario(scenarioIndex, ImmutableList.copyOf(entry.getValue()));
         }
     }
 
-    private void putStubsInScenario(List<StubMapping> stubMappings) {
+    private void putStubsInScenario(int scenarioIndex, List<StubMapping> stubMappings) {
         StubMapping firstScenario = stubMappings.get(0);
-        String scenarioName = "scenario-" + Urls.urlToPathParts(URI.create(firstScenario.getRequest().getUrl()));
+        String scenarioName = "scenario-" + Integer.toString(scenarioIndex) + "-" + Urls.urlToPathParts(URI.create(firstScenario.getRequest().getUrl()));
 
         int count = 1;
         for (StubMapping stub: stubMappings) {

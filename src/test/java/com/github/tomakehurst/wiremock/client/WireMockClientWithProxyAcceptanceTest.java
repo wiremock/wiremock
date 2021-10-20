@@ -26,7 +26,7 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 
 public class WireMockClientWithProxyAcceptanceTest {

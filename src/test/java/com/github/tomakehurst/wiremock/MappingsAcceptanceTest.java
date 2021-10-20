@@ -27,7 +27,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
 
@@ -145,7 +145,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	public void readsJsonMapping() {
 		WireMockResponse response = testClient.get("/testjsonmapping");
 		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
+		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3],\"bignumber\":1234567890.12}"));
 	}
 
     @Test

@@ -23,11 +23,10 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
+import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
-import com.google.common.base.Function;
+import com.google.common.base.*;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
@@ -35,7 +34,6 @@ import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -58,15 +56,26 @@ public class WireMockHttpServletRequestAdapter implements Request {
     private final HttpServletRequest request;
     private final MultipartRequestConfigurer multipartRequestConfigurer;
     private byte[] cachedBody;
-    private String urlPrefixToRemove;
+    private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
+    private final boolean browserProxyingEnabled;
+    private final String urlPrefixToRemove;
     private Collection<Part> cachedMultiparts;
 
     public WireMockHttpServletRequestAdapter(HttpServletRequest request,
                                              MultipartRequestConfigurer multipartRequestConfigurer,
-                                             String urlPrefixToRemove) {
+                                             String urlPrefixToRemove,
+                                             boolean browserProxyingEnabled) {
         this.request = request;
         this.multipartRequestConfigurer = multipartRequestConfigurer;
         this.urlPrefixToRemove = urlPrefixToRemove;
+        this.browserProxyingEnabled = browserProxyingEnabled;
+
+        cachedQueryParams = Suppliers.memoize(new Supplier<Map<String, QueryParameter>>() {
+            @Override
+            public Map<String, QueryParameter> get() {
+                return splitQuery(request.getQueryString());
+            }
+        });
     }
 
     @Override
@@ -233,68 +242,45 @@ public class WireMockHttpServletRequestAdapter implements Request {
             builder.put(cookie.getName(), cookie.getValue());
         }
 
-        return Maps.transformValues(builder.build().asMap(), new Function<Collection<String>, Cookie>() {
-            @Override
-            public Cookie apply(Collection<String> input) {
-                return new Cookie(null, ImmutableList.copyOf(input));
-            }
-        });
+        return Maps.transformValues(builder.build().asMap(),
+                                    input -> new Cookie(null, ImmutableList.copyOf(input)));
     }
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return firstNonNull((splitQuery(request.getQueryString())
-                .get(key)),
-            QueryParameter.absent(key));
+        Map<String, QueryParameter> queryParams = cachedQueryParams.get();
+        return firstNonNull(
+                queryParams.get(key),
+                QueryParameter.absent(key)
+        );
     }
 
     @Override
     public boolean isBrowserProxyRequest() {
-        if (!JettyUtils.isJetty()) {
+        // Avoid the performance hit if browser proxying is disabled
+        if (!browserProxyingEnabled || !JettyUtils.isJetty()) {
             return false;
         }
+
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-            return JettyUtils.getUri(jettyRequest).isAbsolute();
+            return JettyUtils.uriIsAbsolute(jettyRequest);
         }
 
         return false;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Collection<Part> getParts() {
         if (!isMultipart()) {
             return null;
         }
 
         if (cachedMultiparts == null) {
-            try {
-                multipartRequestConfigurer.configure(request);
-                cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
-                    @Override
-                    public Part apply(javax.servlet.http.Part input) {
-                        return WireMockHttpServletMultipartAdapter.from(input);
-                    }
-                }).toList();
-            } catch (IOException | ServletException exception) {
-                return throwUnchecked(exception, Collection.class);
-            }
+            cachedMultiparts = PartParser.parseFrom(this);
         }
 
         return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
-    }
-
-    private Collection<javax.servlet.http.Part> safelyGetRequestParts() throws IOException, ServletException {
-        try {
-            return request.getParts();
-        } catch (IOException ioe) {
-            if (ioe.getMessage().contains("Missing content for multipart")) {
-                return Collections.emptyList();
-            }
-
-            throw ioe;
-        }
     }
 
     @Override

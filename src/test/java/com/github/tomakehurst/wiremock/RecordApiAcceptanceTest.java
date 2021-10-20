@@ -41,7 +41,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.find;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
@@ -324,33 +324,33 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "}                                                   ";
 
     private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE =
-            "{                                                               \n" +
-            "    \"mappings\": [                                             \n" +
-            "        {                                                       \n" +
-            "            \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "            \"requiredScenarioState\" : \"Started\",            \n" +
-            "            \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
-            "            \"request\" : {                                     \n" +
-            "                \"url\" : \"/bar/baz\",                         \n" +
-            "                \"method\" : \"GET\"                            \n" +
-            "            }                                                   \n" +
-            "        },                                                      \n" +
-            "        {                                                       \n" +
-            "            \"request\" : {                                     \n" +
-            "                \"url\" : \"/foo\",                             \n" +
-            "                \"method\" : \"GET\"                            \n" +
-            "            }                                                   \n" +
-            "        },                                                      \n" +
-            "        {                                                       \n" +
-            "            \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "            \"requiredScenarioState\" : \"scenario-bar-baz-2\", \n" +
-            "            \"request\" : {                                     \n" +
-            "                \"url\" : \"/bar/baz\",                         \n" +
-            "                \"method\" : \"GET\"                            \n" +
-            "            }                                                   \n" +
-            "        }                                                       \n" +
-            "    ]                                                           \n" +
-            "}                                                                 ";
+            "{                                                                 \n" +
+            "    \"mappings\": [                                               \n" +
+            "        {                                                         \n" +
+            "            \"scenarioName\" : \"scenario-1-bar-baz\",            \n" +
+            "            \"requiredScenarioState\" : \"Started\",              \n" +
+            "            \"newScenarioState\" : \"scenario-1-bar-baz-2\",      \n" +
+            "            \"request\" : {                                       \n" +
+            "                \"url\" : \"/bar/baz\",                           \n" +
+            "                \"method\" : \"GET\"                              \n" +
+            "            }                                                     \n" +
+            "        },                                                        \n" +
+            "        {                                                         \n" +
+            "            \"request\" : {                                       \n" +
+            "                \"url\" : \"/foo\",                               \n" +
+            "                \"method\" : \"GET\"                              \n" +
+            "            }                                                     \n" +
+            "        },                                                        \n" +
+            "        {                                                         \n" +
+            "            \"scenarioName\" : \"scenario-1-bar-baz\",            \n" +
+            "            \"requiredScenarioState\" : \"scenario-1-bar-baz-2\", \n" +
+            "            \"request\" : {                                       \n" +
+            "                \"url\" : \"/bar/baz\",                           \n" +
+            "                \"method\" : \"GET\"                              \n" +
+            "            }                                                     \n" +
+            "        }                                                         \n" +
+            "    ]                                                             \n" +
+            "}                                                                   ";
 
     @Test
     public void returnsStubMappingsWithScenariosForRepeatedRequests() {

@@ -24,9 +24,11 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -41,6 +43,9 @@ import static java.util.Arrays.asList;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
+    private final String scheme;
+    private final StringValuePattern host;
+    private final Integer port;
     private final UrlPattern url;
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
@@ -54,7 +59,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final ValueMatcher<Request> matcher;
     private final boolean hasInlineCustomMatcher;
 
-    public RequestPattern(final UrlPattern url,
+    public RequestPattern(final String scheme,
+                          final StringValuePattern host,
+                          final Integer port,
+                          final UrlPattern url,
                           final RequestMethod method,
                           final Map<String, MultiValuePattern> headers,
                           final Map<String, MultiValuePattern> queryParams,
@@ -64,6 +72,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           final CustomMatcherDefinition customMatcherDefinition,
                           final ValueMatcher<Request> customMatcher,
                           final List<MultipartValuePattern> multiPattern) {
+        this.scheme = scheme;
+        this.host = host;
+        this.port = port;
         this.url = firstNonNull(url, UrlPattern.ANY);
         this.method = firstNonNull(method, RequestMethod.ANY);
         this.headers = headers;
@@ -79,6 +90,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             @Override
             public MatchResult match(Request request) {
                 List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
+                        weight(schemeMatches(request), 3.0),
+                        weight(hostMatches(request), 10.0),
+                        weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
                         weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
 
@@ -105,7 +119,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     @JsonCreator
-    public RequestPattern(@JsonProperty("url") String url,
+    public RequestPattern(@JsonProperty("scheme") String scheme,
+                          @JsonProperty("host") StringValuePattern host,
+                          @JsonProperty("port") Integer port,
+                          @JsonProperty("url") String url,
                           @JsonProperty("urlPattern") String urlPattern,
                           @JsonProperty("urlPath") String urlPath,
                           @JsonProperty("urlPathPattern") String urlPathPattern,
@@ -119,6 +136,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           @JsonProperty("multipartPatterns") List<MultipartValuePattern> multiPattern) {
 
         this(
+            scheme,
+            host,
+            port,
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
             method,
             headers,
@@ -133,6 +153,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     public static RequestPattern ANYTHING = new RequestPattern(
+        null,
+        null,
+        null,
         WireMock.anyUrl(),
         RequestMethod.ANY,
         null,
@@ -146,11 +169,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     );
 
     public RequestPattern(ValueMatcher<Request> customMatcher) {
-        this(UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
+        this(null, null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
+        this(null, null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
     }
 
     @Override
@@ -208,6 +231,24 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return MatchResult.exactMatch();
     }
 
+    private MatchResult schemeMatches(final Request request) {
+        return scheme != null ?
+                MatchResult.of(scheme.equals(request.getScheme())) :
+                MatchResult.exactMatch();
+    }
+
+    private MatchResult hostMatches(final Request request) {
+        return host != null ?
+                host.match(request.getHost()) :
+                MatchResult.exactMatch();
+    }
+
+    private MatchResult portMatches(final Request request) {
+        return port != null ?
+                MatchResult.of(request.getPort() == port) :
+                MatchResult.exactMatch();
+    }
+
     private MatchResult allHeadersMatchResult(final Request request) {
         Map<String, MultiValuePattern> combinedHeaders = combineBasicAuthAndOtherHeaders();
 
@@ -262,10 +303,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                     @Override
                     public MatchResult apply(ContentPattern pattern) {
                         if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
-                            return pattern.match(request.getBodyAsString());
+                            String body = StringUtils.isEmpty(request.getBodyAsString()) ?
+                                    null :
+                                    request.getBodyAsString();
+                            return pattern.match(body);
                         }
 
-                        return ((BinaryEqualToPattern) pattern).match(request.getBody());
+                        return pattern.match(request.getBody());
                     }
 
 
@@ -297,6 +341,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {
         return match(request, customMatchers).isExactMatch();
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public StringValuePattern getHost() {
+        return host;
+    }
+
+    public Integer getPort() {
+        return port;
     }
 
     public String getUrl() {
@@ -388,21 +444,25 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RequestPattern that = (RequestPattern) o;
-        return Objects.equals(url, that.url) &&
-            Objects.equals(method, that.method) &&
-            Objects.equals(headers, that.headers) &&
-            Objects.equals(queryParams, that.queryParams) &&
-            Objects.equals(cookies, that.cookies) &&
-            Objects.equals(basicAuthCredentials, that.basicAuthCredentials) &&
-            Objects.equals(bodyPatterns, that.bodyPatterns) &&
-            Objects.equals(customMatcherDefinition, that.customMatcherDefinition) &&
-            Objects.equals(matcher, that.matcher) &&
-            Objects.equals(multipartPatterns, that.multipartPatterns);
+        return hasInlineCustomMatcher == that.hasInlineCustomMatcher &&
+                Objects.equals(scheme, that.scheme) &&
+                Objects.equals(host, that.host) &&
+                Objects.equals(port, that.port) &&
+                Objects.equals(url, that.url) &&
+                Objects.equals(method, that.method) &&
+                Objects.equals(headers, that.headers) &&
+                Objects.equals(queryParams, that.queryParams) &&
+                Objects.equals(cookies, that.cookies) &&
+                Objects.equals(basicAuthCredentials, that.basicAuthCredentials) &&
+                Objects.equals(bodyPatterns, that.bodyPatterns) &&
+                Objects.equals(multipartPatterns, that.multipartPatterns) &&
+                Objects.equals(customMatcherDefinition, that.customMatcherDefinition) &&
+                Objects.equals(matcher, that.matcher);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, multipartPatterns);
+        return Objects.hash(scheme, host, port, url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, multipartPatterns, customMatcherDefinition, matcher, hasInlineCustomMatcher);
     }
 
     @Override
@@ -415,6 +475,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             @Override
             public boolean apply(Request request) {
                 return pattern.match(request).isExactMatch();
+            }
+        };
+    }
+
+    public static Predicate<ServeEvent> withRequstMatching(final RequestPattern pattern) {
+        return new Predicate<ServeEvent>() {
+            @Override
+            public boolean apply(ServeEvent serveEvent) {
+                return pattern.match(serveEvent.getRequest()).isExactMatch();
             }
         };
     }

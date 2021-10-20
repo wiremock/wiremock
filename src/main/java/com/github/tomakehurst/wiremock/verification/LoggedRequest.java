@@ -37,13 +37,12 @@ import java.util.Set;
 import java.nio.charset.Charset;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
+import static com.github.tomakehurst.wiremock.common.Urls.*;
 import static com.google.common.base.Charsets.UTF_8;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -67,12 +66,13 @@ public class LoggedRequest implements Request {
     private final Collection<Part> multiparts;
 
     public static LoggedRequest createFrom(Request request) {
-        return new LoggedRequest(request.getUrl(),
+        return new LoggedRequest(
+            request.getUrl(),
             request.getAbsoluteUrl(),
             request.getMethod(),
             request.getClientIp(),
-            copyOf(request.getHeaders()),
-            ImmutableMap.copyOf(request.getCookies()),
+            request.getHeaders(),
+            request.getCookies(),
             request.isBrowserProxyRequest(),
             new Date(),
             request.getBody(),
@@ -126,7 +126,7 @@ public class LoggedRequest implements Request {
         this.body = body;
         this.headers = headers;
         this.cookies = cookies;
-        this.queryParams = splitQuery(URI.create(url));
+        this.queryParams = splitQueryFromUrl(url);
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
         this.multiparts = multiparts;
@@ -262,7 +262,7 @@ public class LoggedRequest implements Request {
     }
 
     public String getLoggedDateString() {
-        return Dates.format(loggedDate);
+        return loggedDate != null ? Dates.format(loggedDate) : null;
     }
 
     @Override

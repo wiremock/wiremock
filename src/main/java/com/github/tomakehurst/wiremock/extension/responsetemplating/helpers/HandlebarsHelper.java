@@ -16,6 +16,11 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
@@ -69,5 +74,9 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
 
     private String formatMessage(String message) {
         return ERROR_PREFIX + message + ERROR_SUFFIX;
+    }
+
+    protected static RenderCache getRenderCache(Options options) {
+        return options.get("renderCache", new RenderCache());
     }
 }

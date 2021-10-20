@@ -17,12 +17,21 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
+import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -37,12 +46,14 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Examples extends AcceptanceTestBase {
 
@@ -367,6 +378,9 @@ public class Examples extends AcceptanceTestBase {
             // Statically set the HTTP port number. Defaults to 8080.
             .port(8000)
 
+            // Disable HTTP listener.
+            .httpDisabled(true)
+
             // Statically set the HTTPS port number. Defaults to 8443.
             .httpsPort(8001)
 
@@ -431,7 +445,7 @@ public class Examples extends AcceptanceTestBase {
             .disableRequestJournal()
 
             // Limit the size of the request log (for the same reason as above).
-            .maxRequestJournalEntries(Optional.of(100))
+            .maxRequestJournalEntries(100)
 
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)
@@ -538,5 +552,120 @@ public class Examples extends AcceptanceTestBase {
                 .andMatching("path-contains-param", Parameters.one("path", "correct"))
                 .willReturn(ok())
                 .build()));
+    }
+
+    @Test
+    public void dates() {
+        stubFor(post("/dates")
+                .withHeader("X-Munged-Date", beforeNow().expectedOffset(3, DateTimeUnit.DAYS))
+                .withHeader("X-Finalised-Date", before("now +2 months"))
+                .willReturn(ok()));
+
+        stubFor(post("/dates")
+                .withRequestBody(matchingJsonPath(
+                        "$.completedDate",
+                        equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+                )
+                .willReturn(ok()));
+
+
+
+        System.out.println(Json.write(post("/dates")
+                .withRequestBody(matchingJsonPath(
+                        "$.completedDate",
+                        equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+                )
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalAnd() {
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", and(
+                        matching("[a-z]+"),
+                        containing("magicvalue"))
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalOr() {
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", or(
+                        matching("[a-z]+"),
+                        absent())
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void jsonPathAndDates() {
+        stubFor(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                        after("2020-01-01T00:00:00"))))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                                after("2020-01-01T00:00:00"))))
+                .willReturn(ok()).build()));
+    }
+
+    public static class SimpleAuthRequestFilter extends StubRequestFilter {
+
+        @Override
+        public RequestFilterAction filter(Request request) {
+            if (request.header("Authorization").firstValue().equals("Basic abc123")) {
+                return RequestFilterAction.continueWith(request);
+            }
+
+            return RequestFilterAction.stopWith(ResponseDefinition.notAuthorised());
+        }
+
+        @Override
+        public String getName() {
+            return "simple-auth";
+        }
+    }
+
+    public static class UrlAndHeadersModifyingFilter extends StubRequestFilter {
+
+        @Override
+        public RequestFilterAction filter(Request request) {
+            Request wrappedRequest = RequestWrapper.create()
+                    .transformAbsoluteUrl(new FieldTransformer<String>() {
+                        @Override
+                        public String transform(String url) {
+                            return url + "extraparam=123";
+                        }
+                    })
+                    .addHeader("X-Custom-Header", "headerval")
+                    .wrap(request);
+
+            return RequestFilterAction.continueWith(wrappedRequest);
+        }
+
+        @Override
+        public String getName() {
+            return "url-and-header-modifier";
+        }
     }
 }

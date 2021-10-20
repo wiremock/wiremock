@@ -16,10 +16,10 @@ description: Running WireMock as a standalone mock server.
 The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.
 
-Once you have [downloaded the standalone JAR](http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar) you can run it simply by doing this:
+Once you have [downloaded the standalone JAR](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/{{ site.wiremock_version }}/wiremock-jre8-standalone-{{ site.wiremock_version }}.jar) you can run it simply by doing this:
 
 ```bash
-$ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar
+$ java -jar wiremock-jre8-standalone-{{ site.wiremock_version }}.jar
 ```
 
 ## Command line options
@@ -27,6 +27,8 @@ $ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar
 The following can optionally be specified on the command line:
 
 `--port`: Set the HTTP port number e.g. `--port 9999`. Use `--port 0` to dynamically determine a port.
+
+`--disable-http`: Disable the HTTP listener, option available only if HTTPS is enabled.
 
 `--https-port`: If specified, enables HTTPS on the supplied port.
 Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the `--port` parameter in order to avoid conflicts.
@@ -39,11 +41,24 @@ certificate to use with HTTPS. The keystore must have a password of
 If this option isn't used WireMock will default to its own self-signed
 certificate.
 
+`--keystore-type`: The HTTPS keystore type. Usually JKS or PKCS12.
+
 `--keystore-password`: Password to the keystore, if something other than
 "password".
+Note: the behaviour of this changed in version 2.27.0. Previously this set Jetty's key manager password, whereas now it
+sets the keystore password value. The key manager password can be set with the (new) parameter below. 
 
-`--https-truststore`: Path to a keystore file containing client
-certificates. See https and proxy-client-certs for details.
+`--key-manager-password`: The password used by Jetty to access individual keys in the store, if something other than
+"password".
+
+`--https-truststore`: Path to a keystore file containing client public
+certificates, proxy target public certificates & private keys to use when
+authenticate with a proxy target that require client authentication. See
+[HTTPS configuration](/docs/configuration/#https-configuration)
+and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
+details.
+
+`--truststore-type`: The HTTPS trust store type. Usually JKS or PKCS12.
 
 `--truststore-password`: Optional password to the trust store. Defaults
 to "password" if not specified.
@@ -78,10 +93,29 @@ creating stub mappings that proxy to other hosts), route via another
 proxy server (useful when inside a corporate network that only permits
 internet access via an opaque proxy). e.g.
 `--proxy-via webproxy.mycorp.com` (defaults to port 80) or
-`--proxy-via webproxy.mycorp.com:8080`
+`--proxy-via webproxy.mycorp.com:8080`. Also supports proxy authentication,
+e.g. `--proxy-via http://username:password@webproxy.mycorp.com:8080/`.
 
 `--enable-browser-proxying`: Run as a browser proxy. See
 browser-proxying.
+
+`--ca-keystore`: A key store containing a root Certificate Authority private key
+and certificate that can be used to sign generated certificates when
+browser proxying https. Defaults to `$HOME/.wiremock/ca-keystore.jks`.
+
+`--ca-keystore-password`: Password to the ca-keystore, if something other than
+"password".
+
+`--ca-keystore-type`: Type of the ca-keystore, if something other than `jks`.
+
+`--trust-all-proxy-targets`: Trust all remote certificates when running as a
+browser proxy and proxying HTTPS traffic.
+
+`--trust-proxy-target`: Trust a specific remote endpoint's certificate when
+running as a browser proxy and proxying HTTPS traffic. Can be specified multiple
+times. e.g. `--trust-proxy-target dev.mycorp.com --trust-proxy-target localhost`
+would allow proxying to `https://dev.mycorp.com` or `https://localhost:8443`
+despite their having invalid certificate chains in some way.
 
 `--no-request-journal`: Disable the request journal, which records
 incoming requests for later verification. This allows WireMock to be run
@@ -118,6 +152,21 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 `--global-response-templating`: Render all response definitions using Handlebars templates.
 
 `--local-response-templating`: Enable rendering of response definitions using Handlebars templates for specific stub mappings.
+
+`--max-template-cache-entries`: Set the maximum number of compiled template fragments to cache. Only has any effect when response templating is enabled. Defaults to no limit.
+
+`--use-chunked-encoding`: Set the policy for sending responses with `Transfer-Encoding: chunked`. Valid values are `always`, `never` and `body_file`. 
+The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.
+
+`--disable-gzip`: Prevent response bodies from being gzipped. 
+
+`--disable-request-logging`: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled. 
+
+`--disable-banner`: Prevent WireMock logo from being printed on startup 
+
+`--permitted-system-keys`: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to `wiremock.*`.
+
+`--enable-stub-cors`: Enable automatic sending of cross-origin (CORS) response headers. Defaults to off.
 
 `--help`: Show command line help
 
@@ -225,7 +274,19 @@ JSON files containing multiple stub mappings can also be used. These are of the 
 
 
 ## Pushing JSON files to a remote WireMock instance
-You can push a collection of mappings to a remote  
+You can push a collection of stub mappings and associated files to a remote WireMock or MockLab instance via the
+Java API as follows:
+
+```java
+WireMock wireMock = WireMock.create()
+    .scheme("http")
+    .host("my-wiremock.example.com")
+    .port(80)
+    .build();
+
+// The root directory of the WireMock project, under which the mappings and __files directories should be found
+wireMock.loadMappingsFrom("/wiremock-stuff");
+``` 
 
 
 ## File serving
@@ -236,6 +297,29 @@ matching the URL exists. For example if a file exists
 `__files/things/myfile.html` and no stub mapping will match
 `/things/myfile.html` then hitting
 `http://<host>:<port>/things/myfile.html` will serve the file.
+
+## Packaging the stubs into a standalone JAR
+
+If you want to package your stubs into the standalone JAR, so you can distribute an executable JAR with all the stubs intact, you can do this using the `--load-resources-from-classpath` option.
+
+For example, let's say have the following directory structure:
+
+```
+src/main/resources
+src/main/resources/wiremock-stuff
+src/main/resources/wiremock-stuff/__files
+src/main/resources/wiremock-stuff/mappings
+```
+
+You could then run the packaged JAR as:
+
+```
+java -jar custom-wiremock.jar --load-resources-from-classpath 'wiremock-stuff'
+```
+
+Which will load your files and mappings from the packaged JAR.
+
+Note that it is not currently possible to load from the root of the classpath.
 
 ### Shutting Down
 

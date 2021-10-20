@@ -24,13 +24,12 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SnapshotStubMappingGeneratorTest {
     @Test
@@ -71,7 +70,7 @@ public class SnapshotStubMappingGeneratorTest {
     private static ServeEvent serveEvent() {
         return new ServeEvent(
             null,
-            LoggedRequest.createFrom(aRequest(new Mockery()).build()),
+            LoggedRequest.createFrom(aRequest().build()),
             null,
             null,
             LoggedResponse.from(Response.notConfigured()),

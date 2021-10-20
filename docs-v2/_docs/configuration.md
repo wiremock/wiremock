@@ -70,8 +70,12 @@ WireMock can accept HTTPS connections from clients, require a client to present 
 // Set the keystore containing the HTTPS certificate
 .keystorePath("/path/to/https-certs-keystore.jks")
 
-// Set the password to the keystore
+// Set the password to the keystore. Note: the behaviour of this changed in version 2.27.0.
+// Previously this set Jetty's key manager password, whereas now it sets the keystore password value.
 .keystorePassword("verysecret!")
+
+// Set the password to the Jetty's key manager. Note: added in version 2.27.0.
+.keyManagerPassword("donttell")
 
 // Set the keystore type
 .keystoreType("BKS")
@@ -86,7 +90,13 @@ WireMock can accept HTTPS connections from clients, require a client to present 
 .trustStorePassword("trustme")
 ```
 
-The client certificate in the trust store defined in the last two options will also be used when proxying to another service that requires a client certificate for authentication.
+WireMock uses the trust store for three purposes:
+1. As a server, when requiring client auth, WireMock will trust the client if it
+   presents a public certificate in this trust store
+2. As a proxy, WireMock will use the private key & certificate in this key store
+   to authenticate its http client with target servers that require client auth
+3. As a proxy, WireMock will trust a target server if it presents a public
+   certificate in this trust store
 
 ## Proxy settings
 
@@ -102,6 +112,21 @@ The client certificate in the trust store defined in the last two options will a
 
  // When reverse proxying, also route via the specified forward proxy (useful inside corporate firewalls)
 .proxyVia("my.corporate.proxy", 8080)
+
+// When proxying, path to a security store containing client private keys and trusted public certificates for communicating with a target server
+.trustStorePath("/path/to/trust-store.jks")
+
+// The password to the trust store
+.trustStorePassword("trustme")
+
+// When proxying, a key store containing a root Certificate Authority private key and certificate that can be used to sign generated certificates
+.caKeystorePath("/path/to/ca-key-store.jks")
+
+// The password to the CA key store
+.caKeystorePassword("trustme")
+
+// The type of the CA key store
+.caKeystoreType("JKS")
 ```
 
 
@@ -138,6 +163,14 @@ WireMock wraps all logging in its own ``Notifier`` interface. It ships with no-o
 .notifier(new ConsoleNotifier(true))
 ```
 
+## Gzip
+
+Gzipping of responses can be disabled.
+
+```java
+.gzipDisabled(true)
+```
+
 
 ## Extensions
 
@@ -146,4 +179,31 @@ For details see [Extending WireMock](/docs/extending-wiremock/).
 ```java
 // Add extensions
 .extensions("com.mycorp.ExtensionOne", "com.mycorp.ExtensionTwo")
+```
+
+## Transfer encoding
+
+By default WireMock will send all responses chunk encoded, meaning with a `Transfer-Encoding: chunked` header present and no `Content-Length` header.
+
+This behaviour can be modified by setting a chunked encoding policy e.g.
+
+```java
+.useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE)
+```
+
+Valid values are:
+
+* `NEVER` - Never use chunked encoding. Warning: this will buffer all response bodies in order to calculate the size.
+This might put a lot of strain on the garbage collector if you're using large response bodies.
+* `BODY_FILE` - Use chunked encoding for body files but calculate a `Content-Length` for directly configured bodies.
+* `ALWAYS` - Always use chunk encoding - the default.
+
+
+## Cross-origin response headers (CORS)
+
+WireMock always sends CORS headers with admin API responses, but not by default with stub responses.
+To enable automatic sending of CORS headers on stub responses, do the following:
+
+```java
+.stubCorsEnabled(true)
 ```

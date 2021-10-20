@@ -16,12 +16,15 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.LogNormal;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
 
@@ -60,6 +63,26 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
 		int duration = (int) (System.currentTimeMillis() - start);
 
 		assertThat(duration, greaterThanOrEqualTo(90));
+	}
+
+	@Test
+	public void fetchSettings() {
+		WireMock.setGlobalFixedDelay(30);
+
+		GlobalSettings settings = WireMock.getSettings();
+
+		assertThat(settings.getFixedDelay(), is(30));
+	}
+
+	@Test
+	public void setAndRetrieveExtendedSettings() {
+		WireMock.updateSettings(GlobalSettings.builder()
+				.extended(Parameters.one("mySetting", "setting-value"))
+				.build());
+
+		GlobalSettings fetchedSettings = WireMock.getSettings();
+
+		assertThat(fetchedSettings.getExtended().getString("mySetting"), is("setting-value"));
 	}
 
 }

@@ -89,7 +89,8 @@ public class VerificationException extends AssertionError {
 
     public static VerificationException forUnmatchedRequests(List<LoggedRequest> unmatchedRequests) {
         if (unmatchedRequests.size() == 1) {
-            return new VerificationException(String.format("A request was unmatched by any stub mapping. Request was: ",
+            return new VerificationException(String.format("A request was unmatched by any stub "
+                    + "mapping. Request was: %s",
                     unmatchedRequests.get(0)));
         }
 

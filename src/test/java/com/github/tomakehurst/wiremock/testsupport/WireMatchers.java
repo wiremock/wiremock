@@ -27,6 +27,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.*;
 import org.hamcrest.core.IsEqual;
@@ -39,18 +40,22 @@ import org.xmlunit.diff.Diff;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.*;
 import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
+import static java.util.regex.Pattern.DOTALL;
+import static java.util.regex.Pattern.MULTILINE;
 
 public class WireMatchers {
 
@@ -131,6 +136,23 @@ public class WireMatchers {
                 return actual.matches(regex);
             }
             
+        };
+    }
+
+    public static Matcher<String> matchesMultiLine(final String regex) {
+        return new TypeSafeMatcher<String>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Should match " + regex);
+
+            }
+
+            @Override
+            public boolean matchesSafely(String actual) {
+                return Pattern.compile(regex, MULTILINE + DOTALL).matcher(actual).matches();
+            }
+
         };
     }
 
@@ -317,7 +339,7 @@ public class WireMatchers {
 
     private static String fileContents(File input) {
         try {
-            return Files.toString(input, Charsets.UTF_8);
+            return FileUtils.readFileToString(input, StandardCharsets.UTF_8);
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }

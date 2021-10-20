@@ -36,8 +36,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseDefinitionBuilderTest {
 
@@ -64,7 +66,7 @@ public class ResponseDefinitionBuilderTest {
                 .withStatus(200)
                 .withStatusMessage("OK")
                 .withBody("some body")
-                .withBase64Body(Base64.encodeBase64String("some body".getBytes(Charsets.UTF_8)))
+                .withBase64Body(Base64.encodeBase64String("some body".getBytes(StandardCharsets.UTF_8)))
                 .withBodyFile("some_body.json")
                 .withHeader("some header", "some value")
                 .withFixedDelay(100)

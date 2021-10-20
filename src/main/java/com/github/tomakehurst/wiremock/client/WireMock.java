@@ -17,9 +17,8 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.*;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -37,6 +36,8 @@ import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -192,16 +193,16 @@ public class WireMock {
         return new MatchesJsonPathPattern(value, valuePattern);
     }
 
-    public static StringValuePattern equalToXml(String value) {
+    public static EqualToXmlPattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
-        return new EqualToXmlPattern(value, enablePlaceholders, null, null);
+        return new EqualToXmlPattern(value, enablePlaceholders, null, null, null);
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders, String placeholderOpeningDelimiterRegex, String placeholderClosingDelimiterRegex) {
-	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex, null);
     }
 
     public static MatchesXPathPattern matchingXPath(String value) {
@@ -216,6 +217,11 @@ public class WireMock {
         return new MatchesXPathPattern(value, valuePattern);
     }
 
+    // Use this with the date/time matchers to avoid an explicit cast
+    public static MatchesXPathPattern matchesXPathWithSubMatcher(String value, StringValuePattern valuePattern) {
+	    return new MatchesXPathPattern(value, valuePattern);
+    }
+
     public static StringValuePattern containing(String value) {
         return new ContainsPattern(value);
     }
@@ -228,8 +234,64 @@ public class WireMock {
         return new NegativeRegexPattern(regex);
     }
 
+    public static BeforeDateTimePattern before(String dateTimeSpec) {
+	    return new BeforeDateTimePattern(dateTimeSpec);
+    }
+
+    public static BeforeDateTimePattern before(ZonedDateTime dateTime) {
+	    return new BeforeDateTimePattern(dateTime);
+    }
+
+    public static BeforeDateTimePattern before(LocalDateTime dateTime) {
+	    return new BeforeDateTimePattern(dateTime);
+    }
+
+    public static BeforeDateTimePattern beforeNow() {
+	    return new BeforeDateTimePattern("now");
+    }
+
+    public static EqualToDateTimePattern equalToDateTime(String dateTimeSpec) {
+	    return new EqualToDateTimePattern(dateTimeSpec);
+    }
+
+    public static EqualToDateTimePattern equalToDateTime(ZonedDateTime dateTime) {
+	    return new EqualToDateTimePattern(dateTime);
+    }
+
+    public static EqualToDateTimePattern equalToDateTime(LocalDateTime dateTime) {
+	    return new EqualToDateTimePattern(dateTime);
+    }
+
+    public static EqualToDateTimePattern isNow() {
+        return new EqualToDateTimePattern("now");
+    }
+
+    public static AfterDateTimePattern after(String dateTimeSpec) {
+        return new AfterDateTimePattern(dateTimeSpec);
+    }
+
+    public static AfterDateTimePattern after(ZonedDateTime dateTime) {
+        return new AfterDateTimePattern(dateTime);
+    }
+
+    public static AfterDateTimePattern after(LocalDateTime dateTime) {
+        return new AfterDateTimePattern(dateTime);
+    }
+
+    public static AfterDateTimePattern afterNow() {
+        return new AfterDateTimePattern("now");
+    }
+
     public static StringValuePattern absent() {
-        return StringValuePattern.ABSENT;
+        return AbsentPattern.ABSENT;
+    }
+
+    public static StringValuePattern and(StringValuePattern... matchers) {
+	    return new LogicalAnd(matchers);
+    }
+
+    public static StringValuePattern or(StringValuePattern... matchers) {
+	    return new LogicalOr(matchers);
     }
 
     public void saveMappings() {
@@ -581,6 +643,30 @@ public class WireMock {
         return admin.getServeEvents().getRequests();
     }
 
+    public static void removeServeEvent(UUID eventId) {
+	    defaultInstance.get().removeEvent(eventId);
+    }
+
+    public void removeEvent(UUID eventId) {
+	    admin.removeServeEvent(eventId);
+    }
+
+    public List<ServeEvent> removeEvents(RequestPatternBuilder requestPatternBuilder) {
+        return admin.removeServeEventsMatching(requestPatternBuilder.build()).getServeEvents();
+    }
+
+    public static List<ServeEvent> removeServeEvents(RequestPatternBuilder requestPatternBuilder) {
+	    return defaultInstance.get().removeEvents(requestPatternBuilder);
+    }
+
+    public static List<ServeEvent> removeEventsByStubMetadata(StringValuePattern pattern) {
+	    return defaultInstance.get().removeEventsByMetadata(pattern);
+    }
+
+    public List<ServeEvent> removeEventsByMetadata(StringValuePattern pattern) {
+	    return admin.removeServeEventsForStubsMatchingMetadata(pattern).getServeEvents();
+    }
+
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
 	}
@@ -630,8 +716,10 @@ public class WireMock {
 	}
 
 	public void setGlobalFixedDelayVariable(int milliseconds) {
-		GlobalSettings settings = globalSettingsHolder.get().copy();
-		settings.setFixedDelay(milliseconds);
+		GlobalSettings settings = globalSettingsHolder.get()
+                .copy()
+                .fixedDelay(milliseconds)
+                .build();
 		updateGlobalSettings(settings);
 	}
 
@@ -640,12 +728,18 @@ public class WireMock {
 	}
 
 	public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
-		GlobalSettings settings = globalSettingsHolder.get().copy();
-		settings.setDelayDistribution(distribution);
+		GlobalSettings settings = globalSettingsHolder.get()
+                .copy()
+                .delayDistribution(distribution)
+                .build();
 		updateGlobalSettings(settings);
 	}
 
-	private void updateGlobalSettings(GlobalSettings settings) {
+	public static void updateSettings(GlobalSettings settings) {
+	    defaultInstance.get().updateGlobalSettings(settings);
+    }
+
+	public void updateGlobalSettings(GlobalSettings settings) {
 		globalSettingsHolder.replaceWith(settings);
 		admin.updateGlobalSettings(settings);
 	}
@@ -793,5 +887,13 @@ public class WireMock {
 
     public static void importStubs(StubImport stubImport) {
         defaultInstance.get().importStubMappings(stubImport);
+    }
+
+    public GlobalSettings getGlobalSettings() {
+	    return admin.getGlobalSettings().getSettings();
+    }
+
+    public static GlobalSettings getSettings() {
+        return defaultInstance.get().getGlobalSettings();
     }
 }

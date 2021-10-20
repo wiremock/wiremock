@@ -124,9 +124,7 @@ public class HttpHeaders {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (headers != null ? headers.hashCode() : 0);
-        return result;
+        return headers != null ? headers.hashCode() : 0;
     }
 
     @Override

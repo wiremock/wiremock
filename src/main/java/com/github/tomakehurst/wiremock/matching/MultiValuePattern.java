@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static java.util.Collections.min;
+import static java.util.Collections.singletonList;
 
 public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
@@ -47,15 +48,8 @@ public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
     @Override
     public MatchResult match(MultiValue multiValue) {
-        if (valuePattern.nullSafeIsAbsent()) {
-            return MatchResult.of(!multiValue.isPresent());
-        }
-
-        if (valuePattern.isPresent() && multiValue.isPresent()) {
-            return getBestMatch(valuePattern, multiValue.values());
-        }
-
-        return MatchResult.of(valuePattern.isPresent() == multiValue.isPresent());
+        List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);
+        return getBestMatch(valuePattern, values);
     }
 
     @JsonValue
@@ -70,7 +64,7 @@ public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
     @Override
     public String getExpected() {
-        return valuePattern.expectedValue;
+        return valuePattern.getExpected();
     }
 
     private static MatchResult getBestMatch(final StringValuePattern valuePattern, List<String> values) {
@@ -82,7 +76,7 @@ public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
         return min(allResults, new Comparator<MatchResult>() {
             public int compare(MatchResult o1, MatchResult o2) {
-                return new Double(o1.getDistance()).compareTo(o2.getDistance());
+                return Double.compare(o1.getDistance(), o2.getDistance());
             }
         });
     }

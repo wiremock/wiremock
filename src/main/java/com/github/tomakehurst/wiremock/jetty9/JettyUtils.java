@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.jetty9;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.net.URI;
@@ -27,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
@@ -80,14 +82,19 @@ public class JettyUtils {
         }
     }
 
-    public static URI getUri(Request request) {
+    public static boolean uriIsAbsolute(Request request) {
+        HttpURI uri = getHttpUri(request);
+        return uri.getScheme() != null;
+    }
+
+    private static HttpURI getHttpUri(Request request) {
         try {
-            return toUri(getURIMethodFromClass(request.getClass()).invoke(request));
+            return (HttpURI) getURIMethodFromClass(request.getClass()).invoke(request);
         } catch (Exception e) {
             throw new IllegalArgumentException(request + " does not have a getUri or getHttpURI method");
         }
     }
-    
+
     private static Method getURIMethodFromClass(Class<?> requestClass) throws NoSuchMethodException {
         if(URI_METHOD_BY_CLASS_CACHE.containsKey(requestClass)){
             return URI_METHOD_BY_CLASS_CACHE.get(requestClass);
@@ -102,7 +109,5 @@ public class JettyUtils {
         return method;
     }
 
-    private static URI toUri(Object httpURI) {
-        return URI.create(httpURI.toString());
-    }
+
 }

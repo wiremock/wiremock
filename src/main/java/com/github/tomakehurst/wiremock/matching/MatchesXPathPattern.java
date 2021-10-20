@@ -18,27 +18,17 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.Pair;
+import com.github.tomakehurst.wiremock.common.xml.*;
 import com.google.common.collect.ImmutableMap;
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.SimpleNamespaceContext;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.XpathEngine;
-import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Sets.newTreeSet;
@@ -86,57 +76,57 @@ public class MatchesXPathPattern extends PathPattern {
 
     @Override
     protected MatchResult isSimpleMatch(String value) {
-        NodeList nodeList = findXmlNodesMatching(value);
-
-        return MatchResult.of(nodeList != null && nodeList.getLength() > 0);
+        ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
+        return MatchResult.of(nodeList != null && nodeList.size() > 0);
     }
 
     @Override
     protected MatchResult isAdvancedMatch(String value) {
-        NodeList nodeList = findXmlNodesMatching(value);
-        if (nodeList == null || nodeList.getLength() == 0) {
+        ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
+        if (nodeList == null || nodeList.size() == 0) {
             return MatchResult.noMatch();
         }
 
         SortedSet<MatchResult> results = newTreeSet();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            String nodeValue = Xml.toStringValue(node);
-            results.add(valuePattern.match(nodeValue));
+        for (XmlNode node: nodeList) {
+            results.add(valuePattern.match(node.toString()));
         }
 
         return results.last();
     }
 
-    private NodeList findXmlNodesMatching(String value) {
+    @Override
+    public ListOrSingle<String> getExpressionResult(String value) {
+        ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
+        if (nodeList == null || nodeList.size() == 0) {
+            return ListOrSingle.of();
+        }
+
+        return ListOrSingle.of(
+                nodeList.stream()
+                .map(XmlNode::toString)
+                .collect(Collectors.toList())
+        );
+    }
+
+    private ListOrSingle<XmlNode> findXmlNodes(String value) {
         // For performance reason, don't try to parse non XML value
         if (value == null || !value.trim().startsWith("<")) {
             notifier().info(String.format(
-                "Warning: failed to parse the XML document\nXML: %s", value));
+                    "Warning: failed to parse the XML document\nXML: %s", value));
             return null;
         }
+
         try {
-            DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
-            documentBuilder.setErrorHandler(new SilentErrorHandler());
-            Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(value));
-            XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
-            if (xpathNamespaces != null) {
-                NamespaceContext namespaceContext = new SimpleNamespaceContext(xpathNamespaces);
-                simpleXpathEngine.setNamespaceContext(namespaceContext);
-            }
-            return simpleXpathEngine.getMatchingNodes(expectedValue, inDocument);
-        } catch (SAXException e) {
+            XmlDocument xmlDocument = Xml.parse(value);
+            return xmlDocument.findNodes(expectedValue, xpathNamespaces);
+        } catch (XmlException e) {
             notifier().info(String.format(
-                "Warning: failed to parse the XML document. Reason: %s\nXML: %s", e.getMessage(), value));
+                    "Warning: failed to parse the XML document. Reason: %s\nXML: %s", e.getMessage(), value));
             return null;
-        } catch (IOException e) {
-            notifier().info(e.getMessage());
-            return null;
-        } catch (XpathException e) {
+        } catch (XPathException e) {
             notifier().info("Warning: failed to evaluate the XPath expression " + expectedValue);
             return null;
-        } catch (Exception e) {
-            return throwUnchecked(e, NodeList.class);
         }
     }
 }

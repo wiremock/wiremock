@@ -43,9 +43,10 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class MultipartValuePatternBuilderTest {
@@ -95,7 +96,7 @@ public class MultipartValuePatternBuilderTest {
 //        assertThat(headerPatterns.entrySet(), everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
 
         List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
-        assertThat(bodyPatterns, everyItem(isIn(pattern.getBodyPatterns())));
+        assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
     }
 
     @Test
@@ -119,7 +120,7 @@ public class MultipartValuePatternBuilderTest {
 //        assertThat(headerPatterns.entrySet(), everyItem(isIn(pattern.getHeaders().entrySet())));
 
         List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
-        assertThat(bodyPatterns, everyItem(isIn(pattern.getBodyPatterns())));
+        assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
     }
 
     @Test

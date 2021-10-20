@@ -15,22 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 import java.io.IOException;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public final class Json {
 
     public static class PrivateView {}
     public static class PublicView {}
 
-    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<ObjectMapper>() {
+    private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder = new InheritableThreadLocal<ObjectMapper>() {
         @Override
         protected ObjectMapper initialValue() {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -38,6 +43,8 @@ public final class Json {
             objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
             objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
             objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+            objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+            objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
             return objectMapper;
         }
     };
@@ -48,23 +55,19 @@ public final class Json {
 		try {
 			ObjectMapper mapper = getObjectMapper();
 			return mapper.readValue(json, clazz);
-		} catch (JsonMappingException mappingException) {
-            throw JsonException.fromJackson(mappingException);
-        } catch (IOException ioe) {
-			return throwUnchecked(ioe, clazz);
-		}
-	}
+		} catch (JsonProcessingException processingException) {
+            throw JsonException.fromJackson(processingException);
+        }
+    }
 
 	public static <T> T read(String json, TypeReference<T> typeRef) {
         try {
             ObjectMapper mapper = getObjectMapper();
             return mapper.readValue(json, typeRef);
-        } catch (JsonMappingException mappingException) {
-            throw JsonException.fromJackson(mappingException);
-        } catch (IOException ioe) {
-            return throwUnchecked(ioe, (Class<T>) typeRef.getType());
+        } catch (JsonProcessingException processingException) {
+            throw JsonException.fromJackson(processingException);
         }
-    }
+  }
 
     public static <T> String write(T object) {
 	    return write(object, PublicView.class);

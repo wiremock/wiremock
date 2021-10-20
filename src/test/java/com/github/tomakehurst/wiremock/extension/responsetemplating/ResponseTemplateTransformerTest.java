@@ -24,24 +24,31 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.time.YearMonth;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 public class ResponseTemplateTransformerTest {
 
     private ResponseTemplateTransformer transformer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         transformer = new ResponseTemplateTransformer(true);
     }
@@ -85,6 +92,21 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is(
             "Request ID: req-id-1234, Awkward named header: foundit"
+        ));
+    }
+
+    @Test
+    public void requestHeadersCaseInsensitive() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .header("Case-KEY-123", "foundit"),
+            aResponse().withBody(
+                "Case key header: {{request.headers.case-key-123}}, With brackets: {{request.headers.[case-key-123]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), CoreMatchers.is(
+            "Case key header: foundit, With brackets: foundit"
         ));
     }
 
@@ -273,7 +295,10 @@ public class ResponseTemplateTransformerTest {
             }
         };
 
-        transformer = new ResponseTemplateTransformer(false, "string-length", helper);
+        transformer = ResponseTemplateTransformer.builder()
+                .global(false)
+                .helper("string-length", helper)
+                .build();
 
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
@@ -285,7 +310,7 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is("5"));
     }
-    
+
     @Test
     public void areConditionalHelpersLoaded() {
 
@@ -299,21 +324,29 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is("y"));
     }
-    
-    
-    
+
+
+
 
     @Test
-    public void proxyBaseUrl() {
+    public void proxyBaseUrlWithAdditionalRequestHeader() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
                 .header("X-WM-Uri", "http://localhost:8000"),
             aResponse().proxiedFrom("{{request.headers.X-WM-Uri}}")
+                .withAdditionalRequestHeader("X-Origin-Url", "{{request.url}}")
         );
 
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
         ));
+        assertThat(transformedResponseDef.getAdditionalProxyRequestHeaders(), notNullValue());
+        assertThat(transformedResponseDef
+                        .getAdditionalProxyRequestHeaders()
+                        .getHeader("X-Origin-Url")
+                        .firstValue(),
+                is("/things")
+        );
     }
 
     @Test
@@ -331,9 +364,38 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void jsonPathValueDefaultsToEmptyString() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json").
+                body("{\"a\": \"1\"}"),
+            aResponse()
+                .withBody("{{jsonPath request.body '$.b'}}").build(),
+            noFileSource(),
+            Parameters.empty());
+        assertThat(responseDefinition.getBody(), is(""));
+    }
+
+    @Test
+    public void jsonPathValueDefaultCanBeProvided() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json").
+                body("{\"a\": \"1\"}"),
+            aResponse()
+                .withBody("{{jsonPath request.body '$.b' default='foo'}}").build(),
+            noFileSource(),
+            Parameters.empty());
+        assertThat(responseDefinition.getBody(), is("foo"));
+    }
+
+    @Test
     public void escapingCanBeDisabled() {
         Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
-        ResponseTemplateTransformer transformerWithEscapingDisabled = new ResponseTemplateTransformer(true, handlebars, Collections.<String, Helper>emptyMap());
+        ResponseTemplateTransformer transformerWithEscapingDisabled = ResponseTemplateTransformer.builder()
+                .global(true)
+                .handlebars(handlebars)
+                .build();
         final ResponseDefinition responseDefinition = transformerWithEscapingDisabled.transform(
                 mockRequest()
                         .url("/json").
@@ -435,7 +497,24 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path: {{{request.requestLine.path}}}"
+                "path: {{{request.path}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path: /the/entire/path"
+        ));
+    }
+
+    @Test
+    public void requestLineUrl() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path: {{{request.url}}}"
             )
         );
 
@@ -452,7 +531,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -469,7 +548,7 @@ public class ResponseTemplateTransformerTest {
                 .port(80)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -486,7 +565,7 @@ public class ResponseTemplateTransformerTest {
                 .port(443)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "baseUrl: {{{request.requestLine.baseUrl}}}"
+                "baseUrl: {{{request.baseUrl}}}"
             )
         );
 
@@ -503,7 +582,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path segments: {{{request.requestLine.pathSegments}}}"
+                "path segments: {{{request.pathSegments}}}"
             )
         );
 
@@ -520,7 +599,7 @@ public class ResponseTemplateTransformerTest {
                 .port(8080)
                 .url("/the/entire/path?query1=one&query2=two"),
             aResponse().withBody(
-                "path segments 0: {{{request.requestLine.pathSegments.[0]}}}"
+                "path segments 0: {{{request.pathSegments.[0]}}}"
             )
         );
 
@@ -534,13 +613,482 @@ public class ResponseTemplateTransformerTest {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things?multi_param=one&multi_param=two&single-param=1234"),
             aResponse().withBody(
-                "Multi 1: {{request.requestLine.query.multi_param.[0]}}, Multi 2: {{request.requestLine.query.multi_param.[1]}}, Single 1: {{request.requestLine.query.single-param}}"
+                "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"
             )
         );
 
         assertThat(transformedResponseDef.getBody(), is(
             "Multi 1: one, Multi 2: two, Single 1: 1234"
         ));
+    }
+
+    @Test
+    public void trimContent() {
+        String body = transform("{{#trim}}\n" +
+                "{\n" +
+                "  \"data\": \"spaced out JSON\"\n" +
+                "}\n" +
+                "     {{/trim}}");
+
+        assertThat(body, is("{\n" +
+                "  \"data\": \"spaced out JSON\"\n" +
+                "}"));
+    }
+
+    @Test
+    public void trimValue() {
+        String body = transform("{{trim '   stuff  '}}");
+        assertThat(body, is("stuff"));
+    }
+
+    @Test
+    public void base64EncodeContent() {
+        String body = transform("{{#base64}}hello{{/base64}}");
+        assertThat(body, is("aGVsbG8="));
+    }
+
+    @Test
+    public void base64EncodeValue() {
+        String body = transform("{{{base64 'hello'}}}");
+        assertThat(body, is("aGVsbG8="));
+    }
+
+    @Test
+    public void base64EncodeValueWithoutPadding() {
+        String body = transform("{{{base64 'hello' padding=false}}}");
+        assertThat(body, is("aGVsbG8"));
+    }
+
+    @Test
+    public void base64DecodeValue() {
+        String body = transform("{{{base64 'aGVsbG8=' decode=true}}}");
+        assertThat(body, is("hello"));
+    }
+
+    @Test
+    public void base64DecodeValueWithoutPadding() {
+        String body = transform("{{{base64 'aGVsbG8' decode=true}}}");
+        assertThat(body, is("hello"));
+    }
+
+    @Test
+    public void urlEncodeValue() {
+        String body = transform("{{{urlEncode 'one two'}}}");
+        assertThat(body, is("one+two"));
+    }
+
+    @Test
+    public void urlDecodeValue() {
+        String body = transform("{{{urlEncode 'one+two' decode=true}}}");
+        assertThat(body, is("one two"));
+    }
+
+    @Test
+    public void extractFormValue() {
+        String body = transform("{{{formData request.body 'form'}}}{{{form.item2}}}", "item1=one&item2=two%202&item3=three%203");
+        assertThat(body, is("two%202"));
+    }
+
+    @Test
+    public void extractFormMultiValue() {
+        String body = transform(
+                "{{{formData request.body 'form'}}}{{form.item.1}}", "item=1&item=two%202&item=3"
+        );
+        assertThat(body, is("two%202"));
+    }
+
+    @Test
+    public void extractFormValueWithUrlDecoding() {
+        String body = transform("{{{formData request.body 'form' urlDecode=true}}}{{{form.item2}}}", "item1=one&item2=two%202&item3=three%203");
+        assertThat(body, is("two 2"));
+    }
+
+    @Test
+    public void extractSingleRegexValue() {
+        String body = transform("{{regexExtract request.body '[A-Z]+'}}", "abc-DEF-123");
+        assertThat(body, is("DEF"));
+    }
+
+    @Test
+    public void extractMultipleRegexValues() {
+        String body = transform("{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}{{parts.0}},{{parts.1}},{{parts.2}}", "abc-DEF-123");
+        assertThat(body, is("abc,DEF,123"));
+    }
+
+    @Test
+    public void returnsReasonableDefaultWhenRegexExtractDoesNotMatchAnything() {
+        assertThat(transform("{{regexExtract 'abc' '[0-9]+'}}"), is("[ERROR: Nothing matched [0-9]+]"));
+    }
+
+    @Test
+    public void regexExtractSupportsSpecifyingADefaultForWhenNothingMatches() {
+        assertThat(transform("{{regexExtract 'abc' '[0-9]+' default='my default value'}}"), is("my default value"));
+    }
+
+    @Test
+    public void calculateStringSize() {
+        String body = transform("{{size 'abcde'}}");
+        assertThat(body, is("5"));
+    }
+
+    @Test
+    public void calculateListSize() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{size request.query.things}}"))
+                .getBody();
+
+        assertThat(body, is("4"));
+    }
+
+    @Test
+    public void calculateMapSize() {
+        String body = transform(
+                mockRequest().url("/stuff?one=1&two=2&three=3"),
+                ok("{{size request.query}}"))
+                .getBody();
+
+        assertThat(body, is("3"));
+    }
+
+    @Test
+    public void firstListElement() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.first}}"))
+                .getBody();
+
+        assertThat(body, is("1"));
+    }
+
+    @Test
+    public void lastListElement() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.last}}"))
+                .getBody();
+
+        assertThat(body, is("4"));
+    }
+
+    @Test
+    public void listElementOffsetFromEnd() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.[-2]}}"))
+                .getBody();
+
+        assertThat(body, is("2"));
+    }
+
+    @Test
+    public void listElementOffsetFromEnd2() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.[-1]}}"))
+                .getBody();
+
+        assertThat(body, is("3"));
+    }
+
+    @Test
+    public void picksRandomElementFromLiteralList() {
+        Set<String> bodyValues = new HashSet<>();
+        for (int i = 0; i < 30; i++) {
+            String body = transform("{{{pickRandom '1' '2' '3'}}}");
+            bodyValues.add(body);
+        }
+
+        assertThat(bodyValues, hasItem("1"));
+        assertThat(bodyValues, hasItem("2"));
+        assertThat(bodyValues, hasItem("3"));
+    }
+
+    @Test
+    public void picksRandomElementFromListVariable() {
+        String body = transform("{{{pickRandom (jsonPath request.body '$.names')}}}", "{ \"names\": [\"Rob\", \"Tom\", \"Gus\"] }");
+        assertThat(body, anyOf(is("Gus"), is("Tom"), is("Rob")));
+    }
+
+    @Test
+    public void squareBracketedRequestParameters1() {
+        String body = transform(
+                mockRequest().url("/stuff?things[1]=one&things[2]=two&things[3]=three"),
+                ok("{{lookup request.query 'things[2]'}}"))
+                .getBody();
+
+        assertThat(body, is("two"));
+    }
+
+    @Test
+    public void squareBracketedRequestParameters2() {
+        String body = transform(
+                mockRequest().url("/stuff?filter[order_id]=123"),
+                ok("Order ID: {{lookup request.query 'filter[order_id]'}}"))
+                .getBody();
+
+        assertThat(body, is("Order ID: 123"));
+    }
+
+    @Test
+    public void correctlyRendersWhenContentExistsEitherSideOfTemplate() {
+        String body = transform(
+                mockRequest().url("/stuff?one=1&two=2"),
+                ok("Start \n\n {{request.query.one}} middle {{{request.query.two}}} end\n"))
+                .getBody();
+
+        assertThat(body, is("Start \n\n 1 middle 2 end\n"));
+    }
+
+    @Test
+    public void clearsTemplateCacheOnReset() {
+        transform("{{now}}");
+        assertThat(transformer.getCacheSize(), greaterThan(0L));
+
+        transformer.afterStubsReset();
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void clearsTemplateCacheWhenAnyStubRemovedReset() {
+        transform("{{now}}");
+        assertThat(transformer.getCacheSize(), greaterThan(0L));
+
+        transformer.afterStubRemoved(get(anyUrl()).build());
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void honoursCacheSizeLimit() {
+        transformer = ResponseTemplateTransformer.builder()
+                .maxCacheEntries(3L)
+                .build();
+
+        transform("{{now}} 1");
+        transform("{{now}} 2");
+        transform("{{now}} 3");
+        transform("{{now}} 4");
+        transform("{{now}} 5");
+
+        assertThat(transformer.getCacheSize(), is(3L));
+    }
+
+    @Test
+    public void honours0CacheSizeLimit() {
+        transformer = ResponseTemplateTransformer.builder()
+                .maxCacheEntries(0L)
+                .build();
+
+        transform("{{now}} 1");
+        transform("{{now}} 2");
+        transform("{{now}} 3");
+        transform("{{now}} 4");
+        transform("{{now}} 5");
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void arrayStyleQueryParametersCanBeResolvedViaLookupHelper() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                        .url("/things?ids[]=111&ids[]=222&ids[]=333"),
+                aResponse().withBody(
+                        "1: {{lookup request.query 'ids[].0'}}, 2: {{lookup request.query 'ids[].1'}}, 3: {{lookup request.query 'ids[].2'}}"
+                )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+                "1: 111, 2: 222, 3: 333"
+        ));
+    }
+
+    @Test
+    public void generatesARandomInt() {
+        assertThat(transform("{{randomInt}}"), matchesPattern("[\\-0-9]+"));
+        assertThat(transform("{{randomInt lower=5 upper=9}}"), matchesPattern("[5-9]"));
+        assertThat(transform("{{randomInt lower='5' upper='9'}}"), matchesPattern("[5-9]"));
+        assertThat(transformToInt("{{randomInt upper=54323}}"), lessThanOrEqualTo(9));
+        assertThat(transformToInt("{{randomInt lower=-24}}"), greaterThanOrEqualTo(-24));
+    }
+
+    @Test
+    public void generatesARandomDecimal() {
+        assertThat(transform("{{randomDecimal}}"), matchesPattern("[\\-0-9\\.E]+"));
+        assertThat(transformToDouble("{{randomDecimal lower=-10.1 upper=-0.9}}"), allOf(greaterThanOrEqualTo(-10.1), lessThanOrEqualTo(-0.9)));
+        assertThat(transformToDouble("{{randomDecimal lower='-10.1' upper='-0.9'}}"), allOf(greaterThanOrEqualTo(-10.1), lessThanOrEqualTo(-0.9)));
+        assertThat(transformToDouble("{{randomDecimal upper=12.5}}"), lessThanOrEqualTo(12.5));
+        assertThat(transformToDouble("{{randomDecimal lower=-24.01}}"), greaterThanOrEqualTo(-24.01));
+        assertThat(transformToDouble("{{randomDecimal lower=-1 upper=1}}"), Matchers.allOf(
+                greaterThanOrEqualTo(-1.0),
+                lessThanOrEqualTo(1.0)
+        ));
+    }
+
+    @Test
+    public void generatesARangeOfNumbersInAnArray() {
+        assertThat(transform("{{range 3 8}}"), is("[3, 4, 5, 6, 7, 8]"));
+        assertThat(transform("{{range '3' '8'}}"), is("[3, 4, 5, 6, 7, 8]"));
+        assertThat(transform("{{range -2 2}}"), is("[-2, -1, 0, 1, 2]"));
+        assertThat(transform("{{range 555}}"), is("[ERROR: The range helper requires both lower and upper bounds as integer parameters]"));
+    }
+
+    @Test
+    public void generatesAnArrayLiteral() {
+        assertThat(transform("{{array 1 'two' true}}"), is("[1, two, true]"));
+        assertThat(transform("{{array}}"), is("[]"));
+    }
+
+    @Test
+    public void parsesJsonLiteralToAMapOfMapsVariable() {
+        String result = transform("{{#parseJson 'parsedObj'}}\n" +
+                "{\n" +
+                "  \"name\": \"transformed\"\n" +
+                "}\n" +
+                "{{/parseJson}}\n" +
+                "{{parsedObj.name}}");
+
+        assertThat(result, equalToCompressingWhiteSpace("transformed"));
+    }
+
+    @Test
+    public void parsesJsonVariableToAMapOfMapsVariable() {
+        String result = transform("{{#assign 'json'}}\n" +
+                "{\n" +
+                "  \"name\": \"transformed\"\n" +
+                "}\n" +
+                "{{/assign}}\n" +
+                "{{parseJson json 'parsedObj'}}\n" +
+                "{{parsedObj.name}}\n");
+
+        assertThat(result, equalToCompressingWhiteSpace("transformed"));
+    }
+
+    @Test
+    public void parsesJsonVariableToAndReturns() {
+        String result = transform("{{#assign 'json'}}\n" +
+                "{\n" +
+                "  \"name\": \"transformed\"\n" +
+                "}\n" +
+                "{{/assign}}\n" +
+                "{{lookup (parseJson json) 'name'}}");
+
+        assertThat(result, equalToCompressingWhiteSpace("transformed"));
+    }
+
+    @Test
+    public void parseJsonReportsInvalidParameterErrors() {
+        assertThat(transform("{{parseJson}}"), is("[ERROR: Missing required JSON string parameter]"));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringMatchesRegexInline() {
+        assertThat(transform("{{#if (matches '123' '[0-9]+')}}YES{{/if}}"), is("YES"));
+        assertThat(transform("{{#if (matches 'abc' '[0-9]+')}}YES{{/if}}"), is(""));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringMatchesRegexBlock() {
+        assertThat(transform("{{#matches '123' '[0-9]+'}}YES{{/matches}}"), is("YES"));
+        assertThat(transform("{{#matches 'abc' '[0-9]+'}}YES{{/matches}}"), is(""));
+    }
+
+    @Test
+    public void matchesRegexReturnsErrorIfMissingParameter() {
+        assertThat(transform("{{#matches '123'}}YES{{/matches}}"),
+                   is("[ERROR: You must specify the string to be matched and the regular expression]"));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringContainsInline() {
+        assertThat(transform("{{#if (contains 'abcde' 'abc')}}YES{{/if}}"), is("YES"));
+        assertThat(transform("{{#if (contains 'abcde' '123')}}YES{{/if}}"), is(""));
+    }
+
+    @Test
+    public void stringContainsCopesWithNullString() {
+        assertThat(transform("{{#if (contains 'abcde' request.query.nonexist)}}YES{{/if}}"), is(""));
+    }
+
+    @Test
+    public void conditionalBranchingOnStringContainsBlock() {
+        assertThat(transform("{{#contains 'abcde' 'abc'}}YES{{/contains}}"), is("YES"));
+        assertThat(transform("{{#contains 'abcde' '123'}}YES{{/contains}}"), is(""));
+    }
+
+    @Test
+    public void conditionalBranchingOnArrayContainsBlock() {
+        assertThat(transform("{{#contains (array 'a' 'b' 'c') 'a'}}YES{{/contains}}"), is("YES"));
+        assertThat(transform("{{#contains (array 'a' 'b' 'c') 'z'}}YES{{/contains}}"), is(""));
+    }
+
+    @Test
+    public void mathematicalOperations() {
+        assertThat(transform("{{math 1 '+' 2}}"), is("3"));
+        assertThat(transform("{{math 4 '-' 2}}"), is("2"));
+        assertThat(transform("{{math 2 '*' 3}}"), is("6"));
+        assertThat(transform("{{math 8 '/' 2}}"), is("4"));
+        assertThat(transform("{{math 10 '%' 3}}"), is("1"));
+    }
+
+    @Test
+    public void dateTruncation() {
+        assertThat(transform("{{date (truncateDate (parseDate '2021-06-29T11:22:33Z') 'first hour of day')}}"),
+                   is("2021-06-29T00:00:00Z"));
+    }
+
+    @Test
+    public void formatDecimalAsCurrencyWithLocale() {
+        assertThat(transform("{{{numberFormat 123.456 'currency' 'en_GB'}}}"),
+                   is("£123.46"));
+    }
+
+    @Test
+    public void canTruncateARenderableDateToFirstOfMonth() {
+        String result = transform("{{date (truncateDate (now) 'first day of month') format='yyyy-MM-dd'}}");
+
+        String expectedDate = ZonedDateTime.now().with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().toString();
+        assertThat(result, is(expectedDate));
+    }
+
+    @Test
+    public void canTruncateARenderableDateToFirstHourOfDay() {
+        String result = transform("{{date (truncateDate (now) 'first hour of day') format='yyyy-MM-dd\\'T\\'HH:mm'}}");
+
+        String expectedDate = ZonedDateTime.now().truncatedTo(DAYS).toLocalDateTime().toString();
+
+        assertThat(result, is(expectedDate));
+    }
+
+    @Test
+    public void canParseLocalYearMonth() {
+        String result = transform("{{date (parseDate '2021-10' format='yyyy-MM') offset='+32 days' format='yyyy-MM'}}");
+        String expected = YearMonth.of(2021, 11).toString();
+        assertThat(result, is(expected));
+    }
+
+    @Test
+    public void canParseLocalYear() {
+        String result = transform("{{date (parseDate '2021' format='yyyy') format='yyyy-MM'}}");
+        String expected = YearMonth.of(2021, 1).toString();
+        assertThat(result, is(expected));
+    }
+
+    private Integer transformToInt(String responseBodyTemplate) {
+        return Integer.parseInt(transform(responseBodyTemplate));
+    }
+
+    private Double transformToDouble(String responseBodyTemplate) {
+        return Double.parseDouble(transform(responseBodyTemplate));
+    }
+
+    private String transform(String responseBodyTemplate) {
+        return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
+    }
+
+    private String transform(String responseBodyTemplate, String requestBody) {
+        return transform(mockRequest().body(requestBody), aResponse().withBody(responseBodyTemplate)).getBody();
     }
 
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {

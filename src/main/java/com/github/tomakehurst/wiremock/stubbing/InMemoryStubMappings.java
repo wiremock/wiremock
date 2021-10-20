@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -26,7 +28,6 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.*;
@@ -34,6 +35,7 @@ import java.util.*;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
@@ -43,21 +45,27 @@ import static com.google.common.collect.Iterables.tryFind;
 public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
-	private final Scenarios scenarios = new Scenarios();
+	private final Scenarios scenarios;
 	private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
+    private final List<StubLifecycleListener> stubLifecycleListeners;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
+	public InMemoryStubMappings(Scenarios scenarios, Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
+		this.scenarios = scenarios;
 		this.customMatchers = customMatchers;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
-    }
+		this.stubLifecycleListeners = stubLifecycleListeners;
+	}
 
 	public InMemoryStubMappings() {
-		this(Collections.<String, RequestMatcherExtension>emptyMap(),
+		this(new Scenarios(),
+			 Collections.<String, RequestMatcherExtension>emptyMap(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
-             new SingleRootFileSource("."));
+             new SingleRootFileSource("."),
+			 Collections.<StubLifecycleListener>emptyList()
+		);
 	}
 
 	@Override
@@ -90,7 +98,12 @@ public class InMemoryStubMappings implements StubMappings {
         ResponseDefinitionTransformer transformer = transformers.get(0);
         ResponseDefinition newResponseDef =
             transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
+                transformer.transform(
+                		request,
+						responseDefinition,
+						rootFileSource.child(FILES_ROOT),
+						firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty())
+				) :
                 responseDefinition;
 
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
@@ -98,14 +111,30 @@ public class InMemoryStubMappings implements StubMappings {
 
 	@Override
 	public void addMapping(StubMapping mapping) {
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubCreated(mapping);
+		}
+
 		mappings.add(mapping);
 		scenarios.onStubMappingAdded(mapping);
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.afterStubCreated(mapping);
+		}
 	}
 
 	@Override
 	public void removeMapping(StubMapping mapping) {
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubRemoved(mapping);
+		}
+
 		mappings.remove(mapping);
 		scenarios.onStubMappingRemoved(mapping);
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.afterStubRemoved(mapping);
+		}
 	}
 
 	@Override
@@ -122,19 +151,34 @@ public class InMemoryStubMappings implements StubMappings {
 		}
 
 		final StubMapping existingMapping = optionalExistingMapping.get();
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubEdited(existingMapping, stubMapping);
+		}
 
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
 		stubMapping.setDirty(true);
 
 		mappings.replace(existingMapping, stubMapping);
 		scenarios.onStubMappingUpdated(existingMapping, stubMapping);
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.afterStubEdited(existingMapping, stubMapping);
+		}
 	}
 
 
 	@Override
 	public void reset() {
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubsReset();
+		}
+
 		mappings.clear();
         scenarios.clear();
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.afterStubsReset();
+		}
 	}
 	
 	@Override

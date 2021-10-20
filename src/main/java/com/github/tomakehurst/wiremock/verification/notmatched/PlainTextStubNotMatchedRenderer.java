@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
@@ -53,6 +54,8 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
             Diff firstDiff = nearMisses.get(0).getDiff();
             body = diffRenderer.render(firstDiff);
         }
+
+        notifier().error(body);
 
         return ResponseDefinitionBuilder.responseDefinition()
             .withStatus(404)

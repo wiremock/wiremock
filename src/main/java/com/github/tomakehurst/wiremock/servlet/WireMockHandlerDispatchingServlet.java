@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -32,9 +33,13 @@ import java.io.InputStream;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
+import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
@@ -57,6 +62,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
 	private MultipartRequestConfigurer multipartRequestConfigurer;
+	private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
+	private boolean browserProxyingEnabled;
 
 	@Override
 	public void init(ServletConfig config) {
@@ -83,6 +90,15 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 
 		multipartRequestConfigurer = (MultipartRequestConfigurer) context.getAttribute(MultipartRequestConfigurer.KEY);
+
+		Object chunkedEncodingPolicyAttr = context.getAttribute(Options.ChunkedEncodingPolicy.class.getName());
+		chunkedEncodingPolicy = chunkedEncodingPolicyAttr != null ?
+                (Options.ChunkedEncodingPolicy) chunkedEncodingPolicyAttr :
+                Options.ChunkedEncodingPolicy.ALWAYS;
+
+        browserProxyingEnabled = Boolean.parseBoolean(
+                firstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString()
+        );
 	}
 
 	private String getNormalizedMappedUnder(ServletConfig config) {
@@ -105,7 +121,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 
-		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder);
+		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder, browserProxyingEnabled);
 
 		ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
 		requestHandler.handle(request, responder);
@@ -202,6 +218,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             for (String value: header.values()) {
                 httpServletResponse.addHeader(header.key(), value);
             }
+        }
+
+        if ((chunkedEncodingPolicy == NEVER || (chunkedEncodingPolicy == BODY_FILE && response.hasInlineBody())) &&
+                httpServletResponse.getHeader(CONTENT_LENGTH) == null) {
+            httpServletResponse.setContentLength(response.getBody().length);
         }
 
         if (response.shouldAddChunkedDribbleDelay()) {

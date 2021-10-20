@@ -15,32 +15,28 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 
 public class MatchesJsonPathPatternTest {
-
-    private Mockery context;
-
-    @Before
-    public void init() {
-        context = new Mockery();
-    }
 
     @Test
     public void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
@@ -102,18 +98,20 @@ public class MatchesJsonPathPatternTest {
 
     @Test
     public void providesSensibleNotificationWhenJsonMatchFailsDueToInvalidJson() {
-        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
+        Notifier notifier = setMockNotifier();
 
         StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
         assertFalse("Expected the match to fail", pattern.match("Not a JSON document").isExactMatch());
+        verify(notifier).info("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
     }
 
     @Test
     public void providesSensibleNotificationWhenJsonMatchFailsDueToMissingAttributeJson() {
-        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
+        Notifier notifier = setMockNotifier();
 
         StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
         assertFalse("Expected the match to fail", pattern.match("{ \"nothing\": 1 }").isExactMatch());
+        verify(notifier).info("Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
     }
 
     @Test
@@ -289,9 +287,67 @@ public class MatchesJsonPathPatternTest {
         assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
         assertThat(stringValuePattern.getExpected(), is("$..thing"));
 
-        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
         assertThat(subMatcher, instanceOf(EqualToPattern.class));
         assertThat(subMatcher.getExpected(), is("the value"));
+    }
+
+    @Test
+    public void correctlyDeserialisesWithAbsentValuePattern() {
+        StringValuePattern stringValuePattern = Json.read(
+                "{                                      \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"absent\": \"(absent)\"        \n" +
+                "    }                                   \n" +
+                "}",
+                StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+        assertThat(stringValuePattern.getExpected(), is("$..thing"));
+
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        assertThat(subMatcher, instanceOf(AbsentPattern.class));
+        assertThat(((StringValuePattern) subMatcher).nullSafeIsAbsent(), is(true));
+    }
+
+    @Test
+    public void correctlyDeserialisesWhenSubMatcherHasExtraParameters() {
+        StringValuePattern stringValuePattern = Json.read(
+                "{                                       \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalToJson\": \"{}\",        \n" +
+                "        \"ignoreExtraElements\": true,  \n" +
+                "        \"ignoreArrayOrder\": true   \n" +
+                "    }                                   \n" +
+                "}",
+                StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+
+        ContentPattern<?> subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        assertThat(subMatcher, instanceOf(EqualToJsonPattern.class));
+        assertThat(subMatcher.getExpected(), jsonEquals("{}"));
+        assertThat(((EqualToJsonPattern) subMatcher).isIgnoreExtraElements(), is(true));
+        assertThat(((EqualToJsonPattern) subMatcher).isIgnoreArrayOrder(), is(true));
+    }
+
+    @Test
+    public void correctlySerialisesWhenSubMatcherHasExtraParameters() {
+        StringValuePattern matcher = new MatchesJsonPathPattern("$..thing", WireMock.equalToJson("{}", true, true));
+
+        String json = Json.write(matcher);
+
+        assertThat(json, jsonEquals(
+                "{                                       \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalToJson\": \"{}\",        \n" +
+                "        \"ignoreExtraElements\": true,  \n" +
+                "        \"ignoreArrayOrder\": true      \n" +
+                "    }                                   \n" +
+                "}"));
     }
 
     @Test(expected = JsonException.class)
@@ -318,12 +374,58 @@ public class MatchesJsonPathPatternTest {
             StringValuePattern.class);
     }
 
-    private void expectInfoNotification(final String message) {
-        final Notifier notifier = context.mock(Notifier.class);
-        context.checking(new Expectations() {{
-            one(notifier).info(message);
-        }});
+    @Test
+    public void equalsIncludesValuePattern() {
+        StringValuePattern pattern1 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1000"));
+        StringValuePattern pattern2 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1001"));
+        StringValuePattern pattern3 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1000"));
+
+        assertThat(pattern1, not(Matchers.equalTo(pattern2)));
+        assertThat(pattern1.hashCode(), not(Matchers.equalTo(pattern2.hashCode())));
+
+        assertThat(pattern1, Matchers.equalTo(pattern3));
+        assertThat(pattern1.hashCode(), Matchers.equalTo(pattern3.hashCode()));
+    }
+
+    @Test
+    public void treatsAnEmptyArrayExpressionResultAsAbsent() {
+        String json = "{\n" +
+                "  \"Books\": [\n" +
+                "    {\n" +
+                "      \"Author\": {\n" +
+                "        \"Name\": \"1234567\",\n" +
+                "        \"Price\": \"2.2\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        MatchResult result = matchingJsonPath("$..[?(@.Author.ISBN)]", absent()).match(json);
+
+        assertTrue(result.isExactMatch());
+    }
+
+    @Test
+    public void matchesCorrectlyWhenSubMatcherIsUsedAndExpressionReturnsASingleItemArray() {
+        String json = "{\n" +
+                "   \"searchCriteria\": {\n" +
+                "      \"customerId\": \"104903\",\n" +
+                "      \"date\": \"01/01/2021\"\n" +
+                "   }\n" +
+                "}";
+
+        MatchResult result = matchingJsonPath(
+                "$.searchCriteria[?(@.customerId == '104903')].date",
+                equalToDateTime("2021-01-01T00:00:00").actualFormat("dd/MM/yyyy"))
+            .match(json);
+
+        assertTrue(result.isExactMatch());
+    }
+
+    private static Notifier setMockNotifier() {
+        final Notifier notifier = Mockito.mock(Notifier.class);
         LocalNotifier.set(notifier);
+        return notifier;
     }
 
     @After

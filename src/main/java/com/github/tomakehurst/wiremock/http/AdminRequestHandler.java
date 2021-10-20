@@ -21,12 +21,16 @@ import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.common.NotPermittedException;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.net.URI;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -38,8 +42,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     private final Authenticator authenticator;
     private final boolean requireHttps;
 
-	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer, Authenticator authenticator, boolean requireHttps) {
-		super(responseRenderer);
+	public AdminRequestHandler(AdminRoutes adminRoutes,
+                               Admin admin,
+                               ResponseRenderer responseRenderer,
+                               Authenticator authenticator,
+                               boolean requireHttps,
+                               List<RequestFilter> requestFilters
+    ) {
+		super(responseRenderer, requestFilters);
         this.adminRoutes = adminRoutes;
         this.admin = admin;
         this.authenticator = authenticator;
@@ -65,7 +75,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         }
 
         notifier().info("Admin request received:\n" + formatRequest(request));
-        String path = URI.create(withoutAdminRoot(request.getUrl())).getPath();
+        String path = Urls.getPath(withoutAdminRoot(request.getUrl()));
 
         try {
             AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);
@@ -81,6 +91,11 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             return ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request));
         } catch (InvalidInputException iie) {
             return ServeEvent.forBadRequest(LoggedRequest.createFrom(request), iie.getErrors());
+        } catch (NotPermittedException npe) {
+            return ServeEvent.forNotAllowedRequest(LoggedRequest.createFrom(request), npe.getErrors());
+        } catch (Throwable t) {
+            notifier().error("Unrecoverable error handling admin request", t);
+            throw t;
         }
     }
 

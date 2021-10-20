@@ -29,7 +29,7 @@ import static com.github.tomakehurst.wiremock.stubbing.StubImport.stubImport;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.stubMappingWithUrl;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StubImportAcceptanceTest extends AcceptanceTestBase {
 

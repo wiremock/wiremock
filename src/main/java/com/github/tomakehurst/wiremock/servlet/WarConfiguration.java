@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -37,6 +38,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
+
 public class WarConfiguration implements Options {
 
     private static final String FILE_SOURCE_ROOT_KEY = "WireMockFileSourceRoot";
@@ -50,6 +53,11 @@ public class WarConfiguration implements Options {
     @Override
     public int portNumber() {
         return 0;
+    }
+
+    @Override
+    public boolean getHttpDisabled() {
+        return false;
     }
 
     @Override
@@ -119,7 +127,7 @@ public class WarConfiguration implements Options {
 
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Override
@@ -170,5 +178,30 @@ public class WarConfiguration implements Options {
     @Override
     public AsynchronousResponseSettings getAsynchronousResponseSettings() {
         return new AsynchronousResponseSettings(false, 0);
+    }
+
+    @Override
+    public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
+        return ChunkedEncodingPolicy.ALWAYS;
+    }
+
+    @Override
+    public boolean getGzipDisabled() {
+        return false;
+    }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
+        return false;
+    }
+
+    @Override
+    public boolean getStubCorsEnabled() {
+        return false;
+    }
+
+    @Override
+    public BrowserProxySettings browserProxySettings() {
+        return BrowserProxySettings.DISABLED;
     }
 }

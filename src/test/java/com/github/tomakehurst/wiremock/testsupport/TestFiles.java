@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +27,32 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class TestFiles {
 
+    public static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
+    public static final String TRUST_STORE_NAME = getTrustStoreRelativeName();
+    public static final String TRUST_STORE_PATH = filePath(TRUST_STORE_NAME);
+    public static final String KEY_STORE_PATH = filePath("test-keystore");
+    public static final String KEY_STORE_WITH_CA_PATH = filePath("test-keystore-with-ca");
+
+    private static String getTrustStoreRelativeName() {
+        return System.getProperty("java.specification.version").equals("1.7") ?
+                "test-truststore.jks" :
+                "test-truststore.pkcs12";
+    }
+
     public static String defaultTestFilesRoot() {
         return filePath("test-file-root");
     }
 
     public static String file(String path) {
         try {
-            return Resources.toString(Resources.getResource(path), Charsets.UTF_8);
+            String text = Resources.toString(Resources.getResource(path), Charsets.UTF_8);
+            if (SystemUtils.IS_OS_WINDOWS) {
+                text = text
+                        .replaceAll("\\r\\n", "\n")
+                        .replaceAll("\\r", "\n");
+            }
+
+            return text;
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }
@@ -51,4 +71,5 @@ public class TestFiles {
                 "sample-war" :
                 "../sample-war";
     }
+
 }

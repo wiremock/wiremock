@@ -21,32 +21,43 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
+import com.google.common.collect.ImmutableSet;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.xmlunit.diff.ComparisonType;
 
 import java.util.Locale;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.verify;
+import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
+import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
+import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
 public class EqualToXmlPatternTest {
-
-    private Mockery context;
 
     @Rule
     public WireMockRule wm = new WireMockRule(options().dynamicPort());
 
     @Before
     public void init() {
-        context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
 
         // We assert English XML parser error messages in this test. So we set our default locale to English to make
@@ -286,8 +297,10 @@ public class EqualToXmlPatternTest {
 
     @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
-        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        Notifier notifier = Mockito.mock(Notifier.class);
+        LocalNotifier.set(notifier);
         equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+        verify(notifier).info(contains("Failed to process XML. Content is not allowed in prolog."));
     }
 
     @Test
@@ -295,14 +308,6 @@ public class EqualToXmlPatternTest {
         String xmlWithDtdThatCannotBeFetched = "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
         EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);
         assertTrue(pattern.match(xmlWithDtdThatCannotBeFetched).isExactMatch());
-    }
-
-    private void expectInfoNotification(final String message) {
-        final Notifier notifier = context.mock(Notifier.class);
-        context.checking(new Expectations() {{
-            one(notifier).info(with(containsString(message)));
-        }});
-        LocalNotifier.set(notifier);
     }
 
     @Test
@@ -327,7 +332,7 @@ public class EqualToXmlPatternTest {
     public void returnsMatchWhenTextNodeIsIgnored() {
         String expectedXml = "<a>#{xmlunit.ignore}</a>";
         String actualXml = "<a>123</a>";
-        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}");
+        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}", null);
         MatchResult matchResult = pattern.match(actualXml);
 
         assertTrue(matchResult.isExactMatch());
@@ -338,7 +343,7 @@ public class EqualToXmlPatternTest {
     public void returnsMatchWhenTextNodeIsIgnored_DefaultDelimiters() {
         String expectedXml = "<a>${xmlunit.ignore}</a>";
         String actualXml = "<a>123</a>";
-        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, null, null);
+        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, null, null, null);
         MatchResult matchResult = pattern.match(actualXml);
 
         assertTrue(matchResult.isExactMatch());
@@ -346,7 +351,23 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
-    public void deserializesEqualToXmlWithPlaceholder() {
+    public void deserializesEqualToXmlWithMinimalParameters() {
+        String patternJson =
+                "{" +
+                    "\"equalToXml\" : \"<a/>\"" +
+                "}";
+        StringValuePattern stringValuePattern = Json.read(patternJson, StringValuePattern.class);
+
+        assertTrue(stringValuePattern instanceof EqualToXmlPattern);
+        EqualToXmlPattern equalToXmlPattern = (EqualToXmlPattern) stringValuePattern;
+        assertThat(equalToXmlPattern.isEnablePlaceholders(), nullValue());
+        assertThat(equalToXmlPattern.getPlaceholderOpeningDelimiterRegex(), nullValue());
+        assertThat(equalToXmlPattern.getPlaceholderClosingDelimiterRegex(), nullValue());
+        assertThat(equalToXmlPattern.getExemptedComparisons(), nullValue());
+    }
+
+    @Test
+    public void deserializesEqualToXmlWithAllParameters() {
         Boolean enablePlaceholders = Boolean.TRUE;
         String placeholderOpeningDelimiterRegex = "theOpeningDelimiterRegex";
         String placeholderClosingDelimiterRegex = "theClosingDelimiterRegex";
@@ -354,7 +375,8 @@ public class EqualToXmlPatternTest {
                 "\"equalToXml\" : \"<a/>\", " +
                 "\"enablePlaceholders\" : " + enablePlaceholders + ", " +
                 "\"placeholderOpeningDelimiterRegex\" : \"" + placeholderOpeningDelimiterRegex + "\", " +
-                "\"placeholderClosingDelimiterRegex\" : \"" + placeholderClosingDelimiterRegex + "\"}";
+                "\"placeholderClosingDelimiterRegex\" : \"" + placeholderClosingDelimiterRegex + "\", " +
+                "\"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"NAMESPACE_URI\", \"ATTR_VALUE\"] }";
         StringValuePattern stringValuePattern = Json.read(patternJson, StringValuePattern.class);
 
         assertTrue(stringValuePattern instanceof EqualToXmlPattern);
@@ -362,10 +384,12 @@ public class EqualToXmlPatternTest {
         assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
         assertEquals(placeholderOpeningDelimiterRegex, equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
         assertEquals(placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
+        assertThat(equalToXmlPattern.getExemptedComparisons(),
+                Matchers.<Set<ComparisonType>>is(ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
     }
 
     @Test
-    public void serializesEqualToXmlWithPlaceholder() {
+    public void serializesEqualToXmlWithAllParameters() {
         String xml = "<stuff />";
         Boolean enablePlaceholders = Boolean.TRUE;
         String placeholderOpeningDelimiterRegex = "[";
@@ -375,7 +399,8 @@ public class EqualToXmlPatternTest {
                 xml,
                 enablePlaceholders,
                 placeholderOpeningDelimiterRegex,
-                placeholderClosingDelimiterRegex
+                placeholderClosingDelimiterRegex,
+                ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)
         );
 
         String json = Json.write(pattern);
@@ -384,7 +409,46 @@ public class EqualToXmlPatternTest {
                 "  \"equalToXml\": \"<stuff />\",\n" +
                 "  \"enablePlaceholders\": true,\n" +
                 "  \"placeholderOpeningDelimiterRegex\": \"[\",\n" +
-                "  \"placeholderClosingDelimiterRegex\": \"]\"\n" +
+                "  \"placeholderClosingDelimiterRegex\": \"]\",\n" +
+                "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"NAMESPACE_URI\", \"ATTR_VALUE\"]\n" +
                 "}"));
+    }
+
+    @Test
+    public void namespaceComparisonCanBeExcluded() {
+        String expected = "<?xml version=\"1.0\"?>\n" +
+                "<stuff xmlns:th=\"https://thing.com\">\n" +
+                "    <th:thing>Match this</th:thing>\n" +
+                "</stuff>";
+
+        String actual = "<?xml version=\"1.0\"?>\n" +
+                "<stuff xmlns:st=\"https://stuff.com\">\n" +
+                "    <st:thing>Match this</st:thing>\n" +
+                "</stuff>";
+
+        MatchResult matchResult = equalToXml(expected).match(actual);
+
+        assertTrue(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void namespaceComparisonCanBeExcluded2() {
+        String expected = "<ns2:GetValue\n" +
+                "        xmlns=\"http://CIS/BIR/PUBL/2014/07/DataContract\"\n" +
+                "        xmlns:ns2=\"http://CIS/BIR/2014/07\"                         \n" +
+                "        xmlns:ns3=\"http://CIS/BIR/PUBL/2014/07\"                    \n" +
+                "        xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serializa  \n" +
+                "        tion/\"/>";
+
+        String actual = "<ns3:GetValue\n" +
+                "        xmlns=\"http://CIS/BIR/PUBL/2014/07\"\n" +
+                "        xmlns:ns2=\"http://CIS/BIR/PUBL/2014/07/DataContract\"\n" +
+                "        xmlns:ns3=\"http://CIS/BIR/2014/07\"\n" +
+                "        xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serializa\n" +
+                "        tion/\"/>";
+
+        StringValuePattern pattern = equalToXml(expected).exemptingComparisons(NAMESPACE_URI);
+
+        assertTrue(pattern.match(actual).isExactMatch());
     }
 }

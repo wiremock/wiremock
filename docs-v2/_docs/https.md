@@ -43,6 +43,12 @@ The keystore type defaults to JKS, but this can be changed if you're using anoth
 .keystoreType("BKS")
 ```
 
+To allow only HTTPS requests, disable HTTP by adding:
+```java
+@Rule
+public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().httpsPort(8443).httpDisabled(true));
+```
+
 ## Requiring client certificates
 
 To make WireMock require clients to authenticate via a certificate you
@@ -60,6 +66,12 @@ public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
 
 If you using WireMock as a proxy onto another system which requires client certificate authentication, you will also need to
 specify a trust store containing the certificate(s).
+
+> **note**
+>
+> Version 9.4.15.v20190215 of Jetty (used in the jre8 WireMock build) requires client certificates to contain Subject Alternative Names.
+> See [this script](https://github.com/tomakehurst/wiremock/blob/master/scripts/create-client-cert.sh) for an example of how to build
+> a truststore containing a valid certificate (you'll probably want to edit the client-cert.conf file before running this).
 
 ## Common HTTPS issues
 

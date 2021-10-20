@@ -16,12 +16,11 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.FatalStartupException;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -61,7 +60,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 	private final HttpServer httpServer;
 	private final Notifier notifier;
 
-    private final Options options;
+    protected final Options options;
 
     protected final WireMock client;
 
@@ -142,6 +141,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
 	}
 
 	public void start() {
+        // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
+        Json.getObjectMapper();
         try {
 		    httpServer.start();
         } catch (Exception e) {
@@ -174,10 +175,18 @@ public class WireMockServer implements Container, Stubbing, Admin {
         shutdownThread.start();
     }
 
+    public boolean isHttpEnabled() {
+        return !options.getHttpDisabled();
+    }
+
+    public boolean isHttpsEnabled() {
+        return options.httpsSettings().enabled();
+    }
+
     public int port() {
         checkState(
-                isRunning(),
-                "Not listening on HTTP port. The WireMock server is most likely stopped"
+            isRunning() && !options.getHttpDisabled(),
+            "Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped."
         );
         return httpServer.port();
     }
@@ -268,6 +277,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
         client.verifyThat(count, requestPatternBuilder);
+    }
+
+    @Override
+    public void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
+        client.verifyThat(countMatchingStrategy, requestPatternBuilder);
     }
 
     @Override
@@ -381,6 +395,21 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public void removeServeEvent(UUID eventId) {
+        wireMockApp.removeServeEvent(eventId);
+    }
+
+    @Override
+    public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
+        return wireMockApp.removeServeEventsMatching(requestPattern);
+    }
+
+    @Override
+    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+        return wireMockApp.removeServeEventsForStubsMatchingMetadata(metadataPattern);
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
     }
@@ -468,5 +497,22 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void importStubs(StubImport stubImport) {
         wireMockApp.importStubs(stubImport);
+    }
+
+    @Override
+    public GetGlobalSettingsResult getGlobalSettings() {
+        return wireMockApp.getGlobalSettings();
+    }
+
+    public void checkForUnmatchedRequests() {
+        List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
+        if (!unmatchedRequests.isEmpty()) {
+            List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+            if (nearMisses.isEmpty()) {
+                throw VerificationException.forUnmatchedRequests(unmatchedRequests);
+            } else {
+                throw VerificationException.forUnmatchedNearMisses(nearMisses);
+            }
+        }
     }
 }

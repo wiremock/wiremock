@@ -27,20 +27,24 @@ import com.google.common.collect.Maps;
 import java.net.URI;
 import java.util.Map;
 
+@Deprecated
+/**
+ * @deprecated Use the accessors on {@link RequestTemplateModel}
+ */
 public class RequestLine {
     private final RequestMethod method;
     private final String scheme;
     private final String host;
     private final int port;
     private final Map<String, ListOrSingle<String>> query;
-    private final String path;
+    private final String url;
 
-    private RequestLine(RequestMethod method, String scheme, String host, int port, String path, Map<String, ListOrSingle<String>> query) {
+    private RequestLine(RequestMethod method, String scheme, String host, int port, String url, Map<String, ListOrSingle<String>> query) {
         this.method = method;
         this.scheme = scheme;
         this.host = host;
         this.port = port;
-        this.path = path;
+        this.url = url;
         this.query = query;
     }
 
@@ -56,11 +60,15 @@ public class RequestLine {
     }
 
     public UrlPath getPathSegments() {
-        return new UrlPath(path);
+        return new UrlPath(url);
     }
 
     public String getPath() {
-        return path;
+        return getPathSegments().toString();
+    }
+
+    public String getUrl() {
+        return url;
     }
 
     public Map<String, ListOrSingle<String>> getQuery() {

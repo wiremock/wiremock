@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 
@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import com.github.tomakehurst.wiremock.common.HttpClientUtils;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.RequestBuilder;
@@ -47,7 +47,7 @@ public class BindAddressTest {
     private String nonBindAddress;
     private WireMockServer wireMockServer;
 
-    final HttpClient client = HttpClientFactory.createClient();
+    final HttpClient client = HttpClient4Factory.createClient();
 
     @Before
     public void prepare() throws Exception {

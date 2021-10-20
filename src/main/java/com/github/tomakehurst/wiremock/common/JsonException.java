@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -30,8 +31,8 @@ public class JsonException extends InvalidInputException {
         super(errors);
     }
 
-    public static JsonException fromJackson(JsonMappingException e) {
-        Throwable rootCause = getRootCause(e);
+    public static JsonException fromJackson(JsonProcessingException processingException) {
+        Throwable rootCause = getRootCause(processingException);
 
         String message = rootCause.getMessage();
         if (rootCause instanceof PatternSyntaxException) {
@@ -43,9 +44,12 @@ public class JsonException extends InvalidInputException {
             message = ((InvalidInputException) rootCause).getErrors().first().getDetail();
         }
 
-        List<String> nodes = transform(e.getPath(), TO_NODE_NAMES);
-        String pointer = '/' + Joiner.on('/').join(nodes);
-
+        String pointer = null;
+        if(processingException instanceof JsonMappingException) {
+            List<String> nodes = transform(((JsonMappingException)processingException).getPath(), TO_NODE_NAMES);
+            pointer = '/' + Joiner.on('/').join(nodes);
+        }
+        
         return new JsonException(Errors.single(10, pointer, "Error parsing JSON", message));
     }
 

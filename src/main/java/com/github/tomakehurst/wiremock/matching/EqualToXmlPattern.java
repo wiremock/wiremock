@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
@@ -28,18 +30,17 @@ import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
 import org.xmlunit.placeholder.PlaceholderDifferenceEvaluator;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
 public class EqualToXmlPattern extends StringValuePattern {
 
-    private static List<ComparisonType> COUNTED_COMPARISONS = ImmutableList.of(
+    private static Set<ComparisonType> COUNTED_COMPARISONS = ImmutableSet.of(
         ELEMENT_TAG_NAME,
         SCHEMA_LOCATION,
         NO_NAMESPACE_SCHEMA_LOCATION,
@@ -55,30 +56,36 @@ public class EqualToXmlPattern extends StringValuePattern {
         ATTR_NAME_LOOKUP
     );
 
-    private final Document xmlDocument;
     private final Boolean enablePlaceholders;
     private final String placeholderOpeningDelimiterRegex;
     private final String placeholderClosingDelimiterRegex;
     private final DifferenceEvaluator diffEvaluator;
+    private final Set<ComparisonType> exemptedComparisons;
+    private final Document expectedXmlDoc;
 
     public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
-        this(expectedValue, null, null, null);
+        this(expectedValue, null, null, null, null);
     }
 
     public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue,
                              @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
                              @JsonProperty("placeholderOpeningDelimiterRegex") String placeholderOpeningDelimiterRegex,
-                             @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex) {
+                             @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex,
+                             @JsonProperty("exemptedComparisons") Set<ComparisonType> exemptedComparisons) {
+
         super(expectedValue);
-        xmlDocument = Xml.read(expectedValue);
+        expectedXmlDoc = Xml.read(expectedValue); // Throw an exception if we can't parse the document
         this.enablePlaceholders = enablePlaceholders;
         this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
         this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
+        this.exemptedComparisons = exemptedComparisons;
+
+        IgnoreUncountedDifferenceEvaluator baseDifferenceEvaluator = new IgnoreUncountedDifferenceEvaluator(exemptedComparisons);
         if (enablePlaceholders != null && enablePlaceholders) {
-            diffEvaluator = DifferenceEvaluators.chain(IGNORE_UNCOUNTED_COMPARISONS,
+            diffEvaluator = DifferenceEvaluators.chain(baseDifferenceEvaluator,
                     new PlaceholderDifferenceEvaluator(placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex));
         } else {
-            diffEvaluator = IGNORE_UNCOUNTED_COMPARISONS;
+            diffEvaluator = baseDifferenceEvaluator;
         }
     }
 
@@ -103,6 +110,10 @@ public class EqualToXmlPattern extends StringValuePattern {
         return placeholderClosingDelimiterRegex;
     }
 
+    public Set<ComparisonType> getExemptedComparisons() {
+        return exemptedComparisons;
+    }
+
     @Override
     public MatchResult match(final String value) {
         return new MatchResult() {
@@ -112,7 +123,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                     return false;
                 }
                 try {
-                    Diff diff = DiffBuilder.compare(Input.from(expectedValue))
+                    Diff diff = DiffBuilder.compare(Input.from(expectedXmlDoc))
                             .withTest(value)
                             .withComparisonController(ComparisonControllers.StopWhenDifferent)
                             .ignoreWhitespace()
@@ -140,7 +151,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                 final AtomicInteger totalComparisons = new AtomicInteger(0);
                 final AtomicInteger differences = new AtomicInteger(0);
 
-                Diff diff = null;
+                Diff diff;
                 try {
                     diff = DiffBuilder.compare(Input.from(expectedValue))
                             .withTest(value)
@@ -176,17 +187,34 @@ public class EqualToXmlPattern extends StringValuePattern {
         };
     }
 
-    private static final DifferenceEvaluator IGNORE_UNCOUNTED_COMPARISONS = new DifferenceEvaluator() {
+    private static class IgnoreUncountedDifferenceEvaluator implements DifferenceEvaluator {
+
+        private final Set<ComparisonType> finalCountedComparisons;
+
+        public IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
+            finalCountedComparisons = exemptedComparisons != null ?
+                    Sets.difference(COUNTED_COMPARISONS, exemptedComparisons) :
+                    COUNTED_COMPARISONS;
+        }
+
         @Override
         public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
+            if (finalCountedComparisons.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
                 return outcome;
             }
 
             return ComparisonResult.EQUAL;
         }
-    };
+    }
 
+    public EqualToXmlPattern exemptingComparisons(ComparisonType... comparisons) {
+        return new EqualToXmlPattern(
+                expectedValue,
+                enablePlaceholders,
+                placeholderOpeningDelimiterRegex,
+                placeholderClosingDelimiterRegex,
+                ImmutableSet.copyOf(comparisons));
+    }
 
     private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
         @Override

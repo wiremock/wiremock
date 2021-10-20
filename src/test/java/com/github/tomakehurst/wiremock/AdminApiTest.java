@@ -17,9 +17,13 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.http.DelayDistribution;
+import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -28,10 +32,15 @@ import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -43,11 +52,15 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonStringPartEquals;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
@@ -233,6 +246,19 @@ public class AdminApiTest extends AcceptanceTestBase {
         check.field("requests").hasSize(3);
         check.field("requests").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
         check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
+    }
+
+    @Test
+    public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+        WireMockResponse response = testClient.get("/__admin/requests?since=foo");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        JsonVerifiable check = JsonAssertion.assertThat(response.content());
+        JsonVerifiable error = check.field("errors").elementWithIndex(0);
+        error.field("code").isEqualTo(10);
+        error.field("source").field("pointer").isEqualTo("since");
+        error.field("title").isEqualTo("foo is not a valid ISO8601 date");
     }
 
     @Test
@@ -538,14 +564,14 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getDetail(), allOf(
-                containsString("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')"),
+                containsString("Unexpected character ('(' (code 40)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')"),
                 containsString("line: 1, column: 2"))
         );
     }
 
     @Test
     public void returnsBadEntityStatusWhenInvalidEqualToXmlSpecified() {
-        WireMockResponse response = testClient.postXml("/__admin/mappings",
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
             "{\n" +
                 "    \"request\": {\n" +
                 "        \"bodyPatterns\": [\n" +
@@ -565,17 +591,94 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void servesRamlSpec() {
-        WireMockResponse response = testClient.get("/__admin/docs/raml");
-        assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), containsString("#%RAML 0.8"));
+    public void returnsBadEntityStatusWhenContainsOperandIsNull() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"contains\": null\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenEqualToOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"equalTo\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("equalTo operand must be a non-null string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenContainsOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"contains\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenMatchesOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"matches\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("matches operand must be a non-null string"));
     }
 
     @Test
     public void servesSwaggerSpec() {
         WireMockResponse response = testClient.get("/__admin/docs/swagger");
         assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), containsString("\"swagger\": \"2.0\""));
+        assertThat(response.content(), containsString("\"openapi\": \"3.0.0\""));
     }
 
     @Test
@@ -627,7 +730,11 @@ public class AdminApiTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/__admin/files");
 
         assertEquals(200, response.statusCode());
-        assertThat(new String(response.binaryContent()), matches("\\[ \".*/bar.txt\", \".*zoo.*txt\" ]"));
+        String pathSeparatorRegex = File.separator;
+        if( File.separator.equals("\\") ) {
+            pathSeparatorRegex="\\\\";
+        }
+        assertThat(new String(response.binaryContent()), matches("\\[ \".*"+ pathSeparatorRegex + "bar.txt\", \".*zoo.*txt\" ]"));
     }
 
     @Test
@@ -703,6 +810,212 @@ public class AdminApiTest extends AcceptanceTestBase {
         List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
         assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
         assertThat(stubs.size(), is(2));
+    }
+
+    static final String EMPTY_ID_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"id\": \"\",\n" +
+            "      \"name\": \"Empty ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/empty-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": null,\n" +
+            "      \"name\": \"Null ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/null-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void treatsEmptyOrNullIdFieldsAsNotPresent() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", EMPTY_ID_IMPORT_JSON);
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs, everyItem(hasIdAndUuid()));
+    }
+
+    static final String EMPTY_UUID_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"id\": \"27d7818b-4df6-4630-a6ab-c50e87e384e1\",\n" +
+            "      \"uuid\": \"\",\n" +
+            "      \"name\": \"Empty UUID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/empty-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": \"95b5c478-eb39-4bad-ba55-a336dbfeaa53\",\n" +
+            "      \"uuid\": null,\n" +
+            "      \"name\": \"Null ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/null-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void treatsEmptyOrNullUuidFieldsAsNotPresent() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", EMPTY_UUID_IMPORT_JSON);
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs, everyItem(hasIdAndUuid()));
+    }
+
+    private static final Matcher<StubMapping> hasIdAndUuid() {
+        return new TypeSafeMatcher<StubMapping>() {
+            @Override
+            protected boolean matchesSafely(StubMapping stub) {
+                return stub.getId() != null && stub.getUuid() != null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a stub with a non-null ID and UUID");
+            }
+        };
+    }
+
+    final String SETTINGS_JSON = "{\n" +
+            "  \"extended\": {\n" +
+            "    \"mySetting\": 123\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void updateGlobalSettingsViaPut() {
+        WireMockResponse response = testClient.putWithBody("/__admin/settings", SETTINGS_JSON, "application/json");
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(wireMockServer.getGlobalSettings().getSettings().getExtended().getInt("mySetting"), is(123));
+    }
+
+    final String WRAPPED_SETTINGS_JSON = "{\n" +
+            "  \"settings\": {\n" +
+            "    \"delayDistribution\": {\n" +
+            "      \"type\": \"uniform\",\n" +
+            "      \"lower\": 100,\n" +
+            "      \"upper\": 300\n" +
+            "    },\n" +
+            "\n" +
+            "    \"extended\": {\n" +
+            "      \"one\": 1,\n" +
+            "      \"two\": {\n" +
+            "        \"name\": \"abc\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void updateGlobalSettingsViaPutWithWrapper() {
+        WireMockResponse response = testClient.putWithBody("/__admin/settings", WRAPPED_SETTINGS_JSON, "application/json");
+
+        assertThat(response.statusCode(), is(200));
+
+        GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
+        assertThat(settings.getDelayDistribution(), Matchers.<DelayDistribution>instanceOf(UniformDistribution.class));
+        assertThat(settings.getExtended().getInt("one"), is(1));
+        assertThat(settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name, is("abc"));
+    }
+
+    final String EXTENDED_JSON = "{\n" +
+            "  \"extended\": {\n" +
+            "    \"one\": 11,\n" +
+            "    \"three\": 3\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void patchExtendedGlobalSettings() {
+        wireMockServer.updateGlobalSettings(GlobalSettings.builder()
+                .extended(Parameters.one("two", 2))
+                .build());
+
+        WireMockResponse response = testClient.patchWithBody("/__admin/settings/extended", EXTENDED_JSON, "application/json");
+        assertThat(response.statusCode(), is(200));
+
+        Parameters extended = wireMockServer.getGlobalSettings().getSettings().getExtended();
+        assertThat(extended.getInt("one"), is(11));
+        assertThat(extended.getInt("two"), is(2));
+        assertThat(extended.getInt("three"), is(3));
+    }
+
+    static final String STUB_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/one\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/two\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"meta\" : {\n" +
+            "    \"total\" : 2\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void importMultipleStubsWithDefaultParameters() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", STUB_IMPORT_JSON);
+
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> allStubs = wm.getStubMappings();
+        assertThat(allStubs.size(), is(2));
+        assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
+        assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
+    }
+
+    @Test
+    public void findsNearMissesByRequest() {
+        wm.stubFor(post("/things").willReturn(ok()));
+        testClient.postJson("/anything", "{}");
+
+        String nearMissRequestJson = "{\n" +
+                "  \"method\": \"GET\",\n" +
+                "  \"url\": \"/thing\"\n" +
+                "}";
+        WireMockResponse response = testClient.postJson("/__admin/near-misses/request", nearMissRequestJson);
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), jsonPartEquals("nearMisses[0].request.url", "/thing"));
+    }
+
+    public static class TestExtendedSettingsData {
+        public String name;
     }
 
 }

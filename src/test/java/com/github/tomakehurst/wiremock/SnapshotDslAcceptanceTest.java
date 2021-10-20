@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -41,6 +40,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -246,8 +246,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
         assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
-        assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-stateful-2"));
-        assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-stateful-3"));
+        assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-1-stateful-2"));
+        assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-1-stateful-3"));
     }
 
     @Test

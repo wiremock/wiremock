@@ -15,7 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -23,16 +24,20 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
+import static java.util.Collections.singletonList;
 import static org.apache.http.entity.ContentType.MULTIPART_FORM_DATA;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-    HttpClient httpClient = HttpClientFactory.createClient();
+    HttpClient httpClient = HttpClient4Factory.createClient();
 
     @Test
     public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
@@ -57,7 +62,9 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
         HttpResponse response = httpClient.execute(request);
 
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        assertThat(
+                EntityUtils.toString(response.getEntity()),
+                response.getStatusLine().getStatusCode(), is(200));
     }
 
     @Test
@@ -95,5 +102,23 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
         HttpResponse response = httpClient.execute(request);
 
         assertThat(response.getStatusLine().getStatusCode(), is(200));
+    }
+
+    // https://github.com/tomakehurst/wiremock/issues/1179
+    @Test
+    public void multipartBodiesCanBeMatchedWhenStubsWithOtherBodyMatchTypesArePresent() {
+        stubFor(post("/multipart")
+                .withMultipartRequestBody(
+                        aMultipart()
+                                .withHeader("Content-Disposition", containing("wiremocktest")))
+                .willReturn(ok()));
+
+        stubFor(post("/json")
+                .withRequestBody(equalToJson("{ \"stuff\": 123 }"))
+                .willReturn(ok()));
+
+        WireMockResponse response = testClient.postWithMultiparts("/multipart", singletonList(part("wiremocktest", "Whatever", TEXT_PLAIN)));
+
+        assertThat(response.statusCode(), is(200));
     }
 }

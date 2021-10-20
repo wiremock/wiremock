@@ -1,0 +1,29 @@
+type: object
+properties:
+  method:
+    description: The HTTP request method
+    type: string
+    example: "GET"
+  url:
+    description: The path and query to match exactly against
+    type: string
+    example: "/received-request/2"
+  absoluteUrl:
+    description: The full URL to match against
+    type: string
+    example: "http://localhost:56738/received-request/2"
+  headers:
+    description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    type: object
+    example:
+      Connection: keep-alive
+      Host: localhost:56738
+      User-Agent: Apache-HttpClient/4.5.1 (Java/1.7.0_51)
+  cookies:
+    description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    type: object
+    example: {}
+  body:
+    description: Body string to match against
+    type: string
+    example: "Hello world"

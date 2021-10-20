@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
 
@@ -50,5 +51,19 @@ public class DisabledRequestJournal implements RequestJournal {
 
     @Override
     public void requestReceived(ServeEvent serveEvent) {
+    }
+
+    @Override
+    public void removeEvent(UUID eventId) {
+    }
+
+    @Override
+    public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
+        throw new RequestJournalDisabledException();
+    }
+
+    @Override
+    public List<ServeEvent> removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+        throw new RequestJournalDisabledException();
     }
 }

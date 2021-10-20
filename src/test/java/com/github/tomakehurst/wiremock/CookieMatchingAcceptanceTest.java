@@ -26,7 +26,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.google.common.net.HttpHeaders.COOKIE;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
 

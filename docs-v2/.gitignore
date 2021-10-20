@@ -9,3 +9,5 @@ codekit-config.json
 node_modules
 npm-debug.log*
 tmp
+assets/js/wiremock-admin-api.json
+assets/js/redoc.standalone.js

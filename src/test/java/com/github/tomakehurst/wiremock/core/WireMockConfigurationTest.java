@@ -20,7 +20,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WireMockConfigurationTest {
 
@@ -39,6 +39,23 @@ public class WireMockConfigurationTest {
         WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
         Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
         assertThat(jettyStopTimeout.isPresent(), is(false));
+    }
+
+    @Test
+    public void testJettyIdleTimeout() {
+        Long expectedIdleTimeout = 500L;
+        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().jettyIdleTimeout(expectedIdleTimeout);
+        Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
+
+        assertThat(jettyIdleTimeout.isPresent(), is(true));
+        assertThat(jettyIdleTimeout.get(), is(expectedIdleTimeout));
+    }
+
+    @Test
+    public void testJettyIdleTimeoutNotSet() {
+        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
+        Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
+        assertThat(jettyIdleTimeout.isPresent(), is(false));
     }
 
     @Test

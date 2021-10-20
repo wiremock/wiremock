@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class GlobalSettingsHolder {
 
-	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<GlobalSettings>(new GlobalSettings());
+	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<>(GlobalSettings.defaults());
 	
 	public void replaceWith(GlobalSettings globalSettings) {
 		globalSettingsRef.set(globalSettings);

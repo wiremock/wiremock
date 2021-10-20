@@ -88,6 +88,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     public abstract boolean isExactMatch();
 
     public abstract double getDistance();
+
     @Override
     public int compareTo(MatchResult other) {
         return Double.compare(other.getDistance(), getDistance());

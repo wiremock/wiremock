@@ -1,21 +1,22 @@
 {
   "name": "wiremock-docs",
-  "version": "2.19.0",
+  "version": "2.31.0",
   "description": "WireMock documentation processor",
   "engines": {
     "node": ">= 0.10.0"
   },
   "devDependencies": {
-    "api-spec-converter": "2.0.1",
     "autoprefixer": "^6.3.5",
-    "json-schema-ref-parser": "6.0.1",
-    "node-sass": "4.9.3",
+    "node-sass": "4.14.1",
     "npm-run-all": "^1.7.0",
-    "onchange": "^2.2.0",
-    "postcss-cli": "^2.5.1",
-    "raml2html": "3.0.1",
-    "uglify-js": "^2.6.1",
-    "shx": "0.2.2"
+    "onchange": "^6.1.0",
+    "postcss-cli": "^6.1.3",
+    "redoc": "2.0.0-rc.18",
+    "shx": "0.2.2",
+    "swagger-cli": "2.3.4",
+    "swagger-ui-dist": "3.48.0",
+    "to": "^0.2.9",
+    "uglify-js": "^2.6.1"
   },
   "scripts": {
     "scss": "node-sass --output-style compressed -o assets/css assets/_scss",
@@ -24,11 +25,13 @@
     "watch:css": "onchange \"assets/_scss/**/*.scss\" -- npm run build:css",
     "watch:js": "onchange \"assets/js/**/*.js\" -e \"assets/js/main.min.js\" -- npm run build:js",
     "watch:all": "npm-run-all --parallel watch:css watch:js",
+    "serve": "npm run apidocs && npm run watch:all",
     "build:css": "npm run scss && npm run autoprefixer",
     "build:js": "npm run uglify",
     "build:all": "npm run build:css && npm run build:js",
-    "preprocess-schemas": "shx rm -rf tmp/raml* && shx mkdir -p tmp/raml && shx cp -rf ../src/main/resources/raml/* tmp/raml && shx rm -rf tmp/raml/schemas/* && node bin/bundle-schemas -i ../src/main/resources/raml/schemas -o tmp/raml/schemas",
-    "raml2html": "npm run preprocess-schemas && raml2html -t lib/raml2html-template.nunjucks -i tmp/raml/wiremock-admin-api.raml -o _docs/wiremock-admin-api.html",
-    "apidocs": "npm run raml2html && shx mkdir -p ../src/main/resources/swagger && api-spec-converter -f raml -t swagger_2 tmp/raml/wiremock-admin-api.raml > ../src/main/resources/swagger/wiremock-admin-api.json"
+    "swaggerui": "shx cp -rf node_modules/swagger-ui-dist/ ../src/main/resources/assets/swagger-ui/",
+    "swaggerjson": "swagger-cli bundle -r -t json ../src/main/resources/swagger/wiremock-admin-api.yaml > ../src/main/resources/swagger/wiremock-admin-api.json",
+    "redoc": "shx cp node_modules/redoc/bundles/redoc.standalone.js assets/js",
+    "apidocs": "npm-run-all swaggerui swaggerjson redoc && shx cp ../src/main/resources/swagger/wiremock-admin-api.json assets/js"
   }
 }

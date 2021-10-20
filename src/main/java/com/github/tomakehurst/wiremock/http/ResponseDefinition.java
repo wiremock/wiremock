@@ -188,9 +188,12 @@ public class ResponseDefinition {
     }
 
     public static ResponseDefinition notPermitted(String message) {
-        Errors errors = Errors.single(40, message);
+        return notPermitted(Errors.single(40, message));
+    }
+
+    public static ResponseDefinition notPermitted(Errors errors) {
         return ResponseDefinitionBuilder
-            .jsonResponse(Json.write(errors), HTTP_FORBIDDEN);
+                .jsonResponse(errors, HTTP_FORBIDDEN);
     }
 
     public static ResponseDefinition browserProxy(Request originalRequest) {
@@ -200,21 +203,25 @@ public class ResponseDefinition {
     }
 
     public static ResponseDefinition copyOf(ResponseDefinition original) {
+        return original.copy();
+    }
+
+    public ResponseDefinition copy() {
         ResponseDefinition newResponseDef = new ResponseDefinition(
-            original.status,
-            original.statusMessage,
-            original.body,
-            original.bodyFileName,
-            original.headers,
-            original.additionalProxyRequestHeaders,
-            original.fixedDelayMilliseconds,
-            original.delayDistribution,
-            original.chunkedDribbleDelay,
-            original.proxyBaseUrl,
-            original.fault,
-            original.transformers,
-            original.transformerParameters,
-            original.wasConfigured
+            this.status,
+            this.statusMessage,
+            this.body,
+            this.bodyFileName,
+            this.headers,
+            this.additionalProxyRequestHeaders,
+            this.fixedDelayMilliseconds,
+            this.delayDistribution,
+            this.chunkedDribbleDelay,
+            this.proxyBaseUrl,
+            this.fault,
+            this.transformers,
+            this.transformerParameters,
+            this.wasConfigured
         );
         return newResponseDef;
     }
@@ -236,6 +243,11 @@ public class ResponseDefinition {
     }
 
     public String getBody() {
+        return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
+    }
+
+    @JsonIgnore
+    public String getTextBody() {
         return !body.isBinary() ? body.asString() : null;
     }
 
@@ -251,6 +263,11 @@ public class ResponseDefinition {
 
     public String getBase64Body() {
         return body.isBinary() ? body.asBase64() : null;
+    }
+
+    public JsonNode getJsonBody() {
+
+        return body.isJson() ? body.asJson(): null;
     }
 
     public String getBodyFileName() {
@@ -373,4 +390,6 @@ public class ResponseDefinition {
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
+
+
 }

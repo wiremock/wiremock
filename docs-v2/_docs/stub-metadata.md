@@ -71,7 +71,7 @@ POST /__admin/mappings/find-by-metadata
 }
 ```
 
-## Delete stubs by metadata
+## Remove stubs by metadata
 
 Similarly, stubs with matching metadata can be removed:
 
@@ -94,3 +94,6 @@ POST /__admin/mappings/remove-by-metadata
 }
 ```
 
+## Remove request journal events by metadata
+
+See [Removing items from the journal](/docs/verifying/#by-criteria) 

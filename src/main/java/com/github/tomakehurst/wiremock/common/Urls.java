@@ -37,6 +37,22 @@ import static com.google.common.collect.FluentIterable.from;
 
 public class Urls {
 
+    public static Map<String, QueryParameter> splitQueryFromUrl(String url) {
+        String queryPart = url.contains("?") && !url.endsWith("?") ?
+            url.substring(url.indexOf('?') + 1) :
+            null;
+
+        return splitQuery(queryPart);
+    }
+
+    public static Map<String, QueryParameter> splitQuery(URI uri) {
+        if (uri == null) {
+            return Collections.emptyMap();
+        }
+
+        return splitQuery(uri.getRawQuery());
+    }
+
     public static Map<String, QueryParameter> splitQuery(String query) {
         if (query == null) {
             return Collections.emptyMap();
@@ -47,9 +63,9 @@ public class Urls {
         for (String queryElement: pairs) {
             int firstEqualsIndex = queryElement.indexOf('=');
             if (firstEqualsIndex == -1) {
-                builder.putAll(queryElement, "");
+                builder.putAll(decode(queryElement), "");
             } else {
-                String key = queryElement.substring(0, firstEqualsIndex);
+                String key = decode(queryElement.substring(0, firstEqualsIndex));
                 String value = decode(queryElement.substring(firstEqualsIndex + 1));
                 builder.putAll(key, value);
             }
@@ -62,6 +78,12 @@ public class Urls {
         });
     }
 
+    public static String getPath(String url) {
+        return url.contains("?") ?
+                url.substring(0, url.indexOf("?")) :
+                url;
+    }
+
     public static String urlToPathParts(URI uri) {
         Iterable<String> uriPathNodes = Splitter.on("/").omitEmptyStrings().split(uri.getPath());
         int nodeCount = Iterables.size(uriPathNodes);
@@ -71,14 +93,6 @@ public class Urls {
             .join(from(uriPathNodes))
              :
             "";
-    }
-
-    public static Map<String, QueryParameter> splitQuery(URI uri) {
-        if (uri == null) {
-            return Collections.emptyMap();
-        }
-
-        return splitQuery(uri.getRawQuery());
     }
 
     public static String decode(String encoded) {

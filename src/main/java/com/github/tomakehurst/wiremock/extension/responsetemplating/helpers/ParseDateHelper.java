@@ -15,28 +15,48 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.DateTimeParser;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+import static com.github.tomakehurst.wiremock.common.DateTimeParser.ZONED_PARSERS;
+import static java.util.Collections.singletonList;
 
 public class ParseDateHelper extends HandlebarsHelper<String> {
 
     @Override
-    public Object apply(String context, Options options) throws IOException {
+    public Object apply(String dateTimeString, Options options) throws IOException {
         String format = options.hash("format", null);
 
+        return format == null ?
+            parseOrNull(dateTimeString) :
+            parseOrNull(dateTimeString, DateTimeParser.forFormat(format));
+    }
+
+    private static RenderableDate parseOrNull(String dateTimeString) {
+        return parseOrNull(dateTimeString, (DateTimeParser) null);
+    }
+
+    private static RenderableDate parseOrNull(String dateTimeString, DateTimeParser parser) {
+        final List<DateTimeParser> parsers = parser != null ? singletonList(parser) : ZONED_PARSERS;
+        return parseOrNull(dateTimeString, parsers);
+    }
+
+    private static RenderableDate parseOrNull(String dateTimeString, List<DateTimeParser> parsers) {
+        if (parsers.isEmpty()) {
+            return null;
+        }
+
         try {
-            return format == null ?
-                new ISO8601DateFormat().parse(context) :
-                new SimpleDateFormat(format).parse(context);
-        } catch (ParseException e) {
-            return Exceptions.throwUnchecked(e, Object.class);
+            final DateTimeParser headParser = parsers.get(0);
+            return headParser.parseDate(dateTimeString);
+        } catch (DateTimeParseException e) {
+            return parseOrNull(dateTimeString, parsers.subList(1, parsers.size()));
         }
     }
+
+
 }

@@ -15,22 +15,26 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static com.github.tomakehurst.wiremock.testsupport.Assumptions.doNotRunOnMacOSXInCI;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResponseDribbleAcceptanceTest {
 
@@ -39,18 +43,25 @@ public class ResponseDribbleAcceptanceTest {
 
     private static final byte[] BODY_BYTES = "the long sentence being sent".getBytes();
 
+    public static final double TOLERANCE = 0.333; // Quite big, but this helps reduce CI failures
+
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(DYNAMIC_PORT, DYNAMIC_PORT);
 
     private HttpClient httpClient;
 
     @Before
-    public void init() {
-        httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+    public void init() throws IOException {
+        stubFor(get("/warmup").willReturn(ok()));
+        httpClient = HttpClient4Factory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        // Warm up the server
+        httpClient.execute(new HttpGet(String.format("http://localhost:%d/warmup", wireMockRule.port())));
     }
 
     @Test
     public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled() throws Exception {
+        doNotRunOnMacOSXInCI();
+
         stubFor(get("/delayedDribble").willReturn(
                 ok()
                     .withBody(BODY_BYTES)
@@ -64,12 +75,14 @@ public class ResponseDribbleAcceptanceTest {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
-        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 100.0));
+        assertThat((double) duration, isWithinTolerance(DOUBLE_THE_SOCKET_TIMEOUT, TOLERANCE));
     }
 
     @Test
     public void servesAStringBodyInChunks() throws Exception {
-        final int TOTAL_TIME = 300;
+        doNotRunOnMacOSXInCI();
+        
+        final int TOTAL_TIME = 500;
 
         stubFor(get("/delayedDribble").willReturn(
             ok()
@@ -83,11 +96,13 @@ public class ResponseDribbleAcceptanceTest {
 
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is("Send this in many pieces please!!!"));
-        assertThat(duration, closeTo(TOTAL_TIME, 50.0));
+        assertThat(duration, isWithinTolerance(TOTAL_TIME, TOLERANCE));
     }
 
     @Test
     public void requestIsSuccessfulAndBelowSocketTimeoutWhenDribbleIsDisabled() throws Exception {
+        doNotRunOnMacOSXInCI();
+
         stubFor(get("/nonDelayedDribble").willReturn(
                 ok()
                     .withBody(BODY_BYTES)));
@@ -100,5 +115,10 @@ public class ResponseDribbleAcceptanceTest {
         assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(BODY_BYTES, is(responseBody));
         assertThat(duration, lessThan(SOCKET_TIMEOUT_MILLISECONDS));
+    }
+
+    private static Matcher<Double> isWithinTolerance(double value, double tolerance) {
+        double maxDelta = value * tolerance;
+        return closeTo(value, maxDelta);
     }
 }

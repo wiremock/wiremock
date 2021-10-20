@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -27,24 +29,22 @@ import java.lang.reflect.Constructor;
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
-    public static final AbsentPattern ABSENT = new AbsentPattern(null);
-
     public StringValuePattern(String expectedValue) {
         super(expectedValue);
     }
 
     @JsonIgnore
     public boolean isPresent() {
-        return this != ABSENT;
+        return !nullSafeIsAbsent();
     }
 
     public Boolean isAbsent() {
-        return this != ABSENT ? null : true;
+        return !nullSafeIsAbsent() ? null : true;
     }
 
     @JsonIgnore
-    public Boolean nullSafeIsAbsent() {
-        return this == ABSENT;
+    public boolean nullSafeIsAbsent() {
+        return false;
     }
 
     @Override
@@ -64,7 +64,7 @@ public abstract class StringValuePattern extends ContentPattern<String> {
         }).orNull();
 
         if (constructor == null) {
-            throw new IllegalStateException("Constructor must have a first parameter annotatated with JsonProperty(\"<operator name>\")");
+            throw new IllegalStateException("Constructor must have a first parameter annotated with JsonProperty(\"<operator name>\")");
         }
         JsonProperty jsonPropertyAnnotation = (JsonProperty) constructor.getParameterAnnotations()[0][0];
         return jsonPropertyAnnotation.value();
@@ -73,6 +73,14 @@ public abstract class StringValuePattern extends ContentPattern<String> {
     @Override
     public String getExpected() {
         return getValue();
+    }
+
+    public LogicalAnd and(StringValuePattern other) {
+        return new LogicalAnd(this, other);
+    }
+
+    public LogicalOr or(StringValuePattern other) {
+        return new LogicalOr(this, other);
     }
 
     @Override

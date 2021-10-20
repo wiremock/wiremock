@@ -16,15 +16,11 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -35,22 +31,16 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-@RunWith(JMock.class)
 public class InMemoryMappingsTest {
 
     private InMemoryStubMappings mappings;
-    private Mockery context;
-    private Notifier notifier;
 
     @Before
     public void init() {
         mappings = new InMemoryStubMappings();
-        context = new Mockery();
-
-        notifier = context.mock(Notifier.class);
     }
 
     @After
@@ -64,7 +54,7 @@ public class InMemoryMappingsTest {
             newRequestPattern(PUT, urlEqualTo("/some/resource")).build(),
             new ResponseDefinition(204, "")));
 
-        Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
+        Request request = aRequest().withMethod(PUT).withUrl("/some/resource").build();
         ResponseDefinition response = mappings.serveFor(request).getResponseDefinition();
 
         assertThat(response.getStatus(), is(204));
@@ -76,7 +66,7 @@ public class InMemoryMappingsTest {
             newRequestPattern(PUT, urlEqualTo("/some/resource")).build(),
             new ResponseDefinition(204, "")));
 
-        Request request = aRequest(context).withMethod(POST).withUrl("/some/resource").build();
+        Request request = aRequest().withMethod(POST).withUrl("/some/resource").build();
         ResponseDefinition response = mappings.serveFor(request).getResponseDefinition();
 
         assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
@@ -88,7 +78,7 @@ public class InMemoryMappingsTest {
             newRequestPattern(PUT, urlEqualTo("/some/resource")).build(),
             new ResponseDefinition(204, "")));
 
-        Request request = aRequest(context).withMethod(PUT).withUrl("/some/bad/resource").build();
+        Request request = aRequest().withMethod(PUT).withUrl("/some/bad/resource").build();
         ResponseDefinition response = mappings.serveFor(request).getResponseDefinition();
 
         assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
@@ -96,7 +86,7 @@ public class InMemoryMappingsTest {
 
     @Test
     public void returnsNotConfiguredResponseForUnmappedRequest() {
-        Request request = aRequest(context).withMethod(OPTIONS).withUrl("/not/mapped").build();
+        Request request = aRequest().withMethod(OPTIONS).withUrl("/not/mapped").build();
         ResponseDefinition response = mappings.serveFor(request).getResponseDefinition();
         assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
         assertThat(response.wasConfigured(), is(false));
@@ -112,7 +102,7 @@ public class InMemoryMappingsTest {
             newRequestPattern(GET, urlEqualTo("/duplicated/resource")).build(),
             new ResponseDefinition(201, "Desired content")));
 
-        ResponseDefinition response = mappings.serveFor(aRequest(context).withMethod(GET).withUrl("/duplicated/resource").build()).getResponseDefinition();
+        ResponseDefinition response = mappings.serveFor(aRequest().withMethod(GET).withUrl("/duplicated/resource").build()).getResponseDefinition();
 
         assertThat(response.getStatus(), is(201));
         assertThat(response.getBody(), is("Desired content"));
@@ -143,9 +133,9 @@ public class InMemoryMappingsTest {
         mappings.addMapping(secondGetMapping);
 
 
-        Request firstGet = aRequest(context, "firstGet").withMethod(GET).withUrl("/scenario/resource").build();
-        Request put = aRequest(context, "put").withMethod(PUT).withUrl("/scenario/resource").build();
-        Request secondGet = aRequest(context, "secondGet").withMethod(GET).withUrl("/scenario/resource").build();
+        Request firstGet = aRequest("firstGet").withMethod(GET).withUrl("/scenario/resource").build();
+        Request put = aRequest("put").withMethod(PUT).withUrl("/scenario/resource").build();
+        Request secondGet = aRequest("secondGet").withMethod(GET).withUrl("/scenario/resource").build();
 
         assertThat(mappings.serveFor(firstGet).getResponseDefinition().getBody(), is("Initial content"));
         mappings.serveFor(put);
@@ -160,7 +150,7 @@ public class InMemoryMappingsTest {
         firstGetMapping.setScenarioName("TestScenario");
         mappings.addMapping(firstGetMapping);
 
-        Request request = aRequest(context).withMethod(GET).withUrl("/scenario/resource").build();
+        Request request = aRequest().withMethod(GET).withUrl("/scenario/resource").build();
 
         assertThat(mappings.serveFor(request).getResponseDefinition().getBody(), is("Expected content"));
     }
@@ -183,11 +173,11 @@ public class InMemoryMappingsTest {
         mappings.addMapping(putMapping);
 
         mappings.serveFor(
-            aRequest(context, "put /scenario/resource")
+            aRequest("put /scenario/resource")
                 .withMethod(PUT).withUrl("/scenario/resource").build());
         ResponseDefinition response =
             mappings.serveFor(
-                aRequest(context, "1st get /scenario/resource")
+                aRequest("1st get /scenario/resource")
                     .withMethod(GET).withUrl("/scenario/resource").build()).getResponseDefinition();
 
         assertThat(response.wasConfigured(), is(false));
@@ -195,7 +185,7 @@ public class InMemoryMappingsTest {
         mappings.resetScenarios();
         response =
             mappings.serveFor(
-                aRequest(context, "2nd get /scenario/resource")
+                aRequest("2nd get /scenario/resource")
                     .withMethod(GET).withUrl("/scenario/resource").build()).getResponseDefinition();
         assertThat(response.getBody(), is("Desired content"));
     }
@@ -211,7 +201,7 @@ public class InMemoryMappingsTest {
         secondMapping.setRequiredScenarioState("modified");
         mappings.addMapping(secondMapping);
 
-        Request request = aRequest(context).withMethod(POST).withUrl("/scenario/resource").build();
+        Request request = aRequest().withMethod(POST).withUrl("/scenario/resource").build();
         mappings.serveFor(request);
         assertThat(mappings.serveFor(request).getResponseDefinition().getBody(), is("Modified content"));
 

@@ -15,6 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.concurrent.Callable;
+
 public class Exceptions {
 
     /**
@@ -50,5 +54,31 @@ public class Exceptions {
     @SuppressWarnings("unchecked")
     private static <T extends Throwable> void throwsUnchecked(Throwable toThrow) throws T {
         throw (T) toThrow;
+    }
+
+    public static <T> T uncheck(Callable<T> work, Class<T> returnType) {
+        try {
+            return work.call();
+        } catch (Exception e) {
+            return throwUnchecked(e, returnType);
+        }
+    }
+
+    public static void uncheck(RunnableWithException work) {
+        try {
+            work.run();
+        } catch (Exception e) {
+            throwUnchecked(e);
+        }
+    }
+
+    public static String renderStackTrace(Throwable t) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    public interface RunnableWithException {
+        void run() throws Exception;
     }
 }

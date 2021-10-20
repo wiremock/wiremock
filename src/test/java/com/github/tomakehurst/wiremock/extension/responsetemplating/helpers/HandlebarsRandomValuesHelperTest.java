@@ -32,7 +32,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HandlebarsRandomValuesHelperTest {
 
@@ -110,6 +110,19 @@ public class HandlebarsRandomValuesHelperTest {
 
         assertThat(output.length(), is(67));
         assertThat(output, WireMatchers.matches("^.+$"));
+    }
+
+    @Test
+    public void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+                "length", 64,
+                "type", "HEXADECIMAL"
+        );
+
+        String output = render(optionsHash);
+
+        assertThat(output.length(), is(64));
+        assertThat(output, WireMatchers.matches("^[0-9a-f]+$"));
     }
 
     @Test

@@ -64,7 +64,12 @@ public class WireMockClassRule extends WireMockServer implements MethodRule, Tes
                     }
                 } else {
                     start();
-                    WireMock.configureFor("localhost", port());
+                    if (options.getHttpDisabled()) {
+                        WireMock.configureFor("https", "localhost", httpsPort());
+                    } else {
+                        WireMock.configureFor("http", "localhost", port());
+                    }
+
                     try {
                         before();
                         base.evaluate();

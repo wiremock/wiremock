@@ -35,7 +35,7 @@ public class ListOrSingleSerialiser extends JsonSerializer<ListOrSingle<Object>>
             return;
         }
 
-        Object firstValue = value.first();
+        Object firstValue = value.getFirst();
         if (value.isSingle()) {
             JsonSerializer<Object> serializer = serializers.findValueSerializer(firstValue.getClass());
             serializer.serialize(firstValue, gen, serializers);

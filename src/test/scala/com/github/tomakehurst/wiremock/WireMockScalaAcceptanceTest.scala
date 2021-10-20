@@ -23,7 +23,7 @@ import org.junit.Before
 import org.junit.Test
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.hamcrest.Matchers.is
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 
 
 class WireMockScalaAcceptanceTest {

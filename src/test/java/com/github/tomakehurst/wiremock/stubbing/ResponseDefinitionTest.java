@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -29,7 +30,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ResponseDefinitionTest {
@@ -77,7 +78,25 @@ public class ResponseDefinitionTest {
     public void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
         ResponseDefinition responseDef = Json.read(STRING_BODY, ResponseDefinition.class);
         assertThat(responseDef.getBase64Body(), is(nullValue()));
+        assertThat(responseDef.getJsonBody(), is(nullValue()));
         assertThat(responseDef.getBody(), is("String content"));
+    }
+
+    private static final String JSON_BODY =
+            "{	        								\n" +
+                    "		\"status\": 200,    				\n" +
+                    "		\"jsonBody\": {\"name\":\"wirmock\",\"isCool\":true} \n" +
+                    "}											";
+
+    @Test
+    public void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
+        ResponseDefinition responseDef = Json.read(JSON_BODY, ResponseDefinition.class);
+        assertThat(responseDef.getBase64Body(), is(nullValue()));
+        assertThat(responseDef.getBody(), is(nullValue()));
+
+        JsonNode jsonNode = Json.node("{\"name\":\"wirmock\",\"isCool\":true}");
+        assertThat(responseDef.getJsonBody(), is(jsonNode));
+
     }
 
     @Test
