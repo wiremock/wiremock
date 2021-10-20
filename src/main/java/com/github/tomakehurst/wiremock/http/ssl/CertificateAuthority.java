@@ -53,7 +53,7 @@ public class CertificateAuthority {
             X509CertImpl certificate = selfSign(info, pair.getPrivate(), sigAlg);
 
             return new CertificateAuthority(new X509Certificate[] { certificate }, pair.getPrivate());
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException e) {
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException | IllegalAccessError e) {
             throw new CertificateGenerationUnsupportedException(
                     "Your runtime does not support generating certificates at runtime",
                     e
@@ -110,7 +110,7 @@ public class CertificateAuthority {
 
             X509Certificate[] fullChain = prepend(certificate, certificateChain);
             return new CertChainAndKey(fullChain, pair.getPrivate());
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException e) {
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | CertificateException | SignatureException | NoSuchMethodError | VerifyError | NoClassDefFoundError | IOException | IllegalAccessError e) {
             throw new CertificateGenerationUnsupportedException(
                 "Your runtime does not support generating certificates at runtime",
                 e

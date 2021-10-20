@@ -249,6 +249,7 @@ jar {
     archiveBaseName.set('wiremock-jre8')
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
+        attributes("Add-Exports": "java.base/sun.security.x509")
     }
 }
 
