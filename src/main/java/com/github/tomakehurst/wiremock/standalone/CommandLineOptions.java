@@ -271,7 +271,7 @@ public class CommandLineOptions implements Options {
             Class<?> cls = loader.loadClass(
                     "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
             );
-            return (HttpServerFactory) cls.newInstance();
+            return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             return throwUnchecked(e, null);
         }

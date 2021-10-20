@@ -37,6 +37,7 @@ import org.junit.rules.ExpectedException;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -49,6 +50,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Iterables.*;
+import static com.google.common.io.Files.asCharSink;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
@@ -455,7 +457,7 @@ public class StandaloneAcceptanceTest {
     }
 
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
-        return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
+        return FileUtils.readFileToString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
     }
 
 	private File firstFileWithNameLike(File directory, String namePart) {
@@ -505,7 +507,7 @@ public class StandaloneAcceptanceTest {
         try {
 			File file = new File(absolutePath);
             createParentDirs(file);
-			write(contents, file, Charsets.UTF_8);
+			asCharSink(file, StandardCharsets.UTF_8).write(contents);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -577,7 +579,7 @@ public class StandaloneAcceptanceTest {
 			public boolean matchesSafely(File dir) {
 				for (File file: dir.listFiles()) {
 					try {
-						if (Files.toString(file, Charsets.UTF_8).contains(expectedContents)) {
+						if (FileUtils.readFileToString(file, StandardCharsets.UTF_8).contains(expectedContents)) {
 							return true;
 						}
 					} catch (IOException e) {

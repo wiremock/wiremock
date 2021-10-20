@@ -55,12 +55,12 @@ class JUnit4DetectionTest {
 					.because(REASON));
 
 	@ArchTest
-	static ArchRule junit4ClassRuleShouldNotBeUsed = freeze(
+	static ArchRule junit4ClassRuleShouldNotBeUsed =
 			fields()
 					.that().areDeclaredInClassesThat(EXCLUDE_WIREMOCKJUNITRULETEST)
 					.should().notBeAnnotatedWith(ClassRule.class)
 					.as("ClassRule should not be used")
-					.because(REASON));
+					.because(REASON);
 
 	@ArchTest
 	static ArchRule junit4RuleShouldNotBeUsed = freeze(

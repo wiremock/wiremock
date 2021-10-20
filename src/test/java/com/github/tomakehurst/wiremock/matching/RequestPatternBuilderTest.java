@@ -41,13 +41,12 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.google.common.collect.Maps.asMap;
-import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
@@ -114,7 +113,7 @@ public class RequestPatternBuilderTest {
                 .withRequestBodyPart(multipartValuePattern)
                 .build();
 
-        assertThat(newRequestPattern.getMultipartPatterns(), everyItem(isIn(asList(multipartValuePattern))));
+        assertThat(newRequestPattern.getMultipartPatterns(), everyItem(is(in(singletonList(multipartValuePattern)))));
         assertThat(newRequestPattern, not(equalTo(requestPattern)));
     }
 

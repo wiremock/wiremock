@@ -100,7 +100,7 @@ public class Xml {
 
     private static TransformerFactory createTransformerFactory() {
         try {
-            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").newInstance();
+            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").getDeclaredConstructor().newInstance();
             transformerFactory.setAttribute("indent-number", 2);
             return transformerFactory;
         } catch (Exception e) {
