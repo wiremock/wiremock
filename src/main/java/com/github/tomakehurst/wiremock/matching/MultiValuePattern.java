@@ -76,7 +76,7 @@ public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
         return min(allResults, new Comparator<MatchResult>() {
             public int compare(MatchResult o1, MatchResult o2) {
-                return new Double(o1.getDistance()).compareTo(o2.getDistance());
+                return Double.compare(o1.getDistance(), o2.getDistance());
             }
         });
     }

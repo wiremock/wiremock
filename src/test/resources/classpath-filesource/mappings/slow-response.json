@@ -1,0 +1,11 @@
+{
+    "request": {
+        "url": "/slow-response",
+        "method": "GET"
+    },
+    "response": {
+        "status": 200,
+        "bodyFileName": "stuff.txt",
+        "fixedDelayMilliseconds": 500
+    }
+}

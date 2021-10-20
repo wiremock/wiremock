@@ -249,6 +249,19 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+        WireMockResponse response = testClient.get("/__admin/requests?since=foo");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        JsonVerifiable check = JsonAssertion.assertThat(response.content());
+        JsonVerifiable error = check.field("errors").elementWithIndex(0);
+        error.field("code").isEqualTo(10);
+        error.field("source").field("pointer").isEqualTo("since");
+        error.field("title").isEqualTo("foo is not a valid ISO8601 date");
+    }
+
+    @Test
     public void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
         for (int i = 1; i <= 3; i++) {
             testClient.get("/received-request/" + i);
