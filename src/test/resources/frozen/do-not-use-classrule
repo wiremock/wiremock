@@ -1,8 +1,0 @@
-Field <com.github.tomakehurst.wiremock.BrowserProxyAcceptanceTest.target> is annotated with @ClassRule in (BrowserProxyAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.HttpsBrowserProxyAcceptanceTest.proxy> is annotated with @ClassRule in (HttpsBrowserProxyAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.HttpsBrowserProxyAcceptanceTest.target> is annotated with @ClassRule in (HttpsBrowserProxyAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.HttpsBrowserProxyClientAuthAcceptanceTest.target> is annotated with @ClassRule in (HttpsBrowserProxyClientAuthAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.NearMissesRuleAcceptanceTest$CustomMatcherWithNearMissesTest.wm> is annotated with @ClassRule in (NearMissesRuleAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.NearMissesRuleAcceptanceTest$NearMissesRuleTest.wm> is annotated with @ClassRule in (NearMissesRuleAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.StubLifecycleListenerAcceptanceTest.tempDir> is annotated with @ClassRule in (StubLifecycleListenerAcceptanceTest.java:0)
-Field <com.github.tomakehurst.wiremock.StubbingWithBrowserProxyAcceptanceTest.wm> is annotated with @ClassRule in (StubbingWithBrowserProxyAcceptanceTest.java:0)
