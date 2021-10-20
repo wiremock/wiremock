@@ -32,15 +32,19 @@ class JUnit4DetectionTest {
 			"exclude WireMockJUnitRuleTest",
 			clazz -> !clazz.getName().contains("WireMockJUnitRuleTest"));
 
-	private static final String BECAUSE = "we want to migrate to JUnit Jupiter";
+	private static final String REASON = "we want to migrate to JUnit Jupiter";
 
 	@ArchTest
 	static ArchRule junit4PackageShouldNotBeUsed = freeze(
 			noClasses()
 					.that(EXCLUDE_WIREMOCKJUNITRULETEST)
-					.should().dependOnClassesThat().resideInAnyPackage("org.junit")
+					.should()
+					.dependOnClassesThat(describe("use org.junit", clazz -> clazz.getDirectDependenciesFromSelf()
+							.stream()
+							.map(dep -> dep.getOriginClass().getPackageName())
+							.anyMatch(name -> name.startsWith("org.junit") && !name.startsWith("org.junit.jupiter"))))
 					.as("org.junit should not be used")
-					.because(BECAUSE));
+					.because(REASON));
 
 	@ArchTest
 	static ArchRule junit4RunWithShouldNotBeUsed = freeze(
@@ -48,7 +52,7 @@ class JUnit4DetectionTest {
 					.that(EXCLUDE_WIREMOCKJUNITRULETEST)
 					.should().notBeAnnotatedWith(RunWith.class)
 					.as("RunWith should not be used")
-					.because(BECAUSE));
+					.because(REASON));
 
 	@ArchTest
 	static ArchRule junit4ClassRuleShouldNotBeUsed =
@@ -56,7 +60,7 @@ class JUnit4DetectionTest {
 					.that().areDeclaredInClassesThat(EXCLUDE_WIREMOCKJUNITRULETEST)
 					.should().notBeAnnotatedWith(ClassRule.class)
 					.as("ClassRule should not be used")
-					.because(BECAUSE);
+					.because(REASON);
 
 	@ArchTest
 	static ArchRule junit4RuleShouldNotBeUsed = freeze(
@@ -64,6 +68,6 @@ class JUnit4DetectionTest {
 					.that().areDeclaredInClassesThat(EXCLUDE_WIREMOCKJUNITRULETEST)
 					.should().notBeAnnotatedWith(Rule.class)
 					.as("Rule should not be used")
-					.because(BECAUSE));
+					.because(REASON));
 
 }

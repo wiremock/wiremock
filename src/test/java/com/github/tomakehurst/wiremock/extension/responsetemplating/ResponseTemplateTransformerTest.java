@@ -41,9 +41,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
 
 public class ResponseTemplateTransformerTest {
 
@@ -341,7 +340,7 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
         ));
-        assertNotNull(transformedResponseDef.getAdditionalProxyRequestHeaders());
+        assertThat(transformedResponseDef.getAdditionalProxyRequestHeaders(), notNullValue());
         assertThat(transformedResponseDef
                         .getAdditionalProxyRequestHeaders()
                         .getHeader("X-Origin-Url")
