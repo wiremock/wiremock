@@ -28,11 +28,8 @@ import org.apache.http.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -44,9 +41,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
@@ -57,14 +51,21 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Collections.singletonList;
-import static org.apache.http.entity.ContentType.*;
-import static org.hamcrest.Matchers.*;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
+import static org.apache.http.entity.ContentType.APPLICATION_XML;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupServer() {
 		setupServerWithMappingsInFileRoot();
 	}
@@ -368,18 +369,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void connectionResetByPeerFault() {
 		stubFor(get(urlEqualTo("/connection/reset")).willReturn(
                 aResponse()
                 .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-		exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
-		exception.expectMessage("java.net.SocketException: Connection reset");
-		testClient.get("/connection/reset");
+		SocketException socketException = assertThrows(SocketException.class, () -> testClient.get("/connection/reset"));
+		assertThat(socketException.getMessage(), is("java.net.SocketException: Connection reset"));
 	}
 
 	@Test
@@ -877,6 +874,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			thrown = true;
 		}
 
-		assertTrue("No exception was thrown", thrown);
+		assertTrue(thrown, "No exception was thrown");
 	}
 }

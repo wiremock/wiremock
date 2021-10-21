@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,25 +25,24 @@ import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.eclipse.jetty.util.Jetty;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
 import static com.github.tomakehurst.wiremock.common.Gzip.unGzipToString;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assume.assumeTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-@RunWith(Enclosed.class)
 public class GzipAcceptanceTest {
 
-    public static class ChunkedTransferEncoding extends AcceptanceTestBase {
+    @Nested
+    class ChunkedTransferEncoding extends AcceptanceTestBase {
 
         @Test
         public void servesGzippedResponseForGet() {
@@ -89,18 +88,19 @@ public class GzipAcceptanceTest {
         }
     }
 
-    public static class NoChunkedTransferEncoding {
+    @Nested
+    class NoChunkedTransferEncoding {
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(wireMockConfig()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(wireMockConfig()
                 .dynamicPort()
-                .useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER));
+                .useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER)).build();
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.port());
+            testClient = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
         }
 
         @Test
@@ -126,18 +126,19 @@ public class GzipAcceptanceTest {
         }
     }
 
-    public static class GzipDisabled {
+    @Nested
+    class GzipDisabled {
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(wireMockConfig()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(wireMockConfig()
                 .dynamicPort()
-                .gzipDisabled(true));
+                .gzipDisabled(true)).build();
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.port());
+            testClient = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
         }
 
         @Test

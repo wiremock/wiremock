@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class AcceptanceTestBase {
 
 	protected static Stubbing wm;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupServer() {
 		setupServerWithEmptyFileRoot();
 
@@ -52,7 +52,7 @@ public class AcceptanceTestBase {
 		Locale.setDefault(Locale.ENGLISH);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void serverShutdown() {
 		wireMockServer.stop();
 	}
@@ -93,7 +93,7 @@ public class AcceptanceTestBase {
         wm = wireMockServer;
     }
 
-	@Before
+	@BeforeEach
 	public void init() throws InterruptedException {
 		WireMock.resetToDefault();
 	}
