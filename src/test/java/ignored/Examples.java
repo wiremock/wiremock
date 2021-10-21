@@ -17,7 +17,10 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
+import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -43,6 +46,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Collections.singletonList;
@@ -441,7 +445,7 @@ public class Examples extends AcceptanceTestBase {
             .disableRequestJournal()
 
             // Limit the size of the request log (for the same reason as above).
-            .maxRequestJournalEntries(Optional.of(100))
+            .maxRequestJournalEntries(100)
 
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)
@@ -548,6 +552,81 @@ public class Examples extends AcceptanceTestBase {
                 .andMatching("path-contains-param", Parameters.one("path", "correct"))
                 .willReturn(ok())
                 .build()));
+    }
+
+    @Test
+    public void dates() {
+        stubFor(post("/dates")
+                .withHeader("X-Munged-Date", beforeNow().expectedOffset(3, DateTimeUnit.DAYS))
+                .withHeader("X-Finalised-Date", before("now +2 months"))
+                .willReturn(ok()));
+
+        stubFor(post("/dates")
+                .withRequestBody(matchingJsonPath(
+                        "$.completedDate",
+                        equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+                )
+                .willReturn(ok()));
+
+
+
+        System.out.println(Json.write(post("/dates")
+                .withRequestBody(matchingJsonPath(
+                        "$.completedDate",
+                        equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+                )
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalAnd() {
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", and(
+                        matching("[a-z]+"),
+                        containing("magicvalue"))
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalOr() {
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", or(
+                        matching("[a-z]+"),
+                        absent())
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void jsonPathAndDates() {
+        stubFor(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                        after("2020-01-01T00:00:00"))))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                                after("2020-01-01T00:00:00"))))
+                .willReturn(ok()).build()));
     }
 
     public static class SimpleAuthRequestFilter extends StubRequestFilter {

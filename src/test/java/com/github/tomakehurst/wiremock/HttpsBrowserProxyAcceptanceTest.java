@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -37,10 +37,15 @@ import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.Origin;
 import org.eclipse.jetty.client.ProxyConfiguration;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.junit.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import javax.net.ssl.SSLContext;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -54,7 +59,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import javax.net.ssl.SSLContext;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
@@ -64,7 +73,8 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class HttpsBrowserProxyAcceptanceTest {
 
@@ -72,57 +82,51 @@ public class HttpsBrowserProxyAcceptanceTest {
     private static final String PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT = TestFiles.KEY_STORE_WITH_CA_PATH;
     private static final String NO_PREEXISTING_KEYSTORE_PATH = tempNonExistingPath("wiremock-keystores", "ca-keystore.jks");
 
-    @ClassRule
-    public static WireMockClassRule target = new WireMockClassRule(wireMockConfig()
+    @RegisterExtension
+    public static WireMockExtension target = WireMockExtension.newInstance().options(options()
             .httpDisabled(true)
             .keystorePath(TARGET_KEYSTORE_WITH_CUSTOM_CERT)
             .dynamicHttpsPort()
-    );
+    ).build();
 
-    @Rule
-    public WireMockClassRule instanceRule = target;
-
-    @ClassRule
-    public static WireMockClassRule proxy = new WireMockClassRule(wireMockConfig()
+    @RegisterExtension
+    public static WireMockExtension proxy = WireMockExtension.newInstance().options(options()
             .dynamicPort()
             .dynamicHttpsPort()
             .fileSource(new SingleRootFileSource(setupTempFileRoot()))
             .caKeystorePath(NO_PREEXISTING_KEYSTORE_PATH)
             .enableBrowserProxying(true)
             .trustAllProxyTargets(true)
-    );
-
-    @Rule
-    public WireMockClassRule instanceProxyRule = proxy;
+    ).build();
 
     private WireMockTestClient testClient;
 
-    @Before
+    @BeforeEach
     public void addAResourceToProxy() {
-        testClient = new WireMockTestClient(target.httpsPort());
+        testClient = new WireMockTestClient(target.getRuntimeInfo().getHttpsPort());
     }
 
     @Test
     public void canProxyHttpsInBrowserProxyMode() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        assertThat(testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
+        assertThat(testClient.getViaProxy(target.url("/whatever"), proxy.getRuntimeInfo().getHttpPort()).content(), is("Got it"));
     }
 
     @Test
     public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), "https");
+        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.getRuntimeInfo().getHttpsPort(), "https");
         assertThat(response.content(), is("Got it"));
     }
 
-    @Test @Ignore("Jetty doesn't yet support proxying via HTTP2")
+    @Test @Disabled("Jetty doesn't yet support proxying via HTTP2")
     public void canProxyHttpsUsingHttp2InBrowserHttpsProxyMode() throws Exception {
 
         HttpClient httpClient = Http2ClientFactory.create();
         ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
-        HttpProxy httpProxy = new HttpProxy(new Origin.Address("localhost", proxy.httpsPort()), true);
+        HttpProxy httpProxy = new HttpProxy(new Origin.Address("localhost", proxy.getRuntimeInfo().getHttpsPort()), true);
         proxyConfig.getProxies().add(httpProxy);
 
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
@@ -137,8 +141,8 @@ public class HttpsBrowserProxyAcceptanceTest {
         proxy.stubFor(get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Stubbed Value")));
         target.stubFor(get(urlEqualTo("/not_stubbed")).willReturn(aResponse().withBody("Should be served from target")));
 
-        assertThat(testClient.getViaProxy(target.url("/stubbed"), proxy.port()).content(), is("Stubbed Value"));
-        assertThat(testClient.getViaProxy(target.url("/not_stubbed"), proxy.port()).content(), is("Should be served from target"));
+        assertThat(testClient.getViaProxy(target.url("/stubbed"), proxy.getRuntimeInfo().getHttpPort()).content(), is("Stubbed Value"));
+        assertThat(testClient.getViaProxy(target.url("/not_stubbed"), proxy.getRuntimeInfo().getHttpPort()).content(), is("Should be served from target"));
     }
 
     @Test
@@ -152,16 +156,13 @@ public class HttpsBrowserProxyAcceptanceTest {
         target.stubFor(get(urlEqualTo("/record_me")).willReturn(aResponse().withBody("Target response")));
 
         // then
-        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.port()).content(), is("Target response"));
+        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.getRuntimeInfo().getHttpPort()).content(), is("Target response"));
 
         // when
         proxy.stopRecording();
 
-        // and
-        target.stop();
-
         // then
-        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.port()).content(), is("Target response"));
+        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.getRuntimeInfo().getHttpPort()).content(), is("Target response"));
     }
 
     @Test
@@ -255,14 +256,14 @@ public class HttpsBrowserProxyAcceptanceTest {
 
             // when
             httpClient.execute(
-                    new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
+                    new HttpGet("https://fake1.nowildcards1.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
             );
 
             // then no exception is thrown
 
             // when
             httpClient.execute(
-                    new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
+                    new HttpGet("https://fake2.nowildcards2.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
             );
 
             // then no exception is thrown
@@ -280,43 +281,47 @@ public class HttpsBrowserProxyAcceptanceTest {
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
                 .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
-                .setProxy(new HttpHost("localhost", proxy.port()))
+                .setProxy(new HttpHost("localhost", proxy.getRuntimeInfo().getHttpPort()))
                 .build();
 
         // when
         httpClient.execute(
-                new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
+                new HttpGet("https://fake1.nowildcards1.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
         );
 
         // then no exception is thrown
 
         // when
         httpClient.execute(
-                new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
+                new HttpGet("https://fake2.nowildcards2.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
         );
 
         // then no exception is thrown
     }
 
-    @Test(expected = EOFException.class)
+    @Test
     public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
-        new WireMockServer(options()
-            .enableBrowserProxying(true)
-            .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString())
-        ).start();
+        assertThrows(IOException.class, () -> {
+            new WireMockServer(options()
+                    .enableBrowserProxying(true)
+                    .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString())
+            ).start();
+        });
     }
 
-    @Test(expected = FatalStartupException.class)
+    @Test
     public void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
-        new WireMockServer(options()
-            .enableBrowserProxying(true)
-            .caKeystorePath(emptyKeyStore().toString())
-        ).start();
+        assertThrows(FatalStartupException.class, () -> {
+            new WireMockServer(options()
+                    .enableBrowserProxying(true)
+                    .caKeystorePath(emptyKeyStore().toString())
+            ).start();
+        });
     }
 
     @Test
     public void certificateAuthorityCertCanBeDownloaded() throws Exception {
-        WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.port());
+        WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.getRuntimeInfo().getHttpPort());
 
         WireMockResponse certResponse = proxyTestClient.get("/__admin/certs/wiremock-ca.crt");
         assertEquals(200, certResponse.statusCode());

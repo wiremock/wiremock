@@ -165,7 +165,7 @@ public class AdminRoutes {
         @Override
         public void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> taskClass) {
             try {
-                AdminTask task = taskClass.newInstance();
+                AdminTask task = taskClass.getDeclaredConstructor().newInstance();
                 add(requestSpec(method, urlTemplate), task);
             } catch (Exception e) {
                 throwUnchecked(e);

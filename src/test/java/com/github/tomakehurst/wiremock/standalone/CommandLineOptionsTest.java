@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
@@ -217,8 +220,8 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
         assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
         assertThat(options.proxyVia().port(), is(8080));
-        assertThat(options.proxyVia().getUsername(), isEmptyOrNullString());
-        assertThat(options.proxyVia().getPassword(), isEmptyOrNullString());
+        assertThat(options.proxyVia().getUsername(), is(emptyOrNullString()));
+        assertThat(options.proxyVia().getPassword(), is(emptyOrNullString()));
     }
 
     @Test
@@ -596,6 +599,43 @@ public class CommandLineOptionsTest {
         Object two = options.extensionsOfType(ResponseDefinitionTransformer.class).get(ResponseTemplateTransformer.NAME);
 
         assertSame(one, two);
+    }
+
+    @Test
+    public void fileSourceDefaultsToSingleRootFileSource() {
+        CommandLineOptions options = new CommandLineOptions();
+
+        FileSource fileSource = options.filesRoot();
+
+        assertThat(fileSource, instanceOf(SingleRootFileSource.class));
+    }
+
+    @Test
+    public void mappingsSourceDefaultsToJsonFileMappingsSource() {
+        CommandLineOptions options = new CommandLineOptions();
+
+        MappingsSaver mappingsSaver = options.mappingsSaver();
+
+        assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
+    }
+
+    @Test
+    public void loadResourcesFromClasspathSetsFileSourceToUseClasspath() {
+        CommandLineOptions options = new CommandLineOptions("--load-resources-from-classpath=classpath-filesource");
+
+        FileSource fileSource = options.filesRoot();
+
+        assertThat(fileSource, instanceOf(ClasspathFileSource.class));
+        assertThat(fileSource.getTextFileNamed("__files/stuff.txt").readContentsAsString(), equalTo("THINGS!"));
+    }
+
+    @Test
+    public void loadResourcesFromClasspathSetsMappingsSourceToUseClasspath() {
+        CommandLineOptions options = new CommandLineOptions("--load-resources-from-classpath=wiremock-stuff");
+
+        MappingsSaver mappingsSaver = options.mappingsSaver();
+
+        assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

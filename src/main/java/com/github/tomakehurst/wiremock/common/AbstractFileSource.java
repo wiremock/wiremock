@@ -21,7 +21,6 @@ import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -167,7 +166,7 @@ public abstract class AbstractFileSource implements FileSource {
 
     private void writeTextFileAndTranslateExceptions(String contents, File toFile) {
         try {
-            Files.write(contents, toFile, UTF_8);
+            Files.asCharSink(toFile, UTF_8).write(contents);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
@@ -179,14 +178,6 @@ public abstract class AbstractFileSource implements FileSource {
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
-    }
-
-    private FileFilter filesOnly() {
-    	return new FileFilter() {
-    		public boolean accept(File file) {
-    			return file.isFile();
-    		}
-    	};
     }
 
     public static Predicate<BinaryFile> byFileExtension(final String extension) {

@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -37,7 +37,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-    HttpClient httpClient = HttpClientFactory.createClient();
+    HttpClient httpClient = HttpClient4Factory.createClient();
 
     @Test
     public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
@@ -87,21 +87,68 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.getStatusLine().getStatusCode(), is(404));
     }
 
+    /**
+     * @see <a href="https://github.com/tomakehurst/wiremock/issues/1047">#1047</a>
+     */
     @Test
-    public void doesNotFailWithMultipartMixedRequest() throws Exception {
+    public void acceptsAMultipartMixedRequestContainingATextAndAFilePart() throws Exception {
         stubFor(post("/multipart-mixed")
+                .withMultipartRequestBody(aMultipart()
+                        .withName("text")
+                        .withBody(containing("hello")))
+                .withMultipartRequestBody(aMultipart()
+                        .withName("file")
+                        .withBody(binaryEqualTo("ABCD".getBytes())))
                 .willReturn(ok())
         );
 
         HttpUriRequest request = RequestBuilder
                 .post(wireMockServer.baseUrl() + "/multipart-mixed")
-                .setHeader("Content-Type", "multipart/mixed; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
-                .setEntity(new StringEntity("", ContentType.create("multipart/mixed")))
+                .setEntity(MultipartEntityBuilder.create()
+                        .setMimeSubtype("mixed")
+                        .addTextBody("text", "hello")
+                        .addBinaryBody("file", "ABCD".getBytes())
+                        .build()
+                )
                 .build();
 
         HttpResponse response = httpClient.execute(request);
 
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        assertThat(
+                EntityUtils.toString(response.getEntity()),
+                response.getStatusLine().getStatusCode(), is(200));
+    }
+
+    /**
+     * @see <a href="https://github.com/tomakehurst/wiremock/issues/1047">#1047</a>
+     */
+    @Test
+    public void acceptsAMultipartRelatedRequestContainingATextAndAFilePart() throws Exception {
+        stubFor(post("/multipart-related")
+                .withMultipartRequestBody(aMultipart()
+                        .withName("text")
+                        .withBody(containing("hello")))
+                .withMultipartRequestBody(aMultipart()
+                        .withName("file")
+                        .withBody(binaryEqualTo("ABCD".getBytes())))
+                .willReturn(ok())
+        );
+
+        HttpUriRequest request = RequestBuilder
+                .post(wireMockServer.baseUrl() + "/multipart-related")
+                .setEntity(MultipartEntityBuilder.create()
+                        .setMimeSubtype("related")
+                        .addTextBody("text", "hello")
+                        .addBinaryBody("file", "ABCD".getBytes())
+                        .build()
+                )
+                .build();
+
+        HttpResponse response = httpClient.execute(request);
+
+        assertThat(
+                EntityUtils.toString(response.getEntity()),
+                response.getStatusLine().getStatusCode(), is(200));
     }
 
     // https://github.com/tomakehurst/wiremock/issues/1179

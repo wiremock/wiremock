@@ -115,6 +115,7 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_CA_KEYSTORE_TYPE = "ca-keystore-type";
     private static final String DISABLE_OPTIMIZE_XML_FACTORIES_LOADING = "disable-optimize-xml-factories-loading";
     private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
+    private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -178,6 +179,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_CA_KEYSTORE, "Path to an alternative keystore containing a Certificate Authority private key & certificate for generating certificates when proxying HTTPS. Password is assumed to be \"password\" if not specified.").availableIf(ENABLE_BROWSER_PROXYING).withRequiredArg().defaultsTo(DEFAULT_CA_KEYSTORE_PATH);
         optionParser.accepts(HTTPS_CA_KEYSTORE_PASSWORD, "Password for the alternative CA keystore.").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo(DEFAULT_CA_KESTORE_PASSWORD);
         optionParser.accepts(HTTPS_CA_KEYSTORE_TYPE, "Type of the alternative CA keystore (jks or pkcs12).").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo("jks");
+        optionParser.accepts(LOAD_RESOURCES_FROM_CLASSPATH, "Specifies path on the classpath for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg();
 
         optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -185,7 +187,12 @@ public class CommandLineOptions implements Options {
         validate();
 		captureHelpTextIfRequested(optionParser);
 
-        fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        if (optionSet.has(LOAD_RESOURCES_FROM_CLASSPATH)) {
+            fileSource = new ClasspathFileSource((String) optionSet.valueOf(LOAD_RESOURCES_FROM_CLASSPATH));
+        } else {
+            fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        }
+
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
         extensions = buildExtensions();
 
@@ -269,7 +276,7 @@ public class CommandLineOptions implements Options {
             Class<?> cls = loader.loadClass(
                     "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
             );
-            return (HttpServerFactory) cls.newInstance();
+            return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             return throwUnchecked(e, null);
         }

@@ -1,8 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 buildscript {
     repositories {
-        jcenter()
         maven {
             url "https://oss.sonatype.org"
         }
@@ -20,28 +17,19 @@ plugins {
     id 'eclipse'
     id 'project-report'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id "org.sonarqube" version "3.3"
+    id 'jacoco'
 }
 
 group = 'com.github.tomakehurst'
-version = '2.28.0'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
-ext {
-    runningOnCI = System.getenv('CI') == 'true'
-}
 
 def versions = [
-        handlebars     : '4.2.0',
-        jetty          : '9.4.40.v20210413',
-        guava          : '30.1.1-jre',
-        jackson        : '2.12.3',
-        xmlUnit        : '2.8.2'
+        handlebars     : '4.3.0',
+        jetty          : '9.4.44.v20210927',
+        guava          : '31.0.1-jre',
+        jackson        : '2.13.0',
+        xmlUnit        : '2.8.3',
+        junitJupiter   : '5.8.1'
 ]
 
 dependencies {
@@ -65,22 +53,27 @@ dependencies {
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5.13"
+    compile "org.apache.httpcomponents.client5:httpclient5:5.1"
     compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
         exclude group: 'junit', module: 'junit'
     }
     compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-    compile 'net.javacrumbs.json-unit:json-unit-core:2.25.0'
-    compile "com.jayway.jsonpath:json-path:2.5.0", {
+    compile 'net.javacrumbs.json-unit:json-unit-core:2.28.0'
+    compile "com.jayway.jsonpath:json-path:2.6.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
     compile "net.minidev:json-smart:2.4.7" // Pinning this above the transitive version from json-path to get CVE fix
-    compile "org.ow2.asm:asm:9.1"
-    compile "org.slf4j:slf4j-api:1.7.30"
+    compile "org.ow2.asm:asm:9.2"
+    compile "org.slf4j:slf4j-api:1.7.32"
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
+
     compileOnly("junit:junit:4.13.2") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
+    compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
+    compileOnly("org.junit.jupiter:junit-jupiter")
+
     compile 'org.apache.commons:commons-lang3:3.12.0'
     compile "com.github.jknack:handlebars:$versions.handlebars", {
         exclude group: 'org.mozilla', module: 'rhino'
@@ -92,37 +85,35 @@ dependencies {
     compile 'commons-fileupload:commons-fileupload:1.4',  {
         exclude group: 'commons-io', module: 'commons-io'
     }
-    compile "commons-io:commons-io:2.8.0"
+    compile "commons-io:commons-io:2.11.0"
 
     testCompile "junit:junit:4.13"
-    testCompile "org.hamcrest:hamcrest-all:1.3"
-    testCompile("org.jmock:jmock:2.5.1") {
-        exclude group: "junit", module: "junit-dep"
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-        exclude group: "org.hamcrest", module: "hamcrest-library"
-    }
-    testCompile("org.jmock:jmock-junit4:2.5.1") {
-        exclude group: "junit", module: "junit-dep"
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-        exclude group: "org.hamcrest", module: "hamcrest-library"
-    }
-    testCompile 'org.mockito:mockito-core:3.10.0'
-    testCompile 'net.javacrumbs.json-unit:json-unit:2.25.0'
+    testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
+
+    testCompile "org.hamcrest:hamcrest-core:2.2"
+    testCompile "org.hamcrest:hamcrest-library:2.2"
+    testCompile 'org.mockito:mockito-core:3.12.4'
+    testCompile 'org.mockito:mockito-junit-jupiter:4.0.0'
+    testCompile 'net.javacrumbs.json-unit:json-unit:2.28.0'
     testCompile "org.skyscreamer:jsonassert:1.2.3"
-    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.0'
+    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.6.1'
     testCompile 'org.awaitility:awaitility:4.1.0'
     testCompile "com.googlecode.jarjar:jarjar:1.3"
-    testCompile "commons-io:commons-io:2.8.0"
-    testCompile 'org.scala-lang:scala-library:2.13.5'
+    testCompile "commons-io:commons-io:2.10.0"
+    testCompile 'org.scala-lang:scala-library:2.13.6'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:0.21.0'
 
     testCompile "org.eclipse.jetty:jetty-client:$versions.jetty"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$versions.jetty"
     testCompile 'org.apache.httpcomponents:httpmime:4.5.13'
 
-    testRuntime "org.slf4j:slf4j-api:1.7.30"
-    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.13.2"
-    testRuntime "org.apache.logging.log4j:log4j-api:2.13.2"
-    testRuntime "org.apache.logging.log4j:log4j-core:2.13.2"
+    testRuntime "org.slf4j:slf4j-api:1.7.32"
+    testRuntime "org.apache.logging.log4j:log4j-slf4j-impl:2.14.1"
+    testRuntime "org.apache.logging.log4j:log4j-api:2.14.1"
+    testRuntime "org.apache.logging.log4j:log4j-core:2.14.1"
     testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
     testCompile ('net.jockx:littleproxy:1.1.3') {
@@ -131,30 +122,104 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'io.netty', module: 'netty-all'
     }
-    testCompile "io.netty:netty-all:4.1.63.Final"
+    testCompile "io.netty:netty-all:4.1.69.Final"
 }
 
-compileTestJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs += '-XDenableSunApiLintControl'
-}
+allprojects {
+    ext {
+        runningOnCI = System.getenv('CI') == 'true'
 
-test {
-    // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
-    systemProperty 'user.timezone', 'Australia/Sydney'
+        repoUser =     this.hasProperty('sonatypeUser')     ? sonatypeUser : 'default'
+        repoPassword = this.hasProperty('sonatypePassword') ? sonatypePassword : 'default'
 
-    exclude 'ignored/**'
+        pomInfo = {
+            name 'WireMock'
+            description 'A web service test double for all occasions'
+            url 'http://wiremock.org'
+            scm {
+                connection 'https://github.com/wiremock/wiremock.git'
+                developerConnection 'https://github.com/wiremock/wiremock.git'
+                url 'https://github.com/wiremock/wiremock'
+            }
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            developers {
+                developer {
+                    id 'tomakehurst'
+                    name 'Tom Akehurst'
+                }
+            }
+        }
+    }
 
-    maxParallelForks = runningOnCI ? 1 : 3
+    repositories {
+        mavenCentral()
+    }
 
-    testLogging {
-        events "FAILED", "SKIPPED"
-        exceptionFormat "full"
+    version = '2.31.0'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    compileJava {
+        options.encoding = 'UTF-8'
+
+        // silences warnings about compiling against `sun` packages
+        options.compilerArgs += '-XDenableSunApiLintControl'
+    }
+
+    compileTestJava {
+        options.encoding = 'UTF-8'
+        options.compilerArgs += '-XDenableSunApiLintControl'
+    }
+
+    test {
+        // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
+        systemProperty 'user.timezone', 'Australia/Sydney'
+
+        useJUnitPlatform()
+        exclude 'ignored/**'
+
+        maxParallelForks = runningOnCI ? 1 : 3
+
+        testLogging {
+            events "FAILED", "SKIPPED"
+            exceptionFormat "full"
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
+    }
+    test.finalizedBy jacocoTestReport
+
+    sonarqube {
+        properties {
+            property "sonar.projectKey", "wiremock_wiremock"
+            property "sonar.organization", "wiremock"
+            property "sonar.host.url", "https://sonarcloud.io"
+        }
     }
 }
 
-final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
 
+task testJar(type: Jar, dependsOn: testClasses) {
+    archiveClassifier.set('tests')
+    from sourceSets.test.output
+}
+
+final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
 task npmInstall(type: Exec) {
     workingDir DOCS_DIR
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
@@ -174,11 +239,6 @@ task generateApiDocs(type: Exec) {
     }
 }
 
-processResources.dependsOn generateApiDocs
-
-
-def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
-
 configurations {
     shadowJar
     thinJarPom
@@ -186,15 +246,16 @@ configurations {
 }
 
 jar {
-    baseName = 'wiremock-jre8'
+    archiveBaseName.set('wiremock-jre8')
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
+        attributes("Add-Exports": "java.base/sun.security.x509")
     }
 }
 
 shadowJar {
-    baseName = 'wiremock-jre8-standalone'
-    classifier = ''
+    archiveBaseName.set('wiremock-jre8-standalone')
+    archiveClassifier.set('')
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
     relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -229,25 +290,6 @@ shadowJar {
     exclude 'handlebars-*.js'
 }
 
-def repoUser
-def repoPassword
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-task testJar(type: Jar, dependsOn: testClasses) {
-    classifier = 'tests'
-    from sourceSets.test.output
-}
-
-
 def thinJarPomPath = "${project.buildDir}/publications/thinJar/pom-default.xml"
 def standaloneJarPomPath = "${project.buildDir}/publications/standaloneJar/pom-default.xml"
 
@@ -257,59 +299,16 @@ artifacts {
     standaloneJarPom file(standaloneJarPomPath)
 }
 
-compileJava {
-    options.encoding = 'UTF-8'
-
-    // silences warnings about compiling against `sun` packages
-    options.compilerArgs += '-XDenableSunApiLintControl'
-}
-
 javadoc {
     exclude "**/CertificateAuthority.java"
-}
-
-if (!this.hasProperty('sonatypeUser')) {
-    repoUser = 'default'
-} else {
-    repoUser = sonatypeUser
-}
-
-if (!this.hasProperty('sonatypePassword')) {
-    repoPassword = 'default'
-} else {
-    repoPassword = sonatypePassword
-}
-
-
-def pomInfo = {
-    name 'WireMock'
-    description 'A web service test double for all occasions'
-    url 'http://wiremock.org'
-    scm {
-        connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-        developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-        url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-    }
-    licenses {
-        license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/license/LICENSE-2.0.txt'
-            distribution 'repo'
-        }
-    }
-    developers {
-        developer {
-            id 'tomakehurst'
-            name 'Tom Akehurst'
-        }
-    }
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 task writeThinJarPom {
     doLast {
         pom {
             project {
-                artifactId = jar.baseName
+                artifactId = jar.getArchiveBaseName().get()
             }
             project(pomInfo)
         }.whenConfigured { MavenPom pom ->
@@ -330,23 +329,26 @@ signing {
 publishing {
     repositories {
         maven {
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username repoUser
+                password repoPassword
+            }
+        }
 
-            def localRepo = file("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
-            def repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
-
-            url repoUrl
-
-            if (!shouldPublishLocally) {
-                credentials {
-                    username repoUser
-                    password repoPassword
-                }
+        maven {
+            name 'snapshots'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+            credentials {
+                username repoUser
+                password repoPassword
             }
         }
     }
+
     publications {
         thinJar(MavenPublication) {
-            artifactId = "${jar.baseName}"
+            artifactId = "${jar.getArchiveBaseName().get()}"
 
             artifact jar
             artifact sourcesJar
@@ -367,7 +369,7 @@ publishing {
         }
 
         standaloneJar(MavenPublication) { publication ->
-            artifactId = "${jar.baseName}-standalone"
+            artifactId = "${jar.getArchiveBaseName().get()}-standalone"
             project.shadow.component(publication)
 
             artifact sourcesJar
@@ -388,27 +390,24 @@ task checkReleasePreconditions {
     doLast {
         def REQUIRED_GIT_BRANCH = 'master'
         def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-        assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
+        assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
     }
 }
 publish.dependsOn checkReleasePreconditions, writeThinJarPom
 
-publishToMavenLocal.dependsOn checkReleasePreconditions, writeThinJarPom, jar, shadowJar
+publishToMavenLocal.dependsOn writeThinJarPom, jar, shadowJar
 
 task addGitTag {
     doLast {
-        if (!shouldPublishLocally) {
-            println "git tag ${version}".execute().text
-            println "git push origin --tags".execute().text
-        }
+        println "git tag ${version}".execute().text
+        println "git push origin --tags".execute().text
     }
 }
 
-jar.dependsOn generateApiDocs
 signThinJarPublication.dependsOn writeThinJarPom
 
 task release {
-    dependsOn clean, jar, shadowJar, publish, addGitTag
+    dependsOn clean, jar, shadowJar, publishAllPublicationsToMavenRepository, addGitTag
 }
 
 task 'bump-patch-version' {
@@ -508,5 +507,5 @@ task 'add-copyright-headers' {
 
 wrapper {
     gradleVersion = '6.6.1'
-    distributionType = Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.BIN
 }

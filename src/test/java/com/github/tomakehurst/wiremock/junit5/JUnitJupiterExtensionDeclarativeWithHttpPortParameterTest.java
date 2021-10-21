@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.junit5;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.Test;
 
-public class RequestDelaySpec {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-    private final int milliseconds;
+@WireMockTest(httpPort = 8765)
+public class JUnitJupiterExtensionDeclarativeWithHttpPortParameterTest {
 
-    @JsonCreator
-    public RequestDelaySpec(@JsonProperty("milliseconds") int milliseconds) {
-        this.milliseconds = milliseconds;
+    @Test
+    void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+        assertThat(wmRuntimeInfo.getHttpPort(), is(8765));
     }
 
-    @JsonProperty("milliseconds")
-    public int milliseconds() {
-        return milliseconds;
-    }
 }

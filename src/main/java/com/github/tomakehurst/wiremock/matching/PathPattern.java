@@ -16,7 +16,10 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 
+import java.util.List;
 import java.util.Objects;
 
 public abstract class PathPattern extends StringValuePattern {
@@ -48,7 +51,7 @@ public abstract class PathPattern extends StringValuePattern {
 
     protected abstract MatchResult isSimpleMatch(String value);
     protected abstract MatchResult isAdvancedMatch(String value);
-    public abstract String getExpressionResult(String value);
+    public abstract ListOrSingle<String> getExpressionResult(String value);
 
     @Override
     public boolean equals(Object o) {
