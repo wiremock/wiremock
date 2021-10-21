@@ -375,8 +375,8 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 aResponse()
                 .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-		SocketException socketException = assertThrows(SocketException.class, () -> testClient.get("/connection/reset"));
-		assertThat(socketException.getMessage(), is("java.net.SocketException: Connection reset"));
+		RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> testClient.get("/connection/reset"));
+		assertThat(runtimeException.getMessage(), is("java.net.SocketException: Connection reset"));
 	}
 
 	@Test
