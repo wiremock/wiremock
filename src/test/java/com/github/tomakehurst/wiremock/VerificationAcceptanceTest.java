@@ -810,7 +810,10 @@ public class VerificationAcceptanceTest {
         @RegisterExtension
         public WireMockExtension wireMockRule = WireMockExtension.newInstance().options(wireMockConfig()
                 .dynamicPort()
-                .disableRequestJournal()).failOnUnmatchedRequests(false).build();
+                .disableRequestJournal())
+        .configureStaticDsl(true)
+        .failOnUnmatchedRequests(false)
+        .build();
 
         @Test
         public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
@@ -832,7 +835,10 @@ public class VerificationAcceptanceTest {
         @RegisterExtension
         public WireMockExtension wireMockRule = WireMockExtension.newInstance().options(options()
                 .dynamicPort()
-                .maxRequestJournalEntries(2)).failOnUnmatchedRequests(false).build();
+                .maxRequestJournalEntries(2))
+        .configureStaticDsl(true)
+        .failOnUnmatchedRequests(false)
+        .build();
 
         @Test
         public void maxLengthIs2() {
