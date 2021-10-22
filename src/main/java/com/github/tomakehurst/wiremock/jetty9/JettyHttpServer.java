@@ -108,12 +108,7 @@ public class JettyHttpServer implements HttpServer {
         applyAdditionalServerConfiguration(jettyServer, options);
 
         final HandlerCollection handlers = createHandler(options, adminRequestHandler, stubRequestHandler);
-        jettyServer.setHandler(new HandlerCollection(ArrayUtils.insert(0, handlers.getHandlers(), new AbstractHandler() {
-            @Override
-            public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) {
-                baseRequest.getHttpChannel().getState().setTimeout(options.timeout());
-            }
-        })));
+        jettyServer.setHandler(handlers);
 
         finalizeSetup(options);
     }
@@ -137,7 +132,13 @@ public class JettyHttpServer implements HttpServer {
         );
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
+        AbstractHandler asyncTimeoutSettingHandler = new AbstractHandler() {
+            @Override
+            public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) {
+                baseRequest.getHttpChannel().getState().setTimeout(options.timeout());
+            }
+        };
+        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext, asyncTimeoutSettingHandler));
 
         if (options.getGzipDisabled()) {
             handlers.addHandler(mockServiceContext);

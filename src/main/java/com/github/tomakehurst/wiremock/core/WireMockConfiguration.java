@@ -54,7 +54,7 @@ import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
 
-    private long timeout = DEFAULT_TIMEOUT;
+    private long asyncResponseTimeout = DEFAULT_TIMEOUT;
     private boolean disableOptimizeXmlFactoriesLoading = false;
     private int portNumber = DEFAULT_PORT;
     private boolean httpDisabled = false;
@@ -133,7 +133,7 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration timeout(int timeout) {
-        this.timeout = timeout;
+        this.asyncResponseTimeout = timeout;
         return this;
     }
 
@@ -592,7 +592,7 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public long timeout() {
-        return timeout;
+        return asyncResponseTimeout;
     }
 
     @Override
