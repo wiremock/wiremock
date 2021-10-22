@@ -19,14 +19,14 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableSet;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.xmlunit.diff.ComparisonType;
 
@@ -34,17 +34,16 @@ import java.util.Locale;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
@@ -53,10 +52,10 @@ import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
 public class EqualToXmlPatternTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort());
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().build();
 
-    @Before
+    @BeforeEach
     public void init() {
         LocalNotifier.set(new ConsoleNotifier(true));
 
@@ -65,7 +64,7 @@ public class EqualToXmlPatternTest {
         Locale.setDefault(Locale.ENGLISH);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         LocalNotifier.set(null);
     }

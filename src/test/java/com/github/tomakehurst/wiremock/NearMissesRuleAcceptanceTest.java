@@ -30,9 +30,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
+import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -46,6 +50,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
 public class NearMissesRuleAcceptanceTest {
 
@@ -131,15 +136,20 @@ public class NearMissesRuleAcceptanceTest {
         private String runTestAndGetMessage(Class<?> testClass) {
             final AtomicReference<String> message = new AtomicReference<>("");
 
-            JUnitCore junit = new JUnitCore();
-            junit.addListener(new RunListener() {
-
+            LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                    .selectors(selectClass(testClass))
+                    .build();
+            Launcher launcher = LauncherFactory.create();
+            launcher.registerTestExecutionListeners(new TestExecutionListener() {
                 @Override
-                public void testFailure(Failure failure) throws Exception {
-                    message.set(failure.getMessage());
+                public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+                    testExecutionResult.getThrowable()
+                            .map(Throwable::getMessage)
+                            .ifPresent(message::set);
                 }
             });
-            junit.run(testClass);
+            launcher.execute(request);
+
             return message.get();
         }
     }

@@ -19,16 +19,18 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class DiffTest {
 

@@ -16,18 +16,18 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
@@ -39,8 +39,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.Thread.sleep;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResponseDelayAcceptanceTest {
 
@@ -49,19 +50,19 @@ public class ResponseDelayAcceptanceTest {
     private static final int SHORTER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS / 2;
     private static final int BRIEF_DELAY_TO_ALLOW_CALL_TO_BE_MADE_MILLISECONDS = 300;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT, Options.DYNAMIC_PORT);
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+    @RegisterExtension
+    public WireMockExtension wireMockRule = WireMockExtension.newInstance()
+        .configureStaticDsl(true)
+        .options(WireMockConfiguration.options().port(Options.DYNAMIC_PORT).httpsPort(Options.DYNAMIC_PORT))
+        .build();
 
     private HttpClient httpClient;
     private WireMockTestClient testClient;
 
-    @Before
+    @BeforeEach
     public void init() {
         httpClient = HttpClient4Factory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
-        testClient = new WireMockTestClient(wireMockRule.port());
+        testClient = new WireMockTestClient(wireMockRule.getRuntimeInfo().getHttpPort());
     }
 
     @Test
@@ -158,13 +159,13 @@ public class ResponseDelayAcceptanceTest {
 
     @Test
     public void requestTimesOutWhenDelayIsLongerThanSocketTimeout() throws Exception {
-        stubFor(get(urlEqualTo("/delayed")).willReturn(
-                aResponse()
-                        .withStatus(200)
-                        .withFixedDelay(LONGER_THAN_SOCKET_TIMEOUT)));
-
-        exception.expect(SocketTimeoutException.class);
-        httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
+        assertThrows(SocketTimeoutException.class, () -> {
+            stubFor(get(urlEqualTo("/delayed")).willReturn(
+                    aResponse()
+                            .withStatus(200)
+                            .withFixedDelay(LONGER_THAN_SOCKET_TIMEOUT)));
+            httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
+        });
     }
 
     @Test
@@ -174,7 +175,7 @@ public class ResponseDelayAcceptanceTest {
                         .withStatus(200)
                         .withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
-        final HttpResponse execute = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
+        final HttpResponse execute = httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
         assertThat(execute.getStatusLine().getStatusCode(), is(200));
     }
 
@@ -222,7 +223,7 @@ public class ResponseDelayAcceptanceTest {
             @Override
             public void run() {
                 try {
-                    HttpGet request = new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port()));
+                    HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
                     final HttpResponse execute = httpClient.execute(request);
                     assertThat(execute.getStatusLine().getStatusCode(), is(200));
                     success.set(true);
