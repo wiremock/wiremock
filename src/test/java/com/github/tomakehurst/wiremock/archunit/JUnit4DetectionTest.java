@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -35,7 +36,7 @@ import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 })
 class JUnit4DetectionTest {
 
-	private static final List<Class<?>> excluded = List.of(
+	private static final Stream<Class<?>> excluded = Stream.of(
 			WireMockClassRule.class,
 			WireMockRule.class,
 			WireMockStaticRule.class,
@@ -45,7 +46,7 @@ class JUnit4DetectionTest {
 
 	private static final DescribedPredicate<? super JavaClass> EXCLUDE_WIREMOCKJUNITRULETEST = describe(
 			"exclude WireMockJUnitRuleTest",
-			clazz -> !excluded.stream().anyMatch(excl -> clazz.getName().contains(excl.getSimpleName())));
+			clazz -> !excluded.anyMatch(excl -> clazz.getName().contains(excl.getSimpleName())));
 
 	private static final String REASON = "we want to migrate to JUnit Jupiter";
 
