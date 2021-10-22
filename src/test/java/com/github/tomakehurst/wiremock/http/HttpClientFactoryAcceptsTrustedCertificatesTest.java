@@ -17,10 +17,8 @@ package com.github.tomakehurst.wiremock.http;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,12 +28,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.common.HttpClient4Utils.getEntityAsStringAndCloseStream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Parameterized.class)
 public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
 
-    @Parameters(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
     public static Collection<Object[]> data() {
         return asList(new Object[][] {
                // trusted                     certificateCN validCertificate?
@@ -48,8 +44,11 @@ public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientF
         });
     }
 
-    @Test
-    public void certificatesAreAccepted() throws Exception {
+    @MethodSource("data")
+    @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
+    public void certificatesAreAccepted(List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
+
+        startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
         server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
@@ -60,11 +59,4 @@ public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientF
         assertEquals("Hello World", result);
     }
 
-    public HttpClientFactoryAcceptsTrustedCertificatesTest(
-        List<String> trustedHosts,
-        String certificateCN,
-        boolean validCertificate
-    ) {
-        super(trustedHosts, certificateCN, validCertificate);
-    }
 }
