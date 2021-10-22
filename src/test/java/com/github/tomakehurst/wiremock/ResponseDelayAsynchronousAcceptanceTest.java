@@ -47,7 +47,10 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     private ExecutorService httpClientExecutor = Executors.newCachedThreadPool();
 
     @RegisterExtension
-    public WireMockExtension wireMockRule = WireMockExtension.newInstance().options(getOptions()).build();
+    public WireMockExtension wireMockRule = WireMockExtension.newInstance()
+            .configureStaticDsl(true)
+            .options(getOptions())
+            .build();
 
     private static WireMockConfiguration getOptions() {
         WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();

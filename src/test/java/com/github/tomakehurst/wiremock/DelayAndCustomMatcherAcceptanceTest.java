@@ -39,7 +39,9 @@ public class DelayAndCustomMatcherAcceptanceTest {
 
     @RegisterExtension
     public WireMockExtension wireMockRule = WireMockExtension.newInstance()
-        .options(options().dynamicPort().extensions(BodyChanger.class)).build();
+        .configureStaticDsl(true)
+        .options(options().dynamicPort().extensions(BodyChanger.class))
+        .build();
 
     @Test
     public void delayIsAddedWhenCustomResponseTransformerPresent() {
