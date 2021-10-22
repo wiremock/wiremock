@@ -24,6 +24,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Limit further usage of JUnit 4 throughout our code base, as we want to migrate to JUnit Jupiter as per
@@ -36,17 +37,18 @@ import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 })
 class JUnit4DetectionTest {
 
-	private static final Stream<Class<?>> excluded = Stream.of(
+	private static final List<Class<?>> excluded = Stream.of(
 			WireMockClassRule.class,
 			WireMockRule.class,
 			WireMockStaticRule.class,
 			JUnit4DetectionTest.class,
 			WireMockJUnitRuleTest.class,
-			WireMockRuleFailOnUnmatchedRequestsTest.class);
+			WireMockRuleFailOnUnmatchedRequestsTest.class)
+			.collect(toList());
 
 	private static final DescribedPredicate<? super JavaClass> EXCLUDE_WIREMOCKJUNITRULETEST = describe(
 			"exclude WireMockJUnitRuleTest",
-			clazz -> !excluded.anyMatch(excl -> clazz.getName().contains(excl.getSimpleName())));
+			clazz -> !excluded.stream().anyMatch(excl -> clazz.getName().contains(excl.getSimpleName())));
 
 	private static final String REASON = "we want to migrate to JUnit Jupiter";
 
