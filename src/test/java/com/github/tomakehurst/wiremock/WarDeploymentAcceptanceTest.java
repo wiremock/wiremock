@@ -18,36 +18,29 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.Network;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class WarDeploymentAcceptanceTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
 	private Server jetty;
 	
 	private WireMockTestClient testClient;
 	
-	@Before
+	@BeforeEach
 	public void init() throws Exception {
         String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
 		WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
@@ -81,7 +74,7 @@ public class WarDeploymentAcceptanceTest {
 		return port;
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		jetty.stop();
 		WireMock.configure();

@@ -15,12 +15,16 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.util.EntityUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -29,17 +33,14 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 
-import com.github.tomakehurst.wiremock.common.HttpClientUtils;
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.util.EntityUtils;
-import org.junit.*;
-
-import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class BindAddressTest {
 
@@ -49,13 +50,12 @@ public class BindAddressTest {
 
     final HttpClient client = HttpClient4Factory.createClient();
 
-    @Before
+    @BeforeEach
     public void prepare() throws Exception {
         nonBindAddress = getIpAddressOtherThan(localhost);
 
-        assumeFalse(
-            "Impossible to validate the binding address. This machine has only a one Ip address [" + localhost + "]",
-            nonBindAddress == null);
+        assumeFalse(nonBindAddress == null,
+            "Impossible to validate the binding address. This machine has only a one Ip address [" + localhost + "]");
 
         wireMockServer = new WireMockServer(wireMockConfig()
             .bindAddress(localhost)
@@ -68,7 +68,7 @@ public class BindAddressTest {
             .willReturn(aResponse().withStatus(200)));
     }
 
-    @After
+    @AfterEach
     public void stop() {
         if (wireMockServer != null) {
             wireMockServer.stop();
