@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import org.apache.commons.lang3.SystemUtils;
 
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
 
 public class Assumptions {
 
