@@ -1,7 +1,5 @@
 Class <com.github.tomakehurst.wiremock.CrossOriginTest> is annotated with @RunWith in (CrossOriginTest.java:0)
 Class <com.github.tomakehurst.wiremock.GlobalSettingsListenerExtensionTest> is annotated with @RunWith in (GlobalSettingsListenerExtensionTest.java:0)
-Class <com.github.tomakehurst.wiremock.GzipAcceptanceTest> is annotated with @RunWith in (GzipAcceptanceTest.java:0)
 Class <com.github.tomakehurst.wiremock.ResponseTemplatingAcceptanceTest> is annotated with @RunWith in (ResponseTemplatingAcceptanceTest.java:0)
-Class <com.github.tomakehurst.wiremock.VerificationAcceptanceTest> is annotated with @RunWith in (VerificationAcceptanceTest.java:0)
 Class <com.github.tomakehurst.wiremock.http.HttpClientFactoryAcceptsTrustedCertificatesTest> is annotated with @RunWith in (HttpClientFactoryAcceptsTrustedCertificatesTest.java:0)
 Class <com.github.tomakehurst.wiremock.http.HttpClientFactoryRejectsUntrustedCertificatesTest> is annotated with @RunWith in (HttpClientFactoryRejectsUntrustedCertificatesTest.java:0)
