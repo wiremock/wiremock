@@ -34,14 +34,16 @@ import java.util.Locale;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
@@ -51,7 +53,7 @@ import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 public class EqualToXmlPatternTest {
 
     @RegisterExtension
-    public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort()).build();
+    public WireMockExtension wm = WireMockExtension.newInstance().build();
 
     @BeforeEach
     public void init() {

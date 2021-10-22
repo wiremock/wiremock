@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.google.common.io.Resources;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
@@ -39,6 +38,8 @@ import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -66,7 +67,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class HttpsAcceptanceTest {
 
@@ -112,10 +112,9 @@ public class HttpsAcceptanceTest {
     }
 
     @Test
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "This feature does not work on Windows " +
+            "because of differing native socket behaviour")
     public void connectionResetByPeerFault() throws IOException {
-        assumeFalse(SystemUtils.IS_OS_WINDOWS, "This feature does not work on Windows " +
-            "because of differing native socket behaviour");
-
         startServerWithDefaultKeystore();
         stubFor(get(urlEqualTo("/connection/reset")).willReturn(
                 aResponse()

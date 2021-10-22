@@ -55,7 +55,7 @@ public class Http2AcceptanceTest {
 
         wm.stubFor(get("/thing").willReturn(ok("HTTP/2 response")));
 
-        ContentResponse response = client.GET("http://localhost:" + wm.getRuntimeInfo().getHttpPort() + "/thing");
+        ContentResponse response = client.GET(wm.url("/thing"));
         assertThat(response.getVersion(), is(HTTP_2));
         assertThat(response.getStatus(), is(200));
     }
