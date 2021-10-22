@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.trafficlistener.CollectingNetworkTrafficListener;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
 	private static CollectingNetworkTrafficListener networkTrafficListener = new CollectingNetworkTrafficListener();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupServer() {
 		setupServer(new WireMockConfiguration().networkTrafficListener(networkTrafficListener));
 	}

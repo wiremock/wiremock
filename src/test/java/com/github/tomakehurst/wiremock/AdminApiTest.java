@@ -36,8 +36,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.File;
@@ -59,14 +59,14 @@ import static net.javacrumbs.jsonunit.JsonMatchers.jsonStringPartEquals;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
     static Stubbing dsl = wireMockServer;
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         deleteAllBodyFiles();
     }
@@ -704,7 +704,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         int statusCode = testClient.delete("/__admin/files/bar.txt").statusCode();
 
         assertEquals(200, statusCode);
-        assertFalse("File should have been deleted", Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists());
+        assertFalse(Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists(), "File should have been deleted");
     }
 
     @Test
@@ -717,7 +717,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         int statusCode = testClient.putWithBody("/__admin/files/bar.txt", "BBB", "text/plain").statusCode();
 
         assertEquals(200, statusCode);
-        assertEquals("File should have been changed", "BBB", fileSource.getTextFileNamed(fileName).readContentsAsString());
+        assertEquals("BBB", fileSource.getTextFileNamed(fileName).readContentsAsString(), "File should have been changed");
     }
 
     @Test
