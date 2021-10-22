@@ -30,7 +30,8 @@ class JUnit4DetectionTest {
 
 	private static final DescribedPredicate<? super JavaClass> EXCLUDE_WIREMOCKJUNITRULETEST = describe(
 			"exclude WireMockJUnitRuleTest",
-			clazz -> !clazz.getName().contains("WireMockJUnitRuleTest"));
+			clazz -> !clazz.getName().contains("WireMockJUnitRuleTest")
+			&& !clazz.getName().contains("WireMockRuleFailOnUnmatchedRequestsTest"));
 
 	private static final String REASON = "we want to migrate to JUnit Jupiter";
 
@@ -63,11 +64,11 @@ class JUnit4DetectionTest {
 					.because(REASON);
 
 	@ArchTest
-	static ArchRule junit4RuleShouldNotBeUsed = freeze(
+	static ArchRule junit4RuleShouldNotBeUsed =
 			fields()
 					.that().areDeclaredInClassesThat(EXCLUDE_WIREMOCKJUNITRULETEST)
 					.should().notBeAnnotatedWith(Rule.class)
 					.as("Rule should not be used")
-					.because(REASON));
+					.because(REASON);
 
 }

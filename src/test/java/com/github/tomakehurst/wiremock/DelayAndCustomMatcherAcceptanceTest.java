@@ -21,12 +21,12 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Stopwatch;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -37,8 +37,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DelayAndCustomMatcherAcceptanceTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(options().dynamicPort().extensions(BodyChanger.class));
+    @RegisterExtension
+    public WireMockExtension wireMockRule = WireMockExtension.newInstance()
+        .options(options().dynamicPort().extensions(BodyChanger.class)).build();
 
     @Test
     public void delayIsAddedWhenCustomResponseTransformerPresent() {
@@ -48,7 +49,7 @@ public class DelayAndCustomMatcherAcceptanceTest {
                 .withTransformers("response-body-changer")
                 .withUniformRandomDelay(500, 1000)));
 
-        WireMockTestClient client = new WireMockTestClient(wireMockRule.port());
+        WireMockTestClient client = new WireMockTestClient(wireMockRule.getRuntimeInfo().getHttpPort());
 
         Stopwatch stopwatch = Stopwatch.createStarted();
         WireMockResponse response = client.get("/delay-this");

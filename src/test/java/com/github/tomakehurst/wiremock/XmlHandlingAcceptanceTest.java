@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -30,17 +30,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class XmlHandlingAcceptanceTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort().extensions(new ResponseTemplateTransformer(false)));
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().extensions(new ResponseTemplateTransformer(false))).build();
 
-    @Rule
-    public WireMockRule externalDtdServer = new WireMockRule(options().dynamicPort().notifier(new ConsoleNotifier(true)));
+    @RegisterExtension
+    public WireMockExtension externalDtdServer = WireMockExtension.newInstance().options(options().dynamicPort().notifier(new ConsoleNotifier(true))).build();
 
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
 
         externalDtdServer.stubFor(get("/dodgy.dtd").willReturn(ok(
             "<!ELEMENT shiftydata (#PCDATA)>")
@@ -53,7 +53,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
             "<!DOCTYPE things [\n" +
-            "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+            "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
             "%sp;\n" +
             "]>\n" +
             "\n" +
@@ -73,7 +73,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
@@ -93,7 +93,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
@@ -114,7 +114,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
@@ -132,7 +132,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
