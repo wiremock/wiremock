@@ -16,15 +16,14 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.net.InetAddress;
 import java.util.UUID;
@@ -32,26 +31,25 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
-@RunWith(Enclosed.class)
 public class ResponseTemplatingAcceptanceTest {
 
-    public static class Local {
+    @Nested
+    class Local {
 
         WireMockTestClient client;
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(options()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
                 .dynamicPort()
-                .extensions(new ResponseTemplateTransformer(false))
-        );
+                .extensions(new ResponseTemplateTransformer(false))).build();
 
-        @Before
+        @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.port());
+            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
         }
 
         @Test
@@ -74,20 +72,20 @@ public class ResponseTemplatingAcceptanceTest {
         }
     }
 
-    public static class Global {
+    @Nested
+    class Global {
 
         WireMockTestClient client;
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(options()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
                 .dynamicPort()
                 .withRootDirectory(defaultTestFilesRoot())
-                .extensions(new ResponseTemplateTransformer(true))
-        );
+                .extensions(new ResponseTemplateTransformer(true))).build();
 
-        @Before
+        @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.port());
+            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
         }
 
         @Test
@@ -247,24 +245,24 @@ public class ResponseTemplatingAcceptanceTest {
 
     }
 
-    public static class RestrictedSystemPropertiesAndEnvVars {
+    @Nested
+    class RestrictedSystemPropertiesAndEnvVars {
 
         WireMockTestClient client;
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(options()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
                 .dynamicPort()
                 .withRootDirectory(defaultTestFilesRoot())
                 .extensions(new ResponseTemplateTransformer.Builder()
                         .global(true)
                         .permittedSystemKeys("allowed.*")
                         .build()
-                )
-        );
+                )).build();
 
-        @Before
+        @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.port());
+            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
         }
 
         @Test

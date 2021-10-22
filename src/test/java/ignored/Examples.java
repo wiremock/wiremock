@@ -31,7 +31,6 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -40,7 +39,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +52,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Examples extends AcceptanceTestBase {
@@ -151,17 +151,21 @@ public class Examples extends AcceptanceTestBase {
                         .withBody(new byte[]{1, 2, 3, 4})));
     }
 
-    @Test(expected=VerificationException.class)
+    @Test
     public void verifyAtLeastOnce() {
-        verify(postRequestedFor(urlEqualTo("/verify/this"))
-                .withHeader("Content-Type", equalTo("text/xml")));
+        assertThrows(VerificationException.class, () -> {
+            verify(postRequestedFor(urlEqualTo("/verify/this"))
+                    .withHeader("Content-Type", equalTo("text/xml")));
 
-        verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+            verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+        });
     }
 
-    @Test(expected=VerificationException.class)
+    @Test
     public void verifyWithoutHeader() {
-        verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
+        assertThrows(VerificationException.class, () -> {
+            verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
+        });
     }
 
     @Test
@@ -445,7 +449,7 @@ public class Examples extends AcceptanceTestBase {
             .disableRequestJournal()
 
             // Limit the size of the request log (for the same reason as above).
-            .maxRequestJournalEntries(Optional.of(100))
+            .maxRequestJournalEntries(100)
 
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)

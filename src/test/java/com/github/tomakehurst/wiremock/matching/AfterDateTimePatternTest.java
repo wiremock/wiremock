@@ -57,6 +57,14 @@ public class AfterDateTimePatternTest {
     }
 
     @Test
+    public void matchesZonedExpectedWithLocalActual() {
+        StringValuePattern matcher = WireMock.after("2021-06-14T15:15:15Z");
+
+        assertTrue(matcher.match("2021-07-01T23:59:59").isExactMatch());
+        assertFalse(matcher.match("2021-06-01T15:15:15").isExactMatch());
+    }
+
+    @Test
     public void matchesZonedToNowOffset() {
         StringValuePattern matcher = WireMock.afterNow().expectedOffset(27, DateTimeUnit.MINUTES);
 

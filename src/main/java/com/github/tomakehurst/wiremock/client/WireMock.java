@@ -217,6 +217,11 @@ public class WireMock {
         return new MatchesXPathPattern(value, valuePattern);
     }
 
+    // Use this with the date/time matchers to avoid an explicit cast
+    public static MatchesXPathPattern matchesXPathWithSubMatcher(String value, StringValuePattern valuePattern) {
+	    return new MatchesXPathPattern(value, valuePattern);
+    }
+
     public static StringValuePattern containing(String value) {
         return new ContainsPattern(value);
     }

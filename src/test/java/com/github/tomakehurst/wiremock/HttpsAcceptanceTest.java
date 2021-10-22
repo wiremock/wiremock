@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
@@ -103,7 +103,7 @@ public class HttpsAcceptanceTest {
         wireMockServer = new WireMockServer(config);
         wireMockServer.start();
         WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
-        httpClient = HttpClientFactory.createClient();
+        httpClient = HttpClient4Factory.createClient();
 
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
@@ -323,7 +323,7 @@ public class HttpsAcceptanceTest {
         wireMockServer.start();
         WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
 
-        httpClient = HttpClientFactory.createClient();
+        httpClient = HttpClient4Factory.createClient();
     }
 
     private void startServerWithKeystore(String keystorePath, String keystorePassword, String keyManagerPassword) {
@@ -338,7 +338,7 @@ public class HttpsAcceptanceTest {
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
 
-        httpClient = HttpClientFactory.createClient();
+        httpClient = HttpClient4Factory.createClient();
     }
 
     private void startServerWithKeystore(String keystorePath) {

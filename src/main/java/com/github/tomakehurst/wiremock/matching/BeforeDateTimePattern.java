@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class BeforeDateTimePattern extends AbstractDateTimePattern {
@@ -63,6 +64,11 @@ public class BeforeDateTimePattern extends AbstractDateTimePattern {
             @Override
             protected boolean matchLocalZoned() {
                 return zonedActual.toLocalDateTime().isBefore(localExpected);
+            }
+
+            @Override
+            protected boolean matchZonedLocal() {
+                return localActual.atZone(ZoneId.systemDefault()).isBefore(zonedExpected);
             }
         };
     }

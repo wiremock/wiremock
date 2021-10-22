@@ -47,6 +47,8 @@ import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.equalTo;
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
@@ -76,7 +78,7 @@ public class ResponseDefinitionBuilderTest {
                 .withStatus(200)
                 .withStatusMessage("OK")
                 .withBody("some body")
-                .withBase64Body(Base64.encodeBase64String("some body".getBytes(Charsets.UTF_8)))
+                .withBase64Body(Base64.encodeBase64String("some body".getBytes(StandardCharsets.UTF_8)))
                 .withBodyFile("some_body.json")
                 .withHeader("some header", "some value")
                 .withFixedDelay(100)

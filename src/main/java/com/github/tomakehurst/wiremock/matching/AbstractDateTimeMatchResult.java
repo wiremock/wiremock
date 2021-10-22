@@ -49,6 +49,8 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
             isMatch = matchLocalLocal();
         } else if (isLocal && zonedActual != null) {
             isMatch = matchLocalZoned();
+        } else if (isZoned && localActual != null) {
+            isMatch = matchZonedLocal();
         }
 
         return isMatch;
@@ -57,7 +59,7 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
     protected abstract boolean matchZonedZoned();
     protected abstract boolean matchLocalLocal();
     protected abstract boolean matchLocalZoned();
-
+    protected abstract boolean matchZonedLocal();
 
     @Override
     public double getDistance() {

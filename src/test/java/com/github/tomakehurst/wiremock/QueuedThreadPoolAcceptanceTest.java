@@ -20,15 +20,15 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class QueuedThreadPoolAcceptanceTest extends AcceptanceTestBase {
 
-    @BeforeClass
+    @BeforeAll
     public static void setupServer() {
         setupServer(new WireMockConfiguration().threadPoolFactory(new InstrumentedThreadPoolFactory()));
     }

@@ -28,9 +28,11 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -41,6 +43,8 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -55,11 +59,7 @@ public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
     private static final int DEFAULT_ACCEPTORS = 3;
-
-    static {
-        System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
-        System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", "true");
-    }
+    private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
 
     private final Server jettyServer;
     private final ServerConnector httpConnector;
@@ -72,6 +72,11 @@ public class JettyHttpServer implements HttpServer {
             AdminRequestHandler adminRequestHandler,
             StubRequestHandler stubRequestHandler
     ) {
+        if (!options.getDisableStrictHttpHeaders() && STRICT_HTTP_HEADERS_APPLIED.isFalse()) {
+            System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", String.valueOf(true));
+            STRICT_HTTP_HEADERS_APPLIED.setTrue();
+        }
+
         jettyServer = createServer(options);
 
         NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(options.networkTrafficListener());
@@ -102,7 +107,8 @@ public class JettyHttpServer implements HttpServer {
 
         applyAdditionalServerConfiguration(jettyServer, options);
 
-        jettyServer.setHandler(createHandler(options, adminRequestHandler, stubRequestHandler));
+        final HandlerCollection handlers = createHandler(options, adminRequestHandler, stubRequestHandler);
+        jettyServer.setHandler(handlers);
 
         finalizeSetup(options);
     }
@@ -121,11 +127,18 @@ public class JettyHttpServer implements HttpServer {
                 options.getAsynchronousResponseSettings(),
                 options.getChunkedEncodingPolicy(),
                 options.getStubCorsEnabled(),
+                options.browserProxySettings().enabled(),
                 notifier
         );
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
+        AbstractHandler asyncTimeoutSettingHandler = new AbstractHandler() {
+            @Override
+            public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) {
+                baseRequest.getHttpChannel().getState().setTimeout(options.timeout());
+            }
+        };
+        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext, asyncTimeoutSettingHandler));
 
         if (options.getGzipDisabled()) {
             handlers.addHandler(mockServiceContext);
@@ -150,7 +163,7 @@ public class JettyHttpServer implements HttpServer {
         }
 
         try {
-            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.getDeclaredConstructor().newInstance();
             setGZippableMethods(gzipWrapper, gzipHandlerClass);
             gzipWrapper.setHandler(mockServiceContext);
             handlers.addHandler(gzipWrapper);
@@ -367,6 +380,7 @@ public class JettyHttpServer implements HttpServer {
             AsynchronousResponseSettings asynchronousResponseSettings,
             Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
             boolean stubCorsEnabled,
+            boolean browserProxyingEnabled,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -381,7 +395,9 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
         mockServiceContext.setAttribute(Options.ChunkedEncodingPolicy.class.getName(), chunkedEncodingPolicy);
+        mockServiceContext.setAttribute("browserProxyingEnabled", browserProxyingEnabled);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
+        servletHolder.setInitOrder(1);
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");

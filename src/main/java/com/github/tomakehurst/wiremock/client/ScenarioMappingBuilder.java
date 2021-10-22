@@ -39,6 +39,7 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder inScenario(String scenarioName);
     ScenarioMappingBuilder withId(UUID id);
     ScenarioMappingBuilder persistent();
+    ScenarioMappingBuilder persistent(boolean persistent);
     ScenarioMappingBuilder withBasicAuth(String username, String password);
     ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 

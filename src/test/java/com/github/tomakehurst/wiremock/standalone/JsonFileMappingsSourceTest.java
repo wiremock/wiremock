@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -96,7 +97,7 @@ public class JsonFileMappingsSourceTest {
         source.save(stub);
 
         File savedFile = tempDir.getRoot().listFiles()[0];
-        String savedStub = Files.toString(savedFile, UTF_8);
+        String savedStub = FileUtils.readFileToString(savedFile, UTF_8);
 
         assertThat(savedStub, containsString("\"insertionIndex\" : 0"));
     }
@@ -158,7 +159,7 @@ public class JsonFileMappingsSourceTest {
 		firstStub.setName("New name");
 		source.save(firstStub);
 
-		assertThat(Files.toString(stubMappingFile, UTF_8), containsString("New name"));
+		assertThat(FileUtils.readFileToString(stubMappingFile, UTF_8), containsString("New name"));
 	}
 
 	@Test

@@ -43,7 +43,6 @@ public class SslContexts {
         sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
         setupClientAuth(sslContextFactory, httpsSettings);
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-        sslContextFactory.setProvider("Conscrypt");
         return sslContextFactory;
     }
 

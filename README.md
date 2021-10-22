@@ -2,7 +2,7 @@ WireMock - a web service test double for all occasions
 ======================================================
 
 [![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
 
 Key Features
@@ -39,6 +39,7 @@ following guidelines:
 on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
 * Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
 more difficult.
+* Abide by [the Architecture Rules](https://github.com/wiremock/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock/archunit) enforced by ArchUnit.
 
 Building WireMock locally
 -------------------------

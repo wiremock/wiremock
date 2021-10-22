@@ -72,7 +72,10 @@ public class WireMockRule extends WireMockServer implements TestRule {
 				try {
                     before();
                     base.evaluate();
-                    checkForUnmatchedRequests();
+
+                    if (failOnUnmatchedRequests) {
+                        checkForUnmatchedRequests();
+                    }
                 } finally {
                     after();
                     stop();
@@ -81,20 +84,6 @@ public class WireMockRule extends WireMockServer implements TestRule {
 
 		};
 	}
-
-    private void checkForUnmatchedRequests() {
-        if (failOnUnmatchedRequests) {
-            List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
-            if (!unmatchedRequests.isEmpty()) {
-                List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
-                if (nearMisses.isEmpty()) {
-                    throw VerificationException.forUnmatchedRequests(unmatchedRequests);
-                } else {
-                    throw VerificationException.forUnmatchedNearMisses(nearMisses);
-                }
-            }
-        }
-    }
 
     protected void before() {
         // NOOP

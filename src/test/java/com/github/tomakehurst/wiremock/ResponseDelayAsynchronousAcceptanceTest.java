@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.base.Stopwatch;
 import org.apache.http.HttpResponse;
@@ -91,7 +91,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
             requests.add(new Callable<TimedHttpResponse>() {
                 @Override
                 public TimedHttpResponse call() throws Exception {
-                    CloseableHttpResponse response = HttpClientFactory
+                    CloseableHttpResponse response = HttpClient4Factory
                         .createClient(SOCKET_TIMEOUT_MILLISECONDS)
                         .execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
 

@@ -15,17 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAccessor;
-import java.time.temporal.TemporalQueries;
+import java.time.temporal.*;
 import java.util.Date;
 import java.util.List;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.util.Arrays.asList;
 import static java.util.Locale.US;
 
@@ -113,9 +114,13 @@ public class DateTimeParser {
         return null;
     }
 
-    public Date parseDate(String dateTimeString) {
+    public RenderableDate parseDate(String dateTimeString) {
         if (isUnix || isEpoch) {
-            return Date.from(parseZonedDateTime(dateTimeString).toInstant());
+            return new RenderableDate(
+                    Date.from(parseZonedDateTime(dateTimeString).toInstant()),
+                    null,
+                    null
+            );
         }
 
         if (dateTimeFormatter == null) {
@@ -123,15 +128,23 @@ public class DateTimeParser {
         }
 
         final TemporalAccessor parseResult = dateTimeFormatter.parse(dateTimeString);
-        if (parseResult.query(TemporalQueries.zone()) != null) {
-            return Date.from(Instant.from(parseResult));
+        final ZoneId timezoneId = parseResult.query(TemporalQueries.zone());
+
+        Date date;
+
+        if (timezoneId != null) {
+            date = Date.from(Instant.from(parseResult));
+        } else if (parseResult.query(TemporalQueries.localTime()) != null) {
+            date = Date.from(LocalDateTime.from(parseResult).toInstant(UTC));
+        } else if (parseResult.query(TemporalQueries.localDate()) != null) {
+            date = Date.from(LocalDate.from(parseResult).atStartOfDay(UTC).toInstant());
+        } else if (parseResult.isSupported(MONTH_OF_YEAR)) {
+            date = Date.from(YearMonth.from(parseResult).atDay(1).atStartOfDay(UTC).toInstant());
+        } else {
+            date = Date.from(Year.from(parseResult).atMonth(1).atDay(1).atStartOfDay(UTC).toInstant());
         }
 
-        if (parseResult.query(TemporalQueries.localTime()) != null) {
-            return Date.from(LocalDateTime.from(parseResult).toInstant(UTC));
-        }
-
-        return Date.from(LocalDate.from(parseResult).atStartOfDay(UTC).toInstant());
+        return new RenderableDate(date, null, timezoneId);
     }
 
 }

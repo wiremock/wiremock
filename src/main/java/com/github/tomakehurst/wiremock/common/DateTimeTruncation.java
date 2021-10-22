@@ -15,6 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate;
+
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -49,8 +53,23 @@ public enum DateTimeTruncation {
     }
 
     public Date truncate(Date input) {
-        final ZonedDateTime zonedInput = input.toInstant().atZone(UTC);
-        return Date.from(truncate(zonedInput).toInstant());
+        ZoneId zoneId = getTimezone(input);
+        final ZonedDateTime zonedInput = input.toInstant().atZone(zoneId);
+        final Date date = Date.from(truncate(zonedInput).toInstant());
+        return new RenderableDate(date, null, zoneId);
+    }
+
+    private static ZoneId getTimezone(Date date) {
+        if (date instanceof RenderableDate) {
+            RenderableDate renderableDate = (RenderableDate) date;
+            if (renderableDate.getTimezone() != null) {
+                return renderableDate.getTimezone();
+            }
+
+            return ZoneId.systemDefault();
+        }
+
+        return UTC;
     }
 
     @Override

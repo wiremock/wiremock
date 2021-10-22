@@ -1107,11 +1107,11 @@ Whether the expected and actual values are zoned or not affects whether they can
 approach is to try to ensure you're using the same on both sides - if you're expected a zoned actual date, then use one
 as the expected date also, plus the equivalent for local dates.
 
-If the expected date is zoned and the actual is local, the match will always be negative since no sensbile comparison can
-be done in this circumstance.
+If the expected date is zoned and the actual is local, the actual date will assume the system timezone before the
+comparison is attempted.
 
-However, if the expected date is local and the actual is zoned, the timezone will be stripped from the actual value and the
-comparison will be attempted.
+If the expected date is local and the actual is zoned, the timezone will be stripped from the actual value before the
+comparison is attempted.
 
 ### Date formats
 

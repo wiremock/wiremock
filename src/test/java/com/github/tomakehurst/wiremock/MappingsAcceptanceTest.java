@@ -17,21 +17,21 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BINARY_COMPRESSED_CONTENT;
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BINARY_BYTE_BODY;
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BYTE_BODY;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupServer() {
 		setupServerWithMappingsInFileRoot();
 	}
@@ -145,7 +145,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	public void readsJsonMapping() {
 		WireMockResponse response = testClient.get("/testjsonmapping");
 		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
+		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3],\"bignumber\":1234567890.12}"));
 	}
 
     @Test
@@ -186,7 +186,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/with/body");
 
         assertThat(response.firstHeader("Content-Length"), is("12"));
-        assertFalse("expected Transfer-Encoding head to be absent", response.headers().containsKey("Transfer-Encoding"));
+        assertFalse(response.headers().containsKey("Transfer-Encoding"), "expected Transfer-Encoding head to be absent");
     }
 
 	private void getResponseAndAssert200Status(String url) {

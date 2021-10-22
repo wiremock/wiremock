@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class AfterDateTimePattern extends AbstractDateTimePattern {
@@ -65,6 +66,11 @@ public class AfterDateTimePattern extends AbstractDateTimePattern {
             @Override
             protected boolean matchLocalZoned() {
                 return zonedActual.toLocalDateTime().isAfter(localExpected);
+            }
+
+            @Override
+            protected boolean matchZonedLocal() {
+                return localActual.atZone(ZoneId.systemDefault()).isAfter(zonedExpected);
             }
         };
     }
