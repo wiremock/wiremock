@@ -26,7 +26,6 @@ public class Http2ClientFactory {
 
     public static HttpClient create() {
         SslContextFactory sslContextFactory = new SslContextFactory.Client(true);
-        sslContextFactory.setProvider("Conscrypt");
         HttpClientTransport transport = new HttpClientTransportOverHTTP2(
                 new HTTP2Client());
         HttpClient httpClient = new HttpClient(transport, sslContextFactory);

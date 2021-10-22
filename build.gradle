@@ -40,13 +40,10 @@ dependencies {
     compile "org.eclipse.jetty:jetty-proxy:$versions.jetty"
     compile "org.eclipse.jetty.http2:http2-server:$versions.jetty"
     compile "org.eclipse.jetty:jetty-alpn-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-alpn-conscrypt-server:$versions.jetty", {
-        exclude group: 'org.conscrypt'
-    }
-    compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$versions.jetty", {
-        exclude group: 'org.conscrypt'
-    }
-    compile 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
+    compile "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-alpn-openjdk8-server:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-alpn-openjdk8-client:$versions.jetty"
 
     compile "com.google.guava:guava:$versions.guava"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
@@ -278,6 +275,7 @@ shadowJar {
     relocate "org.antlr", "wiremock.org.antlr"
     relocate "javax.servlet", "wiremock.javax.servlet"
     relocate "org.checkerframework", "wiremock.org.checkerframework"
+    relocate "org.hamcrest", "wiremock.org.hamcrest"
 
     dependencies {
         exclude(dependency('junit:junit'))
