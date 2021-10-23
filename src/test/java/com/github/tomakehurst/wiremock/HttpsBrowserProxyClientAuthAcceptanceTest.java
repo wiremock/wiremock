@@ -98,7 +98,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
                 .loadKeyMaterial(trustStore, TRUST_STORE_PASSWORD.toCharArray())
                 .build();
 
-        HttpHost proxyInfo = new HttpHost("localhost", proxy.getRuntimeInfo().getHttpPort());
+        HttpHost proxyInfo = new HttpHost("localhost", proxy.port());
         return HttpClientBuilder.create()
                 .disableAuthCaching()
                 .disableAutomaticRetries()

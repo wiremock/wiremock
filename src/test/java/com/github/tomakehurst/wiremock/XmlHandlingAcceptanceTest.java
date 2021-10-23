@@ -40,7 +40,7 @@ public class XmlHandlingAcceptanceTest {
 
     @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+        client = new WireMockTestClient(wm.port());
 
         externalDtdServer.stubFor(get("/dodgy.dtd").willReturn(ok(
             "<!ELEMENT shiftydata (#PCDATA)>")
@@ -53,7 +53,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
             "<!DOCTYPE things [\n" +
-            "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
+            "<!ENTITY % sp SYSTEM \"" + externalDtdServer.url("/dodgy.dtd") + "\">\n" +
             "%sp;\n" +
             "]>\n" +
             "\n" +
@@ -73,7 +73,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"" + externalDtdServer.url("/dodgy.dtd") + "\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
@@ -93,7 +93,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"" + externalDtdServer.url("/dodgy.dtd") + "\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
@@ -114,7 +114,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"" + externalDtdServer.url("/dodgy.dtd") + "\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +
@@ -132,7 +132,7 @@ public class XmlHandlingAcceptanceTest {
         String xml =
             "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE things [\n" +
-                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.getRuntimeInfo().getHttpPort() + "/dodgy.dtd\">\n" +
+                "<!ENTITY % sp SYSTEM \"" + externalDtdServer.url("/dodgy.dtd") + "\">\n" +
                 "%sp;\n" +
                 "]>\n" +
                 "\n" +

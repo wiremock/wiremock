@@ -44,7 +44,7 @@ public class CrossOriginTest {
 
         @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            testClient = new WireMockTestClient(wm.port());
         }
 
         @Test
@@ -84,7 +84,7 @@ public class CrossOriginTest {
 
         @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            testClient = new WireMockTestClient(wm.port());
         }
 
         @Test

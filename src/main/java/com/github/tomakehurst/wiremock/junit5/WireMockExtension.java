@@ -182,6 +182,14 @@ public class WireMockExtension extends DslWrapper implements ParameterResolver, 
         return wireMockServer.url(path);
     }
 
+    public int httpsPort() {
+        return wireMockServer.httpsPort();
+    }
+
+    public int port() {
+        return wireMockServer.port();
+    }
+
     public static class Builder {
 
         private Options options = WireMockConfiguration.wireMockConfig().dynamicPort();

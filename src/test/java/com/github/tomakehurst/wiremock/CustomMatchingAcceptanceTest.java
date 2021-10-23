@@ -47,8 +47,8 @@ public class CustomMatchingAcceptanceTest {
 
     @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wmRule.getRuntimeInfo().getHttpPort());
-        wm = WireMock.create().port(wmRule.getRuntimeInfo().getHttpPort()).build();
+        client = new WireMockTestClient(wmRule.port());
+        wm = WireMock.create().port(wmRule.port()).build();
     }
 
     @Test

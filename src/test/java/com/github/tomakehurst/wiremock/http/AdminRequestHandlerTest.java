@@ -38,7 +38,7 @@ public class AdminRequestHandlerTest {
 
     @Test
     public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
-        WireMockTestClient client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+        WireMockTestClient client = new WireMockTestClient(wm.port());
 
         String postHeaderABCName = "ABC";
         String postHeaderABCValue = "abc123";

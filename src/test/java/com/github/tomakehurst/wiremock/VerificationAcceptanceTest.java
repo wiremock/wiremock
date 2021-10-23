@@ -842,7 +842,7 @@ public class VerificationAcceptanceTest {
 
         @Test
         public void maxLengthIs2() {
-            WireMockTestClient testClient = new WireMockTestClient(wireMockRule.getRuntimeInfo().getHttpPort());
+            WireMockTestClient testClient = new WireMockTestClient(wireMockRule.port());
             testClient.get("/request1");
             testClient.get("/request2");
             testClient.get("/request3");

@@ -103,21 +103,21 @@ public class HttpsBrowserProxyAcceptanceTest {
 
     @BeforeEach
     public void addAResourceToProxy() {
-        testClient = new WireMockTestClient(target.getRuntimeInfo().getHttpsPort());
+        testClient = new WireMockTestClient(target.httpsPort());
     }
 
     @Test
     public void canProxyHttpsInBrowserProxyMode() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        assertThat(testClient.getViaProxy(target.url("/whatever"), proxy.getRuntimeInfo().getHttpPort()).content(), is("Got it"));
+        assertThat(testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
     }
 
     @Test
     public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.getRuntimeInfo().getHttpsPort(), "https");
+        WireMockResponse response = testClient.getViaProxy(target.url("/whatever"), proxy.httpsPort(), "https");
         assertThat(response.content(), is("Got it"));
     }
 
@@ -126,7 +126,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
         HttpClient httpClient = Http2ClientFactory.create();
         ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
-        HttpProxy httpProxy = new HttpProxy(new Origin.Address("localhost", proxy.getRuntimeInfo().getHttpsPort()), true);
+        HttpProxy httpProxy = new HttpProxy(new Origin.Address("localhost", proxy.httpsPort()), true);
         proxyConfig.getProxies().add(httpProxy);
 
         target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
@@ -141,8 +141,8 @@ public class HttpsBrowserProxyAcceptanceTest {
         proxy.stubFor(get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Stubbed Value")));
         target.stubFor(get(urlEqualTo("/not_stubbed")).willReturn(aResponse().withBody("Should be served from target")));
 
-        assertThat(testClient.getViaProxy(target.url("/stubbed"), proxy.getRuntimeInfo().getHttpPort()).content(), is("Stubbed Value"));
-        assertThat(testClient.getViaProxy(target.url("/not_stubbed"), proxy.getRuntimeInfo().getHttpPort()).content(), is("Should be served from target"));
+        assertThat(testClient.getViaProxy(target.url("/stubbed"), proxy.port()).content(), is("Stubbed Value"));
+        assertThat(testClient.getViaProxy(target.url("/not_stubbed"), proxy.port()).content(), is("Should be served from target"));
     }
 
     @Test
@@ -156,13 +156,13 @@ public class HttpsBrowserProxyAcceptanceTest {
         target.stubFor(get(urlEqualTo("/record_me")).willReturn(aResponse().withBody("Target response")));
 
         // then
-        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.getRuntimeInfo().getHttpPort()).content(), is("Target response"));
+        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.port()).content(), is("Target response"));
 
         // when
         proxy.stopRecording();
 
         // then
-        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.getRuntimeInfo().getHttpPort()).content(), is("Target response"));
+        assertThat(testClient.getViaProxy(recordedEndpoint, proxy.port()).content(), is("Target response"));
     }
 
     @Test
@@ -256,14 +256,14 @@ public class HttpsBrowserProxyAcceptanceTest {
 
             // when
             httpClient.execute(
-                    new HttpGet("https://fake1.nowildcards1.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
+                    new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
             );
 
             // then no exception is thrown
 
             // when
             httpClient.execute(
-                    new HttpGet("https://fake2.nowildcards2.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
+                    new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
             );
 
             // then no exception is thrown
@@ -281,19 +281,19 @@ public class HttpsBrowserProxyAcceptanceTest {
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
                 .setSSLSocketFactory(sslSocketFactoryThatTrusts(trustStore))
-                .setProxy(new HttpHost("localhost", proxy.getRuntimeInfo().getHttpPort()))
+                .setProxy(new HttpHost("localhost", proxy.port()))
                 .build();
 
         // when
         httpClient.execute(
-                new HttpGet("https://fake1.nowildcards1.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
+                new HttpGet("https://fake1.nowildcards1.internal:" + target.httpsPort() + "/whatever")
         );
 
         // then no exception is thrown
 
         // when
         httpClient.execute(
-                new HttpGet("https://fake2.nowildcards2.internal:" + target.getRuntimeInfo().getHttpsPort() + "/whatever")
+                new HttpGet("https://fake2.nowildcards2.internal:" + target.httpsPort() + "/whatever")
         );
 
         // then no exception is thrown
@@ -321,7 +321,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
     @Test
     public void certificateAuthorityCertCanBeDownloaded() throws Exception {
-        WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.getRuntimeInfo().getHttpPort());
+        WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.port());
 
         WireMockResponse certResponse = proxyTestClient.get("/__admin/certs/wiremock-ca.crt");
         assertEquals(200, certResponse.statusCode());

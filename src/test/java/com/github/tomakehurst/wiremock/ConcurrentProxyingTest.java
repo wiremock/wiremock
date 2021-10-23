@@ -44,7 +44,7 @@ public class ConcurrentProxyingTest {
 
     @Test
     public void concurrent() throws Exception {
-        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+        client = new WireMockTestClient(wm.port());
 
         wm.stubFor(any(anyUrl())
             .atPriority(10)

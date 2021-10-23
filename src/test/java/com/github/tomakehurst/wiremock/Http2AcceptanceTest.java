@@ -45,7 +45,7 @@ public class Http2AcceptanceTest {
 
         wm.stubFor(get("/thing").willReturn(ok("HTTP/2 response")));
 
-        ContentResponse response = client.GET("https://localhost:" + wm.getRuntimeInfo().getHttpsPort() + "/thing");
+        ContentResponse response = client.GET("https://localhost:" + wm.httpsPort() + "/thing");
         assertThat(response.getStatus(), is(200));
     }
 
@@ -66,7 +66,7 @@ public class Http2AcceptanceTest {
 
         wm.stubFor(get("/thing").willReturn(ok("HTTP/1.1 response")));
 
-        HttpGet get = new HttpGet("https://localhost:" + wm.getRuntimeInfo().getHttpsPort() + "/thing");
+        HttpGet get = new HttpGet("https://localhost:" + wm.httpsPort() + "/thing");
         try (CloseableHttpResponse response = client.execute(get)) {
             assertThat(response.getStatusLine().getStatusCode(), is(200));
         }

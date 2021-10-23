@@ -51,7 +51,7 @@ public class DelayAndCustomMatcherAcceptanceTest {
                 .withTransformers("response-body-changer")
                 .withUniformRandomDelay(500, 1000)));
 
-        WireMockTestClient client = new WireMockTestClient(wireMockRule.getRuntimeInfo().getHttpPort());
+        WireMockTestClient client = new WireMockTestClient(wireMockRule.port());
 
         Stopwatch stopwatch = Stopwatch.createStarted();
         WireMockResponse response = client.get("/delay-this");
