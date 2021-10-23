@@ -21,8 +21,8 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public abstract class HandlebarsHelperTestBase {
     protected ResponseTemplateTransformer transformer;
     protected RenderCache renderCache;
 
-    @Before
+    @BeforeEach
     public void initRenderCache() {
         transformer = new ResponseTemplateTransformer(true);
         renderCache = new RenderCache();
@@ -52,7 +52,7 @@ public abstract class HandlebarsHelperTestBase {
         try {
             assertThat((String) renderHelperValue(helper, content, pathExpression), expectation);
         } catch (final IOException e) {
-            Assert.fail(FAIL_GRACEFULLY_MSG);
+            Assertions.fail(FAIL_GRACEFULLY_MSG);
         }
     }
 

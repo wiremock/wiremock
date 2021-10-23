@@ -24,9 +24,9 @@ import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -43,12 +43,12 @@ public class MappingsLoaderAcceptanceTest {
 	private WireMockServer wireMockServer;
 	private WireMockTestClient testClient;
 
-	@Before
+	@BeforeEach
 	public void init() {
         configuration = wireMockConfig().dynamicPort();
 	}
 
-	@After
+	@AfterEach
 	public void stopWireMock() {
 		wireMockServer.stop();
 	}

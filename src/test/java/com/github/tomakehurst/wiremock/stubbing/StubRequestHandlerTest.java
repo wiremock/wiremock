@@ -24,8 +24,8 @@ import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -52,7 +52,7 @@ public class StubRequestHandlerTest {
 
 	private StubRequestHandler requestHandler;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		stubServer = mock(StubServer.class);
 		responseRenderer = mock(ResponseRenderer.class);

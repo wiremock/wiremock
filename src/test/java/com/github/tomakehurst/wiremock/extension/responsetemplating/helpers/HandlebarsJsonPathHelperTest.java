@@ -26,8 +26,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsJsonPathHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new HandlebarsJsonPathHelper();
         LocalNotifier.set(new ConsoleNotifier(true));

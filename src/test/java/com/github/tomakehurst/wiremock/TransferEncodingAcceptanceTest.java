@@ -23,8 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -153,7 +153,7 @@ public class TransferEncodingAcceptanceTest {
         testClient = new WireMockTestClient(wm.port());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         wm.stop();
     }

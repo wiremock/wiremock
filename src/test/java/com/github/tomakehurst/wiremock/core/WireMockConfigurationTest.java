@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.google.common.base.Optional;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
@@ -35,7 +35,7 @@ public class WireMockClientWithProxyAcceptanceTest {
 	private static WireMockTestClient testClient;
 	private static HttpProxyServer proxyServer;
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() {
 		wireMockServer = new WireMockServer(DYNAMIC_PORT);
 		wireMockServer.start();
@@ -44,7 +44,7 @@ public class WireMockClientWithProxyAcceptanceTest {
 		testClient = new WireMockTestClient(wireMockServer.port());
 	}
 	
-	@AfterClass
+	@AfterAll
 	public static void stopServer() {
 		wireMockServer.stop();
 		proxyServer.stop();
