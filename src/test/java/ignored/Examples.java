@@ -465,6 +465,8 @@ public class Examples extends AcceptanceTestBase {
         stubFor(get("/xml").willReturn(okXml("<hello />")));     // application/xml
         stubFor(get("/xml").willReturn(okTextXml("<hello />"))); // text/xml
         stubFor(post("/things").willReturn(noContent()));
+        stubFor(get("/json-from-string").willReturn(jsonResponse("{ \"message\": \"String Json\" }", 200)));
+        stubFor(get("/json-from-object").willReturn(jsonResponse(new MockResponse("Object Json"), 200)));
 
         stubFor(post("/temp-redirect").willReturn(temporaryRedirect("/new/place")));
         stubFor(post("/perm-redirect").willReturn(permanentRedirect("/new/place")));
@@ -670,6 +672,18 @@ public class Examples extends AcceptanceTestBase {
         @Override
         public String getName() {
             return "url-and-header-modifier";
+        }
+    }
+
+    public static class MockResponse {
+        private final String message;
+
+        public MockResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }
