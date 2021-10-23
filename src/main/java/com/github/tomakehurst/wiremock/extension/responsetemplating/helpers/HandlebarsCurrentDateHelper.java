@@ -16,10 +16,11 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
+import com.github.tomakehurst.wiremock.common.DateTimeOffset;
 
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
 
@@ -29,11 +30,22 @@ public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
         String offset = options.hash("offset", null);
         String timezone = options.hash("timezone", null);
 
-        Date date = context != null ? context : new Date();
-        if (offset != null) {
-            date = new DateOffset(offset).shift(date);
+        ZoneId zoneId;
+        Date date;
+
+        if (context instanceof RenderableDate) {
+            date = context;
+            RenderableDate renderableDate = (RenderableDate) context;
+            zoneId = renderableDate.getTimezone();
+        } else {
+            date = context != null ? context : new Date();
+            zoneId = timezone != null ? ZoneId.of(timezone) : null;
         }
 
-        return new RenderableDate(date, format, timezone);
+        if (offset != null) {
+            date = DateTimeOffset.fromString(offset).shift(date);
+        }
+
+        return new RenderableDate(date, format, zoneId);
     }
 }

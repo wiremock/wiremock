@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,13 +65,13 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void incluesAnErrorInTheResponseBodyWhenTheJsonPathExpressionReturnsNothing() {
+    public void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
                 mockRequest()
                     .url("/json")
                     .body("{\"a\": {\"test\": \"success\"}}"),
                 aResponse()
-                    .withBody("{\"test\": \"{{jsonPath request.body '$.b.test'}}\"}").build(),
+                    .withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -196,7 +197,72 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
     @Test
     public void rendersAMeaningfulErrorWhenJsonPathIsInvalid() {
-        testHelperError(helper, "{\"test\":\"success\"}", "$.\\test", is("[ERROR: $.\\test is not a valid JSONPath expression]"));
+        testHelperError(helper, "{\"test\":\"success\"}", "$==test", is("[ERROR: $==test is not a valid JSONPath expression]"));
+    }
+
+    @Test
+    public void rendersAnEmptyStringWhenJsonValueUndefined() {
+        testHelperError(helper, "{\"test\":\"success\"}", "$.test2", is(""));
+    }
+
+    @Test
+    public void rendersAnEmptyStringWhenJsonValueUndefinedAndOptionsEmpty() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of();
+        String output = render("{\"test\":\"success\"}", "$.test2", options);
+        assertThat(output, is(""));
+    }
+
+    @Test
+    public void rendersDefaultValueWhenShallowJsonValueUndefined() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of(
+            "default", "0"
+        );
+        String output = render("{}", "$.test", options);
+        assertThat(output, is("0"));
+    }
+
+    @Test
+    public void rendersDefaultValueWhenDeepJsonValueUndefined() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of(
+                "default", "0"
+        );
+        String output = render("{}", "$.outer.inner[0]", options);
+        assertThat(output, is("0"));
+    }
+
+    @Test
+    public void rendersDefaultValueWhenJsonValueNull() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of(
+            "default", "0"
+        );
+        String output = render("{\"test\":null}", "$.test", options);
+        assertThat(output, is("0"));
+    }
+
+    @Test
+    public void ignoresDefaultWhenJsonValueEmpty() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of(
+            "default", "0"
+        );
+        String output = render("{\"test\":\"\"}", "$.test", options);
+        assertThat(output, is(""));
+    }
+
+    @Test
+    public void ignoresDefaultWhenJsonValueZero() throws Exception {
+        Map<String, Object> options = ImmutableMap.<String, Object>of(
+            "default", "1"
+        );
+        String output = render("{\"test\":0}", "$.test", options);
+        assertThat(output, is("0"));
+    }
+
+    private String render(String content, String path, Map<String, Object> options) throws IOException {
+        return helper.apply(content,
+            new Options.Builder(null, null, null, createContext(), null)
+                .setParams(new Object[] { path })
+                .setHash(options).build()
+        ).toString();
     }
 
     @Test

@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -70,6 +69,7 @@ public class CommandLineOptions implements Options {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
+    private static final String TIMEOUT = "timeout";
     private static final String PORT = "port";
     private static final String DISABLE_HTTP = "disable-http";
     private static final String BIND_ADDRESS = "bind-address";
@@ -93,6 +93,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
+    private static final String JETTY_IDLE_TIMEOUT = "jetty-idle-timeout";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
@@ -112,10 +113,14 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_CA_KEYSTORE = "ca-keystore";
     private static final String HTTPS_CA_KEYSTORE_PASSWORD = "ca-keystore-password";
     private static final String HTTPS_CA_KEYSTORE_TYPE = "ca-keystore-type";
+    private static final String DISABLE_OPTIMIZE_XML_FACTORIES_LOADING = "disable-optimize-xml-factories-loading";
+    private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
+    private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
     private final MappingsSource mappingsSource;
+    private final Map<String, Extension> extensions;
 
     private String helpText;
     private Integer actualHttpPort;
@@ -128,14 +133,17 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
+        optionParser.accepts(TIMEOUT, "The default global timeout.");
+        optionParser.accepts(DISABLE_OPTIMIZE_XML_FACTORIES_LOADING, "Whether to disable optimize XML factories loading or not.");
+        optionParser.accepts(DISABLE_STRICT_HTTP_HEADERS, "Whether to disable strict HTTP header handling of Jetty or not.");
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
         optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
-        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
-        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg().defaultsTo("password");
+        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).requiredIf(HTTPS_TRUSTSTORE_PASSWORD).withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEY_MANAGER_PASSWORD, "Key manager password for use with the alternative keystore.").withRequiredArg().defaultsTo("password");
-        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
+        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
@@ -152,6 +160,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(JETTY_STOP_TIMEOUT, "Timeout in milliseconds for Jetty to stop").withRequiredArg();
+        optionParser.accepts(JETTY_IDLE_TIMEOUT, "Idle timeout in milliseconds for Jetty connections").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
@@ -170,6 +179,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_CA_KEYSTORE, "Path to an alternative keystore containing a Certificate Authority private key & certificate for generating certificates when proxying HTTPS. Password is assumed to be \"password\" if not specified.").availableIf(ENABLE_BROWSER_PROXYING).withRequiredArg().defaultsTo(DEFAULT_CA_KEYSTORE_PATH);
         optionParser.accepts(HTTPS_CA_KEYSTORE_PASSWORD, "Password for the alternative CA keystore.").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo(DEFAULT_CA_KESTORE_PASSWORD);
         optionParser.accepts(HTTPS_CA_KEYSTORE_TYPE, "Type of the alternative CA keystore (jks or pkcs12).").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo("jks");
+        optionParser.accepts(LOAD_RESOURCES_FROM_CLASSPATH, "Specifies path on the classpath for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg();
 
         optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -177,11 +187,42 @@ public class CommandLineOptions implements Options {
         validate();
 		captureHelpTextIfRequested(optionParser);
 
-        fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        if (optionSet.has(LOAD_RESOURCES_FROM_CLASSPATH)) {
+            fileSource = new ClasspathFileSource((String) optionSet.valueOf(LOAD_RESOURCES_FROM_CLASSPATH));
+        } else {
+            fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        }
+
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+        extensions = buildExtensions();
 
         actualHttpPort = null;
 	}
+
+	private Map<String, Extension> buildExtensions() {
+        ImmutableMap.Builder<String, Extension> builder = ImmutableMap.builder();
+        if (optionSet.has(EXTENSIONS)) {
+            String classNames = (String) optionSet.valueOf(EXTENSIONS);
+            builder.putAll(ExtensionLoader.load(classNames.split(",")));
+        }
+
+        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, true);
+        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, false);
+        }
+
+        return builder.build();
+    }
+
+    private void contributeResponseTemplateTransformer(ImmutableMap.Builder<String, Extension> builder, boolean global) {
+        ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
+                .global(global)
+                .maxCacheEntries(getMaxTemplateCacheEntries())
+                .permittedSystemKeys(getPermittedSystemKeys())
+                .build();
+        builder.put(transformer.getName(), transformer);
+    }
 
     private void validate() {
         if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
@@ -235,7 +276,7 @@ public class CommandLineOptions implements Options {
             Class<?> cls = loader.loadClass(
                     "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
             );
-            return (HttpServerFactory) cls.newInstance();
+            return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             return throwUnchecked(e, null);
         }
@@ -316,6 +357,10 @@ public class CommandLineOptions implements Options {
             builder = builder.withStopTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_STOP_TIMEOUT)));
         }
 
+        if (optionSet.hasArgument(JETTY_IDLE_TIMEOUT)) {
+            builder = builder.withIdleTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_IDLE_TIMEOUT)));
+        }
+
         return builder.build();
     }
 
@@ -354,32 +399,7 @@ public class CommandLineOptions implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-        ImmutableMap.Builder<String, T> builder = ImmutableMap.builder();
-        if (optionSet.has(EXTENSIONS)) {
-            String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            builder.putAll ((Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
-                classNames.split(",")),
-                valueAssignableFrom(extensionType))
-            );
-        }
-
-        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(true)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(false)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        }
-
-        return builder.build();
+        return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
     }
 
     @Override
@@ -597,6 +617,21 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getStubCorsEnabled() {
         return optionSet.has(ENABLE_STUB_CORS);
+    }
+
+    @Override
+    public long timeout() {
+        return optionSet.has(TIMEOUT) ? Long.parseLong((String)optionSet.valueOf(TIMEOUT)) : DEFAULT_TIMEOUT;
+    }
+
+    @Override
+    public boolean getDisableOptimizeXmlFactoriesLoading() {
+        return optionSet.has(DISABLE_OPTIMIZE_XML_FACTORIES_LOADING);
+    }
+
+    @Override
+    public boolean getDisableStrictHttpHeaders() {
+        return optionSet.has(DISABLE_STRICT_HTTP_HEADERS);
     }
 
     @SuppressWarnings("unchecked")

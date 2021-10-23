@@ -16,12 +16,16 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -44,6 +48,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertSame;
 
 public class CommandLineOptionsTest {
 
@@ -127,6 +132,15 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void defaultsTrustStorePasswordIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore"
+        );
+        assertThat(options.httpsSettings().trustStorePassword(), is("password"));
+    }
+
+    @Test
     public void setsHttpsKeyStorePathOptions() {
         CommandLineOptions options = new CommandLineOptions(
                 "--https-port", "8443",
@@ -206,8 +220,8 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
         assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
         assertThat(options.proxyVia().port(), is(8080));
-        assertThat(options.proxyVia().getUsername(), isEmptyOrNullString());
-        assertThat(options.proxyVia().getPassword(), isEmptyOrNullString());
+        assertThat(options.proxyVia().getUsername(), is(emptyOrNullString()));
+        assertThat(options.proxyVia().getPassword(), is(emptyOrNullString()));
     }
 
     @Test
@@ -259,9 +273,9 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultsContainerThreadsTo14() {
+    public void defaultsContainerThreadsTo25() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.containerThreads(), is(14));
+        assertThat(options.containerThreads(), is(25));
     }
 
     @Test
@@ -286,6 +300,12 @@ public class CommandLineOptionsTest {
     public void returnsCorrectlyParsedJettyStopTimeout() {
         CommandLineOptions options = new CommandLineOptions("--jetty-stop-timeout", "1000");
         assertThat(options.jettySettings().getStopTimeout().get(), is(1000L));
+    }
+
+    @Test
+    public void returnsCorrectlyParsedJettyIdleTimeout() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-idle-timeout", "2000");
+        assertThat(options.jettySettings().getIdleTimeout().get(), is(2000L));
     }
 
     @Test
@@ -569,6 +589,53 @@ public class CommandLineOptionsTest {
         String options = new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target", "localhost", "--trust-proxy-target", "example.com").toString();
         assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
         assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));
+    }
+
+    @Test
+    public void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
+        CommandLineOptions options = new CommandLineOptions("--local-response-templating");
+
+        Object one = options.extensionsOfType(StubLifecycleListener.class).get(ResponseTemplateTransformer.NAME);
+        Object two = options.extensionsOfType(ResponseDefinitionTransformer.class).get(ResponseTemplateTransformer.NAME);
+
+        assertSame(one, two);
+    }
+
+    @Test
+    public void fileSourceDefaultsToSingleRootFileSource() {
+        CommandLineOptions options = new CommandLineOptions();
+
+        FileSource fileSource = options.filesRoot();
+
+        assertThat(fileSource, instanceOf(SingleRootFileSource.class));
+    }
+
+    @Test
+    public void mappingsSourceDefaultsToJsonFileMappingsSource() {
+        CommandLineOptions options = new CommandLineOptions();
+
+        MappingsSaver mappingsSaver = options.mappingsSaver();
+
+        assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
+    }
+
+    @Test
+    public void loadResourcesFromClasspathSetsFileSourceToUseClasspath() {
+        CommandLineOptions options = new CommandLineOptions("--load-resources-from-classpath=classpath-filesource");
+
+        FileSource fileSource = options.filesRoot();
+
+        assertThat(fileSource, instanceOf(ClasspathFileSource.class));
+        assertThat(fileSource.getTextFileNamed("__files/stuff.txt").readContentsAsString(), equalTo("THINGS!"));
+    }
+
+    @Test
+    public void loadResourcesFromClasspathSetsMappingsSourceToUseClasspath() {
+        CommandLineOptions options = new CommandLineOptions("--load-resources-from-classpath=wiremock-stuff");
+
+        MappingsSaver mappingsSaver = options.mappingsSaver();
+
+        assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

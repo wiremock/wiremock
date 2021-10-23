@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.crypto;
 
 import sun.security.x509.AlgorithmId;
@@ -79,7 +94,7 @@ public class X509CertificateSpecification implements CertificateSpecification {
             info.set(X509CertInfo.KEY, new CertificateX509Key(keyPair.getPublic()));
             info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new BigInteger(64, random)));
             info.set(X509CertInfo.ALGORITHM_ID,
-                    new CertificateAlgorithmId(new AlgorithmId(AlgorithmId.sha1WithRSAEncryption_oid)));
+                    new CertificateAlgorithmId(new AlgorithmId(AlgorithmId.SHA256_oid)));
 
             // Sign the cert to identify the algorithm that's used.
             X509CertImpl cert = new X509CertImpl(info);

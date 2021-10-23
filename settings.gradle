@@ -1,0 +1,2 @@
+rootProject.name = 'wiremock'
+include 'wiremock-webhooks-extension'

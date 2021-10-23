@@ -26,7 +26,7 @@ To add the standard WireMock JAR as a project dependency, put the following in t
 ### Gradle
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
+testImplementation "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
 ```
 
 WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
@@ -54,20 +54,18 @@ Now you're ready to write a test case like this:
 ```java
 @Test
 public void exampleTest() {
-    stubFor(get(urlEqualTo("/my/resource"))
-            .withHeader("Accept", equalTo("text/xml"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "text/xml")
-                .withBody("<response>Some content</response>")));
+    stubFor(post("/my/resource")
+        .withHeader("Content-Type", containing("xml"))
+        .willReturn(ok()
+            .withHeader("Content-Type", "text/xml")
+            .withBody("<response>SUCCESS</response>")));
 
     Result result = myHttpServiceCallingObject.doSomething();
-
     assertTrue(result.wasSuccessful());
 
-    verify(postRequestedFor(urlMatching("/my/resource/[a-z0-9]+"))
-            .withRequestBody(matching(".*<message>1234</message>.*"))
-            .withHeader("Content-Type", notMatching("application/json")));
+    verify(postRequestedFor(urlPathEqualTo("/my/resource"))
+        .withRequestBody(matching(".*message-1234.*"))
+        .withHeader("Content-Type", equalTo("text/xml")));
 }
 ```
 
@@ -111,6 +109,10 @@ int port = wireMockRule.port();
 int httpsPort = wireMockRule.httpsPort();
 ```
 
+## Writing a test with JUnit 5.x
+
+See [JUnit 5+ Jupiter Usage](/docs/junit-jupiter/) for various JUnit 5 usage scenarios.
+
 ## Non-JUnit and general Java usage
 
 If you're not using JUnit or neither of the WireMock rules manage its
@@ -152,7 +154,7 @@ the Java API, JSON over HTTP or JSON files.
 This will start the server on port 8080:
 
 You can [download the standalone JAR from
-here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar).
+here](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/{{ site.wiremock_version }}/wiremock-jre8-standalone-{{ site.wiremock_version }}.jar).
 
 See [Running as a Standalone Process](/docs/running-standalone/) running-standalone for more details and commandline options.
 

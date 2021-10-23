@@ -35,13 +35,15 @@ public class JettySettingsTest {
         builder.withAcceptors(number)
                 .withAcceptQueueSize(number)
                 .withRequestHeaderSize(number)
-                .withStopTimeout(longNumber);
+                .withStopTimeout(longNumber)
+                .withIdleTimeout(longNumber);
         JettySettings jettySettings = builder.build();
 
         ensurePresent(jettySettings.getAcceptors());
         ensurePresent(jettySettings.getAcceptQueueSize());
         ensurePresent(jettySettings.getRequestHeaderSize());
         ensureLongPresent(jettySettings.getStopTimeout());
+        ensureLongPresent(jettySettings.getIdleTimeout());
     }
 
     @Test
@@ -55,16 +57,17 @@ public class JettySettingsTest {
         assertFalse(jettySettings.getAcceptQueueSize().isPresent());
         assertFalse(jettySettings.getRequestHeaderSize().isPresent());
         assertFalse(jettySettings.getStopTimeout().isPresent());
+        assertFalse(jettySettings.getIdleTimeout().isPresent());
     }
 
     private void ensurePresent(Optional<Integer> optional) {
         assertTrue(optional.isPresent());
-        assertEquals(new Integer(number), optional.get());
+        assertEquals(Integer.valueOf(number), optional.get());
     }
 
     private void ensureLongPresent(Optional<Long> optional) {
         assertTrue(optional.isPresent());
-        assertEquals(new Long(longNumber), optional.get());
+        assertEquals(Long.valueOf(longNumber), optional.get());
     }
 
 }

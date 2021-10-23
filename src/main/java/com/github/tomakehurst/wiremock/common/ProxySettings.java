@@ -15,14 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Splitter.on;
-import static com.google.common.collect.Iterables.get;
-import static com.google.common.collect.Iterables.getFirst;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 import java.net.MalformedURLException;
 import java.net.URL;

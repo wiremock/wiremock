@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -33,7 +35,7 @@ public final class Json {
     public static class PrivateView {}
     public static class PublicView {}
 
-    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<ObjectMapper>() {
+    private static final InheritableThreadLocal<ObjectMapper> objectMapperHolder = new InheritableThreadLocal<ObjectMapper>() {
         @Override
         protected ObjectMapper initialValue() {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -41,6 +43,8 @@ public final class Json {
             objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
             objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
             objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+            objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+            objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
             return objectMapper;
         }
     };

@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

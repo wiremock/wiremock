@@ -17,46 +17,47 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.standalone.MappingFileException;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
+import static com.google.common.io.Files.asCharSink;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class StandaloneAcceptanceTest {
 	private static final String FILES = "__files";
@@ -76,11 +77,8 @@ public class StandaloneAcceptanceTest {
 
 	private File mappingsDirectory;
 	private File filesDirectory;
-
-	@Rule
-    public ExpectedException expectException = ExpectedException.none();
 	
-	@Before
+	@BeforeEach
 	public void init() throws Exception {
 		if (FILE_SOURCE_ROOT.exists()) {
             FileUtils.deleteDirectory(FILE_SOURCE_ROOT);
@@ -96,7 +94,7 @@ public class StandaloneAcceptanceTest {
 		WireMock.configure();
 	}
 	
-	@After
+	@AfterEach
 	public void stopServerRunner() {
 		runner.stop();
 		if (otherServer != null) {
@@ -444,18 +442,18 @@ public class StandaloneAcceptanceTest {
     public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
         writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-        expectException.expectMessage(allOf(
-            containsString("Error loading file"),
-            containsString("bad-mapping.json"),
-            containsString("Unrecognized field \"requesttttt\""),
-            containsString("class com.github.tomakehurst.wiremock.stubbing.StubMapping"),
-            containsString("not marked as ignorable")
-        ));
-        startRunner();
+        MappingFileException exception = assertThrows(MappingFileException.class, () -> startRunner());
+        assertThat(exception.getMessage(), allOf(
+                containsString("Error loading file"),
+                containsString("bad-mapping.json"),
+                containsString("Unrecognized field \"requesttttt\""),
+                containsString("class com.github.tomakehurst.wiremock.stubbing.StubMapping"),
+                containsString("not marked as ignorable")
+            ));
     }
 
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
-        return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
+        return FileUtils.readFileToString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
     }
 
 	private File firstFileWithNameLike(File directory, String namePart) {
@@ -505,7 +503,7 @@ public class StandaloneAcceptanceTest {
         try {
 			File file = new File(absolutePath);
             createParentDirs(file);
-			write(contents, file, Charsets.UTF_8);
+			asCharSink(file, StandardCharsets.UTF_8).write(contents);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -577,7 +575,7 @@ public class StandaloneAcceptanceTest {
 			public boolean matchesSafely(File dir) {
 				for (File file: dir.listFiles()) {
 					try {
-						if (Files.toString(file, Charsets.UTF_8).contains(expectedContents)) {
+						if (FileUtils.readFileToString(file, StandardCharsets.UTF_8).contains(expectedContents)) {
 							return true;
 						}
 					} catch (IOException e) {
