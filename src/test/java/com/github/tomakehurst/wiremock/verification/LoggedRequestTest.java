@@ -18,16 +18,12 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-
-import com.github.tomakehurst.wiremock.http.Cookie;
 import com.google.common.collect.ImmutableMap;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
@@ -42,25 +38,24 @@ import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRe
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-@RunWith(JMock.class)
 public class LoggedRequestTest {
 
     public static final String REQUEST_BODY = "some text 形声字形聲字";
     public static final String REQUEST_BODY_AS_BASE64 = "c29tZSB0ZXh0IOW9ouWjsOWtl+W9ouiBsuWtlw==";
 
-    private Mockery context;
-
     @Before
     public void init() {
-        context = new Mockery();
         System.out.println(TimeZone.getDefault());
     }
 
     @Test
     public void headerMatchingIsCaseInsensitive() {
-        LoggedRequest loggedRequest = createFrom(aRequest(context)
+        LoggedRequest loggedRequest = createFrom(aRequest()
                 .withUrl("/for/logging")
                 .withMethod(POST)
                 .withClientIp("14.07.17.89")

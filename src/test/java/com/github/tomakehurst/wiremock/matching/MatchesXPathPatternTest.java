@@ -183,6 +183,28 @@ public class MatchesXPathPatternTest {
     }
 
     @Test
+    public void matchesCorrectlyWhenSubMatcherIsDateEquality() {
+        String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soapenv:Envelope>\n" +
+                "    <soapenv:Body>\n" +
+                "        <Retrieve>\n" +
+                "            <Policy>\n" +
+                "                <EffectiveDate Val=\"01/01/2021\" />\n" +
+                "                <Policy Val=\"ABC123\" />\n" +
+                "            </Policy>\n" +
+                "        </Retrieve>\n" +
+                "    </soapenv:Body>\n" +
+                "</soapenv:Envelope>";
+
+        StringValuePattern pattern = WireMock.matchesXPathWithSubMatcher(
+                "//*[local-name() = 'EffectiveDate']/@Val",
+                equalToDateTime("2021-01-01T00:00:00").actualFormat("dd/MM/yyyy")
+        );
+
+        assertThat(pattern.match(xml).isExactMatch(), is(true));
+    }
+
+    @Test
     public void deserialisesCorrectlyWithoutNamespaces() {
         String json = "{ \"matchesXPath\" : \"/stuff:outer/stuff:inner[.=111]\" }";
 

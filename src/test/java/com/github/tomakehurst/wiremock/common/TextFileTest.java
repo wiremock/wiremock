@@ -15,24 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.commons.lang3.SystemUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TextFileTest {
     @Test
+    @DisabledOnOs(value = OS.WINDOWS, disabledReason = "This test can only be run on non-Windows " +
+            "its behaviour is OS specific")
     public void returnsPathToFileOnLinuxSystems() throws Exception {
-        assumeFalse("This test can only be run on non-Windows " +
-            "its behaviour is OS specific", SystemUtils.IS_OS_WINDOWS);
-
-
         TextFile textFile = new TextFile(new URI("file://home/bob/myfile.txt"));
 
         String path = textFile.getPath();
@@ -41,11 +39,10 @@ public class TextFileTest {
     }
 
     @Test
+    @EnabledOnOs(value = OS.WINDOWS, disabledReason = "This test can only be run on Windows " +
+            "because File uses FileSystem in its constructor " +
+            "and its behaviour is OS specific")
     public void returnsPathToFileOnWindowsSystems() throws Exception {
-        assumeTrue("This test can only be run on Windows " +
-                "because File uses FileSystem in its constructor " +
-                "and its behaviour is OS specific", SystemUtils.IS_OS_WINDOWS);
-
         TextFile textFile = new TextFile(new URI("file:/C:/Users/bob/myfile.txt"));
 
         Path path = Paths.get(textFile.getPath());

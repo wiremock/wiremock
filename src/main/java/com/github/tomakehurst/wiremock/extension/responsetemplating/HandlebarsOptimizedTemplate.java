@@ -57,17 +57,15 @@ public class HandlebarsOptimizedTemplate {
 		}
 	}
 
-	public String apply(Object contextData) throws IOException {
+	public String apply(Object contextData) {
 		final RenderCache renderCache = new RenderCache();
 		Context context = Context
 				.newBuilder(contextData)
 				.combine("renderCache", renderCache)
 				.build();
 
-		StringBuilder sb = new StringBuilder();
-		return sb.append(startContent)
-				 .append(template.apply(context))
-				 .append(endContent)
-				 .toString();
+		return  startContent +
+				Exceptions.uncheck(() -> template.apply(context), String.class) +
+				endContent;
 	}
 }

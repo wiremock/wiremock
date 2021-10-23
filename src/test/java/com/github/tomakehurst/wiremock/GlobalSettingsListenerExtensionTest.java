@@ -20,34 +20,34 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(Enclosed.class)
 public class GlobalSettingsListenerExtensionTest {
 
-    public static class Listening {
+    @Nested
+    class Listening {
 
         TestGlobalSettingsListener listener = new TestGlobalSettingsListener();
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(options()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
                 .dynamicPort()
-                .extensions(listener));
+                .extensions(listener)).build();
 
-        @Before
+        @BeforeEach
         public void init() {
             listener.events.clear();
         }
@@ -69,33 +69,37 @@ public class GlobalSettingsListenerExtensionTest {
             assertThat(listener.events.get(1), is("afterGlobalSettingsUpdated, old: 100, new: 200"));
         }
 
-        public static class TestGlobalSettingsListener implements GlobalSettingsListener {
+    }
 
-            public List<String> events = new ArrayList<>();
+    public static class TestGlobalSettingsListener implements GlobalSettingsListener {
 
-            @Override
-            public String getName() {
-                return "test-settings-listener";
-            }
+        public List<String> events = new ArrayList<>();
 
-            @Override
-            public void beforeGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-                events.add("beforeGlobalSettingsUpdated, old: " + oldSettings.getFixedDelay() + ", new: " + newSettings.getFixedDelay());
-            }
+        @Override
+        public String getName() {
+            return "test-settings-listener";
+        }
 
-            @Override
-            public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-                events.add("afterGlobalSettingsUpdated, old: " + oldSettings.getFixedDelay() + ", new: " + newSettings.getFixedDelay());
-            }
+        @Override
+        public void beforeGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
+            events.add("beforeGlobalSettingsUpdated, old: " + oldSettings.getFixedDelay() + ", new: "
+                    + newSettings.getFixedDelay());
+        }
+
+        @Override
+        public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
+            events.add("afterGlobalSettingsUpdated, old: " + oldSettings.getFixedDelay() + ", new: "
+                    + newSettings.getFixedDelay());
         }
     }
 
-    public static class Vetoing {
+    @Nested
+    class Vetoing {
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(options()
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
                 .dynamicPort()
-                .extensions(new VetoingTestGlobalSettingsListener()));
+                .extensions(new VetoingTestGlobalSettingsListener())).build();
 
         @Test
         public void settingsUpdateCanBeVetoedByThrowningAnException() {
@@ -110,20 +114,22 @@ public class GlobalSettingsListenerExtensionTest {
             }
         }
 
-        public static class VetoingTestGlobalSettingsListener implements GlobalSettingsListener {
+    }
 
-            @Override
-            public String getName() {
-                return "vetoing-settings-listener";
-            }
+    public static class VetoingTestGlobalSettingsListener implements GlobalSettingsListener {
 
-            @Override
-            public void beforeGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-                throw JsonException.fromErrors(Errors.single(123, "/one/two", "missing required element"));
-            }
+        @Override
+        public String getName() {
+            return "vetoing-settings-listener";
+        }
 
-            @Override
-            public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {}
+        @Override
+        public void beforeGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
+            throw JsonException.fromErrors(Errors.single(123, "/one/two", "missing required element"));
+        }
+
+        @Override
+        public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
         }
     }
 

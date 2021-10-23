@@ -113,6 +113,19 @@ public class HandlebarsRandomValuesHelperTest {
     }
 
     @Test
+    public void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+                "length", 64,
+                "type", "HEXADECIMAL"
+        );
+
+        String output = render(optionsHash);
+
+        assertThat(output.length(), is(64));
+        assertThat(output, WireMatchers.matches("^[0-9a-f]+$"));
+    }
+
+    @Test
     public void randomValuesCanBeAssignedToVariables() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
             mockRequest().url("/random-value"),

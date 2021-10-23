@@ -1,0 +1,80 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build and test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        jdk: [8, 11]
+    runs-on: ${{ matrix.os }}
+    env:
+      JDK_VERSION:  ${{ matrix.jdk }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Validate Gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: ${{ matrix.jdk }}
+        distribution: 'adopt'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Set up node using nvm
+      uses: dcodeIO/setup-node-nvm@v4
+      with:
+        node-version: 8.12.0
+    - name: Pre-generate API docs
+      run: ./gradlew classes testClasses -x generateApiDocs
+
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache Gradle packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-gradle
+
+    - name: Test WireMock with Sonarqube
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.jdk == 11 && github.event_name == 'push' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: ./gradlew check sonarqube --stacktrace --no-daemon
+
+    - name: Test WireMock
+      if: ${{ !(matrix.os == 'ubuntu-latest' && matrix.jdk == 11 && github.event_name == 'push') }}
+      run: ./gradlew check --stacktrace --no-daemon
+
+    - name: Archive WireMock test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: wiremock-core-test-report-${{ matrix.os }} JDK ${{ matrix.jdk }}
+        path: |
+          build/reports/tests/test
+          build/test-results/test
+    - name: Archive Webhooks test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: wiremock-webhooks-extension-test-report-${{ matrix.os }}-${{ matrix.jdk }}
+        path: |
+          wiremock-webhooks-extension/build/reports/tests/test
+          wiremock-webhooks-extension/build/test-results/test

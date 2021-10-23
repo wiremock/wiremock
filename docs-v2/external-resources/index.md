@@ -63,6 +63,9 @@ Python client by Cody Lee:<br>
 NodeJS wrapper:<br>
 [https://www.npmjs.com/package/wiremock](https://www.npmjs.com/package/wiremock)
 
+NodeJS + TypeScript client:<br>
+[https://www.npmjs.com/package/wiremock-captain](https://www.npmjs.com/package/wiremock-captain)
+
 
 ## Articles
 
@@ -78,7 +81,8 @@ Phill Barber has written a couple of interesting posts about practical testing s
 [http://phillbarber.blogspot.co.uk/2015/02/how-to-test-for-connection-leaks.html](http://phillbarber.blogspot.co.uk/2015/02/how-to-test-for-connection-leaks.html)
 
 Bas Dijkstra kindly open sourced the content for the workshop he ran on WireMock and REST Assured:<br>
-[http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/](http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/)
+[http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/](http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/)<br>
+[https://github.com/basdijkstra/wiremock-workshop](https://github.com/basdijkstra/wiremock-workshop)
 
 ## Videos
 

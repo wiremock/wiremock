@@ -16,31 +16,14 @@ Additionally, versions of these JARs are distributed for both Java 7 and Java 8+
 The Java 7 distribution is aimed primarily at Android developers and enterprise Java teams still using JRE7. Some of its
 dependencies are not set to the latest versions e.g. Jetty 9.2.x is used, as this is the last minor version to retain Java 7 compatibility.
 
-The Java 8+ build endeavours to track the latest version of all its major dependencies. This is usually the version you should choose by default.
+The Java 8+ build endeavours to track the latest version of all its major dependencies.
+
+> **note**
+>
+> The Java 7 version is now deprecated in the 2.x line and version 2.27.2 is the last release available. It's strongly
+> recommended that you use the Java 8 releases if possible.
 
 ## Maven dependencies 
-
-Java 7:
-
-```xml
-<dependency>
-    <groupId>com.github.tomakehurst</groupId>
-    <artifactId>wiremock</artifactId>
-    <version>{{ site.wiremock_version }}</version>
-    <scope>test</scope>
-</dependency>
-```
-
-Java 7 standalone:
-
-```xml
-<dependency>
-    <groupId>com.github.tomakehurst</groupId>
-    <artifactId>wiremock-standalone</artifactId>
-    <version>{{ site.wiremock_version }}</version>
-    <scope>test</scope>
-</dependency>
-```
 
 Java 8:
 
@@ -64,30 +47,52 @@ Java 8 standalone:
 </dependency>
 ```
 
+Java 7 (deprecated):
+
+```xml
+<dependency>
+    <groupId>com.github.tomakehurst</groupId>
+    <artifactId>wiremock</artifactId>
+    <version>2.27.2</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Java 7 standalone (deprecated):
+
+```xml
+<dependency>
+    <groupId>com.github.tomakehurst</groupId>
+    <artifactId>wiremock-standalone</artifactId>
+    <version>2.27.2</version>
+    <scope>test</scope>
+</dependency>
+```
+
 ## Gradle dependencies
-
-Java 7:
-
-```groovy
-testCompile "com.github.tomakehurst:wiremock:{{ site.wiremock_version }}"
-```
-
-Java 7 standalone:
-
-```groovy
-testCompile "com.github.tomakehurst:wiremock-standalone:{{ site.wiremock_version }}"
-```
 
 Java 8:
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
+testImplementation "com.github.tomakehurst:wiremock:{{ site.wiremock_version }}"
 ```
 
 Java 8 standalone:
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-jre8-standalone:{{ site.wiremock_version }}"
+testImplementation "com.github.tomakehurst:wiremock-standalone:{{ site.wiremock_version }}"
+```
+
+Java 7 (deprecated):
+
+```groovy
+testImplementation "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
+```
+
+Java 7 standalone (deprecated):
+
+```groovy
+testImplementation "com.github.tomakehurst:wiremock-jre8-standalone:{{ site.wiremock_version }}"
 ```
 
 ## Direct download

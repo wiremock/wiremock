@@ -16,14 +16,17 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.After;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static org.hamcrest.Matchers.*;
@@ -105,6 +108,38 @@ public class TransferEncodingAcceptanceTest {
         String expectedContentLength = String.valueOf(body.getBytes().length);
         assertThat(response.firstHeader("Transfer-Encoding"), nullValue());
         assertThat(response.firstHeader("Content-Length"), is(expectedContentLength));
+    }
+
+    @Test
+    public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingEnabled() throws Exception {
+        startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
+
+        String path = "/length";
+        wm.stubFor(get(path)
+            .willReturn(ok("stuff")
+                    .withHeader("Content-Length", "1234")));
+
+        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
+        HttpGet request = new HttpGet(wm.baseUrl() + path);
+        try (final CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
+        }
+    }
+
+    @Test
+    public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingDisabled() throws Exception {
+        startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
+
+        String path = "/length";
+        wm.stubFor(get(path)
+            .willReturn(ok("stuff")
+                    .withHeader("Content-Length", "1234")));
+
+        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
+        HttpGet request = new HttpGet(wm.baseUrl() + path);
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
+        }
     }
 
     private void startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy chunkedEncodingPolicy) {

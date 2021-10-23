@@ -16,14 +16,14 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.base.Stopwatch;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,10 +46,13 @@ public class ResponseDelayAsynchronousAcceptanceTest {
 
     private ExecutorService httpClientExecutor = Executors.newCachedThreadPool();
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(getOptions());
+    @RegisterExtension
+    public WireMockExtension wireMockRule = WireMockExtension.newInstance()
+            .configureStaticDsl(true)
+            .options(getOptions())
+            .build();
 
-    private WireMockConfiguration getOptions() {
+    private static WireMockConfiguration getOptions() {
         WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
         wireMockConfiguration.jettyAcceptors(1).containerThreads(8);
         wireMockConfiguration.asynchronousResponseEnabled(true);
@@ -91,9 +94,9 @@ public class ResponseDelayAsynchronousAcceptanceTest {
             requests.add(new Callable<TimedHttpResponse>() {
                 @Override
                 public TimedHttpResponse call() throws Exception {
-                    CloseableHttpResponse response = HttpClientFactory
+                    CloseableHttpResponse response = HttpClient4Factory
                         .createClient(SOCKET_TIMEOUT_MILLISECONDS)
-                        .execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
+                        .execute(new HttpGet(wireMockRule.url("/delayed")));
 
                     return new TimedHttpResponse(
                         response,

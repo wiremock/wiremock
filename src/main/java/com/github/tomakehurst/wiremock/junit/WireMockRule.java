@@ -31,7 +31,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockRule extends WireMockServer implements MethodRule, TestRule {
+public class WireMockRule extends WireMockServer implements TestRule {
 
     private final boolean failOnUnmatchedRequests;
 
@@ -58,11 +58,6 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 
     @Override
     public Statement apply(final Statement base, Description description) {
-        return apply(base, null, null);
-    }
-
-	@Override
-	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
 		return new Statement() {
 			@Override
 			public void evaluate() throws Throwable {
@@ -77,7 +72,10 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 				try {
                     before();
                     base.evaluate();
-                    checkForUnmatchedRequests();
+
+                    if (failOnUnmatchedRequests) {
+                        checkForUnmatchedRequests();
+                    }
                 } finally {
                     after();
                     stop();
@@ -86,20 +84,6 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 
 		};
 	}
-
-    private void checkForUnmatchedRequests() {
-        if (failOnUnmatchedRequests) {
-            List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
-            if (!unmatchedRequests.isEmpty()) {
-                List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
-                if (nearMisses.isEmpty()) {
-                    throw VerificationException.forUnmatchedRequests(unmatchedRequests);
-                } else {
-                    throw VerificationException.forUnmatchedNearMisses(nearMisses);
-                }
-            }
-        }
-    }
 
     protected void before() {
         // NOOP

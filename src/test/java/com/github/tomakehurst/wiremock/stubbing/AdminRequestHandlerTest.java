@@ -19,17 +19,17 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 
@@ -40,21 +40,19 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.new
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-@RunWith(JMock.class)
 public class AdminRequestHandlerTest {
-	private Mockery context;
-	private Admin admin;
+	private Admin admin = mock(Admin.class);
     private MockHttpResponder httpResponder;
 
     private AdminRequestHandler handler;
 
 	@Before
 	public void init() {
-		context = new Mockery();
-        admin = context.mock(Admin.class);
         httpResponder = new MockHttpResponder();
 
 
@@ -63,53 +61,44 @@ public class AdminRequestHandlerTest {
 	
     @Test
     public void shouldSaveMappingsWhenSaveCalled() {
-        Request request = aRequest(context)
+        Request request = aRequest()
                 .withUrl("/mappings/save")
                 .withMethod(POST)
                 .build();
-
-        context.checking(new Expectations() {{
-            one(admin).saveMappings();
-        }});
 
         handler.handle(request, httpResponder);
         Response response = httpResponder.response;
 
         assertThat(response.getStatus(), is(HTTP_OK));
+        verify(admin).saveMappings();
     }
 	
 	@Test
 	public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
-		Request request = aRequest(context)
+		Request request = aRequest()
 			.withUrl("/reset")
 			.withMethod(POST)
 			.build();
 		
-		context.checking(new Expectations() {{
-			one(admin).resetAll();
-		}});
-
         handler.handle(request, httpResponder);
         Response response = httpResponder.response;
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
+		verify(admin).resetAll();
 	}
 
 	@Test
 	public void shouldClearJournalWhenResetRequestsCalled() {
-		Request request = aRequest(context)
+		Request request = aRequest()
 				.withUrl("/requests/reset")
 				.withMethod(POST)
 				.build();
-
-		context.checking(new Expectations() {{
-			one(admin).resetRequests();
-		}});
 
         handler.handle(request, httpResponder);
         Response response = httpResponder.response;
 
 		assertThat(response.getStatus(), is(HTTP_OK));
+		verify(admin).resetRequests();
 	}
 
 	private static final String REQUEST_PATTERN_SAMPLE = 
@@ -120,12 +109,10 @@ public class AdminRequestHandlerTest {
 	
 	@Test
 	public void shouldReturnCountOfMatchingRequests() {
-		context.checking(new Expectations() {{
-			RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
-			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
-		}});
+		RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
+		Mockito.when(admin.countRequestsMatching(requestPattern)).thenReturn(VerificationResult.withCount(5));
 		
-		handler.handle(aRequest(context)
+		handler.handle(aRequest()
 				.withUrl("/requests/count")
 				.withMethod(POST)
 				.withBody(REQUEST_PATTERN_SAMPLE)
@@ -144,17 +131,14 @@ public class AdminRequestHandlerTest {
 	
 	@Test
 	public void shouldUpdateGlobalSettings() {
-        context.checking(new Expectations() {{
-            GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
-            allowing(admin).updateGlobalSettings(expectedSettings);
-        }});
-
-		handler.handle(aRequest(context)
+		handler.handle(aRequest()
 				.withUrl("/settings")
 				.withMethod(POST)
 				.withBody(GLOBAL_SETTINGS_JSON)
 				.build(),
             httpResponder);
 
+		GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
+		verify(admin).updateGlobalSettings(expectedSettings);
 	}
 }

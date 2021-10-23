@@ -1,0 +1,32 @@
+
+                                               Request was not matched
+                                               =======================
+
+-----------------------------------------------------------------------------------------------------------------------
+| Closest stub                                             | Request                                                  |
+-----------------------------------------------------------------------------------------------------------------------
+                                                           |
+The post stub with a really long name that ought to wrap   |
+and let us see exactly how that looks when it is done      |
+                                                           |
+POST                                                       | POST
+/thing                                                     | /thing
+                                                           |
+<deep-things>                                              | <deep-things>                                       <<<<< Body does not match
+  <thing id="1">                                           |   <thing id="1">
+<thing id="2">                                             | <thing id="2">
+      <thing id="3">                                       |       <thing id="3">
+        <thing id="4">                                     |         <thing id="4">
+<thing id="5">                                             | <thing id="5">
+<thing id="6">                                             | <thing id="6">
+              Super wrong bit of text                      |               Super long bit of text that
+that should push it way over the length limit!             | should push it way over the length limit!
+</thing>                                                   | </thing>
+          </thing>                                         |           </thing>
+        </thing>                                           |         </thing>
+      </thing>                                             |       </thing>
+    </thing>                                               |     </thing>
+  </thing>                                                 |   </thing>
+</deep-things>                                             | </deep-things>
+                                                           |
+-----------------------------------------------------------------------------------------------------------------------

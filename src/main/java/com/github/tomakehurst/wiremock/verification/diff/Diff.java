@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.*;
@@ -248,13 +249,14 @@ public class Diff {
                 if (PathPattern.class.isAssignableFrom(pattern.getClass())) {
                     PathPattern pathPattern = (PathPattern) pattern;
                     if (!pathPattern.isSimple()) {
-                        String expressionResult = pathPattern.getExpressionResult(body.asString());
+                        ListOrSingle<String> expressionResult = pathPattern.getExpressionResult(body.asString());
+                        String expressionResultString = expressionResult != null && !expressionResult.isEmpty() ? expressionResult.toString() : null;
                         String printedExpectedValue =
                                 pathPattern.getExpected() +
                                         " [" + pathPattern.getValuePattern().getName() + "] " +
                                         pathPattern.getValuePattern().getExpected();
-                        if (expressionResult != null) {
-                            builder.add(new DiffLine<>("Body", pathPattern.getValuePattern(), expressionResult, printedExpectedValue));
+                        if (expressionResultString != null) {
+                            builder.add(new DiffLine<>("Body", pathPattern.getValuePattern(), expressionResultString, printedExpectedValue));
                         } else {
                             builder.add(new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue));
                         }
