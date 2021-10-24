@@ -485,7 +485,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .withRequestBody(equalToXml("<some-xml />"))
             .willReturn(aResponse().withStatus(201)));
 
-        WireMockResponse response = testClient.request("OPTIONS", "/no-body");
+        WireMockResponse response = testClient.options("/no-body");
         assertThat(response.statusCode(), is(200));
     }
 

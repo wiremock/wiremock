@@ -78,8 +78,8 @@ public class WireMockTestClient {
         this(8080);
     }
 
-    private URI mockServiceUrlFor(String path) {
-        return URI.create(String.format(LOCAL_WIREMOCK_ROOT, address, port, path));
+    private String mockServiceUrlFor(String path) {
+        return String.format(LOCAL_WIREMOCK_ROOT, address, port, path);
     }
 
     private String newMappingUrl() {
@@ -95,8 +95,7 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse get(String url, TestHttpHeader... headers) {
-        URI uri = URI.create(url);
-        URI actualUrl = uri.isAbsolute() ? uri : mockServiceUrlFor(url);
+        String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
         HttpUriRequest httpRequest = new HttpGet(actualUrl);
         return executeMethodAndConvertExceptions(httpRequest, headers);
     }
@@ -307,7 +306,7 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse request(final String methodName, String url, TestHttpHeader... headers) {
-        HttpUriRequest httpRequest = new HttpUriRequestBase(methodName, mockServiceUrlFor(url));
+        HttpUriRequest httpRequest = new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
         return executeMethodAndConvertExceptions(httpRequest, headers);
     }
 
