@@ -16,15 +16,17 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import org.apache.http.HttpHost;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContexts;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -77,7 +79,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
         CloseableHttpClient testClient = buildHttpClient();
         CloseableHttpResponse response = testClient.execute(new HttpGet(target.url("/whatever")));
 
-        assertThat(response.getStatusLine().getStatusCode(), is(HTTP_OK));
+        assertThat(response.getCode(), is(HTTP_OK));
         assertThat(EntityUtils.toString(response.getEntity()), is("Success"));
     }
 
@@ -104,8 +106,12 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
                 .disableAutomaticRetries()
                 .disableCookieManagement()
                 .disableRedirectHandling()
-                .setSSLContext(sslcontext)
-                .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                        .setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+                                .setSslContext(sslcontext)
+                                .setHostnameVerifier(new NoopHostnameVerifier())
+                                .build())
+                        .build())
                 .setProxy(proxyInfo)
                 .build();
     }

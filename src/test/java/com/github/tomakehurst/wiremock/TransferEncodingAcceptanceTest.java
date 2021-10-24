@@ -16,13 +16,13 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -116,10 +116,10 @@ public class TransferEncodingAcceptanceTest {
 
         String path = "/length";
         wm.stubFor(get(path)
-            .willReturn(ok("stuff")
+            .willReturn(ok(StringUtils.repeat('a', 1234))
                     .withHeader("Content-Length", "1234")));
 
-        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
         HttpGet request = new HttpGet(wm.baseUrl() + path);
         try (final CloseableHttpResponse response = httpClient.execute(request)) {
             assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
@@ -132,10 +132,10 @@ public class TransferEncodingAcceptanceTest {
 
         String path = "/length";
         wm.stubFor(get(path)
-            .willReturn(ok("stuff")
+            .willReturn(ok(StringUtils.repeat('a', 1234))
                     .withHeader("Content-Length", "1234")));
 
-        CloseableHttpClient httpClient = HttpClient4Factory.createClient();
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
         HttpGet request = new HttpGet(wm.baseUrl() + path);
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));

@@ -78,7 +78,7 @@ specify a trust store containing the certificate(s).
 `javax.net.ssl.SSLException: Unrecognized SSL message, plaintext connection?`: Usually means you've tried to connect to the
 HTTP port with a client that's expecting HTTPS (i.e. has https:// in the URL).
 
-`org.apache.http.NoHttpResponseException: The target server failed to respond`: Could mean you've tried to connect to the HTTPS port with a
+`org.apache.hc.core5.http.NoHttpResponseException: The target server failed to respond`: Could mean you've tried to connect to the HTTPS port with a
 client expecting HTTP.
 
 `javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target`: You are using WireMock's default (self-signed) TLS certificate or another certificate that isn't signed by a CA. In this case you need to specifically configure your HTTP client to trust the certificate being presented, or to trust all certificates. Here is an example of [how to do this with the Apache HTTP client](https://github.com/tomakehurst/wiremock/blob/{{ site.wiremock_version }}/src/main/java/com/github/tomakehurst/wiremock/http/HttpClientFactory.java).

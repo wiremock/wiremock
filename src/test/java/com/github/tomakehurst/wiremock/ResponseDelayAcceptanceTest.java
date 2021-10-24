@@ -17,14 +17,14 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,10 +37,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.Thread.sleep;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResponseDelayAcceptanceTest {
@@ -56,12 +56,12 @@ public class ResponseDelayAcceptanceTest {
         .options(WireMockConfiguration.options().port(Options.DYNAMIC_PORT).httpsPort(Options.DYNAMIC_PORT))
         .build();
 
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private WireMockTestClient testClient;
 
     @BeforeEach
     public void init() {
-        httpClient = HttpClient4Factory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
         testClient = new WireMockTestClient(wireMockRule.getRuntimeInfo().getHttpPort());
     }
 
@@ -176,7 +176,7 @@ public class ResponseDelayAcceptanceTest {
                         .withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
         final HttpResponse execute = httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
-        assertThat(execute.getStatusLine().getStatusCode(), is(200));
+        assertThat(execute.getCode(), is(200));
     }
 
     @Test
@@ -225,7 +225,7 @@ public class ResponseDelayAcceptanceTest {
                 try {
                     HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
                     final HttpResponse execute = httpClient.execute(request);
-                    assertThat(execute.getStatusLine().getStatusCode(), is(200));
+                    assertThat(execute.getCode(), is(200));
                     success.set(true);
                 } catch (Throwable e) {
                     e.printStackTrace();

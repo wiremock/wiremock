@@ -15,29 +15,29 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
 import static java.util.Collections.singletonList;
-import static org.apache.http.entity.ContentType.MULTIPART_FORM_DATA;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.is;
+import static org.apache.hc.core5.http.ContentType.MULTIPART_FORM_DATA;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
-    HttpClient httpClient = HttpClient4Factory.createClient();
+    CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
     @Test
     public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
@@ -51,7 +51,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok())
         );
 
-        HttpUriRequest request = RequestBuilder
+        ClassicHttpRequest request = ClassicRequestBuilder
             .post(wireMockServer.baseUrl() + "/multipart")
             .setEntity(MultipartEntityBuilder.create()
                 .addTextBody("text", "hello")
@@ -60,11 +60,11 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             )
             .build();
 
-        HttpResponse response = httpClient.execute(request);
+        ClassicHttpResponse response = httpClient.execute(request);
 
         assertThat(
                 EntityUtils.toString(response.getEntity()),
-                response.getStatusLine().getStatusCode(), is(200));
+                response.getCode(), is(200));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok())
         );
 
-        HttpUriRequest request = RequestBuilder
+        ClassicHttpRequest request = ClassicRequestBuilder
             .post(wireMockServer.baseUrl() + "/empty-multipart")
             .setHeader("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
             .setEntity(new StringEntity("", MULTIPART_FORM_DATA))
@@ -84,7 +84,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
         HttpResponse response = httpClient.execute(request);
 
-        assertThat(response.getStatusLine().getStatusCode(), is(404));
+        assertThat(response.getCode(), is(404));
     }
 
     /**
@@ -102,7 +102,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
                 .willReturn(ok())
         );
 
-        HttpUriRequest request = RequestBuilder
+        ClassicHttpRequest request = ClassicRequestBuilder
                 .post(wireMockServer.baseUrl() + "/multipart-mixed")
                 .setEntity(MultipartEntityBuilder.create()
                         .setMimeSubtype("mixed")
@@ -112,11 +112,11 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
                 )
                 .build();
 
-        HttpResponse response = httpClient.execute(request);
+        ClassicHttpResponse response = httpClient.execute(request);
 
         assertThat(
                 EntityUtils.toString(response.getEntity()),
-                response.getStatusLine().getStatusCode(), is(200));
+                response.getCode(), is(200));
     }
 
     /**
@@ -134,7 +134,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
                 .willReturn(ok())
         );
 
-        HttpUriRequest request = RequestBuilder
+        ClassicHttpRequest request = ClassicRequestBuilder
                 .post(wireMockServer.baseUrl() + "/multipart-related")
                 .setEntity(MultipartEntityBuilder.create()
                         .setMimeSubtype("related")
@@ -144,11 +144,11 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
                 )
                 .build();
 
-        HttpResponse response = httpClient.execute(request);
+        ClassicHttpResponse response = httpClient.execute(request);
 
         assertThat(
                 EntityUtils.toString(response.getEntity()),
-                response.getStatusLine().getStatusCode(), is(200));
+                response.getCode(), is(200));
     }
 
     // https://github.com/tomakehurst/wiremock/issues/1179
