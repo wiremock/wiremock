@@ -57,7 +57,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
     public static void init() {
         client = HttpClientBuilder.create()
                 .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
-                .setProxy(new HttpHost("localhost", wm.port()))
+                .setProxy(new HttpHost("localhost", wm.getPort()))
                 .build();
     }
 

@@ -40,7 +40,7 @@ public class XmlHandlingAcceptanceTest {
 
     @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(wm.getPort());
 
         externalDtdServer.stubFor(get("/dodgy.dtd").willReturn(ok(
             "<!ELEMENT shiftydata (#PCDATA)>")

@@ -67,8 +67,8 @@ public class FailingWebhookTest {
     targetServer.stubFor(any(anyUrl())
         .willReturn(aResponse().withStatus(200)));
     latch = new CountDownLatch(1);
-    client = new WireMockTestClient(extension.port());
-    WireMock.configureFor(targetServer.port());
+    client = new WireMockTestClient(extension.getPort());
+    WireMock.configureFor(targetServer.getPort());
   }
 
   @Test
