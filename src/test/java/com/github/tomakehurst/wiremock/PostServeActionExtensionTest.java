@@ -31,8 +31,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +62,7 @@ public class PostServeActionExtensionTest {
         client = new WireMockTestClient(wm.port());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         if (wm != null) {
             wm.stop();

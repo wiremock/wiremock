@@ -28,8 +28,8 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.eclipse.jetty.server.ServerConnector;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
@@ -37,7 +37,7 @@ import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JettyHttpServerTest {
 
@@ -45,7 +45,7 @@ public class JettyHttpServerTest {
     private StubRequestHandler stubRequestHandler;
     private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
-    @Before
+    @BeforeEach
     public void init() {
         Admin admin = Mockito.mock(Admin.class);
 

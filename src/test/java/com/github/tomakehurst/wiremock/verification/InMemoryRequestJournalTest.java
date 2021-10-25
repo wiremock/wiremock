@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -32,7 +32,7 @@ public class InMemoryRequestJournalTest {
 
     private ServeEvent serveEvent1, serveEvent2, serveEvent3;
 
-    @Before
+    @BeforeEach
     public void createTestRequests() {
         serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()), null);
         serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()), null);

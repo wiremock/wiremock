@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -25,9 +25,7 @@ import javax.net.ssl.X509ExtendedTrustManager;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;

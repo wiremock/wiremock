@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.http.ssl;
 
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.*;
 import javax.security.auth.x500.X500Principal;
@@ -30,8 +30,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

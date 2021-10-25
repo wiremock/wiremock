@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 
