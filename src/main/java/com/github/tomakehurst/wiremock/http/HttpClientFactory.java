@@ -26,12 +26,14 @@ import org.apache.hc.client5.http.impl.DefaultAuthenticationStrategy;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -49,6 +51,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class HttpClientFactory {
@@ -75,6 +78,7 @@ public class HttpClientFactory {
                         .setMaxConnPerRoute(maxConnections)
                         .setMaxConnTotal(maxConnections)
                         .setValidateAfterInactivity(TimeValue.ofSeconds(5))  // TODO Verify duration
+                        .setConnectionFactory(new ManagedHttpClientConnectionFactory(null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
                         .build())
                 .setDefaultRequestConfig(RequestConfig.custom()
                         .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
