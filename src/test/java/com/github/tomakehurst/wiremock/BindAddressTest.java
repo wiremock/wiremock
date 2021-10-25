@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ public class BindAddressTest {
     private String nonBindAddress;
     private WireMockServer wireMockServer;
 
-    final HttpClient client = HttpClient4Factory.createClient();
+    final CloseableHttpClient client = HttpClientFactory.createClient();
 
     @BeforeEach
     public void prepare() throws Exception {
@@ -98,12 +98,12 @@ public class BindAddressTest {
     }
 
     private int getStatusViaHttps(String host) throws Exception {
-        HttpResponse localhostResponse = client.execute(RequestBuilder
+        ClassicHttpResponse localhostResponse = client.execute(ClassicRequestBuilder
             .get("https://" + host + ":" + wireMockServer.httpsPort() + "/bind-test")
             .build()
         );
 
-        int status = localhostResponse.getStatusLine().getStatusCode();
+        int status = localhostResponse.getCode();
         EntityUtils.consume(localhostResponse.getEntity());
         return status;
     }

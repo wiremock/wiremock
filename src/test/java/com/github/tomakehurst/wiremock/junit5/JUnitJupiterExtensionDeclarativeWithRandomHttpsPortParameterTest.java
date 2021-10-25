@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ public class JUnitJupiterExtensionDeclarativeWithRandomHttpsPortParameterTest {
 
     @BeforeEach
     void init() {
-        client = HttpClient4Factory.createClient();
+        client = HttpClientFactory.createClient();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class JUnitJupiterExtensionDeclarativeWithRandomHttpsPortParameterTest {
 
         HttpGet request = new HttpGet(wmRuntimeInfo.getHttpsBaseUrl() + "/thing");
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
     }
 

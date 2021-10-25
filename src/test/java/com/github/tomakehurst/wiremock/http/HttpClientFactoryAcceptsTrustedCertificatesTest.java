@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -25,7 +25,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.common.HttpClient4Utils.getEntityAsStringAndCloseStream;
+import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,7 +52,7 @@ public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientF
 
         server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-        HttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
+        CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
 
         String result = getEntityAsStringAndCloseStream(response);
 

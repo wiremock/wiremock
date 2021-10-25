@@ -29,7 +29,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -46,7 +46,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findServeEventWithUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;

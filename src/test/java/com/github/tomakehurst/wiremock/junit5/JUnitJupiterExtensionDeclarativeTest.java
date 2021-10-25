@@ -16,10 +16,10 @@
 package com.github.tomakehurst.wiremock.junit5;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ public class JUnitJupiterExtensionDeclarativeTest {
 
     @BeforeEach
     void init() {
-        client = HttpClient4Factory.createClient();
+        client = HttpClientFactory.createClient();
     }
 
     @Test
@@ -50,13 +50,13 @@ public class JUnitJupiterExtensionDeclarativeTest {
         wireMock.register(get("/instance-dsl").willReturn(ok()));
         HttpGet request = new HttpGet(wmRuntimeInfo.getHttpBaseUrl() + "/instance-dsl");
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
 
         stubFor(get("/static-dsl").willReturn(ok()));
         request = new HttpGet(wmRuntimeInfo.getHttpBaseUrl() + "/static-dsl");
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
     }
 
