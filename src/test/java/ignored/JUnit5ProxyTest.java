@@ -3,17 +3,19 @@ package ignored;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +24,7 @@ public class JUnit5ProxyTest {
     @RegisterExtension
     public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().enableBrowserProxying(true)).build();
 
-    HttpClient httpClient = HttpClientBuilder.create()
+    CloseableHttpClient httpClient = HttpClientBuilder.create()
             .useSystemProperties() // This must be enabled for auto-configuration of proxy settings to work
             .build();
 
@@ -46,7 +48,7 @@ public class JUnit5ProxyTest {
                 .withHost(equalTo("my.second.domain"))
                 .willReturn(ok("Domain 2")));
 
-        HttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals("Domain 1", responseBody);
 
@@ -69,7 +71,7 @@ public class JUnit5ProxyTest {
                 .withHost(equalTo("my.second.domain"))
                 .willReturn(ok("Domain 2")));
 
-        HttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals("Domain 1", responseBody);
 

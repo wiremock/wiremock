@@ -27,18 +27,14 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -49,9 +45,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMul
 import static com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer.CONSOLE_WIDTH_HEADER_KEY;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NotMatchedPageAcceptanceTest {
 
@@ -258,7 +254,7 @@ public class NotMatchedPageAcceptanceTest {
                 .willReturn(ok())
         );
 
-        ByteArrayEntity entity = new ByteArrayEntity(Gzip.gzip("{\"id\":\"wrong\"}"));
+        ByteArrayEntity entity = new ByteArrayEntity(Gzip.gzip("{\"id\":\"wrong\"}"), ContentType.DEFAULT_BINARY);
         WireMockResponse response = testClient.post("/gzip", entity, withHeader("Content-Encoding", "gzip"));
 
         assertThat(response.statusCode(), is(404));
