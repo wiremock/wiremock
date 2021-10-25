@@ -25,11 +25,14 @@ import org.apache.hc.client5.http.impl.auth.BasicScheme;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
@@ -43,6 +46,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
 
 public class WireMockTestClient {
@@ -275,6 +279,10 @@ public class WireMockTestClient {
             .disableCookieManagement()
             .disableRedirectHandling()
             .disableContentCompression()
+            .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
+                    .setConnectionFactory(new ManagedHttpClientConnectionFactory(null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
+                    .build()
+            )
             .build();
     }
 
