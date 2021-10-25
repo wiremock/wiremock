@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
@@ -40,6 +41,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -54,10 +57,7 @@ import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -838,6 +838,26 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/or", withHeader("X-Maybe", "wrong")).statusCode(), is(404));
 	}
 
+	@Test
+	public void jsonResponseWithStringValue() {
+		stubFor(get("/json-from-string").willReturn(jsonResponse("{ \"message\": \"Json From String\" }", 200)));
+
+		WireMockResponse response = testClient.get("/json-from-string");
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.firstHeader(HttpHeaders.CONTENT_TYPE), is("application/json"));
+		assertThat(response.content(), containsString("\"Json From String\""));
+	}
+
+	@Test
+	public void jsonResponseWithObjectValue() {
+		stubFor(get("/json-from-object").willReturn(jsonResponse(new MockResponse("Json From Object"), 200)));
+
+		WireMockResponse response = testClient.get("/json-from-object");
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.firstHeader(HttpHeaders.CONTENT_TYPE), is("application/json"));
+		assertThat(response.content(), containsString("\"Json From Object\""));
+	}
+
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 		connection.setRequestMethod("GET");
@@ -873,5 +893,17 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		}
 
 		assertTrue(thrown, "No exception was thrown");
+	}
+
+	public static class MockResponse {
+		private final String message;
+
+		public MockResponse(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
 	}
 }
