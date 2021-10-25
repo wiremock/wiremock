@@ -22,7 +22,6 @@ class HttpClientTest {
 			.and().areNotAssignableTo(HttpAdminClient.class)
 			.and().areNotAssignableTo(HttpClientUtils.class)
 			.should().dependOnClassesThat().resideInAPackage("org.apache.hc..")
-			.orShould().dependOnClassesThat().resideInAPackage("org.apache.http..")
 			.as("Apache HttpClient should be limited to http package")
 			.because("we want to make the third party dependency optional");
 

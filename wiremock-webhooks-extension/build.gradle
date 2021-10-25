@@ -25,7 +25,7 @@ group 'org.wiremock'
 
 dependencies {
     compileOnly project(":")
-    implementation "org.apache.httpcomponents:httpclient:4.5.13"
+    compile "org.apache.httpcomponents.client5:httpclient5:5.1"
 
     testImplementation project(":")
     testImplementation(platform('org.junit:junit-bom:5.8.1'))

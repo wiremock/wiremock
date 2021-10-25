@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.jupiter.api.Test;
@@ -62,13 +62,13 @@ public class Http2AcceptanceTest {
 
     @Test
     public void supportsHttp1_1Connections() throws Exception {
-        CloseableHttpClient client = HttpClient4Factory.createClient();
+        CloseableHttpClient client = HttpClientFactory.createClient();
 
         wm.stubFor(get("/thing").willReturn(ok("HTTP/1.1 response")));
 
         HttpGet get = new HttpGet(wm.getRuntimeInfo().getHttpsBaseUrl() + "/thing");
         try (CloseableHttpResponse response = client.execute(get)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
     }
 }

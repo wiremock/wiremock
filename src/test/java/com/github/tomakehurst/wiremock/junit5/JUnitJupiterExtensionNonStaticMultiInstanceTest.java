@@ -16,11 +16,11 @@
 package com.github.tomakehurst.wiremock.junit5;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -28,7 +28,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -53,7 +56,7 @@ public class JUnitJupiterExtensionNonStaticMultiInstanceTest {
 
     @BeforeEach
     void init() {
-        client = HttpClient4Factory.createClient();
+        client = HttpClientFactory.createClient();
     }
 
     @Test
@@ -65,14 +68,14 @@ public class JUnitJupiterExtensionNonStaticMultiInstanceTest {
         stubFor(get("/wm1").willReturn(ok()));
         HttpGet request = new HttpGet(wm1RuntimeInfo.getHttpsBaseUrl() + "/wm1");
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
 
         WireMockRuntimeInfo wm2RuntimeInfo = wm2.getRuntimeInfo();
         wm2.stubFor(get("/wm2").willReturn(ok("{{request.path.0}}")));
         request = new HttpGet(wm2RuntimeInfo.getHttpBaseUrl() + "/wm2");
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
             assertThat(EntityUtils.toString(response.getEntity()), is("wm2")); // Ensures templating is enabled
         }
     }
@@ -86,7 +89,7 @@ public class JUnitJupiterExtensionNonStaticMultiInstanceTest {
 
         HttpGet request = new HttpGet(wm1RuntimeInfo.getHttpsBaseUrl() + "/wm1");
         try (CloseableHttpResponse response = client.execute(request)) {
-            assertThat(response.getStatusLine().getStatusCode(), is(404));
+            assertThat(response.getCode(), is(404));
         }
     }
 
