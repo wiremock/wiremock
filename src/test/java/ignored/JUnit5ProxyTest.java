@@ -2,36 +2,36 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JUnit5ProxyTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort().enableBrowserProxying(true));
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().enableBrowserProxying(true)).build();
 
     HttpClient httpClient = HttpClientBuilder.create()
             .useSystemProperties() // This must be enabled for auto-configuration of proxy settings to work
             .build();
 
-    @Before
+    @BeforeEach
     public void init() {
-        JvmProxyConfigurer.configureFor(wm);
+        JvmProxyConfigurer.configureFor(wm.getRuntimeInfo().getHttpPort());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         JvmProxyConfigurer.restorePrevious();
     }

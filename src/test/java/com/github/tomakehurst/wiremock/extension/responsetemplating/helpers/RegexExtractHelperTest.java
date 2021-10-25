@@ -25,14 +25,14 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
 
     private RegexExtractHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new RegexExtractHelper();
         LocalNotifier.set(new ConsoleNotifier(true));

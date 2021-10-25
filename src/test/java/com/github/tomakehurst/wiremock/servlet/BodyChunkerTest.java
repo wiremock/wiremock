@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
+
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BodyChunkerTest {

@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.net.HttpURLConnection;

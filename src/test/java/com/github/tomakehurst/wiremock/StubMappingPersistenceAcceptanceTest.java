@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,7 +49,7 @@ public class StubMappingPersistenceAcceptanceTest {
     WireMockTestClient testClient;
     Stubbing wm;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         rootDir = Files.createTempDirectory("temp-filesource");
         mappingsDir = rootDir.resolve("mappings");

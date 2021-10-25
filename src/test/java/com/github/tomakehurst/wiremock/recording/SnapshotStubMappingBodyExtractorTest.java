@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -34,7 +34,7 @@ public class SnapshotStubMappingBodyExtractorTest {
     private FileSource filesSource;
     private SnapshotStubMappingBodyExtractor bodyExtractor;
 
-    @Before
+    @BeforeEach
     public void init() {
         filesSource = Mockito.mock(FileSource.class, "filesFileSource");
         bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);

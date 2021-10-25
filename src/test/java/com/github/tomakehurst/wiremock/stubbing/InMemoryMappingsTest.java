@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -38,12 +38,12 @@ public class InMemoryMappingsTest {
 
     private InMemoryStubMappings mappings;
 
-    @Before
+    @BeforeEach
     public void init() {
         mappings = new InMemoryStubMappings();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         LocalNotifier.set(null);
     }

@@ -23,7 +23,6 @@ import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -53,17 +52,11 @@ class JUnit4DetectionTest {
 	private static final String REASON = "we want to migrate to JUnit Jupiter";
 
 	@ArchTest
-	static ArchRule junit4PackageShouldNotBeUsed = freeze(noClasses()
+	static ArchRule junit4PackageShouldNotBeUsed = noClasses()
 			.that(EXCLUDE_WIREMOCKJUNITRULETEST)
-			.should()
-			.dependOnClassesThat(describe("use org.junit", clazz -> clazz.getDirectDependenciesFromSelf()
-					.stream()
-					.map(dep -> dep.getOriginClass().getPackageName())
-					.anyMatch(name -> name.startsWith("org.junit") 
-							&& !name.startsWith("org.junit.jupiter")
-							&& !name.startsWith("org.junit.platform"))))
+			.should().dependOnClassesThat().resideInAnyPackage("org.junit")
 			.as("org.junit should not be used")
-			.because(REASON));
+			.because(REASON);
 
 	@ArchTest
 	static ArchRule junit4RunWithShouldNotBeUsed = classes()

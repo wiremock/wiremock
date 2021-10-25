@@ -16,11 +16,12 @@
 package com.github.tomakehurst.wiremock.common;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ProxySettingsTest {
 
@@ -52,9 +53,11 @@ public class ProxySettingsTest {
         assertThat(proxySettings.port(), is(PROXYVIA_PORT));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfPortIsNotRecognized(){
-        ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL+":80a");
+        assertThrows(IllegalArgumentException.class, () -> {
+            ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL + ":80a");
+        });
     }
 
     @Test
@@ -91,14 +94,18 @@ public class ProxySettingsTest {
         assertThat(proxySettings.port(), is(PROXYVIA_PORT));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowHttpsProtocol(){
-        ProxySettings proxySettings = ProxySettings.fromString("https://"+PROXYVIA_URL_WITH_PORT);
+        assertThrows(IllegalArgumentException.class, () -> {
+            ProxySettings proxySettings = ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfUrlIsInvalid(){
-        ProxySettings proxySettings = ProxySettings.fromString("ul:invalid:80");
+        assertThrows(IllegalArgumentException.class, () -> {
+            ProxySettings proxySettings = ProxySettings.fromString("ul:invalid:80");
+        });
     }
 
 }

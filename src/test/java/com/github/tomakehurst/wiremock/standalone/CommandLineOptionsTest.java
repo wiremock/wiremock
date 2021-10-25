@@ -35,7 +35,7 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
@@ -48,7 +48,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CommandLineOptionsTest {
 
@@ -155,10 +156,12 @@ public class CommandLineOptionsTest {
         assertThat(options.httpsSettings().keyManagerPassword(), is("keymanpass"));
     }
 
-	@Test(expected=Exception.class)
+	@Test
 	public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
-		new CommandLineOptions("--port");
-	}
+        assertThrows(Exception.class, () -> {
+            new CommandLineOptions("--port");
+        });
+    }
 
     @Test
     public void returnsCorrecteyParsedBindAddress(){
@@ -179,10 +182,12 @@ public class CommandLineOptionsTest {
         assertThat(options.proxyHostHeader(), is("someotherhost.com:8080"));
     }
 
-    @Test(expected=Exception.class)
+    @Test
 	public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
-		new CommandLineOptions("--proxy-all");
-	}
+        assertThrows(Exception.class, () -> {
+            new CommandLineOptions("--proxy-all");
+        });
+    }
 
 	@Test
 	public void returnsBrowserProxyingEnabledWhenOptionSet() {
@@ -332,9 +337,11 @@ public class CommandLineOptionsTest {
         assertThat(options.jettySettings().getStopTimeout().isPresent(), is(false));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void preventsRecordingWhenRequestJournalDisabled() {
-        new CommandLineOptions("--no-request-journal", "--record-mappings");
+        assertThrows(IllegalArgumentException.class, () -> {
+            new CommandLineOptions("--no-request-journal", "--record-mappings");
+        });
     }
 
     @Test
