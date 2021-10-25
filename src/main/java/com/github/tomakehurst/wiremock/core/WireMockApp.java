@@ -87,8 +87,10 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
+
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
+
+        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries(), customMatchers);
 
         scenarios = new Scenarios();
         stubMappings = new InMemoryStubMappings(
@@ -121,7 +123,7 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries, requestMatchers);
         scenarios = new Scenarios();
         stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;

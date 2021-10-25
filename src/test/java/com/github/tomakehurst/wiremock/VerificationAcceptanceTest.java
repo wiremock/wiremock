@@ -802,6 +802,40 @@ public class VerificationAcceptanceTest {
             assertThat(serveEvents.get(0).getRequest().getUrl(), is("/without-metadata"));
         }
 
+        @Test
+        public void verifiesRequestsViaRequestMatcherExtension() {
+            setupServer(options().extensions(new PathContainsParamRequestMatcher()));
+
+            testClient.get("/local-request-matcher-ext-this");
+            testClient.get("/local-request-matcher-ext-that");
+
+            wireMockServer.verify(2, requestMadeFor("path-contains-param", Parameters.one("path", "local-request-matcher-ext")));
+        }
+
+        @Test
+        public void verifiesRequestsViaRequestMatcherExtensionRemotely() {
+            setupServer(options().extensions(new PathContainsParamRequestMatcher()));
+
+            testClient.get("/remote-request-matcher-ext-this");
+            testClient.get("/remote-request-matcher-ext-that");
+
+            verify(2, requestMadeFor("path-contains-param", Parameters.one("path", "remote-request-matcher-ext")));
+        }
+
+    }
+
+    public static class PathContainsParamRequestMatcher extends RequestMatcherExtension {
+
+        @Override
+        public MatchResult match(Request request, Parameters parameters) {
+            String pathSegment = parameters.getString("path");
+            return MatchResult.of(request.getUrl().contains(pathSegment));
+        }
+
+        @Override
+        public String getName() {
+            return "path-contains-param";
+        }
     }
 
     @Nested
