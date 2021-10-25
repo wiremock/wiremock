@@ -39,7 +39,7 @@ class BrowserProxyAcceptanceTest {
 
     @BeforeEach
     public void init() {
-        testClient = new WireMockTestClient(target.getRuntimeInfo().getHttpPort());
+        testClient = new WireMockTestClient(target.getPort());
 
         proxy = new WireMockServer(wireMockConfig()
                 .dynamicPort()
@@ -76,7 +76,7 @@ class BrowserProxyAcceptanceTest {
 
         @Test
         public void browserProxyIsReportedAsFalseInRequestLogWhenDisabled() {
-            int httpPort = wmWithoutBrowserProxy.getRuntimeInfo().getHttpPort();
+            int httpPort = wmWithoutBrowserProxy.getPort();
             WireMockTestClient testClient = new WireMockTestClient(httpPort);
 
             testClient.getViaProxy("http://whereever/whatever", httpPort);

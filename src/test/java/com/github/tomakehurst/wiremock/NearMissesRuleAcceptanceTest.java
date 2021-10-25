@@ -70,7 +70,7 @@ public class NearMissesRuleAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            client = new WireMockTestClient(wm.getPort());
             testNotifier.reset();
         }
 
@@ -177,7 +177,7 @@ public class NearMissesRuleAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wmeWithCustomMatcher.getRuntimeInfo().getHttpPort());
+            client = new WireMockTestClient(wmeWithCustomMatcher.getPort());
         }
 
         @Test

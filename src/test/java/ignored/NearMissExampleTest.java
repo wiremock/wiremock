@@ -39,7 +39,7 @@ public class NearMissExampleTest {
 
     @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+        client = new WireMockTestClient(wm.getPort());
     }
 
     @Test

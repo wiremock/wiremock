@@ -39,7 +39,7 @@ public class MassiveNearMissTest {
 
     @BeforeEach
     public void setup() {
-        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+        client = new WireMockTestClient(wm.getPort());
     }
 
     @Test

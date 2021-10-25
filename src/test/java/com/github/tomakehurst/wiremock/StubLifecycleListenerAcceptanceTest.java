@@ -110,7 +110,7 @@ public class StubLifecycleListenerAcceptanceTest {
 
     @Test
     public void sensibleExceptionIsThrownWhenRemoteAndExceptionThrownFromListener() {
-        WireMock wmRemote = new WireMock(wm.getRuntimeInfo().getHttpPort());
+        WireMock wmRemote = new WireMock(wm.getPort());
         exceptionThrowingListener.throwException = true;
 
         try {

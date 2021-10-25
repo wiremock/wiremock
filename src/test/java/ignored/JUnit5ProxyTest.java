@@ -30,7 +30,7 @@ public class JUnit5ProxyTest {
 
     @BeforeEach
     public void init() {
-        JvmProxyConfigurer.configureFor(wm.getRuntimeInfo().getHttpPort());
+        JvmProxyConfigurer.configureFor(wm.getPort());
     }
 
     @AfterEach

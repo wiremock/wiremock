@@ -62,7 +62,7 @@ public class ResponseDelayAcceptanceTest {
     @BeforeEach
     public void init() {
         httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
-        testClient = new WireMockTestClient(wireMockRule.getRuntimeInfo().getHttpPort());
+        testClient = new WireMockTestClient(wireMockRule.getPort());
     }
 
     @Test
