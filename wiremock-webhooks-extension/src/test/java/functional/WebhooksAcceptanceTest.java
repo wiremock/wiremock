@@ -77,11 +77,11 @@ public class WebhooksAcceptanceTest {
         targetServer.stubFor(any(anyUrl())
             .willReturn(aResponse().withStatus(200)));
         latch = new CountDownLatch(1);
-        client = new WireMockTestClient(rule.getRuntimeInfo().getHttpPort());
-        WireMock.configureFor(targetServer.getRuntimeInfo().getHttpPort());
+        client = new WireMockTestClient(rule.getPort());
+        WireMock.configureFor(targetServer.getPort());
 
-        System.out.println("Target server port: " + targetServer.getRuntimeInfo().getHttpPort());
-        System.out.println("Under test server port: " + rule.getRuntimeInfo().getHttpPort());
+        System.out.println("Target server port: " + targetServer.getPort());
+        System.out.println("Under test server port: " + rule.getPort());
     }
 
     @Test

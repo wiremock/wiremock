@@ -37,8 +37,8 @@ public class AlternativeServletContainerTest {
 
     @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
-        WireMock.configureFor(wm.getRuntimeInfo().getHttpPort());
+        client = new WireMockTestClient(wm.getPort());
+        WireMock.configureFor(wm.getPort());
     }
 
     @Test

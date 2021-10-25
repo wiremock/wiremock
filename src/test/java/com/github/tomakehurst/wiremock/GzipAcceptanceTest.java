@@ -100,7 +100,7 @@ public class GzipAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            testClient = new WireMockTestClient(wm.getPort());
         }
 
         @Test
@@ -138,7 +138,7 @@ public class GzipAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            testClient = new WireMockTestClient(wm.getPort());
         }
 
         @Test

@@ -1,12 +1,5 @@
 package functional;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.wiremock.webhooks.Webhooks.webhook;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
@@ -74,8 +67,8 @@ public class FailingWebhookTest {
     targetServer.stubFor(any(anyUrl())
         .willReturn(aResponse().withStatus(200)));
     latch = new CountDownLatch(1);
-    client = new WireMockTestClient(extension.getRuntimeInfo().getHttpPort());
-    WireMock.configureFor(targetServer.getRuntimeInfo().getHttpPort());
+    client = new WireMockTestClient(extension.getPort());
+    WireMock.configureFor(targetServer.getPort());
   }
 
   @Test

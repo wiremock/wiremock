@@ -60,7 +60,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
                 .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
                         .setDnsResolver(new CustomLocalTldDnsResolver("internal"))
                         .build())
-                .setProxy(new HttpHost("localhost", wm.getRuntimeInfo().getHttpPort()))
+                .setProxy(new HttpHost("localhost", wm.getPort()))
                 .build();
     }
 

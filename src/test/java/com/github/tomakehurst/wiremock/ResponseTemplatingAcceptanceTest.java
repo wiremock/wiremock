@@ -49,7 +49,7 @@ public class ResponseTemplatingAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            client = new WireMockTestClient(wm.getPort());
         }
 
         @Test
@@ -85,7 +85,7 @@ public class ResponseTemplatingAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            client = new WireMockTestClient(wm.getPort());
         }
 
         @Test
@@ -262,7 +262,7 @@ public class ResponseTemplatingAcceptanceTest {
 
         @BeforeEach
         public void init() {
-            client = new WireMockTestClient(wm.getRuntimeInfo().getHttpPort());
+            client = new WireMockTestClient(wm.getPort());
         }
 
         @Test
