@@ -31,7 +31,10 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
-import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.MalformedChunkCodingException;
+import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.hamcrest.Matchers;
@@ -40,6 +43,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.SocketException;
@@ -48,24 +54,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.KEY_STORE_PATH;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PATH;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpsAcceptanceTest {
 
@@ -216,7 +210,12 @@ public class HttpsAcceptanceTest {
             contentFor(url("/https-test")); // this lacks the required client certificate
             fail("Expected a SocketException, SSLHandshakeException or SSLException to be thrown");
         } catch (Exception e) {
-            assertThat(e, Matchers.instanceOf(HttpHostConnectException.class));
+            assertThat(e.getClass().getName(), Matchers.anyOf(
+                    is(HttpHostConnectException.class.getName()),
+                    is(SSLHandshakeException.class.getName()),
+                    is(SSLException.class.getName()),
+                    is(SocketException.class.getName())
+            ));
         }
     }
 
