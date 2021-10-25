@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.google.common.io.Resources;
+import org.apache.hc.client5.http.HttpHostConnectException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -215,11 +216,7 @@ public class HttpsAcceptanceTest {
             contentFor(url("/https-test")); // this lacks the required client certificate
             fail("Expected a SocketException, SSLHandshakeException or SSLException to be thrown");
         } catch (Exception e) {
-            assertThat(e.getClass().getName(), Matchers.anyOf(
-                    is(SocketException.class.getName()),
-                    is(SSLHandshakeException.class.getName()),
-                    is(SSLException.class.getName())
-            ));
+            assertThat(e, Matchers.instanceOf(HttpHostConnectException.class));
         }
     }
 
