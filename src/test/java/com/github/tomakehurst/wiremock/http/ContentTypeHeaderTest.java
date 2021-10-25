@@ -18,15 +18,14 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ContentTypeHeaderTest {
 	@Test
@@ -76,12 +75,14 @@ public class ContentTypeHeaderTest {
 		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
-		new MockRequestBuilder()
-				.withHeader("Content-Type", null)
-				.build();
-	}
+        assertThrows(NullPointerException.class, () -> {
+            new MockRequestBuilder()
+                    .withHeader("Content-Type", null)
+                    .build();
+        });
+    }
 
 	@Test
 	public void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {

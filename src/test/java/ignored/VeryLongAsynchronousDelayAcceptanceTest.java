@@ -18,26 +18,24 @@ package ignored;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class VeryLongAsynchronousDelayAcceptanceTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(getOptions());
+    @RegisterExtension
+    public WireMockExtension wireMockRule = WireMockExtension.newInstance().options(getOptions()).build();
 
     private WireMockConfiguration getOptions() {
         WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
@@ -57,7 +55,7 @@ public class VeryLongAsynchronousDelayAcceptanceTest {
 
         CloseableHttpResponse response = HttpClient4Factory.createClient(50, 120000)
             .execute(RequestBuilder
-            .post("http://localhost:" + wireMockRule.port() + "/faulty/1/path/path")
+            .post(wireMockRule.url("/faulty/1/path/path"))
             .setEntity(new StringEntity("<xml>permissions</xml>"))
             .build()
         );

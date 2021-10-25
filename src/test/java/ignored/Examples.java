@@ -17,9 +17,7 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -37,7 +35,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
@@ -45,15 +42,14 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_DAY_OF_MONTH;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Examples extends AcceptanceTestBase {
 
@@ -465,6 +461,8 @@ public class Examples extends AcceptanceTestBase {
         stubFor(get("/xml").willReturn(okXml("<hello />")));     // application/xml
         stubFor(get("/xml").willReturn(okTextXml("<hello />"))); // text/xml
         stubFor(post("/things").willReturn(noContent()));
+        stubFor(get("/json-from-string").willReturn(jsonResponse("{ \"message\": \"String Json\" }", 200)));
+        stubFor(get("/json-from-object").willReturn(jsonResponse(new MockResponse("Object Json"), 200)));
 
         stubFor(post("/temp-redirect").willReturn(temporaryRedirect("/new/place")));
         stubFor(post("/perm-redirect").willReturn(permanentRedirect("/new/place")));
@@ -670,6 +668,18 @@ public class Examples extends AcceptanceTestBase {
         @Override
         public String getName() {
             return "url-and-header-modifier";
+        }
+    }
+
+    public static class MockResponse {
+        private final String message;
+
+        public MockResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }

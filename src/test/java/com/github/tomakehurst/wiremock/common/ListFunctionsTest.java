@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
@@ -23,7 +23,7 @@ import static com.github.tomakehurst.wiremock.common.ListFunctions.splitByType;
 import static com.github.tomakehurst.wiremock.common.Pair.pair;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ListFunctionsTest {
 

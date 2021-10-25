@@ -35,8 +35,8 @@ import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRendere
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +58,7 @@ public class NotMatchedPageAcceptanceTest {
     WireMockServer wm;
     WireMockTestClient testClient;
 
-    @After
+    @AfterEach
     public void stop() {
         wm.stop();
     }

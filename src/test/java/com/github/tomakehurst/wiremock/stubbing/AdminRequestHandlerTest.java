@@ -27,8 +27,8 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -51,7 +51,7 @@ public class AdminRequestHandlerTest {
 
     private AdminRequestHandler handler;
 
-	@Before
+	@BeforeEach
 	public void init() {
         httpResponder = new MockHttpResponder();
 

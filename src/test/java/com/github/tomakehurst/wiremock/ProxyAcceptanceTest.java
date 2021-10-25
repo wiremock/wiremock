@@ -44,8 +44,8 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -57,7 +57,7 @@ import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ProxyAcceptanceTest {
@@ -95,7 +95,7 @@ public class ProxyAcceptanceTest {
         init(wireMockConfig());
     }
 	
-	@After
+	@AfterEach
 	public void stop() {
 		targetService.stop();
         proxyingService.stop();
@@ -399,8 +399,8 @@ public class ProxyAcceptanceTest {
 
         testClient.get("/no-accept-encoding-header");
         LoggedRequest lastRequest = getLast(target.find(getRequestedFor(urlEqualTo("/no-accept-encoding-header"))));
-        assertFalse("Accept-Encoding header should not be present",
-                lastRequest.getHeaders().getHeader("Accept-Encoding").isPresent());
+        assertFalse(lastRequest.getHeaders().getHeader("Accept-Encoding").isPresent(),
+                "Accept-Encoding header should not be present");
     }
 
     @Test
@@ -531,6 +531,22 @@ public class ProxyAcceptanceTest {
 
         Collection<String> allowOriginHeaderValues = response.headers().get("Access-Control-Allow-Origin");
         assertThat(allowOriginHeaderValues.size(), is(0));
+    }
+
+    @Test
+    public void removesPrefixFromProxyRequestWhenMatching() {
+        initWithDefaultConfig();
+
+        proxy.register(get("/other/service/doc/123")
+                .willReturn(aResponse()
+                        .proxiedFrom(targetServiceBaseUrl + "/approot")
+                        .withProxyUrlPrefixToRemove("/other/service")));
+
+        target.register(get("/approot/doc/123").willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/other/service/doc/123");
+
+        assertThat(response.statusCode(), is(200));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

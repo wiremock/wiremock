@@ -22,10 +22,14 @@ public class JvmProxyConfigurer {
     public static void configureFor(WireMockServer wireMockServer) {
         stashPreviousSettings();
 
+        configureFor(wireMockServer.port());
+    }
+
+    public static void configureFor(int port) {
         System.setProperty(HTTP_PROXY_HOST, "localhost");
-        System.setProperty(HTTP_PROXY_PORT, String.valueOf(wireMockServer.port()));
+        System.setProperty(HTTP_PROXY_PORT, String.valueOf(port));
         System.setProperty(HTTPS_PROXY_HOST, "localhost");
-        System.setProperty(HTTPS_PROXY_PORT, String.valueOf(wireMockServer.port()));
+        System.setProperty(HTTPS_PROXY_PORT, String.valueOf(port));
         System.setProperty(HTTP_NON_PROXY_HOSTS, "localhost|127.*|[::1]");
     }
 

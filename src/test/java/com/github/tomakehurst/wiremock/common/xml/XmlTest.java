@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.common.xml;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -19,8 +19,8 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.TagType;
 import com.github.jknack.handlebars.Context;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.*;
 public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
     private ParseJsonHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new ParseJsonHelper();
     }

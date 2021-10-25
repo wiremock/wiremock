@@ -22,8 +22,8 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
@@ -39,16 +39,14 @@ import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createF
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LoggedRequestTest {
 
     public static final String REQUEST_BODY = "some text 形声字形聲字";
     public static final String REQUEST_BODY_AS_BASE64 = "c29tZSB0ZXh0IOW9ouWjsOWtl+W9ouiBsuWtlw==";
 
-    @Before
+    @BeforeEach
     public void init() {
         System.out.println(TimeZone.getDefault());
     }

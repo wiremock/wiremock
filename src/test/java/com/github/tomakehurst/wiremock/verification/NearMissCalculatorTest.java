@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Function;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class NearMissCalculatorTest {
     RequestJournal requestJournal;
     Scenarios scenarios;
 
-    @Before
+    @BeforeEach
     public void init() {
         stubMappings = mock(StubMappings.class);
         requestJournal = mock(RequestJournal.class);
