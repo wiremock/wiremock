@@ -503,6 +503,17 @@ public class WireMock {
         return okForContentType("text/xml", body);
     }
 
+    public static ResponseDefinitionBuilder jsonResponse(String body, int status) {
+	    return aResponse()
+            .withStatus(status)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(body);
+    }
+
+    public static ResponseDefinitionBuilder jsonResponse(Object body, int status) {
+	    return jsonResponse(Json.write(body), status);
+    }
+
     public static MappingBuilder proxyAllTo(String url) {
         return any(anyUrl()).willReturn(aResponse().proxiedFrom(url));
     }
