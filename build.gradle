@@ -234,12 +234,6 @@ task generateApiDocs(type: Exec) {
     }
 }
 
-configurations {
-    shadowJar
-    thinJarPom
-    standaloneJarPom
-}
-
 jar {
     archiveBaseName.set('wiremock-jre8')
     manifest {
@@ -250,7 +244,6 @@ jar {
 
 shadowJar {
     archiveBaseName.set('wiremock-jre8-standalone')
-    archiveClassifier.set('')
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
     relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -286,33 +279,9 @@ shadowJar {
     exclude 'handlebars-*.js'
 }
 
-def thinJarPomPath = "${project.buildDir}/publications/thinJar/pom-default.xml"
-def standaloneJarPomPath = "${project.buildDir}/publications/standaloneJar/pom-default.xml"
-
-artifacts {
-    archives sourcesJar, javadocJar, testJar
-    thinJarPom file(thinJarPomPath)
-    standaloneJarPom file(standaloneJarPomPath)
-}
-
 javadoc {
     exclude "**/CertificateAuthority.java"
     options.addStringOption('Xdoclint:none', '-quiet')
-}
-
-task writeThinJarPom {
-    doLast {
-        pom {
-            project {
-                artifactId = jar.getArchiveBaseName().get()
-            }
-            project(pomInfo)
-        }.whenConfigured { MavenPom pom ->
-            pom.dependencies.removeAll { dependency ->
-                dependency.scope == 'test'
-            }
-        }.writeTo(thinJarPomPath)
-    }
 }
 
 signing {
@@ -343,24 +312,13 @@ publishing {
     }
 
     publications {
-        thinJar(MavenPublication) {
+        mavenJava(MavenPublication) { publication ->
             artifactId = "${jar.getArchiveBaseName().get()}"
-
-            artifact jar
-            artifact sourcesJar
-            artifact javadocJar
+            from components.java
             artifact testJar
 
             pom.withXml {
                 asNode().children().last() + pomInfo
-
-                asNode().dependencies.'*'.findAll() {
-                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
-                        dep.name == it.artifactId.text()
-                    }
-                }.each() {
-                    it.scope*.value = 'compile'
-                }
             }
         }
 
@@ -371,6 +329,13 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
             artifact testJar
+
+            publication.artifacts.each {
+		// for the shaded JAR
+                if ('all' == it.classifier) {
+                    it.classifier = ''
+                }
+            }
 
             pom.packaging 'jar'
             pom.withXml {
@@ -389,9 +354,9 @@ task checkReleasePreconditions {
         assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
     }
 }
-publish.dependsOn checkReleasePreconditions, writeThinJarPom
+publish.dependsOn checkReleasePreconditions
 
-publishToMavenLocal.dependsOn writeThinJarPom, jar, shadowJar
+assemble.dependsOn jar, shadowJar
 
 task addGitTag {
     doLast {
@@ -400,10 +365,8 @@ task addGitTag {
     }
 }
 
-signThinJarPublication.dependsOn writeThinJarPom
-
 task release {
-    dependsOn clean, jar, shadowJar, publishAllPublicationsToMavenRepository, addGitTag
+    dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag
 }
 
 task 'bump-patch-version' {
