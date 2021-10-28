@@ -36,7 +36,7 @@ Note: When you specify this parameter, WireMock will still, additionally, bind t
 `--bind-address`: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.
 
 `--https-keystore`: Path to a keystore file containing an SSL
-certificate to use with HTTPS. The keystore must have a password of
+certificate to use with HTTPS. Can be a path to a file or a resource on the classpath. The keystore must have a password of
 "password". This option will only work if `--https-port` is specified.
 If this option isn't used WireMock will default to its own self-signed
 certificate.
@@ -53,7 +53,7 @@ sets the keystore password value. The key manager password can be set with the (
 
 `--https-truststore`: Path to a keystore file containing client public
 certificates, proxy target public certificates & private keys to use when
-authenticate with a proxy target that require client authentication. See
+authenticate with a proxy target that require client authentication. Can be a path to a file or a resource on the classpath. See
 [HTTPS configuration](/docs/configuration/#https-configuration)
 and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
 details.
