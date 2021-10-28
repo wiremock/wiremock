@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'scala'
     id 'signing'
     id 'maven'
@@ -33,36 +33,36 @@ def versions = [
 ]
 
 dependencies {
-    compile "org.eclipse.jetty:jetty-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-proxy:$versions.jetty"
-    compile "org.eclipse.jetty.http2:http2-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-alpn-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-alpn-openjdk8-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-alpn-openjdk8-client:$versions.jetty"
+    api "org.eclipse.jetty:jetty-server:$versions.jetty"
+    api "org.eclipse.jetty:jetty-servlet:$versions.jetty"
+    api "org.eclipse.jetty:jetty-servlets:$versions.jetty"
+    api "org.eclipse.jetty:jetty-webapp:$versions.jetty"
+    api "org.eclipse.jetty:jetty-proxy:$versions.jetty"
+    api "org.eclipse.jetty.http2:http2-server:$versions.jetty"
+    api "org.eclipse.jetty:jetty-alpn-server:$versions.jetty"
+    api "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty"
+    api "org.eclipse.jetty:jetty-alpn-openjdk8-server:$versions.jetty"
+    api "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
+    api "org.eclipse.jetty:jetty-alpn-openjdk8-client:$versions.jetty"
 
-    compile "com.google.guava:guava:$versions.guava"
-    compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
+    api "com.google.guava:guava:$versions.guava"
+    api "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
-    compile "org.apache.httpcomponents.client5:httpclient5:5.1"
-    compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
-    compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
+    api "org.apache.httpcomponents.client5:httpclient5:5.1"
+    api "org.xmlunit:xmlunit-core:$versions.xmlUnit"
+    api "org.xmlunit:xmlunit-legacy:$versions.xmlUnit", {
         exclude group: 'junit', module: 'junit'
     }
-    compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-    compile 'net.javacrumbs.json-unit:json-unit-core:2.28.0'
-    compile "com.jayway.jsonpath:json-path:2.6.0", {
+    api "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
+    api 'net.javacrumbs.json-unit:json-unit-core:2.28.0'
+    api "com.jayway.jsonpath:json-path:2.6.0", {
         exclude group: 'org.ow2.asm', module: 'asm'
     }
-    compile "net.minidev:json-smart:2.4.7" // Pinning this above the transitive version from json-path to get CVE fix
-    compile "org.ow2.asm:asm:9.2"
-    compile "org.slf4j:slf4j-api:1.7.32"
-    compile "net.sf.jopt-simple:jopt-simple:5.0.4"
+    api "net.minidev:json-smart:2.4.7" // Pinning this above the transitive version from json-path to get CVE fix
+    api "org.ow2.asm:asm:9.2"
+    api "org.slf4j:slf4j-api:1.7.32"
+    api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
     compileOnly("junit:junit:4.13.2") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
@@ -70,18 +70,18 @@ dependencies {
     compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
     compileOnly("org.junit.jupiter:junit-jupiter")
 
-    compile 'org.apache.commons:commons-lang3:3.12.0'
-    compile "com.github.jknack:handlebars:$versions.handlebars", {
+    api 'org.apache.commons:commons-lang3:3.12.0'
+    api "com.github.jknack:handlebars:$versions.handlebars", {
         exclude group: 'org.mozilla', module: 'rhino'
     }
-    compile("com.github.jknack:handlebars-helpers:$versions.handlebars") {
+    api("com.github.jknack:handlebars-helpers:$versions.handlebars") {
         exclude group: 'org.mozilla', module: 'rhino'
     }
 
-    compile 'commons-fileupload:commons-fileupload:1.4',  {
+    api 'commons-fileupload:commons-fileupload:1.4',  {
         exclude group: 'commons-io', module: 'commons-io'
     }
-    compile "commons-io:commons-io:2.11.0"
+    api "commons-io:commons-io:2.11.0"
 
     testCompile "junit:junit:4.13"
     testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
