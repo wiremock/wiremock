@@ -34,7 +34,8 @@ password:
 public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
     .httpsPort(8443)
     .keystorePath("/path/to/keystore.jks")
-    .keystorePassword("verysecret")); // Defaults to "password" if omitted
+    .keystorePassword("verysecret") // The password used to access the keystore. Defaults to "password" if omitted
+    .keyManagerPassword("verysecret")); // The password used to access individual keys in the keystore. Defaults to "password" if omitted
 ```
 
 The keystore type defaults to JKS, but this can be changed if you're using another keystore format e.g. Bouncycastle's BKS with Android:
