@@ -124,7 +124,7 @@ public class ResponseDefinition {
         this.fixedDelayMilliseconds = fixedDelayMilliseconds;
         this.delayDistribution = delayDistribution;
         this.chunkedDribbleDelay = chunkedDribbleDelay;
-        this.proxyBaseUrl = proxyBaseUrl;
+        this.proxyBaseUrl = proxyBaseUrl == null ? null : proxyBaseUrl.trim();
         this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
         this.fault = fault;
         this.transformers = transformers;

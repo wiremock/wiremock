@@ -51,4 +51,39 @@ public class ResponseDefinitionTest {
 
         assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url"));
     }
+
+    @Test
+    public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlBeginWithWhiteSpace() {
+        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom(" http://my.proxy.url")
+                .build();
+
+        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+
+        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+    }
+
+    @Test
+    public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlEndWithWhiteSpace() {
+        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
+                .proxiedFrom("http://my.proxy.url ")
+                .build();
+
+        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+
+        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+
+    }
+
+    @Test
+    public void getProxyUrlGivesBackTheProxyUrlWhenProxiedFromUrlNull() {
+        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
+                .build();
+
+        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+
+        assertThat(response.getProxyUrl(), equalTo("null/path"));
+
+    }
+
 }
