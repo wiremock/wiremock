@@ -33,8 +33,9 @@ password:
 @Rule
 public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
     .httpsPort(8443)
-    .keystorePath("/path/to/keystore.jks")
-    .keystorePassword("verysecret")); // Defaults to "password" if omitted
+    .keystorePath("/path/to/keystore.jks") // Either a path to a file or a resource on the classpath
+    .keystorePassword("verysecret") // The password used to access the keystore. Defaults to "password" if omitted
+    .keyManagerPassword("verysecret")); // The password used to access individual keys in the keystore. Defaults to "password" if omitted
 ```
 
 The keystore type defaults to JKS, but this can be changed if you're using another keystore format e.g. Bouncycastle's BKS with Android:
@@ -60,7 +61,7 @@ client auth:
 public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
     .httpsPort(8443)
     .needClientAuth(true)
-    .trustStorePath("/path/to/truststore.jks")
+    .trustStorePath("/path/to/truststore.jks") // Either a path to a file or a resource on the classpath
     .trustStorePassword("mostsecret")); // Defaults to "password" if omitted
 ```
 
