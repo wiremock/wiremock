@@ -19,35 +19,72 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 
 public class ServeEventQuery {
 
-    public static final ServeEventQuery ALL = new ServeEventQuery(false);
-    public static final ServeEventQuery ALL_UNMATCHED = new ServeEventQuery(true);
+    public static final ServeEventQuery ALL = new ServeEventQuery(false, null);
+    public static final ServeEventQuery ALL_UNMATCHED = new ServeEventQuery(true, null);
+
+    public static ServeEventQuery forStubMapping(StubMapping stubMapping) {
+        return new ServeEventQuery(false, stubMapping.getId());
+    }
+
+    public static ServeEventQuery forStubMapping(UUID stubMappingId) {
+        return new ServeEventQuery(false, stubMappingId);
+    }
 
     public static ServeEventQuery fromRequest(Request request) {
         final QueryParameter unmatchedParameter = request.queryParameter("unmatched");
         boolean unmatched = unmatchedParameter.isPresent() && unmatchedParameter.containsValue("true");
-        return new ServeEventQuery(unmatched);
+
+        final QueryParameter stubParameter = request.queryParameter("matchingStub");
+        UUID stubMappingId = stubParameter.isPresent() ? UUID.fromString(stubParameter.firstValue()) : null;
+
+        return new ServeEventQuery(unmatched, stubMappingId);
     }
 
     private final boolean onlyUnmatched;
+    private final UUID stubMappingId;
 
-    public ServeEventQuery(@JsonProperty("onlyUnmatched") boolean onlyUnmatched) {
+    public ServeEventQuery(
+            @JsonProperty("onlyUnmatched") boolean onlyUnmatched,
+            @JsonProperty("stubMappingId") UUID stubMappingId
+    ) {
         this.onlyUnmatched = onlyUnmatched;
+        this.stubMappingId = stubMappingId;
     }
 
     public boolean isOnlyUnmatched() {
         return onlyUnmatched;
     }
 
+    public UUID getStubMappingId() {
+        return stubMappingId;
+    }
+
     public List<ServeEvent> filter(List<ServeEvent> events) {
-        return onlyUnmatched ?
-                events.stream().filter(serveEvent -> !serveEvent.getWasMatched()).collect(toList()) :
-                events;
+        if (!onlyUnmatched && stubMappingId == null) {
+            return events;
+        }
+
+        final Predicate<ServeEvent> matchPredicate = onlyUnmatched ?
+                serveEvent -> !serveEvent.getWasMatched() :
+                serveEvent -> true;
+
+        final Predicate<ServeEvent> stubPredicate = stubMappingId != null ?
+                serveEvent -> serveEvent.getWasMatched() && serveEvent.getStubMapping().getId().equals(stubMappingId) :
+                serveEvent -> true;
+
+        return events.stream()
+                .filter(matchPredicate)
+                .filter(stubPredicate)
+                .collect(toList());
     }
 }

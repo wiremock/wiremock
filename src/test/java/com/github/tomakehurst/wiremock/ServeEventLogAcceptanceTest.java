@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.hc.core5.http.ContentType;
@@ -184,6 +185,23 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
         assertThat(serveEvents.size(), is(2));
         assertThat(serveEvents.get(0).getRequest().getUrl(), is("/just-wrong"));
         assertThat(serveEvents.get(1).getRequest().getUrl(), is("/no-match"));
+    }
+
+    @Test
+    public void getsAllServeEventsThatMatchedStubId() {
+        wm.stubFor(get("/one").willReturn(ok()));
+        StubMapping stub2 = wm.stubFor(get("/two").willReturn(ok()));
+
+        testClient.get("/two");
+        testClient.get("/one");
+        testClient.get("/one");
+        testClient.get("/two");
+
+        List<ServeEvent> serveEvents = getAllServeEvents(ServeEventQuery.forStubMapping(stub2));
+
+        assertThat(serveEvents.size(), is(2));
+        assertThat(serveEvents.get(0).getRequest().getUrl(), is("/two"));
+        assertThat(serveEvents.get(1).getRequest().getUrl(), is("/two"));
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {
