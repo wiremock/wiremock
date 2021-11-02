@@ -86,16 +86,26 @@ public class Jetty94HttpServer extends JettyHttpServer {
         HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
         HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
 
-        ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+        ConnectionFactory[] connectionFactories;
+        try {
+            ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
 
-        SslConnectionFactory ssl = new SslConnectionFactory(http2SslContextFactory, alpn.getProtocol());
+            SslConnectionFactory ssl = new SslConnectionFactory(http2SslContextFactory, alpn.getProtocol());
 
-        ConnectionFactory[] connectionFactories = {
-                ssl,
-                alpn,
-                h2,
-                http
-        };
+            connectionFactories = new ConnectionFactory[]{
+                    ssl,
+                    alpn,
+                    h2,
+                    http
+            };
+        } catch (IllegalStateException e) {
+            SslConnectionFactory ssl = new SslConnectionFactory(http2SslContextFactory, http.getProtocol());
+
+            connectionFactories = new ConnectionFactory[] {
+                    ssl,
+                    http
+            };
+        }
 
         return createServerConnector(
                 bindAddress,
