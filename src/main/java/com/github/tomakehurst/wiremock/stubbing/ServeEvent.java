@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -31,7 +30,6 @@ import com.google.common.base.Predicate;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -70,6 +68,10 @@ public class ServeEvent {
 
     public static ServeEvent forBadRequest(LoggedRequest request, Errors errors) {
         return new ServeEvent(request, null, ResponseDefinition.badRequest(errors));
+    }
+
+    public static ServeEvent forBadRequestEntity(LoggedRequest request, Errors errors) {
+        return new ServeEvent(request, null, ResponseDefinition.badRequestEntity(errors));
     }
 
     public static ServeEvent forNotAllowedRequest(LoggedRequest request, Errors errors) {

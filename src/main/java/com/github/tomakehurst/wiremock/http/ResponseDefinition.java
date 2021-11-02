@@ -170,6 +170,14 @@ public class ResponseDefinition {
 
     public static ResponseDefinition badRequest(Errors errors) {
         return ResponseDefinitionBuilder.responseDefinition()
+            .withStatus(400)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(Json.write(errors))
+            .build();
+    }
+
+    public static ResponseDefinition badRequestEntity(Errors errors) {
+        return ResponseDefinitionBuilder.responseDefinition()
             .withStatus(422)
             .withHeader(CONTENT_TYPE, "application/json")
             .withBody(Json.write(errors))

@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.common.InvalidParameterException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -45,9 +48,19 @@ public class ServeEventQuery {
         boolean unmatched = unmatchedParameter.isPresent() && unmatchedParameter.containsValue("true");
 
         final QueryParameter stubParameter = request.queryParameter("matchingStub");
-        UUID stubMappingId = stubParameter.isPresent() ? UUID.fromString(stubParameter.firstValue()) : null;
+        UUID stubMappingId = toUuid(stubParameter);
 
         return new ServeEventQuery(unmatched, stubMappingId);
+    }
+
+    private static UUID toUuid(QueryParameter parameter) {
+        try {
+            return parameter.isPresent() ?
+                    UUID.fromString(parameter.firstValue()) :
+                    null;
+        } catch (IllegalArgumentException e) {
+            throw new InvalidParameterException(Errors.single(15, "Query parameter " + parameter.key() + " value '" + parameter.firstValue() + "' is not a valid UUID"));
+        }
     }
 
     private final boolean onlyUnmatched;

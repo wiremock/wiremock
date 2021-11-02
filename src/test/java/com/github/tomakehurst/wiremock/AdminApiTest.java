@@ -1053,6 +1053,22 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(json, jsonPartMatches("requests", hasSize(2)));
     }
 
+    @Test
+    public void returnsSensibleErrorIfStubIdNotValid() {
+        WireMockResponse response = testClient.get("/__admin/requests?matchingStub=not-a-valid-uuid");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.content(), jsonPartEquals("errors[0].title", "Query parameter matchingStub value 'not-a-valid-uuid' is not a valid UUID"));
+    }
+
+    @Test
+    public void returnsSensibleErrorIfStubIdIsNull() {
+        WireMockResponse response = testClient.get("/__admin/requests?matchingStub=");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.content(), jsonPartEquals("errors[0].title", "Query parameter matchingStub value '' is not a valid UUID"));
+    }
+
     public static class TestExtendedSettingsData {
         public String name;
     }
