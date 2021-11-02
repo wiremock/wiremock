@@ -17,30 +17,26 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Optional;
-import org.apache.commons.lang3.StringUtils;
+import me.jvt.http.mediatype.MediaType;
 
 import java.nio.charset.Charset;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.util.regex.Pattern.LITERAL;
+import java.util.Map;
 
 public class ContentTypeHeader extends HttpHeader {
 
-    public static final String KEY = "Content-Type";
-    private static final Pattern CHARSET_PATTERN = Pattern.compile("charset\\s*=(.+)");
-    private static final Pattern SEMICOLON_PATTERN = Pattern.compile(";", LITERAL);
+	public static final String KEY = "Content-Type";
+	private static final String CHARSET_QUOTES = "\"([^\"]*)\"";
 
-    private final String[] parts;
+	private final Optional<MediaType> maybeMediaType;
 
     public ContentTypeHeader(String stringValue) {
         super(KEY, stringValue);
-        parts = stringValue != null ? SEMICOLON_PATTERN.split(stringValue) : new String[0];
-    }
+		maybeMediaType = Optional.of(MediaType.valueOf(stringValue));
+	}
 
     private ContentTypeHeader() {
         super(KEY);
-        parts = new String[0];
+		this.maybeMediaType = Optional.absent();
     }
 
     public static ContentTypeHeader absent() {
@@ -51,20 +47,28 @@ public class ContentTypeHeader extends HttpHeader {
         return isPresent() ? this : new ContentTypeHeader(stringValue);
     }
 
-    public String mimeTypePart() {
-        return parts.length > 0 ? parts[0] : null;
-    }
+	public String mimeTypePart() {
+		if (!maybeMediaType.isPresent()) {
+			return null;
+		}
 
-    public Optional<String> encodingPart() {
-        for (int i = 1; i < parts.length; i++) {
-            Matcher matcher = CHARSET_PATTERN.matcher(parts[i]);
-            if (matcher.find()) {
-                return Optional.of(StringUtils.unwrap(matcher.group(1), '"'));
-            }
-        }
+		MediaType mediaType = maybeMediaType.get();
+		return mediaType.getType() + "/" + mediaType.getSubtype();
+	}
 
-        return Optional.absent();
-    }
+	public Optional<String> encodingPart() {
+		if (!maybeMediaType.isPresent()) {
+			return Optional.absent();
+		}
+		Map<String , String > parameters = maybeMediaType.get().getParameters();
+		if (!parameters.containsKey("charset")) {
+			return Optional.absent();
+		}
+
+		String charset =parameters.get("charset").replaceAll(CHARSET_QUOTES, "$1");
+
+		return Optional.of(charset);
+	}
 
     public Charset charset() {
         Optional<String> e;

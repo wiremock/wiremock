@@ -86,6 +86,7 @@ dependencies {
         exclude group: 'commons-io', module: 'commons-io'
     }
     compile "commons-io:commons-io:2.11.0"
+    implementation 'me.jvt.http:media-type:1.0.0'
 
     testCompile "junit:junit:4.13"
     testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
