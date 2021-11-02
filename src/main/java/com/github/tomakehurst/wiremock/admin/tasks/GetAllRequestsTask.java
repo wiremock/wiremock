@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.LimitAndSinceDatePaginator;
 import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -34,7 +35,8 @@ public class GetAllRequestsTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        GetServeEventsResult serveEventsResult = admin.getServeEvents();
+        ServeEventQuery query = ServeEventQuery.fromRequest(request);
+        GetServeEventsResult serveEventsResult = admin.getServeEvents(query);
         LimitAndSinceDatePaginator paginator;
         try {
              paginator = LimitAndSinceDatePaginator.fromRequest(

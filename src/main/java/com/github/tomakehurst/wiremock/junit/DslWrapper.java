@@ -102,6 +102,11 @@ public class DslWrapper implements Admin, Stubbing {
     }
 
     @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+        return admin.getServeEvents(query);
+    }
+
+    @Override
     public SingleServedStubResult getServedStub(UUID id) {
         return admin.getServedStub(id);
     }

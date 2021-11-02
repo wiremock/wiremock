@@ -55,6 +55,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -1011,6 +1012,25 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertThat(response.statusCode(), is(200));
         assertThat(response.content(), jsonPartEquals("nearMisses[0].request.url", "/thing"));
+    }
+
+    @Test
+    public void getsAllUnmatchedServeEvents() {
+        wm.stubFor(get("/match").willReturn(ok()));
+
+        testClient.get("/match");
+        testClient.get("/no-match");
+        testClient.get("/just-wrong");
+        testClient.get("/match");
+
+        WireMockResponse response = testClient.get("/__admin/requests?unmatched=true");
+
+        assertThat(response.statusCode(), is(200));
+
+        String json = response.content();
+        assertThat(json, jsonPartEquals("requests[0].request.url", "/just-wrong"));
+        assertThat(json, jsonPartEquals("requests[1].request.url", "/no-match"));
+        assertThat(json, jsonPartMatches("requests", hasSize(2)));
     }
 
     public static class TestExtendedSettingsData {

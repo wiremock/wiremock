@@ -365,6 +365,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+        return wireMockApp.getServeEvents(query);
+    }
+
+    @Override
     public SingleServedStubResult getServedStub(UUID id) {
         return wireMockApp.getServedStub(id);
     }
