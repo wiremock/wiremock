@@ -13,7 +13,6 @@ plugins {
     id 'java'
     id 'scala'
     id 'signing'
-    id 'maven'
     id 'maven-publish'
     id 'idea'
     id 'eclipse'
@@ -25,7 +24,15 @@ group 'org.wiremock'
 
 dependencies {
     compileOnly project(":")
-    compile "org.apache.httpcomponents.client5:httpclient5:5.1"
+    implementation platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
+    implementation "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "com.fasterxml.jackson.core:jackson-databind"
+    implementation("com.github.jknack:handlebars-helpers:$versions.handlebars") {
+        exclude group: 'org.mozilla', module: 'rhino'
+    }
+    implementation "com.google.guava:guava:$versions.guava"
+    implementation "org.apache.httpcomponents.client5:httpclient5:5.1"
 
     testImplementation project(":")
     testImplementation(platform('org.junit:junit-bom:5.8.1'))
