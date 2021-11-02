@@ -212,6 +212,17 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+        return executeRequest(
+                adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
+                PathParams.empty(),
+                QueryParams.single("unmatched", String.valueOf(query.isOnlyUnmatched())),
+                null,
+                GetServeEventsResult.class
+        );
+    }
+
+    @Override
     public SingleServedStubResult getServedStub(UUID id) {
         return executeRequest(
                 adminRoutes.requestSpecForTask(GetServedStubTask.class),
@@ -447,7 +458,11 @@ public class HttpAdminClient implements Admin {
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, B requestBody, Class<R> responseType) {
-        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams), scheme, host, port, urlPathPrefix);
+        return executeRequest(requestSpec, pathParams, QueryParams.EMPTY, requestBody, responseType);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, QueryParams queryParams, B requestBody, Class<R> responseType) {
+        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams) + queryParams, scheme, host, port, urlPathPrefix);
         ClassicRequestBuilder requestBuilder = ClassicRequestBuilder
                 .create(requestSpec.method().getName())
                 .setUri(url);

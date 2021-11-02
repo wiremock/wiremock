@@ -304,13 +304,19 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public GetServeEventsResult getServeEvents() {
+        return getServeEvents(ServeEventQuery.ALL);
+    }
+
+    @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
         try {
+            final List<ServeEvent> serveEvents = query.filter(requestJournal.getAllServeEvents());
             return GetServeEventsResult.requestJournalEnabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
+                    LimitAndOffsetPaginator.none(serveEvents)
             );
         } catch (RequestJournalDisabledException e) {
             return GetServeEventsResult.requestJournalDisabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
+                    LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
             );
         }
     }

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Encoding;
@@ -34,6 +35,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.admin.model.ServeEventQuery.ALL_UNMATCHED;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.isToday;
@@ -41,8 +43,9 @@ import static com.google.common.base.Charsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
+public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
     static Stubbing dsl = wireMockServer;
 
@@ -165,6 +168,22 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         List<ServeEvent> serveEvents = getAllServeEvents();
         ServeEvent serveEvent = serveEvents.get(0);
         assertThat(serveEvent.getResponse().getBody(), is(MappingJsonSamples.BINARY_COMPRESSED_CONTENT));
+    }
+
+    @Test
+    public void getsAllServeEventsThatWereUnmatched() {
+        dsl.stubFor(get("/match").willReturn(ok()));
+
+        testClient.get("/match");
+        testClient.get("/no-match");
+        testClient.get("/just-wrong");
+        testClient.get("/match");
+
+        List<ServeEvent> serveEvents = getAllServeEvents(ALL_UNMATCHED);
+
+        assertThat(serveEvents.size(), is(2));
+        assertThat(serveEvents.get(0).getRequest().getUrl(), is("/just-wrong"));
+        assertThat(serveEvents.get(1).getRequest().getUrl(), is("/no-match"));
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {
