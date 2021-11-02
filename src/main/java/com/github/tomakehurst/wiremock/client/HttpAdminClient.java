@@ -213,10 +213,17 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+        final QueryParams queryParams = new QueryParams();
+        queryParams.add("unmatched", String.valueOf(query.isOnlyUnmatched()));
+
+        if (query.getStubMappingId() != null) {
+            queryParams.add("matchingStub", query.getStubMappingId().toString());
+        }
+
         return executeRequest(
                 adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
                 PathParams.empty(),
-                QueryParams.single("unmatched", String.valueOf(query.isOnlyUnmatched())),
+                queryParams,
                 null,
                 GetServeEventsResult.class
         );

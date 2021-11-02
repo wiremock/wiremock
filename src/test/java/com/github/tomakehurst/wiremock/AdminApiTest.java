@@ -1033,6 +1033,26 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(json, jsonPartMatches("requests", hasSize(2)));
     }
 
+    @Test
+    public void getsAllServeEventsMatchingASpecificStub() {
+        wm.stubFor(get("/one").willReturn(ok()));
+        StubMapping stub2 = wm.stubFor(get("/two").willReturn(ok()));
+
+        testClient.get("/two");
+        testClient.get("/one");
+        testClient.get("/one");
+        testClient.get("/two");
+
+        WireMockResponse response = testClient.get("/__admin/requests?matchingStub=" + stub2.getId());
+
+        assertThat(response.statusCode(), is(200));
+
+        String json = response.content();
+        assertThat(json, jsonPartEquals("requests[0].request.url", "/two"));
+        assertThat(json, jsonPartEquals("requests[1].request.url", "/two"));
+        assertThat(json, jsonPartMatches("requests", hasSize(2)));
+    }
+
     public static class TestExtendedSettingsData {
         public String name;
     }
