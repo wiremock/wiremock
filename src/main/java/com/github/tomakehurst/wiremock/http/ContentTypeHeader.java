@@ -17,21 +17,25 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.Optional;
+import me.jvt.http.mediatype.MediaType;
 
 public class ContentTypeHeader extends HttpHeader {
 
   public static final String KEY = "Content-Type";
+  private static final String CHARSET_QUOTES = "\"([^\"]*)\"";
 
-  private String[] parts;
+  private final Optional<MediaType> maybeMediaType;
 
   public ContentTypeHeader(String stringValue) {
     super(KEY, stringValue);
-    parts = stringValue != null ? stringValue.split(";") : new String[0];
+    maybeMediaType = Optional.of(MediaType.valueOf(stringValue));
   }
 
   private ContentTypeHeader() {
     super(KEY);
+    maybeMediaType = Optional.empty();
   }
 
   public static ContentTypeHeader absent() {
@@ -43,17 +47,27 @@ public class ContentTypeHeader extends HttpHeader {
   }
 
   public String mimeTypePart() {
-    return parts != null ? parts[0] : null;
+    if (maybeMediaType.isEmpty()) {
+      return null;
+    }
+
+    MediaType mediaType = maybeMediaType.get();
+    return mediaType.getType() + "/" + mediaType.getSubtype();
   }
 
   public Optional<String> encodingPart() {
-    for (int i = 1; i < parts.length; i++) {
-      if (parts[i].matches("\\s*charset\\s*=.*")) {
-        return Optional.of(parts[i].split("=")[1].replace("\"", ""));
-      }
+    if (maybeMediaType.isEmpty()) {
+      return Optional.empty();
     }
 
-    return Optional.empty();
+    Map<String, String> parameters = maybeMediaType.get().getParameters();
+    if (!parameters.containsKey("charset")) {
+      return Optional.empty();
+    }
+
+    String charset = parameters.get("charset").replaceAll(CHARSET_QUOTES, "$1");
+
+    return Optional.of(charset);
   }
 
   public Charset charset() {
