@@ -1,0 +1,17 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Validate Gradle wrapper
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  validate:
+    name: Validate Gradle wrapper
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Validate Gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
