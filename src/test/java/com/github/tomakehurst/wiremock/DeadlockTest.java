@@ -16,29 +16,34 @@
 package com.github.tomakehurst.wiremock;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.*;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(OrderAnnotation.class)
 public class DeadlockTest {
 
     private static final int READ_TIMEOUT = 500;
 
     private static WireMockServer wireMockServer;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         wireMockServer = new WireMockServer(options()
                 .dynamicPort()
@@ -47,18 +52,18 @@ public class DeadlockTest {
         wireMockServer.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         wireMockServer.stop();
     }
 
-    @Before
+    @BeforeEach
     public void reset() {
-        System.out.println("reset");
         wireMockServer.resetAll();
     }
 
     @Test
+    @Order(1)
     public void test1Timeout() throws IOException {
         System.out.println("test timeout start");
 
@@ -74,6 +79,7 @@ public class DeadlockTest {
 
     // This will fail with a timeout if acceptor count is < 3 and/or threads < 13
     @Test
+    @Order(2)
     public void test2GetContent() throws IOException {
         System.out.println("test content start");
 
@@ -124,7 +130,7 @@ public class DeadlockTest {
 
     private String httpGetContent(HttpURLConnection connection) throws IOException {
         try (InputStream is = connection.getInputStream()) {
-            return IOUtils.toString(is);
+            return IOUtils.toString(is, StandardCharsets.UTF_8);
         }
     }
 

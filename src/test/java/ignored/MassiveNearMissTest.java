@@ -15,13 +15,13 @@
  */
 package ignored;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +32,14 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class MassiveNearMissTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort(), false);
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort()).failOnUnmatchedRequests(false).build();
 
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(wm.getPort());
     }
 
     @Test

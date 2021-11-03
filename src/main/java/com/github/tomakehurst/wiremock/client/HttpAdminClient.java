@@ -28,29 +28,34 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpStatus;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.apache.http.HttpHeaders.HOST;
+import static org.apache.hc.core5.http.HttpHeaders.HOST;
 
 public class HttpAdminClient implements Admin {
 
@@ -118,7 +123,7 @@ public class HttpAdminClient implements Admin {
     }
 
     private static StringEntity jsonStringEntity(String json) {
-        return new StringEntity(json, UTF_8.name());
+        return new StringEntity(json, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -202,6 +207,24 @@ public class HttpAdminClient implements Admin {
     public GetServeEventsResult getServeEvents() {
         return executeRequest(
                 adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
+                GetServeEventsResult.class
+        );
+    }
+
+    @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+        final QueryParams queryParams = new QueryParams();
+        queryParams.add("unmatched", String.valueOf(query.isOnlyUnmatched()));
+
+        if (query.getStubMappingId() != null) {
+            queryParams.add("matchingStub", query.getStubMappingId().toString());
+        }
+
+        return executeRequest(
+                adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
+                PathParams.empty(),
+                queryParams,
+                null,
                 GetServeEventsResult.class
         );
     }
@@ -442,8 +465,12 @@ public class HttpAdminClient implements Admin {
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, B requestBody, Class<R> responseType) {
-        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams), scheme, host, port, urlPathPrefix);
-        RequestBuilder requestBuilder = RequestBuilder
+        return executeRequest(requestSpec, pathParams, QueryParams.EMPTY, requestBody, responseType);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, QueryParams queryParams, B requestBody, Class<R> responseType) {
+        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams) + queryParams, scheme, host, port, urlPathPrefix);
+        ClassicRequestBuilder requestBuilder = ClassicRequestBuilder
                 .create(requestSpec.method().getName())
                 .setUri(url);
 
@@ -458,7 +485,7 @@ public class HttpAdminClient implements Admin {
                 Json.read(responseBodyString, responseType);
     }
 
-    private String safelyExecuteRequest(String url, HttpUriRequest request) {
+    private String safelyExecuteRequest(String url, ClassicHttpRequest request) {
         if (hostHeader != null) {
             request.addHeader(HOST, hostHeader);
         }
@@ -471,7 +498,7 @@ public class HttpAdminClient implements Admin {
         }
 
         try (CloseableHttpResponse response = httpClient.execute(request)) {
-            int statusCode = response.getStatusLine().getStatusCode();
+            int statusCode = response.getCode();
             if (HttpStatus.isServerError(statusCode)) {
                 throw new VerificationException(
                         "Expected status 2xx for " + url + " but was " + statusCode);

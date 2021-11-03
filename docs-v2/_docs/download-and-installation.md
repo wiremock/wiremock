@@ -74,25 +74,25 @@ Java 7 standalone (deprecated):
 Java 8:
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
+testImplementation "com.github.tomakehurst:wiremock:{{ site.wiremock_version }}"
 ```
 
 Java 8 standalone:
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-jre8-standalone:{{ site.wiremock_version }}"
+testImplementation "com.github.tomakehurst:wiremock-standalone:{{ site.wiremock_version }}"
 ```
 
 Java 7 (deprecated):
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock:2.27.2"
+testImplementation "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
 ```
 
 Java 7 standalone (deprecated):
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-standalone:2.27.2"
+testImplementation "com.github.tomakehurst:wiremock-jre8-standalone:{{ site.wiremock_version }}"
 ```
 
 ## Direct download

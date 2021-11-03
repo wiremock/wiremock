@@ -56,7 +56,7 @@ public class XmlNode {
         protected Transformer initialValue() {
             TransformerFactory transformerFactory;
             try {
-                transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").newInstance();
+                transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").getDeclaredConstructor().newInstance();
                 transformerFactory.setAttribute("indent-number", 2);
             } catch (Exception e) {
                 transformerFactory = TransformerFactory.newInstance();

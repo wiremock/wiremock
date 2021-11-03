@@ -15,26 +15,31 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.HttpClient4Factory;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.Assumptions.doNotRunOnMacOSXInCI;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 
 public class ResponseDribbleAcceptanceTest {
 
@@ -45,17 +50,20 @@ public class ResponseDribbleAcceptanceTest {
 
     public static final double TOLERANCE = 0.333; // Quite big, but this helps reduce CI failures
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(DYNAMIC_PORT, DYNAMIC_PORT);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = WireMockExtension.newInstance()
+        .configureStaticDsl(true)
+        .options(options().port(DYNAMIC_PORT).httpsPort(DYNAMIC_PORT))
+        .build();
 
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         stubFor(get("/warmup").willReturn(ok()));
-        httpClient = HttpClient4Factory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
         // Warm up the server
-        httpClient.execute(new HttpGet(String.format("http://localhost:%d/warmup", wireMockRule.port())));
+        httpClient.execute(new HttpGet(wireMockRule.url("/warmup")));
     }
 
     @Test
@@ -68,11 +76,11 @@ public class ResponseDribbleAcceptanceTest {
                     .withChunkedDribbleDelay(BODY_BYTES.length, DOUBLE_THE_SOCKET_TIMEOUT)));
 
         long start = System.currentTimeMillis();
-        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet(wireMockRule.url("/delayedDribble")));
         byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
         int duration = (int) (System.currentTimeMillis() - start);
 
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        assertThat(response.getCode(), is(200));
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
         assertThat((double) duration, isWithinTolerance(DOUBLE_THE_SOCKET_TIMEOUT, TOLERANCE));
@@ -90,11 +98,11 @@ public class ResponseDribbleAcceptanceTest {
                 .withChunkedDribbleDelay(2, TOTAL_TIME)));
 
         long start = System.currentTimeMillis();
-        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet(wireMockRule.url("/delayedDribble")));
         String responseBody = EntityUtils.toString(response.getEntity());
         double duration = (double) (System.currentTimeMillis() - start);
 
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        assertThat(response.getCode(), is(200));
         assertThat(responseBody, is("Send this in many pieces please!!!"));
         assertThat(duration, isWithinTolerance(TOTAL_TIME, TOLERANCE));
     }
@@ -108,11 +116,11 @@ public class ResponseDribbleAcceptanceTest {
                     .withBody(BODY_BYTES)));
 
         long start = System.currentTimeMillis();
-        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/nonDelayedDribble", wireMockRule.port())));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet(wireMockRule.url("/nonDelayedDribble")));
         byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
         int duration = (int) (System.currentTimeMillis() - start);
 
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        assertThat(response.getCode(), is(200));
         assertThat(BODY_BYTES, is(responseBody));
         assertThat(duration, lessThan(SOCKET_TIMEOUT_MILLISECONDS));
     }

@@ -16,9 +16,10 @@
 package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AdminUriTemplateTest {
@@ -32,10 +33,12 @@ public class AdminUriTemplateTest {
         assertThat(pathParams.get("id"), is("11-22-33"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void throwsIllegalArgumentExceptionIfAttemptingParsingOnNonMatchingUrl() {
-        AdminUriTemplate template = new AdminUriTemplate("/things/{id}");
-        template.parse("/things/stuff/11-22-33");
+        assertThrows(IllegalArgumentException.class, () -> {
+            AdminUriTemplate template = new AdminUriTemplate("/things/{id}");
+            template.parse("/things/stuff/11-22-33");
+        });
     }
 
     @Test
@@ -80,9 +83,11 @@ public class AdminUriTemplateTest {
         assertThat(path, is("/things/stuff"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void throwsErrorWhenNotAllParametersAreBound() {
-        AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
-        template.render(new PathParams().add("id", "123"));
+        assertThrows(IllegalArgumentException.class, () -> {
+            AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
+            template.render(new PathParams().add("id", "123"));
+        });
     }
 }

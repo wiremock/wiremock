@@ -21,11 +21,10 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,26 +33,24 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(JMock.class)
 public class StubResponseRendererTest {
     private static final int TEST_TIMEOUT = 500;
 
-    private Mockery context;
     private FileSource fileSource;
     private GlobalSettingsHolder globalSettingsHolder;
     private List<ResponseTransformer> responseTransformers;
     private StubResponseRenderer stubResponseRenderer;
 
-    @Before
+    @BeforeEach
     public void init() {
-        context = new Mockery();
-        fileSource = context.mock(FileSource.class);
+        fileSource = Mockito.mock(FileSource.class);
         globalSettingsHolder = new GlobalSettingsHolder();
         responseTransformers = new ArrayList<>();
         stubResponseRenderer = new StubResponseRenderer(fileSource, globalSettingsHolder, null, responseTransformers);
     }
 
-    @Test(timeout = TEST_TIMEOUT)
+    @Test
+    @Timeout(TEST_TIMEOUT)
     public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
@@ -62,7 +59,8 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(100L));
     }
 
-    @Test(timeout = TEST_TIMEOUT)
+    @Test
+    @Timeout(TEST_TIMEOUT)
     public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
@@ -71,7 +69,8 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(1000L));
     }
 
-    @Test(timeout = TEST_TIMEOUT)
+    @Test
+    @Timeout(TEST_TIMEOUT)
     public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
@@ -87,7 +86,8 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(2000L));
     }
 
-    @Test(timeout = TEST_TIMEOUT)
+    @Test
+    @Timeout(TEST_TIMEOUT)
     public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().delayDistribution(new DelayDistribution() {
             @Override
@@ -101,7 +101,8 @@ public class StubResponseRendererTest {
         assertThat(response.getInitialDelay(), is(123L));
     }
 
-    @Test(timeout = TEST_TIMEOUT)
+    @Test
+    @Timeout(TEST_TIMEOUT)
     public void shouldCombineFixedDelayDistributionDelay() throws Exception {
         globalSettingsHolder.replaceWith(GlobalSettings.builder().delayDistribution(new DelayDistribution() {
             @Override
@@ -125,6 +126,7 @@ public class StubResponseRendererTest {
                     null,
                     null,
                     fixedDelayMillis,
+                    null,
                     null,
                     null,
                     null,

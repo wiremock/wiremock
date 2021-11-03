@@ -21,9 +21,8 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
-import org.apache.http.client.HttpClient;
-import org.junit.After;
-import org.junit.Before;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.junit.jupiter.api.AfterEach;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -43,24 +42,13 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
 
     protected static final List<String> TRUST_NOBODY = emptyList();
 
-    private final List<String> trustedHosts;
-    private final String certificateCN;
-    private final boolean validCertificate;
     protected WireMockServer server = null;
-    protected HttpClient client;
+    protected CloseableHttpClient client;
 
-    protected HttpClientFactoryCertificateVerificationTest(
-        List<String> trustedHosts,
-        String certificateCN,
-        boolean validCertificate
-    ) {
-        this.trustedHosts = trustedHosts;
-        this.certificateCN = certificateCN;
-        this.validCertificate = validCertificate;
-    }
-
-    @Before
-    public void startServerAndBuildClient() throws Exception {
+    public void startServerAndBuildClient(
+            List<String> trustedHosts,
+            String certificateCN,
+            boolean validCertificate) throws Exception {
 
         InMemoryKeyStore ks = new InMemoryKeyStore(JKS, new Secret("password"));
 
@@ -98,7 +86,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         clientTrustStore.saveAs(clientTrustStoreFile);
         KeyStoreSettings clientTrustStoreSettings = new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password", "jks");
 
-        client = HttpClient4Factory.createClient(
+        client = HttpClientFactory.createClient(
                 1000,
                 5 * 1000 * 60,
                 NO_PROXY,
@@ -109,7 +97,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         );
     }
 
-    @After
+    @AfterEach
     public void stopServer() {
         if (server != null) {
             server.stop();

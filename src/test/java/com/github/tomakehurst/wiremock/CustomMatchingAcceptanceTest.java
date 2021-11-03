@@ -16,41 +16,39 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CustomMatchingAcceptanceTest {
 
     @SuppressWarnings("unchecked")
-    @Rule
-    public WireMockRule wmRule = new WireMockRule(options()
-        .dynamicPort()
-        .extensions(MyExtensionRequestMatcher.class),
-        false);
+    @RegisterExtension
+    public WireMockExtension wmRule = WireMockExtension.newInstance().options(options()
+            .dynamicPort()
+            .extensions(MyExtensionRequestMatcher.class)).failOnUnmatchedRequests(false).build();
 
     WireMockTestClient client;
     WireMock wm;
 
-    @Before
+    @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wmRule.port());
-        wm = WireMock.create().port(wmRule.port()).build();
+        client = new WireMockTestClient(wmRule.getPort());
+        wm = WireMock.create().port(wmRule.getPort()).build();
     }
 
     @Test
@@ -108,12 +106,14 @@ public class CustomMatchingAcceptanceTest {
         assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
     }
 
-    @Test(expected = AdminException.class)
+    @Test
     public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
-        wm.register(get(urlPathMatching("/the/.*/one"))
-                .andMatching(new MyRequestMatcher())
-                .willReturn(ok())
-        );
+        assertThrows(AdminException.class, () -> {
+            wm.register(get(urlPathMatching("/the/.*/one"))
+                    .andMatching(new MyRequestMatcher())
+                    .willReturn(ok())
+            );
+        });
     }
 
     public static class MyRequestMatcher extends RequestMatcherExtension {

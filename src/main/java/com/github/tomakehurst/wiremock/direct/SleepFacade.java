@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.direct;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class RequestDelaySpec {
-
-    private final int milliseconds;
-
-    @JsonCreator
-    public RequestDelaySpec(@JsonProperty("milliseconds") int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-
-    @JsonProperty("milliseconds")
-    public int milliseconds() {
-        return milliseconds;
+class SleepFacade {
+    void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

@@ -471,10 +471,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     public static Predicate<Request> thatMatch(final RequestPattern pattern) {
+        return thatMatch(pattern, Collections.emptyMap());
+    }
+
+    public static Predicate<Request> thatMatch(final RequestPattern pattern, final Map<String, RequestMatcherExtension> customMatchers) {
         return new Predicate<Request>() {
             @Override
             public boolean apply(Request request) {
-                return pattern.match(request).isExactMatch();
+                return pattern.match(request, customMatchers).isExactMatch();
             }
         };
     }

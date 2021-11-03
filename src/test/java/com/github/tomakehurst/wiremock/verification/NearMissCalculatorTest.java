@@ -23,26 +23,25 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Function;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
 import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NEAR_MISS_COUNT;
 import static com.google.common.collect.FluentIterable.from;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class NearMissCalculatorTest {
-
-    private Mockery context;
 
     NearMissCalculator nearMissCalculator;
 
@@ -50,12 +49,10 @@ public class NearMissCalculatorTest {
     RequestJournal requestJournal;
     Scenarios scenarios;
 
-    @Before
+    @BeforeEach
     public void init() {
-        context = new Mockery();
-
-        stubMappings = context.mock(StubMappings.class);
-        requestJournal = context.mock(RequestJournal.class);
+        stubMappings = mock(StubMappings.class);
+        requestJournal = mock(RequestJournal.class);
         scenarios = new Scenarios();
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     }
@@ -168,9 +165,7 @@ public class NearMissCalculatorTest {
                 return input.build();
             }
         }).toList();
-        context.checking(new Expectations() {{
-            allowing(stubMappings).getAll(); will(returnValue(mappings));
-        }});
+        when(stubMappings.getAll()).thenReturn(mappings);
     }
 
     private void givenRequests(final Request... requests) {
@@ -184,9 +179,6 @@ public class NearMissCalculatorTest {
             }
         }).toList();
 
-        context.checking(new Expectations() {{
-            allowing(requestJournal).getAllServeEvents();
-            will(returnValue(serveEvents));
-        }});
+        when(requestJournal.getAllServeEvents()).thenReturn(serveEvents);
     }
 }

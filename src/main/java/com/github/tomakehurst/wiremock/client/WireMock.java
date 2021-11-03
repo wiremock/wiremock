@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.*;
@@ -503,6 +504,17 @@ public class WireMock {
         return okForContentType("text/xml", body);
     }
 
+    public static ResponseDefinitionBuilder jsonResponse(String body, int status) {
+	    return aResponse()
+            .withStatus(status)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(body);
+    }
+
+    public static ResponseDefinitionBuilder jsonResponse(Object body, int status) {
+	    return jsonResponse(Json.write(body), status);
+    }
+
     public static MappingBuilder proxyAllTo(String url) {
         return any(anyUrl()).willReturn(aResponse().proxiedFrom(url));
     }
@@ -641,6 +653,14 @@ public class WireMock {
 
     public List<ServeEvent> getServeEvents() {
         return admin.getServeEvents().getRequests();
+    }
+
+    public static List<ServeEvent> getAllServeEvents(ServeEventQuery query) {
+        return defaultInstance.get().getServeEvents(query);
+    }
+
+    public List<ServeEvent> getServeEvents(ServeEventQuery query) {
+        return admin.getServeEvents(query).getRequests();
     }
 
     public static void removeServeEvent(UUID eventId) {

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -22,10 +37,14 @@ public class JvmProxyConfigurer {
     public static void configureFor(WireMockServer wireMockServer) {
         stashPreviousSettings();
 
+        configureFor(wireMockServer.port());
+    }
+
+    public static void configureFor(int port) {
         System.setProperty(HTTP_PROXY_HOST, "localhost");
-        System.setProperty(HTTP_PROXY_PORT, String.valueOf(wireMockServer.port()));
+        System.setProperty(HTTP_PROXY_PORT, String.valueOf(port));
         System.setProperty(HTTPS_PROXY_HOST, "localhost");
-        System.setProperty(HTTPS_PROXY_PORT, String.valueOf(wireMockServer.port()));
+        System.setProperty(HTTPS_PROXY_PORT, String.valueOf(port));
         System.setProperty(HTTP_NON_PROXY_HOSTS, "localhost|127.*|[::1]");
     }
 

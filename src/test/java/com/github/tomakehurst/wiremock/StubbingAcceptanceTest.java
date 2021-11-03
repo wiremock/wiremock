@@ -20,23 +20,19 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.MalformedChunkCodingException;
+import org.apache.hc.core5.http.NoHttpResponseException;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.SocketException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -44,10 +40,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -57,14 +52,18 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Collections.singletonList;
-import static org.apache.http.entity.ContentType.*;
-import static org.hamcrest.Matchers.*;
+import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
+import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
+import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setupServer() {
 		setupServerWithMappingsInFileRoot();
 	}
@@ -368,18 +367,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void connectionResetByPeerFault() {
 		stubFor(get(urlEqualTo("/connection/reset")).willReturn(
                 aResponse()
                 .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-		exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
-		exception.expectMessage("java.net.SocketException: Connection reset");
-		testClient.get("/connection/reset");
+		RuntimeException runtimeException = assertThrows(RuntimeException.class, () -> testClient.get("/connection/reset"));
+		assertThat(runtimeException.getMessage(), is("java.net.SocketException: Connection reset"));
 	}
 
 	@Test
@@ -406,7 +401,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 aResponse()
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
-		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
+		getAndAssertUnderlyingExceptionInstanceClass("/random/data", NoHttpResponseException.class);
 	}
 
 	@Test
@@ -490,7 +485,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .withRequestBody(equalToXml("<some-xml />"))
             .willReturn(aResponse().withStatus(201)));
 
-        WireMockResponse response = testClient.request("OPTIONS", "/no-body");
+        WireMockResponse response = testClient.options("/no-body");
         assertThat(response.statusCode(), is(200));
     }
 
@@ -843,6 +838,26 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/or", withHeader("X-Maybe", "wrong")).statusCode(), is(404));
 	}
 
+	@Test
+	public void jsonResponseWithStringValue() {
+		stubFor(get("/json-from-string").willReturn(jsonResponse("{ \"message\": \"Json From String\" }", 200)));
+
+		WireMockResponse response = testClient.get("/json-from-string");
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.firstHeader(HttpHeaders.CONTENT_TYPE), is("application/json"));
+		assertThat(response.content(), containsString("\"Json From String\""));
+	}
+
+	@Test
+	public void jsonResponseWithObjectValue() {
+		stubFor(get("/json-from-object").willReturn(jsonResponse(new MockResponse("Json From Object"), 200)));
+
+		WireMockResponse response = testClient.get("/json-from-object");
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.firstHeader(HttpHeaders.CONTENT_TYPE), is("application/json"));
+		assertThat(response.content(), containsString("\"Json From Object\""));
+	}
+
 	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 		connection.setRequestMethod("GET");
@@ -877,6 +892,18 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			thrown = true;
 		}
 
-		assertTrue("No exception was thrown", thrown);
+		assertTrue(thrown, "No exception was thrown");
+	}
+
+	public static class MockResponse {
+		private final String message;
+
+		public MockResponse(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
 	}
 }

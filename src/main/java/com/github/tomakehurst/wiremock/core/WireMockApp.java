@@ -38,6 +38,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +57,7 @@ public class WireMockApp implements StubServer, Admin {
     public static final String FILES_ROOT = "__files";
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
+    private static final MutableBoolean FACTORIES_LOADING_OPTIMIZED = new MutableBoolean(false);
 
     private final Scenarios scenarios;
     private final StubMappings stubMappings;
@@ -71,11 +73,12 @@ public class WireMockApp implements StubServer, Admin {
 
     private Options options;
 
-    static {
-        Xml.optimizeFactoriesLoading();
-    }
-
     public WireMockApp(Options options, Container container) {
+        if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
+            Xml.optimizeFactoriesLoading();
+            FACTORIES_LOADING_OPTIMIZED.setTrue();
+        }
+
         this.options = options;
 
         FileSource fileSource = options.filesRoot();
@@ -84,8 +87,10 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
+
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
+
+        requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries(), customMatchers);
 
         scenarios = new Scenarios();
         stubMappings = new InMemoryStubMappings(
@@ -118,7 +123,7 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries, requestMatchers);
         scenarios = new Scenarios();
         stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
@@ -299,13 +304,19 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public GetServeEventsResult getServeEvents() {
+        return getServeEvents(ServeEventQuery.ALL);
+    }
+
+    @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
         try {
+            final List<ServeEvent> serveEvents = query.filter(requestJournal.getAllServeEvents());
             return GetServeEventsResult.requestJournalEnabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
+                    LimitAndOffsetPaginator.none(serveEvents)
             );
         } catch (RequestJournalDisabledException e) {
             return GetServeEventsResult.requestJournalDisabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
+                    LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
             );
         }
     }

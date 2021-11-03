@@ -18,28 +18,25 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
-@RunWith(JMock.class)
 public class SnapshotStubMappingBodyExtractorTest {
     private FileSource filesSource;
     private SnapshotStubMappingBodyExtractor bodyExtractor;
-    private Mockery context;
 
-    @Before
+    @BeforeEach
     public void init() {
-        context = new Mockery();
-        filesSource = context.mock(FileSource.class, "filesFileSource");
+        filesSource = Mockito.mock(FileSource.class, "filesFileSource");
         bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);
     }
 
@@ -48,14 +45,12 @@ public class SnapshotStubMappingBodyExtractorTest {
         StubMapping stubMapping = WireMock.get("/foo")
             .willReturn(ok(""))
             .build();
-        context.checking(new Expectations() {{
-            // ignore arguments because this test is only for checking stub mapping changes
-            one(filesSource).writeBinaryFile(with(any(String.class)), with(any(byte[].class)));
-        }});
         bodyExtractor.extractInPlace(stubMapping);
         assertThat(stubMapping.getResponse().getBodyFileName(), is("foo-" + stubMapping.getId() + ".txt"));
         assertThat(stubMapping.getResponse().specifiesBodyFile(), is(true));
         assertThat(stubMapping.getResponse().specifiesBodyContent(), is(false));
+        // ignore arguments because this test is only for checking stub mapping changes
+        verify(filesSource).writeBinaryFile(any(String.class), any(byte[].class));
     }
 
     @Test
@@ -63,8 +58,8 @@ public class SnapshotStubMappingBodyExtractorTest {
         StubMapping stubMapping = WireMock.get("/foo/bar.json")
             .willReturn(ok("{}"))
             .build();
-        setFileExpectations("foobarjson-" + stubMapping.getId() + ".json", "{}");
         bodyExtractor.extractInPlace(stubMapping);
+        verifyWriteBinaryFile("foobarjson-" + stubMapping.getId() + ".json", "{}");
     }
 
     @Test
@@ -72,8 +67,8 @@ public class SnapshotStubMappingBodyExtractorTest {
         StubMapping stubMapping = WireMock.get("/foo/bar.txt")
             .willReturn(ok(""))
             .build();
-        setFileExpectations("foobartxt-" + stubMapping.getId() + ".txt", "");
         bodyExtractor.extractInPlace(stubMapping);
+        verifyWriteBinaryFile("foobartxt-" + stubMapping.getId() + ".txt", "");
     }
 
     @Test
@@ -81,8 +76,8 @@ public class SnapshotStubMappingBodyExtractorTest {
         StubMapping stubMapping = WireMock.get("/foo/bar.txt")
             .willReturn(okJson("{}"))
             .build();
-        setFileExpectations( "foobartxt-" + stubMapping.getId() + ".json", "{}");
         bodyExtractor.extractInPlace(stubMapping);
+        verifyWriteBinaryFile( "foobartxt-" + stubMapping.getId() + ".json", "{}");
     }
 
     @Test
@@ -91,16 +86,11 @@ public class SnapshotStubMappingBodyExtractorTest {
             .willReturn(okJson("{}"))
             .build();
         stubMapping.setName("TEST NAME!");
-        setFileExpectations( "test-name-" + stubMapping.getId() + ".json", "{}");
         bodyExtractor.extractInPlace(stubMapping);
+        verifyWriteBinaryFile( "test-name-" + stubMapping.getId() + ".json", "{}");
     }
 
-    private void setFileExpectations(final String filename, final String body) {
-        context.checking(new Expectations() {{
-            one(filesSource).writeBinaryFile(
-                with(equal(filename)),
-                with(equal(body.getBytes()))
-            );
-        }});
+    private void verifyWriteBinaryFile(final String filename, final String body) {
+        verify(filesSource).writeBinaryFile(eq(filename),eq(body.getBytes()));
     }
 }

@@ -28,8 +28,9 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.List;
@@ -40,8 +41,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
@@ -51,6 +54,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     private WireMock adminClient;
     private StubMapping proxyStub;
 
+    @BeforeEach
     public void init() {
         proxyingService = new WireMockServer(wireMockConfig()
             .dynamicPort()
@@ -67,7 +71,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         adminClient = WireMock.create().port(proxyingService.port()).build();
     }
 
-    @After
+    @AfterEach
     public void proxyServerShutdown() {
         proxyingService.resetMappings();
         proxyingService.stop();
@@ -87,7 +91,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         List<StubMapping> returnedMappings = proxyingService.snapshotRecord().getStubMappings();
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
 
-        assertTrue("All of the returned mappings should be present in the server", serverMappings.containsAll(returnedMappings));
+        assertTrue(serverMappings.containsAll(returnedMappings), "All of the returned mappings should be present in the server");
         assertThat(returnedMappings.size(), is(3));
 
         assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/one"));

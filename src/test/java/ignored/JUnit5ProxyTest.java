@@ -1,37 +1,54 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ignored;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JUnit5ProxyTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort().enableBrowserProxying(true));
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort().enableBrowserProxying(true)).build();
 
-    HttpClient httpClient = HttpClientBuilder.create()
+    CloseableHttpClient httpClient = HttpClientBuilder.create()
             .useSystemProperties() // This must be enabled for auto-configuration of proxy settings to work
             .build();
 
-    @Before
+    @BeforeEach
     public void init() {
-        JvmProxyConfigurer.configureFor(wm);
+        JvmProxyConfigurer.configureFor(wm.getPort());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         JvmProxyConfigurer.restorePrevious();
     }
@@ -46,7 +63,7 @@ public class JUnit5ProxyTest {
                 .withHost(equalTo("my.second.domain"))
                 .willReturn(ok("Domain 2")));
 
-        HttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals("Domain 1", responseBody);
 
@@ -69,7 +86,7 @@ public class JUnit5ProxyTest {
                 .withHost(equalTo("my.second.domain"))
                 .willReturn(ok("Domain 2")));
 
-        HttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
+        ClassicHttpResponse response = httpClient.execute(new HttpGet("http://my.first.domain/things"));
         String responseBody = EntityUtils.toString(response.getEntity());
         assertEquals("Domain 1", responseBody);
 

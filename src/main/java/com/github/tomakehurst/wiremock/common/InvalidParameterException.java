@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.common;
 
-import org.apache.http.client.methods.HttpRequestBase;
+public class InvalidParameterException extends ClientError {
 
-import java.net.URI;
-
-public class GenericHttpUriRequest extends HttpRequestBase {
-
-    private final String methodName;
-
-    public GenericHttpUriRequest(String methodName, String url) {
-        this.methodName = methodName;
-        setURI(URI.create(url));
+    public InvalidParameterException(Errors errors) {
+        super(errors);
     }
 
-    @Override
-    public String getMethod() {
-        return methodName;
-    }
 }

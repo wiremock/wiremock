@@ -15,34 +15,38 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
-import static com.google.common.base.Charsets.UTF_8;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.admin.model.ServeEventQuery.ALL_UNMATCHED;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.isToday;
+import static com.google.common.base.Charsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
+public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
     static Stubbing dsl = wireMockServer;
 
@@ -165,6 +169,39 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         List<ServeEvent> serveEvents = getAllServeEvents();
         ServeEvent serveEvent = serveEvents.get(0);
         assertThat(serveEvent.getResponse().getBody(), is(MappingJsonSamples.BINARY_COMPRESSED_CONTENT));
+    }
+
+    @Test
+    public void getsAllServeEventsThatWereUnmatched() {
+        dsl.stubFor(get("/match").willReturn(ok()));
+
+        testClient.get("/match");
+        testClient.get("/no-match");
+        testClient.get("/just-wrong");
+        testClient.get("/match");
+
+        List<ServeEvent> serveEvents = getAllServeEvents(ALL_UNMATCHED);
+
+        assertThat(serveEvents.size(), is(2));
+        assertThat(serveEvents.get(0).getRequest().getUrl(), is("/just-wrong"));
+        assertThat(serveEvents.get(1).getRequest().getUrl(), is("/no-match"));
+    }
+
+    @Test
+    public void getsAllServeEventsThatMatchedStubId() {
+        wm.stubFor(get("/one").willReturn(ok()));
+        StubMapping stub2 = wm.stubFor(get("/two").willReturn(ok()));
+
+        testClient.get("/two");
+        testClient.get("/one");
+        testClient.get("/one");
+        testClient.get("/two");
+
+        List<ServeEvent> serveEvents = getAllServeEvents(ServeEventQuery.forStubMapping(stub2));
+
+        assertThat(serveEvents.size(), is(2));
+        assertThat(serveEvents.get(0).getRequest().getUrl(), is("/two"));
+        assertThat(serveEvents.get(1).getRequest().getUrl(), is("/two"));
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {

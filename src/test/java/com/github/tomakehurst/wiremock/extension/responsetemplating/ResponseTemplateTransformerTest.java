@@ -26,33 +26,29 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ResponseTemplateTransformerTest {
 
     private ResponseTemplateTransformer transformer;
 
-    @Before
+    @BeforeEach
     public void setup() {
         transformer = new ResponseTemplateTransformer(true);
     }
@@ -344,7 +340,7 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
         ));
-        assertNotNull(transformedResponseDef.getAdditionalProxyRequestHeaders());
+        assertThat(transformedResponseDef.getAdditionalProxyRequestHeaders(), notNullValue());
         assertThat(transformedResponseDef
                         .getAdditionalProxyRequestHeaders()
                         .getHeader("X-Origin-Url")
@@ -1062,10 +1058,21 @@ public class ResponseTemplateTransformerTest {
 
         String expectedDate = ZonedDateTime.now().truncatedTo(DAYS).toLocalDateTime().toString();
 
-        System.out.println(System.getProperty("user.timezone"));
-        System.out.println("expected: " + expectedDate + ", actual: " + result);
-
         assertThat(result, is(expectedDate));
+    }
+
+    @Test
+    public void canParseLocalYearMonth() {
+        String result = transform("{{date (parseDate '2021-10' format='yyyy-MM') offset='+32 days' format='yyyy-MM'}}");
+        String expected = YearMonth.of(2021, 11).toString();
+        assertThat(result, is(expected));
+    }
+
+    @Test
+    public void canParseLocalYear() {
+        String result = transform("{{date (parseDate '2021' format='yyyy') format='yyyy-MM'}}");
+        String expected = YearMonth.of(2021, 1).toString();
+        assertThat(result, is(expected));
     }
 
     private Integer transformToInt(String responseBodyTemplate) {
