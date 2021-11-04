@@ -30,10 +30,11 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.absent;
@@ -41,12 +42,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
-import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.isIn;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultipartValuePatternBuilderTest {
 
@@ -95,7 +97,7 @@ public class MultipartValuePatternBuilderTest {
 //        assertThat(headerPatterns.entrySet(), everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
 
         List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
-        assertThat(bodyPatterns, everyItem(isIn(pattern.getBodyPatterns())));
+        assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
     }
 
     @Test
@@ -119,7 +121,7 @@ public class MultipartValuePatternBuilderTest {
 //        assertThat(headerPatterns.entrySet(), everyItem(isIn(pattern.getHeaders().entrySet())));
 
         List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
-        assertThat(bodyPatterns, everyItem(isIn(pattern.getBodyPatterns())));
+        assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
     }
 
     @Test

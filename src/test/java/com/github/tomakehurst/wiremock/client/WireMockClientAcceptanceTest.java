@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.is;
@@ -32,7 +32,7 @@ public class WireMockClientAcceptanceTest {
 	private WireMockServer wireMockServer;
 	private WireMockTestClient testClient;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
 		wireMockServer.start();
@@ -40,7 +40,7 @@ public class WireMockClientAcceptanceTest {
 		testClient = new WireMockTestClient(wireMockServer.port());
 	}
 	
-	@After
+	@AfterEach
 	public void stopServer() {
 		wireMockServer.stop();
 	}

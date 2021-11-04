@@ -37,17 +37,16 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.google.common.collect.Maps.asMap;
-import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.in;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
@@ -70,6 +69,9 @@ public class RequestPatternBuilderTest {
     public void likeRequestPatternWithoutCustomMatcher() {
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(
+            "https",
+            WireMock.equalTo("my.wiremock.org"),
+            1234,
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
             ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
@@ -111,7 +113,7 @@ public class RequestPatternBuilderTest {
                 .withRequestBodyPart(multipartValuePattern)
                 .build();
 
-        assertThat(newRequestPattern.getMultipartPatterns(), everyItem(isIn(asList(multipartValuePattern))));
+        assertThat(newRequestPattern.getMultipartPatterns(), everyItem(is(in(singletonList(multipartValuePattern)))));
         assertThat(newRequestPattern, not(equalTo(requestPattern)));
     }
 
@@ -121,6 +123,9 @@ public class RequestPatternBuilderTest {
 
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(
+                "https",
+                WireMock.equalTo("my.wiremock.org"),
+                1234,
                 WireMock.urlEqualTo("/foo"),
                 RequestMethod.POST,
                 ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),

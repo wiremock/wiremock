@@ -15,35 +15,36 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-@RunWith(Enclosed.class)
 public class CrossOriginTest {
 
+    @Nested
     public static class Enabled {
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(wireMockConfig().dynamicPort().stubCorsEnabled(true));
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort().stubCorsEnabled(true)).build();
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.port());
+            testClient = new WireMockTestClient(wm.getPort());
         }
 
         @Test
@@ -73,16 +74,17 @@ public class CrossOriginTest {
         }
     }
 
+    @Nested
     public static class Disabled {
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(wireMockConfig().dynamicPort());
+        @RegisterExtension
+        public WireMockExtension wm = WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
         WireMockTestClient testClient;
 
-        @Before
+        @BeforeEach
         public void init() {
-            testClient = new WireMockTestClient(wm.port());
+            testClient = new WireMockTestClient(wm.getPort());
         }
 
         @Test

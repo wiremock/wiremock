@@ -15,9 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +34,7 @@ public class ScenariosTest {
 
     Scenarios scenarios;
 
-    @Before
+    @BeforeEach
     public void init() {
         scenarios = new Scenarios();
     }

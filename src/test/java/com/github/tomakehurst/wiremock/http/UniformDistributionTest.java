@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 

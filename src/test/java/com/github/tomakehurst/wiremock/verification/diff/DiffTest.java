@@ -17,19 +17,20 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
-import org.junit.Test;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class DiffTest {
 
@@ -468,6 +469,178 @@ public class DiffTest {
                         "POST\n" +
                                 "/thing\n\n" +
                                 "not absent")
+        ));
+    }
+
+    @Test
+    public void indicatesThatScenarioStateDiffersWhenStubAndRequestOtherwiseMatch() {
+        Diff diff = new Diff(
+                get("/stateful")
+                        .inScenario("my-steps")
+                        .whenScenarioStateIs("step2")
+                        .willReturn(ok("Yep")).build(),
+                mockRequest()
+                        .method(GET)
+                        .url("/stateful"),
+                Scenario.STARTED
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "GET\n" +
+                        "/stateful\n\n" +
+                        "[Scenario 'my-steps' state: step2]"
+                        ,
+                        "GET\n" +
+                        "/stateful\n\n" +
+                        "[Scenario 'my-steps' state: Started]"
+                )
+        ));
+    }
+
+    @Test
+    public void includesSpecificDiffForJsonPathSubMatchWhenElementFound() {
+        Diff diff = new Diff(
+                post("/submatch")
+                        .withRequestBody(matchingJsonPath("$.name", containing("Tom")))
+                        .willReturn(ok("Yep")).build(),
+                mockRequest()
+                        .method(POST)
+                        .url("/submatch")
+                        .body("{\"name\": \"Rob\"}")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "$.name [contains] Tom"
+                        ,
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "Rob"
+                )
+        ));
+    }
+
+    @Test
+    public void includesSpecificDiffForJsonPathSubMatchWhenElementNotFound() {
+        Diff diff = new Diff(
+                post("/submatch")
+                        .withRequestBody(matchingJsonPath("$.name", containing("Tom")))
+                        .willReturn(ok("Yep")).build(),
+                mockRequest()
+                        .method(POST)
+                        .url("/submatch")
+                        .body("{\"id\": \"abc123\"}")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "$.name [contains] Tom"
+                        ,
+                        "POST\n" +
+                        "/submatch\n\n" +
+                        "{\"id\": \"abc123\"}"
+                )
+        ));
+    }
+
+    @Test
+    public void includeHostnameIfSpecifiedWithEqualTo() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withHost(equalTo("my.host"))
+                        .build(),
+                mockRequest()
+                        .host("wrong.host")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "my.host\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                        ,
+                        "wrong.host\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                )
+        ));
+    }
+
+    @Test
+    public void includeHostnameIfSpecifiedWithNonEqualTo() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withHost(containing("my.host"))
+                        .build(),
+                mockRequest()
+                        .host("wrong.host")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "[contains] my.host\n" +
+                                "ANY\n" +
+                                "/thing\n"
+                        ,
+                        "wrong.host\n" +
+                                "ANY\n" +
+                                "/thing\n"
+                )
+        ));
+    }
+
+    @Test
+    public void includePortIfSpecified() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withPort(5544)
+                        .build(),
+                mockRequest()
+                        .port(6543)
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "5544\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                        ,
+                        "6543\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                )
+        ));
+    }
+
+    @Test
+    public void includeSchemeIfSpecified() {
+        Diff diff = new Diff(
+                newRequestPattern(ANY, urlEqualTo("/thing"))
+                        .withScheme("https")
+                        .build(),
+                mockRequest()
+                        .scheme("http")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "https\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                        ,
+                        "http\n" +
+                        "ANY\n" +
+                        "/thing\n"
+                )
         ));
     }
 }

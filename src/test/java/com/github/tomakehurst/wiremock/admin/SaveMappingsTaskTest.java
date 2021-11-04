@@ -20,52 +20,34 @@ import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.net.HttpURLConnection;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
 
-@RunWith(JMock.class)
 public class SaveMappingsTaskTest {
-    private Mockery context;
-    private Admin mockAdmin;
-    private Request mockRequest;
 
-    private SaveMappingsTask saveMappingsTask;
+    private Admin mockAdmin = Mockito.mock(Admin.class);
+    private Request mockRequest = Mockito.mock(Request.class);
 
-    @Before
-    public void setUp() {
-        context = new Mockery();
-        mockAdmin = context.mock(Admin.class);
-        mockRequest = context.mock(Request.class);
-
-        saveMappingsTask = new SaveMappingsTask();
-    }
+    private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
     @Test
     public void delegatesSavingMappingsToAdmin() {
-        context.checking(new Expectations() {{
-            oneOf(mockAdmin).saveMappings();
-        }});
-
         saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
+
+        verify(mockAdmin).saveMappings();
     }
 
     @Test
     public void returnsOkResponse() {
-        context.checking(new Expectations() {{
-            oneOf(mockAdmin).saveMappings();
-        }});
-
         ResponseDefinition response = saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+        verify(mockAdmin).saveMappings();
     }
 }

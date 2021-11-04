@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.common.InvalidParameterException;
 import com.github.tomakehurst.wiremock.common.NotPermittedException;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -89,8 +90,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             );
         } catch (NotFoundException e) {
             return ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request));
+        } catch (InvalidParameterException ipe) {
+            return ServeEvent.forBadRequest(LoggedRequest.createFrom(request), ipe.getErrors());
         } catch (InvalidInputException iie) {
-            return ServeEvent.forBadRequest(LoggedRequest.createFrom(request), iie.getErrors());
+            return ServeEvent.forBadRequestEntity(LoggedRequest.createFrom(request), iie.getErrors());
         } catch (NotPermittedException npe) {
             return ServeEvent.forNotAllowedRequest(LoggedRequest.createFrom(request), npe.getErrors());
         } catch (Throwable t) {

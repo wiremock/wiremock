@@ -24,12 +24,13 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.GzipCompressingEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
@@ -41,11 +42,12 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
-import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
@@ -56,6 +58,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     private String targetBaseUrl;
     private File fileRoot;
 
+    @BeforeEach
     public void init() {
         fileRoot = setupTempFileRoot();
         proxyingService = new WireMockServer(wireMockConfig()
@@ -71,7 +74,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         adminClient = WireMock.create().port(proxyingService.port()).build();
     }
 
-    @After
+    @AfterEach
     public void proxyServerShutdown() {
         proxyingService.resetMappings();
         proxyingService.stop();
@@ -373,28 +376,38 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(bodyFileName, nullValue());
     }
 
-    @Test(expected = NotRecordingException.class)
+    @Test
     public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
-        stopRecording();
+        assertThrows(NotRecordingException.class, () -> {
+            stopRecording();
+        });
     }
 
-    @Test(expected = NotRecordingException.class)
+    @Test
     public void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
-        adminClient.stopStubRecording();
+        assertThrows(NotRecordingException.class, () -> {
+            adminClient.stopStubRecording();
+        });
     }
 
-    @Test(expected = NotRecordingException.class)
+    @Test
     public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
-        proxyingService.stopRecording();
+        assertThrows(NotRecordingException.class, () -> {
+            proxyingService.stopRecording();
+        });
     }
 
-    @Test(expected = InvalidInputException.class)
+    @Test
     public void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
-        startRecording(recordSpec());
+        assertThrows(InvalidInputException.class, () -> {
+            startRecording(recordSpec());
+        });
     }
 
-    @Test(expected = InvalidInputException.class)
+    @Test
     public void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
-        proxyingService.startRecording(recordSpec());
+        assertThrows(InvalidInputException.class, () -> {
+            proxyingService.startRecording(recordSpec());
+        });
     }
 }

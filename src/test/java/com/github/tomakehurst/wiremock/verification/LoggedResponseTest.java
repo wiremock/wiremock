@@ -31,12 +31,13 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.http.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LoggedResponseTest {
     private static String ISO_8859_1_RESPONSE_BODY = "köttfärssås";

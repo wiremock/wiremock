@@ -49,17 +49,21 @@ public class Xml {
         // Hide constructor
     }
     public static void optimizeFactoriesLoading() {
-        String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
-        String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
+        try {
+            String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
+            String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
 
-        setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
-        setProperty(
-                XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
-                xPathFactoryImpl
-        );
+            setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
+            setProperty(
+                    XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
+                    xPathFactoryImpl
+            );
 
-        XMLUnit.setTransformerFactory(transformerFactoryImpl);
-        XMLUnit.setXPathFactory(xPathFactoryImpl);
+            XMLUnit.setTransformerFactory(transformerFactoryImpl);
+            XMLUnit.setXPathFactory(xPathFactoryImpl);
+        } catch (Throwable ignored) {
+            // Since this is just an optimisation, if an exception is thrown we do nothing and carry on
+        }
     }
 
     private static String setProperty(final String name, final String value) {
@@ -96,7 +100,7 @@ public class Xml {
 
     private static TransformerFactory createTransformerFactory() {
         try {
-            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").newInstance();
+            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").getDeclaredConstructor().newInstance();
             transformerFactory.setAttribute("indent-number", 2);
             return transformerFactory;
         } catch (Exception e) {

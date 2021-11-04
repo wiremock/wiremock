@@ -17,18 +17,18 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
-import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.*;
+import org.apache.commons.io.FileUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsEqual;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -39,6 +39,7 @@ import org.xmlunit.diff.Diff;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -337,7 +338,7 @@ public class WireMatchers {
 
     private static String fileContents(File input) {
         try {
-            return Files.toString(input, Charsets.UTF_8);
+            return FileUtils.readFileToString(input, StandardCharsets.UTF_8);
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }

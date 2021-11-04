@@ -16,12 +16,13 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -47,8 +48,13 @@ import joptsimple.OptionSet;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
@@ -63,14 +69,18 @@ public class CommandLineOptions implements Options {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
+    private static final String TIMEOUT = "timeout";
     private static final String PORT = "port";
     private static final String DISABLE_HTTP = "disable-http";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
     private static final String HTTPS_KEYSTORE_PASSWORD = "keystore-password";
+    private static final String HTTPS_KEYSTORE_TYPE = "keystore-type";
+    private static final String HTTPS_KEY_MANAGER_PASSWORD = "key-manager-password";
     private static final String HTTPS_TRUSTSTORE = "https-truststore";
     private static final String HTTPS_TRUSTSTORE_PASSWORD = "truststore-password";
+    private static final String HTTPS_TRUSTSTORE_TYPE = "truststore-type";
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
@@ -86,6 +96,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_HEADER_REQUEST_SIZE = "jetty-header-request-size";
     private static final String JETTY_HEADER_RESPONSE_SIZE = "jetty-header-response-size";
     private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
+    private static final String JETTY_IDLE_TIMEOUT = "jetty-idle-timeout";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
@@ -102,10 +113,17 @@ public class CommandLineOptions implements Options {
     private static final String ENABLE_STUB_CORS = "enable-stub-cors";
     private static final String TRUST_ALL_PROXY_TARGETS = "trust-all-proxy-targets";
     private static final String TRUST_PROXY_TARGET = "trust-proxy-target";
+    private static final String HTTPS_CA_KEYSTORE = "ca-keystore";
+    private static final String HTTPS_CA_KEYSTORE_PASSWORD = "ca-keystore-password";
+    private static final String HTTPS_CA_KEYSTORE_TYPE = "ca-keystore-type";
+    private static final String DISABLE_OPTIMIZE_XML_FACTORIES_LOADING = "disable-optimize-xml-factories-loading";
+    private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
+    private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
     private final MappingsSource mappingsSource;
+    private final Map<String, Extension> extensions;
 
     private String helpText;
     private Integer actualHttpPort;
@@ -118,11 +136,17 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
+        optionParser.accepts(TIMEOUT, "The default global timeout.");
+        optionParser.accepts(DISABLE_OPTIMIZE_XML_FACTORIES_LOADING, "Whether to disable optimize XML factories loading or not.");
+        optionParser.accepts(DISABLE_STRICT_HTTP_HEADERS, "Whether to disable strict HTTP header handling of Jetty or not.");
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
-        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
-        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_TRUSTSTORE_TYPE, "The HTTPS trust store type").withRequiredArg().defaultsTo("JKS");
+        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg().defaultsTo("password");
+        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).requiredIf(HTTPS_TRUSTSTORE_PASSWORD).withRequiredArg();
+        optionParser.accepts(HTTPS_KEYSTORE_TYPE, "The HTTPS keystore type.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
-        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
+        optionParser.accepts(HTTPS_KEY_MANAGER_PASSWORD, "Key manager password for use with the alternative keystore.").withRequiredArg().defaultsTo("password");
+        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
@@ -141,6 +165,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_HEADER_REQUEST_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_RESPONSE_SIZE, "The size of Jetty's buffer for response headers").withRequiredArg();
         optionParser.accepts(JETTY_STOP_TIMEOUT, "Timeout in milliseconds for Jetty to stop").withRequiredArg();
+        optionParser.accepts(JETTY_IDLE_TIMEOUT, "Idle timeout in milliseconds for Jetty connections").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
@@ -154,20 +179,55 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
         optionParser.accepts(DISABLE_REQUEST_LOGGING, "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
         optionParser.accepts(ENABLE_STUB_CORS, "Enable automatic sending of CORS headers with stub responses.");
-        optionParser.accepts(TRUST_ALL_PROXY_TARGETS, "Trust all certificates presented by origins when browser proxying");
-        optionParser.accepts(TRUST_PROXY_TARGET, "Trust any certificate presented by this origin when browser proxying").withRequiredArg();
+        optionParser.accepts(TRUST_ALL_PROXY_TARGETS, "Trust all certificates presented by origins when browser proxying").availableIf(ENABLE_BROWSER_PROXYING);
+        optionParser.accepts(TRUST_PROXY_TARGET, "Trust any certificate presented by this origin when browser proxying").availableIf(ENABLE_BROWSER_PROXYING).availableUnless(TRUST_ALL_PROXY_TARGETS).withRequiredArg();
+        optionParser.accepts(HTTPS_CA_KEYSTORE, "Path to an alternative keystore containing a Certificate Authority private key & certificate for generating certificates when proxying HTTPS. Password is assumed to be \"password\" if not specified.").availableIf(ENABLE_BROWSER_PROXYING).withRequiredArg().defaultsTo(DEFAULT_CA_KEYSTORE_PATH);
+        optionParser.accepts(HTTPS_CA_KEYSTORE_PASSWORD, "Password for the alternative CA keystore.").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo(DEFAULT_CA_KESTORE_PASSWORD);
+        optionParser.accepts(HTTPS_CA_KEYSTORE_TYPE, "Type of the alternative CA keystore (jks or pkcs12).").availableIf(HTTPS_CA_KEYSTORE).withRequiredArg().defaultsTo("jks");
+        optionParser.accepts(LOAD_RESOURCES_FROM_CLASSPATH, "Specifies path on the classpath for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg();
 
-        optionParser.accepts(HELP, "Print this message");
+        optionParser.accepts(HELP, "Print this message").forHelp();
 
 		optionSet = optionParser.parse(args);
         validate();
 		captureHelpTextIfRequested(optionParser);
 
-        fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        if (optionSet.has(LOAD_RESOURCES_FROM_CLASSPATH)) {
+            fileSource = new ClasspathFileSource((String) optionSet.valueOf(LOAD_RESOURCES_FROM_CLASSPATH));
+        } else {
+            fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        }
+
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+        extensions = buildExtensions();
 
         actualHttpPort = null;
 	}
+
+	private Map<String, Extension> buildExtensions() {
+        ImmutableMap.Builder<String, Extension> builder = ImmutableMap.builder();
+        if (optionSet.has(EXTENSIONS)) {
+            String classNames = (String) optionSet.valueOf(EXTENSIONS);
+            builder.putAll(ExtensionLoader.load(classNames.split(",")));
+        }
+
+        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, true);
+        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING)) {
+            contributeResponseTemplateTransformer(builder, false);
+        }
+
+        return builder.build();
+    }
+
+    private void contributeResponseTemplateTransformer(ImmutableMap.Builder<String, Extension> builder, boolean global) {
+        ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
+                .global(global)
+                .maxCacheEntries(getMaxTemplateCacheEntries())
+                .permittedSystemKeys(getPermittedSystemKeys())
+                .build();
+        builder.put(transformer.getName(), transformer);
+    }
 
     private void validate() {
         if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
@@ -221,7 +281,7 @@ public class CommandLineOptions implements Options {
             Class<?> cls = loader.loadClass(
                     "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
             );
-            return (HttpServerFactory) cls.newInstance();
+            return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             return throwUnchecked(e, null);
         }
@@ -273,8 +333,11 @@ public class CommandLineOptions implements Options {
                 .port(httpsPortNumber())
                 .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
                 .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
+                .keyStoreType((String) optionSet.valueOf(HTTPS_KEYSTORE_TYPE))
+                .keyManagerPassword((String) optionSet.valueOf(HTTPS_KEY_MANAGER_PASSWORD))
                 .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
                 .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
+                .trustStoreType((String) optionSet.valueOf(HTTPS_TRUSTSTORE_TYPE))
                 .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT)).build();
     }
 
@@ -306,6 +369,10 @@ public class CommandLineOptions implements Options {
 
         if (optionSet.hasArgument(JETTY_STOP_TIMEOUT)) {
             builder = builder.withStopTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_STOP_TIMEOUT)));
+        }
+
+        if (optionSet.hasArgument(JETTY_IDLE_TIMEOUT)) {
+            builder = builder.withIdleTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_IDLE_TIMEOUT)));
         }
 
         return builder.build();
@@ -346,32 +413,7 @@ public class CommandLineOptions implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-        ImmutableMap.Builder<String, T> builder = ImmutableMap.builder();
-        if (optionSet.has(EXTENSIONS)) {
-            String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            builder.putAll ((Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
-                classNames.split(",")),
-                valueAssignableFrom(extensionType))
-            );
-        }
-
-        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(true)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
-                    .global(false)
-                    .maxCacheEntries(getMaxTemplateCacheEntries())
-                    .permittedSystemKeys(getPermittedSystemKeys())
-                    .build();
-            builder.put(transformer.getName(), (T) transformer);
-        }
-
-        return builder.build();
+        return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
     }
 
     @Override
@@ -407,9 +449,13 @@ public class CommandLineOptions implements Options {
         return new PlainTextStubNotMatchedRenderer();
     }
 
+    /**
+     * @deprecated use {@link BrowserProxySettings#enabled()}
+     */
+    @Deprecated
     @Override
     public boolean browserProxyingEnabled() {
-		return optionSet.has(ENABLE_BROWSER_PROXYING);
+		return browserProxySettings().enabled();
 	}
 
     @Override
@@ -495,7 +541,19 @@ public class CommandLineOptions implements Options {
                    .put(PRESERVE_HOST_HEADER, shouldPreserveHostHeader());
         }
 
-        builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
+        BrowserProxySettings browserProxySettings = browserProxySettings();
+
+        builder.put(ENABLE_BROWSER_PROXYING, browserProxySettings.enabled());
+        if (browserProxySettings.enabled()) {
+            KeyStoreSettings keyStoreSettings = browserProxySettings.caKeyStore();
+            builder.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
+            List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
+            if (!trustedProxyTargets.isEmpty()) {
+                builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
+            }
+            builder.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
+            builder.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());
+        }
 
         builder.put(DISABLE_BANNER, bannerDisabled());
 
@@ -525,15 +583,6 @@ public class CommandLineOptions implements Options {
 
         if (getHttpsRequiredForAdminApi()) {
             builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
-        }
-
-        if (trustAllProxyTargets()) {
-            builder.put(TRUST_ALL_PROXY_TARGETS, "true");
-        }
-
-        List<String> trustedProxyTargets = trustedProxyTargets();
-        if (!trustedProxyTargets.isEmpty()) {
-            builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
         }
 
         StringBuilder sb = new StringBuilder();
@@ -585,13 +634,37 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
-    public boolean trustAllProxyTargets() {
-        return optionSet.has(TRUST_ALL_PROXY_TARGETS);
+    public long timeout() {
+        return optionSet.has(TIMEOUT) ? Long.parseLong((String)optionSet.valueOf(TIMEOUT)) : DEFAULT_TIMEOUT;
     }
 
     @Override
-    public List<String> trustedProxyTargets() {
-        return (List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET);
+    public boolean getDisableOptimizeXmlFactoriesLoading() {
+        return optionSet.has(DISABLE_OPTIMIZE_XML_FACTORIES_LOADING);
+    }
+
+    @Override
+    public boolean getDisableStrictHttpHeaders() {
+        return optionSet.has(DISABLE_STRICT_HTTP_HEADERS);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public BrowserProxySettings browserProxySettings() {
+        KeyStoreSettings keyStoreSettings = new KeyStoreSettings(
+                KeyStoreSourceFactory.getAppropriateForJreVersion(
+                        (String) optionSet.valueOf(HTTPS_CA_KEYSTORE),
+                        (String) optionSet.valueOf(HTTPS_CA_KEYSTORE_TYPE),
+                        ((String) optionSet.valueOf(HTTPS_CA_KEYSTORE_PASSWORD)).toCharArray()
+                )
+        );
+
+        return new BrowserProxySettings.Builder()
+                .enabled(optionSet.has(ENABLE_BROWSER_PROXYING))
+                .trustAllProxyTargets(optionSet.has(TRUST_ALL_PROXY_TARGETS))
+                .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
+                .caKeyStoreSettings(keyStoreSettings)
+                .build();
     }
 
     private Long getMaxTemplateCacheEntries() {

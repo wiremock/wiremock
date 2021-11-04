@@ -27,7 +27,7 @@ import java.util.Date;
  */
 public enum WireMockHelpers implements Helper<Object> {
     xPath {
-        private HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
+        private final HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -35,7 +35,7 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     soapXPath {
-        private HandlebarsSoapHelper helper = new HandlebarsSoapHelper();
+        private final HandlebarsSoapHelper helper = new HandlebarsSoapHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -43,7 +43,7 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     jsonPath {
-        private HandlebarsJsonPathHelper helper = new HandlebarsJsonPathHelper();
+        private final HandlebarsJsonPathHelper helper = new HandlebarsJsonPathHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -51,7 +51,7 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     randomValue {
-        private HandlebarsRandomValuesHelper helper = new HandlebarsRandomValuesHelper();
+        private final HandlebarsRandomValuesHelper helper = new HandlebarsRandomValuesHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -59,7 +59,7 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     hostname {
-        private HostnameHelper helper = new HostnameHelper();
+        private final HostnameHelper helper = new HostnameHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
@@ -67,7 +67,7 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     date {
-        private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
+        private final HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -76,7 +76,7 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     now {
-        private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
+        private final HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -84,16 +84,24 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
     parseDate {
-        private ParseDateHelper helper = new ParseDateHelper();
+        private final ParseDateHelper helper = new ParseDateHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context.toString(), options);
         }
     },
+    truncateDate {
+        private final TruncateDateTimeHelper helper = new TruncateDateTimeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
 
     trim {
-        private StringTrimHelper helper = new StringTrimHelper();
+        private final StringTrimHelper helper = new StringTrimHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
@@ -102,7 +110,7 @@ public enum WireMockHelpers implements Helper<Object> {
     },
 
     base64 {
-        private Base64Helper helper = new Base64Helper();
+        private final Base64Helper helper = new Base64Helper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
@@ -111,7 +119,7 @@ public enum WireMockHelpers implements Helper<Object> {
     },
 
     urlEncode {
-        private UrlEncodingHelper helper = new UrlEncodingHelper();
+        private final UrlEncodingHelper helper = new UrlEncodingHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
@@ -120,7 +128,7 @@ public enum WireMockHelpers implements Helper<Object> {
     },
 
     formData {
-        private FormDataHelper helper = new FormDataHelper();
+        private final FormDataHelper helper = new FormDataHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
@@ -129,7 +137,7 @@ public enum WireMockHelpers implements Helper<Object> {
     },
 
     regexExtract {
-        private RegexExtractHelper helper = new RegexExtractHelper();
+        private final RegexExtractHelper helper = new RegexExtractHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
@@ -138,15 +146,93 @@ public enum WireMockHelpers implements Helper<Object> {
     },
 
     size {
-        private SizeHelper helper = new SizeHelper();
+        private final SizeHelper helper = new SizeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    pickRandom {
+        private final PickRandomHelper helper = new PickRandomHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    randomInt {
+        private final RandomIntHelper helper = new RandomIntHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(null, options);
+        }
+    },
+
+    randomDecimal {
+        private final RandomDecimalHelper helper = new RandomDecimalHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(null, options);
+        }
+    },
+
+    range {
+        private final RangeHelper helper = new RangeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    array {
+        private final ArrayHelper helper = new ArrayHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    parseJson {
+        private final ParseJsonHelper helper = new ParseJsonHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    matches {
+        private final MatchesRegexHelper helper = new MatchesRegexHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    contains {
+        private final ContainsHelper helper = new ContainsHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    math {
+        private final MathsHelper helper = new MathsHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context, options);
         }
     }
-
-
-
 
 }

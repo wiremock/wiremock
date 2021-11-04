@@ -1,2 +1,0 @@
-jar.baseName = 'wiremock'
-shadowJar.baseName = 'wiremock-standalone'

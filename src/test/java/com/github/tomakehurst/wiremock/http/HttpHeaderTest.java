@@ -16,11 +16,12 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HttpHeaderTest {
@@ -56,14 +57,18 @@ public class HttpHeaderTest {
         assertThat(header.containsValue("value72727"), is(false));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void throwsExceptionWhenAttemptingToAccessFirstValueWhenAbsent() {
-        HttpHeader.absent("Something").firstValue();
+        assertThrows(IllegalStateException.class, () -> {
+            HttpHeader.absent("Something").firstValue();
+        });
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
-        HttpHeader.absent("Something").values();
+        assertThrows(IllegalStateException.class, () -> {
+            HttpHeader.absent("Something").values();
+        });
     }
 
     @Test

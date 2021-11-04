@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class Base64EncoderTest {
     public static final String INPUT = "1234";

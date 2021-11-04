@@ -1,17 +1,28 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.junit.jupiter.api.AfterEach;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -21,7 +32,6 @@ import java.security.cert.Certificate;
 import java.util.Date;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore.KeyStoreType.JKS;
@@ -32,24 +42,13 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
 
     protected static final List<String> TRUST_NOBODY = emptyList();
 
-    private final List<String> trustedHosts;
-    private final String certificateCN;
-    private final boolean validCertificate;
     protected WireMockServer server = null;
-    protected HttpClient client;
+    protected CloseableHttpClient client;
 
-    protected HttpClientFactoryCertificateVerificationTest(
-        List<String> trustedHosts,
-        String certificateCN,
-        boolean validCertificate
-    ) {
-        this.trustedHosts = trustedHosts;
-        this.certificateCN = certificateCN;
-        this.validCertificate = validCertificate;
-    }
-
-    @Before
-    public void startServerAndBuildClient() throws Exception {
+    public void startServerAndBuildClient(
+            List<String> trustedHosts,
+            String certificateCN,
+            boolean validCertificate) throws Exception {
 
         InMemoryKeyStore ks = new InMemoryKeyStore(JKS, new Secret("password"));
 
@@ -85,7 +84,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         }
         File clientTrustStoreFile = File.createTempFile("wiremock-client", "jks");
         clientTrustStore.saveAs(clientTrustStoreFile);
-        KeyStoreSettings clientTrustStoreSettings = new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password");
+        KeyStoreSettings clientTrustStoreSettings = new KeyStoreSettings(clientTrustStoreFile.getAbsolutePath(), "password", "jks");
 
         client = HttpClientFactory.createClient(
                 1000,
@@ -93,11 +92,12 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
                 NO_PROXY,
                 clientTrustStoreSettings,
                 /* trustSelfSignedCertificates = */false,
-                trustedHosts
+                trustedHosts,
+                false
         );
     }
 
-    @After
+    @AfterEach
     public void stopServer() {
         if (server != null) {
             server.stop();

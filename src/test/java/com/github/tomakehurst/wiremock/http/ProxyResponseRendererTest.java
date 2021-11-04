@@ -1,21 +1,34 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import javax.net.ssl.SSLHandshakeException;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -28,19 +41,19 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ProxyResponseRendererTest {
 
-    @Rule
-    public WireMockRule origin = new WireMockRule(options()
+    @RegisterExtension
+    public WireMockExtension origin = WireMockExtension.newInstance().options(options()
             .httpDisabled(true)
             .dynamicHttpsPort()
-            .keystorePath(generateKeystore().getAbsolutePath())
-    );
+            .keystorePath(generateKeystore().getAbsolutePath())).build();
 
     private final ProxyResponseRenderer proxyResponseRenderer = buildProxyResponseRenderer(false);
 
@@ -63,14 +76,11 @@ public class ProxyResponseRendererTest {
 
         final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
-        SSLHandshakeException e = assertThrows(SSLHandshakeException.class, new ThrowingRunnable() {
-            @Override
-            public void run() {
-                proxyResponseRenderer.render(serveEvent);
-            }
-        });
+        Response response = proxyResponseRenderer.render(serveEvent);
 
-        assertThat(e.getMessage(), containsString("unable to find valid certification path to requested target"));
+        assertEquals(HTTP_INTERNAL_ERROR, response.getStatus());
+        assertThat(response.getBodyAsString(), startsWith("SSL failure trying to make a proxied request from WireMock to "+origin.url("/proxied")));
+        assertThat(response.getBodyAsString(), containsString("unable to find valid certification path to requested target"));
     }
 
     @Test

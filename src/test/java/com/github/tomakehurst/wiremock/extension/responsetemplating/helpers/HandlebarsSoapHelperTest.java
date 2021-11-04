@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -34,7 +34,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
     private HandlebarsSoapHelper helper;
     private ResponseTemplateTransformer transformer;
 
-    @Before
+    @BeforeEach
     public void init() {
         this.helper = new HandlebarsSoapHelper();
         this.transformer = new ResponseTemplateTransformer(true);

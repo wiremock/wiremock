@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.security.*;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -33,6 +33,7 @@ import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
@@ -42,7 +43,7 @@ public class ClientAuthenticationAcceptanceTest {
     private WireMock goodClient;
     private WireMock badClient;
 
-    @After
+    @AfterEach
     public void stopServer() {
         server.stop();
     }
@@ -81,21 +82,24 @@ public class ClientAuthenticationAcceptanceTest {
         goodClient.getServeEvents(); // Expect no exception thrown
     }
 
-    @Test(expected = NotAuthorisedException.class)
+    @Test
     public void throwsNotAuthorisedExceptionWhenWrongBasicCredentialsProvided() {
-        initialise(new BasicAuthenticator(
-                new BasicCredentials("user1", "password1"),
-                new BasicCredentials("user2", "password2")
-            ),
-            new ClientBasicAuthenticator("user1", "password1")
-        );
+        assertThrows(NotAuthorisedException.class, () -> {
+            initialise(new BasicAuthenticator(
+                            new BasicCredentials("user1", "password1"),
+                            new BasicCredentials("user2", "password2")
+                    ),
+                    new ClientBasicAuthenticator("user1", "password1")
+            );
 
-        badClient = WireMock.create()
-            .port(server.port())
-            .authenticator(new ClientBasicAuthenticator("user1", "wrong_password"))
-            .build();
+            badClient = WireMock.create()
+                    .port(server.port())
+                    .authenticator(new ClientBasicAuthenticator("user1", "wrong_password"))
+                    .build();
 
-        badClient.getServeEvents();
+            badClient.getServeEvents();
+
+        });
 
     }
 

@@ -23,36 +23,39 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 public class NearMiss implements Comparable<NearMiss> {
 
     private final LoggedRequest request;
     private final StubMapping mapping;
     private final RequestPattern requestPattern;
     private final MatchResult matchResult;
+    private final String scenarioState;
 
     @JsonCreator
     public NearMiss(@JsonProperty("request") LoggedRequest request,
                     @JsonProperty("stubMapping") StubMapping mapping,
                     @JsonProperty("requestPattern") RequestPattern requestPattern,
-                    @JsonProperty("matchResult") MatchResult matchResult) {
+                    @JsonProperty("matchResult") MatchResult matchResult,
+                    @JsonProperty("scenarioState") String scenarioState
+    ) {
         this.request = request;
         this.mapping = mapping;
         this.requestPattern = requestPattern;
         this.matchResult = matchResult;
+        this.scenarioState = scenarioState;
     }
 
     public NearMiss(LoggedRequest request,
                     StubMapping mapping,
-                    MatchResult matchResult) {
-        this(request, mapping, null, matchResult);
+                    MatchResult matchResult,
+                    String scenarioState) {
+        this(request, mapping, null, matchResult, scenarioState);
     }
 
     public NearMiss(LoggedRequest request,
                     RequestPattern requestPattern,
                     MatchResult matchResult) {
-        this(request, null, requestPattern, matchResult);
+        this(request, null, requestPattern, matchResult, null);
     }
 
     public LoggedRequest getRequest() {
@@ -82,7 +85,7 @@ public class NearMiss implements Comparable<NearMiss> {
             return new Diff(requestPattern, request);
         }
 
-        return new Diff(getStubMapping(), request);
+        return new Diff(getStubMapping(), request, scenarioState);
     }
 
     @Override

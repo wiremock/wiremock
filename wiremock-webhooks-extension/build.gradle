@@ -1,0 +1,107 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        maven {
+            url "https://oss.sonatype.org"
+        }
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'scala'
+    id 'signing'
+    id 'maven-publish'
+    id 'idea'
+    id 'eclipse'
+    id 'project-report'
+    id 'com.github.johnrengelman.shadow'
+}
+
+group 'org.wiremock'
+
+dependencies {
+    compileOnly project(":")
+    implementation platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
+    implementation "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "com.fasterxml.jackson.core:jackson-databind"
+    implementation("com.github.jknack:handlebars-helpers:$versions.handlebars") {
+        exclude group: 'org.mozilla', module: 'rhino'
+    }
+    implementation "com.google.guava:guava:$versions.guava"
+    implementation "org.apache.httpcomponents.client5:httpclient5:5.1"
+
+    testImplementation project(":")
+    testImplementation(platform('org.junit:junit-bom:5.8.1'))
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.hamcrest:hamcrest-core:2.2"
+    testImplementation "org.hamcrest:hamcrest-library:2.2"
+}
+
+shadowJar {
+    baseName = 'wiremock-webhooks-extension'
+    classifier = ''
+
+    relocate "org.apache", 'wiremock.webhooks.org.apache'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task testJar(type: Jar, dependsOn: testClasses) {
+    classifier = 'tests'
+    from sourceSets.test.output
+}
+
+signing {
+    required {
+        !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
+    }
+    sign publishing.publications
+}
+
+publishing {
+    repositories {
+        maven {
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username repoUser
+                password repoPassword
+            }
+        }
+    }
+    
+    publications {
+        main(MavenPublication) { publication ->
+            artifactId = "${jar.baseName}"
+            project.shadow.component(publication)
+
+            artifact sourcesJar
+            artifact javadocJar
+            artifact testJar
+
+            pom.packaging 'jar'
+            pom.withXml {
+                asNode().appendNode('description', 'WireMock webhooks extension')
+                asNode().children().last() + pomInfo
+            }
+        }
+    }
+
+}
+
+publish.dependsOn shadowJar
+
+task release {
+    dependsOn clean, shadowJar, publishAllPublicationsToMavenRepository
+}

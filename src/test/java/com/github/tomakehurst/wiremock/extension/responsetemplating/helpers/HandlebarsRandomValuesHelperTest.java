@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemp
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ public class HandlebarsRandomValuesHelperTest {
     private HandlebarsRandomValuesHelper helper;
     private ResponseTemplateTransformer transformer;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new HandlebarsRandomValuesHelper();
         transformer = new ResponseTemplateTransformer(true);
@@ -110,6 +110,19 @@ public class HandlebarsRandomValuesHelperTest {
 
         assertThat(output.length(), is(67));
         assertThat(output, WireMatchers.matches("^.+$"));
+    }
+
+    @Test
+    public void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+                "length", 64,
+                "type", "HEXADECIMAL"
+        );
+
+        String output = render(optionsHash);
+
+        assertThat(output.length(), is(64));
+        assertThat(output, WireMatchers.matches("^[0-9a-f]+$"));
     }
 
     @Test

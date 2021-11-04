@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class HostnameHelper extends HandlebarsHelper<Object> {
 
@@ -29,8 +30,9 @@ public class HostnameHelper extends HandlebarsHelper<Object> {
     static {
         try {
             HOSTNAME = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            throwUnchecked(e, String.class);
+        } catch (Exception e) {
+            notifier().error("Failed to look up localhost. {{hostname}} Handlebars helper will return localhost.", e);
+            HOSTNAME = "localhost";
         }
     }
 

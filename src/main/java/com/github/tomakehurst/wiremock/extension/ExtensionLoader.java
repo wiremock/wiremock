@@ -58,7 +58,7 @@ public class ExtensionLoader {
             @SuppressWarnings("unchecked")
             public Extension apply(Class<? extends Extension> extensionClass) {
                 try {
-                    return extensionClass.newInstance();
+                    return extensionClass.getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
                     return throwUnchecked(e, Extension.class);
                 }

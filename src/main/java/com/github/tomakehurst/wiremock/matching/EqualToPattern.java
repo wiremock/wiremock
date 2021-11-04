@@ -21,7 +21,7 @@ import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.getLevenshteinDistance;
 
-public class EqualToPattern extends MemoizingStringValuePattern {
+public class EqualToPattern extends StringValuePattern {
 
     private final Boolean caseInsensitive;
 
@@ -46,7 +46,7 @@ public class EqualToPattern extends MemoizingStringValuePattern {
     }
 
     @Override
-    protected MatchResult calculateMatch(final String value) {
+    public MatchResult match(final String value) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {

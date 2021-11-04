@@ -15,15 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.primitives.Ints.asList;
 import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LimitAndOffsetPaginatorTest {
 
@@ -87,14 +88,18 @@ public class LimitAndOffsetPaginatorTest {
         assertThat(result, is(asList(4, 5)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void rejectsNegativeLimit() {
-        new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), -1, 3);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), -1, 3);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void rejectsNegativeOffset() {
-        new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), 0, -10);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), 0, -10);
+        });
     }
 
 }

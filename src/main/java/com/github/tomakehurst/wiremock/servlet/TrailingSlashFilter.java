@@ -65,9 +65,17 @@ public class TrailingSlashFilter implements Filter {
         }
         
         private String getPathPartFromLocation(String location) throws IOException {
+            if (isRelativePath(location)) {
+                return location;
+            }
+
             URL url = new URL(location);
             return url.getPath();
         }
+    }
+
+    private static boolean isRelativePath(String location) {
+        return location.matches("^/[^/]{1}.*");
     }
     
     private String getRequestPathFrom(HttpServletRequest httpServletRequest) throws ServletException {

@@ -1,8 +1,8 @@
 WireMock - a web service test double for all occasions
 ======================================================
 
-[![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=master)](https://travis-ci.org/tomakehurst/wiremock)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock)
+[![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
 
 Key Features
@@ -39,6 +39,7 @@ following guidelines:
 on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
 * Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
 more difficult.
+* Abide by [the Architecture Rules](https://github.com/wiremock/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock/archunit) enforced by ArchUnit.
 
 Building WireMock locally
 -------------------------
@@ -49,24 +50,14 @@ To run all of WireMock's tests:
 
 To build both JARs (thin and standalone):
 ```bash
-./gradlew -c release-settings.gradle :java8:shadowJar
+./gradlew jar shadowJar 
 ```
 
-The built JAR will be placed under ``java8/build/libs``.
+The built JAR will be placed under ``build/libs``.
 
-Developing on IntelliJ IDEA
----------------------------
+To publish both JARs to your local Maven repository:
 
-IntelliJ can't import the gradle build script correctly automatically, so run
 ```bash
-./gradlew -c release-settings.gradle :java8:idea
+./gradlew publishToMavenLocal
 ```
 
-Make sure you have no `.idea` directory, the plugin generates old style .ipr,
-.iml & .iws metadata files.
-
-You may have to then set up your project SDK to point at your Java 8
-installation.
-
-Then edit the module settings. Remove the "null" Source & Test source folders
-from all modules. Add `wiremock` as a module dependency to Java 7 & Java 8.

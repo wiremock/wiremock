@@ -1,27 +1,31 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.Test;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.X509ExtendedTrustManager;
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.security.SignatureException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
@@ -56,11 +60,8 @@ public class CompositeTrustManagerTest {
             trustManager1
         ));
 
-        CertificateException thrown = assertThrows(CertificateException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                compositeTrustManager.checkServerTrusted(chain, authType);
-            }
+        CertificateException thrown = assertThrows(CertificateException.class, () -> {
+            compositeTrustManager.checkServerTrusted(chain, authType);
         });
         assertEquals(invalidCertForTrustManager1, thrown);
     }
@@ -119,11 +120,8 @@ public class CompositeTrustManagerTest {
             trustManager2
         ));
 
-        CertificateException thrown = assertThrows(CertificateException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                compositeTrustManager.checkServerTrusted(chain, authType);
-            }
+        CertificateException thrown = assertThrows(CertificateException.class, () -> {
+            compositeTrustManager.checkServerTrusted(chain, authType);
         });
 
         assertEquals(invalidCertForTrustManager2, thrown);

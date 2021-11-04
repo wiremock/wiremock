@@ -18,11 +18,11 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 public class EqualToPatternTest {

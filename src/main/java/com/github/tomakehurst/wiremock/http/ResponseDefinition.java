@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.google.common.net.MediaType;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +48,7 @@ public class ResponseDefinition {
     private final DelayDistribution delayDistribution;
     private final ChunkedDribbleDelay chunkedDribbleDelay;
     private final String proxyBaseUrl;
+    private final String proxyUrlPrefixToRemove;
     private final Fault fault;
     private final List<String> transformers;
     private final Parameters transformerParameters;
@@ -68,11 +70,12 @@ public class ResponseDefinition {
                               @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
                               @JsonProperty("chunkedDribbleDelay") ChunkedDribbleDelay chunkedDribbleDelay,
                               @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
+                              @JsonProperty("proxyUrlPrefixToRemove") String proxyUrlPrefixToRemove,
                               @JsonProperty("fault") Fault fault,
                               @JsonProperty("transformers") List<String> transformers,
                               @JsonProperty("transformerParameters") Parameters transformerParameters,
                               @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, proxyUrlPrefixToRemove, fault, transformers, transformerParameters, wasConfigured);
     }
 
     public ResponseDefinition(int status,
@@ -87,11 +90,12 @@ public class ResponseDefinition {
                               DelayDistribution delayDistribution,
                               ChunkedDribbleDelay chunkedDribbleDelay,
                               String proxyBaseUrl,
+                              String proxyUrlPrefixToRemove,
                               Fault fault,
                               List<String> transformers,
                               Parameters transformerParameters,
                               Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, proxyUrlPrefixToRemove, fault, transformers, transformerParameters, wasConfigured);
     }
 
     private ResponseDefinition(int status,
@@ -104,6 +108,7 @@ public class ResponseDefinition {
                                DelayDistribution delayDistribution,
                                ChunkedDribbleDelay chunkedDribbleDelay,
                                String proxyBaseUrl,
+                               String proxyUrlPrefixToRemove,
                                Fault fault,
                                List<String> transformers,
                                Parameters transformerParameters,
@@ -119,7 +124,8 @@ public class ResponseDefinition {
         this.fixedDelayMilliseconds = fixedDelayMilliseconds;
         this.delayDistribution = delayDistribution;
         this.chunkedDribbleDelay = chunkedDribbleDelay;
-        this.proxyBaseUrl = proxyBaseUrl;
+        this.proxyBaseUrl = proxyBaseUrl == null ? null : proxyBaseUrl.trim();
+        this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
         this.fault = fault;
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
@@ -127,15 +133,15 @@ public class ResponseDefinition {
     }
 
     public ResponseDefinition(final int statusCode, final String bodyContent) {
-        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public ResponseDefinition() {
-        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public static ResponseDefinition notFound() {
@@ -163,6 +169,14 @@ public class ResponseDefinition {
     }
 
     public static ResponseDefinition badRequest(Errors errors) {
+        return ResponseDefinitionBuilder.responseDefinition()
+            .withStatus(400)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(Json.write(errors))
+            .build();
+    }
+
+    public static ResponseDefinition badRequestEntity(Errors errors) {
         return ResponseDefinitionBuilder.responseDefinition()
             .withStatus(422)
             .withHeader(CONTENT_TYPE, "application/json")
@@ -218,6 +232,7 @@ public class ResponseDefinition {
             this.delayDistribution,
             this.chunkedDribbleDelay,
             this.proxyBaseUrl,
+            this.proxyUrlPrefixToRemove,
             this.fault,
             this.transformers,
             this.transformerParameters,
@@ -300,11 +315,15 @@ public class ResponseDefinition {
             return browserProxyUrl;
         }
 
-        return proxyBaseUrl + originalRequest.getUrl();
+        return proxyBaseUrl + StringUtils.removeStart(originalRequest.getUrl(), proxyUrlPrefixToRemove);
     }
 
     public String getProxyBaseUrl() {
         return proxyBaseUrl;
+    }
+
+    public String getProxyUrlPrefixToRemove() {
+        return proxyUrlPrefixToRemove;
     }
 
     @JsonIgnore
@@ -374,6 +393,7 @@ public class ResponseDefinition {
             Objects.equals(delayDistribution, that.delayDistribution) &&
             Objects.equals(chunkedDribbleDelay, that.chunkedDribbleDelay) &&
             Objects.equals(proxyBaseUrl, that.proxyBaseUrl) &&
+            Objects.equals(proxyUrlPrefixToRemove, that.proxyUrlPrefixToRemove) &&
             fault == that.fault &&
             Objects.equals(transformers, that.transformers) &&
             Objects.equals(transformerParameters, that.transformerParameters) &&
@@ -383,7 +403,7 @@ public class ResponseDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured);
+        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, proxyUrlPrefixToRemove, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured);
     }
 
     @Override

@@ -15,11 +15,11 @@
  */
 package ignored;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -28,16 +28,17 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 public class ManyUnmatchedRequestsTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options()
-        .dynamicPort()
-        .withRootDirectory("src/main/resources/empty"));
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance()
+            .options(options().dynamicPort().withRootDirectory("src/main/resources/empty"))
+            .failOnUnmatchedRequests(true)
+            .build();
 
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(wm.getPort());
     }
 
     @Test

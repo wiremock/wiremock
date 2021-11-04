@@ -1,20 +1,20 @@
 {
   "name": "wiremock-docs",
-  "version": "2.19.1",
+  "version": "2.32.0",
   "description": "WireMock documentation processor",
   "engines": {
     "node": ">= 0.10.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.5",
-    "node-sass": "4.12.0",
+    "node-sass": "4.14.1",
     "npm-run-all": "^1.7.0",
     "onchange": "^6.1.0",
     "postcss-cli": "^6.1.3",
     "redoc": "2.0.0-rc.18",
     "shx": "0.2.2",
     "swagger-cli": "2.3.4",
-    "swagger-ui-dist": "3.24.3",
+    "swagger-ui-dist": "3.48.0",
     "to": "^0.2.9",
     "uglify-js": "^2.6.1"
   },

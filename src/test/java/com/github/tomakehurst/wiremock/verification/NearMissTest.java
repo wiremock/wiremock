@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -74,7 +74,8 @@ public class NearMissTest {
         String json = Json.write(new NearMiss(
             LoggedRequest.createFrom(mockRequest().method(HEAD).url("/nearly-missed-me")),
             get(urlEqualTo("/missed-me")).willReturn(aResponse()).build(),
-            MatchResult.partialMatch(0.5)
+            MatchResult.partialMatch(0.5),
+            null
         ));
 
         assertThat(json, equalToJson(STUB_MAPPING_EXAMPLE, LENIENT));

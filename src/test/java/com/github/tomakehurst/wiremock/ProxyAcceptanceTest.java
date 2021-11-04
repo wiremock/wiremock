@@ -15,19 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -35,14 +27,24 @@ import com.google.common.base.Stopwatch;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.GzipCompressingEntity;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -50,23 +52,22 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ProxyAcceptanceTest {
 
     private String targetServiceBaseUrl;
-    private String targetServiceBaseHttpsUrl;
 
     WireMockServer targetService;
-	WireMock targetServiceAdmin;
+	WireMock target;
 
     WireMockServer proxyingService;
-    WireMock proxyingServiceAdmin;
+    WireMock proxy;
 
     WireMockTestClient testClient;
 
@@ -76,15 +77,14 @@ public class ProxyAcceptanceTest {
                 .dynamicHttpsPort()
                 .bindAddress("127.0.0.1").stubCorsEnabled(true));
 		targetService.start();
-		targetServiceAdmin = WireMock.create().host("localhost").port(targetService.port()).build();
+		target = WireMock.create().host("localhost").port(targetService.port()).build();
 
         targetServiceBaseUrl = "http://localhost:" + targetService.port();
-        targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
 
         proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
-        proxyingServiceAdmin = WireMock.create().port(proxyingService.port()).build();
+        proxy = WireMock.create().port(proxyingService.port()).build();
         testClient = new WireMockTestClient(proxyingService.port());
 
         WireMock.configureFor(targetService.port());
@@ -94,7 +94,7 @@ public class ProxyAcceptanceTest {
         init(wireMockConfig());
     }
 	
-	@After
+	@AfterEach
 	public void stop() {
 		targetService.stop();
         proxyingService.stop();
@@ -104,13 +104,13 @@ public class ProxyAcceptanceTest {
 	public void successfullyGetsResponseFromOtherServiceViaProxy() {
         initWithDefaultConfig();
 
-		targetServiceAdmin.register(get(urlEqualTo("/proxied/resource?param=value"))
+		target.register(get(urlEqualTo("/proxied/resource?param=value"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/plain")
                         .withBody("Proxied content")));
 
-        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
+        proxy.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom(targetServiceBaseUrl)));
 		
@@ -124,7 +124,7 @@ public class ProxyAcceptanceTest {
 	public void successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
         initWithDefaultConfig();
 
-        proxyingServiceAdmin.register(any(urlEqualTo("/additional/headers")).atPriority(10)
+        proxy.register(any(urlEqualTo("/additional/headers")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom(targetServiceBaseUrl)
                         .withAdditionalRequestHeader("a", "b")
@@ -132,7 +132,7 @@ public class ProxyAcceptanceTest {
 
         testClient.get("/additional/headers");
 		
-		targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/additional/headers"))
+		target.verifyThat(getRequestedFor(urlEqualTo("/additional/headers"))
                 .withHeader("a", equalTo("b"))
                 .withHeader("c", equalTo("d")));
 	}
@@ -141,13 +141,13 @@ public class ProxyAcceptanceTest {
 	public void successfullyGetsResponseFromOtherServiceViaProxyInjectingHeadersOverridingSentHeaders() {
         initWithDefaultConfig();
 
-		targetServiceAdmin.register(get(urlEqualTo("/proxied/resource?param=value"))
+		target.register(get(urlEqualTo("/proxied/resource?param=value"))
 				.withHeader("a", equalTo("b"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody("Proxied content")));
 
-        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
+        proxy.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom(targetServiceBaseUrl)
 				.withAdditionalRequestHeader("a", "b")));
@@ -162,29 +162,29 @@ public class ProxyAcceptanceTest {
 	public void successfullyPostsResponseToOtherServiceViaProxy() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(post(urlEqualTo("/proxied/resource"))
+        target.register(post(urlEqualTo("/proxied/resource"))
                 .willReturn(aResponse()
                         .withStatus(204)));
 
-        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource")).atPriority(10)
+        proxy.register(any(urlEqualTo("/proxied/resource")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom(targetServiceBaseUrl)));
 		
 		WireMockResponse response = testClient.postWithBody("/proxied/resource", "Post content", "text/plain", "utf-8");
 		
 		assertThat(response.statusCode(), is(204));
-		targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/proxied/resource")).withRequestBody(matching("Post content")));
+		target.verifyThat(postRequestedFor(urlEqualTo("/proxied/resource")).withRequestBody(matching("Post content")));
 	}
 	
 	@Test
 	public void successfullyGetsResponseFromOtherServiceViaProxyWithEscapeCharsInUrl() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
+        target.register(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
                 .willReturn(aResponse()
                         .withStatus(200)));
 
-        proxyingServiceAdmin.register(any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).atPriority(10)
+        proxy.register(any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).atPriority(10)
                 .willReturn(aResponse()
                         .proxiedFrom(targetServiceBaseUrl)));
 		
@@ -221,35 +221,67 @@ public class ProxyAcceptanceTest {
 		});
 		server.start();
 		
-        proxyingServiceAdmin.register(post(urlEqualTo("/binary")).willReturn(aResponse().proxiedFrom("http://localhost:" + server.getAddress().getPort()).withBody(bytes)));
+        proxy.register(post(urlEqualTo("/binary")).willReturn(aResponse().proxiedFrom("http://localhost:" + server.getAddress().getPort()).withBody(bytes)));
         
-        WireMockResponse post = testClient.post("/binary", new ByteArrayEntity(bytes));
+        WireMockResponse post = testClient.post("/binary", new ByteArrayEntity(bytes, ContentType.DEFAULT_BINARY));
 		assertThat(post.statusCode(), is(200));
 		assertThat(post.binaryContent(), Matchers.equalTo(bytes));
 	}
 	
     @Test
-    public void sendsContentLengthHeaderWhenPostingIfPresentInOriginalRequest() {
+    public void sendsContentLengthHeaderInRequestWhenPostingIfPresentInOriginalRequest() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
-        proxyingServiceAdmin.register(post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
+        proxy.register(post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         testClient.postWithBody("/with/length", "TEST", "application/x-www-form-urlencoded", "utf-8");
 
-        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
+        target.verifyThat(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
+    }
+
+    @Test
+    public void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingEnabled() throws Exception {
+        init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.ALWAYS));
+
+        String path = "/response/length";
+        target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
+        proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getCode(), is(200));
+            assertThat(response.getFirstHeader("Content-Length").getValue(), is("4"));
+        }
+    }
+
+    @Test
+    public void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingDisabled() throws Exception {
+        init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER));
+
+        String path = "/response/length";
+        target.register(head(urlPathEqualTo(path)).willReturn(ok().withHeader("Content-Length", "4")));
+        proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getCode(), is(200));
+            assertThat(response.getFirstHeader("Content-Length").getValue(), is("4"));
+        }
     }
 
     @Test
     public void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
-        proxyingServiceAdmin.register(post(urlEqualTo("/chunked")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
+        proxy.register(post(urlEqualTo("/chunked")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         testClient.postWithChunkedBody("/chunked", "TEST".getBytes());
 
-        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/chunked"))
+        target.verifyThat(postRequestedFor(urlEqualTo("/chunked"))
                 .withHeader("Transfer-Encoding", equalTo("chunked")));
     }
 
@@ -257,51 +289,51 @@ public class ProxyAcceptanceTest {
     public void preservesHostHeaderWhenSpecified() {
         init(wireMockConfig().preserveHostHeader(true));
 
-        targetServiceAdmin.register(get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().withStatus(200)));
+        proxy.register(get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         testClient.get("/preserve-host-header", withHeader("Host", "my.host"));
 
-        proxyingServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/preserve-host-header")).withHeader("Host", equalTo("my.host")));
-        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/preserve-host-header")).withHeader("Host", equalTo("my.host")));
+        proxy.verifyThat(getRequestedFor(urlEqualTo("/preserve-host-header")).withHeader("Host", equalTo("my.host")));
+        target.verifyThat(getRequestedFor(urlEqualTo("/preserve-host-header")).withHeader("Host", equalTo("my.host")));
     }
 
     @Test
-    public void usesProxyUrlBasedHostHeaderWhenPreserveHostHeaderNotSpecified() throws Exception {
+    public void usesProxyUrlBasedHostHeaderWhenPreserveHostHeaderNotSpecified() {
         init(wireMockConfig().preserveHostHeader(false));
 
-        targetServiceAdmin.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
+        proxy.register(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         testClient.get("/host-header", withHeader("Host", "my.host"));
 
-        proxyingServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
-        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("localhost:"+targetService.port())));
+        proxy.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
+        target.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("localhost:"+targetService.port())));
     }
 
     @Test
     public void proxiesPatchRequestsWithBody() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(patch(urlEqualTo("/patch")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
+        proxy.register(patch(urlEqualTo("/patch")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         testClient.patchWithBody("/patch", "Patch body", "text/plain", "utf-8");
 
-        targetServiceAdmin.verifyThat(patchRequestedFor(urlEqualTo("/patch")).withRequestBody(equalTo("Patch body")));
+        target.verifyThat(patchRequestedFor(urlEqualTo("/patch")).withRequestBody(equalTo("Patch body")));
     }
 
     @Test
     public void addsSpecifiedHeadersToResponse() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get(urlEqualTo("/extra/headers"))
+        target.register(get(urlEqualTo("/extra/headers"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/plain")
                         .withBody("Proxied content")));
 
-        proxyingServiceAdmin.register(any(urlEqualTo("/extra/headers"))
+        proxy.register(any(urlEqualTo("/extra/headers"))
                 .willReturn(aResponse()
                         .withHeader("X-Additional-Header", "Yep")
                         .proxiedFrom(targetServiceBaseUrl)));
@@ -316,16 +348,16 @@ public class ProxyAcceptanceTest {
     public void doesNotDuplicateCookieHeaders() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get(urlEqualTo("/duplicate/cookies"))
+        target.register(get(urlEqualTo("/duplicate/cookies"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Set-Cookie", "session=1234")));
-        proxyingServiceAdmin.register(get(urlEqualTo("/duplicate/cookies")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        proxy.register(get(urlEqualTo("/duplicate/cookies")).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         testClient.get("/duplicate/cookies");
         testClient.get("/duplicate/cookies", withHeader("Cookie", "session=1234"));
 
-        LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/duplicate/cookies"))));
+        LoggedRequest lastRequest = getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/cookies"))));
         assertThat(lastRequest.getHeaders().getHeader("Cookie").values().size(), is(1));
     }
 
@@ -336,7 +368,7 @@ public class ProxyAcceptanceTest {
         register200StubOnProxyAndTarget("/duplicate/connection-header");
 
         testClient.get("/duplicate/connection-header");
-        LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
+        LoggedRequest lastRequest = getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
         assertThat(lastRequest.getHeaders().getHeader("Connection").values().size(), is(1));
     }
 
@@ -349,7 +381,7 @@ public class ProxyAcceptanceTest {
     }
 
     @Test
-    public void canProxyViaAForwardProxy() throws Exception {
+    public void canProxyViaAForwardProxy() {
         WireMockServer forwardProxy = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
         forwardProxy.start();
         init(wireMockConfig().proxyVia(new ProxySettings("localhost", forwardProxy.port())));
@@ -365,9 +397,9 @@ public class ProxyAcceptanceTest {
         register200StubOnProxyAndTarget("/no-accept-encoding-header");
 
         testClient.get("/no-accept-encoding-header");
-        LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/no-accept-encoding-header"))));
-        assertFalse("Accept-Encoding header should not be present",
-                lastRequest.getHeaders().getHeader("Accept-Encoding").isPresent());
+        LoggedRequest lastRequest = getLast(target.find(getRequestedFor(urlEqualTo("/no-accept-encoding-header"))));
+        assertFalse(lastRequest.getHeaders().getHeader("Accept-Encoding").isPresent(),
+                "Accept-Encoding header should not be present");
     }
 
     @Test
@@ -377,7 +409,7 @@ public class ProxyAcceptanceTest {
 
         testClient.get("/multi-value-header", withHeader("Accept", "accept1"), withHeader("Accept", "accept2"));
 
-        LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/multi-value-header"))));
+        LoggedRequest lastRequest = getLast(target.find(getRequestedFor(urlEqualTo("/multi-value-header"))));
 
         assertThat(lastRequest.header("Accept").values(), hasItems("accept1", "accept2"));
     }
@@ -386,13 +418,13 @@ public class ProxyAcceptanceTest {
     public void maintainsGZippedRequest() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(post("/gzipped").willReturn(aResponse().withStatus(201)));
-        proxyingServiceAdmin.register(post("/gzipped").willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(post("/gzipped").willReturn(aResponse().withStatus(201)));
+        proxy.register(post("/gzipped").willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         HttpEntity gzippedBody = new GzipCompressingEntity(new StringEntity("gzipped body", TEXT_PLAIN));
         testClient.post("/gzipped", gzippedBody);
 
-        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/gzipped"))
+        target.verifyThat(postRequestedFor(urlEqualTo("/gzipped"))
             .withHeader(CONTENT_ENCODING, containing("gzip"))
             .withRequestBody(equalTo("gzipped body")));
     }
@@ -401,14 +433,14 @@ public class ProxyAcceptanceTest {
     public void contextPathsWithoutTrailingSlashesArePreserved() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/example").willReturn(ok()));
-        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(get("/example").willReturn(ok()));
+        proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example");
         assertThat(response.statusCode(), is(200));
 
-        targetServiceAdmin.verifyThat(1, getRequestedFor(urlEqualTo("/example")));
-        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("/example/")));
+        target.verifyThat(1, getRequestedFor(urlEqualTo("/example")));
+        target.verifyThat(0, getRequestedFor(urlEqualTo("/example/")));
 
     }
 
@@ -416,26 +448,26 @@ public class ProxyAcceptanceTest {
     public void contextPathsWithTrailingSlashesArePreserved() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/example/").willReturn(ok()));
-        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(get("/example/").willReturn(ok()));
+        proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example/");
         assertThat(response.statusCode(), is(200));
 
-        targetServiceAdmin.verifyThat(1, getRequestedFor(urlEqualTo("/example/")));
-        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("/example")));
+        target.verifyThat(1, getRequestedFor(urlEqualTo("/example/")));
+        target.verifyThat(0, getRequestedFor(urlEqualTo("/example")));
     }
 
     /**
-     * NOTE: {@link org.apache.http.client.HttpClient} always has a / when the context path is empty.
+     * NOTE: {@link org.apache.hc.core5.http.client.HttpClient} always has a / when the context path is empty.
      * This is also the behaviour of curl (see e.g. <a href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
      */
     @Test
     public void clientLibrariesTendToAddTheTrailingSlashWhenTheContextPathIsEmpty() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/").willReturn(ok()));
-        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(get("/").willReturn(ok()));
+        proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
         WireMockResponse responseToRequestWithoutSlash = testClient.getViaProxy("http://localhost:" + proxyingService.port());
         assertThat(responseToRequestWithoutSlash.statusCode(), is(200));
@@ -443,16 +475,16 @@ public class ProxyAcceptanceTest {
         WireMockResponse responseToRequestWithSlash = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/");
         assertThat(responseToRequestWithSlash.statusCode(), is(200));
 
-        targetServiceAdmin.verifyThat(2, getRequestedFor(urlEqualTo("/")));
-        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("")));
+        target.verifyThat(2, getRequestedFor(urlEqualTo("/")));
+        target.verifyThat(0, getRequestedFor(urlEqualTo("")));
     }
 
     @Test
     public void fixedDelaysAreAddedToProxiedResponses() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/delayed").willReturn(ok()));
-        proxyingServiceAdmin.register(any(anyUrl())
+        target.register(get("/delayed").willReturn(ok()));
+        proxy.register(any(anyUrl())
             .willReturn(aResponse()
                 .proxiedFrom(targetServiceBaseUrl)
                 .withFixedDelay(300)));
@@ -469,8 +501,8 @@ public class ProxyAcceptanceTest {
     public void chunkedDribbleDelayIsAddedToProxiedResponse() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/chunk-delayed").willReturn(ok()));
-        proxyingServiceAdmin.register(any(anyUrl())
+        target.register(get("/chunk-delayed").willReturn(ok()));
+        proxy.register(any(anyUrl())
             .willReturn(aResponse()
                 .proxiedFrom(targetServiceBaseUrl)
                 .withChunkedDribbleDelay(10, 300)));
@@ -487,10 +519,10 @@ public class ProxyAcceptanceTest {
     public void stripsCorsHeadersFromTheTarget() {
         initWithDefaultConfig();
 
-        proxyingServiceAdmin.register(any(anyUrl())
+        proxy.register(any(anyUrl())
                 .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-        targetServiceAdmin.register(any(urlPathEqualTo("/cors"))
+        target.register(any(urlPathEqualTo("/cors"))
                 .withName("Target with CORS")
                 .willReturn(ok()));
 
@@ -500,8 +532,24 @@ public class ProxyAcceptanceTest {
         assertThat(allowOriginHeaderValues.size(), is(0));
     }
 
+    @Test
+    public void removesPrefixFromProxyRequestWhenMatching() {
+        initWithDefaultConfig();
+
+        proxy.register(get("/other/service/doc/123")
+                .willReturn(aResponse()
+                        .proxiedFrom(targetServiceBaseUrl + "/approot")
+                        .withProxyUrlPrefixToRemove("/other/service")));
+
+        target.register(get("/approot/doc/123").willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/other/service/doc/123");
+
+        assertThat(response.statusCode(), is(200));
+    }
+
     private void register200StubOnProxyAndTarget(String url) {
-        targetServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+        target.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
+        proxy.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
     }
 }

@@ -198,6 +198,22 @@ For instance, given a request URL like `/multi-query?things=1&things=2&things=3`
 > The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
 > with another String value. 
 
+
+### Getting values with keys containing special characters
+
+Certain characters have special meaning in Handlebars and therefore can't be used in key names when referencing values.
+If you need to access keys containing these characters you can use the `lookup` helper, which permits you to pass the key
+name as a string literal and thus avoid the restriction.
+
+Probably the most common occurrence of this issue is with array-style query parameters, so for instance if your request
+URLs you're matching are of the form `/stuff?ids[]=111&ids[]=222&ids[]=333` then you can access these values like:
+
+{% raw %}
+```
+{{lookup request.query 'ids[].1'}} // Will return 222
+```
+{% endraw %} 
+
 ## Using transformer parameters
 
 Parameter values can be passed to the transformer as shown below (or dynamically added to the parameters map programmatically in custom transformers).
@@ -374,6 +390,49 @@ And for the same JSON the following will render `{ "inner": "Stuff" }`:
 ```
 {% endraw %}
 
+Default value can be specified if the path evaluates to null or undefined:
+
+{% raw %}
+```
+{{jsonPath request.body '$.size' default='M'}}
+```
+{% endraw %}
+
+## Parse JSON helper
+The `parseJson` helper will parse the input into a map-of-maps. It will assign the result to a variable if a name is specified,
+otherwise the result will be returned.
+
+It can accept the JSON from a block:
+
+{% raw %}
+```
+{{#parseJson 'parsedObj'}}
+{
+  "name": "transformed"
+}
+{{/parseJson}}
+
+{{!- Now we can access the object as usual --}}
+{{parsedObj.name}}
+```
+{% endraw %}
+
+Or as a parameter:
+
+{% raw %}
+```
+{{parseJson request.body 'bodyJson'}}
+{{bodyJson.name}}
+```
+{% endraw %}
+
+Without assigning to a variable:
+
+{% raw %}
+```
+{{lookup (parseJson request.body) 'name'}}
+```
+{% endraw %}
 
 ## Date and time helpers
 A helper is present to render the current date/time, with the ability to specify the format ([via Java's SimpleDateFormat](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)) and offset.
@@ -407,14 +466,34 @@ the UNIX timestamp in seconds.
 {% endraw %}
 
 
-Dates can be parsed from other model elements:
+Dates can be parsed using the `parseDate` helper:
 
 {% raw %}
 ```
-{{date (parseDate request.headers.MyDate) offset='-1 days'}}
+// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
+// We wrap in the date helper in order to print the result as a string.
+{{date (parseDate request.headers.MyDate)}}
+
+// Parse using a custom date format
+{{date (parseDate request.headers.MyDate format='dd/MM/yyyy')}}
+
+// Format can also be unix (epoch seconds) or epoch (epoch milliseconds)
+{{date (parseDate request.headers.MyDate format='unix')}}
 ```
 {% endraw %}
 
+
+Dates can be truncated to e.g. first day of month using the `truncateDate` helper:
+
+{% raw %}
+```
+// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
+// then the result of the following will be 2021-06-01T00:00:00Z
+{{date (truncateDate (parseDate request.headers.MyDate) 'first day of month')}}
+```
+{% endraw %}
+
+See the [full list of truncations here](/docs/request-matching/#all-truncations).
 
 ## Random value helper
 Random strings of various kinds can be generated:
@@ -428,9 +507,143 @@ Random strings of various kinds can be generated:
 {{randomValue length=10 type='NUMERIC'}}
 {{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
 {{randomValue type='UUID'}}
+{{randomValue length=32 type='HEXADECIMAL' uppercase=true}}
 ```
 {% endraw %}
 
+
+## Pick random helper
+A value can be randomly selected from a literal list:
+
+{% raw %}
+```
+{{{pickRandom '1' '2' '3'}}}
+```
+{% endraw %}
+
+Or from a list passed as a parameter:
+
+{% raw %}
+```
+{{{pickRandom (jsonPath request.body '$.names')}}}
+```
+{% endraw %}
+
+## Random number helpers
+These helpers produce random numbers of the desired type. By returning actual typed numbers rather than strings
+we can use them for further work e.g. by doing arithemetic with the `math` helper or randomising the bound in a `range`.
+
+Random integers can be produced with lower and/or upper bounds, or neither:
+
+{% raw %}
+```
+{{randomInt}}
+{{randomInt lower=5 upper=9}}
+{{randomInt upper=54323}}
+{{randomInt lower=-24}}
+```
+{% endraw %}
+
+Likewise decimals can be produced with or without bounds:
+
+{% raw %}
+```
+{{randomDecimal}}
+{{randomDecimal lower=-10.1 upper=-0.9}}
+{{randomDecimal upper=12.5}}
+{{randomDecimal lower=-24.01}}
+```
+{% endraw %}
+
+
+## Math helper
+The `math` (or maths, depending where you are) helper performs common arithmetic operations. It can accept integers, decimals
+or strings as its operands and will always yield a number as its output rather than a string.
+
+Addition, subtraction, multiplication, division and remainder (mod) are supported:
+
+{% raw %}
+```
+{{math 1 '+' 2}}
+{{math 4 '-' 2}}
+{{math 2 '*' 3}}
+{{math 8 '/' 2}}
+{{math 10 '%' 3}}
+```
+{% endraw %}
+
+## Range helper
+The `range` helper will produce an array of integers between the bounds specified:
+
+{% raw %}
+```
+{{range 3 8}}
+{{range -2 2}}
+```
+{% endraw %}
+
+This can be usefully combined with `randomInt` and `each` to output random length, repeating pieces of content e.g.
+
+{% raw %}
+```
+{{#each (range 0 (randomInt lower=1 upper=10)) as |index|}}
+id: {{index}}
+{{/each}}
+```
+{% endraw %}
+
+## Array literal helper
+The `array` helper will produce an array from the list of parameters specified. The values can be any valid type.
+Providing no parameters will result in an empty array.
+
+{% raw %}
+```
+{{array 1 'two' true}}
+{{array}}
+```
+{% endraw %}
+
+## Contains helper
+The `contains` helper returns a boolean value indicating whether the string or array passed as the first parameter
+contains the string passed in the second.
+
+It can be used as parameter to the `if` helper:
+
+{% raw %}
+```
+{{#if (contains 'abcde' 'abc')}}YES{{/if}}
+{{#if (contains (array 'a' 'b' 'c') 'a')}}YES{{/if}}
+```
+{% endraw %}
+
+Or as a block element on its own:
+
+{% raw %}
+```
+{{#contains 'abcde' 'abc'}}YES{{/contains}}
+{{#contains (array 'a' 'b' 'c') 'a'}}YES{{/contains}}
+```
+{% endraw %}
+
+## Matches helper
+The `matches` helper returns a boolean value indicating whether the string passed as the first parameter matches the
+regular expression passed in the second:
+
+Like the `contains` helper it can be used as parameter to the `if` helper:
+
+{% raw %}
+```
+{{#if (matches '123' '[0-9]+')}}YES{{/if}}
+```
+{% endraw %}
+
+Or as a block element on its own:
+
+{% raw %}
+```
+{{#matches '123' '[0-9]+'}}YES{{/matches}}
+```
+{% endraw %}
 
 ## String trim helper
 Use the `trim` helper to remove whitespace from the start and end of the input:
@@ -458,6 +671,10 @@ The `base64` helper can be used to base64 encode and decode values:
 
 {{#base64}}
 Content to encode     
+{{/base64}}
+
+{{#base64 padding=false}}
+Content to encode without padding    
 {{/base64}}
 
 {{#base64 decode=true}}
@@ -524,6 +741,14 @@ Regex groups can be used to extract multiple parts into an object for later use 
 ``` 
 {{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
 {{parts.0}},{{parts.1}},{{parts.2}}
+```
+{% endraw %}
+
+Optionally, a default value can be specified for when there is no match.
+
+{% raw %}
+```
+{{regexExtract 'abc' '[0-9]+' default='my default value'}}
 ```
 {% endraw %}
  

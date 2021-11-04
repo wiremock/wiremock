@@ -17,12 +17,12 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -31,14 +31,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AlternativeServletContainerTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().httpServerFactory(new AltHttpServerFactory()));
-    WireMockTestClient client;
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options().httpServerFactory(new AltHttpServerFactory())).build();
+    private WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void init() {
-        client = new WireMockTestClient(wm.port());
-        WireMock.configureFor(wm.port());
+        client = new WireMockTestClient(wm.getPort());
+        WireMock.configureFor(wm.getPort());
     }
 
     @Test

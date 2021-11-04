@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -34,7 +35,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsXPathHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new HandlebarsXPathHelper();
     }
@@ -210,7 +211,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                 noFileSource(),
                 Parameters.empty());
 
-        assertThat(responseDefinition.getBody(), is(
+        assertThat(responseDefinition.getBody(), equalToCompressingWhiteSpace(
                 "<stuff xmlns:th=\"https://thing.com\">\n" +
                 "    <th:thing>One</th:thing>\n" +
                 "    <th:thing>Two</th:thing>\n" +
