@@ -59,6 +59,7 @@ public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
     private static final int DEFAULT_ACCEPTORS = 3;
+    private static final int DEFAULT_HEADER_SIZE = 8192;
     private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
 
     private final Server jettyServer;
@@ -333,7 +334,10 @@ public class JettyHttpServer implements HttpServer {
     protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setRequestHeaderSize(
-                jettySettings.getRequestHeaderSize().or(8192)
+                jettySettings.getRequestHeaderSize().or(DEFAULT_HEADER_SIZE)
+        );
+        httpConfig.setResponseHeaderSize(
+                jettySettings.getResponseHeaderSize().or(DEFAULT_HEADER_SIZE)
         );
         httpConfig.setSendDateHeader(false);
         return httpConfig;
