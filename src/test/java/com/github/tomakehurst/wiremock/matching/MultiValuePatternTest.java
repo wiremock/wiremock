@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -25,9 +25,9 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParam;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultiValuePatternTest {
 

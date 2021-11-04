@@ -19,12 +19,15 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -90,6 +93,20 @@ public class MatchesXPathPattern extends PathPattern {
         }
 
         return results.last();
+    }
+
+    @Override
+    public ListOrSingle<String> getExpressionResult(String value) {
+        ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
+        if (nodeList == null || nodeList.size() == 0) {
+            return ListOrSingle.of();
+        }
+
+        return ListOrSingle.of(
+                nodeList.stream()
+                .map(XmlNode::toString)
+                .collect(Collectors.toList())
+        );
     }
 
     private ListOrSingle<XmlNode> findXmlNodes(String value) {

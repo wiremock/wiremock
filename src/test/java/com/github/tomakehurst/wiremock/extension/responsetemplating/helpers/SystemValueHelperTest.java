@@ -21,17 +21,17 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SystemValueHelperTest {
 
     private SystemValueHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of(".*")));
         LocalNotifier.set(new ConsoleNotifier(true));

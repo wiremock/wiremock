@@ -18,11 +18,9 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.FatalStartupException;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -143,6 +141,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
 	}
 
 	public void start() {
+        // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
+        Json.getObjectMapper();
         try {
 		    httpServer.start();
         } catch (Exception e) {
@@ -173,6 +173,14 @@ public class WireMockServer implements Container, Stubbing, Admin {
             }
         });
         shutdownThread.start();
+    }
+
+    public boolean isHttpEnabled() {
+        return !options.getHttpDisabled();
+    }
+
+    public boolean isHttpsEnabled() {
+        return options.httpsSettings().enabled();
     }
 
     public int port() {
@@ -357,6 +365,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+        return wireMockApp.getServeEvents(query);
+    }
+
+    @Override
     public SingleServedStubResult getServedStub(UUID id) {
         return wireMockApp.getServedStub(id);
     }
@@ -494,5 +507,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public GetGlobalSettingsResult getGlobalSettings() {
         return wireMockApp.getGlobalSettings();
+    }
+
+    public void checkForUnmatchedRequests() {
+        List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
+        if (!unmatchedRequests.isEmpty()) {
+            List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+            if (nearMisses.isEmpty()) {
+                throw VerificationException.forUnmatchedRequests(unmatchedRequests);
+            } else {
+                throw VerificationException.forUnmatchedNearMisses(nearMisses);
+            }
+        }
     }
 }

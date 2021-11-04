@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
@@ -37,7 +37,7 @@ public class WarDeploymentParameterAcceptanceTest {
     private Server jetty;
     private WireMockTestClient testClient;
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         jetty.stop();
         WireMock.configure();

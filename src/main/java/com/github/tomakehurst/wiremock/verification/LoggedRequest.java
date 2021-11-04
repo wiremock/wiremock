@@ -71,8 +71,8 @@ public class LoggedRequest implements Request {
             request.getAbsoluteUrl(),
             request.getMethod(),
             request.getClientIp(),
-            copyOf(request.getHeaders()),
-            ImmutableMap.copyOf(request.getCookies()),
+            request.getHeaders(),
+            request.getCookies(),
             request.isBrowserProxyRequest(),
             new Date(),
             request.getBody(),
@@ -262,7 +262,7 @@ public class LoggedRequest implements Request {
     }
 
     public String getLoggedDateString() {
-        return Dates.format(loggedDate);
+        return loggedDate != null ? Dates.format(loggedDate) : null;
     }
 
     @Override

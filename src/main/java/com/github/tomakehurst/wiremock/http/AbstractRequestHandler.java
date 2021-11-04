@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
-import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
@@ -26,6 +23,7 @@ import com.google.common.base.Stopwatch;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -53,13 +51,12 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         Stopwatch stopwatch = Stopwatch.createStarted();
 
 		ServeEvent serveEvent;
-		Request originalRequest = request;
+		Request processedRequest = request;
 		if (!requestFilters.isEmpty()) {
 			RequestFilterAction requestFilterAction = processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
 			if (requestFilterAction instanceof ContinueAction) {
-				Request wrappedRequest = ((ContinueAction) requestFilterAction).getRequest();
-				originalRequest = wrappedRequest;
-				serveEvent = handleRequest(wrappedRequest);
+				processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+				serveEvent = handleRequest(processedRequest);
 			} else {
 				serveEvent = ServeEvent.of(LoggedRequest.createFrom(request), ((StopAction) requestFilterAction).getResponseDefinition());
 			}
@@ -68,45 +65,30 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		}
 
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-		responseDefinition.setOriginalRequest(originalRequest);
+		responseDefinition.setOriginalRequest(processedRequest);
 		Response response = responseRenderer.render(serveEvent);
 		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
 		if (logRequests()) {
 			notifier().info("Request received:\n" +
-					formatRequest(request) +
+					formatRequest(processedRequest) +
 					"\n\nMatched response definition:\n" + responseDefinition +
 					"\n\nResponse:\n" + response);
 		}
 
 		for (RequestListener listener: listeners) {
-			listener.requestReceived(request, response);
+			listener.requestReceived(processedRequest, response);
 		}
 
         beforeResponseSent(completedServeEvent, response);
 
 		stopwatch.reset();
 		stopwatch.start();
-		httpResponder.respond(request, response);
+		httpResponder.respond(processedRequest, response);
 
         completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
         afterResponseSent(completedServeEvent, response);
         stopwatch.stop();
-	}
-
-	private static RequestFilterAction processFilters(Request request, List<RequestFilter> requestFilters, RequestFilterAction lastAction) {
-		if (requestFilters.isEmpty()) {
-			return lastAction;
-		}
-
-		RequestFilterAction action = requestFilters.get(0).filter(request);
-
-		if (action instanceof ContinueAction) {
-			Request newRequest = ((ContinueAction) action).getRequest();
-			return processFilters(newRequest, requestFilters.subList(1, requestFilters.size()), action);
-		}
-
-		return action;
 	}
 
 	protected String formatRequest(Request request) {

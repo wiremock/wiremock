@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -31,13 +31,13 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.File;
@@ -52,19 +52,21 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
     static Stubbing dsl = wireMockServer;
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         deleteAllBodyFiles();
     }
@@ -244,6 +246,19 @@ public class AdminApiTest extends AcceptanceTestBase {
         check.field("requests").hasSize(3);
         check.field("requests").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
         check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
+    }
+
+    @Test
+    public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+        WireMockResponse response = testClient.get("/__admin/requests?since=foo");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        JsonVerifiable check = JsonAssertion.assertThat(response.content());
+        JsonVerifiable error = check.field("errors").elementWithIndex(0);
+        error.field("code").isEqualTo(10);
+        error.field("source").field("pointer").isEqualTo("since");
+        error.field("title").isEqualTo("foo is not a valid ISO8601 date");
     }
 
     @Test
@@ -689,7 +704,20 @@ public class AdminApiTest extends AcceptanceTestBase {
         int statusCode = testClient.delete("/__admin/files/bar.txt").statusCode();
 
         assertEquals(200, statusCode);
-        assertFalse("File should have been deleted", Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists());
+        assertFalse(Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists(), "File should have been deleted");
+    }
+
+    @Test
+    public void deleteStubFileInTree() throws Exception {
+        String fileName = "foo/bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile(fileName, "contents");
+
+        int statusCode = testClient.delete("/__admin/files/foo/bar.txt").statusCode();
+
+        assertEquals(200, statusCode);
+        assertFalse(Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists(), "File should have been deleted");
     }
 
     @Test
@@ -702,7 +730,19 @@ public class AdminApiTest extends AcceptanceTestBase {
         int statusCode = testClient.putWithBody("/__admin/files/bar.txt", "BBB", "text/plain").statusCode();
 
         assertEquals(200, statusCode);
-        assertEquals("File should have been changed", "BBB", fileSource.getTextFileNamed(fileName).readContentsAsString());
+        assertEquals("BBB", fileSource.getTextFileNamed(fileName).readContentsAsString(), "File should have been changed");
+    }
+
+    @Test
+    public void createStubFileContentInTree() throws Exception {
+        String fileName = "foo/bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+
+        int statusCode = testClient.putWithBody("/__admin/files/foo/bar.txt", "BBB", "text/plain").statusCode();
+
+        assertEquals(200, statusCode);
+        assertEquals( "BBB", fileSource.getTextFileNamed(fileName).readContentsAsString(), "File should have been changed");
     }
 
     @Test
@@ -982,7 +1022,76 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(allStubs.size(), is(2));
         assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
         assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
+    }
 
+    @Test
+    public void findsNearMissesByRequest() {
+        wm.stubFor(post("/things").willReturn(ok()));
+        testClient.postJson("/anything", "{}");
+
+        String nearMissRequestJson = "{\n" +
+                "  \"method\": \"GET\",\n" +
+                "  \"url\": \"/thing\"\n" +
+                "}";
+        WireMockResponse response = testClient.postJson("/__admin/near-misses/request", nearMissRequestJson);
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), jsonPartEquals("nearMisses[0].request.url", "/thing"));
+    }
+
+    @Test
+    public void getsAllUnmatchedServeEvents() {
+        wm.stubFor(get("/match").willReturn(ok()));
+
+        testClient.get("/match");
+        testClient.get("/no-match");
+        testClient.get("/just-wrong");
+        testClient.get("/match");
+
+        WireMockResponse response = testClient.get("/__admin/requests?unmatched=true");
+
+        assertThat(response.statusCode(), is(200));
+
+        String json = response.content();
+        assertThat(json, jsonPartEquals("requests[0].request.url", "/just-wrong"));
+        assertThat(json, jsonPartEquals("requests[1].request.url", "/no-match"));
+        assertThat(json, jsonPartMatches("requests", hasSize(2)));
+    }
+
+    @Test
+    public void getsAllServeEventsMatchingASpecificStub() {
+        wm.stubFor(get("/one").willReturn(ok()));
+        StubMapping stub2 = wm.stubFor(get("/two").willReturn(ok()));
+
+        testClient.get("/two");
+        testClient.get("/one");
+        testClient.get("/one");
+        testClient.get("/two");
+
+        WireMockResponse response = testClient.get("/__admin/requests?matchingStub=" + stub2.getId());
+
+        assertThat(response.statusCode(), is(200));
+
+        String json = response.content();
+        assertThat(json, jsonPartEquals("requests[0].request.url", "/two"));
+        assertThat(json, jsonPartEquals("requests[1].request.url", "/two"));
+        assertThat(json, jsonPartMatches("requests", hasSize(2)));
+    }
+
+    @Test
+    public void returnsSensibleErrorIfStubIdNotValid() {
+        WireMockResponse response = testClient.get("/__admin/requests?matchingStub=not-a-valid-uuid");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.content(), jsonPartEquals("errors[0].title", "Query parameter matchingStub value 'not-a-valid-uuid' is not a valid UUID"));
+    }
+
+    @Test
+    public void returnsSensibleErrorIfStubIdIsNull() {
+        WireMockResponse response = testClient.get("/__admin/requests?matchingStub=");
+
+        assertThat(response.statusCode(), is(400));
+        assertThat(response.content(), jsonPartEquals("errors[0].title", "Query parameter matchingStub value '' is not a valid UUID"));
     }
 
     public static class TestExtendedSettingsData {

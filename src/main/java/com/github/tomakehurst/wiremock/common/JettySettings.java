@@ -26,19 +26,22 @@ public class JettySettings {
     private final Optional<Integer> requestHeaderSize;
     private final Optional<Integer> responseHeaderSize;
     private final Optional<Long> stopTimeout;
+    private final Optional<Long> idleTimeout;
 
     private JettySettings(
             Optional<Integer> acceptors,
             Optional<Integer> acceptQueueSize,
             Optional<Integer> requestHeaderSize,
             Optional<Integer> responseHeaderSize,
-            Optional<Long> stopTimeout
+            Optional<Long> stopTimeout,
+            Optional<Long> idleTimeout
     ) {
         this.acceptors = acceptors;
         this.acceptQueueSize = acceptQueueSize;
         this.requestHeaderSize = requestHeaderSize;
         this.responseHeaderSize = responseHeaderSize;
         this.stopTimeout = stopTimeout;
+        this.idleTimeout = idleTimeout;
     }
 
     public Optional<Integer> getAcceptors() {
@@ -61,6 +64,10 @@ public class JettySettings {
         return stopTimeout;
     }
 
+    public Optional<Long> getIdleTimeout() {
+        return idleTimeout;
+    }
+
     @Override
     public String toString() {
         return "JettySettings{" +
@@ -77,6 +84,7 @@ public class JettySettings {
         private Integer requestHeaderSize;
         private Integer responseHeaderSize;
         private Long stopTimeout;
+        private Long idleTimeout;
 
         private Builder() {
         }
@@ -110,14 +118,19 @@ public class JettySettings {
             return this;
         }
 
+        public Builder withIdleTimeout(Long idleTimeout) {
+            this.idleTimeout = idleTimeout;
+            return this;
+        }
+
         public JettySettings build() {
             return new JettySettings(
                     Optional.fromNullable(acceptors),
                     Optional.fromNullable(acceptQueueSize),
                     Optional.fromNullable(requestHeaderSize),
                     Optional.fromNullable(responseHeaderSize),
-                    Optional.fromNullable(stopTimeout)
-            );
+                    Optional.fromNullable(stopTimeout),
+                    Optional.fromNullable(idleTimeout));
         }
     }
 

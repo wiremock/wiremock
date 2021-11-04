@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.github.tomakehurst.wiremock.common.Json;
 
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;

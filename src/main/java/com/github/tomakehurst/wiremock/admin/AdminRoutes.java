@@ -75,8 +75,8 @@ public class AdminRoutes {
         router.add(POST, "/mappings/import", ImportStubMappingsTask.class);
 
         router.add(GET, "/files", GetAllStubFilesTask.class);
-        router.add(PUT, "/files/{filename}", EditStubFileTask.class);
-        router.add(DELETE, "/files/{filename}", DeleteStubFileTask.class);
+        router.add(PUT, "/files/**", EditStubFileTask.class);
+        router.add(DELETE, "/files/**", DeleteStubFileTask.class);
 
         router.add(GET, "/scenarios", GetAllScenariosTask.class);
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
@@ -111,6 +111,8 @@ public class AdminRoutes {
 
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
         router.add(GET, "/docs", GetDocIndexTask.class);
+
+        router.add(GET, "/certs/wiremock-ca.crt", GetCaCertTask.class);
     }
 
     protected void initAdditionalRoutes(Router routeBuilder) {
@@ -163,7 +165,7 @@ public class AdminRoutes {
         @Override
         public void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> taskClass) {
             try {
-                AdminTask task = taskClass.newInstance();
+                AdminTask task = taskClass.getDeclaredConstructor().newInstance();
                 add(requestSpec(method, urlTemplate), task);
             } catch (Exception e) {
                 throwUnchecked(e);

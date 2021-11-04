@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
@@ -72,14 +73,14 @@ public class StubRequestHandler extends AbstractRequestHandler {
             postServeAction.doGlobalAction(serveEvent, admin);
         }
 
-        Map<String, Parameters> postServeActionRefs = serveEvent.getPostServeActions();
-        for (Map.Entry<String, Parameters> postServeActionEntry: postServeActionRefs.entrySet()) {
-            PostServeAction action = postServeActions.get(postServeActionEntry.getKey());
+        List<PostServeActionDefinition> postServeActionDefs = serveEvent.getPostServeActions();
+        for (PostServeActionDefinition postServeActionDef: postServeActionDefs) {
+            PostServeAction action = postServeActions.get(postServeActionDef.getName());
             if (action != null) {
-                Parameters parameters = postServeActionEntry.getValue();
+                Parameters parameters = postServeActionDef.getParameters();
                 action.doAction(serveEvent, admin, parameters);
             } else {
-                notifier().error("No extension was found named \"" + postServeActionEntry.getKey() + "\"");
+                notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
             }
         }
     }

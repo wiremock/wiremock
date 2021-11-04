@@ -16,18 +16,24 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 public class TransferEncodingAcceptanceTest {
 
@@ -107,6 +113,38 @@ public class TransferEncodingAcceptanceTest {
         assertThat(response.firstHeader("Content-Length"), is(expectedContentLength));
     }
 
+    @Test
+    public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingEnabled() throws Exception {
+        startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
+
+        String path = "/length";
+        wm.stubFor(get(path)
+            .willReturn(ok(StringUtils.repeat('a', 1234))
+                    .withHeader("Content-Length", "1234")));
+
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        HttpGet request = new HttpGet(wm.baseUrl() + path);
+        try (final CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
+        }
+    }
+
+    @Test
+    public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingDisabled() throws Exception {
+        startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
+
+        String path = "/length";
+        wm.stubFor(get(path)
+            .willReturn(ok(StringUtils.repeat('a', 1234))
+                    .withHeader("Content-Length", "1234")));
+
+        CloseableHttpClient httpClient = HttpClientFactory.createClient();
+        HttpGet request = new HttpGet(wm.baseUrl() + path);
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getFirstHeader("Content-Length").getValue(), is("1234"));
+        }
+    }
+
     private void startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy chunkedEncodingPolicy) {
         wm = new WireMockServer(wireMockConfig()
                 .dynamicPort()
@@ -118,7 +156,7 @@ public class TransferEncodingAcceptanceTest {
         testClient = new WireMockTestClient(wm.port());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         wm.stop();
     }

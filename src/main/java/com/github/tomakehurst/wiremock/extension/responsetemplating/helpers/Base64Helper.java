@@ -36,6 +36,8 @@ public class Base64Helper implements Helper<Object> {
             return new String(decodeBase64(value));
         }
 
-        return encodeBase64(value.getBytes());
+        Object paddingOption = options.hash.get("padding");
+        boolean padding = paddingOption == null || Boolean.TRUE.equals(paddingOption);
+        return encodeBase64(value.getBytes(), padding);
     }
 }

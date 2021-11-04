@@ -26,9 +26,9 @@ import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpResponse;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -41,9 +41,9 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Enclosed.class)
 public class WireMockJUnitRuleTest {
@@ -287,12 +287,12 @@ public class WireMockJUnitRuleTest {
         public void exposesHttpsOnly() throws Exception {
             wireMockRule.stubFor(any(anyUrl()).willReturn(ok()));
 
-            HttpClient client = HttpClientFactory.createClient();
+            CloseableHttpClient client = HttpClientFactory.createClient();
 
             HttpGet request = new HttpGet("https://localhost:" + wireMockRule.httpsPort() + "/anything");
             HttpResponse response = client.execute(request);
 
-            assertThat(response.getStatusLine().getStatusCode(), is(200));
+            assertThat(response.getCode(), is(200));
         }
     }
 

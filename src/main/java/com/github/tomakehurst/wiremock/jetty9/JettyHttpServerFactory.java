@@ -61,8 +61,10 @@ public class JettyHttpServerFactory implements HttpServerFactory {
     ) {
         try {
             return SERVER_CONSTRUCTOR.newInstance(options, adminRequestHandler, stubRequestHandler);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             return Exceptions.throwUnchecked(e, HttpServer.class);
+        } catch (InvocationTargetException e) {
+            return Exceptions.throwUnchecked(e.getCause(), null);
         }
     }
 }

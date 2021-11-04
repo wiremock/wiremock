@@ -28,38 +28,33 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.eclipse.jetty.server.ServerConnector;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@RunWith(JMock.class)
 public class JettyHttpServerTest {
 
-    private Mockery context;
     private AdminRequestHandler adminRequestHandler;
     private StubRequestHandler stubRequestHandler;
     private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
-    @Before
+    @BeforeEach
     public void init() {
-        context = new Mockery();
-        Admin admin = context.mock(Admin.class);
+        Admin admin = Mockito.mock(Admin.class);
 
         adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList());
-        stubRequestHandler = new StubRequestHandler(context.mock(StubServer.class),
-                context.mock(ResponseRenderer.class),
+        stubRequestHandler = new StubRequestHandler(Mockito.mock(StubServer.class),
+                Mockito.mock(ResponseRenderer.class),
                 admin,
                 Collections.<String, PostServeAction>emptyMap(),
-                context.mock(RequestJournal.class),
+                Mockito.mock(RequestJournal.class),
                 Collections.<RequestFilter>emptyList(),
                 false
         );
@@ -80,7 +75,7 @@ public class JettyHttpServerTest {
 
     @Test
     public void testStopTimeoutNotSet() {
-        long expectedStopTimeout = 0L;
+        long expectedStopTimeout = 1000L;
         WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
         JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);

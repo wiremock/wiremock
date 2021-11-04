@@ -15,9 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.is;
+
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CountMatchingStrategyTest {

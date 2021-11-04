@@ -1,12 +1,27 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package ignored;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +32,14 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class MassiveNearMissTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options().dynamicPort(), false);
+    @RegisterExtension
+    public WireMockExtension wm = WireMockExtension.newInstance().options(options().dynamicPort()).failOnUnmatchedRequests(false).build();
 
     WireMockTestClient client;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(wm.getPort());
     }
 
     @Test
@@ -37,12 +52,12 @@ public class MassiveNearMissTest {
         }
 
         final int drop = 2;
-        final int reps = 30;
+        final int reps = 10;
         List<Long> times = new ArrayList<>(reps);
         long sum = 0;
         for (int i = 0; i < reps; i++) {
             Stopwatch stopwatch = Stopwatch.createStarted();
-            client.postXml("/things/blah123/" + (stubs / 2), "<?xml version=\"1.0\"?><things />");
+            client.postXml("/things/blah123/" + (stubs / 2), "<?xml version=\"1.0\"?><things id=\"" + i + "\"/>");
             stopwatch.stop();
             long time = stopwatch.elapsed(MILLISECONDS);
             times.add(time);

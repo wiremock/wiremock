@@ -157,10 +157,33 @@ And via the HTTP API by sending a `GET` to `http://<host>:<port>/__admin/request
 }
 ```
 
+### Filtering events
+
 Optionally the results can be filtered to those occuring after a specififed (ISO8601) date-time. Also, the result set can optionally be limited in size
 e.g. to return the most recent three results after the 7th of June 2016 12pm send:
 `GET http://localhost:8080/__admin/requests?since=2016-06-06T12:00:00&limit=3`
 
+
+Results can also be filtered to include only unmatched requests via a query parameter:
+
+`GET http://localhost:8080/__admin/requests?unmatched=true`
+
+In Java:
+
+```java
+List<ServeEvent> serveEvents = getAllServeEvents(ServeEventQuery.ALL_UNMATCHED);
+```
+
+Likewise, the results can be filtered to include only requests matching a specific stub ID:
+
+`GET http://localhost:8080/__admin/requests?matchingStub=59651373-6deb-4707-847c-9e8caf63266e`
+
+In Java:
+
+```java
+List<ServeEvent> serveEvents =
+  getAllServeEvents(ServeEventQuery.forStubMapping(myStubId));
+```
 
 ### Criteria queries
 

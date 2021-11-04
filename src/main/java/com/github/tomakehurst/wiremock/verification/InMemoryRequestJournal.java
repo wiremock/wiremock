@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -27,6 +28,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -40,22 +42,24 @@ public class InMemoryRequestJournal implements RequestJournal {
 	private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
 
 	private final Optional<Integer> maxEntries;
+	private final Map<String, RequestMatcherExtension> customMatchers;
 
-	public InMemoryRequestJournal(Optional<Integer> maxEntries) {
+	public InMemoryRequestJournal(Optional<Integer> maxEntries, Map<String, RequestMatcherExtension> customMatchers) {
 		if (maxEntries.isPresent() && maxEntries.get() < 0) {
 			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
 		}
 		this.maxEntries = maxEntries;
+		this.customMatchers = customMatchers;
 	}
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		return size(filter(getRequests(), thatMatch(requestPattern)));
+		return size(filter(getRequests(), thatMatch(requestPattern, customMatchers)));
 	}
 
 	@Override
 	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-		return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern)));
+		return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern, customMatchers)));
 	}
 
 	@Override

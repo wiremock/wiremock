@@ -21,21 +21,23 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import org.hamcrest.Matcher;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public abstract class HandlebarsHelperTestBase {
 
     protected ResponseTemplateTransformer transformer;
     protected RenderCache renderCache;
 
-    @Before
+    @BeforeEach
     public void initRenderCache() {
         transformer = new ResponseTemplateTransformer(true);
         renderCache = new RenderCache();
@@ -50,13 +52,13 @@ public abstract class HandlebarsHelperTestBase {
         try {
             assertThat((String) renderHelperValue(helper, content, pathExpression), expectation);
         } catch (final IOException e) {
-            Assert.fail(FAIL_GRACEFULLY_MSG);
+            Assertions.fail(FAIL_GRACEFULLY_MSG);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected <R, C> R renderHelperValue(Helper<C> helper, C content, String parameter) throws IOException {
-        return (R) helper.apply(content, createOptions(parameter));
+    protected <R, C> R renderHelperValue(Helper<C> helper, C content, Object... parameters) throws IOException {
+        return (R) helper.apply(content, createOptions(parameters));
     }
 
     protected <T> void testHelper(Helper<T> helper,
@@ -70,19 +72,41 @@ public abstract class HandlebarsHelperTestBase {
                                          T content,
                                          String optionParam,
                                          Matcher<String> expected) throws IOException {
-        assertThat(helper.apply(content, createOptions(optionParam)).toString(), expected);
+        assertThat(helper.apply(content, createOptions(map(), optionParam)).toString(), expected);
     }
 
-    protected Options createOptions(String optionParam) {
-        return createOptions(optionParam, renderCache);
+    protected Options createOptions(Object... optionParams) {
+        return createOptions(map(), optionParams);
     }
 
-    protected Options createOptions(String optionParam, RenderCache renderCache) {
-        Context context = Context.newBuilder(null)
-                .combine("renderCache", renderCache)
-                .build();
+    protected Options createOptions(Map<String, Object> hash, Object... optionParams) {
+        return createOptions(renderCache, hash, optionParams);
+    }
+
+    protected Options createOptions(RenderCache renderCache, Map<String, Object> hash, Object... optionParams) {
+        Context context = createContext(renderCache);
 
         return new Options(null, null, null, context, null, null,
-                           new Object[]{optionParam}, null, new ArrayList<String>(0));
+                           optionParams, hash, new ArrayList<String>(0));
+    }
+
+    protected Context createContext() {
+        return createContext(renderCache);
+    }
+
+    private Context createContext(RenderCache renderCache) {
+        return Context.newBuilder(null)
+            .combine("renderCache", renderCache)
+            .build();
+    }
+
+    protected static Map<String, Object> map() {
+        return new HashMap<>();
+    }
+
+    protected static Map<String, Object> map(String key, Object value) {
+        final HashMap<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
     }
 }

@@ -18,26 +18,26 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.jknack.handlebars.Options;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ParseDateHelperTest {
 
     private static final DateFormat df = new ISO8601DateFormat();
-    private static final DateFormat localDf = new SimpleDateFormat("yyyy-MM-dd");
 
     private ParseDateHelper helper;
 
-    @Before
+    @BeforeEach
     public void init() {
         helper = new ParseDateHelper();
     }
@@ -55,6 +55,18 @@ public class ParseDateHelperTest {
     }
 
     @Test
+    public void parsesAnRFC1123DateWhenNoFormatSpecified() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.of();
+
+        String inputDate = "Tue, 01 Jun 2021 15:16:17 GMT";
+        Object output = render(inputDate, optionsHash);
+
+        Date expectedDate = Date.from(Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(inputDate)));
+        assertThat(output, instanceOf(Date.class));
+        assertThat(((Date) output), is(expectedDate));
+    }
+
+    @Test
     public void parsesDateWithSuppliedFormat() throws Exception {
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
             "format", "dd/MM/yyyy"
@@ -63,7 +75,35 @@ public class ParseDateHelperTest {
         String inputDate = "01/02/2003";
         Object output = render(inputDate, optionsHash);
 
-        Date expectedDate = localDf.parse("2003-02-01");
+        Date expectedDate = Date.from(Instant.parse("2003-02-01T00:00:00Z"));
+        assertThat(output, instanceOf(Date.class));
+        assertThat(((Date) output), is((expectedDate)));
+    }
+
+    @Test
+    public void parsesLocalDateTimeWithSuppliedFormat() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+            "format", "dd/MM/yyyy HH:mm:ss"
+        );
+
+        String inputDate = "01/02/2003 05:06:07";
+        Object output = render(inputDate, optionsHash);
+
+        Date expectedDate = Date.from(Instant.parse("2003-02-01T05:06:07Z"));
+        assertThat(output, instanceOf(Date.class));
+        assertThat(((Date) output), is((expectedDate)));
+    }
+
+    @Test
+    public void parsesDateTimeWithEpochFormat() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+            "format", "epoch"
+        );
+
+        String inputDate = "1577964091000";
+        Object output = render(inputDate, optionsHash);
+
+        Date expectedDate = Date.from(Instant.parse("2020-01-02T11:21:31Z"));
         assertThat(output, instanceOf(Date.class));
         assertThat(((Date) output), is((expectedDate)));
     }

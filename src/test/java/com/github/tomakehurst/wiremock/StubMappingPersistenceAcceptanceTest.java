@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +39,7 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasFileCo
 import static com.google.common.base.Charsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class StubMappingPersistenceAcceptanceTest {
 
@@ -48,7 +49,7 @@ public class StubMappingPersistenceAcceptanceTest {
     WireMockTestClient testClient;
     Stubbing wm;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         rootDir = Files.createTempDirectory("temp-filesource");
         mappingsDir = rootDir.resolve("mappings");
@@ -206,6 +207,16 @@ public class StubMappingPersistenceAcceptanceTest {
 
         removeStub(stubMapping);
         assertThat(mappingFilePath.toFile().exists(), is(false));
+    }
+
+    @Test
+    public void preservesPersistentFlagFalseValue() {
+        UUID id = wm.stubFor(get("/no-persist").persistent(false)).getId();
+
+        StubMapping retrivedStub = wm.getSingleStubMapping(id);
+
+        assertThat(retrivedStub.isPersistent(), notNullValue());
+        assertThat(retrivedStub.isPersistent(), is(false));
     }
 
     private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {

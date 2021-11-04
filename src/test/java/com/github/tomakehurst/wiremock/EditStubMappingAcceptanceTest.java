@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Predicate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 

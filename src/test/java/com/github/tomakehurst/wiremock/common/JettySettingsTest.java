@@ -16,11 +16,9 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.base.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JettySettingsTest {
 
@@ -29,14 +27,14 @@ public class JettySettingsTest {
 
     @Test
     public void testBuilderWithValues() {
-
-
         JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
         builder.withAcceptors(number)
                 .withAcceptQueueSize(number)
                 .withRequestHeaderSize(number)
                 .withResponseHeaderSize(number)
                 .withStopTimeout(longNumber);
+                .withIdleTimeout(longNumber);
+      
         JettySettings jettySettings = builder.build();
 
         ensurePresent(jettySettings.getAcceptors());
@@ -44,6 +42,7 @@ public class JettySettingsTest {
         ensurePresent(jettySettings.getRequestHeaderSize());
         ensurePresent(jettySettings.getResponseHeaderSize());
         ensureLongPresent(jettySettings.getStopTimeout());
+        ensureLongPresent(jettySettings.getIdleTimeout());
     }
 
     @Test
@@ -57,16 +56,17 @@ public class JettySettingsTest {
         assertFalse(jettySettings.getAcceptQueueSize().isPresent());
         assertFalse(jettySettings.getRequestHeaderSize().isPresent());
         assertFalse(jettySettings.getStopTimeout().isPresent());
+        assertFalse(jettySettings.getIdleTimeout().isPresent());
     }
 
     private void ensurePresent(Optional<Integer> optional) {
         assertTrue(optional.isPresent());
-        assertEquals(new Integer(number), optional.get());
+        assertEquals(Integer.valueOf(number), optional.get());
     }
 
     private void ensureLongPresent(Optional<Long> optional) {
         assertTrue(optional.isPresent());
-        assertEquals(new Long(longNumber), optional.get());
+        assertEquals(Long.valueOf(longNumber), optional.get());
     }
 
 }

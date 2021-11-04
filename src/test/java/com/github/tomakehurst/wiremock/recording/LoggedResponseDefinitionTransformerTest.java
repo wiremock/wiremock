@@ -16,11 +16,11 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.http.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LoggedResponseDefinitionTransformerTest {
     private LoggedResponseDefinitionTransformer aTransformer() {
@@ -81,6 +81,24 @@ public class LoggedResponseDefinitionTransformerTest {
             .withHeader("Accept", "application/json")
             .withHeader("X-foo", "Bar")
             .build();
+        assertEquals(expected, aTransformer().apply(response));
+    }
+
+    @Test
+    public void transformsWhenNoHeadersArePresent() {
+        final byte[] body = new byte[] { 0x1, 0xc, 0x3, 0xb, 0x1 };
+        final LoggedResponse response = LoggedResponse.from(Response
+                .response()
+                .status(500)
+                .body(body)
+                .headers(null)
+                .build()
+        );
+
+        final ResponseDefinition expected = responseDefinition()
+                .withStatus(500)
+                .withBody(body)
+                .build();
         assertEquals(expected, aTransformer().apply(response));
     }
 }

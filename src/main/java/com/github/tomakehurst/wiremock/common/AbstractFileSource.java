@@ -21,9 +21,10 @@ import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -165,9 +166,18 @@ public abstract class AbstractFileSource implements FileSource {
 
     }
 
+    private void ensureDirectoryExists(File toFile) throws IOException {
+        Path toPath = toFile.toPath();
+        if (!java.nio.file.Files.exists(toPath)) {
+            Path toParentPath = toPath.getParent();
+            java.nio.file.Files.createDirectories(toParentPath);
+        }
+    }
+
     private void writeTextFileAndTranslateExceptions(String contents, File toFile) {
         try {
-            Files.write(contents, toFile, UTF_8);
+            ensureDirectoryExists(toFile);
+            Files.asCharSink(toFile, UTF_8).write(contents);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
@@ -175,18 +185,11 @@ public abstract class AbstractFileSource implements FileSource {
 
     private void writeBinaryFileAndTranslateExceptions(byte[] contents, File toFile) {
         try {
+            ensureDirectoryExists(toFile);
             Files.write(contents, toFile);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
-    }
-
-    private FileFilter filesOnly() {
-    	return new FileFilter() {
-    		public boolean accept(File file) {
-    			return file.isFile();
-    		}
-    	};
     }
 
     public static Predicate<BinaryFile> byFileExtension(final String extension) {

@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -41,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
+import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
@@ -50,6 +54,8 @@ import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
 
+    private long asyncResponseTimeout = DEFAULT_TIMEOUT;
+    private boolean disableOptimizeXmlFactoriesLoading = false;
     private int portNumber = DEFAULT_PORT;
     private boolean httpDisabled = false;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
@@ -59,6 +65,7 @@ public class WireMockConfiguration implements Options {
     private int httpsPort = -1;
     private String keyStorePath = Resources.getResource("keystore").toString();
     private String keyStorePassword = "password";
+    private String keyManagerPassword = "password";
     private String keyStoreType = "JKS";
     private String trustStorePath;
     private String trustStorePassword = "password";
@@ -66,6 +73,13 @@ public class WireMockConfiguration implements Options {
     private boolean needClientAuth;
 
     private boolean browserProxyingEnabled = false;
+    private String caKeystorePath = DEFAULT_CA_KEYSTORE_PATH;
+    private String caKeystorePassword = DEFAULT_CA_KESTORE_PASSWORD;
+    private String caKeystoreType = "JKS";
+    private KeyStoreSettings caKeyStoreSettings = null;
+    private boolean trustAllProxyTargets = false;
+    private final List<String> trustedProxyTargets = new ArrayList<>();
+
     private ProxySettings proxySettings = ProxySettings.NO_PROXY;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private MappingsSource mappingsSource;
@@ -85,6 +99,7 @@ public class WireMockConfiguration implements Options {
     private Integer jettyHeaderRequestSize;
     private Integer jettyHeaderResponseSize;
     private Long jettyStopTimeout;
+    private Long jettyIdleTimeout;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
@@ -101,8 +116,7 @@ public class WireMockConfiguration implements Options {
     private String permittedSystemKeys = null;
 
     private boolean stubCorsEnabled = false;
-    private boolean trustAllProxyTargets = false;
-    private final List<String> trustedProxyTargets = new ArrayList<>();
+    private boolean disableStrictHttpHeaders;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -118,6 +132,11 @@ public class WireMockConfiguration implements Options {
 
     public static WireMockConfiguration options() {
         return wireMockConfig();
+    }
+
+    public WireMockConfiguration timeout(int timeout) {
+        this.asyncResponseTimeout = timeout;
+        return this;
     }
 
     public WireMockConfiguration port(int portNumber) {
@@ -181,6 +200,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration jettyIdleTimeout(Long jettyIdleTimeout) {
+        this.jettyIdleTimeout = jettyIdleTimeout;
+        return this;
+    }
+
     public WireMockConfiguration keystorePath(String path) {
         this.keyStorePath = path;
         return this;
@@ -191,8 +215,33 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration keyManagerPassword(String keyManagerPassword) {
+        this.keyManagerPassword = keyManagerPassword;
+        return this;
+    }
+
     public WireMockConfiguration keystoreType(String keyStoreType) {
         this.keyStoreType = keyStoreType;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystoreSettings(KeyStoreSettings caKeyStoreSettings) {
+        this.caKeyStoreSettings = caKeyStoreSettings;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystorePath(String path) {
+        this.caKeystorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystorePassword(String keyStorePassword) {
+        this.caKeystorePassword = keyStorePassword;
+        return this;
+    }
+
+    public WireMockConfiguration caKeystoreType(String caKeystoreType) {
+        this.caKeystoreType = caKeystoreType;
         return this;
     }
 
@@ -413,6 +462,7 @@ public class WireMockConfiguration implements Options {
                 .port(httpsPort)
                 .keyStorePath(keyStorePath)
                 .keyStorePassword(keyStorePassword)
+                .keyManagerPassword(keyManagerPassword)
                 .keyStoreType(keyStoreType)
                 .trustStorePath(trustStorePath)
                 .trustStorePassword(trustStorePassword)
@@ -430,6 +480,7 @@ public class WireMockConfiguration implements Options {
                 .withRequestHeaderSize(jettyHeaderRequestSize)
                 .withResponseHeaderSize(jettyHeaderResponseSize)
                 .withStopTimeout(jettyStopTimeout)
+                .withIdleTimeout(jettyIdleTimeout)
                 .build();
     }
 
@@ -555,12 +606,41 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public boolean trustAllProxyTargets() {
-        return trustAllProxyTargets;
+    public long timeout() {
+        return asyncResponseTimeout;
     }
 
     @Override
-    public List<String> trustedProxyTargets() {
-        return trustedProxyTargets;
+    public boolean getDisableOptimizeXmlFactoriesLoading() {
+        return disableOptimizeXmlFactoriesLoading;
+    }
+
+    public WireMockConfiguration disableOptimizeXmlFactoriesLoading(boolean disableOptimizeXmlFactoriesLoading) {
+        this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
+        return this;
+    }
+
+    @Override
+    public boolean getDisableStrictHttpHeaders() {
+        return disableStrictHttpHeaders;
+    }
+
+    public WireMockConfiguration disableStrictHttpHeaders(boolean disableStrictHttpHeaders) {
+        this.disableStrictHttpHeaders = disableStrictHttpHeaders;
+        return this;
+    }
+
+    @Override
+    public BrowserProxySettings browserProxySettings() {
+        KeyStoreSettings keyStoreSettings = caKeyStoreSettings != null ?
+                caKeyStoreSettings :
+                new KeyStoreSettings(KeyStoreSourceFactory.getAppropriateForJreVersion(caKeystorePath, caKeystoreType, caKeystorePassword.toCharArray()));
+
+        return new BrowserProxySettings.Builder()
+                .enabled(browserProxyingEnabled)
+                .trustAllProxyTargets(trustAllProxyTargets)
+                .trustedProxyTargets(trustedProxyTargets)
+                .caKeyStoreSettings(keyStoreSettings)
+                .build();
     }
 }

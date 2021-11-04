@@ -38,7 +38,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
-public class EqualToXmlPattern extends MemoizingStringValuePattern {
+public class EqualToXmlPattern extends StringValuePattern {
 
     private static Set<ComparisonType> COUNTED_COMPARISONS = ImmutableSet.of(
         ELEMENT_TAG_NAME,
@@ -115,7 +115,7 @@ public class EqualToXmlPattern extends MemoizingStringValuePattern {
     }
 
     @Override
-    protected MatchResult calculateMatch(final String value) {
+    public MatchResult match(final String value) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {

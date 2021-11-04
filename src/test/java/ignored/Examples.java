@@ -18,6 +18,7 @@ package ignored;
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -28,28 +29,27 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_DAY_OF_MONTH;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Examples extends AcceptanceTestBase {
 
@@ -147,17 +147,21 @@ public class Examples extends AcceptanceTestBase {
                         .withBody(new byte[]{1, 2, 3, 4})));
     }
 
-    @Test(expected=VerificationException.class)
+    @Test
     public void verifyAtLeastOnce() {
-        verify(postRequestedFor(urlEqualTo("/verify/this"))
-                .withHeader("Content-Type", equalTo("text/xml")));
+        assertThrows(VerificationException.class, () -> {
+            verify(postRequestedFor(urlEqualTo("/verify/this"))
+                    .withHeader("Content-Type", equalTo("text/xml")));
 
-        verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+            verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+        });
     }
 
-    @Test(expected=VerificationException.class)
+    @Test
     public void verifyWithoutHeader() {
-        verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
+        assertThrows(VerificationException.class, () -> {
+            verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
+        });
     }
 
     @Test
@@ -447,7 +451,7 @@ public class Examples extends AcceptanceTestBase {
             .disableRequestJournal()
 
             // Limit the size of the request log (for the same reason as above).
-            .maxRequestJournalEntries(Optional.of(100))
+            .maxRequestJournalEntries(100)
 
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)
@@ -463,6 +467,8 @@ public class Examples extends AcceptanceTestBase {
         stubFor(get("/xml").willReturn(okXml("<hello />")));     // application/xml
         stubFor(get("/xml").willReturn(okTextXml("<hello />"))); // text/xml
         stubFor(post("/things").willReturn(noContent()));
+        stubFor(get("/json-from-string").willReturn(jsonResponse("{ \"message\": \"String Json\" }", 200)));
+        stubFor(get("/json-from-object").willReturn(jsonResponse(new MockResponse("Object Json"), 200)));
 
         stubFor(post("/temp-redirect").willReturn(temporaryRedirect("/new/place")));
         stubFor(post("/perm-redirect").willReturn(permanentRedirect("/new/place")));
@@ -556,6 +562,81 @@ public class Examples extends AcceptanceTestBase {
                 .build()));
     }
 
+    @Test
+    public void dates() {
+        stubFor(post("/dates")
+                .withHeader("X-Munged-Date", beforeNow().expectedOffset(3, DateTimeUnit.DAYS))
+                .withHeader("X-Finalised-Date", before("now +2 months"))
+                .willReturn(ok()));
+
+        stubFor(post("/dates")
+                .withRequestBody(matchingJsonPath(
+                        "$.completedDate",
+                        equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+                )
+                .willReturn(ok()));
+
+
+
+        System.out.println(Json.write(post("/dates")
+                .withRequestBody(matchingJsonPath(
+                        "$.completedDate",
+                        equalToDateTime("2020-03-01T00:00:00Z").truncateActual(FIRST_DAY_OF_MONTH))
+                )
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalAnd() {
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", and(
+                        matching("[a-z]+"),
+                        containing("magicvalue"))
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/and"))
+                .withHeader("X-Some-Value", matching("[a-z]+").and(containing("magicvalue")))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void logicalOr() {
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", or(
+                        matching("[a-z]+"),
+                        absent())
+                )
+                .willReturn(ok()));
+
+        stubFor(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(get(urlPathEqualTo("/or"))
+                .withQueryParam("search", matching("[a-z]+").or(absent()))
+                .willReturn(ok()).build()));
+    }
+
+    @Test
+    public void jsonPathAndDates() {
+        stubFor(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                        after("2020-01-01T00:00:00"))))
+                .willReturn(ok()));
+
+        System.out.println(Json.write(post("/date-range")
+                .withRequestBody(matchingJsonPath("$.date",
+                        before("2022-01-01T00:00:00").and(
+                                after("2020-01-01T00:00:00"))))
+                .willReturn(ok()).build()));
+    }
+
     public static class SimpleAuthRequestFilter extends StubRequestFilter {
 
         @Override
@@ -593,6 +674,18 @@ public class Examples extends AcceptanceTestBase {
         @Override
         public String getName() {
             return "url-and-header-modifier";
+        }
+    }
+
+    public static class MockResponse {
+        private final String message;
+
+        public MockResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }

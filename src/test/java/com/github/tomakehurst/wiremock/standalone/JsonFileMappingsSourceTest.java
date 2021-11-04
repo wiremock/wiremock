@@ -21,11 +21,11 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.List;
@@ -37,36 +37,36 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonFileMappingsSourceTest {
 
-    @Rule
-    public final TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir
+    public File tempDir;
 
     InMemoryStubMappings stubMappings;
     JsonFileMappingsSource source;
 	File stubMappingFile;
 
-    @Before
+	@BeforeEach
 	public void init() throws Exception {
 		stubMappings = new InMemoryStubMappings();
 	}
 
 	private void configureWithMultipleMappingFile() throws Exception {
-		stubMappingFile = tempDir.newFile("multi.json");
+		stubMappingFile = File.createTempFile("multi", ".json", tempDir);
 		Files.copy(new File(filePath("multi-stub/multi.json")), stubMappingFile);
 		load();
 	}
 
 	private void configureWithSingleMappingFile() throws Exception {
-    	stubMappingFile = tempDir.newFile("single.json");
+		stubMappingFile = File.createTempFile("single", ".json", tempDir);
 		Files.copy(new File(filePath("multi-stub/single.json")), stubMappingFile);
 		load();
 	}
 
 	private void load() {
-		source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir.getRoot()));
+		source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir));
 		source.loadMappingsInto(stubMappings);
 	}
 
@@ -90,13 +90,13 @@ public class JsonFileMappingsSourceTest {
 
 	@Test
 	public void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
-	    JsonFileMappingsSource source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir.getRoot()));
+	    JsonFileMappingsSource source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir));
 
         StubMapping stub = get("/saveable").willReturn(ok()).build();
         source.save(stub);
 
-        File savedFile = tempDir.getRoot().listFiles()[0];
-        String savedStub = Files.toString(savedFile, UTF_8);
+        File savedFile = tempDir.listFiles()[0];
+        String savedStub = FileUtils.readFileToString(savedFile, UTF_8);
 
         assertThat(savedStub, containsString("\"insertionIndex\" : 0"));
     }
@@ -158,7 +158,7 @@ public class JsonFileMappingsSourceTest {
 		firstStub.setName("New name");
 		source.save(firstStub);
 
-		assertThat(Files.toString(stubMappingFile, UTF_8), containsString("New name"));
+		assertThat(FileUtils.readFileToString(stubMappingFile, UTF_8), containsString("New name"));
 	}
 
 	@Test

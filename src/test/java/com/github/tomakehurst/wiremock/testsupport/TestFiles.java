@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +45,14 @@ public class TestFiles {
 
     public static String file(String path) {
         try {
-            return Resources.toString(Resources.getResource(path), Charsets.UTF_8);
+            String text = Resources.toString(Resources.getResource(path), Charsets.UTF_8);
+            if (SystemUtils.IS_OS_WINDOWS) {
+                text = text
+                        .replaceAll("\\r\\n", "\n")
+                        .replaceAll("\\r", "\n");
+            }
+
+            return text;
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }
