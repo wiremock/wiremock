@@ -133,6 +133,8 @@ allprojects {
     java {
       target 'src/**/*.java'
       googleJavaFormat('1.7')
+      licenseHeaderFile "${rootDir}/gradle/spotless.java.license.txt"
+      ratchetFrom 'origin/master'
       trimTrailingWhitespace()
       endWithNewline()
     }
