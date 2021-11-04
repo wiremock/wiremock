@@ -27,19 +27,20 @@ public class JettySettingsTest {
 
     @Test
     public void testBuilderWithValues() {
-
-
         JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
         builder.withAcceptors(number)
                 .withAcceptQueueSize(number)
                 .withRequestHeaderSize(number)
+                .withResponseHeaderSize(number)
                 .withStopTimeout(longNumber)
                 .withIdleTimeout(longNumber);
+      
         JettySettings jettySettings = builder.build();
 
         ensurePresent(jettySettings.getAcceptors());
         ensurePresent(jettySettings.getAcceptQueueSize());
         ensurePresent(jettySettings.getRequestHeaderSize());
+        ensurePresent(jettySettings.getResponseHeaderSize());
         ensureLongPresent(jettySettings.getStopTimeout());
         ensureLongPresent(jettySettings.getIdleTimeout());
     }
