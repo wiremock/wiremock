@@ -32,7 +32,7 @@ public class JettySettingsTest {
                 .withAcceptQueueSize(number)
                 .withRequestHeaderSize(number)
                 .withResponseHeaderSize(number)
-                .withStopTimeout(longNumber);
+                .withStopTimeout(longNumber)
                 .withIdleTimeout(longNumber);
       
         JettySettings jettySettings = builder.build();
