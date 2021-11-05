@@ -18,8 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 /**
  * Returns log normally distributed values, capped at a maximum value to eliminate long tales. Takes three 
  * parameters, the median (50th percentile) of the lognormal, the standard deviation of the underlying 
