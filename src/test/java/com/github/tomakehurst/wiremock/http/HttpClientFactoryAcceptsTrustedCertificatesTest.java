@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.http;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -30,6 +32,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
 public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
 
     public static Collection<Object[]> data() {

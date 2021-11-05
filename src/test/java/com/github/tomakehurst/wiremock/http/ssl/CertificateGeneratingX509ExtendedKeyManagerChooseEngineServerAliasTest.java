@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
@@ -39,6 +41,7 @@ import static org.mockito.Mockito.mock;
 public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasTest {
 
     @Test
+    @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
     public void generatesAndReturnsNewAliasForWorkingPrivateKey() throws Exception {
 
         KeyStore keyStore = readKeyStore(KEY_STORE_WITH_CA_PATH, "password");
