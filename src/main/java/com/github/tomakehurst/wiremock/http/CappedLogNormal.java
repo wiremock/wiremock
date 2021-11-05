@@ -37,6 +37,7 @@ public class CappedLogNormal extends LogNormal {
     /**
      * @param median 50th percentile of the distribution in millis
      * @param sigma standard deviation of the distribution, a larger value produces a longer tail
+     * @param maxValue the maximum value at which to cap the response delay
      */
     @JsonCreator
     public CappedLogNormal(@JsonProperty("median") double median, @JsonProperty("sigma") double sigma, 

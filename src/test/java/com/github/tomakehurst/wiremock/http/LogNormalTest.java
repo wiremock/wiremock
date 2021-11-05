@@ -50,8 +50,7 @@ public class LogNormalTest {
 
         long sum = 0;
         for (int i = 0; i < n; i++) {
-        	long val = distribution.sampleMillis();
-            sum += val;
+            sum += distribution.sampleMillis();
         }
 
         assertEquals(expectedMean, sum / (double) n, 5.0);
