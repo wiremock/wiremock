@@ -54,13 +54,8 @@ public class XmlNode {
     protected static final InheritableThreadLocal<Transformer> TRANSFORMER_CACHE = new InheritableThreadLocal<Transformer>() {
         @Override
         protected Transformer initialValue() {
-            TransformerFactory transformerFactory;
-            try {
-                transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").getDeclaredConstructor().newInstance();
-                transformerFactory.setAttribute("indent-number", 2);
-            } catch (Exception e) {
-                transformerFactory = TransformerFactory.newInstance();
-            }
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute("indent-number", 2);
 
             try {
                 Transformer transformer = transformerFactory.newTransformer();

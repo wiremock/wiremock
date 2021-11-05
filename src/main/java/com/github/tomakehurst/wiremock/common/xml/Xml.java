@@ -99,13 +99,9 @@ public class Xml {
     }
 
     private static TransformerFactory createTransformerFactory() {
-        try {
-            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").getDeclaredConstructor().newInstance();
-            transformerFactory.setAttribute("indent-number", 2);
-            return transformerFactory;
-        } catch (Exception e) {
-            return TransformerFactory.newInstance();
-        }
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute("indent-number", 2);
+        return transformerFactory;
     }
 
     public static Document read(String xml) {
@@ -136,7 +132,7 @@ public class Xml {
     private static String render(Node node) {
         try {
             StringWriter sw = new StringWriter();
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            Transformer transformer = createTransformerFactory().newTransformer();
             transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
             transformer.setOutputProperty(INDENT, "yes");
             transformer.transform(new DOMSource(node), new StreamResult(sw));
