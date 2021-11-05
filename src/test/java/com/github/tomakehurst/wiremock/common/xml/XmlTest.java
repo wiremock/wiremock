@@ -103,7 +103,7 @@ public class XmlTest {
 
         assertThat(nodes.getFirst().toString(), equalsMultiLine("<two>\n" +
                 "  <three name=\"3\"/>\n" +
-                "</two>\n"));
+                "</two>"));
     }
 
     @Test
