@@ -29,11 +29,16 @@ import static com.google.common.collect.Iterables.getFirst;
 public class WireMockResponse {
 
 	private final ClassicHttpResponse httpResponse;
-	private final byte[] content;
+	private byte[] content;
 
 	public WireMockResponse(ClassicHttpResponse httpResponse) {
 		this.httpResponse = httpResponse;
-		content = getEntityAsByteArrayAndCloseStream(httpResponse);
+		try {
+			content = getEntityAsByteArrayAndCloseStream ( httpResponse );
+		} catch (Exception ex) {
+			System.err.println("\nhttpResponse: " + httpResponse +
+					"\n\tException in getEntityAsByteArrayAndCloseStream: " + ex);
+		}
 	}
 
 	public int statusCode() {

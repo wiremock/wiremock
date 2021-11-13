@@ -396,6 +396,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	@Test
+	public void malformedResponseChunkFaultWithStatusCode() {
+		stubFor(get(urlEqualTo("/malformed/response")).willReturn(
+				aResponse()
+						.withStatus ( 200 )
+						.withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+
+		getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
+	}
+
+	@Test
 	public void randomDataOnSocketFault() {
 		stubFor(get(urlEqualTo("/random/data")).willReturn(
                 aResponse()
