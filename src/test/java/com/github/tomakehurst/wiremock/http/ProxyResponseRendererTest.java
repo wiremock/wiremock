@@ -15,30 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
-import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
-import com.github.tomakehurst.wiremock.crypto.Secret;
-import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.io.File;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -49,7 +25,32 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
+import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
+import com.github.tomakehurst.wiremock.crypto.Secret;
+import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
+import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import java.io.File;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+@DisabledForJreRange(
+    min = JRE.JAVA_17,
+    disabledReason = "does not support generating certificates at runtime")
 public class ProxyResponseRendererTest {
 
   @RegisterExtension

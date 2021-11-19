@@ -260,7 +260,9 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void certificatesSignedWithUsersRootCertificate() throws Exception {
     WireMockServer proxyWithCustomCaKeyStore =
         new WireMockServer(
@@ -306,7 +308,9 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void certificatesSignedWithGeneratedRootCertificate() throws Exception {
     KeyStore trustStore =
         HttpsAcceptanceTest.readKeyStore(NO_PREEXISTING_KEYSTORE_PATH, "password");
@@ -361,7 +365,9 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void certificateAuthorityCertCanBeDownloaded() throws Exception {
     WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.getPort());
 

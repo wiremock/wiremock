@@ -99,9 +99,9 @@ public class Xml {
   }
 
   private static TransformerFactory createTransformerFactory() {
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      transformerFactory.setAttribute("indent-number", 2);
-      return transformerFactory;
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    transformerFactory.setAttribute("indent-number", 2);
+    return transformerFactory;
   }
 
   public static Document read(String xml) {
