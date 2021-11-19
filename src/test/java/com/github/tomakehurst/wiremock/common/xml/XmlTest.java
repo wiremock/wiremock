@@ -103,7 +103,7 @@ public class XmlTest {
     ListOrSingle<XmlNode> nodes = xmlDocument.findNodes("/one/two");
 
     assertThat(
-        nodes.getFirst().toString(),
+        nodes.getFirst().toString().trim(),
         equalsMultiLine("<two>\n" + "  <three name=\"3\"/>\n" + "</two>"));
   }
 
