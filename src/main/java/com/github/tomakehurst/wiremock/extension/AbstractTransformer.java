@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.http.Request;
 
 public abstract class AbstractTransformer<T> implements Extension {
 
-    public abstract T transform(Request request, T response, FileSource files, Parameters parameters);
+  public abstract T transform(Request request, T response, FileSource files, Parameters parameters);
 
-    public boolean applyGlobally() {
-        return true;
-    }
+  public boolean applyGlobally() {
+    return true;
+  }
 }

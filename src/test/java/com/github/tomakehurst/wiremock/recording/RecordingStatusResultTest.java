@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,29 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class RecordingStatusResultTest {
 
-    @Test
-    public void deserialise() {
-        RecordingStatusResult result = Json.read("{ \"status\": \"Recording\" }", RecordingStatusResult.class);
+  @Test
+  public void deserialise() {
+    RecordingStatusResult result =
+        Json.read("{ \"status\": \"Recording\" }", RecordingStatusResult.class);
 
-        assertThat(result.getStatus(), is(RecordingStatus.Recording));
-    }
+    assertThat(result.getStatus(), is(RecordingStatus.Recording));
+  }
 
-    @Test
-    public void serialise() {
-        RecordingStatusResult result = new RecordingStatusResult(RecordingStatus.Recording);
+  @Test
+  public void serialise() {
+    RecordingStatusResult result = new RecordingStatusResult(RecordingStatus.Recording);
 
-        String json = Json.write(result);
+    String json = Json.write(result);
 
-        assertThat(json, equalToJson("{ \"status\": \"Recording\" }"));
-    }
+    assertThat(json, equalToJson("{ \"status\": \"Recording\" }"));
+  }
 }

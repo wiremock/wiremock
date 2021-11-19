@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,82 +15,79 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.stubMappingWithUrl;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.stubMappingWithUrl;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class MappingsLoaderAcceptanceTest {
 
-    private WireMockConfiguration configuration;
-	private WireMockServer wireMockServer;
-	private WireMockTestClient testClient;
+  private WireMockConfiguration configuration;
+  private WireMockServer wireMockServer;
+  private WireMockTestClient testClient;
 
-	@BeforeEach
-	public void init() {
-        configuration = wireMockConfig().dynamicPort();
-	}
+  @BeforeEach
+  public void init() {
+    configuration = wireMockConfig().dynamicPort();
+  }
 
-	@AfterEach
-	public void stopWireMock() {
-		wireMockServer.stop();
-	}
+  @AfterEach
+  public void stopWireMock() {
+    wireMockServer.stop();
+  }
 
-    private void buildWireMock(Options options) {
-        wireMockServer = new WireMockServer(options);
-        wireMockServer.start();
-        testClient = new WireMockTestClient(wireMockServer.port());
-    }
+  private void buildWireMock(Options options) {
+    wireMockServer = new WireMockServer(options);
+    wireMockServer.start();
+    testClient = new WireMockTestClient(wireMockServer.port());
+  }
 
-    @Test
-	public void mappingsLoadedFromJsonFiles() {
-        buildWireMock(configuration);
-        wireMockServer.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource(filePath("test-requests"))));
+  @Test
+  public void mappingsLoadedFromJsonFiles() {
+    buildWireMock(configuration);
+    wireMockServer.loadMappingsUsing(
+        new JsonFileMappingsSource(new SingleRootFileSource(filePath("test-requests"))));
 
-		WireMockResponse response = testClient.get("/canned/resource/1");
-		assertThat(response.statusCode(), is(200));
+    WireMockResponse response = testClient.get("/canned/resource/1");
+    assertThat(response.statusCode(), is(200));
 
-		response = testClient.get("/canned/resource/2");
-		assertThat(response.statusCode(), is(401));
-	}
+    response = testClient.get("/canned/resource/2");
+    assertThat(response.statusCode(), is(401));
+  }
 
-    @Test
-    public void mappingsLoadedViaClasspath() {
-        buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
-        assertThat(testClient.get("/test").content(), is("THINGS!"));
-    }
+  @Test
+  public void mappingsLoadedViaClasspath() {
+    buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
+    assertThat(testClient.get("/test").content(), is("THINGS!"));
+  }
 
-    @Test
-    public void loadsStubMappingsFromAMixtureOfSingleAndMultiStubFiles() {
-        buildWireMock(configuration);
-        wireMockServer.resetMappings();
-        wireMockServer.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource(filePath("multi-stub"))));
+  @Test
+  public void loadsStubMappingsFromAMixtureOfSingleAndMultiStubFiles() {
+    buildWireMock(configuration);
+    wireMockServer.resetMappings();
+    wireMockServer.loadMappingsUsing(
+        new JsonFileMappingsSource(new SingleRootFileSource(filePath("multi-stub"))));
 
-        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+    List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
 
-        assertThat(stubs.size(), is(4));
-        assertThat(stubs, hasItem(stubMappingWithUrl("/single/1")));
-        assertThat(stubs, hasItem(stubMappingWithUrl("/multi/1")));
-        assertThat(stubs, hasItem(stubMappingWithUrl("/multi/2")));
-        assertThat(stubs, hasItem(stubMappingWithUrl("/multi/3")));
-    }
-
-
+    assertThat(stubs.size(), is(4));
+    assertThat(stubs, hasItem(stubMappingWithUrl("/single/1")));
+    assertThat(stubs, hasItem(stubMappingWithUrl("/multi/1")));
+    assertThat(stubs, hasItem(stubMappingWithUrl("/multi/2")));
+    assertThat(stubs, hasItem(stubMappingWithUrl("/multi/3")));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,31 +35,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
 public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
 
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] {
-               // trusted                     certificateCN validCertificate?
-                { TRUST_NOBODY,               "localhost",  true  },
-                { singletonList("other.com"), "localhost",  true  },
-                { singletonList("localhost"), "other.com",  true  },
-                { singletonList("localhost"), "other.com",  false },
-                { singletonList("localhost"), "localhost",  true  },
-                { singletonList("localhost"), "localhost",  false },
+  public static Collection<Object[]> data() {
+    return asList(
+        new Object[][] {
+          // trusted                     certificateCN validCertificate?
+          {TRUST_NOBODY, "localhost", true},
+          {singletonList("other.com"), "localhost", true},
+          {singletonList("localhost"), "other.com", true},
+          {singletonList("localhost"), "other.com", false},
+          {singletonList("localhost"), "localhost", true},
+          {singletonList("localhost"), "localhost", false},
         });
-    }
+  }
 
-    @MethodSource("data")
-    @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-    public void certificatesAreAccepted(List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
+  @MethodSource("data")
+  @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
+  public void certificatesAreAccepted(
+      List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
-        startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
+    startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
-        server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
+    server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-        CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
+    CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
 
-        String result = getEntityAsStringAndCloseStream(response);
+    String result = getEntityAsStringAndCloseStream(response);
 
-        assertEquals("Hello World", result);
-    }
-
+    assertEquals("Hello World", result);
+  }
 }

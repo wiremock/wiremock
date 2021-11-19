@@ -1,10 +1,10 @@
 {
-    "request": {
-        "url": "/test",
-        "method": "GET"
-    },
-    "response": {
-        "status": 200,
-        "bodyFileName": "stuff.txt"
-    }
+  "request": {
+    "method": "GET",
+    "url": "/test"
+  },
+  "response": {
+    "bodyFileName": "stuff.txt",
+    "status": 200
+  }
 }

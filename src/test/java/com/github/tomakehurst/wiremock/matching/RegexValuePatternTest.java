@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,40 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class RegexValuePatternTest {
 
-    @Test
-    public void correctlySerialisesMatchesAsJson() throws Exception {
-        String actual = Json.write(WireMock.matching("something"));
-        System.out.println(actual);
-        JSONAssert.assertEquals(
-            "{                               \n" +
-            "  \"matches\": \"something\"    \n" +
-            "}",
-            actual,
-            true
-        );
-    }
+  @Test
+  public void correctlySerialisesMatchesAsJson() throws Exception {
+    String actual = Json.write(WireMock.matching("something"));
+    System.out.println(actual);
+    JSONAssert.assertEquals(
+        "{                               \n" + "  \"matches\": \"something\"    \n" + "}",
+        actual,
+        true);
+  }
 
-    @Test
-    public void correctlyDeserialisesMatchesFromJson() {
-        StringValuePattern stringValuePattern = Json.read(
-            "{                               \n" +
-            "  \"matches\": \"something\"    \n" +
-            "}",
+  @Test
+  public void correctlyDeserialisesMatchesFromJson() {
+    StringValuePattern stringValuePattern =
+        Json.read(
+            "{                               \n" + "  \"matches\": \"something\"    \n" + "}",
             StringValuePattern.class);
 
-        assertThat(stringValuePattern, instanceOf(RegexPattern.class));
-        assertThat(stringValuePattern.getValue(), is("something"));
-    }
+    assertThat(stringValuePattern, instanceOf(RegexPattern.class));
+    assertThat(stringValuePattern.getValue(), is("something"));
+  }
 
-    @Test
-    public void noMatchWhenValueIsNull() {
-        assertThat(WireMock.matching(".*").match(null).isExactMatch(), is(false));
-    }
-
+  @Test
+  public void noMatchWhenValueIsNull() {
+    assertThat(WireMock.matching(".*").match(null).isExactMatch(), is(false));
+  }
 }

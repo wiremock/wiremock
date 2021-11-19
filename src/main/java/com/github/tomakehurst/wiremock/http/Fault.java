@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,34 +18,33 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 
 public enum Fault {
+  CONNECTION_RESET_BY_PEER {
+    @Override
+    public void apply(FaultInjector faultInjector) {
+      faultInjector.connectionResetByPeer();
+    }
+  },
 
-	CONNECTION_RESET_BY_PEER {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.connectionResetByPeer();
-		}
-	},
+  EMPTY_RESPONSE {
+    @Override
+    public void apply(FaultInjector faultInjector) {
+      faultInjector.emptyResponseAndCloseConnection();
+    }
+  },
 
-	EMPTY_RESPONSE {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.emptyResponseAndCloseConnection();
-		}
-	},
-	
-	MALFORMED_RESPONSE_CHUNK {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.malformedResponseChunk();
-		}
-	},
-	
-	RANDOM_DATA_THEN_CLOSE {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.randomDataAndCloseConnection();
-		}
-	};
-	
-	public abstract void apply(FaultInjector faultInjector);
+  MALFORMED_RESPONSE_CHUNK {
+    @Override
+    public void apply(FaultInjector faultInjector) {
+      faultInjector.malformedResponseChunk();
+    }
+  },
+
+  RANDOM_DATA_THEN_CLOSE {
+    @Override
+    public void apply(FaultInjector faultInjector) {
+      faultInjector.randomDataAndCloseConnection();
+    }
+  };
+
+  public abstract void apply(FaultInjector faultInjector);
 }

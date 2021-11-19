@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2014-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,28 @@ import org.slf4j.LoggerFactory;
 
 public class Slf4jNotifier implements Notifier {
 
-    private static final Logger log = LoggerFactory.getLogger("WireMock");
+  private static final Logger log = LoggerFactory.getLogger("WireMock");
 
-    private final boolean verbose;
+  private final boolean verbose;
 
-    public Slf4jNotifier(boolean verbose) {
-        this.verbose = verbose;
+  public Slf4jNotifier(boolean verbose) {
+    this.verbose = verbose;
+  }
+
+  @Override
+  public void info(String message) {
+    if (verbose) {
+      log.info(message);
     }
+  }
 
-    @Override
-    public void info(String message) {
-        if (verbose) {
-            log.info(message);
-        }
-    }
+  @Override
+  public void error(String message) {
+    log.error(message);
+  }
 
-    @Override
-    public void error(String message) {
-        log.error(message);
-    }
-
-    @Override
-    public void error(String message, Throwable t) {
-        log.error(message, t);
-    }
+  @Override
+  public void error(String message, Throwable t) {
+    log.error(message, t);
+  }
 }

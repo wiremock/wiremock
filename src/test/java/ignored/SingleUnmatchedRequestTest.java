@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,35 +15,36 @@
  */
 package ignored;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-
 public class SingleUnmatchedRequestTest {
 
-    @RegisterExtension
-    public WireMockExtension wm = WireMockExtension.newInstance()
-            .options(options().dynamicPort().withRootDirectory("src/main/resources/empty"))
-            .failOnUnmatchedRequests(true)
-            .build();
+  @RegisterExtension
+  public WireMockExtension wm =
+      WireMockExtension.newInstance()
+          .options(options().dynamicPort().withRootDirectory("src/main/resources/empty"))
+          .failOnUnmatchedRequests(true)
+          .build();
 
-    WireMockTestClient client;
+  WireMockTestClient client;
 
-    @BeforeEach
-    public void init() {
-        client = new WireMockTestClient(wm.getPort());
-    }
+  @BeforeEach
+  public void init() {
+    client = new WireMockTestClient(wm.getPort());
+  }
 
-    @Test
-    public void unmatched() {
-        wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
-        client.get("/near-misssss");
-    }
+  @Test
+  public void unmatched() {
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+    client.get("/near-misssss");
+  }
 }

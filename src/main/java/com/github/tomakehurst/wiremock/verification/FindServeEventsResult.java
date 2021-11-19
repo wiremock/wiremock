@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,18 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-
 import java.util.List;
 
 public class FindServeEventsResult {
 
-    private final List<ServeEvent> serveEvents;
+  private final List<ServeEvent> serveEvents;
 
-    @JsonCreator
-    public FindServeEventsResult(@JsonProperty("serveEvents") List<ServeEvent> serveEvents) {
-        this.serveEvents = serveEvents;
-    }
+  @JsonCreator
+  public FindServeEventsResult(@JsonProperty("serveEvents") List<ServeEvent> serveEvents) {
+    this.serveEvents = serveEvents;
+  }
 
-    public List<ServeEvent> getServeEvents() {
-        return serveEvents;
-    }
+  public List<ServeEvent> getServeEvents() {
+    return serveEvents;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import javax.net.ssl.SNIHostName;
 import java.security.cert.X509Certificate;
+import javax.net.ssl.SNIHostName;
 
 @FunctionalInterface
 public interface HostNameMatcher {
-    Boolean matches(X509Certificate x509Certificate, SNIHostName sniHostName);
+  Boolean matches(X509Certificate x509Certificate, SNIHostName sniHostName);
 }

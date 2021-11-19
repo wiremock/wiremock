@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,23 +26,21 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 public class PatchExtendedSettingsTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        ExtendedSettingsWrapper extendedSettingsWrapper = Json.read(request.getBodyAsString(), ExtendedSettingsWrapper.class);
-        Parameters newExtended = extendedSettingsWrapper.getExtended();
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    ExtendedSettingsWrapper extendedSettingsWrapper =
+        Json.read(request.getBodyAsString(), ExtendedSettingsWrapper.class);
+    Parameters newExtended = extendedSettingsWrapper.getExtended();
 
-        GlobalSettings existingSettings = admin.getGlobalSettings().getSettings();
-        Parameters existingExtended = existingSettings.getExtended();
+    GlobalSettings existingSettings = admin.getGlobalSettings().getSettings();
+    Parameters existingExtended = existingSettings.getExtended();
 
-        Parameters extended = existingExtended.merge(newExtended);
+    Parameters extended = existingExtended.merge(newExtended);
 
-        GlobalSettings newGlobalSettings = existingSettings
-                .copy()
-                .extended(extended)
-                .build();
+    GlobalSettings newGlobalSettings = existingSettings.copy().extended(extended).build();
 
-        admin.updateGlobalSettings(newGlobalSettings);
+    admin.updateGlobalSettings(newGlobalSettings);
 
-        return ResponseDefinition.okEmptyJson();
-    }
+    return ResponseDefinition.okEmptyJson();
+  }
 }

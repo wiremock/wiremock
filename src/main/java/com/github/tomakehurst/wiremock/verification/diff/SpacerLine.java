@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,24 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 public class SpacerLine extends DiffLine<Void> {
 
-    public static SpacerLine SPACER = new SpacerLine();
+  public static SpacerLine SPACER = new SpacerLine();
 
-    public SpacerLine() {
-        super("spacer", null, null, "");
-    }
+  public SpacerLine() {
+    super("spacer", null, null, "");
+  }
 
-    @Override
-    public Object getActual() {
-        return "";
-    }
+  @Override
+  public Object getActual() {
+    return "";
+  }
 
-    @Override
-    public String getMessage() {
-        return null;
-    }
+  @Override
+  public String getMessage() {
+    return null;
+  }
 
-    @Override
-    protected boolean isExactMatch() {
-        return true;
-    }
+  @Override
+  protected boolean isExactMatch() {
+    return true;
+  }
 }

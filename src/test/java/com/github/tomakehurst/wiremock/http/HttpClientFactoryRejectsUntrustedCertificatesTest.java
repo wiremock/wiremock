@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,28 +34,28 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "does not support generating certificates at runtime")
 public class HttpClientFactoryRejectsUntrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
-
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] {
-               // trusted                     certificateCN validCertificate?
-                { TRUST_NOBODY,               "other.com",  true  },
-                { TRUST_NOBODY,               "other.com",  false },
-                { TRUST_NOBODY,               "localhost",  false },
-                { singletonList("other.com"), "other.com",  true  },
-                { singletonList("other.com"), "other.com",  false },
-                { singletonList("other.com"), "localhost",  false }
+  public static Collection<Object[]> data() {
+    return asList(
+        new Object[][] {
+          // trusted                     certificateCN validCertificate?
+          {TRUST_NOBODY, "other.com", true},
+          {TRUST_NOBODY, "other.com", false},
+          {TRUST_NOBODY, "localhost", false},
+          {singletonList("other.com"), "other.com", true},
+          {singletonList("other.com"), "other.com", false},
+          {singletonList("other.com"), "localhost", false}
         });
-    }
+  }
 
-    @MethodSource("data")
-    @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-    public void certificatesAreRejectedAsExpected(List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
+  @MethodSource("data")
+  @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
+  public void certificatesAreRejectedAsExpected(
+      List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
-        startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
+    startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
-        server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
+    server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-        assertThrows(SSLException.class, () -> client.execute(new HttpGet(server.url("/whatever"))));
-    }
-
+    assertThrows(SSLException.class, () -> client.execute(new HttpGet(server.url("/whatever"))));
+  }
 }
