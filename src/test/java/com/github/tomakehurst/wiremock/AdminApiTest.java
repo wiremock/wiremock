@@ -1006,7 +1006,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(stubs, everyItem(hasIdAndUuid()));
   }
 
-  private static Matcher<StubMapping> hasIdAndUuid() {
+  private static final Matcher<StubMapping> hasIdAndUuid() {
     return new TypeSafeMatcher<StubMapping>() {
       @Override
       protected boolean matchesSafely(StubMapping stub) {
