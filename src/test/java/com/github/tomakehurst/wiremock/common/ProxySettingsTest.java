@@ -56,9 +56,7 @@ public class ProxySettingsTest {
   public void shouldThrowExceptionIfPortIsNotRecognized() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL + ":80a");
-        });
+        () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
   }
 
   @Test
@@ -101,18 +99,13 @@ public class ProxySettingsTest {
   public void shouldNotAllowHttpsProtocol() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings =
-              ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT);
-        });
+        () -> ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT));
   }
 
   @Test
   public void shouldThrowExceptionIfUrlIsInvalid() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString("ul:invalid:80");
-        });
+        () -> ProxySettings.fromString("ul:invalid:80"));
   }
 }

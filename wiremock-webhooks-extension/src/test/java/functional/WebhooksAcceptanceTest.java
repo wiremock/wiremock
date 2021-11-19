@@ -289,7 +289,7 @@ public class WebhooksAcceptanceTest {
 
   @Test
   public void addsFixedDelayViaDSL() throws Exception {
-    final int DELAY_MILLISECONDS = 1_000;
+    final int delayMilliseconds = 1_000;
 
     rule.stubFor(
         post(urlPathEqualTo("/delayed"))
@@ -297,7 +297,7 @@ public class WebhooksAcceptanceTest {
             .withPostServeAction(
                 "webhook",
                 webhook()
-                    .withFixedDelay(DELAY_MILLISECONDS)
+                    .withFixedDelay(delayMilliseconds)
                     .withMethod(RequestMethod.GET)
                     .withUrl(targetServer.url("/callback"))));
 
@@ -310,7 +310,7 @@ public class WebhooksAcceptanceTest {
     stopwatch.stop();
 
     double elapsedMilliseconds = stopwatch.elapsed(MILLISECONDS);
-    assertThat(elapsedMilliseconds, closeTo(DELAY_MILLISECONDS, 500.0));
+    assertThat(elapsedMilliseconds, closeTo(delayMilliseconds, 500.0));
 
     verify(1, getRequestedFor(urlEqualTo("/callback")));
   }

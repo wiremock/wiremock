@@ -65,9 +65,8 @@ public class RequestSpec {
     RequestSpec that = (RequestSpec) o;
 
     if (!method.equals(that.method)) return false;
-    if (!uriTemplate.equals(that.uriTemplate)) return false;
 
-    return true;
+    return uriTemplate.equals(that.uriTemplate);
   }
 
   @Override

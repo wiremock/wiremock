@@ -143,12 +143,12 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void scenarioIsRemovedWhenLastMappingReferringToItIsRemoved() {
-    final String NAME = "remove_this_scenario";
+    final String name = "remove_this_scenario";
 
     StubMapping stub1 =
         stubFor(
             get("/scenarios/22")
-                .inScenario(NAME)
+                .inScenario(name)
                 .whenScenarioStateIs(STARTED)
                 .willSetStateTo("state_2")
                 .willReturn(ok("1")));
@@ -156,7 +156,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
     StubMapping stub2 =
         stubFor(
             get("/scenarios/22")
-                .inScenario(NAME)
+                .inScenario(name)
                 .whenScenarioStateIs("state_2")
                 .willSetStateTo("state_2")
                 .willReturn(ok("2")));
@@ -164,7 +164,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
     StubMapping stub3 =
         stubFor(
             get("/scenarios/22")
-                .inScenario(NAME)
+                .inScenario(name)
                 .whenScenarioStateIs("state_2")
                 .willSetStateTo("state_3")
                 .willReturn(ok("3")));
@@ -180,47 +180,47 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void scenarioIsRemovedWhenLastMappingReferringToHasItsScenarioNameChanged() {
-    final UUID ID1 = UUID.randomUUID();
-    final UUID ID2 = UUID.randomUUID();
-    final String OLD_NAME = "old_scenario";
-    final String NEW_NAME = "new_scenario";
+    final UUID id1 = UUID.randomUUID();
+    final UUID id2 = UUID.randomUUID();
+    final String oldName = "old_scenario";
+    final String newName = "new_scenario";
 
     stubFor(
         get("/scenarios/33")
-            .withId(ID1)
-            .inScenario(OLD_NAME)
+            .withId(id1)
+            .inScenario(oldName)
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("state_2")
             .willReturn(ok("1")));
 
     stubFor(
         get("/scenarios/33")
-            .withId(ID2)
-            .inScenario(OLD_NAME)
+            .withId(id2)
+            .inScenario(oldName)
             .whenScenarioStateIs("state_2")
             .willSetStateTo("state_2")
             .willReturn(ok("2")));
 
     assertThat(getAllScenarios().size(), is(1));
-    assertThat(getAllScenarios().get(0).getName(), is(OLD_NAME));
+    assertThat(getAllScenarios().get(0).getName(), is(oldName));
 
     editStub(
         get("/scenarios/33")
-            .withId(ID1)
-            .inScenario(NEW_NAME)
+            .withId(id1)
+            .inScenario(newName)
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("state_2")
             .willReturn(ok("1")));
     editStub(
         get("/scenarios/33")
-            .withId(ID2)
-            .inScenario(NEW_NAME)
+            .withId(id2)
+            .inScenario(newName)
             .whenScenarioStateIs("state_2")
             .willSetStateTo("state_2")
             .willReturn(ok("2")));
 
     assertThat(getAllScenarios().size(), is(1));
-    assertThat(getAllScenarios().get(0).getName(), is(NEW_NAME));
+    assertThat(getAllScenarios().get(0).getName(), is(newName));
   }
 
   @Test

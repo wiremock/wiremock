@@ -93,13 +93,13 @@ public class ResponseDribbleAcceptanceTest {
   public void servesAStringBodyInChunks() throws Exception {
     doNotRunOnMacOSXInCI();
 
-    final int TOTAL_TIME = 500;
+    final int totalTime = 500;
 
     stubFor(
         get("/delayedDribble")
             .willReturn(
                 ok().withBody("Send this in many pieces please!!!")
-                    .withChunkedDribbleDelay(2, TOTAL_TIME)));
+                    .withChunkedDribbleDelay(2, totalTime)));
 
     long start = System.currentTimeMillis();
     ClassicHttpResponse response =
@@ -109,7 +109,7 @@ public class ResponseDribbleAcceptanceTest {
 
     assertThat(response.getCode(), is(200));
     assertThat(responseBody, is("Send this in many pieces please!!!"));
-    assertThat(duration, isWithinTolerance(TOTAL_TIME, TOLERANCE));
+    assertThat(duration, isWithinTolerance(totalTime, TOLERANCE));
   }
 
   @Test

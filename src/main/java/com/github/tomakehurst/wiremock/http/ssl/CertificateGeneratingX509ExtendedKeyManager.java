@@ -198,7 +198,7 @@ public class CertificateGeneratingX509ExtendedKeyManager extends DelegatingX509E
         e);
   }
 
-  private static class OnceOnlyNotifier implements Notifier {
+  private static final class OnceOnlyNotifier implements Notifier {
 
     private final Notifier notifier;
     private final OnceOnly onceOnly = new OnceOnly();

@@ -246,20 +246,9 @@ public class MockRequest implements Request {
 
   @Override
   public Part getPart(final String name) {
-    return (getParts() != null && name != null)
-        ? from(multiparts)
-            .firstMatch(
-                new Predicate<Part>() {
-                  @Override
-                  public boolean apply(Part input) {
-                    if (name.equals(input.getName())) {
-                      return true;
-                    }
-                    return false;
-                  }
-                })
-            .get()
-        : null;
+    return getParts() == null || name == null ? null : from(multiparts)
+        .firstMatch(input -> name.equals(input.getName()))
+        .get();
   }
 
   public MockRequest multipartBody(String body) {

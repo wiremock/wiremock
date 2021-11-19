@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.util.Objects;
 
-public class HttpTemplateCacheKey {
+public final class HttpTemplateCacheKey {
 
   public enum ResponseElement {
     BODY,

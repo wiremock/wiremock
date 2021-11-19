@@ -701,7 +701,7 @@ public class CommandLineOptions implements Options {
       builder.put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
     }
 
-    if (!(proxyVia() == NO_PROXY)) {
+    if (proxyVia() != NO_PROXY) {
       builder.put(PROXY_VIA, proxyVia());
     }
     if (proxyUrl() != null) {

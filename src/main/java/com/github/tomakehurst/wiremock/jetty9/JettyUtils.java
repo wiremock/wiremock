@@ -30,7 +30,7 @@ import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
-public class JettyUtils {
+public final class JettyUtils {
 
   private static final Map<Class<?>, Method> URI_METHOD_BY_CLASS_CACHE = new HashMap<>();
   private static final boolean IS_JETTY;

@@ -122,7 +122,7 @@ public class ProxyResponseRendererTest {
             /* method = */ RequestMethod.GET,
             /* clientIp = */ "127.0.0.1",
             /* headers = */ new HttpHeaders(),
-            /* cookies = */ new HashMap<String, Cookie>(),
+            /* cookies = */ new HashMap<>(),
             /* isBrowserProxyRequest = */ isBrowserProxyRequest,
             /* loggedDate = */ new Date(),
             /* body = */ new byte[0],

@@ -236,8 +236,6 @@ public class WireMockTestClient {
       }
       ClassicHttpResponse httpResponse = httpClient().execute(post);
       return httpResponse.getCode();
-    } catch (RuntimeException re) {
-      throw re;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

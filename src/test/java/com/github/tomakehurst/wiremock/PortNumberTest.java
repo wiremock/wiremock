@@ -38,7 +38,7 @@ public class PortNumberTest {
 
   @BeforeEach
   public void setup() {
-    createdServers = new ArrayList<WireMockServer>();
+    createdServers = new ArrayList<>();
   }
 
   @AfterEach

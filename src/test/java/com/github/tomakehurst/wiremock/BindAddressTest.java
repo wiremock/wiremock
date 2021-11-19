@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
@@ -33,6 +33,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
+import org.apache.hc.client5.http.HttpHostConnectException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -78,11 +79,8 @@ public class BindAddressTest {
   @Test
   public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
     executeGetIn(localhost);
-    try {
-      executeGetIn(nonBindAddress);
-      fail("Should not accept HTTP connection to [" + nonBindAddress + "]");
-    } catch (Exception ex) {
-    }
+
+    assertThrows(RuntimeException.class, () -> executeGetIn(nonBindAddress));
   }
 
   @Test
@@ -90,11 +88,7 @@ public class BindAddressTest {
     int localhostStatus = getStatusViaHttps(localhost);
     assertThat(localhostStatus, is(200));
 
-    try {
-      getStatusViaHttps(nonBindAddress);
-      fail("Should not accept HTTPS connection to [" + nonBindAddress + "]");
-    } catch (Exception e) {
-    }
+    assertThrows(HttpHostConnectException.class, () -> getStatusViaHttps(nonBindAddress));
   }
 
   private int getStatusViaHttps(String host) throws Exception {

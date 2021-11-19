@@ -35,7 +35,7 @@ public class RenderCache {
     return (T) cache.get(key);
   }
 
-  public static class Key {
+  public static final class Key {
     private final Class<?> forClass;
     private final List<?> elements;
 

@@ -78,10 +78,6 @@ public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
       return false;
     }
 
-    if (ids != null && !ids.contains(serveEvent.getId())) {
-      return false;
-    }
-
-    return true;
+      return ids == null || ids.contains(serveEvent.getId());
   }
 }

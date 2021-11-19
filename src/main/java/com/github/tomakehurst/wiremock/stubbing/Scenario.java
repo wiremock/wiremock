@@ -26,7 +26,10 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public class Scenario {
 
@@ -140,7 +143,7 @@ public class Scenario {
     return Objects.hash(getId(), getName(), getState(), getMappings());
   }
 
-  public static final Predicate<Scenario> withName(final String name) {
+  public static Predicate<Scenario> withName(final String name) {
     return new Predicate<Scenario>() {
       @Override
       public boolean apply(Scenario input) {

@@ -22,7 +22,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jetty.proxy.ConnectHandler;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.Promise;
 
 public class ManInTheMiddleSslConnectHandler extends ConnectHandler {

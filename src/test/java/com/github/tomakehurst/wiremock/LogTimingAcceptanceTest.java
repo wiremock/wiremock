@@ -54,12 +54,12 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void includesAddedDelayInTotalWhenAsync() {
-    final int DELAY = 500;
+    final int delay = 500;
 
     stubFor(
         post("/time-me/async")
             .withRequestBody(equalToXml("<value>1111</value>"))
-            .willReturn(ok().withFixedDelay(DELAY)));
+            .willReturn(ok().withFixedDelay(delay)));
 
     // Create some work
     for (int i = 0; i < 500; i++) {
@@ -73,12 +73,11 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
     ServeEvent serveEvent = getAllServeEvents().get(0);
 
     Timing timing = serveEvent.getTiming();
-    assertThat(timing.getAddedDelay(), is(DELAY));
+    assertThat(timing.getAddedDelay(), is(delay));
     assertThat(timing.getProcessTime(), greaterThan(0));
     //        assertThat(timing.getResponseSendTime(), greaterThan(0)); // Hard for this not to be
     // flakey without some kind of throttling on the loopback adapter
     assertThat(timing.getServeTime(), is(timing.getProcessTime() + timing.getResponseSendTime()));
-    assertThat(
-        timing.getTotalTime(), is(timing.getProcessTime() + timing.getResponseSendTime() + DELAY));
+    assertThat(timing.getTotalTime(), is(timing.getProcessTime() + timing.getResponseSendTime() + delay));
   }
 }

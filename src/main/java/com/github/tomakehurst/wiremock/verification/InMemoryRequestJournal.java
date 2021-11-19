@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class InMemoryRequestJournal implements RequestJournal {
 
-  private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
+  private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<>();
 
   private final Optional<Integer> maxEntries;
   private final Map<String, RequestMatcherExtension> customMatchers;

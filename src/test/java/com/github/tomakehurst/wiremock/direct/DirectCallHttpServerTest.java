@@ -152,7 +152,7 @@ class DirectCallHttpServerTest {
       @BeforeEach
       void setup() {
         doAnswer(
-                (i) -> {
+                i -> {
                   HttpResponder responder = i.getArgument(1, HttpResponder.class);
                   responder.respond(request, response);
                   return null;
@@ -184,7 +184,7 @@ class DirectCallHttpServerTest {
         void setup() {
           when(response.getInitialDelay()).thenReturn(1000L);
           doAnswer(
-                  (i) -> {
+                  i -> {
                     HttpResponder responder = i.getArgument(1, HttpResponder.class);
                     responder.respond(request, response);
                     return null;

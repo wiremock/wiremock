@@ -15,11 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 
-public class StreamSources {
+public final class StreamSources {
   private StreamSources() {}
 
   public static InputStreamSource forString(final String string, final Charset charset) {

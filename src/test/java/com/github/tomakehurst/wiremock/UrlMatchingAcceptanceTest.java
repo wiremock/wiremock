@@ -25,7 +25,7 @@ public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void mappingMatchedWithRegexUrl() {
-    String REGEX_URL_MAPPING_REQUEST =
+    String regexUrlMappingRequest =
         "{ 													\n"
             + "	\"request\": {									\n"
             + "		\"method\": \"GET\",						\n"
@@ -36,7 +36,7 @@ public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
             + "	}												\n"
             + "}													  ";
 
-    testClient.addResponse(REGEX_URL_MAPPING_REQUEST);
+    testClient.addResponse(regexUrlMappingRequest);
     WireMockResponse response = testClient.get("/one/two/three");
 
     assertThat(response.statusCode(), is(200));

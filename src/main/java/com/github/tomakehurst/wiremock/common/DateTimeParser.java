@@ -25,11 +25,12 @@ import static java.util.Locale.US;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.RenderableDate;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.*;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalQueries;
 import java.util.Date;
 import java.util.List;
 
-public class DateTimeParser {
+public final class DateTimeParser {
 
   private static final DateTimeFormatter RFC_1036_DATE_TIME =
       DateTimeFormatter.ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz").withLocale(US);

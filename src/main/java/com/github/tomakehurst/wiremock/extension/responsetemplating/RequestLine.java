@@ -28,7 +28,7 @@ import java.util.Map;
 
 @Deprecated
 /** @deprecated Use the accessors on {@link RequestTemplateModel} */
-public class RequestLine {
+public final class RequestLine {
   private final RequestMethod method;
   private final String scheme;
   private final String host;

@@ -551,7 +551,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private String[] argsWithRecordingsPath(String[] args) {
-    List<String> argsAsList = new ArrayList<String>(asList(args));
+    List<String> argsAsList = new ArrayList<>(asList(args));
     if (!argsAsList.contains("--root-dir")) {
       argsAsList.addAll(asList("--root-dir", FILE_SOURCE_ROOT.getPath()));
     }
@@ -559,7 +559,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private String[] argsWithPort(String[] args) {
-    List<String> argsAsList = new ArrayList<String>(asList(args));
+    List<String> argsAsList = new ArrayList<>(asList(args));
     if (!argsAsList.contains("--port")) {
       argsAsList.addAll(asList("--port", "" + Options.DYNAMIC_PORT));
     }
@@ -576,10 +576,6 @@ public class StandaloneAcceptanceTest {
 
   private String systemOutText() {
     return new String(out.toByteArray());
-  }
-
-  private String systemErrText() {
-    return new String(err.toByteArray());
   }
 
   private Matcher<File> containsAFileContaining(final String expectedContents) {
@@ -676,6 +672,7 @@ public class StandaloneAcceptanceTest {
         try {
           gin.close();
         } catch (IOException e) {
+            throw new UncheckedIOException(e);
 
         }
     }

@@ -20,7 +20,10 @@ import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProc
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import com.github.tomakehurst.wiremock.extension.requestfilter.*;
+import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;

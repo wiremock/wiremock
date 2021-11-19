@@ -161,9 +161,9 @@ public class ClientAuthenticationAcceptanceTest {
 
   @Test
   public void supportsTokenAuthenticatorViaStaticDsl() {
-    final String TOKEN = "my_token_123";
+    final String token = "my_token_123";
 
-    initialise(new TokenAuthenticator(TOKEN), new ClientTokenAuthenticator(TOKEN));
+    initialise(new TokenAuthenticator(token), new ClientTokenAuthenticator(token));
     WireMockTestClient client = new WireMockTestClient(server.port());
 
     WireMock.configureFor(goodClient);

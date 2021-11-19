@@ -42,7 +42,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class Xml {
+public final class Xml {
 
   private Xml() {
     // Hide constructor

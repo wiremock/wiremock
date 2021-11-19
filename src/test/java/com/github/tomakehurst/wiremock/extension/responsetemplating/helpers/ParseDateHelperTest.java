@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.jknack.handlebars.Options;
@@ -49,7 +50,7 @@ public class ParseDateHelperTest {
 
     Date expectedDate = df.parse(inputDate);
     assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(((Date) output), is(expectedDate));
   }
 
   @Test
@@ -75,7 +76,7 @@ public class ParseDateHelperTest {
 
     Date expectedDate = Date.from(Instant.parse("2003-02-01T00:00:00Z"));
     assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(((Date) output), is(expectedDate));
   }
 
   @Test
@@ -88,7 +89,7 @@ public class ParseDateHelperTest {
 
     Date expectedDate = Date.from(Instant.parse("2003-02-01T05:06:07Z"));
     assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(((Date) output), is(expectedDate));
   }
 
   @Test
@@ -100,7 +101,7 @@ public class ParseDateHelperTest {
 
     Date expectedDate = Date.from(Instant.parse("2020-01-02T11:21:31Z"));
     assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(((Date) output), is(expectedDate));
   }
 
   private Object render(String context, ImmutableMap<String, Object> optionsHash)

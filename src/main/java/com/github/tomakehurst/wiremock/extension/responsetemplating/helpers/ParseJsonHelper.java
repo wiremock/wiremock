@@ -30,7 +30,7 @@ public class ParseJsonHelper extends HandlebarsHelper<Object> {
   public Object apply(Object context, Options options) throws IOException {
     CharSequence json;
     String variableName;
-    Object result = new HashMap<String, Object>();
+    Object result = new HashMap<>();
 
     // Edge case if null JSON object passed in
     if (context == null) {

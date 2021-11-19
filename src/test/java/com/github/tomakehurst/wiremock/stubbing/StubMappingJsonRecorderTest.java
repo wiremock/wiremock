@@ -249,7 +249,7 @@ public class StubMappingJsonRecorderTest {
           + "}													               ";
 
   private static final List<String> MATCHING_REQUEST_HEADERS =
-      new ArrayList<String>(Arrays.asList("Accept"));
+      new ArrayList<>(Arrays.asList("Accept"));
 
   @Test
   public void includesHeadersInRequestPatternIfHeaderMatchingEnabled() {
