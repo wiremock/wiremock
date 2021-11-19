@@ -37,9 +37,9 @@ public class InMemoryRequestJournalTest {
 
   static final Map<String, RequestMatcherExtension> NO_CUSTOM_MATCHERS = Collections.emptyMap();
 
-    private ServeEvent serveEvent1;
-    private ServeEvent serveEvent2;
-    private ServeEvent serveEvent3;
+  private ServeEvent serveEvent1;
+  private ServeEvent serveEvent2;
+  private ServeEvent serveEvent3;
 
   @BeforeEach
   public void createTestRequests() {

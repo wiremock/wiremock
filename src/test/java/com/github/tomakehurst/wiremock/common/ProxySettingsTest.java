@@ -55,8 +55,7 @@ public class ProxySettingsTest {
   @Test
   public void shouldThrowExceptionIfPortIsNotRecognized() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
+        IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
   }
 
   @Test
@@ -104,8 +103,6 @@ public class ProxySettingsTest {
 
   @Test
   public void shouldThrowExceptionIfUrlIsInvalid() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> ProxySettings.fromString("ul:invalid:80"));
+    assertThrows(IllegalArgumentException.class, () -> ProxySettings.fromString("ul:invalid:80"));
   }
 }
