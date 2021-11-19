@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
  * Exposed Jetty tuning options. See:
  * http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/server/AbstractConnector.html
  */
-public final class JettySettings {
+public class JettySettings {
   private final Optional<Integer> acceptors;
   private final Optional<Integer> acceptQueueSize;
   private final Optional<Integer> requestHeaderSize;
