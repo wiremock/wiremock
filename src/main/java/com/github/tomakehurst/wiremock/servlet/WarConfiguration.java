@@ -75,11 +75,6 @@ public class WarConfiguration implements Options {
   }
 
   @Override
-  public boolean browserProxyingEnabled() {
-    return false;
-  }
-
-  @Override
   public ProxySettings proxyVia() {
     return ProxySettings.NO_PROXY;
   }

@@ -58,10 +58,6 @@ public interface Options {
 
   int containerThreads();
 
-  /** @deprecated use {@link BrowserProxySettings#enabled()} */
-  @Deprecated
-  boolean browserProxyingEnabled();
-
   BrowserProxySettings browserProxySettings();
 
   ProxySettings proxyVia();

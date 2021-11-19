@@ -108,10 +108,6 @@ public final class Json {
     return read(json, JsonNode.class);
   }
 
-  public static int maxDeepSize(JsonNode one, JsonNode two) {
-    return Math.max(deepSize(one), deepSize(two));
-  }
-
   public static int deepSize(JsonNode node) {
     if (node == null) {
       return 0;

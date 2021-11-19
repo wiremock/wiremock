@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.concurrent.Callable;
 
 public class Exceptions {
@@ -63,20 +61,6 @@ public class Exceptions {
     } catch (Exception e) {
       return throwUnchecked(e, returnType);
     }
-  }
-
-  public static void uncheck(RunnableWithException work) {
-    try {
-      work.run();
-    } catch (Exception e) {
-      throwUnchecked(e);
-    }
-  }
-
-  public static String renderStackTrace(Throwable t) {
-    StringWriter sw = new StringWriter();
-    t.printStackTrace(new PrintWriter(sw));
-    return sw.toString();
   }
 
   public interface RunnableWithException {

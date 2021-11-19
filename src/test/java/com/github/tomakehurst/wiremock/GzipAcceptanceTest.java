@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
-import static com.github.tomakehurst.wiremock.common.Gzip.unGzipToString;
+import static com.github.tomakehurst.wiremock.common.Gzip.unGzip;
+import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,7 +58,7 @@ public class GzipAcceptanceTest {
 
       byte[] gzippedContent = response.binaryContent();
 
-      String plainText = unGzipToString(gzippedContent);
+      String plainText = new String(unGzip(gzippedContent));
       assertThat(plainText, is("body text"));
     }
 
@@ -74,7 +75,7 @@ public class GzipAcceptanceTest {
 
       byte[] gzippedContent = response.binaryContent();
 
-      String plainText = unGzipToString(gzippedContent);
+      String plainText = new String(unGzip(gzippedContent));
       assertThat(plainText, is("body text"));
     }
 
@@ -125,11 +126,13 @@ public class GzipAcceptanceTest {
           testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
       assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
       assertThat(response.headers().containsKey("Transfer-Encoding"), is(false));
-      assertThat(response.firstHeader("Content-Length"), is(String.valueOf(gzip(bodyText).length)));
+      assertThat(
+          response.firstHeader("Content-Length"),
+          is(String.valueOf(gzip(bodyText, DEFAULT_CHARSET).length)));
 
       byte[] gzippedContent = response.binaryContent();
 
-      String plainText = unGzipToString(gzippedContent);
+      String plainText = new String(unGzip(gzippedContent));
       assertThat(plainText, is(bodyText));
     }
 

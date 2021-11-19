@@ -203,14 +203,12 @@ public class CommandLineOptionsTest {
   @Test
   public void returnsBrowserProxyingEnabledWhenOptionSet() {
     CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
-    assertThat(options.browserProxyingEnabled(), is(true));
     assertThat(options.browserProxySettings().enabled(), is(true));
   }
 
   @Test
   public void returnsBrowserProxyingDisabledWhenOptionNoSet() {
     CommandLineOptions options = new CommandLineOptions();
-    assertThat(options.browserProxyingEnabled(), is(false));
     assertThat(options.browserProxySettings().enabled(), is(false));
   }
 

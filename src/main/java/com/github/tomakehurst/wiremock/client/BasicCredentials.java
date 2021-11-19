@@ -34,10 +34,6 @@ public class BasicCredentials {
     this.password = password;
   }
 
-  public boolean present() {
-    return username != null && password != null;
-  }
-
   public MultiValuePattern asAuthorizationMultiValuePattern() {
     return MultiValuePattern.of(equalToIgnoreCase(asAuthorizationHeaderValue()));
   }

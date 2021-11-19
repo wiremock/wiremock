@@ -125,18 +125,6 @@ public class Xml {
     }
   }
 
-  public static String toStringValue(Node node) {
-    switch (node.getNodeType()) {
-      case Node.TEXT_NODE:
-      case Node.ATTRIBUTE_NODE:
-        return node.getTextContent();
-      case Node.ELEMENT_NODE:
-        return render(node);
-      default:
-        return node.toString();
-    }
-  }
-
   private static String render(Node node) {
     try {
       StringWriter sw = new StringWriter();

@@ -47,10 +47,6 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
     headers = new HttpHeaders(httpHeaders);
   }
 
-  public static WireMockHttpServletMultipartAdapter from(Part servletPart) {
-    return new WireMockHttpServletMultipartAdapter(servletPart);
-  }
-
   @Override
   public String getName() {
     return mPart.getName();

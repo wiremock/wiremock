@@ -356,8 +356,4 @@ public class Diff {
         || pattern instanceof EqualToXmlPattern
         || pattern instanceof BinaryEqualToPattern;
   }
-
-  public boolean hasCustomMatcher() {
-    return requestPattern.hasInlineCustomMatcher() || requestPattern.hasNamedCustomMatcher();
-  }
 }

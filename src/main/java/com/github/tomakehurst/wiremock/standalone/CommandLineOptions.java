@@ -619,13 +619,6 @@ public class CommandLineOptions implements Options {
     return new PlainTextStubNotMatchedRenderer();
   }
 
-  /** @deprecated use {@link BrowserProxySettings#enabled()} */
-  @Deprecated
-  @Override
-  public boolean browserProxyingEnabled() {
-    return browserProxySettings().enabled();
-  }
-
   @Override
   public ProxySettings proxyVia() {
     if (optionSet.has(PROXY_VIA)) {

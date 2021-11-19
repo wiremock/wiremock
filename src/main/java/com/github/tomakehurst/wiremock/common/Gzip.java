@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 
 import com.google.common.io.ByteStreams;
@@ -41,14 +40,6 @@ public class Gzip {
     } catch (IOException e) {
       return throwUnchecked(e, byte[].class);
     }
-  }
-
-  public static String unGzipToString(byte[] gzippedContent) {
-    return new String(unGzip(gzippedContent));
-  }
-
-  public static byte[] gzip(String plainContent) {
-    return gzip(plainContent, DEFAULT_CHARSET);
   }
 
   public static byte[] gzip(String plainContent, Charset charset) {

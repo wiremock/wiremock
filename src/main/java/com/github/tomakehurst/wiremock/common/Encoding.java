@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 public class Encoding {
 
   private static Base64Encoder encoder = null;
@@ -46,13 +41,5 @@ public class Encoding {
 
   public static String encodeBase64(byte[] content, boolean padding) {
     return content != null ? getInstance().encode(content, padding) : null;
-  }
-
-  public static String urlEncode(String unencodedUrl) {
-    try {
-      return URLEncoder.encode(unencodedUrl, "utf-8");
-    } catch (UnsupportedEncodingException e) {
-      return throwUnchecked(e, String.class);
-    }
   }
 }

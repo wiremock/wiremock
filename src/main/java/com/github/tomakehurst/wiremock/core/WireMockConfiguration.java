@@ -485,11 +485,6 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public boolean browserProxyingEnabled() {
-    return browserProxyingEnabled;
-  }
-
-  @Override
   public ProxySettings proxyVia() {
     return proxySettings;
   }

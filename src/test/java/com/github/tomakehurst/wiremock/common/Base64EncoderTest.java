@@ -28,7 +28,7 @@ public class Base64EncoderTest {
   public void testGuavaEncoder() {
     Base64Encoder encoder = new GuavaBase64Encoder();
 
-    String encoded = encoder.encode(INPUT.getBytes());
+    String encoded = encoder.encode(INPUT.getBytes(), true);
     assertThat(encoded, is(OUTPUT));
 
     String decoded = new String(encoder.decode(encoded));

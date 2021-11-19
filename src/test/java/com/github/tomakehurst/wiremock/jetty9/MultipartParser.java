@@ -38,7 +38,7 @@ public class MultipartParser {
               new Function<Part, Request.Part>() {
                 @Override
                 public Request.Part apply(Part input) {
-                  return WireMockHttpServletMultipartAdapter.from(input);
+                  return new WireMockHttpServletMultipartAdapter(input);
                 }
               })
           .toList();

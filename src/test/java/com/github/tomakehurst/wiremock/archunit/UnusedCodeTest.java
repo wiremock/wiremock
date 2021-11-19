@@ -161,6 +161,10 @@ class UnusedCodeTest {
                       input ->
                           input.getParameterTypes().size() <= 1
                               && input.getOwner().tryGetField(input.getName()).isPresent())))
+          .and()
+          .areNotAnnotatedWith(com.fasterxml.jackson.annotation.JsonCreator.class)
+          .and()
+          .areNotAnnotatedWith(com.fasterxml.jackson.annotation.JsonProperty.class)
           .should(beReferencedMethod)
           .as("should use all methods")
           .because("unused methods should be removed");

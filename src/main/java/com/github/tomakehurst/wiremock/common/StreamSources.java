@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.common;
 
 import java.io.*;
-import java.net.URI;
 import java.nio.charset.Charset;
 
 public class StreamSources {
@@ -38,19 +37,6 @@ public class StreamSources {
       @Override
       public InputStream getStream() {
         return bytes == null ? null : new ByteArrayInputStream(bytes);
-      }
-    };
-  }
-
-  public static InputStreamSource forURI(final URI uri) {
-    return new InputStreamSource() {
-      @Override
-      public InputStream getStream() {
-        try {
-          return uri == null ? null : new BufferedInputStream(uri.toURL().openStream());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
       }
     };
   }

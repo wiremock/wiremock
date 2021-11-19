@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.Dates;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
@@ -263,7 +263,7 @@ public class LoggedRequest implements Request {
   }
 
   public String getLoggedDateString() {
-    return loggedDate != null ? Dates.format(loggedDate) : null;
+    return loggedDate != null ? ISO8601Utils.format(loggedDate) : null;
   }
 
   @Override

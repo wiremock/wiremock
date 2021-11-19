@@ -53,10 +53,6 @@ public class Errors {
     return single(10, pointer, message);
   }
 
-  public static Errors notPermitted(String reason) {
-    return single(50, reason);
-  }
-
   public Error first() {
     if (errors.isEmpty()) {
       throw new IllegalStateException("No errors are present");

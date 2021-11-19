@@ -271,7 +271,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   public void recordsIntoPlainTextWhenResponseIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
 
-    byte[] gzippedBody = gzip("Zippy");
+    byte[] gzippedBody = gzip("Zippy", DEFAULT_CHARSET);
     targetService.stubFor(
         get("/gzipped-response")
             .willReturn(

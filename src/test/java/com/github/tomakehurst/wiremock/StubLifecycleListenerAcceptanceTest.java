@@ -222,7 +222,7 @@ public class StubLifecycleListenerAcceptanceTest {
 
     private void throwIfRequired() {
       if (throwException) {
-        throw new NotPermittedException(Errors.notPermitted("quota exhausted"));
+        throw new NotPermittedException(Errors.single(50, "quota exhausted"));
       }
     }
   }
