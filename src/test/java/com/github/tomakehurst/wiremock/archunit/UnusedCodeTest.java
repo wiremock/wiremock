@@ -157,6 +157,20 @@ class UnusedCodeTest {
           .and(
               not(
                   describe(
+                      "are not setters",
+                      input ->
+                          input.getName().startsWith("set")
+                              && 5 < input.getName().length()
+                              && input.getParameterTypes().size() <= 1
+                              && input
+                                  .getOwner()
+                                  .tryGetField(
+                                      Character.toLowerCase(input.getName().charAt(3))
+                                          + input.getName().substring(4))
+                                  .isPresent())))
+          .and(
+              not(
+                  describe(
                       "are not builders",
                       input ->
                           input.getParameterTypes().size() <= 1
