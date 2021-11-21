@@ -67,13 +67,13 @@ public class JettyFaultInjector implements FaultInjector {
     public void malformedResponseChunk() {
         try {
             response.setStatus(200);
-            // TODO: Explore handle exception here
             response.flushBuffer();
             socket.getChannel().write(BufferUtil.toBuffer(GARBAGE));
             socket.close();
         } catch (IOException e) {
             throwUnchecked(e);
         }
+
     }
 
     @Override

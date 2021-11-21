@@ -146,17 +146,6 @@ public class HttpsAcceptanceTest {
     }
 
     @Test
-    public void malformedResponseChunkFaultWithStatusCode() {
-        startServerWithDefaultKeystore();
-        stubFor(get(urlEqualTo("/malformed/response")).willReturn(
-                aResponse()
-                        .withStatus(200)
-                        .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
-
-        getAndAssertUnderlyingExceptionInstanceClass(url("/malformed/response"), MalformedChunkCodingException.class);
-    }
-
-    @Test
     public void randomDataOnSocketFault() {
         startServerWithDefaultKeystore();
         stubFor(get(urlEqualTo("/random/data")).willReturn(

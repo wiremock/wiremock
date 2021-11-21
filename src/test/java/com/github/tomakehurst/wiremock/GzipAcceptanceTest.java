@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -24,7 +23,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.eclipse.jetty.util.Jetty;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +52,6 @@ public class GzipAcceptanceTest {
             assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
             assertThat(response.firstHeader("Transfer-Encoding"), is("chunked"));
             assertThat(response.headers().containsKey("Content-Length"), is(false));
-            assertThat(response.statusCode (), is(200));
 
             byte[] gzippedContent = response.binaryContent();
 
@@ -72,8 +69,6 @@ public class GzipAcceptanceTest {
             );
             assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
 
-            assertThat(response.statusCode (), is(200));
-
             byte[] gzippedContent = response.binaryContent();
 
             String plainText = unGzipToString(gzippedContent);
@@ -89,26 +84,7 @@ public class GzipAcceptanceTest {
             HttpEntity compressedBody = new GzipCompressingEntity(new StringEntity("request body", ContentType.TEXT_PLAIN));
             WireMockResponse response = testClient.post("/gzip-request", compressedBody);
 
-            assertThat(response.statusCode (), is(200));
             assertThat(response.content(), is("response body"));
-        }
-
-        /*
-         * NEW Test Case for https://github.com/wiremock/wiremock/issues/1584
-         */
-        @Test
-        public void malformedResponseChunkFaultWithGzipNoEncoding() {
-
-            //String bodyText = RandomStringUtils.randomAlphabetic(257); // 256 bytes is the minimum size for gzip to be used
-
-            wm.stubFor(get("/gzip-response").willReturn(aResponse()
-                    .withStatus ( 200 )
-                    .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
-
-            WireMockResponse response = testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
-            assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
-            assertThat(response.headers().containsKey("Transfer-Encoding"), is(true));
-            assertThat(response.statusCode(), is(200));
         }
     }
 
@@ -143,22 +119,6 @@ public class GzipAcceptanceTest {
 
             String plainText = unGzipToString(gzippedContent);
             assertThat(plainText, is(bodyText));
-        }
-
-        /*
-         * NEW Test Case for https://github.com/wiremock/wiremock/issues/1584
-         */
-        @Test
-        public void malformedResponseChunkFaultWithGzipEncoding() {
-
-            wm.stubFor(get("/gzip-response").willReturn(
-                    aResponse()
-                    .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
-
-            WireMockResponse response = testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
-           /* assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
-            assertThat(response.headers().containsKey("Transfer-Encoding"), is(false));
-            assertThat(response.statusCode(), is(200));*/
         }
 
         private boolean isNotOldJettyVersion() {
