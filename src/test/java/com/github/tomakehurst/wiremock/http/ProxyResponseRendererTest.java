@@ -44,8 +44,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+@DisabledForJreRange(
+    min = JRE.JAVA_17,
+    disabledReason = "does not support generating certificates at runtime")
 public class ProxyResponseRendererTest {
 
   @RegisterExtension
