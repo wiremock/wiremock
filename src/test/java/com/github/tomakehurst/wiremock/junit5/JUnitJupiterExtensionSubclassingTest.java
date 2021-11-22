@@ -15,6 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.platform.testkit.engine.EngineTestKit;
+import org.junit.platform.testkit.engine.Events;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.junit5.WireMockExtension.extensionOptions;
@@ -22,16 +32,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.platform.testkit.engine.EngineTestKit;
-import org.junit.platform.testkit.engine.Events;
-
 public class JUnitJupiterExtensionSubclassingTest {
+
+  @BeforeEach
+  public void beforeEach() {
+    MyWireMockExtension.reset();
+  }
 
   @Test
   void executes_all_lifecycle_callbacks() {
@@ -51,7 +57,7 @@ public class JUnitJupiterExtensionSubclassingTest {
 
   public static class TestClass {
 
-    CloseableHttpClient client;
+    CloseableHttpClient client = HttpClientFactory.createClient();
 
     @RegisterExtension
     static MyWireMockExtension wm =
@@ -59,11 +65,6 @@ public class JUnitJupiterExtensionSubclassingTest {
             extensionOptions()
                 .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
                 .configureStaticDsl(true));
-
-    @BeforeEach
-    void initEach() {
-      client = HttpClientFactory.createClient();
-    }
 
     @Test
     void respects_config_passed_via_builder() throws Exception {
@@ -110,6 +111,13 @@ public class JUnitJupiterExtensionSubclassingTest {
     @Override
     protected void onAfterAll(WireMockRuntimeInfo wireMockRuntimeInfo) {
       afterAllCalled = true;
+    }
+
+    public static void reset() {
+      beforeAllCalled = false;
+      beforeEachCalled = false;
+      afterEachCalled = false;
+      afterAllCalled = false;
     }
   }
 }
