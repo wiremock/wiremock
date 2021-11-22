@@ -26,10 +26,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Map;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
@@ -55,7 +52,19 @@ public class XmlNode {
       new InheritableThreadLocal<Transformer>() {
         @Override
         protected Transformer initialValue() {
-          TransformerFactory transformerFactory = TransformerFactory.newInstance();
+          TransformerFactory transformerFactory;
+          try {
+            // Optimization to get likely transformerFactory directly, rather than going through
+            // FactoryFinder#find
+            transformerFactory =
+                (TransformerFactory)
+                    Class.forName(
+                            "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
+                        .getDeclaredConstructor()
+                        .newInstance();
+          } catch (Exception e) {
+            transformerFactory = TransformerFactory.newInstance();
+          }
           transformerFactory.setAttribute("indent-number", 2);
 
           try {
