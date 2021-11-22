@@ -25,6 +25,11 @@ import java.util.Optional;
 import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 
+/**
+ * JUnit Jupiter extension that manages a WireMock server instance's lifecycle and configuration.
+ *
+ * See http://wiremock.org/docs/junit-jupiter/ for full documentation.
+ */
 public class WireMockExtension extends DslWrapper
     implements ParameterResolver,
         BeforeEachCallback,
@@ -49,6 +54,14 @@ public class WireMockExtension extends DslWrapper
     failOnUnmatchedRequests = false;
   }
 
+  /**
+   * Constructor intended for subclasses.
+   *
+   * The parameter is a builder so that we can avoid a constructor explosion or
+   * backwards-incompatible changes when new options are added.
+   *
+   * @param builder a {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder} instance holding the initialisation parameters for the extension.
+   */
   protected WireMockExtension(Builder builder) {
     this.options = builder.options;
     this.configureStaticDsl = builder.configureStaticDsl;
@@ -67,20 +80,44 @@ public class WireMockExtension extends DslWrapper
     this.proxyMode = proxyMode;
   }
 
+  /**
+   * Alias for {@link #newInstance()} for use with custom subclasses, with a more relevant name for that use.
+   * @return a new {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder} instance.
+   */
   public static Builder extensionOptions() {
     return newInstance();
   }
 
+  /**
+   * Create a new builder for the extension.
+   * @return a new {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder} instance.
+   */
   public static Builder newInstance() {
     return new Builder();
   }
 
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-class WireMock setup.
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   */
   protected void onBeforeAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-test WireMock setup.
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   */
   protected void onBeforeEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-test cleanup of WireMock and its associated resources.
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   */
   protected void onAfterEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-class cleanup of WireMock.
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   */
   protected void onAfterAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
   @Override
@@ -165,7 +202,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   @Override
-  public void beforeAll(ExtensionContext context) throws Exception {
+  public final void beforeAll(ExtensionContext context) throws Exception {
     startServerIfRequired(context);
     setAdditionalOptions(context);
 
@@ -173,7 +210,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
+  public final void beforeEach(ExtensionContext context) throws Exception {
     if (wireMockServer == null) {
       isNonStatic = true;
       startServerIfRequired(context);
@@ -191,14 +228,14 @@ public class WireMockExtension extends DslWrapper
   }
 
   @Override
-  public void afterAll(ExtensionContext context) throws Exception {
+  public final void afterAll(ExtensionContext context) throws Exception {
     stopServerIfRunning();
 
     onAfterAll(runtimeInfo);
   }
 
   @Override
-  public void afterEach(ExtensionContext context) throws Exception {
+  public final void afterEach(ExtensionContext context) throws Exception {
     if (failOnUnmatchedRequests) {
       wireMockServer.checkForUnmatchedRequests();
     }
