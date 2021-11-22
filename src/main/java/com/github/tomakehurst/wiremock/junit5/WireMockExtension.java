@@ -39,6 +39,7 @@ public class WireMockExtension extends DslWrapper
 
   private Options options;
   private WireMockServer wireMockServer;
+  private WireMockRuntimeInfo runtimeInfo;
   private boolean isNonStatic = false;
 
   private Boolean proxyMode;
@@ -48,8 +49,14 @@ public class WireMockExtension extends DslWrapper
     failOnUnmatchedRequests = false;
   }
 
-  // Intended to be called from the builder
-  protected WireMockExtension(
+  protected WireMockExtension(Builder builder) {
+    this.options = builder.options;
+    this.configureStaticDsl = builder.configureStaticDsl;
+    this.failOnUnmatchedRequests = builder.failOnUnmatchedRequests;
+    this.proxyMode = builder.proxyMode;
+  }
+
+  private WireMockExtension(
       Options options,
       boolean configureStaticDsl,
       boolean failOnUnmatchedRequests,
@@ -60,9 +67,21 @@ public class WireMockExtension extends DslWrapper
     this.proxyMode = proxyMode;
   }
 
+  public static Builder extensionOptions() {
+    return newInstance();
+  }
+
   public static Builder newInstance() {
     return new Builder();
   }
+
+  protected void onBeforeAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
+
+  protected void onBeforeEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
+
+  protected void onAfterEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
+
+  protected void onAfterAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
   @Override
   public boolean supportsParameter(
@@ -77,7 +96,7 @@ public class WireMockExtension extends DslWrapper
       throws ParameterResolutionException {
 
     if (parameterIsWireMockRuntimeInfo(parameterContext)) {
-      return new WireMockRuntimeInfo(wireMockServer);
+      return runtimeInfo;
     }
 
     return null;
@@ -87,6 +106,8 @@ public class WireMockExtension extends DslWrapper
     if (wireMockServer == null || !wireMockServer.isRunning()) {
       wireMockServer = new WireMockServer(resolveOptions(extensionContext));
       wireMockServer.start();
+
+      runtimeInfo = new WireMockRuntimeInfo(wireMockServer);
 
       this.admin = wireMockServer;
       this.stubbing = wireMockServer;
@@ -147,6 +168,8 @@ public class WireMockExtension extends DslWrapper
   public void beforeAll(ExtensionContext context) throws Exception {
     startServerIfRequired(context);
     setAdditionalOptions(context);
+
+    onBeforeAll(runtimeInfo);
   }
 
   @Override
@@ -163,11 +186,15 @@ public class WireMockExtension extends DslWrapper
     if (proxyMode) {
       JvmProxyConfigurer.configureFor(wireMockServer);
     }
+
+    onBeforeEach(runtimeInfo);
   }
 
   @Override
   public void afterAll(ExtensionContext context) throws Exception {
     stopServerIfRunning();
+
+    onAfterAll(runtimeInfo);
   }
 
   @Override
@@ -183,6 +210,8 @@ public class WireMockExtension extends DslWrapper
     if (proxyMode) {
       JvmProxyConfigurer.restorePrevious();
     }
+
+    onAfterEach(runtimeInfo);
   }
 
   public WireMockRuntimeInfo getRuntimeInfo() {
