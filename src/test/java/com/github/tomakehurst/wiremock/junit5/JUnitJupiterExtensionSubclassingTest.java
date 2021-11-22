@@ -15,19 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import ignored.JupiterExtensionTestClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.platform.testkit.engine.EngineTestKit;
 import org.junit.platform.testkit.engine.Events;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.github.tomakehurst.wiremock.junit5.WireMockExtension.extensionOptions;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
@@ -43,7 +36,7 @@ public class JUnitJupiterExtensionSubclassingTest {
   void executes_all_lifecycle_callbacks() {
     Events testEvents =
         EngineTestKit.engine("junit-jupiter")
-            .selectors(selectClass(TestClass.class))
+            .selectors(selectClass(JupiterExtensionTestClass.class))
             .execute()
             .testEvents();
 
@@ -53,33 +46,6 @@ public class JUnitJupiterExtensionSubclassingTest {
     assertThat(MyWireMockExtension.beforeEachCalled, is(true));
     assertThat(MyWireMockExtension.afterEachCalled, is(true));
     assertThat(MyWireMockExtension.afterAllCalled, is(true));
-  }
-
-  public static class TestClass {
-
-    CloseableHttpClient client = HttpClientFactory.createClient();
-
-    @RegisterExtension
-    static MyWireMockExtension wm =
-        new MyWireMockExtension(
-            extensionOptions()
-                .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
-                .configureStaticDsl(true));
-
-    @Test
-    void respects_config_passed_via_builder() throws Exception {
-      assertThat(MyWireMockExtension.beforeAllCalled, is(true));
-      assertThat(MyWireMockExtension.beforeEachCalled, is(true));
-      assertThat(MyWireMockExtension.afterEachCalled, is(false));
-      assertThat(MyWireMockExtension.afterAllCalled, is(false));
-
-      stubFor(get("/ping").willReturn(ok()));
-
-      try (CloseableHttpResponse response =
-          client.execute(new HttpGet("https://localhost:" + wm.getHttpsPort() + "/ping"))) {
-        assertThat(response.getCode(), is(200));
-      }
-    }
   }
 
   public static class MyWireMockExtension extends WireMockExtension {
