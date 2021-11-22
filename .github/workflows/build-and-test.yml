@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        jdk: [8, 11]
+        jdk: [8.0.192, 8, 11.0.3, 11]
     runs-on: ${{ matrix.os }}
     env:
       JDK_VERSION:  ${{ matrix.jdk }}
@@ -28,7 +28,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: ${{ matrix.jdk }}
-        distribution: 'adopt'
+        distribution: 'zulu'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Set up node using nvm
