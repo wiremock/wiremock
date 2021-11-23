@@ -15,23 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.FluentIterable.from;
-
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapter;
 import com.google.common.base.Function;
+import jakarta.servlet.http.Part;
+import org.eclipse.jetty.server.MultiPartFormInputStream;
+
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
-import javax.servlet.http.Part;
-import org.eclipse.jetty.util.MultiPartInputStreamParser;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.collect.FluentIterable.from;
 
 public class MultipartParser {
 
   @SuppressWarnings("unchecked")
   public static Collection<Request.Part> parse(byte[] body, String contentType) {
-    MultiPartInputStreamParser parser =
-        new MultiPartInputStreamParser(new ByteArrayInputStream(body), contentType, null, null);
+      MultiPartFormInputStream parser =
+        new MultiPartFormInputStream(new ByteArrayInputStream(body), contentType, null, null);
     try {
       return from(parser.getParts())
           .transform(

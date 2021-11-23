@@ -23,7 +23,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.util.Collection;
-import javax.servlet.http.Part;
+import jakarta.servlet.http.Part;
 
 public class WireMockHttpServletMultipartAdapter implements Request.Part {
 

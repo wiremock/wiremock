@@ -25,8 +25,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import javax.servlet.*;
-import javax.servlet.descriptor.JspConfigDescriptor;
+import jakarta.servlet.*;
+import jakarta.servlet.descriptor.JspConfigDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -225,6 +225,11 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
+    public ServletRegistration.Dynamic addJspFile(String servletName, String jspFile) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
     public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
       throw new UnsupportedOperationException("not yet implemented");
     }
@@ -327,6 +332,36 @@ public class ServletContextFileSourceTest {
 
     @Override
     public String getVirtualServerName() {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public int getSessionTimeout() {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public void setSessionTimeout(int sessionTimeout) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public String getRequestCharacterEncoding() {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public void setRequestCharacterEncoding(String encoding) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public String getResponseCharacterEncoding() {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public void setResponseCharacterEncoding(String encoding) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 

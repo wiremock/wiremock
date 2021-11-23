@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.net.Socket;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;

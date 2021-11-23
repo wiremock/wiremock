@@ -15,19 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.jetty9.JettyUtils.unwrapResponse;
-
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.google.common.base.Charsets;
-import java.io.IOException;
-import java.net.Socket;
-import java.nio.channels.SocketChannel;
-import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.io.ChannelEndPoint;
+import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.io.SocketChannelEndPoint;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
+
+import java.io.IOException;
+import java.net.Socket;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.jetty9.JettyUtils.unwrapResponse;
 
 public class JettyFaultInjector implements FaultInjector {
 
@@ -85,7 +85,7 @@ public class JettyFaultInjector implements FaultInjector {
 
   private Socket socket() {
     HttpChannel httpChannel = response.getHttpOutput().getHttpChannel();
-    ChannelEndPoint ep = (ChannelEndPoint) httpChannel.getEndPoint();
-    return ((SocketChannel) ep.getChannel()).socket();
+    SocketChannelEndPoint ep = (SocketChannelEndPoint) httpChannel.getEndPoint();
+    return ep.getChannel().socket();
   }
 }

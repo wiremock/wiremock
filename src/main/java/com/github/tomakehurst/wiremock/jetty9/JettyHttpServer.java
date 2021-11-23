@@ -36,9 +36,9 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
@@ -193,7 +193,8 @@ public class JettyHttpServer implements HttpServer {
 
   protected void finalizeSetup(Options options) {
     if (!options.jettySettings().getStopTimeout().isPresent()) {
-      jettyServer.setStopTimeout(1000);
+      //jettyServer.setStopTimeout(1000);
+      jettyServer.setStopTimeout(0);
     }
   }
 
@@ -285,7 +286,7 @@ public class JettyHttpServer implements HttpServer {
       NetworkTrafficListener listener) {
 
     // Added to support Android https communication.
-    SslContextFactory sslContextFactory = buildSslContextFactory();
+    SslContextFactory.Server sslContextFactory = buildSslContextFactory();
 
     sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
     sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
@@ -322,8 +323,8 @@ public class JettyHttpServer implements HttpServer {
   }
 
   // Override this for platform-specific impls
-  protected SslContextFactory buildSslContextFactory() {
-    return new SslContextFactory();
+  protected SslContextFactory.Server buildSslContextFactory() {
+    return new SslContextFactory.Server();
   }
 
   protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
@@ -347,7 +348,7 @@ public class JettyHttpServer implements HttpServer {
             jettyServer, null, null, null, acceptors, 2, connectionFactories);
 
     connector.setPort(port);
-    connector.addNetworkTrafficListener(listener);
+    connector.setNetworkTrafficListener(listener);
     setJettySettings(jettySettings, connector);
     connector.setHost(bindAddress);
     return connector;

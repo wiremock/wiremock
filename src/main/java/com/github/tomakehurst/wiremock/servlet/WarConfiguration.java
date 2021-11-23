@@ -37,7 +37,7 @@ import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 public class WarConfiguration implements Options {
 

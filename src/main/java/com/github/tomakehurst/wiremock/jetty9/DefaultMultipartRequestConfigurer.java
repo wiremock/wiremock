@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
 

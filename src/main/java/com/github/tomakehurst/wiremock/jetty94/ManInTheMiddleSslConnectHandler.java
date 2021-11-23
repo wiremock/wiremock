@@ -20,7 +20,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.Promise;
@@ -60,8 +60,7 @@ public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
   private void close(Closeable closeable) {
     try {
       if (closeable != null) closeable.close();
-    } catch (Throwable x) {
-      LOG.ignore(x);
+    } catch (Throwable ignored) {
     }
   }
 }

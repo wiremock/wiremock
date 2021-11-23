@@ -44,7 +44,7 @@ import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
@@ -238,9 +238,9 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public Map<String, Cookie> getCookies() {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
-    javax.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
-    for (javax.servlet.http.Cookie cookie : cookies) {
+    jakarta.servlet.http.Cookie[] cookies =
+        firstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+    for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
 
