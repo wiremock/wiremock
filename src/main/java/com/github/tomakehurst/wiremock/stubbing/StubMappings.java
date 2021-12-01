@@ -35,6 +35,10 @@ public interface StubMappings {
 
   void resetScenarios();
 
+  void setScenarioState(String name, String state);
+
+  String getScenarioState(String scenarioName);
+
   List<StubMapping> getAll();
 
   Optional<StubMapping> get(UUID id);

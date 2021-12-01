@@ -105,6 +105,21 @@ public class Scenarios {
             }));
   }
 
+  public void setScenarioState(String scenarioName, String scenarioState) {
+    scenarioMap.putAll(
+        Maps.transformValues(
+            scenarioMap,
+            new Function<Scenario, Scenario>() {
+              @Override
+              public Scenario apply(Scenario input) {
+                if (input.getName().equals(scenarioName)) {
+                  return input.setState(scenarioState);
+                }
+                return input;
+              }
+            }));
+  }
+
   public void clear() {
     scenarioMap.clear();
   }

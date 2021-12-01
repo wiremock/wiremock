@@ -1815,6 +1815,46 @@
       "responses": {"200": {"description": "Successfully saved"}},
       "tags": ["Stub Mappings"]
     }},
+    "/__admin/scenario/state": {
+      "post": {
+        "summary": "Set State of a specific scenario",
+        "requestBody": {"content": {"application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "scenarioName": {"type": "string"},
+              "scenarioState": {"type": "string"}
+            }
+          },
+          "example": {
+            "scenarioName": "static-scenario",
+            "scenarioState": "state"
+          }
+        }}},
+        "responses": {
+          "200": {"description": "Successful"},
+          "400": {"description": "Error parsing the parameters"},
+          "404": {"description": "Scenario was not found"}
+        },
+        "tags": ["Scenarios"]
+      },
+      "get": {
+        "summary": "Get State of a specific scenario",
+        "responses": {
+          "200": {"description": "Successful"},
+          "400": {"description": "Error parsing the parameters"},
+          "404": {"description": "Scenario was not found"}
+        },
+        "parameters": [{
+          "schema": {"type": "string"},
+          "in": "query",
+          "name": "scenarioName",
+          "description": "The name of the Scenario",
+          "example": "scenario-name"
+        }],
+        "tags": ["Scenarios"]
+      }
+    },
     "/__admin/mappings/{stubMappingId}": {
       "get": {
         "summary": "Get stub mapping by ID",

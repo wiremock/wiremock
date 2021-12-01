@@ -81,6 +81,16 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public void setScenarioState(ScenarioStateParam param) {
+    admin.setScenarioState(param);
+  }
+
+  @Override
+  public String getScenarioState(String scenarioName) {
+    return admin.getScenarioState(scenarioName);
+  }
+
+  @Override
   public void resetMappings() {
     admin.resetMappings();
   }

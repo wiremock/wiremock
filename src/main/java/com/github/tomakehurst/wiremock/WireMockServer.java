@@ -390,6 +390,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public void setScenarioState(ScenarioStateParam scenarioStateParam) {
+    wireMockApp.setScenarioState(scenarioStateParam);
+  }
+
+  @Override
+  public String getScenarioState(String scenarioName) {
+    return wireMockApp.getScenarioState(scenarioName);
+  }
+
+  @Override
   public void resetMappings() {
     wireMockApp.resetMappings();
   }

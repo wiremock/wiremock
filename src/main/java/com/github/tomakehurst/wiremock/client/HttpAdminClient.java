@@ -196,6 +196,23 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
+  public void setScenarioState(ScenarioStateParam scenarioStateParam) {
+    executeRequest(
+        adminRoutes.requestSpecForTask(SetScenarioTask.class), scenarioStateParam, Void.class);
+  }
+
+  @Override
+  public String getScenarioState(String scenarioName) {
+    QueryParams queryParams = QueryParams.single("scenarioName", scenarioName);
+    return executeRequest(
+        adminRoutes.requestSpecForTask(GetScenarioTask.class),
+        PathParams.empty(),
+        queryParams,
+        null,
+        String.class);
+  }
+
+  @Override
   public void resetMappings() {
     executeRequest(adminRoutes.requestSpecForTask(ResetStubMappingsTask.class));
   }

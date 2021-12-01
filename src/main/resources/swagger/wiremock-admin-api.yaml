@@ -483,6 +483,50 @@ paths:
       responses:
         '200':
           description: Successfully reset
+  /__admin/scenario/state:
+    get:
+      summary: Get the state of a specific scenario
+      tags:
+         - Scenarios
+      responses:
+        '200':
+          description: Successful
+        '400': 
+            description: Error parsing the parameters
+        '404': 
+            description: Scenario was not found
+      parameters:
+        - in: query 
+          name: scenarioName
+          schema: 
+            type: "string"
+          description: The name of the Scenario
+          example: "scenario-name"
+
+    post:
+      summary: Set the state of a scenario
+      tags:
+         - Scenarios
+      responses:
+        '200':
+          description: Successful
+        '400': 
+            description: Error parsing the parameters
+        '404': 
+            description: Scenario was not found
+      requestBody: 
+        content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  scenarioName:
+                    type: string
+                  newScenarioState:
+                    type: string
+              example: 
+                scenarioName: "static-scenario"
+                scenarioState: "state"
 
   /__admin/settings:
     post:

@@ -185,6 +185,29 @@ public class InMemoryStubMappings implements StubMappings {
   }
 
   @Override
+  public void setScenarioState(String scenarioName, String scenarioState) {
+    if (scenarios.getByName(scenarioName) == null) {
+      throw new AssertionError(String.format("Scenario '%s' was not found", scenarioName));
+    }
+    if (!scenarios.getByName(scenarioName).getPossibleStates().contains(scenarioState)) {
+      throw new AssertionError(
+          String.format(
+              "Scenario '%s' does not have definitions for the state '%s'",
+              scenarioName, scenarioState));
+    }
+    scenarios.setScenarioState(scenarioName, scenarioState);
+  }
+
+  @Override
+  public String getScenarioState(String scenarioName) {
+    Scenario scenario = scenarios.getByName(scenarioName);
+    if (scenario == null) {
+      throw new AssertionError(String.format("Scenario '%s' was not found", scenarioName));
+    }
+    return scenario.getState();
+  }
+
+  @Override
   public List<StubMapping> getAll() {
     return ImmutableList.copyOf(mappings);
   }

@@ -22,6 +22,7 @@ import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.google.common.net.HttpHeaders.LOCATION;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ScenarioStateParam;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.*;
@@ -366,6 +367,14 @@ public class WireMock {
 
   public void resetScenarios() {
     admin.resetScenarios();
+  }
+
+  public String getScenarioState(String scenarioName) {
+    return admin.getScenarioState(scenarioName);
+  }
+
+  public void setScenarioState(String scenarioName, String scenarioState) {
+    admin.setScenarioState(new ScenarioStateParam(scenarioName, scenarioState));
   }
 
   public static List<Scenario> getAllScenarios() {

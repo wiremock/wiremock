@@ -224,6 +224,10 @@ public class ResponseDefinition {
     return new ResponseDefinition(HTTP_NOT_FOUND, (byte[]) null);
   }
 
+  public static ResponseDefinition notFound(String body) {
+    return new ResponseDefinition(HTTP_NOT_FOUND, body.getBytes());
+  }
+
   public static ResponseDefinition ok() {
     return new ResponseDefinition(HTTP_OK, (byte[]) null);
   }

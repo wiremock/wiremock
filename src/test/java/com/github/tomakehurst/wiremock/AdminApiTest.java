@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
@@ -49,9 +50,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import net.minidev.json.JSONObject;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -462,6 +465,126 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.content(), is("{}"));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
     assertThat(testClient.get("/stateful").content(), is("Initial"));
+  }
+
+  @Test
+  public void setScenarioViaPOST() {
+    dsl.stubFor(
+        get(urlEqualTo("/stateful"))
+            .inScenario("static-states")
+            .whenScenarioStateIs(STARTED)
+            .willReturn(aResponse().withBody("Started")));
+
+    dsl.stubFor(
+        get(urlEqualTo("/stateful"))
+            .inScenario("static-states")
+            .whenScenarioStateIs("final")
+            .willReturn(aResponse().withBody("Final")));
+
+    StringEntity validBodyForFinalState =
+        new StringEntity(
+            new JSONObject()
+                .appendField("scenarioName", "static-states")
+                .appendField("scenarioState", "final")
+                .toString());
+
+    WireMockResponse resetToFinalStateResponse =
+        testClient.post(
+            "/__admin/scenario/state",
+            validBodyForFinalState,
+            TestHttpHeader.withHeader("content-type", "application/json"));
+
+    assertThat(resetToFinalStateResponse.statusCode(), is(200));
+    assertThat(testClient.get("/stateful").content(), is("Final"));
+
+    StringEntity validBodyForStartedState =
+        new StringEntity(
+            new JSONObject()
+                .appendField("scenarioName", "static-states")
+                .appendField("scenarioState", "Started")
+                .toString());
+
+    WireMockResponse resetToStartedStateResponse =
+        testClient.post(
+            "/__admin/scenario/state",
+            validBodyForStartedState,
+            TestHttpHeader.withHeader("content-type", "application/json"));
+
+    assertThat(resetToStartedStateResponse.statusCode(), is(200));
+    assertThat(testClient.get("/stateful").content(), is("Started"));
+
+    List<JSONObject> invalidStates = new LinkedList<JSONObject>();
+
+    invalidStates.add(new JSONObject());
+    invalidStates.add(
+        new JSONObject().appendField("scenarioName", "").appendField("scenarioState", "someState"));
+    invalidStates.add(
+        new JSONObject()
+            .appendField("scenarioName", "someScenario")
+            .appendField("scenarioState", ""));
+    invalidStates.add(
+        new JSONObject().appendField("scenarioName", "").appendField("scenarioState", ""));
+
+    for (JSONObject jsonState : invalidStates) {
+      WireMockResponse invalidJsonResponse =
+          testClient.post(
+              "/__admin/scenario/state",
+              new StringEntity(jsonState.toString()),
+              TestHttpHeader.withHeader("content-type", "application/json"));
+      assertThat(invalidJsonResponse.statusCode(), is(400));
+      assertThat(testClient.get("/stateful").content(), is("Started"));
+    }
+
+    WireMockResponse invalidJsonResponse =
+        testClient.post(
+            "/__admin/scenario/state",
+            new StringEntity(""),
+            TestHttpHeader.withHeader("content-type", "application/json"));
+    assertThat(invalidJsonResponse.statusCode(), is(400));
+    assertThat(testClient.get("/stateful").content(), is("Started"));
+
+    WireMockResponse notFoundResponse =
+        testClient.post(
+            "/__admin/scenario/state",
+            new StringEntity(
+                new JSONObject()
+                    .appendField("scenarioName", "unknownScenario")
+                    .appendField("scenarioState", "final")
+                    .toString()),
+            TestHttpHeader.withHeader("content-type", "application/json"));
+    assertThat(notFoundResponse.statusCode(), is(404));
+    assertThat(testClient.get("/stateful").content(), is("Started"));
+
+    notFoundResponse =
+        testClient.post(
+            "/__admin/scenario/state",
+            new StringEntity(
+                new JSONObject()
+                    .appendField("scenarioName", "static-scenario")
+                    .appendField("scenarioState", "unknownState")
+                    .toString()),
+            TestHttpHeader.withHeader("content-type", "application/json"));
+    assertThat(notFoundResponse.statusCode(), is(404));
+    assertThat(testClient.get("/stateful").content(), is("Started"));
+  }
+
+  @Test
+  public void getScenarioViaGET() {
+    dsl.stubFor(
+        get(urlEqualTo("/stateful"))
+            .inScenario("static-states")
+            .whenScenarioStateIs(STARTED)
+            .willReturn(aResponse().withBody("Started")));
+
+    WireMockResponse response = testClient.get("/__admin/scenario/state");
+    assertThat(response.statusCode(), is(400));
+
+    response = testClient.get("/__admin/scenario/state?scenarioName=unknown");
+    assertThat(response.statusCode(), is(404));
+
+    response = testClient.get("/__admin/scenario/state?scenarioName=static-states");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("\"Started\""));
   }
 
   @Test

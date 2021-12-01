@@ -52,6 +52,10 @@ public interface Admin {
 
   void resetToDefaultMappings();
 
+  void setScenarioState(ScenarioStateParam scenarioStateParam);
+
+  String getScenarioState(String scenarioName);
+
   GetServeEventsResult getServeEvents();
 
   GetServeEventsResult getServeEvents(ServeEventQuery query);

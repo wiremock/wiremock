@@ -142,7 +142,21 @@ The state of all configured scenarios can be reset back to
 `Scenario.START` either by calling `WireMock.resetAllScenarios()` in
 Java, or posting an empty request to `http://<host>:<port>/__admin/scenarios/reset`.
 
+## Working with specific scenarios
 
+### Getting a specific scenario state
+The state of a specific scenario can be retrieved for a specific state.
+The state of a specific scenario can be retrieved for a specific state `WireMock.getScenarioState(String scenarioName)` in Java, or sending a HTTP.GET request to `http://<host>:<port>/__admin/scenario/state?scenarioName=name`.
 
+### Setting a specific scenario state
+The state of a specific scenario can be set to a specific state.
+This can be achived by calling `Wiremock.setScenarioState(String scenarioName, String scenarioState)` in Java, or posting an request with JsonBody (see below) to `http://<host>:<port>/__admin/scenario/state`.
 
+JsonBody:
 
+```json
+{
+    "scenarioName": "name",
+    "scenarioState": "stateName"
+}
+```
