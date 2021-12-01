@@ -64,6 +64,36 @@ stubFor(get(urlEqualTo("/api/override/123")).atPriority(1)
         .willReturn(aResponse().withStatus(503)));            
 ```
 
+Remove path prefix
+==================
+
+The prefix of a request path can be removed before proxying the request:
+
+```java
+stubFor(get(urlEqualTo("/other/service/doc/123"))
+        .willReturn(aResponse()
+            .proxiedFrom("http://otherhost.com/approot")
+            .withProxyUrlPrefixToRemove("/other/service")));
+```
+
+or
+
+```json
+{
+    "request": {
+        "method": "GET",
+        "url": "/other/service/doc/123"
+    },
+    "response": {
+        "proxyBaseUrl" : "http://otherhost.com/approot",
+        "proxyUrlPrefixToRemove": "/other/service"
+    }
+}
+```
+
+Requests using the above path will be forwarded
+to `http://otherhost.com/approot/doc/123`
+
 Additional headers
 ==================
 
