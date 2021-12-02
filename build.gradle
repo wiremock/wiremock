@@ -153,6 +153,11 @@ allprojects {
     }
   }
 
+  tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+  }
+
   ext {
     runningOnCI = System.getenv('CI') == 'true'
 
