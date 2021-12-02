@@ -161,7 +161,6 @@ allprojects {
 
     pomInfo = {
       name 'WireMock'
-      description 'A web service test double for all occasions'
       url 'http://wiremock.org'
       scm {
         connection 'https://github.com/wiremock/wiremock.git'
@@ -350,6 +349,7 @@ publishing {
       artifact testJar
 
       pom.withXml {
+        asNode().appendNode('description', 'A web service test double for all occasions')
         asNode().children().last() + pomInfo
       }
     }
