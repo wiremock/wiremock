@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-09-07T12:06:27+01:00">
+  <meta property="article:published_time" content="2021-12-02T09:45:28+00:00">
   
   
     <link rel="prev" href="/docs/verifying/" title="Verifying">
@@ -255,6 +255,18 @@
       </a>
       
       <li>
+        <a href="/docs/running-without-http-server/">
+
+        Running without the HTTP Server
+      </a>
+      
+      <li>
+        <a href="/docs/docker/">
+
+        Running in Docker
+      </a>
+      
+      <li>
         <a href="/docs/stubbing/">
 
         Stubbing
@@ -291,15 +303,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -365,7 +377,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Webhooks and Callbacks">
     <meta itemprop="description" content="WireMock can make asynchronous outbound HTTP calls when an incoming request is matched to a specific stub. This patternis commonly referred to as webhooks or callbacks and is a common design in APIs that need to proactively notify their clientsof events or perform long-running processing asynchronously without blocking.">
-    <meta itemprop="datePublished" content="September 07, 2021">
+    <meta itemprop="datePublished" content="December 02, 2021">
     
 
     <div class="page__inner-wrap">
@@ -390,14 +402,14 @@ of events or perform long-running processing asynchronously without blocking.</p
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.wiremock<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-webhooks-extension<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.31.0<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
 
 <p>Gradle:</p>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"org.wiremock:wiremock-webhooks-extension:2.31.0"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"org.wiremock:wiremock-webhooks-extension:2.32.0"</span>
 </code></pre></div></div>
 
 <p>Then when creating the <code class="highlighter-rouge">WireMockServer</code> or <code class="highlighter-rouge">WireMockRule</code> the extension must be passed via the configuration object
@@ -412,12 +424,12 @@ in the constructor:</p>
 <p>To use the webhooks extension with standalone WireMock you must download the extension JAR file and add it to the Java classpath
 on the startup command line:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-cp</span> wiremock-jre8-standalone-2.31.0.jar:wiremock-webhooks-extension-2.31.0.jar <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-cp</span> wiremock-jre8-standalone-2.32.0.jar:wiremock-webhooks-extension-2.32.0.jar <span class="se">\</span>
   com.github.tomakehurst.wiremock.standalone.WireMockServerRunner <span class="se">\</span>
   <span class="nt">--extensions</span> org.wiremock.webhooks.Webhooks
 </code></pre></div></div>
 
-<p>You can <a href="https://repo1.maven.org/maven2/org/wiremock/wiremock-webhooks-extension/2.31.0/wiremock-webhooks-extension-2.31.0.jar">download the webhooks extension JAR here</a>.</p>
+<p>You can <a href="https://repo1.maven.org/maven2/org/wiremock/wiremock-webhooks-extension/2.32.0/wiremock-webhooks-extension-2.32.0.jar">download the webhooks extension JAR here</a>.</p>
 
 <h2 id="a-simple-single-webhook">A simple, single webhook</h2>
 <p>You can trigger a single webhook request to a fixed URL, with fixed data like this:</p>

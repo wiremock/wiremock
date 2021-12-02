@@ -19,7 +19,7 @@
 
 
 
-<title>Download and Installation - WireMock</title>
+<title>Running without the HTTP Server - WireMock</title>
 
 
 
@@ -27,16 +27,16 @@
 
 
 
-<meta name="description" content="Getting WireMock into your project">
+<meta name="description" content="Running WireMock inside a Java process, without running the inbuilt HTTP layer.">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Download and Installation">
+<meta property="og:title" content="Running without the HTTP Server">
 
 
 
 
-  <meta property="og:description" content="Getting WireMock into your project">
+  <meta property="og:description" content="Running WireMock inside a Java process, without running the inbuilt HTTP layer.">
 
 
 
@@ -53,10 +53,10 @@
   <meta property="og:type" content="article">
   <meta property="article:published_time" content="2021-12-02T09:45:28+00:00">
   
-    <link rel="next" href="/docs/extending-wiremock/" title="Extending WireMock">
+    <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
   
-    <link rel="prev" href="/docs/docker/" title="Running in Docker">
+    <link rel="prev" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
 
 
@@ -221,8 +221,7 @@
       </a>
       
       <li>
-        <a href="/docs/download-and-installation/" class="nav__list-item--selected">
-        
+        <a href="/docs/download-and-installation/">
 
         Download and Installation
       </a>
@@ -258,7 +257,8 @@
       </a>
       
       <li>
-        <a href="/docs/running-without-http-server/">
+        <a href="/docs/running-without-http-server/" class="nav__list-item--selected">
+        
 
         Running without the HTTP Server
       </a>
@@ -377,106 +377,49 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Download and Installation">
-    <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containingWireMock plus all its dependencies.">
+    <meta itemprop="headline" content="Running without the HTTP Server">
+    <meta itemprop="description" content="If you want to run Wiremock inside another process, such as wrapping it in a serverless function such as on AWS Lambda, or using it as part of an application’s integration tests, you previously would need to resort to Running as a Standalone Process.">
     <meta itemprop="datePublished" content="December 02, 2021">
     
 
     <div class="page__inner-wrap">
       <header>
-        <h1 class="page__title" itemprop="headline">Download and Installation
+        <h1 class="page__title" itemprop="headline">Running without the HTTP Server
 </h1>
       </header>
 
       <section class="page__content" itemprop="text">
-        <p>WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containing
-WireMock plus all its dependencies.</p>
+        <p>If you want to run Wiremock inside another process, such as wrapping it in a serverless function such as on AWS Lambda, or using it as part of an application’s integration tests, you previously would need to resort to <a href="/docs/running-standalone/">Running as a Standalone Process</a>.</p>
 
-<p>Most of the standalone JAR’s dependencies are shaded i.e. they are hidden in alternative packages. This allows WireMock to be used in projects with
-conflicting versions of its dependencies. The standalone JAR is also runnable (see <a href="/docs/running-standalone/">Running as a Standalone Process</a>).</p>
+<p>This works well, but has the overhead of a full HTTP server and HTTP calls back and forth that in some cases may not be relevant, and adds a fair bit of overhead to each call, and the memory footprint of the application.</p>
 
-<p>Additionally, versions of these JARs are distributed for both Java 7 and Java 8+.</p>
+<p>Since Wiremock v2.32.2, the <code class="highlighter-rouge">DirectCallHttpServer</code> provides the ability to run a Wiremock server without ever interacting with an HTTP layer.</p>
 
-<p>The Java 7 distribution is aimed primarily at Android developers and enterprise Java teams still using JRE7. Some of its
-dependencies are not set to the latest versions e.g. Jetty 9.2.x is used, as this is the last minor version to retain Java 7 compatibility.</p>
+<p>It can be constructed and used like so (example usage is adapted from <code class="highlighter-rouge">DirectCallHttpServerIntegrationTest</code>):</p>
 
-<p>The Java 8+ build endeavours to track the latest version of all its major dependencies.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">com.github.tomakehurst.wiremock.WireMockServer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.github.tomakehurst.wiremock.http.Response</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.github.tomakehurst.wiremock.direct.DirectCallHttpServer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.github.tomakehurst.wiremock.direct.DirectCallHttpServerFactory</span><span class="o">;</span>
 
-<blockquote>
-  <p><strong>note</strong></p>
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">WireMockConfiguration</span><span class="o">.</span><span class="na">wireMockConfig</span><span class="o">;</span>
+<span class="c1">// ..</span>
 
-  <p>The Java 7 version is now deprecated in the 2.x line and version 2.27.2 is the last release available. It’s strongly
-recommended that you use the Java 8 releases if possible.</p>
-</blockquote>
+<span class="nc">DirectCallHttpServerFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">DirectCallHttpServerFactory</span><span class="o">();</span>
+<span class="nc">WireMockServer</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">httpServerFactory</span><span class="o">(</span><span class="n">factory</span><span class="o">));</span>
+<span class="n">wm</span><span class="o">.</span><span class="na">start</span><span class="o">();</span> <span class="c1">// no-op, not required</span>
 
-<h2 id="maven-dependencies">Maven dependencies</h2>
+<span class="nc">DirectCallHttpServer</span> <span class="n">server</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">getHttpServer</span><span class="o">();</span>
 
-<p>Java 8:</p>
+<span class="nc">Request</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Request</span><span class="o">()</span> <span class="o">{</span>
+  <span class="c1">// fill in with the incoming request data</span>
+<span class="o">}</span>
 
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
+<span class="nc">Response</span> <span class="n">response</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="na">stubRequest</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+<span class="c1">// then use the `response`'s data, and map it accordingly</span>
 </code></pre></div></div>
 
-<p>Java 8 standalone:</p>
-
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div></div>
-
-<p>Java 7 (deprecated):</p>
-
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div></div>
-
-<p>Java 7 standalone (deprecated):</p>
-
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div></div>
-
-<h2 id="gradle-dependencies">Gradle dependencies</h2>
-
-<p>Java 8:</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock:2.32.0"</span>
-</code></pre></div></div>
-
-<p>Java 8 standalone:</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-standalone:2.32.0"</span>
-</code></pre></div></div>
-
-<p>Java 7 (deprecated):</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.32.0"</span>
-</code></pre></div></div>
-
-<p>Java 7 standalone (deprecated):</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8-standalone:2.32.0"</span>
-</code></pre></div></div>
-
-<h2 id="direct-download">Direct download</h2>
-
-<p>If you want to run WireMock as a standalone process you can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.32.0/wiremock-jre8-standalone-2.32.0.jar">download the standalone JAR from
-here</a>.</p>
+<p>Note that prior to Wiremock v2.32.2, you can use <a href="https://www.jvt.me/posts/2021/04/29/wiremock-serverless/">the workaround as described by Jamie Tanna</a>, which uses internal APIs for this.</p>
 
         
       </section>

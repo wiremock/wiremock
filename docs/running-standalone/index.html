@@ -51,9 +51,9 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-09-07T12:06:27+01:00">
+  <meta property="article:published_time" content="2021-12-02T09:45:28+00:00">
   
-    <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
+    <link rel="next" href="/docs/running-without-http-server/" title="Running without the HTTP Server">
   
   
     <link rel="prev" href="/docs/response-templating/" title="Response Templating">
@@ -258,6 +258,18 @@
       </a>
       
       <li>
+        <a href="/docs/running-without-http-server/">
+
+        Running without the HTTP Server
+      </a>
+      
+      <li>
+        <a href="/docs/docker/">
+
+        Running in Docker
+      </a>
+      
+      <li>
         <a href="/docs/stubbing/">
 
         Stubbing
@@ -294,15 +306,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -367,7 +379,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="September 07, 2021">
+    <meta itemprop="datePublished" content="December 02, 2021">
     
 
     <div class="page__inner-wrap">
@@ -387,9 +399,9 @@
 <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.31.0/wiremock-jre8-standalone-2.31.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.32.0/wiremock-jre8-standalone-2.32.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.31.0.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.32.0.jar
 </code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
@@ -406,7 +418,7 @@ Note: When you specify this parameter, WireMock will still, additionally, bind t
 <p><code class="highlighter-rouge">--bind-address</code>: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.</p>
 
 <p><code class="highlighter-rouge">--https-keystore</code>: Path to a keystore file containing an SSL
-certificate to use with HTTPS. The keystore must have a password of
+certificate to use with HTTPS. Can be a path to a file or a resource on the classpath. The keystore must have a password of
 “password”. This option will only work if <code class="highlighter-rouge">--https-port</code> is specified.
 If this option isn’t used WireMock will default to its own self-signed
 certificate.</p>
@@ -423,7 +435,7 @@ sets the keystore password value. The key manager password can be set with the (
 
 <p><code class="highlighter-rouge">--https-truststore</code>: Path to a keystore file containing client public
 certificates, proxy target public certificates &amp; private keys to use when
-authenticate with a proxy target that require client authentication. See
+authenticate with a proxy target that require client authentication. Can be a path to a file or a resource on the classpath. See
 <a href="/docs/configuration/#https-configuration">HTTPS configuration</a>
 and <a href="/docs/proxying#running-as-a-browser-proxy">Running as a browser proxy</a> for
 details.</p>
@@ -505,8 +517,14 @@ accepting requests.</p>
 
 <p><code class="highlighter-rouge">--jetty-accept-queue-size</code>: The Jetty queue size for accepted requests.</p>
 
-<p><code class="highlighter-rouge">--jetty-header-buffer-size</code>: The Jetty buffer size for request headers,
+<p><code class="highlighter-rouge">--jetty-header-buffer-size</code>: Deprecated, use <code class="highlighter-rouge">--jetty-header-request-size</code>. The Jetty buffer size for request headers,
 e.g. <code class="highlighter-rouge">--jetty-header-buffer-size 16384</code>, defaults to 8192K.</p>
+
+<p><code class="highlighter-rouge">--jetty-header-request-size</code>: The Jetty buffer size for request headers,
+e.g. <code class="highlighter-rouge">--jetty-header-request-size 16384</code>, defaults to 8192K.</p>
+
+<p><code class="highlighter-rouge">--jetty-header-response-size</code>: The Jetty buffer size for response headers,
+e.g. <code class="highlighter-rouge">--jetty-header-response-size 16384</code>, defaults to 8192K.</p>
 
 <p><code class="highlighter-rouge">--async-response-enabled</code>: Enable asynchronous request processing in Jetty. 
 Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to <code class="highlighter-rouge">false</code>.</p>
@@ -658,6 +676,27 @@ matching the URL exists. For example if a file exists
 <code class="highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match
 <code class="highlighter-rouge">/things/myfile.html</code> then hitting
 <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</code> will serve the file.</p>
+
+<h2 id="packaging-the-stubs-into-a-standalone-jar">Packaging the stubs into a standalone JAR</h2>
+
+<p>If you want to package your stubs into the standalone JAR, so you can distribute an executable JAR with all the stubs intact, you can do this using the <code class="highlighter-rouge">--load-resources-from-classpath</code> option.</p>
+
+<p>For example, let’s say have the following directory structure:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src/main/resources
+src/main/resources/wiremock-stuff
+src/main/resources/wiremock-stuff/__files
+src/main/resources/wiremock-stuff/mappings
+</code></pre></div></div>
+
+<p>You could then run the packaged JAR as:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java -jar custom-wiremock.jar --load-resources-from-classpath 'wiremock-stuff'
+</code></pre></div></div>
+
+<p>Which will load your files and mappings from the packaged JAR.</p>
+
+<p>Note that it is not currently possible to load from the root of the classpath.</p>
 
 <h3 id="shutting-down">Shutting Down</h3>
 

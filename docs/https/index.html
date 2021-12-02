@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-09-07T12:06:27+01:00">
+  <meta property="article:published_time" content="2021-12-02T09:45:28+00:00">
   
     <link rel="next" href="/docs/" title="Home - WireMock User Documentation">
   
@@ -257,6 +257,18 @@
       </a>
       
       <li>
+        <a href="/docs/running-without-http-server/">
+
+        Running without the HTTP Server
+      </a>
+      
+      <li>
+        <a href="/docs/docker/">
+
+        Running in Docker
+      </a>
+      
+      <li>
         <a href="/docs/stubbing/">
 
         Stubbing
@@ -293,15 +305,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -367,7 +379,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="HTTPS">
     <meta itemprop="description" content="       HTTPS configuration can be tricky to get right. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="September 07, 2021">
+    <meta itemprop="datePublished" content="December 02, 2021">
     
 
     <div class="page__inner-wrap">
@@ -402,8 +414,9 @@ password:</p>
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
 <span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
     <span class="o">.</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">keystorePath</span><span class="o">(</span><span class="s">"/path/to/keystore.jks"</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">keystorePassword</span><span class="o">(</span><span class="s">"verysecret"</span><span class="o">));</span> <span class="c1">// Defaults to "password" if omitted</span>
+    <span class="o">.</span><span class="na">keystorePath</span><span class="o">(</span><span class="s">"/path/to/keystore.jks"</span><span class="o">)</span> <span class="c1">// Either a path to a file or a resource on the classpath</span>
+    <span class="o">.</span><span class="na">keystorePassword</span><span class="o">(</span><span class="s">"verysecret"</span><span class="o">)</span> <span class="c1">// The password used to access the keystore. Defaults to "password" if omitted</span>
+    <span class="o">.</span><span class="na">keyManagerPassword</span><span class="o">(</span><span class="s">"verysecret"</span><span class="o">));</span> <span class="c1">// The password used to access individual keys in the keystore. Defaults to "password" if omitted</span>
 </code></pre></div></div>
 
 <p>The keystore type defaults to JKS, but this can be changed if you’re using another keystore format e.g. Bouncycastle’s BKS with Android:</p>
@@ -426,7 +439,7 @@ client auth:</p>
 <span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
     <span class="o">.</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">)</span>
     <span class="o">.</span><span class="na">needClientAuth</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">trustStorePath</span><span class="o">(</span><span class="s">"/path/to/truststore.jks"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">trustStorePath</span><span class="o">(</span><span class="s">"/path/to/truststore.jks"</span><span class="o">)</span> <span class="c1">// Either a path to a file or a resource on the classpath</span>
     <span class="o">.</span><span class="na">trustStorePassword</span><span class="o">(</span><span class="s">"mostsecret"</span><span class="o">));</span> <span class="c1">// Defaults to "password" if omitted</span>
 </code></pre></div></div>
 
@@ -446,10 +459,10 @@ a truststore containing a valid certificate (you’ll probably want to edit the 
 <p><code class="highlighter-rouge">javax.net.ssl.SSLException: Unrecognized SSL message, plaintext connection?</code>: Usually means you’ve tried to connect to the
 HTTP port with a client that’s expecting HTTPS (i.e. has https:// in the URL).</p>
 
-<p><code class="highlighter-rouge">org.apache.http.NoHttpResponseException: The target server failed to respond</code>: Could mean you’ve tried to connect to the HTTPS port with a
+<p><code class="highlighter-rouge">org.apache.hc.core5.http.NoHttpResponseException: The target server failed to respond</code>: Could mean you’ve tried to connect to the HTTPS port with a
 client expecting HTTP.</p>
 
-<p><code class="highlighter-rouge">javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target</code>: You are using WireMock’s default (self-signed) TLS certificate or another certificate that isn’t signed by a CA. In this case you need to specifically configure your HTTP client to trust the certificate being presented, or to trust all certificates. Here is an example of <a href="https://github.com/tomakehurst/wiremock/blob/2.31.0/src/main/java/com/github/tomakehurst/wiremock/http/HttpClientFactory.java">how to do this with the Apache HTTP client</a>.</p>
+<p><code class="highlighter-rouge">javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target</code>: You are using WireMock’s default (self-signed) TLS certificate or another certificate that isn’t signed by a CA. In this case you need to specifically configure your HTTP client to trust the certificate being presented, or to trust all certificates. Here is an example of <a href="https://github.com/tomakehurst/wiremock/blob/2.32.0/src/main/java/com/github/tomakehurst/wiremock/http/HttpClientFactory.java">how to do this with the Apache HTTP client</a>.</p>
 
         
       </section>

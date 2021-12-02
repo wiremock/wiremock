@@ -19,7 +19,7 @@
 
 
 
-<title>Download and Installation - WireMock</title>
+<title>Running in Docker - WireMock</title>
 
 
 
@@ -27,16 +27,16 @@
 
 
 
-<meta name="description" content="Getting WireMock into your project">
+<meta name="description" content="Configuring and running WireMock in Docker">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Download and Installation">
+<meta property="og:title" content="Running in Docker">
 
 
 
 
-  <meta property="og:description" content="Getting WireMock into your project">
+  <meta property="og:description" content="Configuring and running WireMock in Docker">
 
 
 
@@ -53,10 +53,10 @@
   <meta property="og:type" content="article">
   <meta property="article:published_time" content="2021-12-02T09:45:28+00:00">
   
-    <link rel="next" href="/docs/extending-wiremock/" title="Extending WireMock">
+    <link rel="next" href="/docs/download-and-installation/" title="Download and Installation">
   
   
-    <link rel="prev" href="/docs/docker/" title="Running in Docker">
+    <link rel="prev" href="/docs/configuration/" title="Configuration">
   
 
 
@@ -221,8 +221,7 @@
       </a>
       
       <li>
-        <a href="/docs/download-and-installation/" class="nav__list-item--selected">
-        
+        <a href="/docs/download-and-installation/">
 
         Download and Installation
       </a>
@@ -264,7 +263,8 @@
       </a>
       
       <li>
-        <a href="/docs/docker/">
+        <a href="/docs/docker/" class="nav__list-item--selected">
+        
 
         Running in Docker
       </a>
@@ -377,106 +377,85 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Download and Installation">
-    <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containingWireMock plus all its dependencies.">
+    <meta itemprop="headline" content="Running in Docker">
+    <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
     <meta itemprop="datePublished" content="December 02, 2021">
     
 
     <div class="page__inner-wrap">
       <header>
-        <h1 class="page__title" itemprop="headline">Download and Installation
+        <h1 class="page__title" itemprop="headline">Running in Docker
 </h1>
       </header>
 
       <section class="page__content" itemprop="text">
-        <p>WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containing
-WireMock plus all its dependencies.</p>
+        <div class="mocklab-callout"> 
+  <p class="mocklab-callout__text">
+    Configuring servers can be a major distraction from building great software. <strong>MockLab</strong> provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.    
+  </p>
+  <a href="http://get.mocklab.io/?utm_source=wiremock.org&amp;utm_medium=docs-callout&amp;utm_campaign=running-in-docker" title="Learn more" class="mocklab-callout__learn-more-button">Learn more</a>
+</div>
 
-<p>Most of the standalone JAR’s dependencies are shaded i.e. they are hidden in alternative packages. This allows WireMock to be used in projects with
-conflicting versions of its dependencies. The standalone JAR is also runnable (see <a href="/docs/running-standalone/">Running as a Standalone Process</a>).</p>
+<p>From version 2.31.0 WireMock has an <a href="https://hub.docker.com/r/wiremock/wiremock">official Docker image</a>.</p>
 
-<p>Additionally, versions of these JARs are distributed for both Java 7 and Java 8+.</p>
+<h2 id="getting-started">Getting started</h2>
 
-<p>The Java 7 distribution is aimed primarily at Android developers and enterprise Java teams still using JRE7. Some of its
-dependencies are not set to the latest versions e.g. Jetty 9.2.x is used, as this is the last minor version to retain Java 7 compatibility.</p>
+<h3 id="start-a-single-wirewock-container-with-default-configuration">Start a single WireWock container with default configuration</h3>
 
-<p>The Java 8+ build endeavours to track the latest version of all its major dependencies.</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--rm</span>
+  <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
+  <span class="nt">--name</span> wiremock <span class="se">\</span>
+  wiremock/wiremock:2.32.0
+</code></pre></div></div>
 
 <blockquote>
-  <p><strong>note</strong></p>
-
-  <p>The Java 7 version is now deprecated in the 2.x line and version 2.27.2 is the last release available. It’s strongly
-recommended that you use the Java 8 releases if possible.</p>
+  <p>Access <a href="http://localhost:8080/__admin/mappings">http://localhost:8080/__admin/mappings</a> to display the mappings (empty set)</p>
 </blockquote>
 
-<h2 id="maven-dependencies">Maven dependencies</h2>
+<h3 id="start-with-command-line-arguments">Start with command line arguments</h3>
 
-<p>Java 8:</p>
+<p>The Docker image supports exactly the same set of command line arguments as the <a href="/docs/running-standalone/#command-line-options">standalone version</a>.
+These can be passed to the container by appending them to the end of the command e.g.:</p>
 
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--rm</span>
+  <span class="nt">-p</span> 8443:8443 <span class="se">\</span>
+  <span class="nt">--name</span> wiremock <span class="se">\</span>
+  wiremock/wiremock:2.32.0 <span class="se">\</span>
+  <span class="nt">--https-port</span> 8443 <span class="nt">--verbose</span>
 </code></pre></div></div>
 
-<p>Java 8 standalone:</p>
+<h3 id="mounting-stub-mapping-files">Mounting stub mapping files</h3>
 
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
+<p>Inside the container, the WireMock uses <code class="highlighter-rouge">/home/wiremock</code> as the root from which it reads the <code class="highlighter-rouge">mappings</code> and <code class="highlighter-rouge">__files</code> directories.
+This means you can mount a directory containing these from your host machine into Docker and WireMock will load the stub mappings.</p>
+
+<p>To mount the current directory use <code class="highlighter-rouge">-v $PWD:/home/wiremock</code> e.g.:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--rm</span> 
+  <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
+  <span class="nt">--name</span> wiremock <span class="se">\</span>
+  <span class="nt">-v</span> <span class="nv">$PWD</span>:/home/wiremock <span class="se">\</span>
+  wiremock/wiremock:2.32.0
 </code></pre></div></div>
 
-<p>Java 7 (deprecated):</p>
+<h3 id="running-with-extensions">Running with extensions</h3>
 
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
+<p><a href="/docs/extending-wiremock/">WireMock extensions</a> are packaged as JAR files. In order to use them they need to be made
+available at runtime and WireMock must be configured to enable them.</p>
+
+<p>For example, to use the <a href="/docs/webhooks-and-callbacks/">Webhooks extension</a> we would first download <a href="https://repo1.maven.org/maven2/org/wiremock/wiremock-webhooks-extension/2.32.0/wiremock-webhooks-extension-2.32.0.jar">wiremock-webhooks-extension-2.32.0.jar</a>
+into the <code class="highlighter-rouge">extensions</code> directory under our working directory.</p>
+
+<p>Then when starting Docker we would mount the extensions directory to <code class="highlighter-rouge">/var/wiremock/extensions</code> and enable the webhooks extension
+via a CLI parameter:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--rm</span>
+  <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
+  <span class="nt">--name</span> wiremock <span class="se">\</span>
+  <span class="nt">-v</span> <span class="nv">$PWD</span>/extensions:/var/wiremock/extensions <span class="se">\</span>
+  wiremock/wiremock <span class="se">\</span>
+    <span class="nt">--extensions</span> org.wiremock.webhooks.Webhooks
 </code></pre></div></div>
-
-<p>Java 7 standalone (deprecated):</p>
-
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.27.2<span class="nt">&lt;/version&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre></div></div>
-
-<h2 id="gradle-dependencies">Gradle dependencies</h2>
-
-<p>Java 8:</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock:2.32.0"</span>
-</code></pre></div></div>
-
-<p>Java 8 standalone:</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-standalone:2.32.0"</span>
-</code></pre></div></div>
-
-<p>Java 7 (deprecated):</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.32.0"</span>
-</code></pre></div></div>
-
-<p>Java 7 standalone (deprecated):</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8-standalone:2.32.0"</span>
-</code></pre></div></div>
-
-<h2 id="direct-download">Direct download</h2>
-
-<p>If you want to run WireMock as a standalone process you can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.32.0/wiremock-jre8-standalone-2.32.0.jar">download the standalone JAR from
-here</a>.</p>
 
         
       </section>

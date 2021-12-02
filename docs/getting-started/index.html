@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2021-09-07T12:06:27+01:00">
+  <meta property="article:published_time" content="2021-12-02T09:45:28+00:00">
   
     <link rel="next" href="/docs/https/" title="HTTPS">
   
@@ -258,6 +258,18 @@
       </a>
       
       <li>
+        <a href="/docs/running-without-http-server/">
+
+        Running without the HTTP Server
+      </a>
+      
+      <li>
+        <a href="/docs/docker/">
+
+        Running in Docker
+      </a>
+      
+      <li>
         <a href="/docs/stubbing/">
 
         Stubbing
@@ -294,15 +306,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -367,7 +379,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Getting Started">
     <meta itemprop="description" content="Installation">
-    <meta itemprop="datePublished" content="September 07, 2021">
+    <meta itemprop="datePublished" content="December 02, 2021">
     
 
     <div class="page__inner-wrap">
@@ -388,14 +400,14 @@
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.31.0<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
 
 <h3 id="gradle">Gradle</h3>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.31.0"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.32.0"</span>
 </code></pre></div></div>
 
 <p>WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
@@ -472,6 +484,10 @@ tests concurrently):</p>
 <span class="kt">int</span> <span class="n">httpsPort</span> <span class="o">=</span> <span class="n">wireMockRule</span><span class="o">.</span><span class="na">httpsPort</span><span class="o">();</span>
 </code></pre></div></div>
 
+<h2 id="writing-a-test-with-junit-5x">Writing a test with JUnit 5.x</h2>
+
+<p>See <a href="/docs/junit-jupiter/">JUnit 5+ Jupiter Usage</a> for various JUnit 5 usage scenarios.</p>
+
 <h2 id="non-junit-and-general-java-usage">Non-JUnit and general Java usage</h2>
 
 <p>If you’re not using JUnit or neither of the WireMock rules manage its
@@ -509,7 +525,7 @@ the Java API, JSON over HTTP or JSON files.</p>
 
 <p>This will start the server on port 8080:</p>
 
-<p>You can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.31.0/wiremock-jre8-standalone-2.31.0.jar">download the standalone JAR from
+<p>You can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.32.0/wiremock-jre8-standalone-2.32.0.jar">download the standalone JAR from
 here</a>.</p>
 
 <p>See <a href="/docs/running-standalone/">Running as a Standalone Process</a> running-standalone for more details and commandline options.</p>
