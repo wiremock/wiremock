@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.TimeUtil;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -127,6 +128,8 @@ public class WireMockServerRunner {
     public int port() { return wireMockServer.port(); }
 
 	public static void main(String... args) {
+		long startTime = System.currentTimeMillis();
+		TimeUtil.setStartTime(startTime);
 		new WireMockServerRunner().run(args);
 	}
 }

@@ -371,8 +371,21 @@ task addGitTag {
     }
 }
 
+task addVersion{
+    doLast {
+        def filePath = 'src/main/resources/application-build.properties';
+        Properties props = new Properties();
+        props.load(new FileInputStream(file(filePath)))
+        props.put("build.version", project.version)
+        OutputStream out = new FileOutputStream(filePath)
+        def comments = 'auto make build info'
+        //format the output
+        props.store(new OutputStreamWriter(out, "utf-8"), comments)
+    }
+}
+
 task release {
-    dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag
+    dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag, addVersion
 }
 
 task 'bump-patch-version' {
