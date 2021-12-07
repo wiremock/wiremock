@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,17 @@ package com.github.tomakehurst.wiremock.matching;
 
 public class EagerMatchResult extends MatchResult {
 
-    private final double distance;
+  private final double distance;
 
-    EagerMatchResult(double distance) {
-        this.distance = distance;
-    }
+  EagerMatchResult(double distance) {
+    this.distance = distance;
+  }
 
-    public double getDistance() {
-        return distance;
-    }
+  public double getDistance() {
+    return distance;
+  }
 
-    public boolean isExactMatch() {
-        return distance == 0;
-    }
+  public boolean isExactMatch() {
+    return distance == 0;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,12 @@ import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
 
 public class RemoveServeEventsByStubMetadataTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        StringValuePattern metadataPattern = Json.read(request.getBodyAsString(), StringValuePattern.class);
-        FindServeEventsResult findServeEventsResult = admin.removeServeEventsForStubsMatchingMetadata(metadataPattern);
-        return ResponseDefinition.okForJson(findServeEventsResult);
-    }
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    StringValuePattern metadataPattern =
+        Json.read(request.getBodyAsString(), StringValuePattern.class);
+    FindServeEventsResult findServeEventsResult =
+        admin.removeServeEventsForStubsMatchingMetadata(metadataPattern);
+    return ResponseDefinition.okForJson(findServeEventsResult);
+  }
 }

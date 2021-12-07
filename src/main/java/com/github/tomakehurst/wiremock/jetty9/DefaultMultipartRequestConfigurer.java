@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
-
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
 
 public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
 
-    @Override
-    public void configure(HttpServletRequest request) {
-        MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String)null);
-        request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
-    }
+  @Override
+  public void configure(HttpServletRequest request) {
+    MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
+    request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
+  }
 }

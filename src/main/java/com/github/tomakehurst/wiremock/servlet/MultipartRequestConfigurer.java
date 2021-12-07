@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface MultipartRequestConfigurer {
 
-    String KEY = MultipartRequestConfigurer.class.getSimpleName();
+  String KEY = MultipartRequestConfigurer.class.getSimpleName();
 
-    void configure(HttpServletRequest request);
+  void configure(HttpServletRequest request);
 }

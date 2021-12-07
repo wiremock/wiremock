@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 public class GetDocIndexTask extends AbstractGetDocTask {
 
-    @Override
-    protected String getMimeType() {
-        return "text/html";
-    }
+  @Override
+  protected String getMimeType() {
+    return "text/html";
+  }
 
-    @Override
-    protected String getFilePath() {
-        return "doc-index.html";
-    }
+  @Override
+  protected String getFilePath() {
+    return "doc-index.html";
+  }
 }

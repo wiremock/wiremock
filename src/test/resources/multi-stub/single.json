@@ -1,10 +1,7 @@
 {
   "request": {
-    "url": "/single/1",
-    "method": "GET"
+    "method": "GET",
+    "url": "/single/1"
   },
-
-  "response": {
-    "status": 200
-  }
+  "response": {"status": 200}
 }

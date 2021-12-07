@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PostServeActionDefinition {
 
-    private final String name;
-    private final Parameters parameters;
+  private final String name;
+  private final Parameters parameters;
 
-    public PostServeActionDefinition(@JsonProperty("name") String name,
-                                     @JsonProperty("parameters") Parameters parameters) {
-        this.name = name;
-        this.parameters = parameters;
-    }
+  public PostServeActionDefinition(
+      @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {
+    this.name = name;
+    this.parameters = parameters;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public Parameters getParameters() {
-        return parameters;
-    }
+  public Parameters getParameters() {
+    return parameters;
+  }
 }

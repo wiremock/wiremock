@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,19 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 /**
  * Distribution that models delays.
  *
- * Implementations should be thread safe.
+ * <p>Implementations should be thread safe.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type"
-)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = LogNormal.class, name = "lognormal"),
-        @JsonSubTypes.Type(value = UniformDistribution.class, name = "uniform"),
-        @JsonSubTypes.Type(value = FixedDelayDistribution.class, name = "fixed")
+  @JsonSubTypes.Type(value = LogNormal.class, name = "lognormal"),
+  @JsonSubTypes.Type(value = UniformDistribution.class, name = "uniform"),
+  @JsonSubTypes.Type(value = FixedDelayDistribution.class, name = "fixed")
 })
 public interface DelayDistribution {
-    /**
-     * Samples a delay in milliseconds from the distribution.
-     *
-     * @return next delay in millis
-     */
-    long sampleMillis();
+  /**
+   * Samples a delay in milliseconds from the distribution.
+   *
+   * @return next delay in millis
+   */
+  long sampleMillis();
 }

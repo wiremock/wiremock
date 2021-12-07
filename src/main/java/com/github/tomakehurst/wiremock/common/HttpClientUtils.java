@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,44 +15,43 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.google.common.base.Charsets.UTF_8;
+
+import java.io.IOException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
-import java.io.IOException;
-
-import static com.google.common.base.Charsets.UTF_8;
-
 public class HttpClientUtils {
 
-	public static String getEntityAsStringAndCloseStream(ClassicHttpResponse httpResponse) {
-		HttpEntity entity = httpResponse.getEntity();
-		if (entity != null) {
-			try {
-				String content = EntityUtils.toString(entity, UTF_8.name());
-				entity.getContent().close();
-				return content;
-			} catch (IOException | ParseException ioe) {
-				throw new RuntimeException(ioe);
-			}
-		}
-		
-		return null;
-	}
-	
-	public static byte[] getEntityAsByteArrayAndCloseStream(ClassicHttpResponse httpResponse) {
-		HttpEntity entity = httpResponse.getEntity();
-		if (entity != null) {
-			try {
-				byte[] content = EntityUtils.toByteArray(entity);
-				entity.getContent().close();
-				return content;
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
-		}
-		
-		return null;
-	}
+  public static String getEntityAsStringAndCloseStream(ClassicHttpResponse httpResponse) {
+    HttpEntity entity = httpResponse.getEntity();
+    if (entity != null) {
+      try {
+        String content = EntityUtils.toString(entity, UTF_8.name());
+        entity.getContent().close();
+        return content;
+      } catch (IOException | ParseException ioe) {
+        throw new RuntimeException(ioe);
+      }
+    }
+
+    return null;
+  }
+
+  public static byte[] getEntityAsByteArrayAndCloseStream(ClassicHttpResponse httpResponse) {
+    HttpEntity entity = httpResponse.getEntity();
+    if (entity != null) {
+      try {
+        byte[] content = EntityUtils.toByteArray(entity);
+        entity.getContent().close();
+        return content;
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
+    }
+
+    return null;
+  }
 }

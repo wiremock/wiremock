@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import com.github.tomakehurst.wiremock.http.Request;
 
 public class ContinueAction extends RequestFilterAction {
 
-    private final Request request;
+  private final Request request;
 
-    ContinueAction(Request request) {
-        this.request = request;
-    }
+  ContinueAction(Request request) {
+    this.request = request;
+  }
 
-    public Request getRequest() {
-        return request;
-    }
+  public Request getRequest() {
+    return request;
+  }
 }

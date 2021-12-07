@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import javax.net.ssl.SSLEngine;
 import java.net.Socket;
 import java.security.cert.X509Certificate;
+import javax.net.ssl.SSLEngine;
 
 public class TrustEverythingStrategy implements TrustStrategy {
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType) {
-        return true;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType) {
+    return true;
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
-        return true;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
+    return true;
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
-        return true;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+    return true;
+  }
 }

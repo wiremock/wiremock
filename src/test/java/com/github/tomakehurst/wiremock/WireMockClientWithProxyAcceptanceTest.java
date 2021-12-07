@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.AfterAll;
@@ -23,63 +28,60 @@ import org.junit.jupiter.api.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
-
 public class WireMockClientWithProxyAcceptanceTest {
-	
-	private static WireMockServer wireMockServer;
-	private static WireMockTestClient testClient;
-	private static HttpProxyServer proxyServer;
 
-	@BeforeAll
-	public static void init() {
-		wireMockServer = new WireMockServer(DYNAMIC_PORT);
-		wireMockServer.start();
-		proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
+  private static WireMockServer wireMockServer;
+  private static WireMockTestClient testClient;
+  private static HttpProxyServer proxyServer;
 
-		testClient = new WireMockTestClient(wireMockServer.port());
-	}
-	
-	@AfterAll
-	public static void stopServer() {
-		wireMockServer.stop();
-		proxyServer.stop();
-	}
+  @BeforeAll
+  public static void init() {
+    wireMockServer = new WireMockServer(DYNAMIC_PORT);
+    wireMockServer.start();
+    proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
 
-	@Test
-	public void supportsProxyingWithTheStaticClient() {
-        WireMock.configureFor("http", "localhost", wireMockServer.port(), proxyServer.getListenAddress().getHostString(), proxyServer.getListenAddress().getPort());
+    testClient = new WireMockTestClient(wireMockServer.port());
+  }
 
-		givenThat(get(urlEqualTo("/my/new/resource"))
-					.willReturn(aResponse()
-						.withStatus(304)));
+  @AfterAll
+  public static void stopServer() {
+    wireMockServer.stop();
+    proxyServer.stop();
+  }
 
-		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
-	}
+  @Test
+  public void supportsProxyingWithTheStaticClient() {
+    WireMock.configureFor(
+        "http",
+        "localhost",
+        wireMockServer.port(),
+        proxyServer.getListenAddress().getHostString(),
+        proxyServer.getListenAddress().getPort());
 
-	@Test
-	public void supportsProxyingWithTheInstanceClient() {
-		WireMock wireMock = WireMock.create()
-                .scheme("http")
-                .host("localhost")
-                .port(wireMockServer.port())
-                .urlPathPrefix("")
-                .hostHeader(null)
-                .proxyHost(proxyServer.getListenAddress().getHostString())
-                .proxyPort(proxyServer.getListenAddress().getPort())
-                .build();
+    givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
-		wireMock.register(
-				get(urlEqualTo("/my/new/resource"))
-				.willReturn(
-						aResponse()
-						.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
-						.withStatus(200)));
+    assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+  }
 
-		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
-	}
+  @Test
+  public void supportsProxyingWithTheInstanceClient() {
+    WireMock wireMock =
+        WireMock.create()
+            .scheme("http")
+            .host("localhost")
+            .port(wireMockServer.port())
+            .urlPathPrefix("")
+            .hostHeader(null)
+            .proxyHost(proxyServer.getListenAddress().getHostString())
+            .proxyPort(proxyServer.getListenAddress().getPort())
+            .build();
+
+    wireMock.register(
+        get(urlEqualTo("/my/new/resource"))
+            .willReturn(
+                aResponse().withBody("{\"address\":\"Puerto Banús, Málaga\"}").withStatus(200)));
+
+    assertThat(
+        testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
+  }
 }

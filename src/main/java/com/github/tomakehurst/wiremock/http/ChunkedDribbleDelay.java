@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,21 +20,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ChunkedDribbleDelay {
 
-    private final Integer numberOfChunks;
-    private final Integer totalDuration;
+  private final Integer numberOfChunks;
+  private final Integer totalDuration;
 
-    @JsonCreator
-    public ChunkedDribbleDelay(@JsonProperty("numberOfChunks") Integer numberOfChunks,
-                               @JsonProperty("totalDuration") Integer totalDuration) {
-        this.numberOfChunks = numberOfChunks;
-        this.totalDuration = totalDuration;
-    }
+  @JsonCreator
+  public ChunkedDribbleDelay(
+      @JsonProperty("numberOfChunks") Integer numberOfChunks,
+      @JsonProperty("totalDuration") Integer totalDuration) {
+    this.numberOfChunks = numberOfChunks;
+    this.totalDuration = totalDuration;
+  }
 
-    public Integer getNumberOfChunks() {
-        return numberOfChunks;
-    }
+  public Integer getNumberOfChunks() {
+    return numberOfChunks;
+  }
 
-    public Integer getTotalDuration() {
-        return totalDuration;
-    }
+  public Integer getTotalDuration() {
+    return totalDuration;
+  }
 }

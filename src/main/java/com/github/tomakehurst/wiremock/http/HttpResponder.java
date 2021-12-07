@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,5 +16,5 @@
 package com.github.tomakehurst.wiremock.http;
 
 public interface HttpResponder {
-    void respond(Request request, Response response);
+  void respond(Request request, Response response);
 }

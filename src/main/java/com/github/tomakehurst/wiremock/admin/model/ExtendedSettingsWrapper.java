@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 
 public class ExtendedSettingsWrapper {
 
-    private final Parameters extended;
+  private final Parameters extended;
 
-    public ExtendedSettingsWrapper(@JsonProperty("extended") Parameters extended) {
-        this.extended = extended;
-    }
+  public ExtendedSettingsWrapper(@JsonProperty("extended") Parameters extended) {
+    this.extended = extended;
+  }
 
-    public Parameters getExtended() {
-        return extended;
-    }
+  public Parameters getExtended() {
+    return extended;
+  }
 }
