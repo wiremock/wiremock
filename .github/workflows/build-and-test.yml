@@ -15,13 +15,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        jdk: [8, 11]
+        jdk: [8, 11, 17]
     runs-on: ${{ matrix.os }}
     env:
       JDK_VERSION:  ${{ matrix.jdk }}
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:

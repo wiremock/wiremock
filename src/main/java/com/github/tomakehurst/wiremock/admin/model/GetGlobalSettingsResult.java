@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 
 public class GetGlobalSettingsResult {
 
-    private final GlobalSettings settings;
+  private final GlobalSettings settings;
 
-    public GetGlobalSettingsResult(@JsonProperty("settings") GlobalSettings settings) {
-        this.settings = settings;
-    }
+  public GetGlobalSettingsResult(@JsonProperty("settings") GlobalSettings settings) {
+    this.settings = settings;
+  }
 
-    public GlobalSettings getSettings() {
-        return settings;
-    }
+  public GlobalSettings getSettings() {
+    return settings;
+  }
 }

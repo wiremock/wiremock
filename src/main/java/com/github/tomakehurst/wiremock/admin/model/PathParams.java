@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ import java.util.LinkedHashMap;
 
 public class PathParams extends LinkedHashMap<String, String> {
 
-    public static PathParams empty() {
-        return new PathParams();
-    }
+  public static PathParams empty() {
+    return new PathParams();
+  }
 
-    public PathParams add(String key, String value) {
-        put(key, value);
-        return this;
-    }
+  public PathParams add(String key, String value) {
+    put(key, value);
+    return this;
+  }
 
-    public static PathParams single(String key, Object value) {
-        return new PathParams().add(key, value.toString());
-    }
+  public static PathParams single(String key, Object value) {
+    return new PathParams().add(key, value.toString());
+  }
 }

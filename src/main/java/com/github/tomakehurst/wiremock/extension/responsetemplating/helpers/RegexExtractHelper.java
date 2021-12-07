@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,41 +25,39 @@ import java.util.regex.PatternSyntaxException;
 
 public class RegexExtractHelper extends HandlebarsHelper<Object> {
 
-    @Override
-    public Object apply(Object context, Options options) {
-        List<String> groups = new ArrayList<>();
-        String regexString = options.param(0);
-        Pattern regex;
+  @Override
+  public Object apply(Object context, Options options) {
+    List<String> groups = new ArrayList<>();
+    String regexString = options.param(0);
+    Pattern regex;
 
-        try {
-            regex = Pattern.compile(regexString);
-        } catch (PatternSyntaxException ex) {
-            return handleError("Invalid regex string " + regexString);
-        }
-
-        Matcher matcher = regex.matcher(context.toString());
-
-        while (matcher.find()) {
-
-            if (options.params.length == 1) {
-                return matcher.group();
-            }
-
-            for (int i = 1; i <= matcher.groupCount(); i++) {
-                groups.add(matcher.group(i));
-            }
-        }
-
-        if (groups.isEmpty()) {
-            Object defaultValue = options.hash("default");
-            return defaultValue != null ?
-                    defaultValue :
-                    handleError("Nothing matched " + regexString);
-        }
-
-        String variableName = options.param(1);
-        options.context.data(variableName, new ListOrSingle<>(groups));
-
-        return null;
+    try {
+      regex = Pattern.compile(regexString);
+    } catch (PatternSyntaxException ex) {
+      return handleError("Invalid regex string " + regexString);
     }
+
+    Matcher matcher = regex.matcher(context.toString());
+
+    while (matcher.find()) {
+
+      if (options.params.length == 1) {
+        return matcher.group();
+      }
+
+      for (int i = 1; i <= matcher.groupCount(); i++) {
+        groups.add(matcher.group(i));
+      }
+    }
+
+    if (groups.isEmpty()) {
+      Object defaultValue = options.hash("default");
+      return defaultValue != null ? defaultValue : handleError("Nothing matched " + regexString);
+    }
+
+    String variableName = options.param(1);
+    options.context.data(variableName, new ListOrSingle<>(groups));
+
+    return null;
+  }
 }

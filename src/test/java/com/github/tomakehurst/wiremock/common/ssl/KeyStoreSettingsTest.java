@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2018-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,41 @@
  */
 package com.github.tomakehurst.wiremock.common.ssl;
 
-import org.junit.jupiter.api.Test;
-
-import java.security.KeyStore;
-
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.security.KeyStore;
+import org.junit.jupiter.api.Test;
+
 public class KeyStoreSettingsTest {
 
-    @Test
-    public void loadsTrustStoreFromClasspath() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jks");
+  @Test
+  public void loadsTrustStoreFromClasspath() {
+    KeyStoreSettings trustStoreSettings =
+        new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jks");
 
-        KeyStore keyStore = trustStoreSettings.loadStore();
-        assertNotNull(keyStore);
-    }
+    KeyStore keyStore = trustStoreSettings.loadStore();
+    assertNotNull(keyStore);
+  }
 
-    @Test
-    public void loadsTrustStoreFromFilesystem() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD, "jks");
+  @Test
+  public void loadsTrustStoreFromFilesystem() {
+    KeyStoreSettings trustStoreSettings =
+        new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD, "jks");
 
-        KeyStore keyStore = trustStoreSettings.loadStore();
-        assertNotNull(keyStore);
-    }
+    KeyStore keyStore = trustStoreSettings.loadStore();
+    assertNotNull(keyStore);
+  }
 
-    @Test
-    public void failsWhenTrustStoreNotFound() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            KeyStoreSettings trustStoreSettings = new KeyStoreSettings("test-unknownstore", "", "jks");
-            trustStoreSettings.loadStore();
+  @Test
+  public void failsWhenTrustStoreNotFound() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          KeyStoreSettings trustStoreSettings =
+              new KeyStoreSettings("test-unknownstore", "", "jks");
+          trustStoreSettings.loadStore();
         });
-    }
-
+  }
 }

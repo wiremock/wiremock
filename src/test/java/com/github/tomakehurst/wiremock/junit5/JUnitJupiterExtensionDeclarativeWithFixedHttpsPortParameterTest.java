@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
+
 @WireMockTest(httpsEnabled = true, httpsPort = 8766)
 public class JUnitJupiterExtensionDeclarativeWithFixedHttpsPortParameterTest {
 
-    @Test
-    void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
-        assertTrue(wmRuntimeInfo.isHttpsEnabled(), "Expected HTTPS to be enabled");
-        assertThat(wmRuntimeInfo.getHttpsPort(), is(8766));
-    }
-
+  @Test
+  void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+    assertTrue(wmRuntimeInfo.isHttpsEnabled(), "Expected HTTPS to be enabled");
+    assertThat(wmRuntimeInfo.getHttpsPort(), is(8766));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,20 @@ import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-
 import java.util.UUID;
 
 public class RemoveStubMappingTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        SingleStubMappingResult stubMappingResult = admin.getStubMapping(
-            UUID.fromString(pathParams.get("id"))
-        );
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    SingleStubMappingResult stubMappingResult =
+        admin.getStubMapping(UUID.fromString(pathParams.get("id")));
 
-        if (!stubMappingResult.isPresent()) {
-            return ResponseDefinition.notFound();
-        }
-
-        admin.removeStubMapping(stubMappingResult.getItem());
-        return ResponseDefinition.okEmptyJson();
+    if (!stubMappingResult.isPresent()) {
+      return ResponseDefinition.notFound();
     }
+
+    admin.removeStubMapping(stubMappingResult.getItem());
+    return ResponseDefinition.okEmptyJson();
+  }
 }

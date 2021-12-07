@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.github.jknack.handlebars.Options;
+import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HelperUtils.coerceToDouble;
 
+import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HelperUtils.coerceToDouble;
-
 public class RandomDecimalHelper extends HandlebarsHelper<Void> {
 
-    @Override
-    public Object apply(Void context, Options options) throws IOException {
-        double lowerBound = coerceToDouble(options.hash("lower", Double.MIN_VALUE));
-        double upperBound = coerceToDouble(options.hash("upper", Double.MAX_VALUE));
+  @Override
+  public Object apply(Void context, Options options) throws IOException {
+    double lowerBound = coerceToDouble(options.hash("lower", Double.MIN_VALUE));
+    double upperBound = coerceToDouble(options.hash("upper", Double.MAX_VALUE));
 
-        return ThreadLocalRandom.current().nextDouble(lowerBound, upperBound);
-    }
+    return ThreadLocalRandom.current().nextDouble(lowerBound, upperBound);
+  }
 }

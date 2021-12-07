@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+
 public class ResponseDefinitionBodyMatcherDeserializerTest {
-    @Test
-    public void correctlyParsesFileSize() {
-        final Map<String, Long> testCases = ImmutableMap.<String, Long>builder()
+  @Test
+  public void correctlyParsesFileSize() {
+    final Map<String, Long> testCases =
+        ImmutableMap.<String, Long>builder()
             .put("100", 100L)
             .put("1KB", 1024L)
             .put("1 kb", 1024L)
@@ -35,28 +35,32 @@ public class ResponseDefinitionBodyMatcherDeserializerTest {
             .put("10.5 GB", Math.round(10.5 * 1024 * 1024 * 1024))
             .build();
 
-        for (String input : testCases.keySet()) {
-            Long expected = testCases.get(input);
-            Long actual = ResponseDefinitionBodyMatcherDeserializer.parseFilesize(input);
-            assertEquals(expected, actual, "Failed with " + input);
-        }
+    for (String input : testCases.keySet()) {
+      Long expected = testCases.get(input);
+      Long actual = ResponseDefinitionBodyMatcherDeserializer.parseFilesize(input);
+      assertEquals(expected, actual, "Failed with " + input);
     }
+  }
 
-    @Test
-    public void correctlyDeserializesWithEmptyNode() {
-        ResponseDefinitionBodyMatcher matcher = Json.read("{}", ResponseDefinitionBodyMatcher.class);
-        assertEquals(new ResponseDefinitionBodyMatcher(Long.MAX_VALUE, Long.MAX_VALUE), matcher);
-    }
+  @Test
+  public void correctlyDeserializesWithEmptyNode() {
+    ResponseDefinitionBodyMatcher matcher = Json.read("{}", ResponseDefinitionBodyMatcher.class);
+    assertEquals(new ResponseDefinitionBodyMatcher(Long.MAX_VALUE, Long.MAX_VALUE), matcher);
+  }
 
-    @Test
-    public void correctlyDeserializesWithSingleValue() {
-        ResponseDefinitionBodyMatcher matcher = Json.read("{ \"textSizeThreshold\": 100 }", ResponseDefinitionBodyMatcher.class);
-        assertEquals(new ResponseDefinitionBodyMatcher(100, Long.MAX_VALUE), matcher);
-    }
+  @Test
+  public void correctlyDeserializesWithSingleValue() {
+    ResponseDefinitionBodyMatcher matcher =
+        Json.read("{ \"textSizeThreshold\": 100 }", ResponseDefinitionBodyMatcher.class);
+    assertEquals(new ResponseDefinitionBodyMatcher(100, Long.MAX_VALUE), matcher);
+  }
 
-    @Test
-    public void correctlyDeserializesWithBothValues() {
-        ResponseDefinitionBodyMatcher matcher = Json.read("{ \"textSizeThreshold\": 100, \"binarySizeThreshold\": 10 }", ResponseDefinitionBodyMatcher.class);
-        assertEquals(new ResponseDefinitionBodyMatcher(100, 10), matcher);
-    }
+  @Test
+  public void correctlyDeserializesWithBothValues() {
+    ResponseDefinitionBodyMatcher matcher =
+        Json.read(
+            "{ \"textSizeThreshold\": 100, \"binarySizeThreshold\": 10 }",
+            ResponseDefinitionBodyMatcher.class);
+    assertEquals(new ResponseDefinitionBodyMatcher(100, 10), matcher);
+  }
 }

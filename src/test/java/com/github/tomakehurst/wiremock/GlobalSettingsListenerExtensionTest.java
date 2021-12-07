@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,122 +15,122 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.common.ClientError;
-import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.JsonException;
-import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
-import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 public class GlobalSettingsListenerExtensionTest {
 
-    @Nested
-    class Listening {
+  @Nested
+  class Listening {
 
-        TestGlobalSettingsListener listener = new TestGlobalSettingsListener();
+    TestGlobalSettingsListener listener = new TestGlobalSettingsListener();
 
-        @RegisterExtension
-        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
-                .dynamicPort()
-                .extensions(listener)).build();
+    @RegisterExtension
+    public WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(options().dynamicPort().extensions(listener))
+            .build();
 
-        @BeforeEach
-        public void init() {
-            listener.events.clear();
-        }
-
-        @Test
-        public void callsListenerMethodWithBeforeAndAfterStatesWhenSettingsUpdated() {
-            wm.updateGlobalSettings(GlobalSettings.builder()
-                    .fixedDelay(100)
-                    .build());
-
-            listener.events.clear();
-
-            wm.updateGlobalSettings(GlobalSettings.builder()
-                    .fixedDelay(200)
-                    .build());
-
-            assertThat(listener.events.size(), is(2));
-            assertThat(listener.events.get(0), is("beforeGlobalSettingsUpdated, old: 100, new: 200"));
-            assertThat(listener.events.get(1), is("afterGlobalSettingsUpdated, old: 100, new: 200"));
-        }
-
+    @BeforeEach
+    public void init() {
+      listener.events.clear();
     }
 
-    public static class TestGlobalSettingsListener implements GlobalSettingsListener {
+    @Test
+    public void callsListenerMethodWithBeforeAndAfterStatesWhenSettingsUpdated() {
+      wm.updateGlobalSettings(GlobalSettings.builder().fixedDelay(100).build());
 
-        public List<String> events = new ArrayList<>();
+      listener.events.clear();
 
-        @Override
-        public String getName() {
-            return "test-settings-listener";
-        }
+      wm.updateGlobalSettings(GlobalSettings.builder().fixedDelay(200).build());
 
-        @Override
-        public void beforeGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-            events.add("beforeGlobalSettingsUpdated, old: " + oldSettings.getFixedDelay() + ", new: "
-                    + newSettings.getFixedDelay());
-        }
+      assertThat(listener.events.size(), is(2));
+      assertThat(listener.events.get(0), is("beforeGlobalSettingsUpdated, old: 100, new: 200"));
+      assertThat(listener.events.get(1), is("afterGlobalSettingsUpdated, old: 100, new: 200"));
+    }
+  }
 
-        @Override
-        public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-            events.add("afterGlobalSettingsUpdated, old: " + oldSettings.getFixedDelay() + ", new: "
-                    + newSettings.getFixedDelay());
-        }
+  public static class TestGlobalSettingsListener implements GlobalSettingsListener {
+
+    public List<String> events = new ArrayList<>();
+
+    @Override
+    public String getName() {
+      return "test-settings-listener";
     }
 
-    @Nested
-    class Vetoing {
-
-        @RegisterExtension
-        public WireMockExtension wm = WireMockExtension.newInstance().options(options()
-                .dynamicPort()
-                .extensions(new VetoingTestGlobalSettingsListener())).build();
-
-        @Test
-        public void settingsUpdateCanBeVetoedByThrowningAnException() {
-            try {
-                wm.updateGlobalSettings(GlobalSettings.builder()
-                        .fixedDelay(100)
-                        .build());
-                fail();
-            } catch (ClientError e) {
-                assertThat(e.getErrors().first().getTitle(), is("missing required element"));
-                assertThat(wm.getGlobalSettings().getSettings().getFixedDelay(), nullValue());
-            }
-        }
-
+    @Override
+    public void beforeGlobalSettingsUpdated(
+        GlobalSettings oldSettings, GlobalSettings newSettings) {
+      events.add(
+          "beforeGlobalSettingsUpdated, old: "
+              + oldSettings.getFixedDelay()
+              + ", new: "
+              + newSettings.getFixedDelay());
     }
 
-    public static class VetoingTestGlobalSettingsListener implements GlobalSettingsListener {
+    @Override
+    public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
+      events.add(
+          "afterGlobalSettingsUpdated, old: "
+              + oldSettings.getFixedDelay()
+              + ", new: "
+              + newSettings.getFixedDelay());
+    }
+  }
 
-        @Override
-        public String getName() {
-            return "vetoing-settings-listener";
-        }
+  @Nested
+  class Vetoing {
 
-        @Override
-        public void beforeGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-            throw JsonException.fromErrors(Errors.single(123, "/one/two", "missing required element"));
-        }
+    @RegisterExtension
+    public WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(options().dynamicPort().extensions(new VetoingTestGlobalSettingsListener()))
+            .build();
 
-        @Override
-        public void afterGlobalSettingsUpdated(GlobalSettings oldSettings, GlobalSettings newSettings) {
-        }
+    @Test
+    public void settingsUpdateCanBeVetoedByThrowningAnException() {
+      try {
+        wm.updateGlobalSettings(GlobalSettings.builder().fixedDelay(100).build());
+        fail();
+      } catch (ClientError e) {
+        assertThat(e.getErrors().first().getTitle(), is("missing required element"));
+        assertThat(wm.getGlobalSettings().getSettings().getFixedDelay(), nullValue());
+      }
+    }
+  }
+
+  public static class VetoingTestGlobalSettingsListener implements GlobalSettingsListener {
+
+    @Override
+    public String getName() {
+      return "vetoing-settings-listener";
     }
 
+    @Override
+    public void beforeGlobalSettingsUpdated(
+        GlobalSettings oldSettings, GlobalSettings newSettings) {
+      throw JsonException.fromErrors(Errors.single(123, "/one/two", "missing required element"));
+    }
+
+    @Override
+    public void afterGlobalSettingsUpdated(
+        GlobalSettings oldSettings, GlobalSettings newSettings) {}
+  }
 }

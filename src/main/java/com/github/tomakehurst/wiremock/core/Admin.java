@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,67 +23,88 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-
-import java.util.List;
 import java.util.UUID;
 
 public interface Admin {
 
-	void addStubMapping(StubMapping stubMapping);
-	void editStubMapping(StubMapping stubMapping);
-	void removeStubMapping(StubMapping stubbMapping);
-    ListStubMappingsResult listAllStubMappings();
-    SingleStubMappingResult getStubMapping(UUID id);
-    void saveMappings();
+  void addStubMapping(StubMapping stubMapping);
 
-	void resetRequests();
-    void resetScenarios();
-    void resetMappings();
-    void resetAll();
-    void resetToDefaultMappings();
+  void editStubMapping(StubMapping stubMapping);
 
-    GetServeEventsResult getServeEvents();
-    GetServeEventsResult getServeEvents(ServeEventQuery query);
+  void removeStubMapping(StubMapping stubbMapping);
 
-    SingleServedStubResult getServedStub(UUID id);
-    VerificationResult countRequestsMatching(RequestPattern requestPattern);
-    FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
-    FindRequestsResult findUnmatchedRequests();
+  ListStubMappingsResult listAllStubMappings();
 
-    void removeServeEvent(UUID eventId);
-    FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern);
-    FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern pattern);
+  SingleStubMappingResult getStubMapping(UUID id);
 
-    FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
-    FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
-    FindNearMissesResult findNearMissesForUnmatchedRequests();
+  void saveMappings();
 
-    GetScenariosResult getAllScenarios();
+  void resetRequests();
 
-    void updateGlobalSettings(GlobalSettings settings);
+  void resetScenarios();
 
-    SnapshotRecordResult snapshotRecord();
-    SnapshotRecordResult snapshotRecord(RecordSpec spec);
-    SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec);
+  void resetMappings();
 
-    void startRecording(String targetBaseUrl);
-    void startRecording(RecordSpec spec);
-    void startRecording(RecordSpecBuilder recordSpec);
-    SnapshotRecordResult stopRecording();
-    RecordingStatusResult getRecordingStatus();
+  void resetAll();
 
-    Options getOptions();
+  void resetToDefaultMappings();
 
-    void shutdownServer();
+  GetServeEventsResult getServeEvents();
 
-    ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern);
-    void removeStubsByMetadata(StringValuePattern pattern);
+  GetServeEventsResult getServeEvents(ServeEventQuery query);
 
-    void importStubs(StubImport stubImport);
+  SingleServedStubResult getServedStub(UUID id);
 
-    GetGlobalSettingsResult getGlobalSettings();
+  VerificationResult countRequestsMatching(RequestPattern requestPattern);
+
+  FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
+
+  FindRequestsResult findUnmatchedRequests();
+
+  void removeServeEvent(UUID eventId);
+
+  FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern);
+
+  FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern pattern);
+
+  FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
+
+  FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
+
+  FindNearMissesResult findNearMissesForUnmatchedRequests();
+
+  GetScenariosResult getAllScenarios();
+
+  void updateGlobalSettings(GlobalSettings settings);
+
+  SnapshotRecordResult snapshotRecord();
+
+  SnapshotRecordResult snapshotRecord(RecordSpec spec);
+
+  SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec);
+
+  void startRecording(String targetBaseUrl);
+
+  void startRecording(RecordSpec spec);
+
+  void startRecording(RecordSpecBuilder recordSpec);
+
+  SnapshotRecordResult stopRecording();
+
+  RecordingStatusResult getRecordingStatus();
+
+  Options getOptions();
+
+  void shutdownServer();
+
+  ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern);
+
+  void removeStubsByMetadata(StringValuePattern pattern);
+
+  void importStubs(StubImport stubImport);
+
+  GetGlobalSettingsResult getGlobalSettings();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class AbsentPatternTest {
 
-    @Test
-    public void correctlyDeserialisesFromJson() {
-        StringValuePattern stringValuePattern = Json.read(
-                "{                             \n" +
-                "  \"absent\": \"(absent)\"    \n" +
-                "}",
-                StringValuePattern.class);
+  @Test
+  public void correctlyDeserialisesFromJson() {
+    StringValuePattern stringValuePattern =
+        Json.read(
+            "{                             \n" + "  \"absent\": \"(absent)\"    \n" + "}",
+            StringValuePattern.class);
 
-        assertThat(stringValuePattern, instanceOf(AbsentPattern.class));
-        assertThat(stringValuePattern.isAbsent(), is(true));
-    }
+    assertThat(stringValuePattern, instanceOf(AbsentPattern.class));
+    assertThat(stringValuePattern.isAbsent(), is(true));
+  }
 }

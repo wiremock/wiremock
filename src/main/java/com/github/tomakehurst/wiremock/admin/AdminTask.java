@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,5 +21,5 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 public interface AdminTask {
-    ResponseDefinition execute(Admin admin, Request request, PathParams pathParams);
+  ResponseDefinition execute(Admin admin, Request request, PathParams pathParams);
 }

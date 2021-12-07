@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static java.util.Collections.min;
+import static java.util.Collections.singletonList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -22,75 +25,77 @@ import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-
 import java.util.Comparator;
 import java.util.List;
 
-import static java.util.Collections.min;
-import static java.util.Collections.singletonList;
-
 public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
-    private final StringValuePattern valuePattern;
+  private final StringValuePattern valuePattern;
 
-    public MultiValuePattern(StringValuePattern valuePattern) {
-        this.valuePattern = valuePattern;
-    }
+  public MultiValuePattern(StringValuePattern valuePattern) {
+    this.valuePattern = valuePattern;
+  }
 
-    @JsonCreator
-    public static MultiValuePattern of(StringValuePattern valuePattern) {
-        return new MultiValuePattern(valuePattern);
-    }
+  @JsonCreator
+  public static MultiValuePattern of(StringValuePattern valuePattern) {
+    return new MultiValuePattern(valuePattern);
+  }
 
-    public static MultiValuePattern absent() {
-        return new MultiValuePattern(WireMock.absent());
-    }
+  public static MultiValuePattern absent() {
+    return new MultiValuePattern(WireMock.absent());
+  }
 
-    @Override
-    public MatchResult match(MultiValue multiValue) {
-        List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);
-        return getBestMatch(valuePattern, values);
-    }
+  @Override
+  public MatchResult match(MultiValue multiValue) {
+    List<String> values = multiValue.isPresent() ? multiValue.values() : singletonList(null);
+    return getBestMatch(valuePattern, values);
+  }
 
-    @JsonValue
-    public StringValuePattern getValuePattern() {
-        return valuePattern;
-    }
+  @JsonValue
+  public StringValuePattern getValuePattern() {
+    return valuePattern;
+  }
 
-    @Override
-    public String getName() {
-        return valuePattern.getName();
-    }
+  @Override
+  public String getName() {
+    return valuePattern.getName();
+  }
 
-    @Override
-    public String getExpected() {
-        return valuePattern.getExpected();
-    }
+  @Override
+  public String getExpected() {
+    return valuePattern.getExpected();
+  }
 
-    private static MatchResult getBestMatch(final StringValuePattern valuePattern, List<String> values) {
-        List<MatchResult> allResults = Lists.transform(values, new Function<String, MatchResult>() {
-            public MatchResult apply(String input) {
+  private static MatchResult getBestMatch(
+      final StringValuePattern valuePattern, List<String> values) {
+    List<MatchResult> allResults =
+        Lists.transform(
+            values,
+            new Function<String, MatchResult>() {
+              public MatchResult apply(String input) {
                 return valuePattern.match(input);
-            }
+              }
+            });
+
+    return min(
+        allResults,
+        new Comparator<MatchResult>() {
+          public int compare(MatchResult o1, MatchResult o2) {
+            return Double.compare(o1.getDistance(), o2.getDistance());
+          }
         });
+  }
 
-        return min(allResults, new Comparator<MatchResult>() {
-            public int compare(MatchResult o1, MatchResult o2) {
-                return Double.compare(o1.getDistance(), o2.getDistance());
-            }
-        });
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    MultiValuePattern that = (MultiValuePattern) o;
+    return Objects.equal(valuePattern, that.valuePattern);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MultiValuePattern that = (MultiValuePattern) o;
-        return Objects.equal(valuePattern, that.valuePattern);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(valuePattern);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(valuePattern);
+  }
 }
