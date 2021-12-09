@@ -20,26 +20,47 @@ public class HealthCheck {
     private String upTime;
     private String responseTime;
 
+    /**
+     * get version
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * set version
+     * @param version application version
+     */
     public void setVersion(String version) {
         this.version = version;
     }
 
+    /**
+     * get uptime
+     */
     public String getUpTime() {
         return upTime;
     }
 
+    /**
+     * set uptime
+     * @param upTime application up time
+     */
     public void setUpTime(String upTime) {
         this.upTime = upTime;
     }
 
+    /**
+     * get response time
+     */
     public String getResponseTime() {
         return responseTime;
     }
 
+    /**
+     * set response time
+     * @param responseTime application response time
+     */
     public void setResponseTime(String responseTime) {
         this.responseTime = responseTime;
     }

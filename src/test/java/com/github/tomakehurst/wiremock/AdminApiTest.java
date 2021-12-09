@@ -1099,7 +1099,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     /**
-     * Validate health check returns version, reposne and upTime in response
+     * Validate health check returns version, responseTime and upTime in response
      */
     @Test
     public void getHealthCheckTest() {
