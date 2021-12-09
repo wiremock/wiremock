@@ -37,11 +37,11 @@ public class AdminRoutes {
 
     public static AdminRoutes defaults() {
         return new AdminRoutes(
-                Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer());
+            Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer());
     }
 
     public static AdminRoutes defaultsPlus(
-            Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
+        Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
         return new AdminRoutes(apiExtensions, notMatchedTask);
     }
 
@@ -126,41 +126,41 @@ public class AdminRoutes {
 
     public AdminTask taskFor(final RequestMethod method, final String path) {
         return tryFind(
-                routes.entrySet(),
-                new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+            routes.entrySet(),
+            new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+                @Override
+                public boolean apply(Map.Entry<RequestSpec, AdminTask> entry) {
+                    return entry.getKey().matches(method, path);
+                }
+            })
+            .transform(
+                new Function<Map.Entry<RequestSpec, AdminTask>, AdminTask>() {
                     @Override
-                    public boolean apply(Map.Entry<RequestSpec, AdminTask> entry) {
-                        return entry.getKey().matches(method, path);
+                    public AdminTask apply(Map.Entry<RequestSpec, AdminTask> input) {
+                        return input.getValue();
                     }
                 })
-                .transform(
-                        new Function<Map.Entry<RequestSpec, AdminTask>, AdminTask>() {
-                            @Override
-                            public AdminTask apply(Map.Entry<RequestSpec, AdminTask> input) {
-                                return input.getValue();
-                            }
-                        })
-                .or(new NotFoundAdminTask());
+            .or(new NotFoundAdminTask());
     }
 
     public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {
         RequestSpec requestSpec =
-                tryFind(
-                        routes.entrySet(),
-                        new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
-                            @Override
-                            public boolean apply(Map.Entry<RequestSpec, AdminTask> input) {
-                                return input.getValue().getClass().equals(taskClass);
-                            }
-                        })
-                        .transform(
-                                new Function<Map.Entry<RequestSpec, AdminTask>, RequestSpec>() {
-                                    @Override
-                                    public RequestSpec apply(Map.Entry<RequestSpec, AdminTask> input) {
-                                        return input.getKey();
-                                    }
-                                })
-                        .orNull();
+            tryFind(
+                routes.entrySet(),
+                new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+                    @Override
+                    public boolean apply(Map.Entry<RequestSpec, AdminTask> input) {
+                        return input.getValue().getClass().equals(taskClass);
+                    }
+                })
+                .transform(
+                    new Function<Map.Entry<RequestSpec, AdminTask>, RequestSpec>() {
+                        @Override
+                        public RequestSpec apply(Map.Entry<RequestSpec, AdminTask> input) {
+                            return input.getKey();
+                        }
+                    })
+                .orNull();
 
         if (requestSpec == null) {
             throw new NotFoundException("No route could be found for " + taskClass.getSimpleName());
@@ -178,7 +178,7 @@ public class AdminRoutes {
 
         @Override
         public void add(
-                RequestMethod method, String urlTemplate, Class<? extends AdminTask> taskClass) {
+            RequestMethod method, String urlTemplate, Class<? extends AdminTask> taskClass) {
             try {
                 AdminTask task = taskClass.getDeclaredConstructor().newInstance();
                 add(requestSpec(method, urlTemplate), task);
