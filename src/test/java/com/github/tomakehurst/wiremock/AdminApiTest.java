@@ -1098,4 +1098,17 @@ public class AdminApiTest extends AcceptanceTestBase {
         public String name;
     }
 
+    /**
+     * Validate health check returns version, reposne and upTime in response
+     */
+    @Test
+    public void getHealthCheckTest() {
+        WireMockResponse response = testClient.get("/__admin/healthcheck");
+        assertThat(response.statusCode(), is(200));
+        String responseBody = response.content();
+        assertThat(responseBody.contains("version"), is(true));
+        assertThat(responseBody.contains("responseTime"), is(true));
+        assertThat(responseBody.contains("upTime"), is(true));
+    }
+
 }
