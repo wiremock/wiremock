@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,83 +15,85 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
 
 public class TrailingSlashFilter implements Filter {
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {}
+
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
+
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    String path = getRequestPathFrom(httpServletRequest);
+
+    StatusAndRedirectExposingHttpServletResponse wrappedResponse =
+        new StatusAndRedirectExposingHttpServletResponse(
+            (HttpServletResponse) response, path, httpServletRequest);
+    chain.doFilter(request, wrappedResponse);
+  }
+
+  private static class StatusAndRedirectExposingHttpServletResponse
+      extends HttpServletResponseWrapper {
+
+    private String path;
+    private HttpServletRequest request;
+
+    public StatusAndRedirectExposingHttpServletResponse(
+        HttpServletResponse response, String path, HttpServletRequest request) {
+      super(response);
+      this.path = path;
+      this.request = request;
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-            ServletException {
-        
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String path = getRequestPathFrom(httpServletRequest);
-        
-        StatusAndRedirectExposingHttpServletResponse wrappedResponse =
-            new StatusAndRedirectExposingHttpServletResponse((HttpServletResponse) response, path, httpServletRequest);
-        chain.doFilter(request, wrappedResponse);
-    }
-    
-    private static class StatusAndRedirectExposingHttpServletResponse extends HttpServletResponseWrapper {
-        
-        private String path;
-        private HttpServletRequest request;
-        
-        public StatusAndRedirectExposingHttpServletResponse(HttpServletResponse response, String path, HttpServletRequest request) {
-            super(response);
-            this.path = path;
-            this.request = request;
-        }
-        
-        @Override
-        public void sendRedirect(String location) throws IOException {
-            if (location.contains(path)) {
-                RequestDispatcher dispatcher = request.getRequestDispatcher(getPathPartFromLocation(location));
-                try {
-                    dispatcher.forward(request, this);
-                } catch (ServletException se) {
-                    throw new IOException(se);
-                }
-            }
-        }
-        
-        private String getPathPartFromLocation(String location) throws IOException {
-            if (isRelativePath(location)) {
-                return location;
-            }
-
-            URL url = new URL(location);
-            return url.getPath();
-        }
-    }
-
-    private static boolean isRelativePath(String location) {
-        return location.matches("^/[^/]{1}.*");
-    }
-    
-    private String getRequestPathFrom(HttpServletRequest httpServletRequest) throws ServletException {
+    public void sendRedirect(String location) throws IOException {
+      if (location.contains(path)) {
+        RequestDispatcher dispatcher =
+            request.getRequestDispatcher(getPathPartFromLocation(location));
         try {
-            String fullPath = new URI(URLEncoder.encode(httpServletRequest.getRequestURI(), "utf-8")).getPath();
-            String pathWithoutContext = fullPath.substring(httpServletRequest.getContextPath().length());
-            return URLDecoder.decode(pathWithoutContext, "utf-8");
-        } catch (URISyntaxException e) {
-            throw new ServletException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new ServletException(e);
+          dispatcher.forward(request, this);
+        } catch (ServletException se) {
+          throw new IOException(se);
         }
-    }
-    
-    @Override
-    public void destroy() {
+      }
     }
 
+    private String getPathPartFromLocation(String location) throws IOException {
+      if (isRelativePath(location)) {
+        return location;
+      }
+
+      URL url = new URL(location);
+      return url.getPath();
+    }
+  }
+
+  private static boolean isRelativePath(String location) {
+    return location.matches("^/[^/]{1}.*");
+  }
+
+  private String getRequestPathFrom(HttpServletRequest httpServletRequest) throws ServletException {
+    try {
+      String fullPath =
+          new URI(URLEncoder.encode(httpServletRequest.getRequestURI(), "utf-8")).getPath();
+      String pathWithoutContext = fullPath.substring(httpServletRequest.getContextPath().length());
+      return URLDecoder.decode(pathWithoutContext, "utf-8");
+    } catch (URISyntaxException e) {
+      throw new ServletException(e);
+    } catch (UnsupportedEncodingException e) {
+      throw new ServletException(e);
+    }
+  }
+
+  @Override
+  public void destroy() {}
 }

@@ -1,11 +1,11 @@
 {
-    "request": {
-        "url": "/slow-response",
-        "method": "GET"
-    },
-    "response": {
-        "status": 200,
-        "bodyFileName": "stuff.txt",
-        "fixedDelayMilliseconds": 500
-    }
+  "request": {
+    "method": "GET",
+    "url": "/slow-response"
+  },
+  "response": {
+    "fixedDelayMilliseconds": 500,
+    "bodyFileName": "stuff.txt",
+    "status": 200
+  }
 }

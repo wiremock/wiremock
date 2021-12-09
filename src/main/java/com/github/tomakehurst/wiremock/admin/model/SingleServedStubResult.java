@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import com.google.common.base.Optional;
 
 public class SingleServedStubResult extends SingleItemResult<ServeEvent> {
 
-    @JsonCreator
-    public SingleServedStubResult(ServeEvent item) {
-        super(item);
-    }
+  @JsonCreator
+  public SingleServedStubResult(ServeEvent item) {
+    super(item);
+  }
 
-    public static SingleServedStubResult fromOptional(Optional<ServeEvent> servedStub) {
-        return new SingleServedStubResult(servedStub.orNull());
-    }
+  public static SingleServedStubResult fromOptional(Optional<ServeEvent> servedStub) {
+    return new SingleServedStubResult(servedStub.orNull());
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-/**
- * A container of a WireMockApp instance
- */
+/** A container of a WireMockApp instance */
 public interface Container {
 
-    int port();
+  int port();
 
-    /**
-     * Shuts down the container, stopping execution of WireMock, gracefully if possible.
-     */
-    void shutdown();
+  /** Shuts down the container, stopping execution of WireMock, gracefully if possible. */
+  void shutdown();
 }

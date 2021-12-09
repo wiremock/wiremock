@@ -9,7 +9,7 @@ If you want to run Wiremock inside another process, such as wrapping it in a ser
 
 This works well, but has the overhead of a full HTTP server and HTTP calls back and forth that in some cases may not be relevant, and adds a fair bit of overhead to each call, and the memory footprint of the application.
 
-Since Wiremock v2.32.2, the `DirectCallHttpServer` provides the ability to run a Wiremock server without ever interacting with an HTTP layer.
+Since Wiremock v2.32.0, the `DirectCallHttpServer` provides the ability to run a Wiremock server without ever interacting with an HTTP layer.
 
 It can be constructed and used like so (example usage is adapted from `DirectCallHttpServerIntegrationTest`):
 
@@ -36,4 +36,4 @@ Response response = server.stubRequest(request);
 // then use the `response`'s data, and map it accordingly
 ```
 
-Note that prior to Wiremock v2.32.2, you can use [the workaround as described by Jamie Tanna](https://www.jvt.me/posts/2021/04/29/wiremock-serverless/), which uses internal APIs for this.
+Note that prior to Wiremock v2.32.0, you can use [the workaround as described by Jamie Tanna](https://www.jvt.me/posts/2021/04/29/wiremock-serverless/), which uses internal APIs for this.

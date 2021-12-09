@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import java.util.regex.Pattern;
-
 import static java.util.regex.Pattern.DOTALL;
+
+import java.util.regex.Pattern;
 
 public abstract class AbstractRegexPattern extends StringValuePattern {
 
-    protected final Pattern pattern;
+  protected final Pattern pattern;
 
-    protected AbstractRegexPattern(String regex) {
-        super(regex);
-        pattern = Pattern.compile(regex, DOTALL);
-    }
+  protected AbstractRegexPattern(String regex) {
+    super(regex);
+    pattern = Pattern.compile(regex, DOTALL);
+  }
 
-    @Override
-    public MatchResult match(String value) {
-        return MatchResult.of(
-            value != null && pattern.matcher(value).matches()
-        );
-    }
-
+  @Override
+  public MatchResult match(String value) {
+    return MatchResult.of(value != null && pattern.matcher(value).matches());
+  }
 }

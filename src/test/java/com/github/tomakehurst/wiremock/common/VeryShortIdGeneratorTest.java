@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.junit.jupiter.api.Test;
-
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.junit.jupiter.api.Test;
+
 public class VeryShortIdGeneratorTest {
 
-    @Test
-    public void IdsGeneratedContainOnlyLegalCharsAndAreRightLength() {
-        final IdGenerator generator = new VeryShortIdGenerator();
-        
-        for (int i = 0; i < 1000; i++) {
-            final String id = generator.generate();
-            assertThat(id, matches("[A-Za-z0-9]{5}"));
-        }
+  @Test
+  public void IdsGeneratedContainOnlyLegalCharsAndAreRightLength() {
+    final IdGenerator generator = new VeryShortIdGenerator();
+
+    for (int i = 0; i < 1000; i++) {
+      final String id = generator.generate();
+      assertThat(id, matches("[A-Za-z0-9]{5}"));
     }
-    
+  }
 }

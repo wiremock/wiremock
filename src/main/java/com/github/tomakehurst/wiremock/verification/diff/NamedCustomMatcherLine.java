@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,25 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
 public class NamedCustomMatcherLine extends DiffLine<Request> {
 
-    private final RequestMatcherExtension customMatcher;
-    private final Parameters parameters;
+  private final RequestMatcherExtension customMatcher;
+  private final Parameters parameters;
 
-    public NamedCustomMatcherLine(RequestMatcherExtension customMatcher, Parameters parameters, Request request) {
-        super("custom matcher", customMatcher, new EmptyToStringRequestWrapper(request), "[custom matcher: " + customMatcher.getName() + "]");
-        this.customMatcher = customMatcher;
-        this.parameters = parameters;
-    }
+  public NamedCustomMatcherLine(
+      RequestMatcherExtension customMatcher, Parameters parameters, Request request) {
+    super(
+        "custom matcher",
+        customMatcher,
+        new EmptyToStringRequestWrapper(request),
+        "[custom matcher: " + customMatcher.getName() + "]");
+    this.customMatcher = customMatcher;
+    this.parameters = parameters;
+  }
 
-    @Override
-    protected boolean isExactMatch() {
-        return customMatcher.match(value, parameters).isExactMatch();
-    }
+  @Override
+  protected boolean isExactMatch() {
+    return customMatcher.match(value, parameters).isExactMatch();
+  }
 }

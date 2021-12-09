@@ -241,3 +241,52 @@ public class JUnitJupiterProgrammaticProxyTest {
   }
 }
 ```
+
+## Subclassing the extension
+
+Like the JUnit 4.x rule, `WireMockExtension` can be subclassed in order to extend its behaviour by hooking into its lifecycle events.
+This can also be a good approach for creating a domain-specific API mock, by adding methods to stub and verify specific calls.
+
+```java
+public class MyMockApi extends WireMockExtension {
+
+    public MyMockApi(WireMockExtension.Builder builder) {
+      super(builder);
+    }
+
+    @Override
+    protected void onBeforeAll(WireMockRuntimeInfo wireMockRuntimeInfo) {
+      // Do things before any tests have run
+    }
+
+    @Override
+    protected void onBeforeEach(WireMockRuntimeInfo wireMockRuntimeInfo) {
+      // Do things before each test
+    }
+
+    @Override
+    protected void onAfterEach(WireMockRuntimeInfo wireMockRuntimeInfo) {
+      // Do things after each test
+    }
+
+    @Override
+    protected void onAfterAll(WireMockRuntimeInfo wireMockRuntimeInfo) {
+      // Do things after all tests have run
+    }
+}
+```
+
+Note the constructor, which takes the extension's builder as its parameter. By making this public, you can pass an instance
+of the builder in when constructing your extension as follows:
+
+```java
+  @RegisterExtension
+  static MyMockApi myMockApi =
+      new MyMockApi(
+          WireMockExtension.extensionOptions()
+              .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+              .configureStaticDsl(true));
+```
+
+This will ensure that all parameters from the builder will be set as they would if you had constructed an instance of
+`WireMockExtension` from it.

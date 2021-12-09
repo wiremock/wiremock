@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2018-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import com.google.common.net.HttpHeaders;
 
 public class TokenAuthenticator extends SingleHeaderAuthenticator {
 
-    public TokenAuthenticator(String token) {
-        super(HttpHeaders.AUTHORIZATION, "Token " + token);
-    }
+  public TokenAuthenticator(String token) {
+    super(HttpHeaders.AUTHORIZATION, "Token " + token);
+  }
 }

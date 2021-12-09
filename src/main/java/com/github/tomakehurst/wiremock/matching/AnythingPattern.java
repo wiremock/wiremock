@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AnythingPattern extends StringValuePattern {
 
-    public AnythingPattern(@JsonProperty("anything") String expectedValue) {
-        super(expectedValue);
-    }
+  public AnythingPattern(@JsonProperty("anything") String expectedValue) {
+    super(expectedValue);
+  }
 
-    public AnythingPattern() {
-        this("(always)");
-    }
+  public AnythingPattern() {
+    this("(always)");
+  }
 
-    public String getAnything() {
-        return "anything";
-    }
+  public String getAnything() {
+    return "anything";
+  }
 
-    @Override
-    public MatchResult match(String value) {
-        return MatchResult.exactMatch();
-    }
+  @Override
+  public MatchResult match(String value) {
+    return MatchResult.exactMatch();
+  }
 
-    @Override
-    public String toString() {
-        return "anything";
-    }
+  @Override
+  public String toString() {
+    return "anything";
+  }
 }

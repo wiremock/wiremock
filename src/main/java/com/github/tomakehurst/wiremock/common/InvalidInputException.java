@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.common;
 
 public class InvalidInputException extends ClientError {
 
-    public InvalidInputException(Errors errors) {
-        super(errors);
-    }
+  public InvalidInputException(Errors errors) {
+    super(errors);
+  }
 
-    protected InvalidInputException(Throwable cause, Errors errors) {
-        super(cause, errors);
-    }
+  protected InvalidInputException(Throwable cause, Errors errors) {
+    super(cause, errors);
+  }
 }

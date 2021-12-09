@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,90 +15,89 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class ResponseDefinitionTest {
 
-    @Test
-    public void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {
-        ResponseDefinition response = ResponseDefinition.browserProxy(MockRequest.mockRequest()
-                .host("http://my.domain").url("/path").isBrowserProxyRequest(true));
+  @Test
+  public void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {
+    ResponseDefinition response =
+        ResponseDefinition.browserProxy(
+            MockRequest.mockRequest()
+                .host("http://my.domain")
+                .url("/path")
+                .isBrowserProxyRequest(true));
 
-        assertThat(response.getProxyUrl(), equalTo("http://my.domain/path"));
-    }
+    assertThat(response.getProxyUrl(), equalTo("http://my.domain/path"));
+  }
 
-    @Test
-    public void getProxyUrlGivesBackTheProxyUrlWhenNotBrowserProxy() {
-        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
-                .proxiedFrom("http://my.proxy.url")
-                .build();
+  @Test
+  public void getProxyUrlGivesBackTheProxyUrlWhenNotBrowserProxy() {
+    ResponseDefinition response =
+        ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.proxy.url").build();
 
-        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+    response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
 
-        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
-    }
+    assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+  }
 
-    @Test
-    public void doesNotRemoveRequestPathPrefixWhenPrefixToRemoveDoesNotMatch() {
-        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
-                .proxiedFrom("http://my.proxy.url")
-                .withProxyUrlPrefixToRemove("/no/match")
-                .build();
+  @Test
+  public void doesNotRemoveRequestPathPrefixWhenPrefixToRemoveDoesNotMatch() {
+    ResponseDefinition response =
+        ResponseDefinitionBuilder.responseDefinition()
+            .proxiedFrom("http://my.proxy.url")
+            .withProxyUrlPrefixToRemove("/no/match")
+            .build();
 
-        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+    response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
 
-        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
-    }
+    assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+  }
 
-    @Test
-    public void removesRequestPathPrefixWhenPrefixToRemoveMatches() {
-        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
-                .proxiedFrom("http://my.proxy.url")
-                .withProxyUrlPrefixToRemove("/path")
-                .build();
+  @Test
+  public void removesRequestPathPrefixWhenPrefixToRemoveMatches() {
+    ResponseDefinition response =
+        ResponseDefinitionBuilder.responseDefinition()
+            .proxiedFrom("http://my.proxy.url")
+            .withProxyUrlPrefixToRemove("/path")
+            .build();
 
-        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+    response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
 
-        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url"));
-    }
+    assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url"));
+  }
 
-    @Test
-    public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlBeginWithWhiteSpace() {
-        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
-                .proxiedFrom(" http://my.proxy.url")
-                .build();
+  @Test
+  public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlBeginWithWhiteSpace() {
+    ResponseDefinition response =
+        ResponseDefinitionBuilder.responseDefinition().proxiedFrom(" http://my.proxy.url").build();
 
-        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+    response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
 
-        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
-    }
+    assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+  }
 
-    @Test
-    public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlEndWithWhiteSpace() {
-        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
-                .proxiedFrom("http://my.proxy.url ")
-                .build();
+  @Test
+  public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlEndWithWhiteSpace() {
+    ResponseDefinition response =
+        ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.proxy.url ").build();
 
-        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
+    response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
 
-        assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+    assertThat(response.getProxyUrl(), equalTo("http://my.proxy.url/path"));
+  }
 
-    }
+  @Test
+  public void getProxyUrlGivesBackTheProxyUrlWhenProxiedFromUrlNull() {
+    ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition().build();
 
-    @Test
-    public void getProxyUrlGivesBackTheProxyUrlWhenProxiedFromUrlNull() {
-        ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition()
-                .build();
+    response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
 
-        response.setOriginalRequest(MockRequest.mockRequest().url("/path"));
-
-        assertThat(response.getProxyUrl(), equalTo("null/path"));
-
-    }
-
+    assertThat(response.getProxyUrl(), equalTo("null/path"));
+  }
 }

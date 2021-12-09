@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.github.jknack.handlebars.Options;
+import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HelperUtils.coerceToInt;
 
+import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HelperUtils.coerceToInt;
-
 public class RandomIntHelper extends HandlebarsHelper<Void> {
 
-    @Override
-    public Object apply(Void context, Options options) throws IOException {
-        int lowerBound = coerceToInt(options.hash("lower", Integer.MIN_VALUE));
-        int upperBound = coerceToInt(options.hash("upper", Integer.MAX_VALUE));
-        return ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
-    }
+  @Override
+  public Object apply(Void context, Options options) throws IOException {
+    int lowerBound = coerceToInt(options.hash("lower", Integer.MIN_VALUE));
+    int upperBound = coerceToInt(options.hash("upper", Integer.MAX_VALUE));
+    return ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
+  }
 }

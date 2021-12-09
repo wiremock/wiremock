@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ import com.github.tomakehurst.wiremock.admin.Router;
 
 public interface AdminApiExtension extends Extension {
 
-    /**
-     * To be overridden if the extension needs to expose new API resources under /__admin
-     * @param router the admin route builder
-     */
-    void contributeAdminApiRoutes(Router router);
+  /**
+   * To be overridden if the extension needs to expose new API resources under /__admin
+   *
+   * @param router the admin route builder
+   */
+  void contributeAdminApiRoutes(Router router);
 }

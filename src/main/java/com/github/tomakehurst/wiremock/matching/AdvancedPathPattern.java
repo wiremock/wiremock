@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 public class AdvancedPathPattern {
 
-    public final String expression;
+  public final String expression;
 
-    @JsonUnwrapped
-    public final ContentPattern<?> submatcher;
+  @JsonUnwrapped public final ContentPattern<?> submatcher;
 
-    public AdvancedPathPattern(String expression, ContentPattern<?> submatcher) {
-        this.expression = expression;
-        this.submatcher = submatcher;
-    }
+  public AdvancedPathPattern(String expression, ContentPattern<?> submatcher) {
+    this.expression = expression;
+    this.submatcher = submatcher;
+  }
 }

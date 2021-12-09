@@ -1,9 +1,7 @@
 {
-    "request": {
-        "url": "/remote-load/1"
-    },
-    "response": {
-        "status": 200,
-        "body": "Remote load 1"
-    }
+  "request": {"url": "/remote-load/1"},
+  "response": {
+    "body": "Remote load 1",
+    "status": 200
+  }
 }

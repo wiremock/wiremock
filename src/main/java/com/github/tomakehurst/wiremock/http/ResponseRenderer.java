@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public interface ResponseRenderer {
-	
-	Response render(ServeEvent serveEvent);
-	
+
+  Response render(ServeEvent serveEvent);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2014-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ import com.github.tomakehurst.wiremock.core.Options;
 
 public interface HttpServerFactory {
 
-    HttpServer buildHttpServer(
-            Options options,
-            AdminRequestHandler adminRequestHandler,
-            StubRequestHandler stubRequestHandler
-    );
+  HttpServer buildHttpServer(
+      Options options,
+      AdminRequestHandler adminRequestHandler,
+      StubRequestHandler stubRequestHandler);
 }

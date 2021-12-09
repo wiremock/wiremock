@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,39 +15,39 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 @WireMockTest
 class JunitJupiterExtensionDeclarativeWithNestedTest {
+  @Test
+  void runs(WireMockRuntimeInfo info) {
+    assertDoesNotThrow(info::getHttpBaseUrl);
+  }
+
+  @Nested
+  class First {
     @Test
     void runs(WireMockRuntimeInfo info) {
-        assertDoesNotThrow(info::getHttpBaseUrl);
+      assertDoesNotThrow(info::getHttpBaseUrl);
     }
+  }
 
-    @Nested
-    class First {
-        @Test
-        void runs(WireMockRuntimeInfo info) {
-            assertDoesNotThrow(info::getHttpBaseUrl);
-        }
+  @Nested
+  class Second {
+    @Test
+    void runs(WireMockRuntimeInfo info) {
+      assertDoesNotThrow(info::getHttpBaseUrl);
     }
+  }
 
-    @Nested
-    class Second {
-        @Test
-        void runs(WireMockRuntimeInfo info) {
-            assertDoesNotThrow(info::getHttpBaseUrl);
-        }
+  @Nested
+  class Third {
+    @Test
+    void runs(WireMockRuntimeInfo info) {
+      assertDoesNotThrow(info::getHttpBaseUrl);
     }
-
-    @Nested
-    class Third {
-        @Test
-        void runs(WireMockRuntimeInfo info) {
-            assertDoesNotThrow(info::getHttpBaseUrl);
-        }
-    }
+  }
 }
