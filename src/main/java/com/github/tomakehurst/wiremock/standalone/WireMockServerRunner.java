@@ -15,18 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-<<<<<<< HEAD
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.TimeUtil;
-import com.github.tomakehurst.wiremock.common.FatalStartupException;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-
-=======
->>>>>>> master
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
@@ -34,6 +22,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.lang.System.out;
+import com.github.tomakehurst.wiremock.common.TimeUtil;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
@@ -141,15 +130,9 @@ public class WireMockServerRunner {
     return wireMockServer.port();
   }
 
-<<<<<<< HEAD
-	public static void main(String... args) {
-		long startTime = System.currentTimeMillis();
-		TimeUtil.setStartTime(startTime);
-		new WireMockServerRunner().run(args);
-	}
-=======
   public static void main(String... args) {
-    new WireMockServerRunner().run(args);
+      long startTime = System.currentTimeMillis();
+      TimeUtil.setStartTime(startTime);
+      new WireMockServerRunner().run(args);
   }
->>>>>>> master
 }
