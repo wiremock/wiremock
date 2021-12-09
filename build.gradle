@@ -411,11 +411,7 @@ task addVersion{
 }
 
 task release {
-<<<<<<< HEAD
     dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag, addVersion
-=======
-  dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag
->>>>>>> master
 }
 
 task 'bump-patch-version' {
