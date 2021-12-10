@@ -45,9 +45,19 @@ public class HttpClientUtils {
 		HttpEntity entity = httpResponse.getEntity();
 		if (entity != null) {
 			try {
-				byte[] content = EntityUtils.toByteArray(entity);
-				entity.getContent().close();
+				/**
+				 * Issue 1584: Fix
+				 */
+				byte[] content = null;
+				try {
+					content = EntityUtils.toByteArray ( entity );
+				} catch (Exception e) {
+					return null;
+				}
+
+				entity.getContent ( ).close ( );
 				return content;
+
 			} catch (IOException ioe) {
 				throw new RuntimeException(ioe);
 			}

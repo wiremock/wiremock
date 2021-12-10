@@ -16,13 +16,18 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.MalformedChunkCodingException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.eclipse.jetty.util.Jetty;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +41,9 @@ import static com.github.tomakehurst.wiremock.common.Gzip.unGzipToString;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class GzipAcceptanceTest {
@@ -73,6 +80,68 @@ public class GzipAcceptanceTest {
 
             String plainText = unGzipToString(gzippedContent);
             assertThat(plainText, is("body text"));
+        }
+
+        /**
+         *  Test case 1 for Issue 1584
+         */
+        @Test
+        public void servesGzippedResponseWithFaultWithAcceptEncoding() {
+            int statusCode = 200;
+            wireMockServer.stubFor(post("/gzip-response")
+                    .willReturn(aResponse()
+                            .withStatus ( statusCode )
+                            .withFault( Fault.MALFORMED_RESPONSE_CHUNK)));
+
+            WireMockResponse response = null;
+            try {
+                response = testClient.post ( "/gzip-response",
+                        new StringEntity ( "" ),
+                        withHeader ( "Accept-Encoding", "gzip" )
+                );
+
+                assertThat(response.statusCode (), is(statusCode));
+
+            }  catch (Exception e) {
+                Throwable cause = e.getCause();
+                e.printStackTrace();
+                if (cause != null) {
+                    assertThat(e.getCause(), instanceOf(MalformedChunkCodingException.class));
+                } else {
+                    assertThat(e, instanceOf(MalformedChunkCodingException.class));
+                }
+            }
+
+            assertThat(response.statusCode (), is(statusCode));
+        }
+
+        /**
+         *  Test case 2 for Issue 1584
+         */
+        @Test
+        public void servesGzippedResponseWithFaultWithoutAcceptEncoding() {
+            int statusCode = 200;
+            wireMockServer.stubFor(post("/gzip-response")
+                    .willReturn(aResponse()
+                            .withStatus ( statusCode )
+                            .withFault( Fault.MALFORMED_RESPONSE_CHUNK)));
+            WireMockResponse response = null;
+            try {
+                response = testClient.post ( "/gzip-response",
+                        new StringEntity ( "" )
+                );
+            }  catch (Exception e) {
+                Throwable cause = e.getCause();
+                e.printStackTrace();
+                if (cause != null) {
+                    assertThat(e.getCause(), instanceOf(MalformedChunkCodingException.class));
+                } else {
+                    assertThat(e, instanceOf(MalformedChunkCodingException.class));
+                }
+            }
+
+            assertThat(response.statusCode (), is(statusCode));
+
         }
 
         @Test
