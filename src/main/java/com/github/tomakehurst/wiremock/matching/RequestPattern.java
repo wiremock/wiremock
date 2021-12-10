@@ -48,6 +48,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final Integer port;
     private final UrlPattern url;
     private final RequestMethod method;
+    private final List<RequestMethod> methods;
     private final Map<String, MultiValuePattern> headers;
     private final Map<String, MultiValuePattern> queryParams;
     private final Map<String, StringValuePattern> cookies;
@@ -77,6 +78,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         this.port = port;
         this.url = firstNonNull(url, UrlPattern.ANY);
         this.method = firstNonNull(method, RequestMethod.ANY);
+        this.methods = new ArrayList<RequestMethod> () ;
+        this.methods.add(this.method);
         this.headers = headers;
         this.queryParams = queryParams;
         this.cookies = cookies;
@@ -86,15 +89,17 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         this.multipartPatterns = multiPattern;
         this.hasInlineCustomMatcher = customMatcher != null;
 
+        final double minWeight = 3.0;
+        final double maxWeight = 10.0;
         this.matcher = new RequestMatcher() {
             @Override
             public MatchResult match(Request request) {
                 List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
-                        weight(schemeMatches(request), 3.0),
-                        weight(hostMatches(request), 10.0),
-                        weight(portMatches(request), 10.0),
-                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+                        weight(schemeMatches(request), minWeight),
+                        weight(hostMatches(request), maxWeight),
+                        weight(portMatches(request), maxWeight),
+                        weight(RequestPattern.this.url.match(request.getUrl()), maxWeight),
+                        weight(RequestPattern.this.method.match(request.getMethod()), minWeight),
 
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
@@ -174,6 +179,86 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
         this(null, null, null, UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
+    }
+
+    /**
+     * @Author: deeptis2
+     * @param scheme
+     * @param host
+     * @param port
+     * @param url
+     * @param methods
+     * @param headers
+     * @param queryParams
+     * @param cookies
+     * @param basicAuthCredentials
+     * @param bodyPatterns
+     * @param customMatcherDefinition
+     * @param customMatcher
+     * @param multiPattern
+     */
+    public RequestPattern(final String scheme,
+                          final StringValuePattern host,
+                          final Integer port,
+                          final UrlPattern url,
+                          final List<RequestMethod> methods,
+                          final Map<String, MultiValuePattern> headers,
+                          final Map<String, MultiValuePattern> queryParams,
+                          final Map<String, StringValuePattern> cookies,
+                          final BasicCredentials basicAuthCredentials,
+                          final List<ContentPattern<?>> bodyPatterns,
+                          final CustomMatcherDefinition customMatcherDefinition,
+                          final ValueMatcher<Request> customMatcher,
+                          final List<MultipartValuePattern> multiPattern) {
+        this.scheme = scheme;
+        this.host = host;
+        this.port = port;
+        this.url = firstNonNull(url, UrlPattern.ANY);
+        this.methods = methods;
+        /**
+         *  Assign the first method as default
+         */
+        this.method = methods.get(0);
+        this.headers = headers;
+        this.queryParams = queryParams;
+        this.cookies = cookies;
+        this.basicAuthCredentials = basicAuthCredentials;
+        this.bodyPatterns = bodyPatterns;
+        this.customMatcherDefinition = customMatcherDefinition;
+        this.multipartPatterns = multiPattern;
+        this.hasInlineCustomMatcher = customMatcher != null;
+
+        this.matcher = new RequestMatcher() {
+            @Override
+            public MatchResult match(Request request) {
+
+                List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
+                        weight(schemeMatches(request), 3.0),
+                        weight(hostMatches(request), 10.0),
+                        weight(portMatches(request), 10.0),
+                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
+                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+
+                        weight(allHeadersMatchResult(request)),
+                        weight(allQueryParamsMatch(request)),
+                        weight(allCookiesMatch(request)),
+                        weight(allBodyPatternsMatch(request)),
+                        weight(allMultipartPatternsMatch(request))
+                ));
+
+                if (hasInlineCustomMatcher) {
+                    matchResults.add(weight(customMatcher.match(request)));
+                }
+
+                return MatchResult.aggregateWeighted(matchResults);
+            }
+
+            @Override
+            public String getName() {
+                return "request-matcher";
+            }
+
+        };
     }
 
     @Override
@@ -382,6 +467,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     public RequestMethod getMethod() {
         return method;
+    }
+
+    public List<RequestMethod> getMethods() {
+        return methods;
     }
 
     public Map<String, MultiValuePattern> getHeaders() {

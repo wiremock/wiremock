@@ -51,6 +51,15 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
+	/**
+	 * @author: deeptis2
+	 * @param methods: List<RequestMethods>
+	 * @param urlPattern: String
+	 */
+	BasicMappingBuilder(List<RequestMethod> methods, UrlPattern urlPattern) {
+		requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);
+	}
+
 	BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
         requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
@@ -109,8 +118,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
     @Override
     public BasicMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams) {
-        for (Map.Entry<String, StringValuePattern> queryParam : queryParams.entrySet())
-            requestPatternBuilder.withQueryParam(queryParam.getKey(), queryParam.getValue());
+        for (Map.Entry<String, StringValuePattern> queryParam : queryParams.entrySet()) {
+			requestPatternBuilder.withQueryParam ( queryParam.getKey ( ), queryParam.getValue ( ) );
+		}
         return this;
     }
 

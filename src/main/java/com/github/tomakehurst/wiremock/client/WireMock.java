@@ -441,6 +441,10 @@ public class WireMock {
 		return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
 	}
 
+    public static MappingBuilder isAmong(List<String> methods, UrlPattern urlPattern) {
+        return new BasicMappingBuilder(RequestMethod.fromList(methods), urlPattern);
+    }
+
 	public static MappingBuilder head(UrlPattern urlPattern) {
 		return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
 	}
@@ -459,6 +463,16 @@ public class WireMock {
 
     public static MappingBuilder request(String method, UrlPattern urlPattern) {
         return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
+    }
+
+    /**
+     * @author: deeptis2
+     * @param methods
+     * @param urlPattern
+     * @return
+     */
+    public static MappingBuilder request(List<String> methods, UrlPattern urlPattern) {
+        return new BasicMappingBuilder(RequestMethod.fromList(methods), urlPattern);
     }
 
 	public static MappingBuilder requestMatching(String customRequestMatcherName) {

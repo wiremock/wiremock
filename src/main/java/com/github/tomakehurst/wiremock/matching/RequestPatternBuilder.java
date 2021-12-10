@@ -35,6 +35,7 @@ public class RequestPatternBuilder {
     private Integer port;
     private UrlPattern url = UrlPattern.ANY;
     private RequestMethod method = RequestMethod.ANY;
+    private List<RequestMethod> methods = newArrayList();
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
     private List<ContentPattern<?>> bodyPatterns = newArrayList();
@@ -55,6 +56,13 @@ public class RequestPatternBuilder {
 
     public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
         this.method = method;
+        this.methods.add(method);
+        this.url = url;
+    }
+
+    public RequestPatternBuilder(List<RequestMethod> methods, UrlPattern url) {
+        this.methods = methods;
+        this.method = methods.get(0);
         this.url = url;
     }
 
@@ -95,6 +103,7 @@ public class RequestPatternBuilder {
         builder.port = requestPattern.getPort();
         builder.url = requestPattern.getUrlMatcher();
         builder.method = requestPattern.getMethod();
+        builder.methods.add(builder.method);
         if (requestPattern.getHeaders() != null) {
             builder.headers = requestPattern.getHeaders();
         }

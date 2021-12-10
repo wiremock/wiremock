@@ -22,6 +22,9 @@ import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 
 import static java.util.Arrays.asList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
     public static final RequestMethod GET = new RequestMethod("GET");
@@ -46,6 +49,19 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
         return new RequestMethod(value);
     }
 
+    /**
+     * @author: deeptis2
+     * @param values
+     * @return List<RequestMethod>
+     */
+    @JsonCreator
+    public static List<RequestMethod> fromList(List<String> values) {
+        ArrayList<RequestMethod> methods = new ArrayList<> (  );
+        while(values.iterator().hasNext ()) {
+            methods.add(new RequestMethod ( values.iterator ().next () ));
+        }
+        return methods;
+    }
     @JsonValue
     public String value() {
         return name;
