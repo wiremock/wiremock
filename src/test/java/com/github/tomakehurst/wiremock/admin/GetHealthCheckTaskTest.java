@@ -7,16 +7,14 @@ import com.github.tomakehurst.wiremock.common.TimeUtil;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import java.net.HttpURLConnection;
 import java.util.concurrent.TimeUnit;
-
-import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GetHealthCheckTaskTest extends AcceptanceTestBase {
     private Admin mockAdmin = mock(Admin.class);
@@ -71,18 +69,17 @@ public class GetHealthCheckTaskTest extends AcceptanceTestBase {
         long responseTime = getHealthCheckTask.getResponseTime(startTime,endTime);
         assertThat(responseTime > 0, is(true));
     }
-    //junit Rule for expected exception
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     /**
      * Validate correct exception and error message are returned from getVersion() method.
      */
     @Test
-    public void getVersionExceptionTest() throws Exception {
-        expectedEx.expect(IllegalStateException.class);
-        expectedEx.expectMessage("Failed to load version source file test.txt");
-        getHealthCheckTask.getVersion("test.txt");
+    public void getVersionExceptionTest() {
+        Exception exception = assertThrows(
+          IllegalStateException.class,
+          () -> getHealthCheckTask.getVersion("test.txt"));
+
+        assertTrue(exception.getMessage().contains("Failed to load version source file test.txt"));
     }
 
 }
