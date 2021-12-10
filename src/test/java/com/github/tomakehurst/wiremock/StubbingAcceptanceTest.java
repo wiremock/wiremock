@@ -914,13 +914,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	@Test
 	public void testStubWithMultipleRequestMethods() {
 		ArrayList<String> methods = new ArrayList();
-		methods.add("GET");
+		methods.add("PUT");
 		methods.add("POST");
 
 		stubFor(isAmong(methods, urlEqualTo("/some/url"))
 				.willReturn(aResponse().withStatus(200)));
 
-		WireMockResponse response1 = testClient.request("GET", "/some/url");
+		WireMockResponse response1 = testClient.request("PUT", "/some/url");
 		assertThat(response1.statusCode (), is(200));
 
 		WireMockResponse response2 = testClient.request("POST", "/some/url");
@@ -929,18 +929,18 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	/**
-	 *  Negative Test case 1 for Issue 1434
+	 *  Negative Test case 2 for Issue 1434
 	 */
 	@Test
 	public void testStubWithInvalidRequestMethods() {
 		ArrayList<String> methods = new ArrayList();
-		methods.add("GET");
 		methods.add("POST");
+		methods.add("PUT");
 
 		stubFor(isAmong(methods, urlEqualTo("/some/url"))
 				.willReturn(aResponse().withStatus(200)));
 
-		WireMockResponse response = testClient.request("PUT", "/some/url");
+		WireMockResponse response = testClient.request("GET", "/some/url");
 		assertThat(response, is(null));
 
 	}
