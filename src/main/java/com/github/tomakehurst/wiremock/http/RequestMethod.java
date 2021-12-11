@@ -53,6 +53,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
      * @author: deeptis2
      * @param values
      * @return List<RequestMethod>
+     * @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
      */
     @JsonCreator
     public static List<RequestMethod> fromList(List<String> values) {

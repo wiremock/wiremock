@@ -55,6 +55,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	 * @author: deeptis2
 	 * @param methods: List<RequestMethods>
 	 * @param urlPattern: String
+	 * @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
 	 */
 	BasicMappingBuilder(List<RequestMethod> methods, UrlPattern urlPattern) {
 		requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);

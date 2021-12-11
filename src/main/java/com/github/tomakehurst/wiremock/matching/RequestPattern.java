@@ -196,6 +196,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
      * @param customMatcherDefinition
      * @param customMatcher
      * @param multiPattern
+     *
+     * @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
      */
     public RequestPattern(final String scheme,
                           final StringValuePattern host,

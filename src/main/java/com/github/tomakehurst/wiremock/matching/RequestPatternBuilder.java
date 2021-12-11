@@ -95,6 +95,8 @@ public class RequestPatternBuilder {
      *
      * @param requestPattern A RequestPattern to copy
      * @return A builder based on the RequestPattern
+     *
+     * @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
      */
     public static RequestPatternBuilder like(RequestPattern requestPattern) {
         RequestPatternBuilder builder = new RequestPatternBuilder();

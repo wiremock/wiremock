@@ -469,6 +469,7 @@ public class WireMock {
      * @author: deeptis2
      * @param methods
      * @param urlPattern
+     * @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
      * @return
      */
     public static MappingBuilder request(List<String> methods, UrlPattern urlPattern) {

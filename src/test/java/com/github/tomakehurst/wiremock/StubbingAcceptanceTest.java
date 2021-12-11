@@ -910,6 +910,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
 	/**
 	 *  Positive Test case 1 for Issue 1434
+	 * @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
 	 */
 	@Test
 	public void testStubWithMultipleRequestMethods() {
@@ -930,6 +931,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
 	/**
 	 *  Negative Test case 2 for Issue 1434
+	 *  @see: <a href="https://github.com/wiremock/wiremock/issues/1434">Issue 1434</a>
 	 */
 	@Test
 	public void testStubWithInvalidRequestMethods() {
