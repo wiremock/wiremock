@@ -84,6 +84,8 @@ public class GzipAcceptanceTest {
 
         /**
          *  Test case 1 for Issue 1584
+         *
+         *  @see: <a href="https://github.com/wiremock/wiremock/issues/1584">Issue 1584</a>
          */
         @Test
         public void servesGzippedResponseWithFaultWithAcceptEncoding() {
@@ -117,6 +119,8 @@ public class GzipAcceptanceTest {
 
         /**
          *  Test case 2 for Issue 1584
+         *
+         *  @see: <a href="https://github.com/wiremock/wiremock/issues/1584">Issue 1584</a>
          */
         @Test
         public void servesGzippedResponseWithFaultWithoutAcceptEncoding() {

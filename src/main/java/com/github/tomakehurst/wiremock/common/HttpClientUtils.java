@@ -46,7 +46,8 @@ public class HttpClientUtils {
 		if (entity != null) {
 			try {
 				/**
-				 * Issue 1584: Fix
+				 * Fix for Issue 1584
+				 * @see: <a href="https://github.com/wiremock/wiremock/issues/1584">Issue 1584</a>
 				 */
 				byte[] content = null;
 				try {
