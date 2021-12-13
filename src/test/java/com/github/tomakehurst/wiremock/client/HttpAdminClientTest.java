@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,48 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
 
 public class HttpAdminClientTest {
+  private static final String ADMIN_TEST_PREFIX = "/admin-test";
 
   @Test
   public void returnsOptionsWhenCallingGetOptions() {
-    Options options = new WireMockConfiguration().port(8080).bindAddress("localhost");
     HttpAdminClient client = new HttpAdminClient("localhost", 8080);
     assertThat(client.getOptions().portNumber(), is(8080));
     assertThat(client.getOptions().bindAddress(), is("localhost"));
+  }
+
+  @Test
+  public void shouldSendEmptyRequestForResetToDefaultMappings() {
+    WireMockServer server = new WireMockServer(options().dynamicPort());
+    server.start();
+    server.addStubMapping(
+        server.stubFor(
+            post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/mappings/reset"))
+                .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
+                .willReturn(ok())));
+    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    client.resetToDefaultMappings();
+  }
+
+  @Test
+  public void shouldSendEmptyRequestForResetAll() {
+    WireMockServer server = new WireMockServer(options().dynamicPort());
+    server.start();
+    server.addStubMapping(
+        server.stubFor(
+            post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
+                .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
+                .willReturn(ok())));
+    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+    client.resetAll();
   }
 }
