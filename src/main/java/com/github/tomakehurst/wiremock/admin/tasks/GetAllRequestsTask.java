@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_OK;
+
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.LimitAndSinceDatePaginator;
 import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
@@ -26,35 +31,26 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
-import static java.net.HttpURLConnection.HTTP_OK;
-
 public class GetAllRequestsTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        ServeEventQuery query = ServeEventQuery.fromRequest(request);
-        GetServeEventsResult serveEventsResult = admin.getServeEvents(query);
-        LimitAndSinceDatePaginator paginator;
-        try {
-             paginator = LimitAndSinceDatePaginator.fromRequest(
-                    serveEventsResult.getRequests(),
-                    request
-            );
-        } catch (InvalidInputException e) {
-            return jsonResponse(e.getErrors(), HTTP_BAD_REQUEST);
-        }
-
-        GetServeEventsResult result = new GetServeEventsResult(paginator,
-                serveEventsResult.isRequestJournalDisabled()
-        );
-
-        return responseDefinition()
-            .withStatus(HTTP_OK)
-            .withBody(Json.write(result))
-            .withHeader("Content-Type", "application/json")
-            .build();
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    ServeEventQuery query = ServeEventQuery.fromRequest(request);
+    GetServeEventsResult serveEventsResult = admin.getServeEvents(query);
+    LimitAndSinceDatePaginator paginator;
+    try {
+      paginator = LimitAndSinceDatePaginator.fromRequest(serveEventsResult.getRequests(), request);
+    } catch (InvalidInputException e) {
+      return jsonResponse(e.getErrors(), HTTP_BAD_REQUEST);
     }
+
+    GetServeEventsResult result =
+        new GetServeEventsResult(paginator, serveEventsResult.isRequestJournalDisabled());
+
+    return responseDefinition()
+        .withStatus(HTTP_OK)
+        .withBody(Json.write(result))
+        .withHeader("Content-Type", "application/json")
+        .build();
+  }
 }

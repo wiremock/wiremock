@@ -1,19 +1,13 @@
 {
-    "priority": 4,
-    "request": {
-        "method": "GET",
-        "urlPath": "/remote-load/2",
-        "headers": {
-            "Accept": {
-                "contains": "text/plain"
-            }
-        }
-    },
-    "response": {
-        "status": 200,
-        "headers": {
-            "Content-Type": "text/plain"
-        },
-        "body": "Remote load 2"
-    }
+  "request": {
+    "headers": {"Accept": {"contains": "text/plain"}},
+    "method": "GET",
+    "urlPath": "/remote-load/2"
+  },
+  "response": {
+    "headers": {"Content-Type": "text/plain"},
+    "body": "Remote load 2",
+    "status": 200
+  },
+  "priority": 4
 }

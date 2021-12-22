@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 public abstract class StubRequestFilter implements RequestFilter {
 
-    @Override
-    public boolean applyToAdmin() {
-        return false;
-    }
+  @Override
+  public boolean applyToAdmin() {
+    return false;
+  }
 
-    @Override
-    public boolean applyToStubs() {
-        return true;
-    }
+  @Override
+  public boolean applyToStubs() {
+    return true;
+  }
 }

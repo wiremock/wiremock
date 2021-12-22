@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.common;
 
 public interface Notifier {
-	
-	public static final String KEY = "Notifier";
 
-	void info(String message);
-	void error(String message);
-	void error(String message, Throwable t);
+  public static final String KEY = "Notifier";
+
+  void info(String message);
+
+  void error(String message);
+
+  void error(String message, Throwable t);
 }

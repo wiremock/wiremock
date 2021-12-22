@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,24 @@ import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 
 public enum DateTimeUnit {
-    SECONDS(Calendar.SECOND),
-    MINUTES(Calendar.MINUTE),
-    HOURS(Calendar.HOUR),
-    DAYS(Calendar.DAY_OF_MONTH),
-    MONTHS(Calendar.MONTH),
-    YEARS(Calendar.YEAR);
+  SECONDS(Calendar.SECOND),
+  MINUTES(Calendar.MINUTE),
+  HOURS(Calendar.HOUR),
+  DAYS(Calendar.DAY_OF_MONTH),
+  MONTHS(Calendar.MONTH),
+  YEARS(Calendar.YEAR);
 
-    private final int calendarField;
+  private final int calendarField;
 
-    DateTimeUnit(int calendarField) {
-        this.calendarField = calendarField;
-    }
+  DateTimeUnit(int calendarField) {
+    this.calendarField = calendarField;
+  }
 
-    public int getCalendarField() {
-        return calendarField;
-    }
+  public int getCalendarField() {
+    return calendarField;
+  }
 
-    public TemporalUnit toTemporalUnit() {
-        return ChronoUnit.valueOf(name());
-    }
+  public TemporalUnit toTemporalUnit() {
+    return ChronoUnit.valueOf(name());
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 public class StopAction extends RequestFilterAction {
 
-    private final ResponseDefinition responseDefinition;
+  private final ResponseDefinition responseDefinition;
 
-    StopAction(ResponseDefinition responseDefinition) {
-        this.responseDefinition = responseDefinition;
-    }
+  StopAction(ResponseDefinition responseDefinition) {
+    this.responseDefinition = responseDefinition;
+  }
 
-    public ResponseDefinition getResponseDefinition() {
-        return responseDefinition;
-    }
+  public ResponseDefinition getResponseDefinition() {
+    return responseDefinition;
+  }
 }

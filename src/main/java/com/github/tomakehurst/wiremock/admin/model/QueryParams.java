@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.common.Pair;
-
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,30 +23,32 @@ import java.util.stream.Collectors;
 
 public class QueryParams extends LinkedHashMap<String, List<String>> {
 
-    public static final QueryParams EMPTY = new QueryParams();
+  public static final QueryParams EMPTY = new QueryParams();
 
-    public static QueryParams single(String key, String... values) {
-        return new QueryParams().add(key, values);
+  public static QueryParams single(String key, String... values) {
+    return new QueryParams().add(key, values);
+  }
+
+  public QueryParams add(String key, String... values) {
+    return add(key, Arrays.asList(values));
+  }
+
+  public QueryParams add(String key, List<String> values) {
+    put(key, values);
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    if (isEmpty()) {
+      return "";
     }
 
-    public QueryParams add(String key, String... values) {
-        return add(key, Arrays.asList(values));
-    }
-
-    public QueryParams add(String key, List<String> values) {
-        put(key, values);
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        if (isEmpty()) {
-            return "";
-        }
-
-        return "?" + entrySet().stream()
-                .flatMap(entry -> entry.getValue().stream().map(value -> Pair.pair(entry.getKey(), value)))
-                .map(pair -> pair.a + "=" + pair.b)
-                .collect(Collectors.joining("&"));
-    }
+    return "?"
+        + entrySet().stream()
+            .flatMap(
+                entry -> entry.getValue().stream().map(value -> Pair.pair(entry.getKey(), value)))
+            .map(pair -> pair.a + "=" + pair.b)
+            .collect(Collectors.joining("&"));
+  }
 }

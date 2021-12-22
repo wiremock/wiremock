@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,63 +17,71 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class BeforeDateTimePattern extends AbstractDateTimePattern {
 
-    public BeforeDateTimePattern(ZonedDateTime zonedDateTime) {
-        super(zonedDateTime);
-    }
+  public BeforeDateTimePattern(ZonedDateTime zonedDateTime) {
+    super(zonedDateTime);
+  }
 
-    public BeforeDateTimePattern(LocalDateTime localDateTime) {
-        super(localDateTime);
-    }
+  public BeforeDateTimePattern(LocalDateTime localDateTime) {
+    super(localDateTime);
+  }
 
-    public BeforeDateTimePattern(String dateTimeSpec) {
-        super(dateTimeSpec);
-    }
+  public BeforeDateTimePattern(String dateTimeSpec) {
+    super(dateTimeSpec);
+  }
 
-    public BeforeDateTimePattern(
-            @JsonProperty("before") String dateTimeSpec,
-            @JsonProperty("actualFormat") String actualDateFormat,
-            @JsonProperty("truncateExpected") String truncateExpected,
-            @JsonProperty("truncateActual") String truncateActual,
-            @JsonProperty("expectedOffset") Integer expectedOffsetAmount,
-            @JsonProperty("expectedOffsetUnit") DateTimeUnit expectedOffsetUnit
-    ) {
-        super(dateTimeSpec, actualDateFormat, truncateExpected, truncateActual, expectedOffsetAmount, expectedOffsetUnit);
-    }
+  public BeforeDateTimePattern(
+      @JsonProperty("before") String dateTimeSpec,
+      @JsonProperty("actualFormat") String actualDateFormat,
+      @JsonProperty("truncateExpected") String truncateExpected,
+      @JsonProperty("truncateActual") String truncateActual,
+      @JsonProperty("expectedOffset") Integer expectedOffsetAmount,
+      @JsonProperty("expectedOffsetUnit") DateTimeUnit expectedOffsetUnit) {
+    super(
+        dateTimeSpec,
+        actualDateFormat,
+        truncateExpected,
+        truncateActual,
+        expectedOffsetAmount,
+        expectedOffsetUnit);
+  }
 
-    @Override
-    protected MatchResult getMatchResult(ZonedDateTime zonedExpected, LocalDateTime localExpected, ZonedDateTime zonedActual, LocalDateTime localActual) {
+  @Override
+  protected MatchResult getMatchResult(
+      ZonedDateTime zonedExpected,
+      LocalDateTime localExpected,
+      ZonedDateTime zonedActual,
+      LocalDateTime localActual) {
 
-        return new AbstractDateTimeMatchResult(zonedExpected, localExpected, zonedActual, localActual) {
-            @Override
-            protected boolean matchZonedZoned() {
-                return zonedActual.isBefore(zonedExpected);
-            }
+    return new AbstractDateTimeMatchResult(zonedExpected, localExpected, zonedActual, localActual) {
+      @Override
+      protected boolean matchZonedZoned() {
+        return zonedActual.isBefore(zonedExpected);
+      }
 
-            @Override
-            protected boolean matchLocalLocal() {
-                return localActual.isBefore(localExpected);
-            }
+      @Override
+      protected boolean matchLocalLocal() {
+        return localActual.isBefore(localExpected);
+      }
 
-            @Override
-            protected boolean matchLocalZoned() {
-                return zonedActual.toLocalDateTime().isBefore(localExpected);
-            }
+      @Override
+      protected boolean matchLocalZoned() {
+        return zonedActual.toLocalDateTime().isBefore(localExpected);
+      }
 
-            @Override
-            protected boolean matchZonedLocal() {
-                return localActual.atZone(ZoneId.systemDefault()).isBefore(zonedExpected);
-            }
-        };
-    }
+      @Override
+      protected boolean matchZonedLocal() {
+        return localActual.atZone(ZoneId.systemDefault()).isBefore(zonedExpected);
+      }
+    };
+  }
 
-    public String getBefore() {
-        return getValue();
-    }
+  public String getBefore() {
+    return getValue();
+  }
 }

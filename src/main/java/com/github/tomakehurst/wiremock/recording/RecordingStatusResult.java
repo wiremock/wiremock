@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RecordingStatusResult {
 
-    private final RecordingStatus status;
+  private final RecordingStatus status;
 
-    @JsonCreator
-    public RecordingStatusResult(@JsonProperty("status") String status) {
-        this(RecordingStatus.valueOf(status));
-    }
+  @JsonCreator
+  public RecordingStatusResult(@JsonProperty("status") String status) {
+    this(RecordingStatus.valueOf(status));
+  }
 
-    public RecordingStatusResult(RecordingStatus status) {
-        this.status = status;
-    }
+  public RecordingStatusResult(RecordingStatus status) {
+    this.status = status;
+  }
 
-    public RecordingStatus getStatus() {
-        return status;
-    }
+  public RecordingStatus getStatus() {
+    return status;
+  }
 }

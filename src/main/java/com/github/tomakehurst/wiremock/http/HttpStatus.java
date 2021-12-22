@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,19 @@ package com.github.tomakehurst.wiremock.http;
 
 public class HttpStatus {
 
-    public static boolean isSuccess(int code) {
-        return ((200 <= code) && (code <= 299));
-    }
+  public static boolean isSuccess(int code) {
+    return ((200 <= code) && (code <= 299));
+  }
 
-    public static boolean isRedirection(int code) {
-        return ((300 <= code) && (code <= 399));
-    }
+  public static boolean isRedirection(int code) {
+    return ((300 <= code) && (code <= 399));
+  }
 
-    public static boolean isClientError(int code) {
-        return ((400 <= code) && (code <= 499));
-    }
+  public static boolean isClientError(int code) {
+    return ((400 <= code) && (code <= 499));
+  }
 
-    public static boolean isServerError(int code) {
-        return ((500 <= code) && (code <= 599));
-    }
+  public static boolean isServerError(int code) {
+    return ((500 <= code) && (code <= 599));
+  }
 }

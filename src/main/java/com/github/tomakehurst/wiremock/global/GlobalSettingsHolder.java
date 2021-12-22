@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class GlobalSettingsHolder {
 
-	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<>(GlobalSettings.defaults());
-	
-	public void replaceWith(GlobalSettings globalSettings) {
-		globalSettingsRef.set(globalSettings);
-	}
-	
-	public GlobalSettings get() {
-		return globalSettingsRef.get();
-	}
+  private AtomicReference<GlobalSettings> globalSettingsRef =
+      new AtomicReference<>(GlobalSettings.defaults());
+
+  public void replaceWith(GlobalSettings globalSettings) {
+    globalSettingsRef.set(globalSettings);
+  }
+
+  public GlobalSettings get() {
+    return globalSettingsRef.get();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,15 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 public class DoNothingWiremockNetworkTrafficListener implements WiremockNetworkTrafficListener {
-    @Override
-    public void opened(Socket socket) {
-    }
+  @Override
+  public void opened(Socket socket) {}
 
-    @Override
-    public void incoming(Socket socket, ByteBuffer bytes) {
-    }
+  @Override
+  public void incoming(Socket socket, ByteBuffer bytes) {}
 
-    @Override
-    public void outgoing(Socket socket, ByteBuffer bytes) {
-    }
+  @Override
+  public void outgoing(Socket socket, ByteBuffer bytes) {}
 
-    @Override
-    public void closed(Socket socket) {
-    }
+  @Override
+  public void closed(Socket socket) {}
 }

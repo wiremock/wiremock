@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,26 @@ import java.io.File;
 
 public class SingleRootFileSource extends AbstractFileSource {
 
-	public SingleRootFileSource(File rootDirectory) {
-		super(rootDirectory);
-	}
-	
-	public SingleRootFileSource(String rootPath) {
-	    super(new File(rootPath));
-	}
-	
-	@Override
-    public FileSource child(String subDirectoryName) {
-        return new SingleRootFileSource(new File(rootDirectory, subDirectoryName));
-    }
+  public SingleRootFileSource(File rootDirectory) {
+    super(rootDirectory);
+  }
 
-    @Override
-    protected boolean readOnly() {
-        return false;
-    }
+  public SingleRootFileSource(String rootPath) {
+    super(new File(rootPath));
+  }
 
-    @Override
-    public String toString() {
-        return SingleRootFileSource.class.getSimpleName() + ": " + rootDirectory;
-    }
+  @Override
+  public FileSource child(String subDirectoryName) {
+    return new SingleRootFileSource(new File(rootDirectory, subDirectoryName));
+  }
+
+  @Override
+  protected boolean readOnly() {
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return SingleRootFileSource.class.getSimpleName() + ": " + rootDirectory;
+  }
 }

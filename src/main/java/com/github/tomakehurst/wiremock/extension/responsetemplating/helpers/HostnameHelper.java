@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,29 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.github.jknack.handlebars.Options;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
+import com.github.jknack.handlebars.Options;
+import java.net.InetAddress;
 
 public class HostnameHelper extends HandlebarsHelper<Object> {
 
-    private static String HOSTNAME;
+  private static String HOSTNAME;
 
-    static {
-        try {
-            HOSTNAME = InetAddress.getLocalHost().getHostName();
-        } catch (Exception e) {
-            notifier().error("Failed to look up localhost. {{hostname}} Handlebars helper will return localhost.", e);
-            HOSTNAME = "localhost";
-        }
+  static {
+    try {
+      HOSTNAME = InetAddress.getLocalHost().getHostName();
+    } catch (Exception e) {
+      notifier()
+          .error(
+              "Failed to look up localhost. {{hostname}} Handlebars helper will return localhost.",
+              e);
+      HOSTNAME = "localhost";
     }
+  }
 
-    @Override
-    public Object apply(Object context, Options options) {
-        return HOSTNAME;
-    }
+  @Override
+  public Object apply(Object context, Options options) {
+    return HOSTNAME;
+  }
 }

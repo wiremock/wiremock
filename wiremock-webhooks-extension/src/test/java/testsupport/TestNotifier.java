@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,54 +17,57 @@ package testsupport;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestNotifier implements Notifier {
 
-    private List<String> info;
-    private List<String> error;
+  private List<String> info;
+  private List<String> error;
 
-    private Notifier previousNotifier;
+  private Notifier previousNotifier;
 
-    public TestNotifier() {
-        this.info = new ArrayList<>();
-        this.error = new ArrayList<>();
-    }
+  public TestNotifier() {
+    this.info = new ArrayList<>();
+    this.error = new ArrayList<>();
+  }
 
-    public static TestNotifier createAndSet() {
-        TestNotifier testNotifier = new TestNotifier();
-        testNotifier.previousNotifier = LocalNotifier.notifier();
-        LocalNotifier.set(testNotifier);
-        return testNotifier;
-    }
+  public static TestNotifier createAndSet() {
+    TestNotifier testNotifier = new TestNotifier();
+    testNotifier.previousNotifier = LocalNotifier.notifier();
+    LocalNotifier.set(testNotifier);
+    return testNotifier;
+  }
 
-    public void revert() {
-        LocalNotifier.set(previousNotifier);
-    }
+  public void revert() {
+    LocalNotifier.set(previousNotifier);
+  }
 
-    @Override
-    public void info(String message) {
-        this.info.add(message);
-    }
+  @Override
+  public void info(String message) {
+    this.info.add(message);
+  }
 
-    @Override
-    public void error(String message) {
-        this.error.add(message);
-    }
+  @Override
+  public void error(String message) {
+    this.error.add(message);
+  }
 
-    @Override
-    public void error(String message, Throwable t) {
-        this.error.add(message);
-    }
+  @Override
+  public void error(String message, Throwable t) {
+    this.error.add(message);
+  }
 
-    public List<String> getInfoMessages() { return info; }
+  public List<String> getInfoMessages() {
+    return info;
+  }
 
-    public List<String> getErrorMessages() { return error; }
+  public List<String> getErrorMessages() {
+    return error;
+  }
 
-    public void reset() {
-        info.clear();
-        error.clear();
-    }
+  public void reset() {
+    info.clear();
+    error.clear();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AbsentPattern extends StringValuePattern {
 
-    public static final AbsentPattern ABSENT = new AbsentPattern(null);
+  public static final AbsentPattern ABSENT = new AbsentPattern(null);
 
-    public AbsentPattern(@JsonProperty("absent") String expectedValue) {
-        super(expectedValue);
-    }
+  public AbsentPattern(@JsonProperty("absent") String expectedValue) {
+    super(expectedValue);
+  }
 
-    @Override
-    public boolean nullSafeIsAbsent() {
-        return true;
-    }
+  @Override
+  public boolean nullSafeIsAbsent() {
+    return true;
+  }
 
-    @Override
-    public MatchResult match(String value) {
-        return MatchResult.of(value == null);
-    }
+  @Override
+  public MatchResult match(String value) {
+    return MatchResult.of(value == null);
+  }
 
-    @Override
-    public String getExpected() {
-        return "(absent)";
-    }
+  @Override
+  public String getExpected() {
+    return "(absent)";
+  }
 
-    @Override
-    protected boolean isNullValuePermitted() {
-        return true;
-    }
+  @Override
+  protected boolean isNullValuePermitted() {
+    return true;
+  }
 }

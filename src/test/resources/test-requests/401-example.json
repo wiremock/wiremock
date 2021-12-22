@@ -1,13 +1,11 @@
-{ 													
-	"request": {									
-		"method": "GET",						
-		"url": "/canned/resource/2"	
-	},												
-	"response": {									
-		"status": 401,							
-		"headers": {								
-			"Content-Type": "text/plain"		
-		},											
-		"body": "Not allowed!"					
-	}												
+{
+  "request": {
+    "method": "GET",
+    "url": "/canned/resource/2"
+  },
+  "response": {
+    "headers": {"Content-Type": "text/plain"},
+    "body": "Not allowed!",
+    "status": 401
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
+import static java.net.HttpURLConnection.HTTP_CREATED;
+
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -23,14 +25,12 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import static java.net.HttpURLConnection.HTTP_CREATED;
-
 public class CreateStubMappingTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
-        admin.addStubMapping(newMapping);
-        return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED);
-    }
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
+    admin.addStubMapping(newMapping);
+    return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED);
+  }
 }
