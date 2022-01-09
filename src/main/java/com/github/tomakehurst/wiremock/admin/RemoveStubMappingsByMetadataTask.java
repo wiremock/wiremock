@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2018-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 public class RemoveStubMappingsByMetadataTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        StringValuePattern pattern = Json.read(request.getBodyAsString(), StringValuePattern.class);
-        admin.removeStubsByMetadata(pattern);
-        return ResponseDefinition.okEmptyJson();
-    }
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    StringValuePattern pattern = Json.read(request.getBodyAsString(), StringValuePattern.class);
+    admin.removeStubsByMetadata(pattern);
+    return ResponseDefinition.okEmptyJson();
+  }
 }

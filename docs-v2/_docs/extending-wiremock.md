@@ -223,7 +223,7 @@ To use it in a verification :
 ```java
 verify(2, requestMadeFor(new ValueMatcher<Request>() {
     @Override
-    public MatchResult match(Request value) {
+    public MatchResult match(Request request) {
         return MatchResult.of(request.getBody().length > 2048);
     }
 }));

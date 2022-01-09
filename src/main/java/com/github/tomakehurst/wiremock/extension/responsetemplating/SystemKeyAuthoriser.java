@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,36 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import com.google.common.collect.ImmutableSet;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-
 public class SystemKeyAuthoriser {
 
-    private final ImmutableSet<Pattern> regexes;
+  private final ImmutableSet<Pattern> regexes;
 
-    public SystemKeyAuthoriser(Set<String> patterns) {
-        if (patterns == null || patterns.isEmpty()) {
-            patterns = ImmutableSet.of("wiremock.*");
-        }
-
-        ImmutableSet.Builder<Pattern> builder = ImmutableSet.builder();
-        for (String pattern: patterns) {
-            builder.add(Pattern.compile(pattern, CASE_INSENSITIVE));
-        }
-
-        regexes = builder.build();
+  public SystemKeyAuthoriser(Set<String> patterns) {
+    if (patterns == null || patterns.isEmpty()) {
+      patterns = ImmutableSet.of("wiremock.*");
     }
 
-    public boolean isPermitted(String key) {
-        for (Pattern regex: regexes) {
-            if (regex.matcher(key).matches()) {
-                return true;
-            }
-        }
-
-        return false;
+    ImmutableSet.Builder<Pattern> builder = ImmutableSet.builder();
+    for (String pattern : patterns) {
+      builder.add(Pattern.compile(pattern, CASE_INSENSITIVE));
     }
+
+    regexes = builder.build();
+  }
+
+  public boolean isPermitted(String key) {
+    for (Pattern regex : regexes) {
+      if (regex.matcher(key).matches()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }

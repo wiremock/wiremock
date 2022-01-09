@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,33 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-
 import java.util.List;
 
-/**
- * Wraps a list of generated StubMappings into a SnapshotRecordResult object
- */
+/** Wraps a list of generated StubMappings into a SnapshotRecordResult object */
 public enum SnapshotOutputFormatter {
-    FULL {
-        @Override
-        public SnapshotRecordResult format(List<StubMapping> stubMappings) {
-            return SnapshotRecordResult.full(stubMappings);
-        }
-    },
-    IDS {
-        @Override
-        public SnapshotRecordResult format(List<StubMapping> stubMappings) {
-            return SnapshotRecordResult.idsFromMappings(stubMappings);
-        }
-    };
-
-    public abstract SnapshotRecordResult format(List<StubMapping> stubMappings);
-
-    @JsonCreator
-    public static SnapshotOutputFormatter fromString(String value) {
-        if (value == null || value.equalsIgnoreCase("full")) {
-            return FULL;
-        } else if (value.equalsIgnoreCase("ids")) {
-            return IDS;
-        } else {
-            throw new IllegalArgumentException("Invalid output format");
-        }
+  FULL {
+    @Override
+    public SnapshotRecordResult format(List<StubMapping> stubMappings) {
+      return SnapshotRecordResult.full(stubMappings);
     }
+  },
+  IDS {
+    @Override
+    public SnapshotRecordResult format(List<StubMapping> stubMappings) {
+      return SnapshotRecordResult.idsFromMappings(stubMappings);
+    }
+  };
+
+  public abstract SnapshotRecordResult format(List<StubMapping> stubMappings);
+
+  @JsonCreator
+  public static SnapshotOutputFormatter fromString(String value) {
+    if (value == null || value.equalsIgnoreCase("full")) {
+      return FULL;
+    } else if (value.equalsIgnoreCase("ids")) {
+      return IDS;
+    } else {
+      throw new IllegalArgumentException("Invalid output format");
+    }
+  }
 }

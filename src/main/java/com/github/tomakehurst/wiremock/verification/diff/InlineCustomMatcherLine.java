@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,11 @@ import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
 public class InlineCustomMatcherLine extends DiffLine<Request> {
 
-    public InlineCustomMatcherLine(ValueMatcher<Request> customMatcher, Request request) {
-        super("custom matcher", new CustomMatcherWrapper(customMatcher), new EmptyToStringRequestWrapper(request), "[custom matcher]");
-    }
-
+  public InlineCustomMatcherLine(ValueMatcher<Request> customMatcher, Request request) {
+    super(
+        "custom matcher",
+        new CustomMatcherWrapper(customMatcher),
+        new EmptyToStringRequestWrapper(request),
+        "[custom matcher]");
+  }
 }

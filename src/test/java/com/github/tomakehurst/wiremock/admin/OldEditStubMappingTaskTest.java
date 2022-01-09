@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,67 +15,49 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildJsonStringFor;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.admin.tasks.OldEditStubMappingTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.net.HttpURLConnection;
-
-import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildJsonStringFor;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class OldEditStubMappingTaskTest {
 
-	private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
+  private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
-	private Mockery context;
-	private Admin mockAdmin;
+  private Admin mockAdmin = mock(Admin.class);
+  private Request mockRequest = mock(Request.class);
 
-	private Request mockRequest;
+  private OldEditStubMappingTask editStubMappingTask = new OldEditStubMappingTask();
 
-	private OldEditStubMappingTask editStubMappingTask;
+  @Test
+  public void delegatesSavingMappingsToAdmin() {
+    when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
-	@Before
-	public void setUp() {
+    editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
-		context = new Mockery();
-		mockAdmin = context.mock(Admin.class);
-		mockRequest = context.mock(Request.class);
+    verify(mockAdmin).editStubMapping(any(StubMapping.class));
+  }
 
-		editStubMappingTask = new OldEditStubMappingTask();
-	}
+  @Test
+  public void returnsNoContentResponse() {
+    when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
-	@Test
-	public void delegatesSavingMappingsToAdmin() {
+    ResponseDefinition response =
+        editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
-		context.checking(new Expectations() {{
-			oneOf(mockRequest).getBodyAsString();
-			will(returnValue(buildJsonStringFor(MOCK_MAPPING)));
-			oneOf(mockAdmin).editStubMapping(with(any(StubMapping.class)));
-		}});
-
-		editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
-	}
-
-	@Test
-	public void returnsNoContentResponse() {
-
-		context.checking(new Expectations() {{
-			oneOf(mockRequest).getBodyAsString();
-			will(returnValue(buildJsonStringFor(MOCK_MAPPING)));
-			oneOf(mockAdmin).editStubMapping(with(any(StubMapping.class)));
-		}});
-
-		ResponseDefinition response = editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
-
-		assertThat(response.getStatus(), is(HttpURLConnection.HTTP_NO_CONTENT));
-	}
+    assertThat(response.getStatus(), is(HttpURLConnection.HTTP_NO_CONTENT));
+    verify(mockAdmin).editStubMapping(any(StubMapping.class));
+  }
 }

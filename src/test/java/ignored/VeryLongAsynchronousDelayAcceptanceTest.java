@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2018-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,55 +15,53 @@
  */
 package ignored;
 
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
-import org.junit.Rule;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.io.IOException;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 public class VeryLongAsynchronousDelayAcceptanceTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(getOptions());
+  @RegisterExtension
+  public WireMockExtension wireMockRule =
+      WireMockExtension.newInstance().options(getOptions()).build();
 
-    private WireMockConfiguration getOptions() {
-        WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
-        wireMockConfiguration.jettyAcceptors(1).containerThreads(4);
-        wireMockConfiguration.asynchronousResponseEnabled(true);
-        wireMockConfiguration.asynchronousResponseThreads(10);
-        wireMockConfiguration.dynamicPort();
-        return wireMockConfiguration;
-    }
+  private WireMockConfiguration getOptions() {
+    WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
+    wireMockConfiguration.jettyAcceptors(1).containerThreads(4);
+    wireMockConfiguration.asynchronousResponseEnabled(true);
+    wireMockConfiguration.asynchronousResponseThreads(10);
+    wireMockConfiguration.dynamicPort();
+    return wireMockConfiguration;
+  }
 
+  @Test
+  public void longDelayWithBodyMatch() throws IOException, ParseException {
+    String json =
+        "{ \"id\": \"cb7872bd-89cd-4015-97d1-718779df7dfe\", \"priority\": 1, \"request\": { \"urlPattern\": \"/faulty.*/.*/path/path\", \"method\": \"POST\", \"bodyPatterns\": [ { \"matches\": \".*<xml>permissions</xml>.*\" } ] }, \"response\": { \"status\": 200, \"bodyFileName\": \"plain-example.txt\", \"fixedDelayMilliseconds\": 35000 } }\n";
 
-    @Test
-    public void longDelayWithBodyMatch() throws IOException {
-        String json = "{ \"id\": \"cb7872bd-89cd-4015-97d1-718779df7dfe\", \"priority\": 1, \"request\": { \"urlPattern\": \"/faulty.*/.*/path/path\", \"method\": \"POST\", \"bodyPatterns\": [ { \"matches\": \".*<xml>permissions</xml>.*\" } ] }, \"response\": { \"status\": 200, \"bodyFileName\": \"plain-example.txt\", \"fixedDelayMilliseconds\": 35000 } }\n";
+    wireMockRule.addStubMapping(Json.read(json, StubMapping.class));
 
-        wireMockRule.addStubMapping(Json.read(json, StubMapping.class));
+    CloseableHttpResponse response =
+        HttpClientFactory.createClient(50, 120000)
+            .execute(
+                ClassicRequestBuilder.post(wireMockRule.url("/faulty/1/path/path"))
+                    .setEntity(new StringEntity("<xml>permissions</xml>"))
+                    .build());
 
-        CloseableHttpResponse response = HttpClientFactory.createClient(50, 120000)
-            .execute(RequestBuilder
-            .post("http://localhost:" + wireMockRule.port() + "/faulty/1/path/path")
-            .setEntity(new StringEntity("<xml>permissions</xml>"))
-            .build()
-        );
-
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
-        assertThat(EntityUtils.toString(response.getEntity()), is("Some example test from a file"));
-    }
-
+    assertThat(response.getCode(), is(200));
+    assertThat(EntityUtils.toString(response.getEntity()), is("Some example test from a file"));
+  }
 }

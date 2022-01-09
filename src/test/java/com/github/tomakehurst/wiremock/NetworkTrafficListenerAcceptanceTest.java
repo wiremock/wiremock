@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,33 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.trafficlistener.CollectingNetworkTrafficListener;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
-	private static CollectingNetworkTrafficListener networkTrafficListener = new CollectingNetworkTrafficListener();
+  private static CollectingNetworkTrafficListener networkTrafficListener =
+      new CollectingNetworkTrafficListener();
 
-	@BeforeClass
-	public static void setupServer() {
-		setupServer(new WireMockConfiguration().networkTrafficListener(networkTrafficListener));
-	}
-	
-	@Test
-	public void capturesRawTraffic() {
-		testClient.get("/a/non-registered/resource");
+  @BeforeAll
+  public static void setupServer() {
+    setupServer(new WireMockConfiguration().networkTrafficListener(networkTrafficListener));
+  }
 
-		assertThat(networkTrafficListener.getAllRequests(), containsString("GET /a/non-registered/resource HTTP/1.1\r\n"));
-		assertThat(networkTrafficListener.getAllRequests(), containsString("Content-Length: 0\r\n"));
-		assertThat(networkTrafficListener.getAllResponses(), containsString("HTTP/1.1 404 Not Found\r\n"));
-	}
+  @Test
+  public void capturesRawTraffic() {
+    testClient.get("/a/non-registered/resource");
+
+    assertThat(
+        networkTrafficListener.getAllRequests(),
+        containsString("GET /a/non-registered/resource HTTP/1.1\r\n"));
+    assertThat(
+        networkTrafficListener.getAllRequests(), containsString("User-Agent: Apache-HttpClient/"));
+    assertThat(
+        networkTrafficListener.getAllResponses(), containsString("HTTP/1.1 404 Not Found\r\n"));
+  }
 }

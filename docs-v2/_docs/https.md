@@ -33,8 +33,9 @@ password:
 @Rule
 public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
     .httpsPort(8443)
-    .keystorePath("/path/to/keystore.jks")
-    .keystorePassword("verysecret")); // Defaults to "password" if omitted
+    .keystorePath("/path/to/keystore.jks") // Either a path to a file or a resource on the classpath
+    .keystorePassword("verysecret") // The password used to access the keystore. Defaults to "password" if omitted
+    .keyManagerPassword("verysecret")); // The password used to access individual keys in the keystore. Defaults to "password" if omitted
 ```
 
 The keystore type defaults to JKS, but this can be changed if you're using another keystore format e.g. Bouncycastle's BKS with Android:
@@ -60,7 +61,7 @@ client auth:
 public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
     .httpsPort(8443)
     .needClientAuth(true)
-    .trustStorePath("/path/to/truststore.jks")
+    .trustStorePath("/path/to/truststore.jks") // Either a path to a file or a resource on the classpath
     .trustStorePassword("mostsecret")); // Defaults to "password" if omitted
 ```
 
@@ -78,7 +79,7 @@ specify a trust store containing the certificate(s).
 `javax.net.ssl.SSLException: Unrecognized SSL message, plaintext connection?`: Usually means you've tried to connect to the
 HTTP port with a client that's expecting HTTPS (i.e. has https:// in the URL).
 
-`org.apache.http.NoHttpResponseException: The target server failed to respond`: Could mean you've tried to connect to the HTTPS port with a
+`org.apache.hc.core5.http.NoHttpResponseException: The target server failed to respond`: Could mean you've tried to connect to the HTTPS port with a
 client expecting HTTP.
 
 `javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target`: You are using WireMock's default (self-signed) TLS certificate or another certificate that isn't signed by a CA. In this case you need to specifically configure your HTTP client to trust the certificate being presented, or to trust all certificates. Here is an example of [how to do this with the Apache HTTP client](https://github.com/tomakehurst/wiremock/blob/{{ site.wiremock_version }}/src/main/java/com/github/tomakehurst/wiremock/http/HttpClientFactory.java).

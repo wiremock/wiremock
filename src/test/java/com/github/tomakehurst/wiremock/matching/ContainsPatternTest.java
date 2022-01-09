@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import org.junit.jupiter.api.Test;
 
 public class ContainsPatternTest {
 
-    @Test
-    public void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {
-        assertTrue(
-            WireMock.containing("thing").match("mythings").isExactMatch()
-        );
-    }
+  @Test
+  public void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {
+    assertTrue(WireMock.containing("thing").match("mythings").isExactMatch());
+  }
 
-    @Test
-    public void returnsNoMatchWhenExpectedValueNotContainedInTestValue() {
-        MatchResult matchResult = WireMock.containing("thing").match("otherstuff");
-        assertFalse(matchResult.isExactMatch());
-        assertThat(matchResult.getDistance(), is(1.0));
-    }
-
+  @Test
+  public void returnsNoMatchWhenExpectedValueNotContainedInTestValue() {
+    MatchResult matchResult = WireMock.containing("thing").match("otherstuff");
+    assertFalse(matchResult.isExactMatch());
+    assertThat(matchResult.getDistance(), is(1.0));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 class CertChainAndKey {
-    final X509Certificate[] certificateChain;
-    final PrivateKey key;
+  final X509Certificate[] certificateChain;
+  final PrivateKey key;
 
-    CertChainAndKey(X509Certificate[] certificateChain, PrivateKey key) {
-        this.certificateChain = certificateChain;
-        this.key = key;
-    }
+  CertChainAndKey(X509Certificate[] certificateChain, PrivateKey key) {
+    this.certificateChain = certificateChain;
+    this.key = key;
+  }
 }

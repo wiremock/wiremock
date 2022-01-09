@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,39 @@
  */
 package ignored;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 public class ManyUnmatchedRequestsTest {
 
-    @Rule
-    public WireMockRule wm = new WireMockRule(options()
-        .dynamicPort()
-        .withRootDirectory("src/main/resources/empty"));
+  @RegisterExtension
+  public WireMockExtension wm =
+      WireMockExtension.newInstance()
+          .options(options().dynamicPort().withRootDirectory("src/main/resources/empty"))
+          .failOnUnmatchedRequests(true)
+          .build();
 
-    WireMockTestClient client;
+  WireMockTestClient client;
 
-    @Before
-    public void init() {
-        client = new WireMockTestClient(wm.port());
-    }
+  @BeforeEach
+  public void init() {
+    client = new WireMockTestClient(wm.getPort());
+  }
 
-    @Test
-    public void unmatched() {
-        wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+  @Test
+  public void unmatched() {
+    wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
 
-        client.get("/a-near-mis");
-        client.get("/near-misssss");
-        client.get("/hit");
-    }
+    client.get("/a-near-mis");
+    client.get("/near-misssss");
+    client.get("/hit");
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2018-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 public class FindStubMappingsByMetadataTask implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        StringValuePattern pattern = Json.read(request.getBodyAsString(), StringValuePattern.class);
-        ListStubMappingsResult stubMappings = admin.findAllStubsByMetadata(pattern);
-        return ResponseDefinition.okForJson(stubMappings);
-    }
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    StringValuePattern pattern = Json.read(request.getBodyAsString(), StringValuePattern.class);
+    ListStubMappingsResult stubMappings = admin.findAllStubsByMetadata(pattern);
+    return ResponseDefinition.okForJson(stubMappings);
+  }
 }

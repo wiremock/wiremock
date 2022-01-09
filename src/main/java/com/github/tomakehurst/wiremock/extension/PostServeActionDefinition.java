@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.extension;
 
-import org.apache.http.client.methods.HttpRequestBase;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.net.URI;
+public class PostServeActionDefinition {
 
-public class GenericHttpUriRequest extends HttpRequestBase {
+  private final String name;
+  private final Parameters parameters;
 
-    private final String methodName;
+  public PostServeActionDefinition(
+      @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {
+    this.name = name;
+    this.parameters = parameters;
+  }
 
-    public GenericHttpUriRequest(String methodName, String url) {
-        this.methodName = methodName;
-        setURI(URI.create(url));
-    }
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public String getMethod() {
-        return methodName;
-    }
+  public Parameters getParameters() {
+    return parameters;
+  }
 }

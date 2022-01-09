@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2012-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.core;
+
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.transform;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
@@ -40,74 +47,75 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
-import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.contains;
-import static com.google.common.collect.Iterables.transform;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class WireMockApp implements StubServer, Admin {
 
-    public static final String FILES_ROOT = "__files";
-    public static final String ADMIN_CONTEXT_ROOT = "/__admin";
-    public static final String MAPPINGS_ROOT = "mappings";
+  public static final String FILES_ROOT = "__files";
+  public static final String ADMIN_CONTEXT_ROOT = "/__admin";
+  public static final String MAPPINGS_ROOT = "mappings";
+  private static final MutableBoolean FACTORIES_LOADING_OPTIMIZED = new MutableBoolean(false);
 
-    private final Scenarios scenarios;
-    private final StubMappings stubMappings;
-    private final RequestJournal requestJournal;
-    private final GlobalSettingsHolder globalSettingsHolder;
-    private final boolean browserProxyingEnabled;
-    private final MappingsLoader defaultMappingsLoader;
-    private final Container container;
-    private final MappingsSaver mappingsSaver;
-    private final NearMissCalculator nearMissCalculator;
-    private final Recorder recorder;
-    private final List<GlobalSettingsListener> globalSettingsListeners;
+  private final Scenarios scenarios;
+  private final StubMappings stubMappings;
+  private final RequestJournal requestJournal;
+  private final GlobalSettingsHolder globalSettingsHolder;
+  private final boolean browserProxyingEnabled;
+  private final MappingsLoader defaultMappingsLoader;
+  private final Container container;
+  private final MappingsSaver mappingsSaver;
+  private final NearMissCalculator nearMissCalculator;
+  private final Recorder recorder;
+  private final List<GlobalSettingsListener> globalSettingsListeners;
 
-    private Options options;
+  private Options options;
 
-    static {
-        Xml.optimizeFactoriesLoading();
+  private final ProxyHandler proxyHandler;
+
+  public WireMockApp(Options options, Container container) {
+    this.proxyHandler = new ProxyHandler(this);
+    if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
+      Xml.optimizeFactoriesLoading();
+      FACTORIES_LOADING_OPTIMIZED.setTrue();
     }
 
-    private final ProxyHandler proxyHandler;
+    this.options = options;
 
-    public WireMockApp(final Options options, final Container container) {
-        this.proxyHandler = new ProxyHandler(this);
+    final FileSource fileSource = options.filesRoot();
 
-        this.options = options;
+    this.browserProxyingEnabled = options.browserProxySettings().enabled();
+    this.defaultMappingsLoader = options.mappingsLoader();
+    this.mappingsSaver = options.mappingsSaver();
+    globalSettingsHolder = new GlobalSettingsHolder();
 
-        final FileSource fileSource = options.filesRoot();
+    Map<String, RequestMatcherExtension> customMatchers =
+        options.extensionsOfType(RequestMatcherExtension.class);
 
-        this.browserProxyingEnabled = options.browserProxySettings().enabled();
-        this.defaultMappingsLoader = options.mappingsLoader();
-        this.mappingsSaver = options.mappingsSaver();
-        this.globalSettingsHolder = new GlobalSettingsHolder();
-        this.requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
-        Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
+    requestJournal =
+        options.requestJournalDisabled()
+            ? new DisabledRequestJournal()
+            : new InMemoryRequestJournal(options.maxRequestJournalEntries(), customMatchers);
 
-        scenarios = new Scenarios();
-        stubMappings = new InMemoryStubMappings(
+    scenarios = new Scenarios();
+    stubMappings =
+        new InMemoryStubMappings(
             scenarios,
             customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource,
-            ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
-        );
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
-        recorder = new Recorder(this);
-        globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
+            ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values()));
+    nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
+    recorder = new Recorder(this);
+    globalSettingsListeners =
+        ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
-        this.container = container;
-        this.loadDefaultMappings();
-    }
+    this.container = container;
+    this.loadDefaultMappings();
+  }
 
     public WireMockApp(
             final boolean browserProxyingEnabled,
@@ -121,109 +129,115 @@ public class WireMockApp implements StubServer, Admin {
             final Container container) {
         this.proxyHandler = new ProxyHandler(this);
 
-        this.browserProxyingEnabled = browserProxyingEnabled;
-        this.defaultMappingsLoader = defaultMappingsLoader;
-        this.mappingsSaver = mappingsSaver;
-        globalSettingsHolder = new GlobalSettingsHolder();
-        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        scenarios = new Scenarios();
-        stubMappings = new InMemoryStubMappings(scenarios, requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
-        this.container = container;
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
-        recorder = new Recorder(this);
-        globalSettingsListeners = Collections.emptyList();
-        loadDefaultMappings();
-    }
+    this.browserProxyingEnabled = browserProxyingEnabled;
+    this.defaultMappingsLoader = defaultMappingsLoader;
+    this.mappingsSaver = mappingsSaver;
+    globalSettingsHolder = new GlobalSettingsHolder();
+    requestJournal =
+        requestJournalDisabled
+            ? new DisabledRequestJournal()
+            : new InMemoryRequestJournal(maxRequestJournalEntries, requestMatchers);
+    scenarios = new Scenarios();
+    stubMappings =
+        new InMemoryStubMappings(
+            scenarios,
+            requestMatchers,
+            transformers,
+            rootFileSource,
+            Collections.<StubLifecycleListener>emptyList());
+    this.container = container;
+    nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
+    recorder = new Recorder(this);
+    globalSettingsListeners = Collections.emptyList();
+    loadDefaultMappings();
+  }
 
-    public AdminRequestHandler buildAdminRequestHandler() {
-        final AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
+  public AdminRequestHandler buildAdminRequestHandler() {
+    final AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
                 this.options.extensionsOfType(AdminApiExtension.class).values(),
-                this.options.getNotMatchedRenderer()
-        );
-        return new AdminRequestHandler(
-            adminRoutes,
-            this,
-            new BasicResponseRenderer(),
-            options.getAdminAuthenticator(),
-            options.getHttpsRequiredForAdminApi(),
-            getAdminRequestFilters()
-        );
-    }
+                this.options.getNotMatchedRenderer());
+    return new AdminRequestHandler(
+        adminRoutes,
+        this,
+        new BasicResponseRenderer(),
+        options.getAdminAuthenticator(),
+        options.getHttpsRequiredForAdminApi(),
+        getAdminRequestFilters());
+  }
 
-    public StubRequestHandler buildStubRequestHandler() {
-        final Map<String, PostServeAction> postServeActions = this.options.extensionsOfType(PostServeAction.class);
-        BrowserProxySettings browserProxySettings = options.browserProxySettings();
-        return new StubRequestHandler(
-            this,
-            new StubResponseRenderer(
-                options.filesRoot().child(FILES_ROOT),
-                getGlobalSettingsHolder(),
-                new ProxyResponseRenderer(
-                    options.proxyVia(),
-                    options.httpsSettings().trustStore(),
-                    options.shouldPreserveHostHeader(),
-                    options.proxyHostHeader(),
-                    globalSettingsHolder,
-                    browserProxySettings.trustAllProxyTargets(),
-                    browserProxySettings.trustedProxyTargets()
-                ),
-                ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
-            ),
-            this,
-            postServeActions,
-            requestJournal,
-            getStubRequestFilters(),
-            options.getStubRequestLoggingDisabled()
-        );
-    }
+  public StubRequestHandler buildStubRequestHandler() {
+    final Map<String, PostServeAction> postServeActions = this.options.extensionsOfType(PostServeAction.class);
+    BrowserProxySettings browserProxySettings = options.browserProxySettings();
+    return new StubRequestHandler(
+        this,
+        new StubResponseRenderer(
+            options.filesRoot().child(FILES_ROOT),
+            getGlobalSettingsHolder(),
+            new ProxyResponseRenderer(
+                options.proxyVia(),
+                options.httpsSettings().trustStore(),
+                options.shouldPreserveHostHeader(),
+                options.proxyHostHeader(),
+                globalSettingsHolder,
+                browserProxySettings.trustAllProxyTargets(),
+                browserProxySettings.trustedProxyTargets()),
+            ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())),
+        this,
+        postServeActions,
+        requestJournal,
+        getStubRequestFilters(),
+        options.getStubRequestLoggingDisabled());
+  }
 
-    private List<RequestFilter> getAdminRequestFilters() {
-        return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
-                .filter(new Predicate<RequestFilter>() {
-                    @Override
-                    public boolean apply(RequestFilter filter) {
-                        return filter.applyToAdmin();
-                    }
-                })
-                .toList();
-    }
+  private List<RequestFilter> getAdminRequestFilters() {
+    return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+        .filter(
+            new Predicate<RequestFilter>() {
+              @Override
+              public boolean apply(RequestFilter filter) {
+                return filter.applyToAdmin();
+              }
+            })
+        .toList();
+  }
 
-    private List<RequestFilter> getStubRequestFilters() {
-        return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
-                .filter(new Predicate<RequestFilter>() {
-                    @Override
-                    public boolean apply(RequestFilter filter) {
-                        return filter.applyToStubs();
-                    }
-                })
-                .toList();
-    }
+  private List<RequestFilter> getStubRequestFilters() {
+    return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+        .filter(
+            new Predicate<RequestFilter>() {
+              @Override
+              public boolean apply(RequestFilter filter) {
+                return filter.applyToStubs();
+              }
+            })
+        .toList();
+  }
 
-    public GlobalSettingsHolder getGlobalSettingsHolder() {
-        return this.globalSettingsHolder;
-    }
+  public GlobalSettingsHolder getGlobalSettingsHolder() {
+    return this.globalSettingsHolder;
+  }
 
-    private void loadDefaultMappings() {
-        this.loadMappingsUsing(this.defaultMappingsLoader);
-    }
+  private void loadDefaultMappings() {
+    this.loadMappingsUsing(this.defaultMappingsLoader);
+  }
 
-    public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-        mappingsLoader.loadMappingsInto(this.stubMappings);
-    }
+  public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
+    mappingsLoader.loadMappingsInto(this.stubMappings);
+  }
 
-    @Override
-    public ServeEvent serveStubFor(final Request request) {
+  @Override
+  public ServeEvent serveStubFor(final Request request) {
         final ServeEvent serveEvent = this.stubMappings.serveFor(request);
 
-        if (serveEvent.isNoExactMatch()) {
-            final LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
+    if (serveEvent.isNoExactMatch()) {
+      final LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
             if (request.isBrowserProxyRequest() && this.browserProxyingEnabled) {
-                return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
-            }
-        }
-
-        return serveEvent;
+        return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
+      }
     }
+
+    return serveEvent;
+  }
 
     @Override
     public void addStubMapping(StubMapping stubMapping) {
@@ -239,15 +253,15 @@ public class WireMockApp implements StubServer, Admin {
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
-    @Override
-    public void removeStubMapping(StubMapping stubMapping) {
-        final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
-        if (maybeStub.isPresent()) {
-            StubMapping stubToDelete = maybeStub.get();
-            if (stubToDelete.shouldBePersisted()) {
-                mappingsSaver.remove(stubToDelete);
-            }
-        }
+  @Override
+  public void removeStubMapping(StubMapping stubMapping) {
+    final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
+    if (maybeStub.isPresent()) {
+      StubMapping stubToDelete = maybeStub.get();
+      if (stubToDelete.shouldBePersisted()) {
+        mappingsSaver.remove(stubToDelete);
+      }
+    }
 
         stubMappings.removeMapping(stubMapping);
 
@@ -255,115 +269,118 @@ public class WireMockApp implements StubServer, Admin {
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
-    @Override
-    public void editStubMapping(final StubMapping stubMapping) {
+  @Override
+  public void editStubMapping(final StubMapping stubMapping) {
         this.stubMappings.editMapping(stubMapping);
-        if (stubMapping.shouldBePersisted()) {
-            this.mappingsSaver.save(stubMapping);
+    if (stubMapping.shouldBePersisted()) {
+      this.mappingsSaver.save(stubMapping);
         }
 
         this.proxyHandler.removeProxyConfig(stubMapping.getUuid());
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
-    @Override
-    public ListStubMappingsResult listAllStubMappings() {
-        return new ListStubMappingsResult(LimitAndOffsetPaginator.none(this.stubMappings.getAll()));
-    }
+  @Override
+  public ListStubMappingsResult listAllStubMappings() {
+    return new ListStubMappingsResult(LimitAndOffsetPaginator.none(this.stubMappings.getAll()));
+  }
 
-    @Override
-    public SingleStubMappingResult getStubMapping(final UUID id) {
-        return SingleStubMappingResult.fromOptional(this.stubMappings.get(id));
-    }
+  @Override
+  public SingleStubMappingResult getStubMapping(final UUID id) {
+    return SingleStubMappingResult.fromOptional(this.stubMappings.get(id));
+  }
 
-    @Override
-    public void saveMappings() {
-        for (StubMapping stubMapping: stubMappings.getAll()) {
-            stubMapping.setPersistent(true);
-        }
-        mappingsSaver.save(stubMappings.getAll());
+  @Override
+  public void saveMappings() {
+    for (StubMapping stubMapping : stubMappings.getAll()) {
+      stubMapping.setPersistent(true);
     }
+    mappingsSaver.save(stubMappings.getAll());
+  }
 
-    @Override
-    public void resetAll() {
-        this.resetToDefaultMappings();
-    }
+  @Override
+  public void resetAll() {
+    this.resetToDefaultMappings();
+  }
 
-    @Override
-    public void resetRequests() {
-        this.requestJournal.reset();
+  @Override
+  public void resetRequests() {
+    this.requestJournal.reset();
 
         WebSocketEndpoint.broadcast(Message.UNMATCHED);
         WebSocketEndpoint.broadcast(Message.MATCHED);
     }
 
-    @Override
-    public void resetToDefaultMappings() {
-        this.stubMappings.reset();
-        this.resetRequests();
-        this.loadDefaultMappings();
+  @Override
+  public void resetToDefaultMappings() {
+    this.stubMappings.reset();
+    this.resetRequests();
+    this.loadDefaultMappings();
 
         this.proxyHandler.clear();
 
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
-    @Override
-    public void resetScenarios() {
-        this.stubMappings.resetScenarios();
+  @Override
+  public void resetScenarios() {
+    this.stubMappings.resetScenarios();
         WebSocketEndpoint.broadcast(Message.SCENARIO);
     }
 
-    @Override
-    public void resetMappings() {
-        this.mappingsSaver.removeAll();
-        this.stubMappings.reset();
+  @Override
+  public void resetMappings() {
+    this.mappingsSaver.removeAll();
+    this.stubMappings.reset();
 
         this.proxyHandler.clear();
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
-    @Override
-    public GetServeEventsResult getServeEvents() {
-        try {
-            return GetServeEventsResult.requestJournalEnabled(
-                    LimitAndOffsetPaginator.none(this.requestJournal.getAllServeEvents())
-            );
-        } catch (final RequestJournalDisabledException e) {
-            return GetServeEventsResult.requestJournalDisabled(
-                    LimitAndOffsetPaginator.none(this.requestJournal.getAllServeEvents())
-            );
-        }
-    }
+  @Override
+  public GetServeEventsResult getServeEvents() {
+    return getServeEvents(ServeEventQuery.ALL);
+  }
 
-    @Override
-    public SingleServedStubResult getServedStub(final UUID id) {
-        return SingleServedStubResult.fromOptional(this.requestJournal.getServeEvent(id));
+  @Override
+  public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+    try {
+      final List<ServeEvent> serveEvents = query.filter(requestJournal.getAllServeEvents());
+      return GetServeEventsResult.requestJournalEnabled(LimitAndOffsetPaginator.none(serveEvents));
+    } catch (RequestJournalDisabledException e) {
+      return GetServeEventsResult.requestJournalDisabled(
+          LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents()));
     }
+  }
 
-    @Override
-    public VerificationResult countRequestsMatching(final RequestPattern requestPattern) {
-        try {
-            return VerificationResult.withCount(this.requestJournal.countRequestsMatching(requestPattern));
-        } catch (final RequestJournalDisabledException e) {
-            return VerificationResult.withRequestJournalDisabled();
-        }
+  @Override
+  public SingleServedStubResult getServedStub(final UUID id) {
+    return SingleServedStubResult.fromOptional(this.requestJournal.getServeEvent(id));
+  }
+
+  @Override
+  public VerificationResult countRequestsMatching(final RequestPattern requestPattern) {
+    try {
+      return VerificationResult.withCount(this.requestJournal.countRequestsMatching(requestPattern));
+    } catch (final RequestJournalDisabledException e) {
+      return VerificationResult.withRequestJournalDisabled();
     }
+  }
 
-    @Override
-    public FindRequestsResult findRequestsMatching(final RequestPattern requestPattern) {
+  @Override
+  public FindRequestsResult findRequestsMatching(final RequestPattern requestPattern) {
         try {
             final List<LoggedRequest> requests = this.requestJournal.getRequestsMatching(requestPattern);
-            return FindRequestsResult.withRequests(requests);
-        } catch (final RequestJournalDisabledException e) {
+      return FindRequestsResult.withRequests(requests);
+    } catch (final RequestJournalDisabledException e) {
             return FindRequestsResult.withRequestJournalDisabled();
         }
     }
 
-    @Override
-    public FindRequestsResult findUnmatchedRequests() {
-        try {
-            final List<LoggedRequest> requests =
+  @Override
+  public FindRequestsResult findUnmatchedRequests() {
+    try {
+      final List<LoggedRequest> requests =
                     from(this.requestJournal.getAllServeEvents())
                             .filter(NOT_MATCHED)
                             .transform(TO_LOGGED_REQUEST)
@@ -374,24 +391,26 @@ public class WireMockApp implements StubServer, Admin {
         }
     }
 
-    @Override
-    public void removeServeEvent(UUID eventId) {
-        requestJournal.removeEvent(eventId);
-    }
+  @Override
+  public void removeServeEvent(UUID eventId) {
+    requestJournal.removeEvent(eventId);
+  }
 
-    @Override
-    public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
-        return new FindServeEventsResult(requestJournal.removeEventsMatching(requestPattern));
-    }
+  @Override
+  public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
+    return new FindServeEventsResult(requestJournal.removeEventsMatching(requestPattern));
+  }
 
-    @Override
-    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
-        return new FindServeEventsResult(requestJournal.removeServeEventsForStubsMatchingMetadata(metadataPattern));
-    }
+  @Override
+  public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(
+      StringValuePattern metadataPattern) {
+    return new FindServeEventsResult(
+        requestJournal.removeServeEventsForStubsMatchingMetadata(metadataPattern));
+  }
 
-    @Override
-    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
-        final ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
+  @Override
+  public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+    final ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
         final Iterable<ServeEvent> unmatchedServeEvents =
                 from(this.requestJournal.getAllServeEvents())
                         .filter(new Predicate<ServeEvent>() {
@@ -401,62 +420,61 @@ public class WireMockApp implements StubServer, Admin {
                             }
                         });
 
-        for (final ServeEvent serveEvent : unmatchedServeEvents) {
-            listBuilder.addAll(this.nearMissCalculator.findNearestTo(serveEvent.getRequest()));
-        }
-
-        return new FindNearMissesResult(listBuilder.build());
+    for (final ServeEvent serveEvent : unmatchedServeEvents) {
+      listBuilder.addAll(this.nearMissCalculator.findNearestTo(serveEvent.getRequest()));
     }
+
+    return new FindNearMissesResult(listBuilder.build());
+  }
 
     @Override
     public GetScenariosResult getAllScenarios() {
         return new GetScenariosResult(
-                this.stubMappings.getAllScenarios()
-        );
+                this.stubMappings.getAllScenarios());
+  }
+
+  @Override
+  public FindNearMissesResult findTopNearMissesFor(final LoggedRequest loggedRequest) {
+    return new FindNearMissesResult(this.nearMissCalculator.findNearestTo(loggedRequest));
+  }
+
+  @Override
+  public FindNearMissesResult findTopNearMissesFor(final RequestPattern requestPattern) {
+    return new FindNearMissesResult(this.nearMissCalculator.findNearestTo(requestPattern));
+  }
+
+  @Override
+  public GetGlobalSettingsResult getGlobalSettings() {
+    return new GetGlobalSettingsResult(globalSettingsHolder.get());
+  }
+
+  @Override
+  public void updateGlobalSettings(GlobalSettings newSettings) {
+    GlobalSettings oldSettings = globalSettingsHolder.get();
+
+    for (GlobalSettingsListener listener : globalSettingsListeners) {
+      listener.beforeGlobalSettingsUpdated(oldSettings, newSettings);
     }
 
-    @Override
-    public FindNearMissesResult findTopNearMissesFor(final LoggedRequest loggedRequest) {
-        return new FindNearMissesResult(this.nearMissCalculator.findNearestTo(loggedRequest));
+    globalSettingsHolder.replaceWith(newSettings);
+
+    for (GlobalSettingsListener listener : globalSettingsListeners) {
+      listener.afterGlobalSettingsUpdated(oldSettings, newSettings);
     }
+  }
 
-    @Override
-    public FindNearMissesResult findTopNearMissesFor(final RequestPattern requestPattern) {
-        return new FindNearMissesResult(this.nearMissCalculator.findNearestTo(requestPattern));
-    }
+  public int port() {
+    return this.container.port();
+  }
 
-    @Override
-    public GetGlobalSettingsResult getGlobalSettings() {
-        return new GetGlobalSettingsResult(globalSettingsHolder.get());
-    }
+  @Override
+  public Options getOptions() {
+    return this.options;
+  }
 
-    @Override
-    public void updateGlobalSettings(GlobalSettings newSettings) {
-        GlobalSettings oldSettings = globalSettingsHolder.get();
-
-        for (GlobalSettingsListener listener: globalSettingsListeners) {
-            listener.beforeGlobalSettingsUpdated(oldSettings, newSettings);
-        }
-
-        globalSettingsHolder.replaceWith(newSettings);
-
-        for (GlobalSettingsListener listener: globalSettingsListeners) {
-            listener.afterGlobalSettingsUpdated(oldSettings, newSettings);
-        }
-    }
-
-    public int port() {
-        return this.container.port();
-    }
-
-    @Override
-    public Options getOptions() {
-        return this.options;
-    }
-
-    @Override
-    public void shutdownServer() {
-        this.container.shutdown();
+  @Override
+  public void shutdownServer() {
+    this.container.shutdown();
     }
 
     @Override
@@ -471,7 +489,7 @@ public class WireMockApp implements StubServer, Admin {
         this.proxyHandler.enableProxyUrl(id);
     }
 
-    @Override
+  @Override
     public void disableProxy(final UUID id) {
         this.proxyHandler.disableProxyUrl(id);
     }
@@ -479,27 +497,27 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public SnapshotRecordResult snapshotRecord() {
         return this.snapshotRecord(RecordSpec.DEFAULTS);
-    }
+  }
 
-    @Override
-    public SnapshotRecordResult snapshotRecord(final RecordSpecBuilder spec) {
+  @Override
+  public SnapshotRecordResult snapshotRecord(final RecordSpecBuilder spec) {
         return this.snapshotRecord(spec.build());
     }
 
-    @Override
-    public SnapshotRecordResult snapshotRecord(final RecordSpec recordSpec) {
-        return this.recorder.takeSnapshot(this.getServeEvents().getServeEvents(), recordSpec);
-    }
+  @Override
+  public SnapshotRecordResult snapshotRecord(final RecordSpec recordSpec) {
+    return this.recorder.takeSnapshot(this.getServeEvents().getServeEvents(), recordSpec);
+  }
 
-    @Override
-    public void startRecording(final String targetBaseUrl) {
-        this.recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
+  @Override
+  public void startRecording(final String targetBaseUrl) {
+    this.recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
 
         WebSocketEndpoint.broadcast(Message.RECORDING);
-    }
+  }
 
-    @Override
-    public void startRecording(final RecordSpec recordSpec) {
+  @Override
+  public void startRecording(final RecordSpec recordSpec) {
         this.recorder.startRecording(recordSpec);
 
         WebSocketEndpoint.broadcast(Message.RECORDING);
@@ -512,63 +530,66 @@ public class WireMockApp implements StubServer, Admin {
         WebSocketEndpoint.broadcast(Message.RECORDING);
     }
 
-    @Override
-    public SnapshotRecordResult stopRecording() {
-        final SnapshotRecordResult result = this.recorder.stopRecording();
+  @Override
+  public SnapshotRecordResult stopRecording() {
+    final SnapshotRecordResult result = this.recorder.stopRecording();
 
         WebSocketEndpoint.broadcast(Message.RECORDING);
 
         return result;
     }
 
-    @Override
-    public RecordingStatusResult getRecordingStatus() {
-        return new RecordingStatusResult(this.recorder.getStatus().name());
-    }
+  @Override
+  public RecordingStatusResult getRecordingStatus() {
+    return new RecordingStatusResult(this.recorder.getStatus().name());
+  }
 
-    @Override
-    public ListStubMappingsResult findAllStubsByMetadata(final StringValuePattern pattern) {
-        return new ListStubMappingsResult(LimitAndOffsetPaginator.none(this.stubMappings.findByMetadata(pattern)));
-    }
+  @Override
+  public ListStubMappingsResult findAllStubsByMetadata(final StringValuePattern pattern) {
+    return new ListStubMappingsResult(
+        LimitAndOffsetPaginator.none(this.stubMappings.findByMetadata(pattern)));
+  }
 
-    @Override
-    public void removeStubsByMetadata(final StringValuePattern pattern) {
+  @Override
+  public void removeStubsByMetadata(final StringValuePattern pattern) {
         final List<StubMapping> foundMappings = this.stubMappings.findByMetadata(pattern);
-        for (final StubMapping mapping : foundMappings) {
+    for (final StubMapping mapping : foundMappings) {
             this.removeStubMapping(mapping);
+    }
+  }
+
+  @Override
+  public void importStubs(StubImport stubImport) {
+    List<StubMapping> mappings = stubImport.getMappings();
+    StubImport.Options importOptions =
+        firstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
+
+    for (int i = mappings.size() - 1; i >= 0; i--) {
+      StubMapping mapping = mappings.get(i);
+      if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
+        if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
+          editStubMapping(mapping);
         }
+      } else {
+        addStubMapping(mapping);
+      }
     }
 
-    @Override
-    public void importStubs(StubImport stubImport) {
-        List<StubMapping> mappings = stubImport.getMappings();
-        StubImport.Options importOptions = firstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
-
-        for (int i = mappings.size() - 1; i >= 0; i--) {
-            StubMapping mapping = mappings.get(i);
-            if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
-                if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
-                    editStubMapping(mapping);
-                }
-            } else {
-                addStubMapping(mapping);
-            }
-        }
-
-        if (importOptions.getDeleteAllNotInImport()) {
-            Iterable<UUID> ids = transform(mappings, new Function<StubMapping, UUID>() {
+    if (importOptions.getDeleteAllNotInImport()) {
+      Iterable<UUID> ids =
+          transform(
+              mappings,
+              new Function<StubMapping, UUID>() {
                 @Override
                 public UUID apply(StubMapping input) {
-                    return input.getId();
+                  return input.getId();
                 }
-            });
-            for (StubMapping mapping: listAllStubMappings().getMappings()) {
-                if (!contains(ids, mapping.getId())) {
-                    removeStubMapping(mapping);
-                }
-            }
+              });
+      for (StubMapping mapping : listAllStubMappings().getMappings()) {
+        if (!contains(ids, mapping.getId())) {
+          removeStubMapping(mapping);
         }
-
+      }
     }
-
+  }
 }

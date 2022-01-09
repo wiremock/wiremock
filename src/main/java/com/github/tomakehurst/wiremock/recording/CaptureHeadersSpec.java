@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CaptureHeadersSpec {
 
-    private final Boolean caseInsensitive;
+  private final Boolean caseInsensitive;
 
-    public CaptureHeadersSpec(@JsonProperty("caseInsensitive") Boolean caseInsensitive) {
-        this.caseInsensitive = caseInsensitive;
-    }
+  public CaptureHeadersSpec(@JsonProperty("caseInsensitive") Boolean caseInsensitive) {
+    this.caseInsensitive = caseInsensitive;
+  }
 
-    public Boolean getCaseInsensitive() {
-        return caseInsensitive;
-    }
+  public Boolean getCaseInsensitive() {
+    return caseInsensitive;
+  }
 }

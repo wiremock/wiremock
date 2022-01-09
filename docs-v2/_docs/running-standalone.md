@@ -36,7 +36,7 @@ Note: When you specify this parameter, WireMock will still, additionally, bind t
 `--bind-address`: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.
 
 `--https-keystore`: Path to a keystore file containing an SSL
-certificate to use with HTTPS. The keystore must have a password of
+certificate to use with HTTPS. Can be a path to a file or a resource on the classpath. The keystore must have a password of
 "password". This option will only work if `--https-port` is specified.
 If this option isn't used WireMock will default to its own self-signed
 certificate.
@@ -53,7 +53,7 @@ sets the keystore password value. The key manager password can be set with the (
 
 `--https-truststore`: Path to a keystore file containing client public
 certificates, proxy target public certificates & private keys to use when
-authenticate with a proxy target that require client authentication. See
+authenticate with a proxy target that require client authentication. Can be a path to a file or a resource on the classpath. See
 [HTTPS configuration](/docs/configuration/#https-configuration)
 and [Running as a browser proxy](/docs/proxying#running-as-a-browser-proxy) for
 details.
@@ -135,8 +135,14 @@ accepting requests.
 
 `--jetty-accept-queue-size`: The Jetty queue size for accepted requests.
 
-`--jetty-header-buffer-size`: The Jetty buffer size for request headers,
+`--jetty-header-buffer-size`: Deprecated, use `--jetty-header-request-size`. The Jetty buffer size for request headers,
 e.g. `--jetty-header-buffer-size 16384`, defaults to 8192K.
+
+`--jetty-header-request-size`: The Jetty buffer size for request headers,
+e.g. `--jetty-header-request-size 16384`, defaults to 8192K.
+
+`--jetty-header-response-size`: The Jetty buffer size for response headers,
+e.g. `--jetty-header-response-size 16384`, defaults to 8192K.
 
 `--async-response-enabled`: Enable asynchronous request processing in Jetty. 
 Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to `false`.
@@ -297,6 +303,29 @@ matching the URL exists. For example if a file exists
 `__files/things/myfile.html` and no stub mapping will match
 `/things/myfile.html` then hitting
 `http://<host>:<port>/things/myfile.html` will serve the file.
+
+## Packaging the stubs into a standalone JAR
+
+If you want to package your stubs into the standalone JAR, so you can distribute an executable JAR with all the stubs intact, you can do this using the `--load-resources-from-classpath` option.
+
+For example, let's say have the following directory structure:
+
+```
+src/main/resources
+src/main/resources/wiremock-stuff
+src/main/resources/wiremock-stuff/__files
+src/main/resources/wiremock-stuff/mappings
+```
+
+You could then run the packaged JAR as:
+
+```
+java -jar custom-wiremock.jar --load-resources-from-classpath 'wiremock-stuff'
+```
+
+Which will load your files and mappings from the packaged JAR.
+
+Note that it is not currently possible to load from the root of the classpath.
 
 ### Shutting Down
 

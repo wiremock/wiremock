@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,9 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-
-import java.util.List;
 import java.util.UUID;
 
 public interface Admin {
@@ -57,7 +54,7 @@ public interface Admin {
 
     GetServeEventsResult getServeEvents();
 
-    SingleServedStubResult getServedStub(UUID id);
+  GetServeEventsResult getServeEvents(ServeEventQuery query);  SingleServedStubResult getServedStub(UUID id);
 
     VerificationResult countRequestsMatching(RequestPattern requestPattern);
 
@@ -65,9 +62,11 @@ public interface Admin {
 
     FindRequestsResult findUnmatchedRequests();
 
-    void removeServeEvent(UUID eventId);
-    FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern);
-    FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern pattern);
+  void removeServeEvent(UUID eventId);
+
+  FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern);
+
+  FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern pattern);
 
     FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
 
@@ -75,9 +74,9 @@ public interface Admin {
 
     FindNearMissesResult findNearMissesForUnmatchedRequests();
 
-    GetScenariosResult getAllScenarios();
+  GetScenariosResult getAllScenarios();
 
-    void updateGlobalSettings(GlobalSettings settings);
+  void updateGlobalSettings(GlobalSettings settings);
 
     SnapshotRecordResult snapshotRecord();
 
@@ -95,11 +94,11 @@ public interface Admin {
 
     RecordingStatusResult getRecordingStatus();
 
-    Options getOptions();
+  Options getOptions();
 
-    void shutdownServer();
+  void shutdownServer();
 
-    ProxyConfig getProxyConfig();
+  ProxyConfig getProxyConfig();
 
     void enableProxy(UUID id);
 
@@ -109,7 +108,7 @@ public interface Admin {
 
     void removeStubsByMetadata(StringValuePattern pattern);
 
-    void importStubs(StubImport stubImport);
+  void importStubs(StubImport stubImport);
 
-    GetGlobalSettingsResult getGlobalSettings();
+  GetGlobalSettingsResult getGlobalSettings();
 }

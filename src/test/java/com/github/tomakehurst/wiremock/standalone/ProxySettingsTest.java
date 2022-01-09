@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,33 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import org.junit.jupiter.api.Test;
 
 public class ProxySettingsTest {
 
-    @Test(expected=IllegalArgumentException.class)
-    public void throwsExceptionWhenHostPartNotSpecified() {
-        ProxySettings.fromString(":8090");
-    }
+  @Test
+  public void throwsExceptionWhenHostPartNotSpecified() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          ProxySettings.fromString(":8090");
+        });
+  }
 
-    @Test
-    public void defaultsToPort80() {
-        assertThat(ProxySettings.fromString("myhost.com").port(), is(80));
-    }
+  @Test
+  public void defaultsToPort80() {
+    assertThat(ProxySettings.fromString("myhost.com").port(), is(80));
+  }
 
-    @Test
-    public void parsesHostAndPortCorrectly() {
-        ProxySettings settings = ProxySettings.fromString("some.host.org:8888");
-        assertThat(settings.host(), is("some.host.org"));
-        assertThat(settings.port(), is(8888));
-    }
+  @Test
+  public void parsesHostAndPortCorrectly() {
+    ProxySettings settings = ProxySettings.fromString("some.host.org:8888");
+    assertThat(settings.host(), is("some.host.org"));
+    assertThat(settings.port(), is(8888));
+  }
 }

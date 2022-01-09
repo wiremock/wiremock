@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,59 +15,80 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.*;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-public class BrowserProxyAcceptanceTest {
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-    @ClassRule
-    public static WireMockClassRule target = new WireMockClassRule(wireMockConfig().dynamicPort());
+class BrowserProxyAcceptanceTest {
 
-    @Rule
-    public WireMockClassRule instanceRule = target;
+  @RegisterExtension
+  public static WireMockExtension target = WireMockExtension.newInstance().build();
 
-    private WireMockServer proxy;
-    private WireMockTestClient testClient;
+  private WireMockServer proxy;
+  private WireMockTestClient testClient;
 
-    @Before
-    public void addAResourceToProxy() {
-        testClient = new WireMockTestClient(target.port());
+  @BeforeEach
+  public void init() {
+    testClient = new WireMockTestClient(target.getPort());
 
-        proxy = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .enableBrowserProxying(true));
-        proxy.start();
+    proxy = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+    proxy.start();
+  }
+
+  @AfterEach
+  public void stopServer() {
+    if (proxy.isRunning()) {
+      proxy.stop();
     }
+  }
 
-    @After
-    public void stopServer() {
-        if (proxy.isRunning()) {
-            proxy.stop();
-        }
-    }
+  @Test
+  public void canProxyHttp() {
+    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+    assertThat(
+        testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
+  }
+
+  @Test
+  public void passesQueryParameters() {
+    target.stubFor(
+        get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
+
+    assertThat(
+        testClient.getViaProxy(target.url("/search?q=things&limit=10"), proxy.port()).statusCode(),
+        is(200));
+  }
+
+  @Nested
+  class Disabled {
+
+    @RegisterExtension
+    public WireMockExtension wmWithoutBrowserProxy = WireMockExtension.newInstance().build();
 
     @Test
-    public void canProxyHttp() {
-        target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+    public void browserProxyIsReportedAsFalseInRequestLogWhenDisabled() {
+      int httpPort = wmWithoutBrowserProxy.getPort();
+      WireMockTestClient testClient = new WireMockTestClient(httpPort);
 
-        assertThat(testClient.getViaProxy(url("/whatever"), proxy.port()).content(), is("Got it"));
+      testClient.getViaProxy("http://whereever/whatever", httpPort);
+
+      LoggedRequest request =
+          wmWithoutBrowserProxy
+              .findRequestsMatching(getRequestedFor(urlPathEqualTo("/whatever")).build())
+              .getRequests()
+              .get(0);
+      assertThat(request.isBrowserProxyRequest(), is(false));
     }
-
-    @Test
-    public void passesQueryParameters() {
-        target.stubFor(get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
-
-        assertThat(testClient.getViaProxy(url("/search?q=things&limit=10"), proxy.port()).statusCode(), is(200));
-    }
-
-    private String url(String pathAndQuery) {
-        return "http://localhost:" + target.port() + pathAndQuery;
-    }
-
+  }
 }
