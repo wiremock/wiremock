@@ -3,24 +3,19 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.UUID;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Christopher Holomek
  */
-@RunWith(JMock.class)
 public class ProxyHandlerTest {
-
-    // must be set here because of JMock. local variable not possible.
-    private Mockery context;
 
     private ProxyHandler proxyHandler;
     private static final UUID EXISTING_UUID_IS_PROXY = UUID.randomUUID();
@@ -31,44 +26,20 @@ public class ProxyHandlerTest {
 
     @Before
     public void before() {
-        this.context = new Mockery();
-        final Admin admin = this.context.mock(Admin.class);
+        final Admin admin = mock(Admin.class);
 
         this.proxyHandler = new ProxyHandler(admin);
 
-        this.context.checking(new Expectations() {
-            {
-                this.ignoring(admin).getStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_PROXY);
-                this.will(returnValue(
-                        new SingleStubMappingResult(
-                                ProxyHandlerTest.this.createDefaultStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_PROXY, true))));
-            }
-        });
+        when(admin.getStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_PROXY)).thenReturn(new SingleStubMappingResult(
+                ProxyHandlerTest.this.createDefaultStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_PROXY, true)));
 
-        this.context.checking(new Expectations() {
-            {
-                this.ignoring(admin).getStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_PROXY_BINARY);
-                this.will(returnValue(
-                        new SingleStubMappingResult(
-                                ProxyHandlerTest.this.createBinaryStubMapping())));
-            }
-        });
+        when(admin.getStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_PROXY_BINARY)).thenReturn(new SingleStubMappingResult(
+                ProxyHandlerTest.this.createBinaryStubMapping()));
 
-        this.context.checking(new Expectations() {
-            {
-                this.ignoring(admin).getStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_NO_PROXY);
-                this.will(returnValue(new SingleStubMappingResult(
-                        ProxyHandlerTest.this.createDefaultStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_NO_PROXY, false))));
-            }
-        });
+        when(admin.getStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_NO_PROXY)).thenReturn(new SingleStubMappingResult(
+                ProxyHandlerTest.this.createDefaultStubMapping(ProxyHandlerTest.EXISTING_UUID_IS_NO_PROXY, false)));
 
-        this.context.checking(new Expectations() {
-            {
-                this.ignoring(admin).getStubMapping(ProxyHandlerTest.NOT_EXISTING_UUID);
-                this.will(returnValue(new SingleStubMappingResult(null)));
-            }
-        });
-
+        when(admin.getStubMapping(ProxyHandlerTest.NOT_EXISTING_UUID)).thenReturn(new SingleStubMappingResult(null));
     }
 
     @Test
@@ -189,7 +160,7 @@ public class ProxyHandlerTest {
         final String proxyUrl = isProxy ? "http://localhost:8080" : null;
         final ResponseDefinition responseDefinition = new ResponseDefinition(200, "test", "test", null, null, null, null, null, null, null,
                                                                              null,
-                                                                             proxyUrl, null, null, null, null);
+                                                                             proxyUrl, null, null, null, null, null);
 
         stubMapping.setResponse(responseDefinition);
         stubMapping.setId(id);
@@ -202,7 +173,7 @@ public class ProxyHandlerTest {
         final ResponseDefinition responseDefinition = new ResponseDefinition(200, "test", new byte[0], null, null, null, null, null, null,
                                                                              null,
                                                                              null,
-                                                                             "http://localhost:8080", null, null, null, null);
+                                                                             "http://localhost:8080", null, null, null, null, null);
 
         stubMapping.setResponse(responseDefinition);
         stubMapping.setId(EXISTING_UUID_IS_PROXY_BINARY);
