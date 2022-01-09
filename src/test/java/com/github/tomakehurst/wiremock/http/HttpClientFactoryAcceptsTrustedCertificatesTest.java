@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,56 +15,54 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import java.util.Collection;
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Parameterized.class)
-public class HttpClientFactoryAcceptsTrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
+import java.util.Collection;
+import java.util.List;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-    @Parameters(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] {
-               // trusted                     certificateCN validCertificate?
-                { TRUST_NOBODY,               "localhost",  true  },
-                { singletonList("other.com"), "localhost",  true  },
-                { singletonList("localhost"), "other.com",  true  },
-                { singletonList("localhost"), "other.com",  false },
-                { singletonList("localhost"), "localhost",  true  },
-                { singletonList("localhost"), "localhost",  false },
+@DisabledForJreRange(
+    min = JRE.JAVA_17,
+    disabledReason = "does not support generating certificates at runtime")
+public class HttpClientFactoryAcceptsTrustedCertificatesTest
+    extends HttpClientFactoryCertificateVerificationTest {
+
+  public static Collection<Object[]> data() {
+    return asList(
+        new Object[][] {
+          // trusted                     certificateCN validCertificate?
+          {TRUST_NOBODY, "localhost", true},
+          {singletonList("other.com"), "localhost", true},
+          {singletonList("localhost"), "other.com", true},
+          {singletonList("localhost"), "other.com", false},
+          {singletonList("localhost"), "localhost", true},
+          {singletonList("localhost"), "localhost", false},
         });
-    }
+  }
 
-    @Test
-    public void certificatesAreAccepted() throws Exception {
+  @MethodSource("data")
+  @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
+  public void certificatesAreAccepted(
+      List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
-        server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
+    startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
-        HttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
+    server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-        String result = getEntityAsStringAndCloseStream(response);
+    CloseableHttpResponse response = client.execute(new HttpGet(server.url("/whatever")));
 
-        assertEquals("Hello World", result);
-    }
+    String result = getEntityAsStringAndCloseStream(response);
 
-    public HttpClientFactoryAcceptsTrustedCertificatesTest(
-        List<String> trustedHosts,
-        String certificateCN,
-        boolean validCertificate
-    ) {
-        super(trustedHosts, certificateCN, validCertificate);
-    }
+    assertEquals("Hello World", result);
+  }
 }

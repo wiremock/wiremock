@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.CountMatchingStrategy;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.FatalStartupException;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -47,43 +48,38 @@ import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
-
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.google.common.base.Preconditions.checkState;
-
 public class WireMockServer implements Container, Stubbing, Admin {
 
-    private final WireMockApp wireMockApp;
-    private final StubRequestHandler stubRequestHandler;
+  private final WireMockApp wireMockApp;
+  private final StubRequestHandler stubRequestHandler;
 
     private final HttpServer httpServer;
     private final Notifier notifier;
 
-    protected final Options options;
+  protected final Options options;
 
-    protected final WireMock client;
+  protected final WireMock client;
 
-    public WireMockServer(final Options options) {
-        this.options = options;
-        this.notifier = options.notifier();
+  public WireMockServer(final Options options) {
+    this.options = options;
+    this.notifier = options.notifier();
 
-        this.wireMockApp = new WireMockApp(options, this);
+    this.wireMockApp = new WireMockApp(options, this);
 
-        this.stubRequestHandler = this.wireMockApp.buildStubRequestHandler();
-        final HttpServerFactory httpServerFactory = options.httpServerFactory();
-        this.httpServer = httpServerFactory.buildHttpServer(
-                options,
-                this.wireMockApp.buildAdminRequestHandler(),
-                this.stubRequestHandler
-        );
+    this.stubRequestHandler = this.wireMockApp.buildStubRequestHandler();
+    final HttpServerFactory httpServerFactory = options.httpServerFactory();
+        this.httpServer =
+        httpServerFactory.buildHttpServer(
+            options, this.wireMockApp.buildAdminRequestHandler(), this.stubRequestHandler);
 
-        this.client = new WireMock(this.wireMockApp);
-    }
+    this.client = new WireMock(this.wireMockApp);
+  }
 
-    public WireMockServer(final int port, final Integer httpsPort, final FileSource fileSource, final boolean enableBrowserProxying,
+  public WireMockServer(
+      final int port, final Integer httpsPort, final FileSource fileSource, final boolean enableBrowserProxying,
                           final ProxySettings proxySettings, final Notifier notifier) {
         this(wireMockConfig()
                      .port(port)
@@ -103,20 +99,20 @@ public class WireMockServer implements Container, Stubbing, Admin {
                      .proxyVia(proxySettings));
     }
 
-    public WireMockServer(final int port, final FileSource fileSource, final boolean enableBrowserProxying) {
+  public WireMockServer(final int port, final FileSource fileSource, final boolean enableBrowserProxying) {
         this(wireMockConfig()
                      .port(port)
                      .fileSource(fileSource)
                      .enableBrowserProxying(enableBrowserProxying));
     }
 
-    public WireMockServer(final int port) {
+  public WireMockServer(final int port) {
         this(wireMockConfig().port(port));
     }
 
-    public WireMockServer(final int port, final Integer httpsPort) {
-        this(wireMockConfig().port(port).httpsPort(httpsPort));
-    }
+  public WireMockServer(final int port, final Integer httpsPort) {
+    this(wireMockConfig().port(port).httpsPort(httpsPort));
+  }
 
     public WireMockServer() {
         this(wireMockConfig());
@@ -126,28 +122,30 @@ public class WireMockServer implements Container, Stubbing, Admin {
         this.wireMockApp.loadMappingsUsing(mappingsLoader);
     }
 
-    public GlobalSettingsHolder getGlobalSettingsHolder() {
-        return this.wireMockApp.getGlobalSettingsHolder();
-    }
+  public GlobalSettingsHolder getGlobalSettingsHolder() {
+    return this.wireMockApp.getGlobalSettingsHolder();
+  }
 
-    public void addMockServiceRequestListener(final RequestListener listener) {
+  public void addMockServiceRequestListener(final RequestListener listener) {
         this.stubRequestHandler.addRequestListener(listener);
     }
 
     public void enableRecordMappings(final FileSource mappingsFileSource, final FileSource filesFileSource) {
         this.addMockServiceRequestListener(
-                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, this.wireMockApp, this.options.matchingHeaders()));
-        this.notifier.info("Recording mappings to " + mappingsFileSource.getPath());
+        new StubMappingJsonRecorder(
+            mappingsFileSource, filesFileSource, this.wireMockApp, this.options.matchingHeaders()));
+    this.notifier.info("Recording mappings to " + mappingsFileSource.getPath());
     }
 
-    public void stop() {
-        this.httpServer.stop();
+  public void stop() {
+    this.httpServer.stop();
     }
 
     public void start() {
-        try {
+    // Try to ensure this is warmed up on the main thread so that it's inherited by worker threads
+    Json.getObjectMapper();    try {
             this.httpServer.start();
-        } catch (final Exception e) {
+    } catch (final Exception e) {
             throw new FatalStartupException(e);
         }
     }
@@ -155,328 +153,341 @@ public class WireMockServer implements Container, Stubbing, Admin {
     /**
      * Gracefully shutdown the server.
      * <p>
-     * This method assumes it is being called as the result of an incoming HTTP request.
-     */
-    @Override
-    public void shutdown() {
-        final WireMockServer server = this;
-        final Thread shutdownThread = new Thread(new Runnable() {
+   * <p>This method assumes it is being called as the result of an incoming HTTP request.
+   */
+  @Override
+  public void shutdown() {
+    final WireMockServer server = this;
+    final Thread shutdownThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    // We have to sleep briefly to finish serving the shutdown request before stopping the server, as
-                    // there's no support in Jetty for shutting down after the current request.
-                    // See http://stackoverflow.com/questions/4650713
-                    Thread.sleep(100);
+                  // We have to sleep briefly to finish serving the shutdown request before stopping
+                  // the server, as
+                  // there's no support in Jetty for shutting down after the current request.
+                  // See http://stackoverflow.com/questions/4650713
+                  Thread.sleep(100);
                 } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
+                  throw new RuntimeException(e);
                 }
                 server.stop();
-            }
-        });
-        shutdownThread.start();
+              }
+            });
+    shutdownThread.start();
+  }
+
+  public boolean isHttpEnabled() {
+    return !options.getHttpDisabled();
+  }
+
+  public boolean isHttpsEnabled() {
+    return options.httpsSettings().enabled();
+  }
+
+  public int port() {
+    checkState(
+        isRunning() && !options.getHttpDisabled(),
+        "Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped.");
+    return httpServer.port();
+  }
+
+  public int httpsPort() {
+    checkState(
+        this.isRunning() && this.options.httpsSettings().enabled(),
+        "Not listening on HTTPS port. Either HTTPS is not enabled or the WireMock server is stopped.");
+    return this.httpServer.httpsPort();
+  }
+
+  public String url(String path) {
+    if (!path.startsWith("/")) {
+      path = "/" + path;
     }
 
-    @Override
-    public int port() {
-        checkState(
-            this.isRunning() && !options.getHttpDisabled(),
-            "Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped."
-        );
-        return this.httpServer.port();
-    }
+    return String.format("%s%s", baseUrl(), path);
+  }
 
-    public int httpsPort() {
-        checkState(
-                this.isRunning() && this.options.httpsSettings().enabled(),
-                "Not listening on HTTPS port. Either HTTPS is not enabled or the WireMock server is stopped."
-        );
-        return this.httpServer.httpsPort();
-    }
-
-    public String url(String path) {
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-
-        return String.format("%s%s", baseUrl(), path);
-    }
-
-    public String baseUrl() {
-        final boolean https = options.httpsSettings().enabled();
+  public String baseUrl() {
+    final boolean https = options.httpsSettings().enabled();
         final String protocol = https ? "https" : "http";
         final int port = https ? httpsPort() : port();
 
-        return String.format("%s://localhost:%d", protocol, port);
-    }
+    return String.format("%s://localhost:%d", protocol, port);
+  }
 
-    public boolean isRunning() {
-        return this.httpServer.isRunning();
-    }
+  public boolean isRunning() {
+    return this.httpServer.isRunning();
+  }
 
-    @Override
-    public StubMapping givenThat(final MappingBuilder mappingBuilder) {
-        return this.client.register(mappingBuilder);
-    }
+  @Override
+  public StubMapping givenThat(final MappingBuilder mappingBuilder) {
+    return this.client.register(mappingBuilder);
+  }
 
-    @Override
-    public StubMapping stubFor(final MappingBuilder mappingBuilder) {
-        return this.givenThat(mappingBuilder);
-    }
+  @Override
+  public StubMapping stubFor(final MappingBuilder mappingBuilder) {
+    return this.givenThat(mappingBuilder);
+  }
 
-    @Override
-    public void editStub(final MappingBuilder mappingBuilder) {
+  @Override
+  public void editStub(final MappingBuilder mappingBuilder) {
         this.client.editStubMapping(mappingBuilder);
-    }
+  }
 
-    @Override
-    public void removeStub(final MappingBuilder mappingBuilder) {
+  @Override
+  public void removeStub(final MappingBuilder mappingBuilder) {
         this.client.removeStubMapping(mappingBuilder);
-    }
+  }
 
-    @Override
-    public void removeStub(final StubMapping stubMapping) {
+  @Override
+  public void removeStub(final StubMapping stubMapping) {
         this.client.removeStubMapping(stubMapping);
-    }
+  }
 
-    @Override
-    public List<StubMapping> getStubMappings() {
-        return this.client.allStubMappings().getMappings();
-    }
+  @Override
+  public List<StubMapping> getStubMappings() {
+    return this.client.allStubMappings().getMappings();
+  }
 
-    @Override
-    public StubMapping getSingleStubMapping(final UUID id) {
-        return this.client.getStubMapping(id).getItem();
-    }
+  @Override
+  public StubMapping getSingleStubMapping(final UUID id) {
+    return this.client.getStubMapping(id).getItem();
+  }
 
-    @Override
-    public List<StubMapping> findStubMappingsByMetadata(final StringValuePattern pattern) {
-        return this.client.findAllStubsByMetadata(pattern);
-    }
+  @Override
+  public List<StubMapping> findStubMappingsByMetadata(final StringValuePattern pattern) {
+    return this.client.findAllStubsByMetadata(pattern);
+  }
 
-    @Override
-    public void removeStubMappingsByMetadata(final StringValuePattern pattern) {
+  @Override
+  public void removeStubMappingsByMetadata(final StringValuePattern pattern) {
         this.client.removeStubsByMetadataPattern(pattern);
-    }
+  }
 
-    @Override
-    public void removeStubMapping(final StubMapping stubMapping) {
+  @Override
+  public void removeStubMapping(final StubMapping stubMapping) {
         this.wireMockApp.removeStubMapping(stubMapping);
-    }
+  }
 
-    @Override
-    public void verify(final RequestPatternBuilder requestPatternBuilder) {
+  @Override
+  public void verify(final RequestPatternBuilder requestPatternBuilder) {
         this.client.verifyThat(requestPatternBuilder);
-    }
+  }
 
-    @Override
-    public void verify(final int count, final RequestPatternBuilder requestPatternBuilder) {
+  @Override
+  public void verify(final int count, final RequestPatternBuilder requestPatternBuilder) {
         this.client.verifyThat(count, requestPatternBuilder);
-    }
+  }
 
-    @Override
-    public void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
-        client.verifyThat(countMatchingStrategy, requestPatternBuilder);
-    }
+  @Override
+  public void verify(
+      CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
+    client.verifyThat(countMatchingStrategy, requestPatternBuilder);
+  }
 
-    @Override
-    public List<LoggedRequest> findAll(final RequestPatternBuilder requestPatternBuilder) {
-        return this.client.find(requestPatternBuilder);
-    }
+  @Override
+  public List<LoggedRequest> findAll(final RequestPatternBuilder requestPatternBuilder) {
+    return this.client.find(requestPatternBuilder);
+  }
 
-    @Override
-    public List<ServeEvent> getAllServeEvents() {
-        return this.client.getServeEvents();
-    }
+  @Override
+  public List<ServeEvent> getAllServeEvents() {
+    return this.client.getServeEvents();
+  }
 
-    @Override
-    public void setGlobalFixedDelay(final int milliseconds) {
+  @Override
+  public void setGlobalFixedDelay(final int milliseconds) {
         this.client.setGlobalFixedDelayVariable(milliseconds);
-    }
+  }
 
-    @Override
-    public List<LoggedRequest> findAllUnmatchedRequests() {
-        return this.client.findAllUnmatchedRequests();
-    }
+  @Override
+  public List<LoggedRequest> findAllUnmatchedRequests() {
+    return this.client.findAllUnmatchedRequests();
+  }
 
-    @Override
-    public List<NearMiss> findNearMissesForAllUnmatchedRequests() {
-        return this.client.findNearMissesForAllUnmatchedRequests();
-    }
+  @Override
+  public List<NearMiss> findNearMissesForAllUnmatchedRequests() {
+    return this.client.findNearMissesForAllUnmatchedRequests();
+  }
 
-    @Override
-    public List<NearMiss> findAllNearMissesFor(final RequestPatternBuilder requestPatternBuilder) {
-        return this.client.findAllNearMissesFor(requestPatternBuilder);
-    }
+  @Override
+  public List<NearMiss> findAllNearMissesFor(final RequestPatternBuilder requestPatternBuilder) {
+    return this.client.findAllNearMissesFor(requestPatternBuilder);
+  }
 
-    @Override
-    public List<NearMiss> findNearMissesFor(final LoggedRequest loggedRequest) {
-        return this.client.findTopNearMissesFor(loggedRequest);
-    }
+  @Override
+  public List<NearMiss> findNearMissesFor(final LoggedRequest loggedRequest) {
+    return this.client.findTopNearMissesFor(loggedRequest);
+  }
 
-    @Override
-    public void addStubMapping(final StubMapping stubMapping) {
+  @Override
+  public void addStubMapping(final StubMapping stubMapping) {
         this.wireMockApp.addStubMapping(stubMapping);
-    }
+  }
 
-    @Override
-    public void editStubMapping(final StubMapping stubMapping) {
+  @Override
+  public void editStubMapping(final StubMapping stubMapping) {
         this.wireMockApp.editStubMapping(stubMapping);
-    }
+  }
 
-    @Override
-    public ListStubMappingsResult listAllStubMappings() {
-        return this.wireMockApp.listAllStubMappings();
-    }
+  @Override
+  public ListStubMappingsResult listAllStubMappings() {
+    return this.wireMockApp.listAllStubMappings();
+  }
 
-    @Override
-    public SingleStubMappingResult getStubMapping(final UUID id) {
-        return this.wireMockApp.getStubMapping(id);
-    }
+  @Override
+  public SingleStubMappingResult getStubMapping(final UUID id) {
+    return this.wireMockApp.getStubMapping(id);
+  }
 
-    @Override
-    public void saveMappings() {
-        this.wireMockApp.saveMappings();
-    }
+  @Override
+  public void saveMappings() {
+    this.wireMockApp.saveMappings();
+  }
 
-    @Override
-    public void resetAll() {
-        this.wireMockApp.resetAll();
-    }
+  @Override
+  public void resetAll() {
+    this.wireMockApp.resetAll();
+  }
 
-    @Override
-    public void resetRequests() {
-        this.wireMockApp.resetRequests();
-    }
+  @Override
+  public void resetRequests() {
+    this.wireMockApp.resetRequests();
+  }
 
-    @Override
-    public void resetToDefaultMappings() {
-        this.wireMockApp.resetToDefaultMappings();
-    }
+  @Override
+  public void resetToDefaultMappings() {
+    this.wireMockApp.resetToDefaultMappings();
+  }
 
-    @Override
-    public GetServeEventsResult getServeEvents() {
-        return this.wireMockApp.getServeEvents();
-    }
+  @Override
+  public GetServeEventsResult getServeEvents() {
+    return this.wireMockApp.getServeEvents();
+  }
 
-    @Override
-    public SingleServedStubResult getServedStub(final UUID id) {
-        return this.wireMockApp.getServedStub(id);
-    }
+  @Override
+  public GetServeEventsResult getServeEvents(ServeEventQuery query) {
+    return wireMockApp.getServeEvents(query);
+  }
 
-    @Override
-    public void resetScenarios() {
-        this.wireMockApp.resetScenarios();
-    }
+  @Override
+  public SingleServedStubResult getServedStub(final UUID id) {
+    return this.wireMockApp.getServedStub(id);
+  }
 
-    @Override
-    public void resetMappings() {
-        this.wireMockApp.resetMappings();
-    }
+  @Override
+  public void resetScenarios() {
+    this.wireMockApp.resetScenarios();
+  }
 
-    @Override
-    public VerificationResult countRequestsMatching(final RequestPattern requestPattern) {
-        return this.wireMockApp.countRequestsMatching(requestPattern);
-    }
+  @Override
+  public void resetMappings() {
+    this.wireMockApp.resetMappings();
+  }
 
-    @Override
-    public FindRequestsResult findRequestsMatching(final RequestPattern requestPattern) {
-        return this.wireMockApp.findRequestsMatching(requestPattern);
-    }
+  @Override
+  public VerificationResult countRequestsMatching(final RequestPattern requestPattern) {
+    return this.wireMockApp.countRequestsMatching(requestPattern);
+  }
 
-    @Override
-    public FindRequestsResult findUnmatchedRequests() {
-        return this.wireMockApp.findUnmatchedRequests();
-    }
+  @Override
+  public FindRequestsResult findRequestsMatching(final RequestPattern requestPattern) {
+    return this.wireMockApp.findRequestsMatching(requestPattern);
+  }
 
-    @Override
-    public void removeServeEvent(UUID eventId) {
-        wireMockApp.removeServeEvent(eventId);
-    }
+  @Override
+  public FindRequestsResult findUnmatchedRequests() {
+    return this.wireMockApp.findUnmatchedRequests();
+  }
 
-    @Override
-    public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
-        return wireMockApp.removeServeEventsMatching(requestPattern);
-    }
+  @Override
+  public void removeServeEvent(UUID eventId) {
+    wireMockApp.removeServeEvent(eventId);
+  }
 
-    @Override
-    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
-        return wireMockApp.removeServeEventsForStubsMatchingMetadata(metadataPattern);
-    }
+  @Override
+  public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
+    return wireMockApp.removeServeEventsMatching(requestPattern);
+  }
 
-    @Override
-    public void updateGlobalSettings(final GlobalSettings newSettings) {
+  @Override
+  public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(
+      StringValuePattern metadataPattern) {
+    return wireMockApp.removeServeEventsForStubsMatchingMetadata(metadataPattern);
+  }
+
+  @Override
+  public void updateGlobalSettings(final GlobalSettings newSettings) {
         this.wireMockApp.updateGlobalSettings(newSettings);
-    }
+  }
 
-    @Override
-    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
-        return this.wireMockApp.findNearMissesForUnmatchedRequests();
-    }
+  @Override
+  public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+    return this.wireMockApp.findNearMissesForUnmatchedRequests();
+  }
 
-    @Override
-    public GetScenariosResult getAllScenarios() {
-        return this.wireMockApp.getAllScenarios();
-    }
+  @Override
+  public GetScenariosResult getAllScenarios() {
+    return this.wireMockApp.getAllScenarios();
+  }
 
-    @Override
-    public FindNearMissesResult findTopNearMissesFor(final LoggedRequest loggedRequest) {
-        return this.wireMockApp.findTopNearMissesFor(loggedRequest);
-    }
+  @Override
+  public FindNearMissesResult findTopNearMissesFor(final LoggedRequest loggedRequest) {
+    return this.wireMockApp.findTopNearMissesFor(loggedRequest);
+  }
 
-    @Override
-    public FindNearMissesResult findTopNearMissesFor(final RequestPattern requestPattern) {
-        return this.wireMockApp.findTopNearMissesFor(requestPattern);
-    }
+  @Override
+  public FindNearMissesResult findTopNearMissesFor(final RequestPattern requestPattern) {
+    return this.wireMockApp.findTopNearMissesFor(requestPattern);
+  }
 
-    @Override
-    public void startRecording(final String targetBaseUrl) {
+  @Override
+  public void startRecording(final String targetBaseUrl) {
         this.wireMockApp.startRecording(targetBaseUrl);
-    }
+  }
 
-    @Override
-    public void startRecording(final RecordSpec spec) {
+  @Override
+  public void startRecording(final RecordSpec spec) {
         this.wireMockApp.startRecording(spec);
-    }
+  }
 
-    @Override
-    public void startRecording(final RecordSpecBuilder recordSpec) {
+  @Override
+  public void startRecording(final RecordSpecBuilder recordSpec) {
         this.wireMockApp.startRecording(recordSpec);
-    }
+  }
 
-    @Override
-    public SnapshotRecordResult stopRecording() {
-        return this.wireMockApp.stopRecording();
-    }
+  @Override
+  public SnapshotRecordResult stopRecording() {
+    return this.wireMockApp.stopRecording();
+  }
 
-    @Override
-    public RecordingStatusResult getRecordingStatus() {
-        return this.wireMockApp.getRecordingStatus();
-    }
+  @Override
+  public RecordingStatusResult getRecordingStatus() {
+    return this.wireMockApp.getRecordingStatus();
+  }
 
-    @Override
-    public SnapshotRecordResult snapshotRecord() {
-        return this.wireMockApp.snapshotRecord();
-    }
+  @Override
+  public SnapshotRecordResult snapshotRecord() {
+    return this.wireMockApp.snapshotRecord();
+  }
 
-    @Override
-    public SnapshotRecordResult snapshotRecord(final RecordSpecBuilder spec) {
-        return this.wireMockApp.snapshotRecord(spec);
-    }
+  @Override
+  public SnapshotRecordResult snapshotRecord(final RecordSpecBuilder spec) {
+    return this.wireMockApp.snapshotRecord(spec);
+  }
 
-    @Override
-    public SnapshotRecordResult snapshotRecord(final RecordSpec spec) {
-        return this.wireMockApp.snapshotRecord(spec);
-    }
+  @Override
+  public SnapshotRecordResult snapshotRecord(final RecordSpec spec) {
+    return this.wireMockApp.snapshotRecord(spec);
+  }
 
-    @Override
-    public Options getOptions() {
-        return this.options;
-    }
+  @Override
+  public Options getOptions() {
+    return this.options;
+  }
 
-    @Override
-    public void shutdownServer() {
-        this.shutdown();
+  @Override
+  public void shutdownServer() {
+    this.shutdown();
     }
 
     @Override
@@ -489,28 +500,40 @@ public class WireMockServer implements Container, Stubbing, Admin {
         this.wireMockApp.enableProxy(id);
     }
 
-    @Override
-    public void disableProxy(final UUID id) {
-        this.wireMockApp.disableProxy(id);
-    }
+  @Override
+  public void disableProxy(final UUID id) {
+    this.wireMockApp.disableProxy(id);
+  }
 
-    @Override
+  @Override
     public ListStubMappingsResult findAllStubsByMetadata(final StringValuePattern pattern) {
         return this.wireMockApp.findAllStubsByMetadata(pattern);
     }
 
     @Override
-    public void removeStubsByMetadata(final StringValuePattern pattern) {
+  public void removeStubsByMetadata(final StringValuePattern pattern) {
         this.wireMockApp.removeStubsByMetadata(pattern);
-    }
+  }
 
-    @Override
-    public void importStubs(StubImport stubImport) {
-        wireMockApp.importStubs(stubImport);
-    }
+  @Override
+  public void importStubs(StubImport stubImport) {
+    wireMockApp.importStubs(stubImport);
+  }
 
-    @Override
-    public GetGlobalSettingsResult getGlobalSettings() {
-        return wireMockApp.getGlobalSettings();
+  @Override
+  public GetGlobalSettingsResult getGlobalSettings() {
+    return wireMockApp.getGlobalSettings();
+  }
+
+  public void checkForUnmatchedRequests() {
+    List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
+    if (!unmatchedRequests.isEmpty()) {
+      List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+      if (nearMisses.isEmpty()) {
+        throw VerificationException.forUnmatchedRequests(unmatchedRequests);
+      } else {
+        throw VerificationException.forUnmatchedNearMisses(nearMisses);
+      }
     }
+  }
 }

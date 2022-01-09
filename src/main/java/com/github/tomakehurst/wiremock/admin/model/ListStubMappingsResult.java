@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,21 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-
 import java.util.List;
 
 public class ListStubMappingsResult extends PaginatedResult<StubMapping> {
 
-    @JsonCreator
-    public ListStubMappingsResult(@JsonProperty("mappings") List<StubMapping> mappings,
-                                  @JsonProperty("meta") Meta meta) {
-        super(mappings, meta);
-    }
+  @JsonCreator
+  public ListStubMappingsResult(
+      @JsonProperty("mappings") List<StubMapping> mappings, @JsonProperty("meta") Meta meta) {
+    super(mappings, meta);
+  }
 
-    public ListStubMappingsResult(LimitAndOffsetPaginator<StubMapping> paginator) {
-        super(paginator);
-    }
+  public ListStubMappingsResult(LimitAndOffsetPaginator<StubMapping> paginator) {
+    super(paginator);
+  }
 
-    public List<StubMapping> getMappings() {
-        return select();
-    }
+  public List<StubMapping> getMappings() {
+    return select();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@ import java.net.ServerSocket;
 
 public class Network {
 
-    public static int findFreePort() {
-        try {
-            ServerSocket socket = new ServerSocket(0);
-            int result = socket.getLocalPort();
-            socket.close();
+  public static int findFreePort() {
+    try {
+      ServerSocket socket = new ServerSocket(0);
+      int result = socket.getLocalPort();
+      socket.close();
 
-            return result;
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+      return result;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
-
+  }
 }

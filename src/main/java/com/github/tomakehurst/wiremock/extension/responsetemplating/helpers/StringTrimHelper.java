@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2019-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,15 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
-
 import java.io.IOException;
 
 public class StringTrimHelper implements Helper<Object> {
 
-    @Override
-    public Object apply(Object context, Options options) throws IOException {
-        String value = options.tagType == TagType.SECTION ?
-                options.fn(context).toString() :
-                context.toString();
+  @Override
+  public Object apply(Object context, Options options) throws IOException {
+    String value =
+        options.tagType == TagType.SECTION ? options.fn(context).toString() : context.toString();
 
-        return value.trim();
-    }
+    return value.trim();
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,37 @@ import com.google.common.base.Suppliers;
 
 public class MemoizingMatchResult extends MatchResult {
 
-    private final Supplier<Double> memoizedDistance = Suppliers.memoize(new Supplier<Double>() {
-        @Override
-        public Double get() {
-            return target.getDistance();
-        }
-    });
+  private final Supplier<Double> memoizedDistance =
+      Suppliers.memoize(
+          new Supplier<Double>() {
+            @Override
+            public Double get() {
+              return target.getDistance();
+            }
+          });
 
-    private final Supplier<Boolean> memoizedExactMatch = Suppliers.memoize(new Supplier<Boolean>() {
-        @Override
-        public Boolean get() {
-            return target.isExactMatch();
-        }
-    });
+  private final Supplier<Boolean> memoizedExactMatch =
+      Suppliers.memoize(
+          new Supplier<Boolean>() {
+            @Override
+            public Boolean get() {
+              return target.isExactMatch();
+            }
+          });
 
-    private final MatchResult target;
+  private final MatchResult target;
 
-    public MemoizingMatchResult(MatchResult target) {
-        this.target = target;
-    }
+  public MemoizingMatchResult(MatchResult target) {
+    this.target = target;
+  }
 
-    @Override
-    public boolean isExactMatch() {
-        return memoizedExactMatch.get();
-    }
+  @Override
+  public boolean isExactMatch() {
+    return memoizedExactMatch.get();
+  }
 
-    @Override
-    public double getDistance() {
-        return memoizedDistance.get();
-    }
+  @Override
+  public double getDistance() {
+    return memoizedDistance.get();
+  }
 }

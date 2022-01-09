@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 public abstract class NotMatchedRenderer implements AdminTask {
 
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        return render(admin, request);
-    }
+  @Override
+  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+    return render(admin, request);
+  }
 
-    protected abstract ResponseDefinition render(Admin admin, Request request);
+  protected abstract ResponseDefinition render(Admin admin, Request request);
 }

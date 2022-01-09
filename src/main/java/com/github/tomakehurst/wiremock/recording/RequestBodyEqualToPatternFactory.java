@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,20 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 
 public class RequestBodyEqualToPatternFactory implements RequestBodyPatternFactory {
 
-    private final Boolean caseInsensitive;
+  private final Boolean caseInsensitive;
 
-    @JsonCreator
-    public RequestBodyEqualToPatternFactory(@JsonProperty("caseInsensitive") Boolean caseInsensitive) {
-        this.caseInsensitive = caseInsensitive;
-    }
+  @JsonCreator
+  public RequestBodyEqualToPatternFactory(
+      @JsonProperty("caseInsensitive") Boolean caseInsensitive) {
+    this.caseInsensitive = caseInsensitive;
+  }
 
-    public Boolean isCaseInsensitive() {
-        return caseInsensitive;
-    }
+  public Boolean isCaseInsensitive() {
+    return caseInsensitive;
+  }
 
-    @Override
-    public EqualToPattern forRequest(Request request) {
-        return new EqualToPattern(request.getBodyAsString(), caseInsensitive);
-    }
+  @Override
+  public EqualToPattern forRequest(Request request) {
+    return new EqualToPattern(request.getBodyAsString(), caseInsensitive);
+  }
 }

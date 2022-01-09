@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2018-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,24 @@ import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
 public class CustomMatcherWrapper implements NamedValueMatcher<Request> {
 
-    private final ValueMatcher<Request> matcher;
+  private final ValueMatcher<Request> matcher;
 
-    public CustomMatcherWrapper(ValueMatcher<Request> matcher) {
-        this.matcher = matcher;
-    }
+  public CustomMatcherWrapper(ValueMatcher<Request> matcher) {
+    this.matcher = matcher;
+  }
 
-    @Override
-    public String getName() {
-        return "custom matcher";
-    }
+  @Override
+  public String getName() {
+    return "custom matcher";
+  }
 
-    @Override
-    public String getExpected() {
-        return "[custom matcher]";
-    }
+  @Override
+  public String getExpected() {
+    return "[custom matcher]";
+  }
 
-    @Override
-    public MatchResult match(Request value) {
-        return matcher.match(value);
-    }
+  @Override
+  public MatchResult match(Request value) {
+    return matcher.match(value);
+  }
 }

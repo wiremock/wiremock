@@ -28,7 +28,8 @@ import {
   faStop,
   faSyncAlt,
   faTimes,
-  faTrash
+  faTrash,
+  faFolder
 } from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';
@@ -82,6 +83,7 @@ library.add(faPowerOff);
 library.add(faDotCircle);
 library.add(faStop);
 library.add(faCamera);
+library.add(faFolder);
 
 @NgModule({
   declarations: [

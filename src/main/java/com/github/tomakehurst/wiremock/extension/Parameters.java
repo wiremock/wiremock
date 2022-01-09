@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,36 +18,32 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.google.common.collect.ImmutableMap;
-
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 public class Parameters extends Metadata {
 
-    public static Parameters empty() {
-        return new Parameters();
-    }
+  public static Parameters empty() {
+    return new Parameters();
+  }
 
-    public static Parameters from(Map<String, Object> parameterMap) {
-        Parameters parameters = new Parameters();
-        parameters.putAll(parameterMap);
-        return parameters;
-    }
+  public static Parameters from(Map<String, Object> parameterMap) {
+    Parameters parameters = new Parameters();
+    parameters.putAll(parameterMap);
+    return parameters;
+  }
 
-    public static Parameters one(String name, Object value) {
-        return from(ImmutableMap.of(name, value));
-    }
+  public static Parameters one(String name, Object value) {
+    return from(ImmutableMap.of(name, value));
+  }
 
-    public static <T> Parameters of(T myData) {
-        return from(Json.objectToMap(myData));
-    }
+  public static <T> Parameters of(T myData) {
+    return from(Json.objectToMap(myData));
+  }
 
-    public Parameters merge(Parameters other) {
-        Map<String, Object> attributes = new LinkedHashMap<>(this);
-        attributes.putAll(other);
-        return Parameters.from(attributes);
-    }
+  public Parameters merge(Parameters other) {
+    Map<String, Object> attributes = new LinkedHashMap<>(this);
+    attributes.putAll(other);
+    return Parameters.from(attributes);
+  }
 }

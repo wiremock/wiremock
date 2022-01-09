@@ -4,13 +4,16 @@
     "urlPattern": "/testjsonmapping"
   },
   "response": {
-    "status": 200,
+    "headers": {"Content-Type": "application/json"},
     "jsonBody": {
-      "key": "value",
-      "array": [1, 2, 3]
+      "bignumber": 1234567890.12,
+      "array": [
+        1,
+        2,
+        3
+      ],
+      "key": "value"
     },
-    "headers": {
-      "Content-Type": "application/json"
-    }
+    "status": 200
   }
 }

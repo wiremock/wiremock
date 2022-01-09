@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,35 @@
  */
 package com.github.tomakehurst.wiremock.http.ssl;
 
-import javax.net.ssl.SSLEngine;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.ssl.SSLEngine;
 
 public class TrustSpecificHostsStrategy implements TrustStrategy {
 
-    private final List<String> trustedHosts;
+  private final List<String> trustedHosts;
 
-    public TrustSpecificHostsStrategy(List<String> trustedHosts) {
-        this.trustedHosts = new ArrayList<>(trustedHosts);
-    }
+  public TrustSpecificHostsStrategy(List<String> trustedHosts) {
+    this.trustedHosts = new ArrayList<>(trustedHosts);
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType) {
-        return false;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType) {
+    return false;
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
-        InetAddress inetAddress = socket.getInetAddress();
-        return trustedHosts.contains(inetAddress.getHostName()) || trustedHosts.contains(inetAddress.getHostAddress());
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType, Socket socket) {
+    InetAddress inetAddress = socket.getInetAddress();
+    return trustedHosts.contains(inetAddress.getHostName())
+        || trustedHosts.contains(inetAddress.getHostAddress());
+  }
 
-    @Override
-    public boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
-        return false;
-    }
+  @Override
+  public boolean isTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
+    return false;
+  }
 }

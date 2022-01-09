@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,57 +15,39 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
+
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import java.net.HttpURLConnection;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
-@RunWith(JMock.class)
 public class SaveMappingsTaskTest {
-    private Mockery context;
-    private Admin mockAdmin;
-    private Request mockRequest;
 
-    private SaveMappingsTask saveMappingsTask;
+  private Admin mockAdmin = Mockito.mock(Admin.class);
+  private Request mockRequest = Mockito.mock(Request.class);
 
-    @Before
-    public void setUp() {
-        context = new Mockery();
-        mockAdmin = context.mock(Admin.class);
-        mockRequest = context.mock(Request.class);
+  private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
-        saveMappingsTask = new SaveMappingsTask();
-    }
+  @Test
+  public void delegatesSavingMappingsToAdmin() {
+    saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
-    @Test
-    public void delegatesSavingMappingsToAdmin() {
-        context.checking(new Expectations() {{
-            oneOf(mockAdmin).saveMappings();
-        }});
+    verify(mockAdmin).saveMappings();
+  }
 
+  @Test
+  public void returnsOkResponse() {
+    ResponseDefinition response =
         saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
-    }
 
-    @Test
-    public void returnsOkResponse() {
-        context.checking(new Expectations() {{
-            oneOf(mockAdmin).saveMappings();
-        }});
-
-        ResponseDefinition response = saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
-
-        assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
-    }
+    assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
+    verify(mockAdmin).saveMappings();
+  }
 }

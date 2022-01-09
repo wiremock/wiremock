@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package testsupport;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class TestHttpHeader {
 
-public class RequestDelaySpec {
+  private String name;
+  private String value;
 
-    private final int milliseconds;
+  public static TestHttpHeader withHeader(String name, String value) {
+    return new TestHttpHeader(name, value);
+  }
 
-    @JsonCreator
-    public RequestDelaySpec(@JsonProperty("milliseconds") int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
+  public TestHttpHeader(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    @JsonProperty("milliseconds")
-    public int milliseconds() {
-        return milliseconds;
-    }
+  public String getName() {
+    return name;
+  }
+
+  public String getValue() {
+    return value;
+  }
 }

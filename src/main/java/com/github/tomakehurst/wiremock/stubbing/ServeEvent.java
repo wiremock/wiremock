@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,127 +20,142 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
-import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ServeEvent {
 
-    private final UUID id;
-    private final LoggedRequest request;
-    private final StubMapping stubMapping;
-    private final ResponseDefinition responseDefinition;
-    private final LoggedResponse response;
-    private final AtomicReference<Timing> timing;
+  private final UUID id;
+  private final LoggedRequest request;
+  private final StubMapping stubMapping;
+  private final ResponseDefinition responseDefinition;
+  private final LoggedResponse response;
+  private final AtomicReference<Timing> timing;
 
-    @JsonCreator
-    public ServeEvent(@JsonProperty("id") UUID id,
-                      @JsonProperty("request") LoggedRequest request,
-                      @JsonProperty("mapping") StubMapping stubMapping,
-                      @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
-                      @JsonProperty("response") LoggedResponse response,
-                      @JsonProperty("wasMatched") boolean ignoredReadOnly,
-                      @JsonProperty("timing") Timing timing) {
-        this.id = id;
-        this.request = request;
-        this.responseDefinition = responseDefinition;
-        this.stubMapping = stubMapping;
-        this.response = response;
-        this.timing = new AtomicReference<>(timing);
-    }
+  @JsonCreator
+  public ServeEvent(
+      @JsonProperty("id") UUID id,
+      @JsonProperty("request") LoggedRequest request,
+      @JsonProperty("mapping") StubMapping stubMapping,
+      @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
+      @JsonProperty("response") LoggedResponse response,
+      @JsonProperty("wasMatched") boolean ignoredReadOnly,
+      @JsonProperty("timing") Timing timing) {
+    this.id = id;
+    this.request = request;
+    this.responseDefinition = responseDefinition;
+    this.stubMapping = stubMapping;
+    this.response = response;
+    this.timing = new AtomicReference<>(timing);
+  }
 
-    public ServeEvent(LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
-        this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false, null);
-    }
+  public ServeEvent(
+      LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
+    this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false, null);
+  }
 
-    public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
-        return new ServeEvent(request, null, ResponseDefinition.notConfigured());
-    }
+  public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
+    return new ServeEvent(request, null, ResponseDefinition.notConfigured());
+  }
 
-    public static ServeEvent forBadRequest(LoggedRequest request, Errors errors) {
-        return new ServeEvent(request, null, ResponseDefinition.badRequest(errors));
-    }
+  public static ServeEvent forBadRequest(LoggedRequest request, Errors errors) {
+    return new ServeEvent(request, null, ResponseDefinition.badRequest(errors));
+  }
 
-    public static ServeEvent forNotAllowedRequest(LoggedRequest request, Errors errors) {
-        return new ServeEvent(request, null, ResponseDefinition.notPermitted(errors));
-    }
+  public static ServeEvent forBadRequestEntity(LoggedRequest request, Errors errors) {
+    return new ServeEvent(request, null, ResponseDefinition.badRequestEntity(errors));
+  }
 
-    public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
-        return new ServeEvent(request, null, responseDefinition);
-    }
+  public static ServeEvent forNotAllowedRequest(LoggedRequest request, Errors errors) {
+    return new ServeEvent(request, null, ResponseDefinition.notPermitted(errors));
+  }
 
-    public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
-        return new ServeEvent(request, stubMapping, responseDefinition);
-    }
+  public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
+    return new ServeEvent(request, null, responseDefinition);
+  }
 
-    public ServeEvent complete(Response response, int processTimeMillis) {
-        return new ServeEvent(id, request, stubMapping, responseDefinition, LoggedResponse.from(response), false, new Timing((int) response.getInitialDelay(), processTimeMillis));
-    }
+  public static ServeEvent of(
+      LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
+    return new ServeEvent(request, stubMapping, responseDefinition);
+  }
 
-    public void afterSend(int responseSendTimeMillis) {
-        timing.set(timing.get().withResponseSendTime(responseSendTimeMillis));
-    }
+  public ServeEvent complete(Response response, int processTimeMillis) {
+    return new ServeEvent(
+        id,
+        request,
+        stubMapping,
+        responseDefinition,
+        LoggedResponse.from(response),
+        false,
+        new Timing((int) response.getInitialDelay(), processTimeMillis));
+  }
 
-    @JsonIgnore
-    public boolean isNoExactMatch() {
-        return !responseDefinition.wasConfigured();
-    }
+  public void afterSend(int responseSendTimeMillis) {
+    timing.set(timing.get().withResponseSendTime(responseSendTimeMillis));
+  }
 
-    public UUID getId() {
-        return id;
-    }
+  @JsonIgnore
+  public boolean isNoExactMatch() {
+    return !responseDefinition.wasConfigured();
+  }
 
-    public LoggedRequest getRequest() {
-        return request;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public ResponseDefinition getResponseDefinition() {
-        return responseDefinition;
-    }
+  public LoggedRequest getRequest() {
+    return request;
+  }
 
-    public boolean getWasMatched() {
-        return responseDefinition.wasConfigured();
-    }
+  public ResponseDefinition getResponseDefinition() {
+    return responseDefinition;
+  }
 
-    public StubMapping getStubMapping() {
-        return stubMapping;
-    }
+  public boolean getWasMatched() {
+    return responseDefinition.wasConfigured();
+  }
 
-    public LoggedResponse getResponse() {
-        return response;
-    }
+  public StubMapping getStubMapping() {
+    return stubMapping;
+  }
 
-    public Timing getTiming() {
-        return timing.get();
-    }
+  public LoggedResponse getResponse() {
+    return response;
+  }
 
-    @JsonIgnore
-    public Map<String, Parameters> getPostServeActions() {
-        return stubMapping != null && stubMapping.getPostServeActions() != null ?
-            getStubMapping().getPostServeActions() :
-            Collections.<String, Parameters>emptyMap();
-    }
+  public Timing getTiming() {
+    return timing.get();
+  }
 
-    public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServeEvent, LoggedRequest>() {
+  @JsonIgnore
+  public List<PostServeActionDefinition> getPostServeActions() {
+    return stubMapping != null && stubMapping.getPostServeActions() != null
+        ? getStubMapping().getPostServeActions()
+        : Collections.emptyList();
+  }
+
+  public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST =
+      new Function<ServeEvent, LoggedRequest>() {
         @Override
         public LoggedRequest apply(ServeEvent serveEvent) {
-            return serveEvent.getRequest();
+          return serveEvent.getRequest();
         }
-    };
+      };
 
-    public static final Predicate<ServeEvent> NOT_MATCHED = new Predicate<ServeEvent>() {
+  public static final Predicate<ServeEvent> NOT_MATCHED =
+      new Predicate<ServeEvent>() {
         @Override
         public boolean apply(ServeEvent serveEvent) {
-            return serveEvent.isNoExactMatch();
+          return serveEvent.isNoExactMatch();
         }
-    };
+      };
 }

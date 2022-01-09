@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,59 +15,57 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.base.Optional;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.google.common.base.Optional;
+import org.junit.jupiter.api.Test;
 
 public class JettySettingsTest {
 
-    private static final int number = 1234;
-    private static final long longNumber = Long.MAX_VALUE;
+  private static final int number = 1234;
+  private static final long longNumber = Long.MAX_VALUE;
 
-    @Test
-    public void testBuilderWithValues() {
+  @Test
+  public void testBuilderWithValues() {
+    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    builder
+        .withAcceptors(number)
+        .withAcceptQueueSize(number)
+        .withRequestHeaderSize(number)
+        .withResponseHeaderSize(number)
+        .withStopTimeout(longNumber)
+        .withIdleTimeout(longNumber);
 
+    JettySettings jettySettings = builder.build();
 
-        JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
-        builder.withAcceptors(number)
-                .withAcceptQueueSize(number)
-                .withRequestHeaderSize(number)
-                .withStopTimeout(longNumber)
-                .withIdleTimeout(longNumber);
-        JettySettings jettySettings = builder.build();
+    ensurePresent(jettySettings.getAcceptors());
+    ensurePresent(jettySettings.getAcceptQueueSize());
+    ensurePresent(jettySettings.getRequestHeaderSize());
+    ensurePresent(jettySettings.getResponseHeaderSize());
+    ensureLongPresent(jettySettings.getStopTimeout());
+    ensureLongPresent(jettySettings.getIdleTimeout());
+  }
 
-        ensurePresent(jettySettings.getAcceptors());
-        ensurePresent(jettySettings.getAcceptQueueSize());
-        ensurePresent(jettySettings.getRequestHeaderSize());
-        ensureLongPresent(jettySettings.getStopTimeout());
-        ensureLongPresent(jettySettings.getIdleTimeout());
-    }
+  @Test
+  public void testBuilderWithNoValues() {
 
-    @Test
-    public void testBuilderWithNoValues() {
+    JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+    JettySettings jettySettings = builder.build();
 
+    assertFalse(jettySettings.getAcceptors().isPresent());
+    assertFalse(jettySettings.getAcceptQueueSize().isPresent());
+    assertFalse(jettySettings.getRequestHeaderSize().isPresent());
+    assertFalse(jettySettings.getStopTimeout().isPresent());
+    assertFalse(jettySettings.getIdleTimeout().isPresent());
+  }
 
-        JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
-        JettySettings jettySettings = builder.build();
+  private void ensurePresent(Optional<Integer> optional) {
+    assertTrue(optional.isPresent());
+    assertEquals(Integer.valueOf(number), optional.get());
+  }
 
-        assertFalse(jettySettings.getAcceptors().isPresent());
-        assertFalse(jettySettings.getAcceptQueueSize().isPresent());
-        assertFalse(jettySettings.getRequestHeaderSize().isPresent());
-        assertFalse(jettySettings.getStopTimeout().isPresent());
-        assertFalse(jettySettings.getIdleTimeout().isPresent());
-    }
-
-    private void ensurePresent(Optional<Integer> optional) {
-        assertTrue(optional.isPresent());
-        assertEquals(new Integer(number), optional.get());
-    }
-
-    private void ensureLongPresent(Optional<Long> optional) {
-        assertTrue(optional.isPresent());
-        assertEquals(new Long(longNumber), optional.get());
-    }
-
+  private void ensureLongPresent(Optional<Long> optional) {
+    assertTrue(optional.isPresent());
+    assertEquals(Long.valueOf(longNumber), optional.get());
+  }
 }

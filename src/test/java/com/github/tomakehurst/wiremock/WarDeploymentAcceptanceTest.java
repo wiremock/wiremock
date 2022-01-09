@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2012-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,109 +15,103 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.testsupport.Network;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.testsupport.Network;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WarDeploymentAcceptanceTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+  private Server jetty;
 
-	private Server jetty;
-	
-	private WireMockTestClient testClient;
-	
-	@Before
-	public void init() throws Exception {
-        String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
-		WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
+  private WireMockTestClient testClient;
 
-		int port = attemptToStartOnRandomPort(context);
+  @BeforeEach
+  public void init() throws Exception {
+    String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
+    WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
 
-		WireMock.configureFor("localhost", port, "/wiremock");
-		testClient = new WireMockTestClient(port);
-	}
+    int port = attemptToStartOnRandomPort(context);
 
-	private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
-		int port;
+    WireMock.configureFor("localhost", port, "/wiremock");
+    testClient = new WireMockTestClient(port);
+  }
 
-		int attemptsRemaining = 3;
-		while (true) {
-			port = Network.findFreePort();
-			jetty = new Server(port);
-			jetty.setHandler(context);
-			try {
-				jetty.start();
-				break;
-			} catch (Exception e) {
-				attemptsRemaining--;
-				if (attemptsRemaining > 0) {
-					continue;
-				}
+  private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
+    int port;
 
-				throw e;
-			}
-		}
-		return port;
-	}
-
-	@After
-	public void cleanup() throws Exception {
-		jetty.stop();
-		WireMock.configure();
-	}
-	
-	@Test
-	public void servesBakedInStubResponse() {
-		WireMockResponse response = testClient.get("/wiremock/api/mytest");
-		assertThat(response.content(), containsString("YES"));
-	}
-	
-	@Test
-	public void acceptsAndReturnsStubMapping() {
-		givenThat(get(urlEqualTo("/war/stub")).willReturn(
-				aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
-		
-		assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
-	}
-
-    @Test
-    public void tryingToShutDownGives500() {
-        try {
-            shutdownServer();
-            fail("Expected a VerificationException");
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString("500"));
+    int attemptsRemaining = 3;
+    while (true) {
+      port = Network.findFreePort();
+      jetty = new Server(port);
+      jetty.setHandler(context);
+      try {
+        jetty.start();
+        break;
+      } catch (Exception e) {
+        attemptsRemaining--;
+        if (attemptsRemaining > 0) {
+          continue;
         }
-    }
 
-    @Test
-    public void tryingToSaveMappingsGives500() {
-        try {
-            saveAllMappings();
-            fail("Expected a VerificationException");
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString("500"));
-        }
+        throw e;
+      }
     }
+    return port;
+  }
+
+  @AfterEach
+  public void cleanup() throws Exception {
+    jetty.stop();
+    WireMock.configure();
+  }
+
+  @Test
+  public void servesBakedInStubResponse() {
+    WireMockResponse response = testClient.get("/wiremock/api/mytest");
+    assertThat(response.content(), containsString("YES"));
+  }
+
+  @Test
+  public void acceptsAndReturnsStubMapping() {
+    givenThat(
+        get(urlEqualTo("/war/stub"))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
+
+    assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
+  }
+
+  @Test
+  public void tryingToShutDownGives500() {
+    try {
+      shutdownServer();
+      fail("Expected a VerificationException");
+    } catch (VerificationException e) {
+      assertThat(e.getMessage(), containsString("500"));
+    }
+  }
+
+  @Test
+  public void tryingToSaveMappingsGives500() {
+    try {
+      saveAllMappings();
+      fail("Expected a VerificationException");
+    } catch (VerificationException e) {
+      assertThat(e.getMessage(), containsString("500"));
+    }
+  }
 }

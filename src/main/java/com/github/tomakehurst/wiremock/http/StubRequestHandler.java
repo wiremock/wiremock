@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.jetty9.websockets.Message;
 import com.github.tomakehurst.wiremock.jetty9.websockets.WebSocketEndpoint;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
-
 import java.util.List;
 import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 
@@ -38,7 +38,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
     private final RequestJournal requestJournal;
     private final boolean loggingDisabled;
 
-	public StubRequestHandler(final StubServer stubServer,
+  public StubRequestHandler(
+      final StubServer stubServer,
                               final ResponseRenderer responseRenderer,
                               final Admin admin,
                               final Map<String, PostServeAction> postServeActions,
@@ -63,8 +64,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
         return !loggingDisabled;
     }
 
-    @Override
-    protected void beforeResponseSent(final ServeEvent serveEvent, final Response response) {
+  @Override
+  protected void beforeResponseSent(final ServeEvent serveEvent, final Response response) {
         this.requestJournal.requestReceived(serveEvent);
 
         if (serveEvent.getWasMatched()) {
@@ -74,21 +75,21 @@ public class StubRequestHandler extends AbstractRequestHandler {
         }
     }
 
-    @Override
-    protected void afterResponseSent(final ServeEvent serveEvent, final Response response) {
-        for (final PostServeAction postServeAction : this.postServeActions.values()) {
-            postServeAction.doGlobalAction(serveEvent, this.admin);
-        }
-
-        final Map<String, Parameters> postServeActionRefs = serveEvent.getPostServeActions();
-        for (final Map.Entry<String, Parameters> postServeActionEntry : postServeActionRefs.entrySet()) {
-            final PostServeAction action = this.postServeActions.get(postServeActionEntry.getKey());
-            if (action != null) {
-                final Parameters parameters = postServeActionEntry.getValue();
-                action.doAction(serveEvent, this.admin, parameters);
-            } else {
-                notifier().error("No extension was found named \"" + postServeActionEntry.getKey() + "\"");
-            }
-        }
+  @Override
+  protected void afterResponseSent(final ServeEvent serveEvent, final Response response) {
+    for (final PostServeAction postServeAction : this.postServeActions.values()) {
+      postServeAction.doGlobalAction(serveEvent, this.admin);
     }
+
+    List<PostServeActionDefinition> postServeActionDefs = serveEvent.getPostServeActions();
+    for (PostServeActionDefinition postServeActionDef : postServeActionDefs) {
+      PostServeAction action = postServeActions.get(postServeActionDef.getName());
+      if (action != null) {
+        Parameters parameters = postServeActionDef.getParameters();
+        action.doAction(serveEvent, admin, parameters);
+      } else {
+        notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
+      }
+    }
+  }
 }

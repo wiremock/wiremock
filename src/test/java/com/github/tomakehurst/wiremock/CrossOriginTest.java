@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,87 +15,100 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-@RunWith(Enclosed.class)
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 public class CrossOriginTest {
 
-    public static class Enabled {
+  @Nested
+  public static class Enabled {
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(wireMockConfig().dynamicPort().stubCorsEnabled(true));
+    @RegisterExtension
+    public WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(wireMockConfig().dynamicPort().stubCorsEnabled(true))
+            .build();
 
-        WireMockTestClient testClient;
+    WireMockTestClient testClient;
 
-        @Before
-        public void init() {
-            testClient = new WireMockTestClient(wm.port());
-        }
-
-        @Test
-        public void sendsCorsHeadersInResponseToAdminOPTIONSQuery() {
-            WireMockResponse response = testClient.options("/__admin/",
-                    withHeader("Origin", "http://my.corp.com"),
-                    withHeader("Access-Control-Request-Method", "POST")
-            );
-
-            assertThat(response.statusCode(), is(200));
-            assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
-            assertThat(response.firstHeader("Access-Control-Allow-Methods"), is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
-        }
-
-        @Test
-        public void sendsCorsHeadersInResponseToStubOPTIONSQuery() {
-            wm.stubFor(any(urlEqualTo("/cors")).willReturn(ok()));
-
-            WireMockResponse response = testClient.options("/cors",
-                    withHeader("Origin", "http://my.corp.com"),
-                    withHeader("Access-Control-Request-Method", "POST")
-            );
-
-            assertThat(response.statusCode(), is(200));
-            assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
-            assertThat(response.firstHeader("Access-Control-Allow-Methods"), is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
-        }
+    @BeforeEach
+    public void init() {
+      testClient = new WireMockTestClient(wm.getPort());
     }
 
-    public static class Disabled {
+    @Test
+    public void sendsCorsHeadersInResponseToAdminOPTIONSQuery() {
+      WireMockResponse response =
+          testClient.options(
+              "/__admin/",
+              withHeader("Origin", "http://my.corp.com"),
+              withHeader("Access-Control-Request-Method", "POST"));
 
-        @Rule
-        public WireMockRule wm = new WireMockRule(wireMockConfig().dynamicPort());
-
-        WireMockTestClient testClient;
-
-        @Before
-        public void init() {
-            testClient = new WireMockTestClient(wm.port());
-        }
-
-        @Test
-        public void doesNotSendCorsHeadersInResponseToStubOPTIONSQuery() {
-            wm.stubFor(any(urlEqualTo("/cors")).willReturn(ok()));
-
-            WireMockResponse response = testClient.options("/cors",
-                    withHeader("Origin", "http://my.corp.com"),
-                    withHeader("Access-Control-Request-Method", "POST")
-            );
-
-            assertThat(response.statusCode(), is(200));
-            assertThat(response.firstHeader("Access-Control-Allow-Origin"), nullValue());
-        }
+      assertThat(response.statusCode(), is(200));
+      assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
+      assertThat(
+          response.firstHeader("Access-Control-Allow-Methods"),
+          is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
     }
+
+    @Test
+    public void sendsCorsHeadersInResponseToStubOPTIONSQuery() {
+      wm.stubFor(any(urlEqualTo("/cors")).willReturn(ok()));
+
+      WireMockResponse response =
+          testClient.options(
+              "/cors",
+              withHeader("Origin", "http://my.corp.com"),
+              withHeader("Access-Control-Request-Method", "POST"));
+
+      assertThat(response.statusCode(), is(200));
+      assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
+      assertThat(
+          response.firstHeader("Access-Control-Allow-Methods"),
+          is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
+    }
+  }
+
+  @Nested
+  public static class Disabled {
+
+    @RegisterExtension
+    public WireMockExtension wm =
+        WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
+
+    WireMockTestClient testClient;
+
+    @BeforeEach
+    public void init() {
+      testClient = new WireMockTestClient(wm.getPort());
+    }
+
+    @Test
+    public void doesNotSendCorsHeadersInResponseToStubOPTIONSQuery() {
+      wm.stubFor(any(urlEqualTo("/cors")).willReturn(ok()));
+
+      WireMockResponse response =
+          testClient.options(
+              "/cors",
+              withHeader("Origin", "http://my.corp.com"),
+              withHeader("Access-Control-Request-Method", "POST"));
+
+      assertThat(response.statusCode(), is(200));
+      assertThat(response.firstHeader("Access-Control-Allow-Origin"), nullValue());
+    }
+  }
 }

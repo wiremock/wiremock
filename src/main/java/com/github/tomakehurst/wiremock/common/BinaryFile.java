@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,48 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.io.ByteStreams;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
 public class BinaryFile implements InputStreamSource {
 
-	private URI uri;
+  private URI uri;
 
-	public BinaryFile(URI uri) {
-		this.uri = uri;
-	}
+  public BinaryFile(URI uri) {
+    this.uri = uri;
+  }
 
-	public byte[] readContents() {
-		try(InputStream stream = getStream()) {
-			return ByteStreams.toByteArray(stream);
-		} catch (final IOException ioe) {
-			return throwUnchecked(ioe, byte[].class);
-		}
-	}
+  public byte[] readContents() {
+    try (InputStream stream = getStream()) {
+      return ByteStreams.toByteArray(stream);
+    } catch (final IOException ioe) {
+      return throwUnchecked(ioe, byte[].class);
+    }
+  }
 
-	protected URI getUri() {
-		return uri;
-	}
+  protected URI getUri() {
+    return uri;
+  }
 
-	public String name() {
-		return uri.toString();
-	}
+  public String name() {
+    return uri.toString();
+  }
 
-	@Override
-	public String toString() {
-		return name();
-	}
+  @Override
+  public String toString() {
+    return name();
+  }
 
-	@Override
-	public InputStream getStream() {
-		try {
-			return uri.toURL().openStream();
-		} catch (IOException e) {
-			return throwUnchecked(e, InputStream.class);
-		}
-	}
+  @Override
+  public InputStream getStream() {
+    try {
+      return uri.toURL().openStream();
+    } catch (IOException e) {
+      return throwUnchecked(e, InputStream.class);
+    }
+  }
 }

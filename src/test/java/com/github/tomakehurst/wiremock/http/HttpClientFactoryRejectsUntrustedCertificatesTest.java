@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2020-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,57 +15,48 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.apache.http.client.methods.HttpGet;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import javax.net.ssl.SSLException;
-import java.util.Collection;
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(Parameterized.class)
-public class HttpClientFactoryRejectsUntrustedCertificatesTest extends HttpClientFactoryCertificateVerificationTest {
+import java.util.Collection;
+import java.util.List;
+import javax.net.ssl.SSLException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-    @Parameters(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] {
-               // trusted                     certificateCN validCertificate?
-                { TRUST_NOBODY,               "other.com",  true  },
-                { TRUST_NOBODY,               "other.com",  false },
-                { TRUST_NOBODY,               "localhost",  false },
-                { singletonList("other.com"), "other.com",  true  },
-                { singletonList("other.com"), "other.com",  false },
-                { singletonList("other.com"), "localhost",  false }
+@DisabledForJreRange(
+    min = JRE.JAVA_17,
+    disabledReason = "does not support generating certificates at runtime")
+public class HttpClientFactoryRejectsUntrustedCertificatesTest
+    extends HttpClientFactoryCertificateVerificationTest {
+  public static Collection<Object[]> data() {
+    return asList(
+        new Object[][] {
+          // trusted                     certificateCN validCertificate?
+          {TRUST_NOBODY, "other.com", true},
+          {TRUST_NOBODY, "other.com", false},
+          {TRUST_NOBODY, "localhost", false},
+          {singletonList("other.com"), "other.com", true},
+          {singletonList("other.com"), "other.com", false},
+          {singletonList("other.com"), "localhost", false}
         });
-    }
+  }
 
-    @Test
-    public void certificatesAreRejectedAsExpected() {
+  @MethodSource("data")
+  @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
+  public void certificatesAreRejectedAsExpected(
+      List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
-        server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
+    startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
 
-        assertThrows(SSLException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Exception {
-                client.execute(new HttpGet(server.url("/whatever")));
-            }
-        });
-    }
+    server.stubFor(get("/whatever").willReturn(aResponse().withBody("Hello World")));
 
-    public HttpClientFactoryRejectsUntrustedCertificatesTest(
-        List<String> trustedHosts,
-        String certificateCN,
-        boolean validCertificate
-    ) {
-        super(trustedHosts, certificateCN, validCertificate);
-    }
+    assertThrows(SSLException.class, () -> client.execute(new HttpGet(server.url("/whatever"))));
+  }
 }

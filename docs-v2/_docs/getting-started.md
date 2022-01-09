@@ -26,7 +26,7 @@ To add the standard WireMock JAR as a project dependency, put the following in t
 ### Gradle
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
+testImplementation "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
 ```
 
 WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
@@ -108,6 +108,10 @@ Then find out which ports to use from your tests as follows:
 int port = wireMockRule.port();
 int httpsPort = wireMockRule.httpsPort();
 ```
+
+## Writing a test with JUnit 5.x
+
+See [JUnit 5+ Jupiter Usage](/docs/junit-jupiter/) for various JUnit 5 usage scenarios.
 
 ## Non-JUnit and general Java usage
 
