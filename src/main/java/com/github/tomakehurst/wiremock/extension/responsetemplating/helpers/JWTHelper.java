@@ -10,13 +10,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +70,7 @@ public class JWTHelper extends HandlebarsHelper<Object> {
                 throw new IllegalStateException("key must not be empty in case algo is defined");
             }
 
-            byte[] apiKeyBytes = DatatypeConverter.parseBase64Binary(apiKey);
+            byte[] apiKeyBytes = Base64.getDecoder().decode(apiKey);
 
             Key key;
             switch (signatureAlgorithm.getFamilyName()) {
