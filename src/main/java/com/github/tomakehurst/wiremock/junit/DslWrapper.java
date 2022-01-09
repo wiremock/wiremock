@@ -217,6 +217,21 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public ProxyConfig getProxyConfig() {
+    return null;
+  }
+
+  @Override
+  public void enableProxy(UUID id) {
+    admin.enableProxy(id);
+  }
+
+  @Override
+  public void disableProxy(UUID id) {
+    admin.disableProxy(id);
+  }
+
+  @Override
   public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
     return admin.findAllStubsByMetadata(pattern);
   }

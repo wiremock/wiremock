@@ -9,7 +9,9 @@ export class ResponseDefinition {
   additionalProxyRequestHeaders: any;
   fixedDelayMilliseconds: number;
   delayDistribution: any;
+  chunkedDribbleDelay: any;
   proxyBaseUrl: string;
+  proxyUrlPrefixToRemove: string;
   fault: any;
   transformers: any;
   transformerParameters: any;

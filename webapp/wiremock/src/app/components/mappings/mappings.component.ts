@@ -290,6 +290,10 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     this.setMappingForHelper(MappingHelperService.helperAddProxyBaseUrl(this.getMappingForHelper()));
   }
 
+  helpersAddRemoveProxyPathPrefix() {
+    this.setMappingForHelper(MappingHelperService.helperAddRemoveProxyPathPrefix(this.getMappingForHelper()));
+  }
+
   helpersAddProxyHeader() {
     this.setMappingForHelper(MappingHelperService.helperAddAdditionalProxyRequestHeaders(this.getMappingForHelper()));
   }

@@ -97,24 +97,26 @@ public class ProxyHandler {
         if (response.getByteBodyIfBinary() != null) {
             //Binary body
             copy = new ResponseDefinition(response.getStatus(), response.getStatusMessage(),
-                                          response.getByteBody(), null, null, response.getBodyFileName(), response.getHeaders(),
+                                          response.getByteBody(), response.getJsonBody(), response.getBase64Body(), response.getBodyFileName(), response.getHeaders(),
                                           response.getAdditionalProxyRequestHeaders(), response.getFixedDelayMilliseconds(),
                                           response.getDelayDistribution(),
                                           response.getChunkedDribbleDelay(),
                                           //proxy url
                                           proxyUrl,
+                                          response.getProxyUrlPrefixToRemove(),
                                           //end
                                           response.getFault(), response.getTransformers(), response.getTransformerParameters(),
                                           response.wasConfigured());
         } else {
             //String body
             copy = new ResponseDefinition(response.getStatus(), response.getStatusMessage(),
-                                          response.getBody(), null, null, response.getBodyFileName(), response.getHeaders(),
+                                          response.getBody(), response.getJsonBody(), response.getBase64Body(), response.getBodyFileName(), response.getHeaders(),
                                           response.getAdditionalProxyRequestHeaders(), response.getFixedDelayMilliseconds(),
                                           response.getDelayDistribution(),
                                           response.getChunkedDribbleDelay(),
                                           //proxy url
                                           proxyUrl,
+                                          response.getProxyUrlPrefixToRemove(),
                                           //end
                                           response.getFault(), response.getTransformers(), response.getTransformerParameters(),
                                           response.wasConfigured());
@@ -136,4 +138,5 @@ public class ProxyHandler {
         }
         return copy;
     }
+
 }

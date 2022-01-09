@@ -15,7 +15,7 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '6.0.0'
+  id 'com.diffplug.spotless' version '6.1.2'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
   id "org.sonarqube" version "3.3"
   id 'jacoco'
@@ -28,8 +28,8 @@ project.ext {
     handlebars     : '4.3.0',
     jetty          : '9.4.44.v20210927',
     guava          : '31.0.1-jre',
-    jackson        : '2.13.0',
-    xmlUnit        : '2.8.3',
+    jackson        : '2.13.1',
+    xmlUnit        : '2.8.4',
     junitJupiter   : '5.8.2'
   ]
 }
@@ -41,6 +41,7 @@ dependencies {
   api "org.eclipse.jetty:jetty-servlets"
   api "org.eclipse.jetty:jetty-webapp"
   api "org.eclipse.jetty:jetty-proxy"
+  api "org.eclipse.jetty:jetty-rewrite"
   api "org.eclipse.jetty.http2:http2-server"
   api "org.eclipse.jetty:jetty-alpn-server"
   api "org.eclipse.jetty:jetty-alpn-java-server"
@@ -101,8 +102,8 @@ dependencies {
 
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
-  testImplementation 'org.mockito:mockito-core:4.1.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.1.0'
+  testImplementation 'org.mockito:mockito-core:4.2.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:4.2.0'
   testImplementation 'net.javacrumbs.json-unit:json-unit:2.28.0'
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.1'
@@ -115,7 +116,7 @@ dependencies {
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
 
-  testRuntimeOnly platform("org.apache.logging.log4j:log4j-bom:2.14.1")
+  testRuntimeOnly platform("org.apache.logging.log4j:log4j-bom:2.17.1")
   testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
@@ -125,7 +126,7 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.70.Final"
+  testImplementation "io.netty:netty-all:4.1.72.Final"
 
   constraints {
     implementation "net.minidev:json-smart:2.4.7", {

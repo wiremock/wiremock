@@ -427,10 +427,9 @@ public class WireMockApp implements StubServer, Admin {
     return new FindNearMissesResult(listBuilder.build());
   }
 
-    @Override
-    public GetScenariosResult getAllScenarios() {
-        return new GetScenariosResult(
-                this.stubMappings.getAllScenarios());
+  @Override
+  public GetScenariosResult getAllScenarios() {
+    return new GetScenariosResult(this.stubMappings.getAllScenarios());
   }
 
   @Override
@@ -477,25 +476,25 @@ public class WireMockApp implements StubServer, Admin {
     this.container.shutdown();
     }
 
-    @Override
-    public ProxyConfig getProxyConfig() {
-        final ProxyConfig proxyConfig = new ProxyConfig();
-        proxyConfig.setProxyConfig(this.proxyHandler.getConfig());
-        return proxyConfig;
-    }
+  @Override
+  public ProxyConfig getProxyConfig() {
+    final ProxyConfig proxyConfig = new ProxyConfig();
+    proxyConfig.setProxyConfig(this.proxyHandler.getConfig());
+    return proxyConfig;
+  }
 
-    @Override
-    public void enableProxy(final UUID id) {
+  @Override
+  public void enableProxy(final UUID id) {
         this.proxyHandler.enableProxyUrl(id);
     }
 
   @Override
-    public void disableProxy(final UUID id) {
+  public void disableProxy(final UUID id) {
         this.proxyHandler.disableProxyUrl(id);
     }
 
-    @Override
-    public SnapshotRecordResult snapshotRecord() {
+  @Override
+  public SnapshotRecordResult snapshotRecord() {
         return this.snapshotRecord(RecordSpec.DEFAULTS);
   }
 

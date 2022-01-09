@@ -79,6 +79,14 @@ export class MappingHelperService {
     }
   }
 
+  static helperAddRemoveProxyPathPrefix(mapping: StubMapping): StubMapping {
+    if (UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) &&
+      UtilService.isUndefined(mapping.response.proxyUrlPrefixToRemove)) {
+      mapping.response.proxyUrlPrefixToRemove = '/other/service/';
+      return mapping;
+    }
+  }
+
   static helperAddAdditionalProxyRequestHeaders(mapping: StubMapping): StubMapping {
     if (UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) &&
       UtilService.isUndefined(mapping.response.additionalProxyRequestHeaders)) {
