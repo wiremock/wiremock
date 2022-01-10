@@ -419,9 +419,9 @@ task generateWebapp(type: Exec) {
   dependsOn npmInstallWebapp
   workingDir WEBAPP_DIR
   if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-      commandLine 'cmd', '/c', 'npm', 'run', 'prod'
+    commandLine 'cmd', '/c', 'npm', 'run', 'prod'
   } else {
-      commandLine 'npm', 'run', 'prod'
+    commandLine 'npm', 'run', 'prod'
   }
 }
 
