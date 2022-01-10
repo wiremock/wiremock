@@ -51,12 +51,13 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
         restore-keys: ${{ runner.os }}-gradle
 
-    - name: Test WireMock with Sonarqube
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.jdk == 11 && github.event_name == 'push' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: ./gradlew check sonarqube --stacktrace --no-daemon
+# I am not using Sonarqube for now.
+#    - name: Test WireMock with Sonarqube
+#      if: ${{ matrix.os == 'ubuntu-latest' && matrix.jdk == 11 && github.event_name == 'push' }}
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+#        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#      run: ./gradlew check sonarqube --stacktrace --no-daemon
 
     - name: Test WireMock
       if: ${{ !(matrix.os == 'ubuntu-latest' && matrix.jdk == 11 && github.event_name == 'push') }}
