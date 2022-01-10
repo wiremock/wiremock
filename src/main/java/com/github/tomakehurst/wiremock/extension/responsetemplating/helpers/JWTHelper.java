@@ -48,7 +48,7 @@ public class JWTHelper extends HandlebarsHelper<Object> {
             return OBJECT_MAPPER.readValue(json, new TypeReference<HashMap<String, Object>>() {
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            handleError("Could not parse json for JWTHelper", e);
             return new HashMap<>();
         }
     }

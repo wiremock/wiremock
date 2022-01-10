@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 /**
  * @author Christopher Holomek
  */
@@ -21,7 +23,7 @@ public class WebSocketEndpoint {
 
     @OnMessage
     public void onWebSocketText(final String message) {
-        System.out.println("Received TEXT message: " + message);
+        notifier().info("Received TEXT message: " + message);
     }
 
     @OnClose
@@ -40,7 +42,7 @@ public class WebSocketEndpoint {
                 try {
                     session.getBasicRemote().sendText(message.getMessage());
                 } catch (final IOException e) {
-                    e.printStackTrace();
+                    notifier().error("Could not broadcast websocket message", e);
                 }
             }
         }
