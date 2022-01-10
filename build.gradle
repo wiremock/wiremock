@@ -407,29 +407,29 @@ task addGitTag {
 final WEBAPP_DIR = project(':').rootDir.getAbsolutePath() + '/webapp/wiremock'
 
 task npmInstallWebapp(type: Exec) {
-    workingDir WEBAPP_DIR
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'i'
-    } else {
-        commandLine 'npm', 'i'
-    }
+  workingDir WEBAPP_DIR
+  if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    commandLine 'cmd', '/c', 'npm', 'i'
+  } else {
+    commandLine 'npm', 'i'
+  }
 }
 
 task generateWebapp(type: Exec) {
-    dependsOn npmInstallWebapp
-    workingDir WEBAPP_DIR
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'prod'
-    } else {
-        commandLine 'npm', 'run', 'prod'
-    }
+  dependsOn npmInstallWebapp
+  workingDir WEBAPP_DIR
+  if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+      commandLine 'cmd', '/c', 'npm', 'run', 'prod'
+  } else {
+      commandLine 'npm', 'run', 'prod'
+  }
 }
 
 jar.dependsOn generateWebapp
 processResources.dependsOn generateWebapp
 
 task deleteGeneratedWebapp(type: Delete) {
-    delete "src/main/resources/assets/webapp"
+  delete "src/main/resources/assets/webapp"
 }
 
 clean.dependsOn deleteGeneratedWebapp
