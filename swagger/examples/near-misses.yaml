@@ -1,0 +1,21 @@
+nearMisses:
+- request:
+    url: "/nomatch"
+    absoluteUrl: http://localhost:8080/nomatch
+    method: GET
+    clientIp: '0:0:0:0:0:0:0:1'
+    headers:
+      User-Agent: curl/7.30.0
+      Accept: "*/*"
+      Host: localhost:8080
+    cookies: {}
+    browserProxyRequest: false
+    loggedDate: 1467402464520
+    bodyAsBase64: ''
+    body: ''
+    loggedDateString: '2016-07-01T19:47:44Z'
+  requestPattern:
+    url: "/almostmatch"
+    method: GET
+  matchResult:
+    distance: 0.06944444444444445

@@ -1,0 +1,105 @@
+type: object
+properties:
+  captureHeaders:
+    type: object
+    additionalProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        caseInsensitive:
+          type: boolean
+    description: Headers from the request to include in the generated stub mappings, mapped to parameter objects. The only parameter available is "caseInsensitive", which defaults to false
+    example:
+      Accept: {}
+      Content-Type:
+        caseInsensitive: true
+  extractBodyCriteria:
+    type: object
+    description: Criteria for extracting response bodies to a separate file instead of including it in the stub mapping
+    example:
+      - binarySizeThreshold: 1 Mb
+        textSizeThreshold: 2 kb
+    properties:
+      binarySizeThreshold:
+        type: string
+        default: '0'
+        description: Size threshold for extracting binary response bodies. Supports humanized size strings, e.g. "56 Mb". Default unit is bytes.
+        example: 18.2 GB
+      textSizeThreshold:
+        default: '0'
+        description: Size threshold for extracting binary response bodies. Supports humanized size strings, e.g. "56 Mb". Default unit is bytes.
+        example: 18.2 GB
+        type: string
+  persist:
+    type: boolean
+    default: true
+    description: Whether to save stub mappings to the file system or just return them
+  repeatsAsScenarios:
+    type: boolean
+    default: true
+    description: When true, duplicate requests will be added to a Scenario. When false, duplicates are discarded
+  requestBodyPattern:
+    type: object
+    description: Control the request body matcher used in generated stub mappings
+    oneOf:
+      - type: object
+        description: Automatically determine matcher based on content type (the default)
+        properties:
+          caseInsensitive:
+            type: boolean
+            default: false
+            description: If equalTo is used, match body use case-insensitive string comparison
+          ignoreArrayOrder:
+            type: boolean
+            default: true
+            description: If equalToJson is used, ignore order of array elements
+          ignoreExtraElements:
+            type: boolean
+            default: true
+            description: If equalToJson is used, matcher ignores extra elements in objects
+          matcher:
+            type: string
+            enum:
+              - auto
+      - type: object
+        description: Always match request bodies using equalTo
+        properties:
+          caseInsensitive:
+            default: false
+            description: Match body using case-insensitive string comparison
+            type: boolean
+          matcher:
+            enum:
+              - equalTo
+            type: string
+      - type: object
+        description: Always match request bodies using equalToJson
+        properties:
+          ignoreArrayOrder:
+            default: true
+            description: Ignore order of array elements
+            type: boolean
+          ignoreExtraElements:
+            default: true
+            description: Ignore extra elements in objects
+            type: boolean
+          matcher:
+            enum:
+              - equalToJson
+            type: string
+      - type: object
+        description: Always match request bodies using equalToXml
+        properties:
+          matcher:
+            type: string
+            enum:
+              - equalToXml
+  transformerParameters:
+    type: object
+    description: List of names of stub mappings transformers to apply to generated stubs
+  transformers:
+    type: array
+    description: Parameters to pass to stub mapping transformers
+    items:
+      type: string
+

@@ -1,0 +1,611 @@
+openapi: 3.0.0
+
+info:
+  title: WireMock
+  version: 2.32.0
+
+externalDocs:
+  description: WireMock user documentation
+  url: http://wiremock.org/docs/
+
+servers:
+  - url: /
+
+tags:
+  - name: Stub Mappings
+    description: Operations on stub mappings
+    externalDocs:
+      description: User documentation
+      url: http://wiremock.org/docs/stubbing/
+  - name: Requests
+    description: Logged requests and responses received by the mock service
+    externalDocs:
+      description: User documentation
+      url: http://wiremock.org/docs/verifying/
+  - name: Near Misses
+    description: Near misses allow querying of received requests or request patterns according to similarity
+    externalDocs:
+      description: User documentation
+      url: http://wiremock.org/docs/verifying/#near-misses
+  - name: Recordings
+    description: Stub mapping record and snapshot functions
+    externalDocs:
+      description: User documentation
+      url: http://wiremock.org/docs/record-playback/
+  - name: Scenarios
+    description: Scenarios support modelling of stateful behaviour
+    externalDocs:
+      description: User documentation
+      url: http://wiremock.org/docs/stateful-behaviour/
+  - name: System
+    description: Global operations
+
+paths:
+  /__admin/mappings:
+    get:
+      summary: Get all stub mappings
+      tags:
+         - Stub Mappings
+      parameters:
+        - description: The maximum number of results to return
+          in: query
+          name: limit
+          required: false
+          example: 10
+          schema:
+            type: integer
+        - description: The start index of the results to return
+          in: query
+          name: offset
+          required: false
+          example: 0
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/stub-mappings.yaml'
+              example:
+                $ref: 'examples/stub-mappings.yaml'
+          description: All stub mappings
+    post:
+      summary: Create a new stub mapping
+      tags:
+         - Stub Mappings
+      requestBody:
+        $ref: "#/components/requestBodies/stubMapping"
+      responses:
+        '201':
+          $ref: "#/components/responses/stubMapping"
+    delete:
+      summary: Delete all stub mappings
+      tags:
+         - Stub Mappings
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /__admin/mappings/reset:
+    post:
+      summary: Reset stub mappings
+      description: Restores stub mappings to the defaults defined back in the backing store
+      tags:
+         - Stub Mappings
+      responses:
+        '200':
+          description: Successfully reset
+
+  /__admin/mappings/save:
+    post:
+      summary: Persist stub mappings
+      description: Save all persistent stub mappings to the backing store
+      tags:
+         - Stub Mappings
+      responses:
+        '200':
+          description: Successfully saved
+
+  /__admin/mappings/{stubMappingId}:
+    parameters:
+      - description: The UUID of stub mapping
+        in: path
+        name: stubMappingId
+        required: true
+        example: 730d3e32-d098-4169-a20c-554c3bedce58
+        schema:
+          type: string
+    get:
+      summary: Get stub mapping by ID
+      tags:
+         - Stub Mappings
+      responses:
+        '404':
+          description: Stub mapping not found
+        '200':
+          $ref: "#/components/responses/stubMapping"
+    put:
+      summary: Update a stub mapping
+      tags:
+         - Stub Mappings
+      requestBody:
+        $ref: "#/components/requestBodies/stubMapping"
+      responses:
+        '404':
+          description: Stub mapping not found
+        '200':
+          $ref: "#/components/responses/stubMapping"
+    delete:
+      summary: Delete a stub mapping
+      tags:
+         - Stub Mappings
+      responses:
+        '404':
+          description: Stub mapping not found
+        '200':
+          description: OK
+
+  /__admin/mappings/find-by-metadata:
+    post:
+      description: Find stubs by matching on their metadata
+      tags:
+        - Stub Mappings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/stub-mappings.yaml'
+              example:
+                $ref: 'examples/stub-mappings.yaml'
+          description: Matched stub mappings
+
+  /__admin/mappings/remove-by-metadata:
+    post:
+      summary: Delete stub mappings matching metadata
+      tags:
+        - Stub Mappings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+      responses:
+        '200':
+          description: 'The stub mappings were successfully removed'
+
+  /__admin/requests:
+    get:
+      summary: Get all requests in journal
+      tags:
+         - Requests
+      parameters:
+        - description: The maximum number of results to return
+          in: query
+          name: limit
+          example: 10
+          schema:
+            type: string
+        - description: Only return logged requests after this date
+          in: query
+          name: since
+          example: 2016-10-05T12:33:01Z
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example:
+                $ref: 'examples/serve-events.yaml'
+          description: List of received requests
+    delete:
+      summary: Delete all requests in journal
+      tags:
+         - Requests
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /__admin/requests/{requestId}:
+    get:
+      summary: Get request by ID
+      tags:
+         - Requests
+      parameters:
+        - description: The UUID of the logged request
+          in: path
+          name: requestId
+          required: true
+          example: 12fb14bb-600e-4bfa-bd8d-be7f12562c99
+          schema:
+            type: string
+      responses:
+        '404':
+          description: Request not found
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                $ref: "examples/request.yaml"
+    delete:
+      summary: Delete request by ID
+      tags:
+         - Requests
+      parameters:
+        - description: The UUID of the logged request
+          in: path
+          name: requestId
+          required: true
+          example: 12fb14bb-600e-4bfa-bd8d-be7f12562c99
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /__admin/requests/reset:
+    post:
+      deprecated: true
+      summary: Empty the request journal
+      tags:
+         - Requests
+      responses:
+        '200':
+          description: Successfully reset
+
+  /__admin/requests/count:
+    post:
+      summary: Count requests by criteria
+      description: Count requests logged in the journal matching the specified criteria
+      tags:
+         - Requests
+      requestBody:
+        $ref: "#/components/requestBodies/requestPattern"
+      responses:
+        '200':
+          description: Number of matching requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 4
+
+  /__admin/requests/remove:
+    post:
+      summary: Remove requests by criteria
+      description: Removed requests logged in the journal matching the specified criteria
+      tags:
+         - Requests
+      requestBody:
+        $ref: "#/components/requestBodies/requestPattern"
+      responses:
+        '200':
+          description: Removed request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
+                    
+  /__admin/requests/remove-by-metadata:
+    post:
+      summary: Delete requests mappings matching metadata
+      tags:
+        - Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+      responses:
+        '200':
+          description: Removed request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
+
+  /__admin/requests/find:
+    post:
+      summary: Find requests by criteria
+      description: Retrieve details of requests logged in the journal matching the specified criteria
+      tags:
+         - Requests
+      requestBody:
+        $ref: "#/components/requestBodies/requestPattern"
+      responses:
+        '200':
+          description: Matching request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
+
+  /__admin/requests/unmatched:
+    get:
+      summary: Find unmatched requests
+      description: Get details of logged requests that weren't matched by any stub mapping
+      tags:
+         - Requests
+      responses:
+        '200':
+          description: Unmatched request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
+
+  /__admin/requests/unmatched/near-misses:
+    get:
+      description: Retrieve near-misses for all unmatched requests
+      tags:
+         - Near Misses
+      responses:
+        '200':
+          $ref: "#/components/responses/nearMisses"
+
+  /__admin/near-misses/request:
+    post:
+      summary: Find near misses matching specific request
+      description: Find at most 3 near misses for closest stub mappings to the specified request
+      tags:
+         - Near Misses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/logged-request.yaml'
+            example:
+              $ref: 'examples/logged-request.yaml'
+        required: true
+      responses:
+        '200':
+          $ref: "#/components/responses/nearMisses"
+
+  /__admin/near-misses/request-pattern:
+    post:
+      summary: Find near misses matching request pattern
+      description: Find at most 3 near misses for closest logged requests to the specified request pattern
+      tags:
+         - Near Misses
+      requestBody:
+        $ref: "#/components/requestBodies/requestPattern"
+      responses:
+        '200':
+          $ref: "#/components/responses/nearMisses"
+
+  /__admin/recordings/start:
+    post:
+      summary: Start recording
+      description: Begin recording stub mappings
+      tags:
+         - Recordings
+      requestBody:
+        $ref: "#/components/requestBodies/startRecording"
+      responses:
+        '200':
+          description: Successfully started recording
+
+  /__admin/recordings/stop:
+    post:
+      summary: Stop recording
+      description: End recording of stub mappings
+      tags:
+         - Recordings
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/stub-mappings.yaml'
+              example:
+                $ref: 'examples/recorded-stub-mappings.yaml'
+          description: Successfully stopped recording
+
+  /__admin/recordings/status:
+    get:
+      summary: Get recording status
+      tags:
+         - Recordings
+      responses:
+        '200':
+          description: Successfully got the record status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "Stopped"
+                    enum:
+                      - NeverStarted
+                      - Recording
+                      - Stopped
+
+  /__admin/recordings/snapshot:
+    post:
+      summary: Take a snapshot recording
+      tags:
+         - Recordings
+      requestBody:
+        $ref: "#/components/requestBodies/snapshotRecording"
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas/stub-mappings.yaml'
+              example:
+                $ref: 'examples/recorded-stub-mappings.yaml'
+          description: Successfully took a snapshot recording
+
+  /__admin/scenarios:
+    get:
+      summary: Get all scenarios
+      tags:
+         - Scenarios
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scenarios:
+                    type: array
+                    items:
+                      $ref: "schemas/scenario.yaml"
+          description: All scenarios
+
+  /__admin/scenarios/reset:
+    post:
+      summary: Reset the state of all scenarios
+      tags:
+         - Scenarios
+      responses:
+        '200':
+          description: Successfully reset
+
+  /__admin/settings:
+    post:
+      summary: Update global settings
+      tags:
+         - System
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "schemas/delay-distribution.yaml"
+                - type: object
+                  properties:
+                    fixedDelay:
+                      type: number
+                  example:
+                    fixedDelay: 500
+        required: true
+      responses:
+        '200':
+          description: Settings successfully updated
+
+  /__admin/reset:
+    post:
+      summary: Reset mappings and request journal
+      description: Reset mappings to the default state and reset the request journal
+      tags:
+         - System
+      responses:
+        '200':
+          description: Successfully reset
+
+  /__admin/shutdown:
+    post:
+      description: Shutdown the WireMock server
+      tags:
+         - System
+      responses:
+        '200':
+          description: Server will be shut down
+
+components:
+  requestBodies:
+    requestPattern:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas/request-pattern.yaml'
+          example:
+            $ref: "examples/request-pattern.yaml"
+
+    stubMapping:
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas/stub-mapping.yaml'
+          example:
+            $ref: "examples/stub-mapping-no-id.yaml"
+
+    startRecording:
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'schemas/record-spec.yaml'
+              - properties:
+                  filters:
+                    allOf:
+                      - $ref: 'schemas/request-pattern.yaml'
+                      - description: Filter requests for which to create stub mapping
+                  targetBaseUrl:
+                    type: string
+                    description: Target URL when using the record and playback API
+                    example: http://example.mocklab.io
+          example:
+            $ref: "examples/record-spec.yaml"
+
+    snapshotRecording:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            allOf:
+              - $ref: "schemas/record-spec.yaml"
+              - properties:
+                  filters:
+                    type: object
+                    allOf:
+                      - properties:
+                          ids:
+                            type: array
+                            items:
+                              type: string
+                        type: object
+                        description: Filter requests for which to create stub mapping
+                      - $ref: 'schemas/request-pattern.yaml'
+          example:
+            $ref: "examples/snapshot-spec.yaml"
+
+  responses:
+    stubMapping:
+      description: The stub mapping
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas/stub-mapping.yaml'
+          example:
+            $ref: "examples/stub-mapping-with-id.yaml"
+
+    nearMisses:
+      description: Near misses matching criteria
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nearMisses:
+                type: array
+                items:
+                  $ref: "schemas/logged-request.yaml"
+          example:
+            $ref: 'examples/near-misses.yaml'

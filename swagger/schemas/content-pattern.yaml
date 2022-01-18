@@ -1,0 +1,67 @@
+oneOf:
+  - title: String equals
+    type: object
+    properties:
+      equalTo:
+        type: boolean
+      caseInsensitive:
+        type: boolean
+    required:
+      - equalTo
+  - title: String contains
+    type: object
+    properties:
+      contains:
+        type: string
+    required:
+      - contains
+  - title: Regular expression match
+    type: object
+    properties:
+      matches:
+        type: string
+    required:
+      - matches
+  - title: Negative regular expression match
+    type: object
+    properties:
+      doesNotMatch:
+        type: string
+    required:
+      - doesNotMatch
+  - title: JSON equals
+    type: object
+    properties:
+      equalToJson:
+        type: string
+    required:
+      - equalToJson
+  - title: JSONPath match
+    type: object
+    properties:
+      matchesJsonPath:
+        type: string
+      ignoreArrayOrder:
+        type: boolean
+      ignoreExtraElements:
+        type: boolean
+    required:
+      - matchesJsonPath
+  - title: XML equality
+    type: object
+    properties:
+      equalToXml:
+        type: string
+    required:
+      - equalToXml
+  - title: XPath match
+    type: object
+    properties:
+      matchesXpath:
+        type: string
+      namespaces:
+        type: object
+      valuePattern:
+        type: object
+    required:
+      - matchesXpath
