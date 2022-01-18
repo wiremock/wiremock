@@ -19,7 +19,7 @@ From version 2.31.0 WireMock has an [official Docker image](https://hub.docker.c
 ### Start a single WireWock container with default configuration
 
 ```sh
-docker run -it --rm
+docker run -it --rm \
   -p 8080:8080 \
   --name wiremock \
   wiremock/wiremock:{{ site.wiremock_version }}
@@ -33,7 +33,7 @@ The Docker image supports exactly the same set of command line arguments as the 
 These can be passed to the container by appending them to the end of the command e.g.:
 
 ```sh
-docker run -it --rm
+docker run -it --rm \
   -p 8443:8443 \
   --name wiremock \
   wiremock/wiremock:{{ site.wiremock_version }} \
@@ -49,7 +49,7 @@ This means you can mount a directory containing these from your host machine int
 To mount the current directory use `-v $PWD:/home/wiremock` e.g.:
 
 ```sh
-docker run -it --rm 
+docker run -it --rm \
   -p 8080:8080 \
   --name wiremock \
   -v $PWD:/home/wiremock \
@@ -68,7 +68,7 @@ Then when starting Docker we would mount the extensions directory to `/var/wirem
 via a CLI parameter:
 
 ```sh
-docker run -it --rm
+docker run -it --rm \
   -p 8080:8080 \
   --name wiremock \
   -v $PWD/extensions:/var/wiremock/extensions \
