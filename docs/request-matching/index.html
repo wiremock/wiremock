@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/response-templating/" title="Response Templating">
   
@@ -792,7 +792,7 @@ See <a href="https://github.com/lukas-krecan/JsonUnit#typeplc">the JsonUnit plac
 <blockquote>
   <p><strong>note</strong></p>
 
-  <p>Placeholders are only available in the <code class="highlighter-rouge">jre8</code> WireMock JARs, as the JsonUnit library requires at least Java 8.</p>
+  <p>Placeholders are only available in the <code class="language-plaintext highlighter-rouge">jre8</code> WireMock JARs, as the JsonUnit library requires at least Java 8.</p>
 </blockquote>
 
 <h3 id="json-path">JSON Path</h3>
@@ -824,7 +824,7 @@ See <a href="https://github.com/lukas-krecan/JsonUnit#typeplc">the JsonUnit plac
 
 <p>Request body example:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
 { "name": "Wiremock" }
 // not matching
 { "price": 15 }
@@ -855,7 +855,7 @@ See <a href="https://github.com/lukas-krecan/JsonUnit#typeplc">the JsonUnit plac
 
 <p>Request body example:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
 { "things": { "name": "RequiredThing" } }
 { "things": [ { "name": "RequiredThing" }, { "name": "Wiremock" } ] }
 // not matching
@@ -888,7 +888,7 @@ See <a href="https://github.com/lukas-krecan/JsonUnit#typeplc">the JsonUnit plac
 
 <p>Request body example:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
 { "things": { "name": "RequiredThing" } }
 { "things": [ { "name": "Required" }, { "name": "Wiremock" } ] }
 // not matching
@@ -922,7 +922,7 @@ See <a href="https://github.com/lukas-krecan/JsonUnit#typeplc">the JsonUnit plac
 
 <p>Request body example:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// matching
 { "things": [ { "name": "RequiredThing" }, { "name": "Wiremock" } ] }
 // not matching
 { "things": [ { "name": "RequiredThing" } ] }
@@ -955,7 +955,7 @@ See <a href="https://github.com/lukas-krecan/JsonUnit#typeplc">the JsonUnit plac
 </span></code></pre></div></div>
 
 <p>Since WireMock’s matching operators all work on strings, the value selected by the JSONPath expression will be coerced to a string before the match is evaluated. This true even if the returned value
-is an object or array. A benefit of this is that this allows a sub-document to be selected using JSONPath, then matched using the <code class="highlighter-rouge">equalToJson</code> operator. E.g. for the following request body:</p>
+is an object or array. A benefit of this is that this allows a sub-document to be selected using JSONPath, then matched using the <code class="language-plaintext highlighter-rouge">equalToJson</code> operator. E.g. for the following request body:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -1037,9 +1037,9 @@ is an object or array. A benefit of this is that this allows a sub-document to b
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>When the actual request body is <code class="highlighter-rouge">&lt;message&gt;&lt;id&gt;123456&lt;/id&gt;&lt;content&gt;Hello&lt;/content&gt;&lt;/message&gt;</code>, it will be deemed a match.</p>
+<p>When the actual request body is <code class="language-plaintext highlighter-rouge">&lt;message&gt;&lt;id&gt;123456&lt;/id&gt;&lt;content&gt;Hello&lt;/content&gt;&lt;/message&gt;</code>, it will be deemed a match.</p>
 
-<p>If the default placeholder delimiters <code class="highlighter-rouge">${</code> and <code class="highlighter-rouge">}</code> can not be used, you can specify custom delimiters (using regular expressions). For example</p>
+<p>If the default placeholder delimiters <code class="language-plaintext highlighter-rouge">${</code> and <code class="language-plaintext highlighter-rouge">}</code> can not be used, you can specify custom delimiters (using regular expressions). For example</p>
 
 <p>Java:</p>
 
@@ -1101,19 +1101,19 @@ is an object or array. A benefit of this is that this allows a sub-document to b
 
 <p>The full list of comparison types used by default is as follows:</p>
 
-<p><code class="highlighter-rouge">ELEMENT_TAG_NAME</code>
-<code class="highlighter-rouge">SCHEMA_LOCATION</code>
-<code class="highlighter-rouge">NO_NAMESPACE_SCHEMA_LOCATION</code>
-<code class="highlighter-rouge">NODE_TYPE</code>
-<code class="highlighter-rouge">NAMESPACE_URI</code>
-<code class="highlighter-rouge">TEXT_VALUE</code>
-<code class="highlighter-rouge">PROCESSING_INSTRUCTION_TARGET</code>
-<code class="highlighter-rouge">PROCESSING_INSTRUCTION_DATA</code>
-<code class="highlighter-rouge">ELEMENT_NUM_ATTRIBUTES</code>
-<code class="highlighter-rouge">ATTR_VALUE</code>
-<code class="highlighter-rouge">CHILD_NODELIST_LENGTH</code>
-<code class="highlighter-rouge">CHILD_LOOKUP</code>
-<code class="highlighter-rouge">ATTR_NAME_LOOKUP</code></p>
+<p><code class="language-plaintext highlighter-rouge">ELEMENT_TAG_NAME</code>
+<code class="language-plaintext highlighter-rouge">SCHEMA_LOCATION</code>
+<code class="language-plaintext highlighter-rouge">NO_NAMESPACE_SCHEMA_LOCATION</code>
+<code class="language-plaintext highlighter-rouge">NODE_TYPE</code>
+<code class="language-plaintext highlighter-rouge">NAMESPACE_URI</code>
+<code class="language-plaintext highlighter-rouge">TEXT_VALUE</code>
+<code class="language-plaintext highlighter-rouge">PROCESSING_INSTRUCTION_TARGET</code>
+<code class="language-plaintext highlighter-rouge">PROCESSING_INSTRUCTION_DATA</code>
+<code class="language-plaintext highlighter-rouge">ELEMENT_NUM_ATTRIBUTES</code>
+<code class="language-plaintext highlighter-rouge">ATTR_VALUE</code>
+<code class="language-plaintext highlighter-rouge">CHILD_NODELIST_LENGTH</code>
+<code class="language-plaintext highlighter-rouge">CHILD_LOOKUP</code>
+<code class="language-plaintext highlighter-rouge">ATTR_NAME_LOOKUP</code></p>
 
 <h3 id="xpath">XPath</h3>
 
@@ -1197,7 +1197,7 @@ to namespace URI mappings and use them in your XPath expression:</p>
 <p>If multiple nodes are returned from the XPath query, all will be evaluated and the returned match will be the one with the shortest distance.</p>
 
 <p>If the XPath expression returns an XML element rather than a value, this will be rendered as an XML string before it is passed to the value matcher.
-This can be usefully combined with the <code class="highlighter-rouge">equalToXml</code> matcher e.g.</p>
+This can be usefully combined with the <code class="language-plaintext highlighter-rouge">equalToXml</code> matcher e.g.</p>
 
 <p>Java:</p>
 
@@ -1261,7 +1261,7 @@ This can be usefully combined with the <code class="highlighter-rouge">equalToXm
 <h2 id="multipartform-data">Multipart/form-data</h2>
 
 <p>Deems a match if a multipart value is valid and matches any or all the multipart pattern matchers supplied.   As a Multipart is a ‘mini’ HTTP request in itself all existing Header and Body content matchers can by applied to a Multipart pattern.
-A Multipart pattern can be defined as matching <code class="highlighter-rouge">ANY</code> request multiparts or <code class="highlighter-rouge">ALL</code>. The default matching type is <code class="highlighter-rouge">ANY</code>.</p>
+A Multipart pattern can be defined as matching <code class="language-plaintext highlighter-rouge">ANY</code> request multiparts or <code class="language-plaintext highlighter-rouge">ALL</code>. The default matching type is <code class="language-plaintext highlighter-rouge">ANY</code>.</p>
 
 <p>Java:</p>
 
@@ -1303,7 +1303,7 @@ A Multipart pattern can be defined as matching <code class="highlighter-rouge">A
 <h2 id="basic-authentication">Basic Authentication</h2>
 
 <p>Although matching on HTTP basic authentication could be supported via a
-correctly encoded <code class="highlighter-rouge">Authorization</code> header, you can also do this more simply
+correctly encoded <code class="language-plaintext highlighter-rouge">Authorization</code> header, you can also do this more simply
 via the API.</p>
 
 <p>Java:</p>
@@ -1330,8 +1330,8 @@ via the API.</p>
 
 <h2 id="dates-and-times">Dates and times</h2>
 
-<p>Dates and times can be matched in several ways. Three comparison operators are available: <code class="highlighter-rouge">before</code>, <code class="highlighter-rouge">after</code> and
-<code class="highlighter-rouge">equalToDateTime</code>, all of which have the same set of parameters.</p>
+<p>Dates and times can be matched in several ways. Three comparison operators are available: <code class="language-plaintext highlighter-rouge">before</code>, <code class="language-plaintext highlighter-rouge">after</code> and
+<code class="language-plaintext highlighter-rouge">equalToDateTime</code>, all of which have the same set of parameters.</p>
 
 <p>Additionally, the expected value can be either literal (fixed) or an offset from the current date. Both the expected and
 actual dates can be truncated in various ways.</p>
@@ -1406,9 +1406,9 @@ actual dates can be truncated in various ways.</p>
 <h3 id="local-vs-zoned">Local vs. Zoned</h3>
 
 <p>Both the expected and actual date/time values can either have timezone information or not. For instance a
-date in ISO8601 format could be zoned: <code class="highlighter-rouge">2021-06-24T13:40:27+01:00</code> or <code class="highlighter-rouge">2021-06-24T12:40:27Z</code>, or local: <code class="highlighter-rouge">2021-06-24T12:40:27</code>.</p>
+date in ISO8601 format could be zoned: <code class="language-plaintext highlighter-rouge">2021-06-24T13:40:27+01:00</code> or <code class="language-plaintext highlighter-rouge">2021-06-24T12:40:27Z</code>, or local: <code class="language-plaintext highlighter-rouge">2021-06-24T12:40:27</code>.</p>
 
-<p>Likewise a date/time in RFC 1123 (HTTP standard) format is also zoned: <code class="highlighter-rouge">Tue, 01 Jun 2021 15:16:17 GMT</code>.</p>
+<p>Likewise a date/time in RFC 1123 (HTTP standard) format is also zoned: <code class="language-plaintext highlighter-rouge">Tue, 01 Jun 2021 15:16:17 GMT</code>.</p>
 
 <p>Whether the expected and actual values are zoned or not affects whether they can be matched and how. Generally, the best
 approach is to try to ensure you’re using the same on both sides - if you’re expected a zoned actual date, then use one
@@ -1520,14 +1520,14 @@ as follows.</p>
 <p>The full list of available truncations is:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">first minute of hour</code></li>
-  <li><code class="highlighter-rouge">first hour of day</code></li>
-  <li><code class="highlighter-rouge">first day of month</code></li>
-  <li><code class="highlighter-rouge">first day of next month</code></li>
-  <li><code class="highlighter-rouge">last day of month</code></li>
-  <li><code class="highlighter-rouge">first day of year</code></li>
-  <li><code class="highlighter-rouge">first day of next year</code></li>
-  <li><code class="highlighter-rouge">last day of year</code></li>
+  <li><code class="language-plaintext highlighter-rouge">first minute of hour</code></li>
+  <li><code class="language-plaintext highlighter-rouge">first hour of day</code></li>
+  <li><code class="language-plaintext highlighter-rouge">first day of month</code></li>
+  <li><code class="language-plaintext highlighter-rouge">first day of next month</code></li>
+  <li><code class="language-plaintext highlighter-rouge">last day of month</code></li>
+  <li><code class="language-plaintext highlighter-rouge">first day of year</code></li>
+  <li><code class="language-plaintext highlighter-rouge">first day of next year</code></li>
+  <li><code class="language-plaintext highlighter-rouge">last day of year</code></li>
 </ul>
 
 <h2 id="logical-and-and-or">Logical AND and OR</h2>
@@ -1611,11 +1611,11 @@ as follows.</p>
 
 <h3 id="combining-date-matchers-as-jsonpathxpath-sub-matchers">Combining date matchers as JSONPath/XPath sub-matchers</h3>
 
-<p>As an example of how various matchers can be combined, suppose we want to match if a field named <code class="highlighter-rouge">date</code> in a JSON request body
+<p>As an example of how various matchers can be combined, suppose we want to match if a field named <code class="language-plaintext highlighter-rouge">date</code> in a JSON request body
 is a date/time between two points.</p>
 
-<p>We can do this by extracting the field using <code class="highlighter-rouge">matchesJsonPath</code> then matching the result
-of this against the <code class="highlighter-rouge">before</code> and <code class="highlighter-rouge">after</code> matchers AND’d together.</p>
+<p>We can do this by extracting the field using <code class="language-plaintext highlighter-rouge">matchesJsonPath</code> then matching the result
+of this against the <code class="language-plaintext highlighter-rouge">before</code> and <code class="language-plaintext highlighter-rouge">after</code> matchers AND’d together.</p>
 
 <p>Java:</p>
 

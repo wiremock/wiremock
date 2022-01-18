@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/record-playback-legacy/" title="Record and Playback (Legacy)">
   
@@ -403,10 +403,10 @@ supports <a href="/docs/record-playback/">record and playback</a>.</p>
 that the same request matching criteria can be used.</p>
 
 <p>The following code will proxy all GET requests made to
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/other/service/.*</code> to
-<code class="highlighter-rouge">http://otherservice.com/approot</code>, e.g. when running WireMock locally a
-request to <code class="highlighter-rouge">http://localhost:8080/other/service/doc/123</code> would be
-forwarded to <code class="highlighter-rouge">http://otherservice.com/approot/other/service/doc/123</code>.</p>
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/other/service/.*</code> to
+<code class="language-plaintext highlighter-rouge">http://otherservice.com/approot</code>, e.g. when running WireMock locally a
+request to <code class="language-plaintext highlighter-rouge">http://localhost:8080/other/service/doc/123</code> would be
+forwarded to <code class="language-plaintext highlighter-rouge">http://otherservice.com/approot/other/service/doc/123</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/other/service/.*"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">proxiedFrom</span><span class="o">(</span><span class="s">"http://otherhost.com/approot"</span><span class="o">)));</span>
@@ -467,7 +467,7 @@ priority stub mappings e.g.</p>
 </span></code></pre></div></div>
 
 <p>Requests using the above path will be forwarded
-to <code class="highlighter-rouge">http://otherhost.com/approot/doc/123</code></p>
+to <code class="language-plaintext highlighter-rouge">http://otherhost.com/approot/doc/123</code></p>
 
 <h1 id="additional-headers">Additional headers</h1>
 
@@ -504,7 +504,7 @@ the request to the destination:</p>
 <p>It is possible to start the standalone running with the catch-all stub
 already configured:</p>
 
-<p>Then it’s simply a case of adding your stub mapping <code class="highlighter-rouge">.json</code> files under <code class="highlighter-rouge">mappings</code> as usual (see <a href="/docs/stubbing/">Stubbing</a>).</p>
+<p>Then it’s simply a case of adding your stub mapping <code class="language-plaintext highlighter-rouge">.json</code> files under <code class="language-plaintext highlighter-rouge">mappings</code> as usual (see <a href="/docs/stubbing/">Stubbing</a>).</p>
 
 <h2 id="running-as-a-browser-proxy">Running as a browser proxy</h2>
 
@@ -524,7 +524,7 @@ you to modify specific AJAX requests or swap out CSS/Javascript files.</p>
 <p>After that, you can configure stubs as described in <a href="/docs/running-standalone/#configuring-wiremock-using-the-java-client">Running Standalone</a> and then browse to a website. Any resources fetched whose requests are matched by stubs you have configured will be overridden by the stub’s response.</p>
 
 <p>So for instance, say you’re visiting
-a web page that fetches a user profile via an AJAX call to <code class="highlighter-rouge">/users/12345.json</code> and you wanted to test how it responded to a server unavailable response. You could create a stub like this and the response from the server would be swapped for a 503 response:</p>
+a web page that fetches a user profile via an AJAX call to <code class="language-plaintext highlighter-rouge">/users/12345.json</code> and you wanted to test how it responded to a server unavailable response. You could create a stub like this and the response from the server would be swapped for a 503 response:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/users/12345.json"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
@@ -552,9 +552,9 @@ This means that when you request https://www.example.com proxied via WireMock th
 Inevitably it cannot be trusted by default - otherwise no internet traffic would be secure.</p>
 
 <p>WireMock uses a root Certificate Authority private key to sign a certificate for each host that it proxies.
-By default, WireMock will use a CA key store at <code class="highlighter-rouge">$HOME/.wiremock/ca-keystore.jks</code>.
+By default, WireMock will use a CA key store at <code class="language-plaintext highlighter-rouge">$HOME/.wiremock/ca-keystore.jks</code>.
 If this key store does not exist, WireMock will generate it with a new secure private key which should be entirely private to the system on which WireMock is running.
-You can provide a key store containing such a private key &amp; certificate yourself using the <code class="highlighter-rouge">--ca-keystore</code>, <code class="highlighter-rouge">--ca-keystore-password</code> &amp; <code class="highlighter-rouge">--ca-keystore-type</code> options.</p>
+You can provide a key store containing such a private key &amp; certificate yourself using the <code class="language-plaintext highlighter-rouge">--ca-keystore</code>, <code class="language-plaintext highlighter-rouge">--ca-keystore-password</code> &amp; <code class="language-plaintext highlighter-rouge">--ca-keystore-type</code> options.</p>
 <blockquote>
   <p>See <a href="https://github.com/tomakehurst/wiremock/blob/master/scripts/create-ca-keystore.sh">this script</a>
 for an example of how to build a key &amp; valid self-signed root certificate called
@@ -591,8 +591,8 @@ You can trust specific hosts as follows:</p>
 </code></pre></div></div>
 
 <p>Additional trusted public certificates can also be added to the keystore
-specified via the <code class="highlighter-rouge">--https-truststore</code>, and WireMock will then trust them without
-needing the <code class="highlighter-rouge">--trust-proxy-target</code> parameter (so long as they match the
+specified via the <code class="language-plaintext highlighter-rouge">--https-truststore</code>, and WireMock will then trust them without
+needing the <code class="language-plaintext highlighter-rouge">--trust-proxy-target</code> parameter (so long as they match the
 requested host).</p>
 
 <h4 id="proxying-https-on-the-https-endpoint">Proxying HTTPS on the HTTPS endpoint</h4>
@@ -609,7 +609,7 @@ configuration. For instance:</p>
 
 <p>Older versions of curl fail trying to do the CONNECT call because they try to do so
 over HTTP/2 (newer versions only offer HTTP/1.1 for the CONNECT call). At time
-of writing it works using <code class="highlighter-rouge">curl 7.64.1 (x86_64-apple-darwin19.0) libcurl/7.64.1 (SecureTransport) LibreSSL/2.8.3 zlib/1.2.11 nghttp2/1.39.2</code> as so:</p>
+of writing it works using <code class="language-plaintext highlighter-rouge">curl 7.64.1 (x86_64-apple-darwin19.0) libcurl/7.64.1 (SecureTransport) LibreSSL/2.8.3 zlib/1.2.11 nghttp2/1.39.2</code> as so:</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">--proxy-insecure</span> <span class="nt">-x</span> https://localhost:8443 <span class="nt">-k</span> <span class="s1">'https://www.example.com/'</span>
 </code></pre></div></div>
 <p>You can force HTTP/1.1 in curl as so:</p>
@@ -635,7 +635,7 @@ you should understand the risk involved.</p>
 <p>If you’re inside a network that only permits HTTP traffic out to the
 internet via an opaque proxy you might wish to set up proxy mappings
 that route via this server. This can be configured programmatically by
-passing a configuration object to the constructor of <code class="highlighter-rouge">WireMockServer</code> or
+passing a configuration object to the constructor of <code class="language-plaintext highlighter-rouge">WireMockServer</code> or
 the JUnit rules like this:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockServer</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>

@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -394,7 +394,7 @@ to be used in generating the response e.g. to pass the value of a request ID hea
 render an identifier from part of the URL in the response body.</p>
 
 <h2 id="enabling-response-templating">Enabling response templating</h2>
-<p>When starting WireMock programmatically, response templating can be enabled by adding <code class="highlighter-rouge">ResponseTemplateTransformer</code> as an extension e.g.</p>
+<p>When starting WireMock programmatically, response templating can be enabled by adding <code class="language-plaintext highlighter-rouge">ResponseTemplateTransformer</code> as an extension e.g.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
 <span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
@@ -405,7 +405,7 @@ render an identifier from part of the URL in the response body.</p>
 <p>The boolean constructor parameter indicates whether the extension should be applied globally. If true, all stub mapping responses will be rendered as templates prior
 to being served.</p>
 
-<p>Otherwise the transformer will need to be specified on each stub mapping by its name <code class="highlighter-rouge">response-template</code>:</p>
+<p>Otherwise the transformer will need to be specified on each stub mapping by its name <code class="language-plaintext highlighter-rouge">response-template</code>:</p>
 
 <h3 id="java">Java</h3>
 
@@ -499,46 +499,46 @@ since compilation can be expensive for larger templates.</p>
 <h2 id="the-request-model">The request model</h2>
 <p>The model of the request is supplied to the header and body templates. The following request attributes are available:</p>
 
-<p><code class="highlighter-rouge">request.url</code> - URL path and query</p>
+<p><code class="language-plaintext highlighter-rouge">request.url</code> - URL path and query</p>
 
-<p><code class="highlighter-rouge">request.path</code> - URL path</p>
+<p><code class="language-plaintext highlighter-rouge">request.path</code> - URL path</p>
 
-<p><code class="highlighter-rouge">request.pathSegments.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="highlighter-rouge">request.pathSegments.[2]</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.pathSegments.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="language-plaintext highlighter-rouge">request.pathSegments.[2]</code></p>
 
-<p><code class="highlighter-rouge">request.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="highlighter-rouge">request.query.search</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="language-plaintext highlighter-rouge">request.query.search</code></p>
 
-<p><code class="highlighter-rouge">request.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="highlighter-rouge">request.query.search.[5]</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="language-plaintext highlighter-rouge">request.query.search.[5]</code></p>
 
-<p><code class="highlighter-rouge">request.method</code>- request method e.g. <code class="highlighter-rouge">POST</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.method</code>- request method e.g. <code class="language-plaintext highlighter-rouge">POST</code></p>
 
-<p><code class="highlighter-rouge">request.host</code>- hostname part of the URL e.g. <code class="highlighter-rouge">my.example.com</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.host</code>- hostname part of the URL e.g. <code class="language-plaintext highlighter-rouge">my.example.com</code></p>
 
-<p><code class="highlighter-rouge">request.port</code>- port number e.g. <code class="highlighter-rouge">8080</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.port</code>- port number e.g. <code class="language-plaintext highlighter-rouge">8080</code></p>
 
-<p><code class="highlighter-rouge">request.scheme</code>- protocol part of the URL e.g. <code class="highlighter-rouge">https</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.scheme</code>- protocol part of the URL e.g. <code class="language-plaintext highlighter-rouge">https</code></p>
 
-<p><code class="highlighter-rouge">request.baseUrl</code>- URL up to the start of the path e.g. <code class="highlighter-rouge">https://my.example.com:8080</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.baseUrl</code>- URL up to the start of the path e.g. <code class="language-plaintext highlighter-rouge">https://my.example.com:8080</code></p>
 
-<p><code class="highlighter-rouge">request.headers.&lt;key&gt;</code>- First value of a request header e.g. <code class="highlighter-rouge">request.headers.X-Request-Id</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.headers.&lt;key&gt;</code>- First value of a request header e.g. <code class="language-plaintext highlighter-rouge">request.headers.X-Request-Id</code></p>
 
-<p><code class="highlighter-rouge">request.headers.[&lt;key&gt;]</code>- Header with awkward characters e.g. <code class="highlighter-rouge">request.headers.[$?blah]</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.headers.[&lt;key&gt;]</code>- Header with awkward characters e.g. <code class="language-plaintext highlighter-rouge">request.headers.[$?blah]</code></p>
 
-<p><code class="highlighter-rouge">request.headers.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a header (zero indexed) e.g. <code class="highlighter-rouge">request.headers.ManyThings.[1]</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.headers.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a header (zero indexed) e.g. <code class="language-plaintext highlighter-rouge">request.headers.ManyThings.[1]</code></p>
 
-<p><code class="highlighter-rouge">request.cookies.&lt;key&gt;</code> - First value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.cookies.&lt;key&gt;</code> - First value of a request cookie e.g. <code class="language-plaintext highlighter-rouge">request.cookies.JSESSIONID</code></p>
 
-<p><code class="highlighter-rouge">request.cookies.&lt;key&gt;.[&lt;n&gt;]</code> - nth value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID.[2]</code></p>
+<p><code class="language-plaintext highlighter-rouge">request.cookies.&lt;key&gt;.[&lt;n&gt;]</code> - nth value of a request cookie e.g. <code class="language-plaintext highlighter-rouge">request.cookies.JSESSIONID.[2]</code></p>
 
-<p><code class="highlighter-rouge">request.body</code> - Request body text (avoid for non-text bodies)</p>
+<p><code class="language-plaintext highlighter-rouge">request.body</code> - Request body text (avoid for non-text bodies)</p>
 
 <h3 id="values-that-can-be-one-or-many">Values that can be one or many</h3>
 
 <p>A number of HTTP elements (query parameters, form fields, headers) can be single or multiple valued. The template request model and built-in helpers attempt to make
 this easy to work with by wrapping these in a “list or single” type that returns the first (and often only) value when no index is specified, but also support index access.</p>
 
-<p>For instance, given a request URL like <code class="highlighter-rouge">/multi-query?things=1&amp;things=2&amp;things=3</code> I can extract the query data in the following ways:</p>
+<p>For instance, given a request URL like <code class="language-plaintext highlighter-rouge">/multi-query?things=1&amp;things=2&amp;things=3</code> I can extract the query data in the following ways:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{request.query.things}} // Will return 1
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{request.query.things}} // Will return 1
 {{request.query.things.0}} // Will return 1
 {{request.query.things.first}} // Will return 1
 {{request.query.things.1}} // Will return 2
@@ -549,7 +549,7 @@ this easy to work with by wrapping these in a “list or single” type that ret
 <blockquote>
   <p><strong>Note</strong></p>
 
-  <p>When using the <code class="highlighter-rouge">eq</code> helper with one-or-many values, it is necessary to use the indexed form, even if only one value is present.
+  <p>When using the <code class="language-plaintext highlighter-rouge">eq</code> helper with one-or-many values, it is necessary to use the indexed form, even if only one value is present.
 The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
 with another String value.</p>
 </blockquote>
@@ -557,13 +557,13 @@ with another String value.</p>
 <h3 id="getting-values-with-keys-containing-special-characters">Getting values with keys containing special characters</h3>
 
 <p>Certain characters have special meaning in Handlebars and therefore can’t be used in key names when referencing values.
-If you need to access keys containing these characters you can use the <code class="highlighter-rouge">lookup</code> helper, which permits you to pass the key
+If you need to access keys containing these characters you can use the <code class="language-plaintext highlighter-rouge">lookup</code> helper, which permits you to pass the key
 name as a string literal and thus avoid the restriction.</p>
 
 <p>Probably the most common occurrence of this issue is with array-style query parameters, so for instance if your request
-URLs you’re matching are of the form <code class="highlighter-rouge">/stuff?ids[]=111&amp;ids[]=222&amp;ids[]=333</code> then you can access these values like:</p>
+URLs you’re matching are of the form <code class="language-plaintext highlighter-rouge">/stuff?ids[]=111&amp;ids[]=222&amp;ids[]=333</code> then you can access these values like:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup request.query 'ids[].1'}} // Will return 222
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup request.query 'ids[].1'}} // Will return 222
 </code></pre></div></div>
 
 <h2 id="using-transformer-parameters">Using transformer parameters</h2>
@@ -594,9 +594,9 @@ URLs you’re matching are of the form <code class="highlighter-rouge">/stuff?id
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>These parameters can be referenced in template body content using the <code class="highlighter-rouge">parameters.</code> prefix:</p>
+<p>These parameters can be referenced in template body content using the <code class="language-plaintext highlighter-rouge">parameters.</code> prefix:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;h1&gt;The MyCustomParameter value is {{parameters.MyCustomParameter}}&lt;/h1&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;h1&gt;The MyCustomParameter value is {{parameters.MyCustomParameter}}&lt;/h1&gt;
 </code></pre></div></div>
 
 <h2 id="handlebars-helpers">Handlebars helpers</h2>
@@ -605,13 +605,13 @@ plus all of the <a href="https://github.com/jknack/handlebars.java/blob/master/h
 and the <a href="https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/ConditionalHelpers.java">conditional helpers</a>
 are available e.g.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{capitalize request.query.search}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{capitalize request.query.search}}
 </code></pre></div></div>
 
 <h2 id="number-and-assignment-helpers">Number and assignment helpers</h2>
 <p>Variable assignment and number helpers are available:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#assign 'myCapitalisedQuery'}}{{capitalize request.query.search}}{{/assign}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#assign 'myCapitalisedQuery'}}{{capitalize request.query.search}}{{/assign}}
 
 {{isOdd 3}}
 {{isOdd 3 'rightBox'}}
@@ -625,7 +625,7 @@ are available e.g.</p>
 <h2 id="xpath-helpers">XPath helpers</h2>
 <p>Addiionally some helpers are available for working with JSON and XML.</p>
 
-<p>When the incoming request contains XML, the <code class="highlighter-rouge">xPath</code> helper can be used to extract values or sub documents via an XPath 1.0 expression. For instance, given the XML</p>
+<p>When the incoming request contains XML, the <code class="language-plaintext highlighter-rouge">xPath</code> helper can be used to extract values or sub documents via an XPath 1.0 expression. For instance, given the XML</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;outer&gt;</span>
     <span class="nt">&lt;inner&gt;</span>Stuff<span class="nt">&lt;/inner&gt;</span>
@@ -634,15 +634,15 @@ are available e.g.</p>
 
 <p>The following will render “Stuff” into the output:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner/text()'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner/text()'}}
 </code></pre></div></div>
 
-<p>And given the same XML the following will render <code class="highlighter-rouge">&lt;inner&gt;Stuff&lt;/inner&gt;</code>:</p>
+<p>And given the same XML the following will render <code class="language-plaintext highlighter-rouge">&lt;inner&gt;Stuff&lt;/inner&gt;</code>:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner'}}
 </code></pre></div></div>
 
-<p>As a convenience the <code class="highlighter-rouge">soapXPath</code> helper also exists for extracting values from SOAP bodies e.g. for the SOAP document:</p>
+<p>As a convenience the <code class="language-plaintext highlighter-rouge">soapXPath</code> helper also exists for extracting values from SOAP bodies e.g. for the SOAP document:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;soap:Envelope</span> <span class="na">xmlns:soap=</span><span class="s">"http://www.w3.org/2003/05/soap-envelope/"</span><span class="nt">&gt;</span>
     <span class="nt">&lt;soap:Body&gt;</span>
@@ -655,33 +655,33 @@ are available e.g.</p>
 
 <p>The following will render “success” in the output:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{soapXPath request.body '/a/test/text()'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{soapXPath request.body '/a/test/text()'}}
 </code></pre></div></div>
 
-<h3 id="using-the-output-of-xpath-in-other-helpers">Using the output of <code class="highlighter-rouge">xPath</code> in other helpers</h3>
+<h3 id="using-the-output-of-xpath-in-other-helpers">Using the output of <code class="language-plaintext highlighter-rouge">xPath</code> in other helpers</h3>
 
 <p>Since version 2.27.0 the XPath helper returns collections of node objects rather than a single string, meaning that the result
 can be used in further helpers.</p>
 
 <p>The returned node objects have the following properties:</p>
 
-<p><code class="highlighter-rouge">name</code> - the local XML element name.</p>
+<p><code class="language-plaintext highlighter-rouge">name</code> - the local XML element name.</p>
 
-<p><code class="highlighter-rouge">text</code> - the text content of the element.</p>
+<p><code class="language-plaintext highlighter-rouge">text</code> - the text content of the element.</p>
 
-<p><code class="highlighter-rouge">attributes</code> - a map of the element’s attributes (name: value)</p>
+<p><code class="language-plaintext highlighter-rouge">attributes</code> - a map of the element’s attributes (name: value)</p>
 
 <p>Referring to the node itself will cause it to be printed.</p>
 
-<p>A common use case for returned node objects is to iterate over the collection with the <code class="highlighter-rouge">each</code> helper:</p>
+<p>A common use case for returned node objects is to iterate over the collection with the <code class="language-plaintext highlighter-rouge">each</code> helper:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (xPath request.body '/things/item') as |node|}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (xPath request.body '/things/item') as |node|}}
   name: {{node.name}}, text: {{node.text}}, ID attribute: {{node.attributes.id}}
 {{/each}}
 </code></pre></div></div>
 
 <h2 id="jsonpath-helper">JSONPath helper</h2>
-<p>It is similarly possible to extract JSON values or sub documents via JSONPath using the <code class="highlighter-rouge">jsonPath</code> helper. Given the JSON</p>
+<p>It is similarly possible to extract JSON values or sub documents via JSONPath using the <code class="language-plaintext highlighter-rouge">jsonPath</code> helper. Given the JSON</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -692,26 +692,26 @@ can be used in further helpers.</p>
 
 <p>The following will render “Stuff” into the output:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer.inner'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer.inner'}}
 </code></pre></div></div>
 
-<p>And for the same JSON the following will render <code class="highlighter-rouge">{ "inner": "Stuff" }</code>:</p>
+<p>And for the same JSON the following will render <code class="language-plaintext highlighter-rouge">{ "inner": "Stuff" }</code>:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer'}}
 </code></pre></div></div>
 
 <p>Default value can be specified if the path evaluates to null or undefined:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.size' default='M'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.size' default='M'}}
 </code></pre></div></div>
 
 <h2 id="parse-json-helper">Parse JSON helper</h2>
-<p>The <code class="highlighter-rouge">parseJson</code> helper will parse the input into a map-of-maps. It will assign the result to a variable if a name is specified,
+<p>The <code class="language-plaintext highlighter-rouge">parseJson</code> helper will parse the input into a map-of-maps. It will assign the result to a variable if a name is specified,
 otherwise the result will be returned.</p>
 
 <p>It can accept the JSON from a block:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#parseJson 'parsedObj'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#parseJson 'parsedObj'}}
 {
   "name": "transformed"
 }
@@ -723,19 +723,19 @@ otherwise the result will be returned.</p>
 
 <p>Or as a parameter:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{parseJson request.body 'bodyJson'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{parseJson request.body 'bodyJson'}}
 {{bodyJson.name}}
 </code></pre></div></div>
 
 <p>Without assigning to a variable:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup (parseJson request.body) 'name'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup (parseJson request.body) 'name'}}
 </code></pre></div></div>
 
 <h2 id="date-and-time-helpers">Date and time helpers</h2>
 <p>A helper is present to render the current date/time, with the ability to specify the format (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">via Java’s SimpleDateFormat</a>) and offset.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now}}
 {{now offset='3 days'}}
 {{now offset='-24 seconds'}}
 {{now offset='1 years'}}
@@ -744,19 +744,19 @@ otherwise the result will be returned.</p>
 
 <p>Dates can be rendered in a specific timezone (the default is UTC):</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
 </code></pre></div></div>
 
-<p>Pass <code class="highlighter-rouge">epoch</code> as the format to render the date as UNIX epoch time (in milliseconds), or <code class="highlighter-rouge">unix</code> as the format to render
+<p>Pass <code class="language-plaintext highlighter-rouge">epoch</code> as the format to render the date as UNIX epoch time (in milliseconds), or <code class="language-plaintext highlighter-rouge">unix</code> as the format to render
 the UNIX timestamp in seconds.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now offset='2 years' format='epoch'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now offset='2 years' format='epoch'}}
 {{now offset='2 years' format='unix'}}
 </code></pre></div></div>
 
-<p>Dates can be parsed using the <code class="highlighter-rouge">parseDate</code> helper:</p>
+<p>Dates can be parsed using the <code class="language-plaintext highlighter-rouge">parseDate</code> helper:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
 // We wrap in the date helper in order to print the result as a string.
 {{date (parseDate request.headers.MyDate)}}
 
@@ -767,9 +767,9 @@ the UNIX timestamp in seconds.</p>
 {{date (parseDate request.headers.MyDate format='unix')}}
 </code></pre></div></div>
 
-<p>Dates can be truncated to e.g. first day of month using the <code class="highlighter-rouge">truncateDate</code> helper:</p>
+<p>Dates can be truncated to e.g. first day of month using the <code class="language-plaintext highlighter-rouge">truncateDate</code> helper:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
 // then the result of the following will be 2021-06-01T00:00:00Z
 {{date (truncateDate (parseDate request.headers.MyDate) 'first day of month')}}
 </code></pre></div></div>
@@ -779,7 +779,7 @@ the UNIX timestamp in seconds.</p>
 <h2 id="random-value-helper">Random value helper</h2>
 <p>Random strings of various kinds can be generated:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomValue length=33 type='ALPHANUMERIC'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomValue length=33 type='ALPHANUMERIC'}}
 {{randomValue length=12 type='ALPHANUMERIC' uppercase=true}}
 {{randomValue length=55 type='ALPHABETIC'}}
 {{randomValue length=27 type='ALPHABETIC' uppercase=true}}
@@ -792,21 +792,21 @@ the UNIX timestamp in seconds.</p>
 <h2 id="pick-random-helper">Pick random helper</h2>
 <p>A value can be randomly selected from a literal list:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom '1' '2' '3'}}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom '1' '2' '3'}}}
 </code></pre></div></div>
 
 <p>Or from a list passed as a parameter:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom (jsonPath request.body '$.names')}}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom (jsonPath request.body '$.names')}}}
 </code></pre></div></div>
 
 <h2 id="random-number-helpers">Random number helpers</h2>
 <p>These helpers produce random numbers of the desired type. By returning actual typed numbers rather than strings
-we can use them for further work e.g. by doing arithemetic with the <code class="highlighter-rouge">math</code> helper or randomising the bound in a <code class="highlighter-rouge">range</code>.</p>
+we can use them for further work e.g. by doing arithemetic with the <code class="language-plaintext highlighter-rouge">math</code> helper or randomising the bound in a <code class="language-plaintext highlighter-rouge">range</code>.</p>
 
 <p>Random integers can be produced with lower and/or upper bounds, or neither:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomInt}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomInt}}
 {{randomInt lower=5 upper=9}}
 {{randomInt upper=54323}}
 {{randomInt lower=-24}}
@@ -814,19 +814,19 @@ we can use them for further work e.g. by doing arithemetic with the <code class=
 
 <p>Likewise decimals can be produced with or without bounds:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomDecimal}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomDecimal}}
 {{randomDecimal lower=-10.1 upper=-0.9}}
 {{randomDecimal upper=12.5}}
 {{randomDecimal lower=-24.01}}
 </code></pre></div></div>
 
 <h2 id="math-helper">Math helper</h2>
-<p>The <code class="highlighter-rouge">math</code> (or maths, depending where you are) helper performs common arithmetic operations. It can accept integers, decimals
+<p>The <code class="language-plaintext highlighter-rouge">math</code> (or maths, depending where you are) helper performs common arithmetic operations. It can accept integers, decimals
 or strings as its operands and will always yield a number as its output rather than a string.</p>
 
 <p>Addition, subtraction, multiplication, division and remainder (mod) are supported:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{math 1 '+' 2}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{math 1 '+' 2}}
 {{math 4 '-' 2}}
 {{math 2 '*' 3}}
 {{math 8 '/' 2}}
@@ -834,61 +834,61 @@ or strings as its operands and will always yield a number as its output rather t
 </code></pre></div></div>
 
 <h2 id="range-helper">Range helper</h2>
-<p>The <code class="highlighter-rouge">range</code> helper will produce an array of integers between the bounds specified:</p>
+<p>The <code class="language-plaintext highlighter-rouge">range</code> helper will produce an array of integers between the bounds specified:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{range 3 8}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{range 3 8}}
 {{range -2 2}}
 </code></pre></div></div>
 
-<p>This can be usefully combined with <code class="highlighter-rouge">randomInt</code> and <code class="highlighter-rouge">each</code> to output random length, repeating pieces of content e.g.</p>
+<p>This can be usefully combined with <code class="language-plaintext highlighter-rouge">randomInt</code> and <code class="language-plaintext highlighter-rouge">each</code> to output random length, repeating pieces of content e.g.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (range 0 (randomInt lower=1 upper=10)) as |index|}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (range 0 (randomInt lower=1 upper=10)) as |index|}}
 id: {{index}}
 {{/each}}
 </code></pre></div></div>
 
 <h2 id="array-literal-helper">Array literal helper</h2>
-<p>The <code class="highlighter-rouge">array</code> helper will produce an array from the list of parameters specified. The values can be any valid type.
+<p>The <code class="language-plaintext highlighter-rouge">array</code> helper will produce an array from the list of parameters specified. The values can be any valid type.
 Providing no parameters will result in an empty array.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{array 1 'two' true}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{array 1 'two' true}}
 {{array}}
 </code></pre></div></div>
 
 <h2 id="contains-helper">Contains helper</h2>
-<p>The <code class="highlighter-rouge">contains</code> helper returns a boolean value indicating whether the string or array passed as the first parameter
+<p>The <code class="language-plaintext highlighter-rouge">contains</code> helper returns a boolean value indicating whether the string or array passed as the first parameter
 contains the string passed in the second.</p>
 
-<p>It can be used as parameter to the <code class="highlighter-rouge">if</code> helper:</p>
+<p>It can be used as parameter to the <code class="language-plaintext highlighter-rouge">if</code> helper:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (contains 'abcde' 'abc')}}YES{{/if}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (contains 'abcde' 'abc')}}YES{{/if}}
 {{#if (contains (array 'a' 'b' 'c') 'a')}}YES{{/if}}
 </code></pre></div></div>
 
 <p>Or as a block element on its own:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#contains 'abcde' 'abc'}}YES{{/contains}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#contains 'abcde' 'abc'}}YES{{/contains}}
 {{#contains (array 'a' 'b' 'c') 'a'}}YES{{/contains}}
 </code></pre></div></div>
 
 <h2 id="matches-helper">Matches helper</h2>
-<p>The <code class="highlighter-rouge">matches</code> helper returns a boolean value indicating whether the string passed as the first parameter matches the
+<p>The <code class="language-plaintext highlighter-rouge">matches</code> helper returns a boolean value indicating whether the string passed as the first parameter matches the
 regular expression passed in the second:</p>
 
-<p>Like the <code class="highlighter-rouge">contains</code> helper it can be used as parameter to the <code class="highlighter-rouge">if</code> helper:</p>
+<p>Like the <code class="language-plaintext highlighter-rouge">contains</code> helper it can be used as parameter to the <code class="language-plaintext highlighter-rouge">if</code> helper:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (matches '123' '[0-9]+')}}YES{{/if}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (matches '123' '[0-9]+')}}YES{{/if}}
 </code></pre></div></div>
 
 <p>Or as a block element on its own:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#matches '123' '[0-9]+'}}YES{{/matches}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#matches '123' '[0-9]+'}}YES{{/matches}}
 </code></pre></div></div>
 
 <h2 id="string-trim-helper">String trim helper</h2>
-<p>Use the <code class="highlighter-rouge">trim</code> helper to remove whitespace from the start and end of the input:</p>
+<p>Use the <code class="language-plaintext highlighter-rouge">trim</code> helper to remove whitespace from the start and end of the input:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{trim request.headers.X-Padded-Header}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{trim request.headers.X-Padded-Header}}
 
 {{#trim}}
     
@@ -898,9 +898,9 @@ regular expression passed in the second:</p>
 </code></pre></div></div>
 
 <h2 id="base64-helper">Base64 helper</h2>
-<p>The <code class="highlighter-rouge">base64</code> helper can be used to base64 encode and decode values:</p>
+<p>The <code class="language-plaintext highlighter-rouge">base64</code> helper can be used to base64 encode and decode values:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{base64 request.headers.X-Plain-Header}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{base64 request.headers.X-Plain-Header}}
 {{base64 request.headers.X-Encoded-Header decode=true}}
 
 {{#base64}}
@@ -917,9 +917,9 @@ Q29udGVudCB0byBkZWNvZGUK
 </code></pre></div></div>
 
 <h2 id="url-encoding-helper">URL encoding helper</h2>
-<p>The <code class="highlighter-rouge">urlEncode</code> helper can be used to URL encode and decode values:</p>
+<p>The <code class="language-plaintext highlighter-rouge">urlEncode</code> helper can be used to URL encode and decode values:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{urlEncode request.headers.X-Plain-Header}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{urlEncode request.headers.X-Plain-Header}}
 {{urlEncode request.headers.X-Encoded-Header decode=true}}
 
 {{#urlEncode}}
@@ -932,43 +932,43 @@ Content%20to%20decode
 </code></pre></div></div>
 
 <h2 id="form-helper">Form helper</h2>
-<p>The <code class="highlighter-rouge">formData</code> helper parses its input as an HTTP form, returning an object containing the individual fields as attributes.
-The helper takes the input string and variable name as its required parameters, with an optional <code class="highlighter-rouge">urlDecode</code> parameter
-indicating that values should be URL decoded. The folowing example will parse the request body as a form, then output a single field <code class="highlighter-rouge">formField3</code>:</p>
+<p>The <code class="language-plaintext highlighter-rouge">formData</code> helper parses its input as an HTTP form, returning an object containing the individual fields as attributes.
+The helper takes the input string and variable name as its required parameters, with an optional <code class="language-plaintext highlighter-rouge">urlDecode</code> parameter
+indicating that values should be URL decoded. The folowing example will parse the request body as a form, then output a single field <code class="language-plaintext highlighter-rouge">formField3</code>:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.formField3}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.formField3}}
 </code></pre></div></div>
 
 <p>If the form submitted has multiple values for a given field, these can be accessed by index:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.1}}, {{form.multiValueField.2}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.1}}, {{form.multiValueField.2}}
 {{formData request.body 'form' urlDecode=true}}{{form.multiValueField.first}}, {{form.multiValueField.last}}
 </code></pre></div></div>
 
 <h2 id="regular-expression-extract-helper">Regular expression extract helper</h2>
-<p>The <code class="highlighter-rouge">regexExtract</code> helper supports extraction of values matching a regular expresson from a string.</p>
+<p>The <code class="language-plaintext highlighter-rouge">regexExtract</code> helper supports extraction of values matching a regular expresson from a string.</p>
 
 <p>A single value can be extracted like this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '[A-Z]+'}}"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '[A-Z]+'}}"
 </code></pre></div></div>
 
 <p>Regex groups can be used to extract multiple parts into an object for later use (the last parameter is a variable name to which the object will be assigned):</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
 {{parts.0}},{{parts.1}},{{parts.2}}
 </code></pre></div></div>
 
 <p>Optionally, a default value can be specified for when there is no match.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract 'abc' '[0-9]+' default='my default value'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract 'abc' '[0-9]+' default='my default value'}}
 </code></pre></div></div>
 
 <h2 id="size-helper">Size helper</h2>
 
-<p>The <code class="highlighter-rouge">size</code> helper returns the size of a string, list or map:</p>
+<p>The <code class="language-plaintext highlighter-rouge">size</code> helper returns the size of a string, list or map:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{size 'abcde'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{size 'abcde'}}
 {{size request.query.things}}
 </code></pre></div></div>
 
@@ -976,13 +976,13 @@ indicating that values should be URL decoded. The folowing example will parse th
 
 <p>The local machine’s hostname can be printed:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{hostname}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{hostname}}
 </code></pre></div></div>
 
 <h2 id="system-property-helper">System property helper</h2>
 <p>Environment variables and system properties can be printed:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{systemValue type='ENVIRONMENT' key='PATH'}}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{systemValue type='ENVIRONMENT' key='PATH'}}
 {{systemValue type='PROPERTY' key='os.path'}}
 </code></pre></div></div>
 
@@ -1003,7 +1003,7 @@ are defined via a set of regular expressions. These can be configured when const
 
 <p>The regular expressions are matched in a case-insensitive manner.</p>
 
-<p>If no permitted system key patterns are set, a single default of <code class="highlighter-rouge">wiremock.*</code> will be used.</p>
+<p>If no permitted system key patterns are set, a single default of <code class="language-plaintext highlighter-rouge">wiremock.*</code> will be used.</p>
 
 <h2 id="custom-helpers">Custom helpers</h2>
 <p>Custom Handlebars helpers can be registered with the transformer on construction:</p>

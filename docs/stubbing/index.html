@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/verifying/" title="Verifying">
   
@@ -402,9 +402,9 @@ responses for requests matching criteria. These are described in detail in <a hr
 <h2 id="basic-stubbing">Basic stubbing</h2>
 
 <p>The following code will configure a response with a status of 200 to be
-returned when the relative URL exactly matches <code class="highlighter-rouge">/some/thing</code> (including
+returned when the relative URL exactly matches <code class="language-plaintext highlighter-rouge">/some/thing</code> (including
 query parameters). The body of the response will be “Hello world!” and a
-<code class="highlighter-rouge">Content-Type</code> header will be sent with a value of <code class="highlighter-rouge">text-plain</code>.</p>
+<code class="language-plaintext highlighter-rouge">Content-Type</code> header will be sent with a value of <code class="language-plaintext highlighter-rouge">text-plain</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">exactUrlOnly</span><span class="o">()</span> <span class="o">{</span>
@@ -422,13 +422,13 @@ query parameters). The body of the response will be “Hello world!” and a
   <p><strong>note</strong></p>
 
   <p>If you’d prefer to use slightly more BDDish language in your tests you
-can replace <code class="highlighter-rouge">stubFor</code> with <code class="highlighter-rouge">givenThat</code>.</p>
+can replace <code class="language-plaintext highlighter-rouge">stubFor</code> with <code class="language-plaintext highlighter-rouge">givenThat</code>.</p>
 </blockquote>
 
 <p>To create the stub described above via the JSON API, the following
 document can either be posted to
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code> or placed in a file with a
-<code class="highlighter-rouge">.json</code> extension under the <code class="highlighter-rouge">mappings</code> directory:</p>
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code> or placed in a file with a
+<code class="language-plaintext highlighter-rouge">.json</code> extension under the <code class="language-plaintext highlighter-rouge">mappings</code> directory:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -480,7 +480,7 @@ document can either be posted to
 <p>More DSL examples <a href="https://github.com/tomakehurst/wiremock/tree/master/src/test/java/ignored/Examples.java#374">can be found here</a>.</p>
 
 <p>HTTP methods currently supported are:
-<code class="highlighter-rouge">GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS</code>. You can specify <code class="highlighter-rouge">ANY</code> if
+<code class="language-plaintext highlighter-rouge">GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS</code>. You can specify <code class="language-plaintext highlighter-rouge">ANY</code> if
 you want the stub mapping to match on any request method.</p>
 
 <h3 id="setting-the-response-status-message">Setting the response status message</h3>
@@ -540,7 +540,7 @@ priority to a stub mapping facilitates this:</p>
             <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Resource state"</span><span class="o">)));</span>
 </code></pre></div></div>
 
-<p>Priority is set via the <code class="highlighter-rouge">priority</code> attribute in JSON:</p>
+<p>Priority is set via the <code class="language-plaintext highlighter-rouge">priority</code> attribute in JSON:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
@@ -622,12 +622,12 @@ priority to a stub mapping facilitates this:</p>
     </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>To read the body content from a file, place the file under the <code class="highlighter-rouge">__files</code>
-directory. By default this is expected to be under <code class="highlighter-rouge">src/test/resources</code>
+<p>To read the body content from a file, place the file under the <code class="language-plaintext highlighter-rouge">__files</code>
+directory. By default this is expected to be under <code class="language-plaintext highlighter-rouge">src/test/resources</code>
 when running from the JUnit rule. When running standalone it will be
 under the current directory in which the server was started. To make
-your stub use the file, simply call <code class="highlighter-rouge">bodyFile()</code> on the response builder
-with the file’s path relative to <code class="highlighter-rouge">__files</code>:</p>
+your stub use the file, simply call <code class="language-plaintext highlighter-rouge">bodyFile()</code> on the response builder
+with the file’s path relative to <code class="language-plaintext highlighter-rouge">__files</code>:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body-file"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
@@ -658,13 +658,13 @@ with the file’s path relative to <code class="highlighter-rouge">__files</code
   <p><strong>note</strong></p>
 
   <p>All strings used by WireMock, including the contents of body files are
-expected to be in <code class="highlighter-rouge">UTF-8</code> format. Passing strings in other character
+expected to be in <code class="language-plaintext highlighter-rouge">UTF-8</code> format. Passing strings in other character
 sets, whether by JVM configuration or body file encoding will most
 likely produce strange behaviour.</p>
 </blockquote>
 
-<p>A response body in binary format can be specified as a <code class="highlighter-rouge">byte[]</code> via an
-overloaded <code class="highlighter-rouge">body()</code>:</p>
+<p>A response body in binary format can be specified as a <code class="language-plaintext highlighter-rouge">byte[]</code> via an
+overloaded <code class="language-plaintext highlighter-rouge">body()</code>:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/binary-body"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
@@ -721,10 +721,10 @@ JSON documents):</p>
 
 <h2 id="saving-stubs">Saving stubs</h2>
 
-<p>Stub mappings which have been created can be persisted to the <code class="highlighter-rouge">mappings</code>
-directory via a call to <code class="highlighter-rouge">WireMock.saveAllMappings</code> in Java or posting a
+<p>Stub mappings which have been created can be persisted to the <code class="language-plaintext highlighter-rouge">mappings</code>
+directory via a call to <code class="language-plaintext highlighter-rouge">WireMock.saveAllMappings</code> in Java or posting a
 request with an empty body to
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/save</code>.</p>
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/save</code>.</p>
 
 <blockquote>
   <p><strong>note</strong>
@@ -752,7 +752,7 @@ Note that this feature is not available when running WireMock from a servlet con
 <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">).</span><span class="na">content</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="s">"Modified"</span><span class="o">));</span>
 </code></pre></div></div>
 
-<p>To do the equivalent via the JSON API, <code class="highlighter-rouge">PUT</code> the edited stub mapping to <code class="highlighter-rouge">/__admin/mappings/{id}</code>:</p>
+<p>To do the equivalent via the JSON API, <code class="language-plaintext highlighter-rouge">PUT</code> the edited stub mapping to <code class="language-plaintext highlighter-rouge">/__admin/mappings/{id}</code>:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -766,14 +766,14 @@ Note that this feature is not available when running WireMock from a servlet con
 </span></code></pre></div></div>
 
 <h2 id="file-serving">File serving</h2>
-<p>When running the standalone JAR, files placed under the <code class="highlighter-rouge">__files</code> directory will
+<p>When running the standalone JAR, files placed under the <code class="language-plaintext highlighter-rouge">__files</code> directory will
 be served up as if from under the docroot, except if stub mapping
 matching the URL exists. For example if a file exists
-<code class="highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match
-<code class="highlighter-rouge">/things/myfile.html</code> then hitting
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</code> will serve the file.</p>
+<code class="language-plaintext highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match
+<code class="language-plaintext highlighter-rouge">/things/myfile.html</code> then hitting
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</code> will serve the file.</p>
 
-<p>This feature is also available with the standard JAR. To use it, define the filesRoot using <code class="highlighter-rouge">options.withRootDirectory()</code>, i.e. <code class="highlighter-rouge">options.withRootDirectory(getClass.getResource("/wiremock").getPath)</code></p>
+<p>This feature is also available with the standard JAR. To use it, define the filesRoot using <code class="language-plaintext highlighter-rouge">options.withRootDirectory()</code>, i.e. <code class="language-plaintext highlighter-rouge">options.withRootDirectory(getClass.getResource("/wiremock").getPath)</code></p>
 
 <h2 id="removing-stubs">Removing stubs</h2>
 
@@ -787,40 +787,40 @@ matching the URL exists. For example if a file exists
 <span class="n">removeStub</span><span class="o">(</span><span class="n">stubMapping</span><span class="o">);</span>
 </code></pre></div></div>
 
-<p>They can be deleted via the HTTP API by issuing a <code class="highlighter-rouge">DELETE</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/{id}</code>
-where <code class="highlighter-rouge">id</code> is the UUID of the stub mapping, found in its <code class="highlighter-rouge">id</code> field.</p>
+<p>They can be deleted via the HTTP API by issuing a <code class="language-plaintext highlighter-rouge">DELETE</code> to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/{id}</code>
+where <code class="language-plaintext highlighter-rouge">id</code> is the UUID of the stub mapping, found in its <code class="language-plaintext highlighter-rouge">id</code> field.</p>
 
 <h2 id="reset">Reset</h2>
 
 <p>The WireMock server can be reset at any time, removing all stub mappings
 and deleting the request log. If you’re using either of the JUnit rules
 this will happen automatically at the start of every test case. However
-you can do it yourself via a call to <code class="highlighter-rouge">WireMock.reset()</code> in Java or
-sending a <code class="highlighter-rouge">POST</code> request with an empty body to
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/reset</code>.</p>
+you can do it yourself via a call to <code class="language-plaintext highlighter-rouge">WireMock.reset()</code> in Java or
+sending a <code class="language-plaintext highlighter-rouge">POST</code> request with an empty body to
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/reset</code>.</p>
 
-<p>To reset just the stub mappings leaving the request log intact send a <code class="highlighter-rouge">DELETE</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code>.</p>
+<p>To reset just the stub mappings leaving the request log intact send a <code class="language-plaintext highlighter-rouge">DELETE</code> to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code>.</p>
 
 <p>If you’ve created some file based stub mappings to be loaded at startup
 and you don’t want these to disappear when you do a reset you can call
-<code class="highlighter-rouge">WireMock.resetToDefault()</code> instead, or post an empty request to
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/reset</code>.</p>
+<code class="language-plaintext highlighter-rouge">WireMock.resetToDefault()</code> instead, or post an empty request to
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/reset</code>.</p>
 
 <h2 id="getting-all-currently-registered-stub-mappings">Getting all currently registered stub mappings</h2>
 
-<p>All stub mappings can be fetched in Java by calling <code class="highlighter-rouge">WireMock.listAllStubMappings()</code>.</p>
+<p>All stub mappings can be fetched in Java by calling <code class="language-plaintext highlighter-rouge">WireMock.listAllStubMappings()</code>.</p>
 
-<p>To fetch them via the HTTP API send a <code class="highlighter-rouge">GET</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code>.</p>
+<p>To fetch them via the HTTP API send a <code class="language-plaintext highlighter-rouge">GET</code> to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code>.</p>
 
 <p>Optionally limit and offset parameters can be specified to constrain the set returned e.g.
-<code class="highlighter-rouge">GET http://localhost:8080/__admin/mappings?limit=10&amp;offset=50</code></p>
+<code class="language-plaintext highlighter-rouge">GET http://localhost:8080/__admin/mappings?limit=10&amp;offset=50</code></p>
 
 <h2 id="getting-a-single-stub-mapping-by-id">Getting a single stub mapping by ID</h2>
 
-<p>A single stub mapping can be retrieved by ID in Java by calling <code class="highlighter-rouge">WireMock.getSingleStubMapping(id)</code> where <code class="highlighter-rouge">id</code> is the
+<p>A single stub mapping can be retrieved by ID in Java by calling <code class="language-plaintext highlighter-rouge">WireMock.getSingleStubMapping(id)</code> where <code class="language-plaintext highlighter-rouge">id</code> is the
 UUID of the stub mapping.</p>
 
-<p>Via the HTTP client a mapping can be retrieved by sending a <code class="highlighter-rouge">GET</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/{id}</code>.</p>
+<p>Via the HTTP client a mapping can be retrieved by sending a <code class="language-plaintext highlighter-rouge">GET</code> to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/{id}</code>.</p>
 
 <h2 id="bulk-importing-stubs">Bulk importing stubs</h2>
 
@@ -836,7 +836,7 @@ UUID of the stub mapping.</p>
     <span class="o">.</span><span class="na">deleteAllExistingStubsNotInImport</span><span class="o">());</span>
 </code></pre></div></div>
 
-<p>Via the JSON API, <code class="highlighter-rouge">POST</code> the to <code class="highlighter-rouge">/__admin/mappings/import</code>:</p>
+<p>Via the JSON API, <code class="language-plaintext highlighter-rouge">POST</code> the to <code class="language-plaintext highlighter-rouge">/__admin/mappings/import</code>:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"mappings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -871,12 +871,12 @@ UUID of the stub mapping.</p>
 <h3 id="existing-stubs-policy">Existing stubs policy</h3>
 
 <p>By default, if a stub in an import already exists (has an ID of a stub already loaded), then the existing stub will be overwritten.
-This can be changed by setting <code class="highlighter-rouge">duplicatePolicy</code> in the JSON to <code class="highlighter-rouge">IGNORE</code> or calling <code class="highlighter-rouge">ignoreExisting()</code> on the Java builder.</p>
+This can be changed by setting <code class="language-plaintext highlighter-rouge">duplicatePolicy</code> in the JSON to <code class="language-plaintext highlighter-rouge">IGNORE</code> or calling <code class="language-plaintext highlighter-rouge">ignoreExisting()</code> on the Java builder.</p>
 
 <h3 id="replacing-all-stubs-with-the-import">Replacing all stubs with the import</h3>
 
 <p>If you want to ensure that the only stubs loaded after the import has completed are the ones it contains, you can set
-<code class="highlighter-rouge">"deleteAllNotInImport": true</code> in the JSON or call <code class="highlighter-rouge">deleteAllExistingStubsNotInImport()</code> on the Java builder.</p>
+<code class="language-plaintext highlighter-rouge">"deleteAllNotInImport": true</code> in the JSON or call <code class="language-plaintext highlighter-rouge">deleteAllExistingStubsNotInImport()</code> on the Java builder.</p>
 
         
       </section>

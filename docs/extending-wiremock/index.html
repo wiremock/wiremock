@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/getting-started/" title="Getting Started">
   
@@ -415,32 +415,32 @@ mechanism it is possible to dynamically modify responses, allowing
 header re-writing and templated responses amongst other things.</p>
 
 <p>There are two ways to dynamically transform output from WireMock.
-WireMock stub mappings consist in part of a <code class="highlighter-rouge">ResponseDefinition</code>. This
+WireMock stub mappings consist in part of a <code class="language-plaintext highlighter-rouge">ResponseDefinition</code>. This
 is essentially a description that WireMock (sometimes) combines with
 other information when producing the final response. A basic
-<code class="highlighter-rouge">ResponseDefinition</code> closely resembles an actual response in that it has
+<code class="language-plaintext highlighter-rouge">ResponseDefinition</code> closely resembles an actual response in that it has
 status, headers and body fields, but it can also indicate to WireMock
 that the actual response should be the result of a proxy request to
 another system or a fault of some kind.</p>
 
-<p><code class="highlighter-rouge">ResponseDefinition</code> objects are “rendered” by WireMock into a
-<code class="highlighter-rouge">Response</code>, and it is possible to interject either before or after this
+<p><code class="language-plaintext highlighter-rouge">ResponseDefinition</code> objects are “rendered” by WireMock into a
+<code class="language-plaintext highlighter-rouge">Response</code>, and it is possible to interject either before or after this
 process when writing an extension, meaning you can either transform the
-<code class="highlighter-rouge">ResponseDefinition</code> prior to rendering, or the rendered <code class="highlighter-rouge">Response</code>
+<code class="language-plaintext highlighter-rouge">ResponseDefinition</code> prior to rendering, or the rendered <code class="language-plaintext highlighter-rouge">Response</code>
 afterwards.</p>
 
 <h2 id="parameters">Parameters</h2>
 
 <p>Transformer extensions can have parameters passed to them on a per-stub
-basis via a <code class="highlighter-rouge">Parameters</code> object passed to their primary method.
-<code class="highlighter-rouge">Parameters</code> derives from Java’s <code class="highlighter-rouge">Map</code> and can be therefore arbitrarily
+basis via a <code class="language-plaintext highlighter-rouge">Parameters</code> object passed to their primary method.
+<code class="language-plaintext highlighter-rouge">Parameters</code> derives from Java’s <code class="language-plaintext highlighter-rouge">Map</code> and can be therefore arbitrarily
 deeply nested. Only types compatible with JSON (strings, numbers,
 booleans, maps and lists) can be used.</p>
 
 <h2 id="response-definition-transformation">Response definition transformation</h2>
 
-<p>To transform <code class="highlighter-rouge">ResponseDefinition</code>, extend the
-<code class="highlighter-rouge">ResponseDefinitionTransformer</code> class:</p>
+<p>To transform <code class="language-plaintext highlighter-rouge">ResponseDefinition</code>, extend the
+<code class="language-plaintext highlighter-rouge">ResponseDefinitionTransformer</code> class:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">ExampleTransformer</span> <span class="kd">extends</span> <span class="nc">ResponseDefinitionTransformer</span> <span class="o">{</span>
 
@@ -538,9 +538,9 @@ parameters in one call:</p>
 <h3 id="response-transformation">Response transformation</h3>
 
 <p>A response transformer extension class is identical to
-<code class="highlighter-rouge">ResponseDefinitionTransformer</code> with the exception that it takes a
-<code class="highlighter-rouge">Response</code> in its transform method’s parameter list and returns a
-<code class="highlighter-rouge">Response</code>.</p>
+<code class="language-plaintext highlighter-rouge">ResponseDefinitionTransformer</code> with the exception that it takes a
+<code class="language-plaintext highlighter-rouge">Response</code> in its transform method’s parameter list and returns a
+<code class="language-plaintext highlighter-rouge">Response</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">StubResponseTransformerWithParams</span> <span class="kd">extends</span> <span class="nc">ResponseTransformer</span> <span class="o">{</span>
 
@@ -567,8 +567,8 @@ sufficient, you can register one or more request matcher classes
 containing your own logic.</p>
 
 <p>Custom matchers can be attached directly to stubs via the Java API when
-using the local admin interface (by calling <code class="highlighter-rouge">stubFor(...)</code> on
-<code class="highlighter-rouge">WireMockServer</code> or <code class="highlighter-rouge">WireMockRule</code>). They can also be added via the
+using the local admin interface (by calling <code class="language-plaintext highlighter-rouge">stubFor(...)</code> on
+<code class="language-plaintext highlighter-rouge">WireMockServer</code> or <code class="language-plaintext highlighter-rouge">WireMockRule</code>). They can also be added via the
 extension mechanism and used with individual stubs by referring to them
 by name as described above for response transformers.</p>
 
@@ -602,7 +602,7 @@ to matchers.</p>
 </code></pre></div></div>
 
 <p>To create a matcher to be referred to by name, create a class extending
-<code class="highlighter-rouge">RequestMatcher</code> and register it as an extension as per the instructions
+<code class="language-plaintext highlighter-rouge">RequestMatcher</code> and register it as an extension as per the instructions
 at the top of this page e.g.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BodyLengthMatcher</span> <span class="kd">extends</span> <span class="nc">RequestMatcherExtension</span> <span class="o">{</span>
@@ -652,7 +652,7 @@ at the top of this page e.g.</p>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
 </code></pre></div></div>
 
-<p>Note that inline matchers of this form can only be used from Java, and only when <code class="highlighter-rouge">stubFor</code> is being called against a local
+<p>Note that inline matchers of this form can only be used from Java, and only when <code class="language-plaintext highlighter-rouge">stubFor</code> is being called against a local
 WireMock server. An exception will be thrown if attempting to use an inline custom matcher against a remote instance.</p>
 
 <p>Custom matchers defined as extensions can also be combined with standard matchers.</p>
@@ -685,19 +685,19 @@ WireMock server. An exception will be thrown if attempting to use an inline cust
 
 <h2 id="post-serve-actions">Post-serve actions</h2>
 
-<p>You can add behaviour that runs after a response has been completely served by extending <code class="highlighter-rouge">PostServeAction</code> and registering
+<p>You can add behaviour that runs after a response has been completely served by extending <code class="language-plaintext highlighter-rouge">PostServeAction</code> and registering
 as an extension (see above for details).</p>
 
-<p><code class="highlighter-rouge">PostServeAction</code> has two template methods either or both of which can be overridden depending on desired behaviour.
-To add per-stub behaviour override <code class="highlighter-rouge">doAction(...)</code>. Overriding <code class="highlighter-rouge">doGlobalAction(...)</code> will add the behaviour globally.</p>
+<p><code class="language-plaintext highlighter-rouge">PostServeAction</code> has two template methods either or both of which can be overridden depending on desired behaviour.
+To add per-stub behaviour override <code class="language-plaintext highlighter-rouge">doAction(...)</code>. Overriding <code class="language-plaintext highlighter-rouge">doGlobalAction(...)</code> will add the behaviour globally.</p>
 
 <h2 id="admin-api-extensions">Admin API extensions</h2>
 
-<p>Additional API routes under WireMock’s <code class="highlighter-rouge">/__admin</code> endpoint can be configured by implementing <code class="highlighter-rouge">AdminApiExtension</code>.</p>
+<p>Additional API routes under WireMock’s <code class="language-plaintext highlighter-rouge">/__admin</code> endpoint can be configured by implementing <code class="language-plaintext highlighter-rouge">AdminApiExtension</code>.</p>
 
 <h2 id="listening-for-requests">Listening for requests</h2>
 
-<p>If you’re using the JUnit rule or you’ve started <code class="highlighter-rouge">WireMockServer</code>
+<p>If you’re using the JUnit rule or you’ve started <code class="language-plaintext highlighter-rouge">WireMockServer</code>
 programmatically, you can register listeners to be called when a request
 is received.</p>
 
@@ -719,15 +719,15 @@ is received.</p>
 <h2 id="listening-for-raw-traffic">Listening for raw traffic</h2>
 
 <p>If you would like to observe raw HTTP traffic to and from Jetty 
-for debugging purposes you can use a <code class="highlighter-rouge">WiremockNetworkTrafficListener</code>.</p>
+for debugging purposes you can use a <code class="language-plaintext highlighter-rouge">WiremockNetworkTrafficListener</code>.</p>
 
 <p>One scenario where it can be useful is where Jetty 
 alters the response from Wiremock before sending it to the client.
 (An example of that is where Jetty appends a –gzip postfix to the ETag response header
 if the response is gzipped.) 
-Using a <code class="highlighter-rouge">RequestListener</code> in this case would not show those alterations.</p>
+Using a <code class="language-plaintext highlighter-rouge">RequestListener</code> in this case would not show those alterations.</p>
 
-<p>To output all raw traffic to console use <code class="highlighter-rouge">ConsoleNotifyingWiremockNetworkTrafficListener</code>, for example:</p>
+<p>To output all raw traffic to console use <code class="language-plaintext highlighter-rouge">ConsoleNotifyingWiremockNetworkTrafficListener</code>, for example:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">new</span> <span class="nc">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
     <span class="o">.</span><span class="na">networkTrafficListener</span><span class="o">(</span><span class="k">new</span> <span class="nc">ConsoleNotifyingWiremockNetworkTrafficListener</span><span class="o">()));</span>
@@ -735,14 +735,14 @@ Using a <code class="highlighter-rouge">RequestListener</code> in this case woul
 
 <p>If you would like to collect the traffic 
 and for example add it to your acceptance test’s output, 
-you can use the <code class="highlighter-rouge">CollectingNetworkTrafficListener</code>.</p>
+you can use the <code class="language-plaintext highlighter-rouge">CollectingNetworkTrafficListener</code>.</p>
 
 <h2 id="intercepting-and-modifying-requests">Intercepting and modifying requests</h2>
 
 <p>Requests to both stubs and the admin API can be intercepted and either modified or halted with an immediate response.
 This supports a number of use cases including: authentication, URL rewriting and request header injection.</p>
 
-<p>To intercept stub requests, create a class that extends <code class="highlighter-rouge">StubRequestFilter</code>. For instance, to perform simple authentication:</p>
+<p>To intercept stub requests, create a class that extends <code class="language-plaintext highlighter-rouge">StubRequestFilter</code>. For instance, to perform simple authentication:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpleAuthRequestFilter</span> <span class="kd">extends</span> <span class="nc">StubRequestFilter</span> <span class="o">{</span>
 
@@ -767,11 +767,11 @@ This supports a number of use cases including: authentication, URL rewriting and
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="nc">SimpleAuthRequestFilter</span><span class="o">()));</span>
 </code></pre></div></div>
 
-<p>To intercept admin API follow the same process, but extend <code class="highlighter-rouge">AdminRequestFilter</code>.</p>
+<p>To intercept admin API follow the same process, but extend <code class="language-plaintext highlighter-rouge">AdminRequestFilter</code>.</p>
 
 <h3 id="modifying-the-request-during-interception">Modifying the request during interception</h3>
 
-<p>To modify the HTTP request, the simplest approach is to wrap the original request with a <code class="highlighter-rouge">RequestWrapper</code> then continue e.g.</p>
+<p>To modify the HTTP request, the simplest approach is to wrap the original request with a <code class="language-plaintext highlighter-rouge">RequestWrapper</code> then continue e.g.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">UrlAndHeadersModifyingFilter</span> <span class="kd">extends</span> <span class="nc">StubRequestFilter</span> <span class="o">{</span>
 
@@ -792,12 +792,12 @@ This supports a number of use cases including: authentication, URL rewriting and
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p><code class="highlighter-rouge">RequestWrapper</code> is a builder pattern and allows any number of changes to the request. It supports the following changes:</p>
+<p><code class="language-plaintext highlighter-rouge">RequestWrapper</code> is a builder pattern and allows any number of changes to the request. It supports the following changes:</p>
 
 <ul>
-  <li>Transformation of the URL. <code class="highlighter-rouge">transformAbsoluteUrl</code> takes a <code class="highlighter-rouge">FieldTransformer</code> as a parameter (or equivalent lambda) which maps
+  <li>Transformation of the URL. <code class="language-plaintext highlighter-rouge">transformAbsoluteUrl</code> takes a <code class="language-plaintext highlighter-rouge">FieldTransformer</code> as a parameter (or equivalent lambda) which maps
 from the old to the new URL. Note that the URL passed in is absolute, and the returned URL must also be.</li>
-  <li>Addition, removal and transformation (via <code class="highlighter-rouge">FieldTransformer</code>) of headers.</li>
+  <li>Addition, removal and transformation (via <code class="language-plaintext highlighter-rouge">FieldTransformer</code>) of headers.</li>
   <li>Addition, removal and transformation of cookies.</li>
   <li>Changing the HTTP method.</li>
   <li>Transformation of the request body.</li>

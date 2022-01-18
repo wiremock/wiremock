@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/request-matching/" title="Request Matching">
   
@@ -414,7 +414,7 @@ Once that’s running visit the recorder UI page at <a href="http://localhost:80
 
 <p><img src="/images/recorder-screenshot.png" alt="Recorder UI" /></p>
 
-<p>Enter the URL you wish to record from in the target URL field and click the Record button. You can use <code class="highlighter-rouge">http://example.mocklab.io</code> to try it out.</p>
+<p>Enter the URL you wish to record from in the target URL field and click the Record button. You can use <code class="language-plaintext highlighter-rouge">http://example.mocklab.io</code> to try it out.</p>
 
 <p>Now you need to make a request through WireMock to the target API so that it can be recorded. If you’re using the example URL, you can generate a request using curl:</p>
 
@@ -423,12 +423,12 @@ Once that’s running visit the recorder UI page at <a href="http://localhost:80
 
 <p>Now click stop. You should see a message indicating that one stub was captured.</p>
 
-<p>You should also see that a file has been created called something like <code class="highlighter-rouge">recordables_123-40a93c4a-d378-4e07-8321-6158d5dbcb29.json</code>
-under the <code class="highlighter-rouge">mappings</code> directory created when WireMock started up, and that a new mapping has appeared at <a href="http://localhost:8080/__admin/mappings">http://localhost:8080/__admin/mappings</a>.</p>
+<p>You should also see that a file has been created called something like <code class="language-plaintext highlighter-rouge">recordables_123-40a93c4a-d378-4e07-8321-6158d5dbcb29.json</code>
+under the <code class="language-plaintext highlighter-rouge">mappings</code> directory created when WireMock started up, and that a new mapping has appeared at <a href="http://localhost:8080/__admin/mappings">http://localhost:8080/__admin/mappings</a>.</p>
 
 <p>Requesting the same URL again (possibly disabling your wifi first if you want firm proof) will now serve the recorded result:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ curl http://localhost:8080/recordables/123
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ curl http://localhost:8080/recordables/123
 
 {
   "message": "Congratulations on your first recording!"
@@ -477,7 +477,7 @@ under the <code class="highlighter-rouge">mappings</code> directory created when
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/recordings/stop
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/recordings/stop
 </code></pre></div></div>
 
 <h2 id="snapshotting">Snapshotting</h2>
@@ -533,7 +533,7 @@ You might want to do this e.g. if you want to capture requests made by your appl
 
 <p>API:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/recordings/snapshot
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/recordings/snapshot
 {}
 </code></pre></div></div>
 
@@ -652,36 +652,36 @@ You might want to do this e.g. if you want to capture requests made by your appl
 
 <h3 id="filtering">Filtering</h3>
 
-<p><code class="highlighter-rouge">filters</code> supports selection of requests to be recorded according to the same <a href="/docs/request-matching">request matcher</a> format used elsewhere in WireMock.</p>
+<p><code class="language-plaintext highlighter-rouge">filters</code> supports selection of requests to be recorded according to the same <a href="/docs/request-matching">request matcher</a> format used elsewhere in WireMock.</p>
 
-<p>Additionally, when snapshotting the <code class="highlighter-rouge">ids</code> parameter allows specific serve events to be selected by ID.</p>
+<p>Additionally, when snapshotting the <code class="language-plaintext highlighter-rouge">ids</code> parameter allows specific serve events to be selected by ID.</p>
 
-<p>The <code class="highlighter-rouge">allowNonProxied</code> attribute, when set to <code class="highlighter-rouge">true</code> will cause requests that did not get proxied to a target service to be recorded/snapshotted. This is useful if
+<p>The <code class="language-plaintext highlighter-rouge">allowNonProxied</code> attribute, when set to <code class="language-plaintext highlighter-rouge">true</code> will cause requests that did not get proxied to a target service to be recorded/snapshotted. This is useful if
 you wish to “teach” WireMock your API by feeding it requests from your app that initially don’t match a stub, then snapshotting to generate the correct stubs.</p>
 
 <h3 id="capturing-request-headers">Capturing request headers</h3>
 
 <p>You may want your recorded stub mappings to match on one or more specific request headers.
 For instance if you’re intending to record from an API that supports both XML and JSON responses via content negotiation,
-then you will need to capture the value of the <code class="highlighter-rouge">Accept</code> header sent in each request.</p>
+then you will need to capture the value of the <code class="language-plaintext highlighter-rouge">Accept</code> header sent in each request.</p>
 
-<p>The <code class="highlighter-rouge">captureHeaders</code> attribute allows you to specify a map of header names to match parameter objects. Currently the only parameter
-available is <code class="highlighter-rouge">caseInsensitive</code>, which defaults to false if absent.</p>
+<p>The <code class="language-plaintext highlighter-rouge">captureHeaders</code> attribute allows you to specify a map of header names to match parameter objects. Currently the only parameter
+available is <code class="language-plaintext highlighter-rouge">caseInsensitive</code>, which defaults to false if absent.</p>
 
 <h3 id="body-files-extraction-size-criteria">Body files extraction size criteria</h3>
 
-<p>By default, recorded response bodies will be included directly in the stub mapping response part, via the <code class="highlighter-rouge">body</code> attribute for text or <code class="highlighter-rouge">base64Body</code> for binary content.</p>
+<p>By default, recorded response bodies will be included directly in the stub mapping response part, via the <code class="language-plaintext highlighter-rouge">body</code> attribute for text or <code class="language-plaintext highlighter-rouge">base64Body</code> for binary content.</p>
 
-<p>However, this can be overridden by setting the <code class="highlighter-rouge">textSizeThreshold</code> and <code class="highlighter-rouge">binarySizeThreshold</code> values under <code class="highlighter-rouge">extractBodyCriteria</code>.
+<p>However, this can be overridden by setting the <code class="language-plaintext highlighter-rouge">textSizeThreshold</code> and <code class="language-plaintext highlighter-rouge">binarySizeThreshold</code> values under <code class="language-plaintext highlighter-rouge">extractBodyCriteria</code>.
 The size values are of type string, and support friendly syntax for specifying the order of magnitude e.g.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"56 kb"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"56 kb"
 "10 Mb"
 "18.2 GB"
 "255" // bytes when no magnitude specified
 </code></pre></div></div>
 
-<p>In the Java DSL these values are specified as a <code class="highlighter-rouge">long</code> number of bytes:</p>
+<p>In the Java DSL these values are specified as a <code class="language-plaintext highlighter-rouge">long</code> number of bytes:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">recordSpec</span><span class="o">().</span><span class="na">extractBinaryBodiesOver</span><span class="o">(</span><span class="mi">204800</span><span class="o">)</span>
 </code></pre></div></div>
@@ -699,17 +699,17 @@ If you only require the IDs of captured stubs you can specify:</p>
 <h3 id="persist-stubs">Persist stubs</h3>
 
 <p>By default generated stubs will be set to persistent, meaning that they will be saved to the file system
-(or other back-end if you’ve implemented your own <code class="highlighter-rouge">MappingsSource</code>) and will survive calls to reset mappings to default.</p>
+(or other back-end if you’ve implemented your own <code class="language-plaintext highlighter-rouge">MappingsSource</code>) and will survive calls to reset mappings to default.</p>
 
-<p>Setting <code class="highlighter-rouge">persist</code> to <code class="highlighter-rouge">false</code> means that stubs will not be saved and will be deleted on the next reset.</p>
+<p>Setting <code class="language-plaintext highlighter-rouge">persist</code> to <code class="language-plaintext highlighter-rouge">false</code> means that stubs will not be saved and will be deleted on the next reset.</p>
 
 <h3 id="repeats-as-scenarios">Repeats as scenarios</h3>
 
 <p>What happens when the recorder sees two identical requests that produce different results?</p>
 
-<p>There are two ways to handle this. Setting <code class="highlighter-rouge">repeatsAsScenarios</code> to <code class="highlighter-rouge">false</code> means that after the first request, subsequent identical ones will be ignored.</p>
+<p>There are two ways to handle this. Setting <code class="language-plaintext highlighter-rouge">repeatsAsScenarios</code> to <code class="language-plaintext highlighter-rouge">false</code> means that after the first request, subsequent identical ones will be ignored.</p>
 
-<p>However, when set to <code class="highlighter-rouge">true</code> (which is the default if omitted), multiple identical requests will be added to a <a href="/docs/stateful-behaviour">Scenario</a>, meaning that when
+<p>However, when set to <code class="language-plaintext highlighter-rouge">true</code> (which is the default if omitted), multiple identical requests will be added to a <a href="/docs/stateful-behaviour">Scenario</a>, meaning that when
 playing back, a series of requests matching this stub will yield the same series of responses captured during recording. If more requests are made after the end of the series
 is reached, the last response will continue to be returned.</p>
 
@@ -717,9 +717,9 @@ is reached, the last response will continue to be returned.</p>
 
 <p>If you need even more control over how your recorded stubs are generated, you can write one or more custom transformers that will be applied to stubs as they are captured.</p>
 
-<p>A transformer is an implementations of <code class="highlighter-rouge">StubMappingTransformer</code> and needs to be registered when starting WireMock as described in <a href="/docs/extending-wiremock">Extending WireMock</a>.</p>
+<p>A transformer is an implementations of <code class="language-plaintext highlighter-rouge">StubMappingTransformer</code> and needs to be registered when starting WireMock as described in <a href="/docs/extending-wiremock">Extending WireMock</a>.</p>
 
-<p>Transformer implementations supply a name, and this is used to identify them in the <code class="highlighter-rouge">transformers</code> parameter e.g.</p>
+<p>Transformer implementations supply a name, and this is used to identify them in the <code class="language-plaintext highlighter-rouge">transformers</code> parameter e.g.</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"transformer-one"</span><span class="p">,</span><span class="w"> </span><span class="s2">"transformer-two"</span><span class="p">]</span><span class="w">
 </span></code></pre></div></div>
@@ -735,9 +735,9 @@ is reached, the last response will continue to be returned.</p>
 
 <h3 id="request-body-matching">Request body matching</h3>
 
-<p>By default, the body match operator for a recorded stub is based on the <code class="highlighter-rouge">Content-Type</code> header of the request. For MIME types containing the string “json”, the operator will be <code class="highlighter-rouge">equalToJson</code> with both the <code class="highlighter-rouge">ignoreArrayOrder</code> and <code class="highlighter-rouge">ignoreExtraElements</code> options set to <code class="highlighter-rouge">true</code>. For MIME types containing <code class="highlighter-rouge">xml</code>, it will use <code class="highlighter-rouge">equalToXml</code>. Otherwise, it will use <code class="highlighter-rouge">equalTo</code> with the <code class="highlighter-rouge">caseInsensitive</code> option set to <code class="highlighter-rouge">false</code>.</p>
+<p>By default, the body match operator for a recorded stub is based on the <code class="language-plaintext highlighter-rouge">Content-Type</code> header of the request. For MIME types containing the string “json”, the operator will be <code class="language-plaintext highlighter-rouge">equalToJson</code> with both the <code class="language-plaintext highlighter-rouge">ignoreArrayOrder</code> and <code class="language-plaintext highlighter-rouge">ignoreExtraElements</code> options set to <code class="language-plaintext highlighter-rouge">true</code>. For MIME types containing <code class="language-plaintext highlighter-rouge">xml</code>, it will use <code class="language-plaintext highlighter-rouge">equalToXml</code>. Otherwise, it will use <code class="language-plaintext highlighter-rouge">equalTo</code> with the <code class="language-plaintext highlighter-rouge">caseInsensitive</code> option set to <code class="language-plaintext highlighter-rouge">false</code>.</p>
 
-<p>This behavior can be customized via the <code class="highlighter-rouge">requestBodyPattern</code> parameter, which accepts a <code class="highlighter-rouge">matcher</code> (either <code class="highlighter-rouge">equalTo</code>, <code class="highlighter-rouge">equalToJson</code>, <code class="highlighter-rouge">equalToXml</code>, or <code class="highlighter-rouge">auto</code>) and any relevant matcher options (<code class="highlighter-rouge">ignoreArrayOrder</code>, <code class="highlighter-rouge">ignoreExtraElements</code>, or <code class="highlighter-rouge">caseInsensitive</code>). For example, here’s how to preserve the default behavior, but set <code class="highlighter-rouge">ignoreArrayOrder</code> to <code class="highlighter-rouge">false</code> when <code class="highlighter-rouge">equalToJson</code> is used:</p>
+<p>This behavior can be customized via the <code class="language-plaintext highlighter-rouge">requestBodyPattern</code> parameter, which accepts a <code class="language-plaintext highlighter-rouge">matcher</code> (either <code class="language-plaintext highlighter-rouge">equalTo</code>, <code class="language-plaintext highlighter-rouge">equalToJson</code>, <code class="language-plaintext highlighter-rouge">equalToXml</code>, or <code class="language-plaintext highlighter-rouge">auto</code>) and any relevant matcher options (<code class="language-plaintext highlighter-rouge">ignoreArrayOrder</code>, <code class="language-plaintext highlighter-rouge">ignoreExtraElements</code>, or <code class="language-plaintext highlighter-rouge">caseInsensitive</code>). For example, here’s how to preserve the default behavior, but set <code class="language-plaintext highlighter-rouge">ignoreArrayOrder</code> to <code class="language-plaintext highlighter-rouge">false</code> when <code class="language-plaintext highlighter-rouge">equalToJson</code> is used:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auto"</span><span class="p">,</span><span class="w">
@@ -745,7 +745,7 @@ is reached, the last response will continue to be returned.</p>
   </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>If you want to always match request bodies with <code class="highlighter-rouge">equalTo</code> case-insensitively, regardless of the MIME type, use:</p>
+<p>If you want to always match request bodies with <code class="language-plaintext highlighter-rouge">equalTo</code> case-insensitively, regardless of the MIME type, use:</p>
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"equalTo"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
@@ -755,7 +755,7 @@ is reached, the last response will continue to be returned.</p>
 <blockquote>
   <p><strong>note</strong></p>
 
-  <p>The <code class="highlighter-rouge">targetBaseUrl</code> parameter will be ignored when snapshotting and the <code class="highlighter-rouge">filters/ids</code> parameter will be ignored when recording.</p>
+  <p>The <code class="language-plaintext highlighter-rouge">targetBaseUrl</code> parameter will be ignored when snapshotting and the <code class="language-plaintext highlighter-rouge">filters/ids</code> parameter will be ignored when recording.</p>
 </blockquote>
 
 

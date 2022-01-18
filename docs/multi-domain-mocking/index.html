@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/proxying/" title="Proxying">
   
@@ -399,14 +399,14 @@ configuration. It can also avoid some of the headaches associated with binding t
 <p>The key steps to enabling this configuration are:</p>
 
 <ol>
-  <li>Enable browser (forward) proxying via <code class="highlighter-rouge">.enableBrowserProxying(true)</code> in the startup options.</li>
-  <li>Configure the JVM’s proxy settings to point to the WireMock instance using <code class="highlighter-rouge">JvmProxyConfigurer</code>.</li>
+  <li>Enable browser (forward) proxying via <code class="language-plaintext highlighter-rouge">.enableBrowserProxying(true)</code> in the startup options.</li>
+  <li>Configure the JVM’s proxy settings to point to the WireMock instance using <code class="language-plaintext highlighter-rouge">JvmProxyConfigurer</code>.</li>
 </ol>
 
 <p>The following sections detail how to achieve this in various deployment contexts.</p>
 
 <h2 id="configuring-for-junit-jupiter">Configuring for JUnit Jupiter</h2>
-<p>The simplest way to enable this mode if you’re using JUnit Jupiter it to toggle it on via the <code class="highlighter-rouge">WireMockExtension</code>. See the
+<p>The simplest way to enable this mode if you’re using JUnit Jupiter it to toggle it on via the <code class="language-plaintext highlighter-rouge">WireMockExtension</code>. See the
 <a href="/docs/junit-jupiter/#proxy-mode">Junit Jupiter Proxy Mode</a> for details.</p>
 
 <h2 id="configuring-for-junit-4x">Configuring for JUnit 4.x</h2>
@@ -414,7 +414,7 @@ configuration. It can also avoid some of the headaches associated with binding t
 <ol>
   <li>Create the rule as usual with browser proxying enabled.</li>
   <li>Ensure our HTTP client (the one used by our app to talk to the API we’re mocking) honours the system properties relating to proxy servers.</li>
-  <li>Set the proxy properties using <code class="highlighter-rouge">JvmProxyConfigurer</code> before each test case and unset them afterwards.</li>
+  <li>Set the proxy properties using <code class="language-plaintext highlighter-rouge">JvmProxyConfigurer</code> before each test case and unset them afterwards.</li>
   <li>Specify the host name we’re targeting when creating stubs.</li>
 </ol>
 
@@ -464,9 +464,9 @@ configuration. It can also avoid some of the headaches associated with binding t
 <h2 id="configuring-for-other-java">Configuring for other Java</h2>
 <p>To use this mode from Java code we:</p>
 <ol>
-  <li>Create and start a <code class="highlighter-rouge">WireMockServer</code> instance with browser proxying enabled.</li>
+  <li>Create and start a <code class="language-plaintext highlighter-rouge">WireMockServer</code> instance with browser proxying enabled.</li>
   <li>Ensure our HTTP client (the one used by our app to talk to the API we’re mocking) honours the system properties relating to proxy servers</li>
-  <li>Set the proxy properties using <code class="highlighter-rouge">JvmProxyConfigurer</code> before each bit of work and unset them afterwards.</li>
+  <li>Set the proxy properties using <code class="language-plaintext highlighter-rouge">JvmProxyConfigurer</code> before each bit of work and unset them afterwards.</li>
   <li>Specify the host name we’re targeting when creating stubs.</li>
 </ol>
 

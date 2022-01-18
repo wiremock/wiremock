@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/webhooks-and-callbacks/" title="Webhooks and Callbacks">
   
@@ -401,7 +401,7 @@ of received requests. This can be disabled for load testing - see the <a href="/
 
 <h2 id="verification-failures-console-output-and-intellij">Verification failures, console output and IntelliJ</h2>
 
-<p>When verifying via the Java API all failed verifications will result in a <code class="highlighter-rouge">VerificationException</code> being thrown.
+<p>When verifying via the Java API all failed verifications will result in a <code class="language-plaintext highlighter-rouge">VerificationException</code> being thrown.
 <img src="/images/verification-exception.png" alt="Verification exception" /></p>
 
 <p>The message text in the exception is formatted to enable IntelliJ’s failure comparison view:
@@ -416,7 +416,7 @@ at least once:</p>
         <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"text/xml"</span><span class="o">)));</span>
 </code></pre></div></div>
 
-<p>The criteria part in the parameter to <code class="highlighter-rouge">postRequestedFor()</code> uses the same
+<p>The criteria part in the parameter to <code class="language-plaintext highlighter-rouge">postRequestedFor()</code> uses the same
 builder as for stubbing, so all of the same predicates are available.
 See <a href="/docs/stubbing/">Stubbing</a> for more details.</p>
 
@@ -443,7 +443,7 @@ number of requests matching the specified criteria (and in fact this is
 what the Java method does under the hood).</p>
 
 <p>This can be done by posting a JSON document containing the criteria to
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/count</code>:</p>
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/count</code>:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
@@ -472,7 +472,7 @@ along with additional data about whether the request was matched by a stub mappi
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">List</span><span class="o">&lt;</span><span class="nc">ServeEvent</span><span class="o">&gt;</span> <span class="n">allServeEvents</span> <span class="o">=</span> <span class="n">getAllServeEvents</span><span class="o">();</span>
 </code></pre></div></div>
 
-<p>And via the HTTP API by sending a <code class="highlighter-rouge">GET</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests</code>:</p>
+<p>And via the HTTP API by sending a <code class="language-plaintext highlighter-rouge">GET</code> to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests</code>:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nl">"requests"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -537,11 +537,11 @@ along with additional data about whether the request was matched by a stub mappi
 
 <p>Optionally the results can be filtered to those occuring after a specififed (ISO8601) date-time. Also, the result set can optionally be limited in size
 e.g. to return the most recent three results after the 7th of June 2016 12pm send:
-<code class="highlighter-rouge">GET http://localhost:8080/__admin/requests?since=2016-06-06T12:00:00&amp;limit=3</code></p>
+<code class="language-plaintext highlighter-rouge">GET http://localhost:8080/__admin/requests?since=2016-06-06T12:00:00&amp;limit=3</code></p>
 
 <p>Results can also be filtered to include only unmatched requests via a query parameter:</p>
 
-<p><code class="highlighter-rouge">GET http://localhost:8080/__admin/requests?unmatched=true</code></p>
+<p><code class="language-plaintext highlighter-rouge">GET http://localhost:8080/__admin/requests?unmatched=true</code></p>
 
 <p>In Java:</p>
 
@@ -550,7 +550,7 @@ e.g. to return the most recent three results after the 7th of June 2016 12pm sen
 
 <p>Likewise, the results can be filtered to include only requests matching a specific stub ID:</p>
 
-<p><code class="highlighter-rouge">GET http://localhost:8080/__admin/requests?matchingStub=59651373-6deb-4707-847c-9e8caf63266e</code></p>
+<p><code class="language-plaintext highlighter-rouge">GET http://localhost:8080/__admin/requests?matchingStub=59651373-6deb-4707-847c-9e8caf63266e</code></p>
 
 <p>In Java:</p>
 
@@ -566,7 +566,7 @@ e.g. to return the most recent three results after the 7th of June 2016 12pm sen
 </code></pre></div></div>
 
 <p>And in JSON + HTTP by posting a criteria document (of the same form as
-for request counting) to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/find</code>,
+for request counting) to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/find</code>,
 which will return a response like this:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
@@ -611,7 +611,7 @@ which will return a response like this:</p>
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">removeServeEvent</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
 </code></pre></div></div>
 
-<p>Or via the HTTP API by issuing a <code class="highlighter-rouge">DELETE</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/{id}</code>.</p>
+<p>Or via the HTTP API by issuing a <code class="language-plaintext highlighter-rouge">DELETE</code> to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/{id}</code>.</p>
 
 <h3 id="by-criteria">By criteria</h3>
 
@@ -625,7 +625,7 @@ which will return a response like this:</p>
 
 <p>Or via the HTTP API:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://&lt;host&gt;:&lt;port&gt;/__admin/requests/remove
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://&lt;host&gt;:&lt;port&gt;/__admin/requests/remove
 
 {
     "method": "PUT",
@@ -654,7 +654,7 @@ with test case identifiers, then use these to clean up events created by the tes
 <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ServeEvent</span><span class="o">&gt;</span> <span class="n">removedServeEvents</span> <span class="o">=</span> <span class="n">removeEventsByStubMetadata</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.tags[0]"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"test-57"</span><span class="o">)));</span>
 </code></pre></div></div>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/requests/remove-by-metadata
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/requests/remove-by-metadata
 
 {
     "matchesJsonPath" : {
@@ -671,7 +671,7 @@ with test case identifiers, then use these to clean up events created by the tes
 <p>The request log can be reset at any time. If you’re using either of the
 JUnit rules this will happen automatically at the start of every test
 case. However you can do it yourself via a call to
-<code class="highlighter-rouge">WireMock.resetAllRequests()</code> in Java or sending a <code class="highlighter-rouge">DELETE</code> request to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests</code>.</p>
+<code class="language-plaintext highlighter-rouge">WireMock.resetAllRequests()</code> in Java or sending a <code class="language-plaintext highlighter-rouge">DELETE</code> request to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests</code>.</p>
 
 <h2 id="finding-unmatched-requests">Finding unmatched requests</h2>
 
@@ -680,7 +680,7 @@ case. However you can do it yourself via a call to
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">List</span><span class="o">&lt;</span><span class="nc">LoggedRequest</span><span class="o">&gt;</span> <span class="n">unmatched</span> <span class="o">=</span> <span class="nc">WireMock</span><span class="o">.</span><span class="na">findUnmatchedRequests</span><span class="o">();</span>
 </code></pre></div></div>
 
-<p>To find unmatched requests via the HTTP API, make a <code class="highlighter-rouge">GET</code> request to <code class="highlighter-rouge">/__admin/requests/unmatched</code>:</p>
+<p>To find unmatched requests via the HTTP API, make a <code class="language-plaintext highlighter-rouge">GET</code> request to <code class="language-plaintext highlighter-rouge">/__admin/requests/unmatched</code>:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET http://localhost:8080/__admin/requests/unmatched
 <span class="o">{</span>
@@ -838,7 +838,7 @@ This is useful when debugging test failures as it is quite common for a request 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">List</span><span class="o">&lt;</span><span class="nc">NearMiss</span><span class="o">&gt;</span> <span class="n">nearMisses</span> <span class="o">=</span> <span class="nc">WireMock</span><span class="o">.</span><span class="na">findNearMissesForAllUnmatched</span><span class="o">();</span>
 </code></pre></div></div>
 
-<p>To do the same via the HTTP API, issue a <code class="highlighter-rouge">GET</code> to <code class="highlighter-rouge">/__admin/requests/unmatched/near-misses</code>, which will produce output of the same form as
+<p>To do the same via the HTTP API, issue a <code class="language-plaintext highlighter-rouge">GET</code> to <code class="language-plaintext highlighter-rouge">/__admin/requests/unmatched/near-misses</code>, which will produce output of the same form as
 for the query for near misses by request.</p>
 
         

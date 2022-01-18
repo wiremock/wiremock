@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/running-without-http-server/" title="Running without the HTTP Server">
   
@@ -408,155 +408,155 @@ the Java API, JSON over HTTP or JSON files.</p>
 
 <p>The following can optionally be specified on the command line:</p>
 
-<p><code class="highlighter-rouge">--port</code>: Set the HTTP port number e.g. <code class="highlighter-rouge">--port 9999</code>. Use <code class="highlighter-rouge">--port 0</code> to dynamically determine a port.</p>
+<p><code class="language-plaintext highlighter-rouge">--port</code>: Set the HTTP port number e.g. <code class="language-plaintext highlighter-rouge">--port 9999</code>. Use <code class="language-plaintext highlighter-rouge">--port 0</code> to dynamically determine a port.</p>
 
-<p><code class="highlighter-rouge">--disable-http</code>: Disable the HTTP listener, option available only if HTTPS is enabled.</p>
+<p><code class="language-plaintext highlighter-rouge">--disable-http</code>: Disable the HTTP listener, option available only if HTTPS is enabled.</p>
 
-<p><code class="highlighter-rouge">--https-port</code>: If specified, enables HTTPS on the supplied port.
-Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the <code class="highlighter-rouge">--port</code> parameter in order to avoid conflicts.</p>
+<p><code class="language-plaintext highlighter-rouge">--https-port</code>: If specified, enables HTTPS on the supplied port.
+Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the <code class="language-plaintext highlighter-rouge">--port</code> parameter in order to avoid conflicts.</p>
 
-<p><code class="highlighter-rouge">--bind-address</code>: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.</p>
+<p><code class="language-plaintext highlighter-rouge">--bind-address</code>: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.</p>
 
-<p><code class="highlighter-rouge">--https-keystore</code>: Path to a keystore file containing an SSL
+<p><code class="language-plaintext highlighter-rouge">--https-keystore</code>: Path to a keystore file containing an SSL
 certificate to use with HTTPS. Can be a path to a file or a resource on the classpath. The keystore must have a password of
-“password”. This option will only work if <code class="highlighter-rouge">--https-port</code> is specified.
+“password”. This option will only work if <code class="language-plaintext highlighter-rouge">--https-port</code> is specified.
 If this option isn’t used WireMock will default to its own self-signed
 certificate.</p>
 
-<p><code class="highlighter-rouge">--keystore-type</code>: The HTTPS keystore type. Usually JKS or PKCS12.</p>
+<p><code class="language-plaintext highlighter-rouge">--keystore-type</code>: The HTTPS keystore type. Usually JKS or PKCS12.</p>
 
-<p><code class="highlighter-rouge">--keystore-password</code>: Password to the keystore, if something other than
+<p><code class="language-plaintext highlighter-rouge">--keystore-password</code>: Password to the keystore, if something other than
 “password”.
 Note: the behaviour of this changed in version 2.27.0. Previously this set Jetty’s key manager password, whereas now it
 sets the keystore password value. The key manager password can be set with the (new) parameter below.</p>
 
-<p><code class="highlighter-rouge">--key-manager-password</code>: The password used by Jetty to access individual keys in the store, if something other than
+<p><code class="language-plaintext highlighter-rouge">--key-manager-password</code>: The password used by Jetty to access individual keys in the store, if something other than
 “password”.</p>
 
-<p><code class="highlighter-rouge">--https-truststore</code>: Path to a keystore file containing client public
+<p><code class="language-plaintext highlighter-rouge">--https-truststore</code>: Path to a keystore file containing client public
 certificates, proxy target public certificates &amp; private keys to use when
 authenticate with a proxy target that require client authentication. Can be a path to a file or a resource on the classpath. See
 <a href="/docs/configuration/#https-configuration">HTTPS configuration</a>
 and <a href="/docs/proxying#running-as-a-browser-proxy">Running as a browser proxy</a> for
 details.</p>
 
-<p><code class="highlighter-rouge">--truststore-type</code>: The HTTPS trust store type. Usually JKS or PKCS12.</p>
+<p><code class="language-plaintext highlighter-rouge">--truststore-type</code>: The HTTPS trust store type. Usually JKS or PKCS12.</p>
 
-<p><code class="highlighter-rouge">--truststore-password</code>: Optional password to the trust store. Defaults
+<p><code class="language-plaintext highlighter-rouge">--truststore-password</code>: Optional password to the trust store. Defaults
 to “password” if not specified.</p>
 
-<p><code class="highlighter-rouge">--https-require-client-cert</code>: Force clients to authenticate with a
+<p><code class="language-plaintext highlighter-rouge">--https-require-client-cert</code>: Force clients to authenticate with a
 client certificate. See https for details.</p>
 
-<p><code class="highlighter-rouge">--verbose</code>: Turn on verbose logging to stdout</p>
+<p><code class="language-plaintext highlighter-rouge">--verbose</code>: Turn on verbose logging to stdout</p>
 
-<p><code class="highlighter-rouge">--root-dir</code>: Sets the root directory, under which <code class="highlighter-rouge">mappings</code> and
-<code class="highlighter-rouge">__files</code> reside. This defaults to the current directory.</p>
+<p><code class="language-plaintext highlighter-rouge">--root-dir</code>: Sets the root directory, under which <code class="language-plaintext highlighter-rouge">mappings</code> and
+<code class="language-plaintext highlighter-rouge">__files</code> reside. This defaults to the current directory.</p>
 
-<p><code class="highlighter-rouge">--record-mappings</code>: Record incoming requests as stub mappings. See
+<p><code class="language-plaintext highlighter-rouge">--record-mappings</code>: Record incoming requests as stub mappings. See
 record-playback.</p>
 
-<p><code class="highlighter-rouge">--match-headers</code>: When in record mode, capture request headers with the
+<p><code class="language-plaintext highlighter-rouge">--match-headers</code>: When in record mode, capture request headers with the
 keys specified. See record-playback.</p>
 
-<p><code class="highlighter-rouge">--proxy-all</code>: Proxy all requests through to another base URL e.g.
-<code class="highlighter-rouge">--proxy-all="http://api.someservice.com"</code> Typically used in conjunction
-with <code class="highlighter-rouge">--record-mappings</code> such that a session on another service can be
+<p><code class="language-plaintext highlighter-rouge">--proxy-all</code>: Proxy all requests through to another base URL e.g.
+<code class="language-plaintext highlighter-rouge">--proxy-all="http://api.someservice.com"</code> Typically used in conjunction
+with <code class="language-plaintext highlighter-rouge">--record-mappings</code> such that a session on another service can be
 recorded.</p>
 
-<p><code class="highlighter-rouge">--preserve-host-header</code>: When in proxy mode, it passes the Host header
+<p><code class="language-plaintext highlighter-rouge">--preserve-host-header</code>: When in proxy mode, it passes the Host header
 as it comes from the client through to the proxied service. When this
 option is not present, the Host header value is deducted from the proxy
-URL. This option is only available if the <code class="highlighter-rouge">--proxy-all</code> option is
+URL. This option is only available if the <code class="language-plaintext highlighter-rouge">--proxy-all</code> option is
 specified.</p>
 
-<p><code class="highlighter-rouge">--proxy-via</code>: When proxying requests (either by using –proxy-all or by
+<p><code class="language-plaintext highlighter-rouge">--proxy-via</code>: When proxying requests (either by using –proxy-all or by
 creating stub mappings that proxy to other hosts), route via another
 proxy server (useful when inside a corporate network that only permits
 internet access via an opaque proxy). e.g.
-<code class="highlighter-rouge">--proxy-via webproxy.mycorp.com</code> (defaults to port 80) or
-<code class="highlighter-rouge">--proxy-via webproxy.mycorp.com:8080</code>. Also supports proxy authentication,
-e.g. <code class="highlighter-rouge">--proxy-via http://username:password@webproxy.mycorp.com:8080/</code>.</p>
+<code class="language-plaintext highlighter-rouge">--proxy-via webproxy.mycorp.com</code> (defaults to port 80) or
+<code class="language-plaintext highlighter-rouge">--proxy-via webproxy.mycorp.com:8080</code>. Also supports proxy authentication,
+e.g. <code class="language-plaintext highlighter-rouge">--proxy-via http://username:password@webproxy.mycorp.com:8080/</code>.</p>
 
-<p><code class="highlighter-rouge">--enable-browser-proxying</code>: Run as a browser proxy. See
+<p><code class="language-plaintext highlighter-rouge">--enable-browser-proxying</code>: Run as a browser proxy. See
 browser-proxying.</p>
 
-<p><code class="highlighter-rouge">--ca-keystore</code>: A key store containing a root Certificate Authority private key
+<p><code class="language-plaintext highlighter-rouge">--ca-keystore</code>: A key store containing a root Certificate Authority private key
 and certificate that can be used to sign generated certificates when
-browser proxying https. Defaults to <code class="highlighter-rouge">$HOME/.wiremock/ca-keystore.jks</code>.</p>
+browser proxying https. Defaults to <code class="language-plaintext highlighter-rouge">$HOME/.wiremock/ca-keystore.jks</code>.</p>
 
-<p><code class="highlighter-rouge">--ca-keystore-password</code>: Password to the ca-keystore, if something other than
+<p><code class="language-plaintext highlighter-rouge">--ca-keystore-password</code>: Password to the ca-keystore, if something other than
 “password”.</p>
 
-<p><code class="highlighter-rouge">--ca-keystore-type</code>: Type of the ca-keystore, if something other than <code class="highlighter-rouge">jks</code>.</p>
+<p><code class="language-plaintext highlighter-rouge">--ca-keystore-type</code>: Type of the ca-keystore, if something other than <code class="language-plaintext highlighter-rouge">jks</code>.</p>
 
-<p><code class="highlighter-rouge">--trust-all-proxy-targets</code>: Trust all remote certificates when running as a
+<p><code class="language-plaintext highlighter-rouge">--trust-all-proxy-targets</code>: Trust all remote certificates when running as a
 browser proxy and proxying HTTPS traffic.</p>
 
-<p><code class="highlighter-rouge">--trust-proxy-target</code>: Trust a specific remote endpoint’s certificate when
+<p><code class="language-plaintext highlighter-rouge">--trust-proxy-target</code>: Trust a specific remote endpoint’s certificate when
 running as a browser proxy and proxying HTTPS traffic. Can be specified multiple
-times. e.g. <code class="highlighter-rouge">--trust-proxy-target dev.mycorp.com --trust-proxy-target localhost</code>
-would allow proxying to <code class="highlighter-rouge">https://dev.mycorp.com</code> or <code class="highlighter-rouge">https://localhost:8443</code>
+times. e.g. <code class="language-plaintext highlighter-rouge">--trust-proxy-target dev.mycorp.com --trust-proxy-target localhost</code>
+would allow proxying to <code class="language-plaintext highlighter-rouge">https://dev.mycorp.com</code> or <code class="language-plaintext highlighter-rouge">https://localhost:8443</code>
 despite their having invalid certificate chains in some way.</p>
 
-<p><code class="highlighter-rouge">--no-request-journal</code>: Disable the request journal, which records
+<p><code class="language-plaintext highlighter-rouge">--no-request-journal</code>: Disable the request journal, which records
 incoming requests for later verification. This allows WireMock to be run
 (and serve stubs) for long periods (without resetting) without
-exhausting the heap. The <code class="highlighter-rouge">--record-mappings</code> option isn’t available if
+exhausting the heap. The <code class="language-plaintext highlighter-rouge">--record-mappings</code> option isn’t available if
 this one is specified.</p>
 
-<p><code class="highlighter-rouge">--container-threads</code>: The number of threads created for incoming
+<p><code class="language-plaintext highlighter-rouge">--container-threads</code>: The number of threads created for incoming
 requests. Defaults to 10.</p>
 
-<p><code class="highlighter-rouge">--max-request-journal-entries</code>: Set maximum number of entries in
+<p><code class="language-plaintext highlighter-rouge">--max-request-journal-entries</code>: Set maximum number of entries in
 request journal (if enabled). When this limit is reached oldest entries
 will be discarded.</p>
 
-<p><code class="highlighter-rouge">--jetty-acceptor-threads</code>: The number of threads Jetty uses for
+<p><code class="language-plaintext highlighter-rouge">--jetty-acceptor-threads</code>: The number of threads Jetty uses for
 accepting requests.</p>
 
-<p><code class="highlighter-rouge">--jetty-accept-queue-size</code>: The Jetty queue size for accepted requests.</p>
+<p><code class="language-plaintext highlighter-rouge">--jetty-accept-queue-size</code>: The Jetty queue size for accepted requests.</p>
 
-<p><code class="highlighter-rouge">--jetty-header-buffer-size</code>: Deprecated, use <code class="highlighter-rouge">--jetty-header-request-size</code>. The Jetty buffer size for request headers,
-e.g. <code class="highlighter-rouge">--jetty-header-buffer-size 16384</code>, defaults to 8192K.</p>
+<p><code class="language-plaintext highlighter-rouge">--jetty-header-buffer-size</code>: Deprecated, use <code class="language-plaintext highlighter-rouge">--jetty-header-request-size</code>. The Jetty buffer size for request headers,
+e.g. <code class="language-plaintext highlighter-rouge">--jetty-header-buffer-size 16384</code>, defaults to 8192K.</p>
 
-<p><code class="highlighter-rouge">--jetty-header-request-size</code>: The Jetty buffer size for request headers,
-e.g. <code class="highlighter-rouge">--jetty-header-request-size 16384</code>, defaults to 8192K.</p>
+<p><code class="language-plaintext highlighter-rouge">--jetty-header-request-size</code>: The Jetty buffer size for request headers,
+e.g. <code class="language-plaintext highlighter-rouge">--jetty-header-request-size 16384</code>, defaults to 8192K.</p>
 
-<p><code class="highlighter-rouge">--jetty-header-response-size</code>: The Jetty buffer size for response headers,
-e.g. <code class="highlighter-rouge">--jetty-header-response-size 16384</code>, defaults to 8192K.</p>
+<p><code class="language-plaintext highlighter-rouge">--jetty-header-response-size</code>: The Jetty buffer size for response headers,
+e.g. <code class="language-plaintext highlighter-rouge">--jetty-header-response-size 16384</code>, defaults to 8192K.</p>
 
-<p><code class="highlighter-rouge">--async-response-enabled</code>: Enable asynchronous request processing in Jetty. 
-Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to <code class="highlighter-rouge">false</code>.</p>
+<p><code class="language-plaintext highlighter-rouge">--async-response-enabled</code>: Enable asynchronous request processing in Jetty. 
+Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to <code class="language-plaintext highlighter-rouge">false</code>.</p>
 
-<p><code class="highlighter-rouge">--async-response-threads</code>: Set the number of asynchronous (background) response threads. 
-Effective only with <code class="highlighter-rouge">asynchronousResponseEnabled=true</code>. Defaults to 10.</p>
+<p><code class="language-plaintext highlighter-rouge">--async-response-threads</code>: Set the number of asynchronous (background) response threads. 
+Effective only with <code class="language-plaintext highlighter-rouge">asynchronousResponseEnabled=true</code>. Defaults to 10.</p>
 
-<p><code class="highlighter-rouge">--extensions</code>: Extension class names e.g.
+<p><code class="language-plaintext highlighter-rouge">--extensions</code>: Extension class names e.g.
 com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.</p>
 
-<p><code class="highlighter-rouge">--print-all-network-traffic</code>: Print all raw incoming and outgoing network traffic to console.</p>
+<p><code class="language-plaintext highlighter-rouge">--print-all-network-traffic</code>: Print all raw incoming and outgoing network traffic to console.</p>
 
-<p><code class="highlighter-rouge">--global-response-templating</code>: Render all response definitions using Handlebars templates.</p>
+<p><code class="language-plaintext highlighter-rouge">--global-response-templating</code>: Render all response definitions using Handlebars templates.</p>
 
-<p><code class="highlighter-rouge">--local-response-templating</code>: Enable rendering of response definitions using Handlebars templates for specific stub mappings.</p>
+<p><code class="language-plaintext highlighter-rouge">--local-response-templating</code>: Enable rendering of response definitions using Handlebars templates for specific stub mappings.</p>
 
-<p><code class="highlighter-rouge">--max-template-cache-entries</code>: Set the maximum number of compiled template fragments to cache. Only has any effect when response templating is enabled. Defaults to no limit.</p>
+<p><code class="language-plaintext highlighter-rouge">--max-template-cache-entries</code>: Set the maximum number of compiled template fragments to cache. Only has any effect when response templating is enabled. Defaults to no limit.</p>
 
-<p><code class="highlighter-rouge">--use-chunked-encoding</code>: Set the policy for sending responses with <code class="highlighter-rouge">Transfer-Encoding: chunked</code>. Valid values are <code class="highlighter-rouge">always</code>, <code class="highlighter-rouge">never</code> and <code class="highlighter-rouge">body_file</code>. 
+<p><code class="language-plaintext highlighter-rouge">--use-chunked-encoding</code>: Set the policy for sending responses with <code class="language-plaintext highlighter-rouge">Transfer-Encoding: chunked</code>. Valid values are <code class="language-plaintext highlighter-rouge">always</code>, <code class="language-plaintext highlighter-rouge">never</code> and <code class="language-plaintext highlighter-rouge">body_file</code>. 
 The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.</p>
 
-<p><code class="highlighter-rouge">--disable-gzip</code>: Prevent response bodies from being gzipped.</p>
+<p><code class="language-plaintext highlighter-rouge">--disable-gzip</code>: Prevent response bodies from being gzipped.</p>
 
-<p><code class="highlighter-rouge">--disable-request-logging</code>: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled.</p>
+<p><code class="language-plaintext highlighter-rouge">--disable-request-logging</code>: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled.</p>
 
-<p><code class="highlighter-rouge">--disable-banner</code>: Prevent WireMock logo from being printed on startup</p>
+<p><code class="language-plaintext highlighter-rouge">--disable-banner</code>: Prevent WireMock logo from being printed on startup</p>
 
-<p><code class="highlighter-rouge">--permitted-system-keys</code>: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to <code class="highlighter-rouge">wiremock.*</code>.</p>
+<p><code class="language-plaintext highlighter-rouge">--permitted-system-keys</code>: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to <code class="language-plaintext highlighter-rouge">wiremock.*</code>.</p>
 
-<p><code class="highlighter-rouge">--enable-stub-cors</code>: Enable automatic sending of cross-origin (CORS) response headers. Defaults to off.</p>
+<p><code class="language-plaintext highlighter-rouge">--enable-stub-cors</code>: Enable automatic sending of cross-origin (CORS) response headers. Defaults to off.</p>
 
-<p><code class="highlighter-rouge">--help</code>: Show command line help</p>
+<p><code class="language-plaintext highlighter-rouge">--help</code>: Show command line help</p>
 
 <h2 id="configuring-wiremock-using-the-java-client">Configuring WireMock using the Java client</h2>
 
@@ -594,11 +594,11 @@ Here it is!
 <h2 id="json-file-configuration">JSON file configuration</h2>
 
 <p>You can also use the JSON API via files. When the WireMock server starts
-it creates two directories under the current one: <code class="highlighter-rouge">mappings</code> and
-<code class="highlighter-rouge">__files</code>.</p>
+it creates two directories under the current one: <code class="language-plaintext highlighter-rouge">mappings</code> and
+<code class="language-plaintext highlighter-rouge">__files</code>.</p>
 
 <p>To create a stub like the one above by this method, drop a file with a
-<code class="highlighter-rouge">.json</code> extension under <code class="highlighter-rouge">mappings</code> with the following content:</p>
+<code class="language-plaintext highlighter-rouge">.json</code> extension under <code class="language-plaintext highlighter-rouge">mappings</code> with the following content:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -670,20 +670,20 @@ Java API as follows:</p>
 
 <h2 id="file-serving">File serving</h2>
 
-<p>When running the standalone JAR, files placed under the <code class="highlighter-rouge">__files</code> directory will
+<p>When running the standalone JAR, files placed under the <code class="language-plaintext highlighter-rouge">__files</code> directory will
 be served up as if from under the docroot, except if stub mapping
 matching the URL exists. For example if a file exists
-<code class="highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match
-<code class="highlighter-rouge">/things/myfile.html</code> then hitting
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</code> will serve the file.</p>
+<code class="language-plaintext highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match
+<code class="language-plaintext highlighter-rouge">/things/myfile.html</code> then hitting
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</code> will serve the file.</p>
 
 <h2 id="packaging-the-stubs-into-a-standalone-jar">Packaging the stubs into a standalone JAR</h2>
 
-<p>If you want to package your stubs into the standalone JAR, so you can distribute an executable JAR with all the stubs intact, you can do this using the <code class="highlighter-rouge">--load-resources-from-classpath</code> option.</p>
+<p>If you want to package your stubs into the standalone JAR, so you can distribute an executable JAR with all the stubs intact, you can do this using the <code class="language-plaintext highlighter-rouge">--load-resources-from-classpath</code> option.</p>
 
 <p>For example, let’s say have the following directory structure:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src/main/resources
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src/main/resources
 src/main/resources/wiremock-stuff
 src/main/resources/wiremock-stuff/__files
 src/main/resources/wiremock-stuff/mappings
@@ -691,7 +691,7 @@ src/main/resources/wiremock-stuff/mappings
 
 <p>You could then run the packaged JAR as:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java -jar custom-wiremock.jar --load-resources-from-classpath 'wiremock-stuff'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java -jar custom-wiremock.jar --load-resources-from-classpath 'wiremock-stuff'
 </code></pre></div></div>
 
 <p>Which will load your files and mappings from the packaged JAR.</p>
@@ -700,8 +700,8 @@ src/main/resources/wiremock-stuff/mappings
 
 <h3 id="shutting-down">Shutting Down</h3>
 
-<p>To shutdown the server, either call <code class="highlighter-rouge">WireMock.shutdownServer()</code> or post
-a request with an empty body to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/shutdown</code>.</p>
+<p>To shutdown the server, either call <code class="language-plaintext highlighter-rouge">WireMock.shutdownServer()</code> or post
+a request with an empty body to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/shutdown</code>.</p>
 
         
       </section>

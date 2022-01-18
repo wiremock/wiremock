@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/multi-domain-mocking/" title="Multi-domain Mocking">
   
@@ -395,10 +395,10 @@
 These are both explained in detail below.</p>
 
 <h2 id="basic-usage---declarative">Basic usage - declarative</h2>
-<p>The extension can be applied to your test class declaratively by annotating it with <code class="highlighter-rouge">@WireMockTest</code>. This will run a single 
+<p>The extension can be applied to your test class declaratively by annotating it with <code class="language-plaintext highlighter-rouge">@WireMockTest</code>. This will run a single 
 WireMock server, defaulting to a random port, HTTP only (no HTTPS).</p>
 
-<p>To get the running port number, base URL or a DSL instance you can declare a parameter of type <code class="highlighter-rouge">WireMockRuntimeInfo</code>
+<p>To get the running port number, base URL or a DSL instance you can declare a parameter of type <code class="language-plaintext highlighter-rouge">WireMockRuntimeInfo</code>
 in your test or lifecycle methods.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@WireMockTest</span>
@@ -428,7 +428,7 @@ last test method has completed.</p>
 <p>Stub mappings and requests will be reset before each test method.</p>
 
 <h3 id="fixing-the-port-number">Fixing the port number</h3>
-<p>If you need to run WireMock on a fixed port you can pass this via the <code class="highlighter-rouge">httpPort</code> parameter to the extension annotation:</p>
+<p>If you need to run WireMock on a fixed port you can pass this via the <code class="language-plaintext highlighter-rouge">httpPort</code> parameter to the extension annotation:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@WireMockTest</span><span class="o">(</span><span class="n">httpPort</span> <span class="o">=</span> <span class="mi">8080</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">FixedPortDeclarativeWireMockTest</span> <span class="o">{</span>
@@ -437,7 +437,7 @@ last test method has completed.</p>
 </code></pre></div></div>
 
 <h3 id="enabling-https">Enabling HTTPS</h3>
-<p>You can also enable HTTPS via the <code class="highlighter-rouge">httpsEnabled</code> annotation parameter. By default a random port will be assigned:</p>
+<p>You can also enable HTTPS via the <code class="language-plaintext highlighter-rouge">httpsEnabled</code> annotation parameter. By default a random port will be assigned:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@WireMockTest</span><span class="o">(</span><span class="n">httpsEnabled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">HttpsRandomPortDeclarativeWireMockTest</span> <span class="o">{</span>
@@ -445,7 +445,7 @@ last test method has completed.</p>
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>But like with the HTTP port you can also fix the HTTPS port number via the <code class="highlighter-rouge">httpsPort</code> parameter:</p>
+<p>But like with the HTTP port you can also fix the HTTPS port number via the <code class="language-plaintext highlighter-rouge">httpsPort</code> parameter:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@WireMockTest</span><span class="o">(</span><span class="n">httpsEnabled</span> <span class="o">=</span> <span class="kc">true</span><span class="o">,</span> <span class="n">httpsPort</span> <span class="o">=</span> <span class="mi">8443</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">HttpsFixedPortDeclarativeWireMockTest</span> <span class="o">{</span>
@@ -454,7 +454,7 @@ last test method has completed.</p>
 </code></pre></div></div>
 
 <h2 id="advanced-usage---programmatic">Advanced usage - programmatic</h2>
-<p>Invoking the extension programmatically with <code class="highlighter-rouge">@RegisterExtension</code> allows you to run any number of WireMock instances and provides full control
+<p>Invoking the extension programmatically with <code class="language-plaintext highlighter-rouge">@RegisterExtension</code> allows you to run any number of WireMock instances and provides full control
 over configuration.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProgrammaticWireMockTest</span> <span class="o">{</span>
@@ -492,12 +492,12 @@ over configuration.</p>
 <p>In the above example, as with the declarative form, each WireMock server will be started before the first test method in the test class and stopped after the
 last test method has completed, with a call to reset before each test method.</p>
 
-<p>However, if the extension fields are declared at the instance scope (without the <code class="highlighter-rouge">static</code> modifier) each WireMock server will
+<p>However, if the extension fields are declared at the instance scope (without the <code class="language-plaintext highlighter-rouge">static</code> modifier) each WireMock server will
 be created and started before each test method and stopped after the end of the test method.</p>
 
 <h3 id="configuring-the-static-dsl">Configuring the static DSL</h3>
 <p>If you want to use the static DSL with one of the instances you have registered programmatically you can declare
-this by calling <code class="highlighter-rouge">configureStaticDsl(true)</code> on the extension builder. The configuration will be automatically applied when the server is started:</p>
+this by calling <code class="language-plaintext highlighter-rouge">configureStaticDsl(true)</code> on the extension builder. The configuration will be automatically applied when the server is started:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AutomaticStaticDslConfigTest</span> <span class="o">{</span>
 
@@ -526,14 +526,14 @@ this by calling <code class="highlighter-rouge">configureStaticDsl(true)</code> 
 <p>By default, in either the declarative or programmatic form, if the WireMock instance receives unmatched requests during a
 test run an assertion error will be thrown and the test will fail.</p>
 
-<p>This behavior can be changed by calling <code class="highlighter-rouge">.failOnUnmatchedRequests(false)</code> on the extension builder when using the programmatic form.</p>
+<p>This behavior can be changed by calling <code class="language-plaintext highlighter-rouge">.failOnUnmatchedRequests(false)</code> on the extension builder when using the programmatic form.</p>
 
 <h2 id="proxy-mode">Proxy mode</h2>
 <p>The JUnit Jupiter extension can be configured to enable “proxy mode” which simplifies configuration and supports
 <a href="/docs/multi-domain-mocking/">multi-domain mocking</a>.</p>
 
 <h3 id="declarative">Declarative</h3>
-<p>In declarative mode this is done by setting the <code class="highlighter-rouge">proxyMode = true</code> in the annotation declaration. Then, provided your app’s
+<p>In declarative mode this is done by setting the <code class="language-plaintext highlighter-rouge">proxyMode = true</code> in the annotation declaration. Then, provided your app’s
 HTTP client honours the JVM’s proxy system properties, you can specify different domain (host) names when creating stubs:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@WireMockTest</span><span class="o">(</span><span class="n">proxyMode</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
@@ -613,7 +613,7 @@ HTTP client honours the JVM’s proxy system properties, you can specify differe
 
 <h2 id="subclassing-the-extension">Subclassing the extension</h2>
 
-<p>Like the JUnit 4.x rule, <code class="highlighter-rouge">WireMockExtension</code> can be subclassed in order to extend its behaviour by hooking into its lifecycle events.
+<p>Like the JUnit 4.x rule, <code class="language-plaintext highlighter-rouge">WireMockExtension</code> can be subclassed in order to extend its behaviour by hooking into its lifecycle events.
 This can also be a good approach for creating a domain-specific API mock, by adding methods to stub and verify specific calls.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyMockApi</span> <span class="kd">extends</span> <span class="nc">WireMockExtension</span> <span class="o">{</span>
@@ -656,7 +656,7 @@ of the builder in when constructing your extension as follows:</p>
 </code></pre></div></div>
 
 <p>This will ensure that all parameters from the builder will be set as they would if you had constructed an instance of
-<code class="highlighter-rouge">WireMockExtension</code> from it.</p>
+<code class="language-plaintext highlighter-rouge">WireMockExtension</code> from it.</p>
 
         
       </section>

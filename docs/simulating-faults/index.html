@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-18T10:16:40+00:00">
+  <meta property="article:published_time" content="2022-01-18T12:47:57+00:00">
   
     <link rel="next" href="/docs/spring-boot/" title="Spring Boot">
   
@@ -424,8 +424,8 @@ milliseconds:</p>
 <h2 id="global-fixed-stub-delays">Global fixed stub delays</h2>
 
 <p>A fixed delay can be added to all stubs either by calling
-<code class="highlighter-rouge">WireMock.setGlobalFixedDelay()</code> or posting a JSON document of the
-following form to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/settings</code>:</p>
+<code class="language-plaintext highlighter-rouge">WireMock.setGlobalFixedDelay()</code> or posting a JSON document of the
+following form to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/settings</code>:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"fixedDelay"</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="w">
@@ -438,7 +438,7 @@ following form to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&g
 distribution. This allows simulation of more specific downstream
 latencies, such as a long tail.</p>
 
-<p>Use <code class="highlighter-rouge">#withRandomDelay</code> on the stub to pass in the desired distribution:</p>
+<p>Use <code class="language-plaintext highlighter-rouge">#withRandomDelay</code> on the stub to pass in the desired distribution:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/random/delayed"</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span>
         <span class="n">aResponse</span><span class="o">()</span>
@@ -446,7 +446,7 @@ latencies, such as a long tail.</p>
                 <span class="o">.</span><span class="na">withLogNormalRandomDelay</span><span class="o">(</span><span class="mi">90</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">)));</span>
 </code></pre></div></div>
 
-<p>Or set it on the <code class="highlighter-rouge">delayDistribution</code> field via the JSON api:</p>
+<p>Or set it on the <code class="language-plaintext highlighter-rouge">delayDistribution</code> field via the JSON api:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -468,8 +468,8 @@ latencies, such as a long tail.</p>
 <h2 id="global-random-stub-delays">Global random stub delays</h2>
 
 <p>You can set a random delay globally with
-<code class="highlighter-rouge">WireMock.setGlobalRandomDelay()</code> or the JSON api at
-<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/settings</code>:</p>
+<code class="language-plaintext highlighter-rouge">WireMock.setGlobalRandomDelay()</code> or the JSON api at
+<code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/settings</code>:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"delayDistribution"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -497,7 +497,7 @@ the tail.</li>
 values</a>
 to find a good approximation.</p>
 
-<p>To use, instantiate a <code class="highlighter-rouge">new LogNormal(median, sigma)</code>, or via JSON:</p>
+<p>To use, instantiate a <code class="language-plaintext highlighter-rouge">new LogNormal(median, sigma)</code>, or via JSON:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"delayDistribution"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lognormal"</span><span class="p">,</span><span class="w">
@@ -519,7 +519,7 @@ a fixed amount of jitter. It takes two parameters:</p>
 <p>For instance, to simulate a stable latency of 20ms +/- 5ms, use lower =
 15 and upper = 25.</p>
 
-<p>To use, instantiate a <code class="highlighter-rouge">new UniformDistribution(15, 25)</code>, or via JSON:</p>
+<p>To use, instantiate a <code class="language-plaintext highlighter-rouge">new UniformDistribution(15, 25)</code>, or via JSON:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"delayDistribution"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uniform"</span><span class="p">,</span><span class="w">
@@ -533,11 +533,11 @@ a fixed amount of jitter. It takes two parameters:</p>
 <p>In addition to fixed and random delays, you can dribble your response back in chunks. 
 This is useful for simulating a slow network and testing deterministic timeouts.</p>
 
-<p>Use <code class="highlighter-rouge">#withChunkedDribbleDelay</code> on the stub to pass in the desired chunked response, it takes two parameters:</p>
+<p>Use <code class="language-plaintext highlighter-rouge">#withChunkedDribbleDelay</code> on the stub to pass in the desired chunked response, it takes two parameters:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">numberOfChunks</code> - how many chunks you want your response body divided up into</li>
-  <li><code class="highlighter-rouge">totalDuration</code> - the total duration you want the response to take in milliseconds</li>
+  <li><code class="language-plaintext highlighter-rouge">numberOfChunks</code> - how many chunks you want your response body divided up into</li>
+  <li><code class="language-plaintext highlighter-rouge">totalDuration</code> - the total duration you want the response to take in milliseconds</li>
 </ul>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/chunked/delayed"</span><span class="o">).</span><span class="na">willReturn</span><span class="o">(</span>
@@ -547,7 +547,7 @@ This is useful for simulating a slow network and testing deterministic timeouts.
                 <span class="o">.</span><span class="na">withChunkedDribbleDelay</span><span class="o">(</span><span class="mi">5</span><span class="o">,</span> <span class="mi">1000</span><span class="o">)));</span>
 </code></pre></div></div>
 
-<p>Or set it on the <code class="highlighter-rouge">chunkedDribbleDelay</code> field via the JSON API:</p>
+<p>Or set it on the <code class="language-plaintext highlighter-rouge">chunkedDribbleDelay</code> field via the JSON API:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -566,7 +566,7 @@ This is useful for simulating a slow network and testing deterministic timeouts.
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>With the above settings the <code class="highlighter-rouge">Hello world!</code> response body will be broken into 
+<p>With the above settings the <code class="language-plaintext highlighter-rouge">Hello world!</code> response body will be broken into 
 five chunks and returned one at a time with a 200ms gap between each.</p>
 
 <h2 id="bad-responses">Bad responses</h2>
@@ -577,16 +577,16 @@ five chunks and returned one at a time with a 200ms gap between each.</p>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withFault</span><span class="o">(</span><span class="nc">Fault</span><span class="o">.</span><span class="na">MALFORMED_RESPONSE_CHUNK</span><span class="o">)));</span>
 </code></pre></div></div>
 
-<p>The <code class="highlighter-rouge">Fault</code> enum has the following options:</p>
+<p>The <code class="language-plaintext highlighter-rouge">Fault</code> enum has the following options:</p>
 
-<p><code class="highlighter-rouge">EMPTY_RESPONSE</code>: Return a completely empty response.</p>
+<p><code class="language-plaintext highlighter-rouge">EMPTY_RESPONSE</code>: Return a completely empty response.</p>
 
-<p><code class="highlighter-rouge">MALFORMED_RESPONSE_CHUNK</code>: Send an OK status header, then garbage, then
+<p><code class="language-plaintext highlighter-rouge">MALFORMED_RESPONSE_CHUNK</code>: Send an OK status header, then garbage, then
 close the connection.</p>
 
-<p><code class="highlighter-rouge">RANDOM_DATA_THEN_CLOSE</code>: Send garbage then close the connection.</p>
+<p><code class="language-plaintext highlighter-rouge">RANDOM_DATA_THEN_CLOSE</code>: Send garbage then close the connection.</p>
 
-<p><code class="highlighter-rouge">CONNECTION_RESET_BY_PEER</code>: Close the connection, setting <code class="highlighter-rouge">SO_LINGER</code> to 0 and thus preventing the <code class="highlighter-rouge">TIME_WAIT</code> state being entered.
+<p><code class="language-plaintext highlighter-rouge">CONNECTION_RESET_BY_PEER</code>: Close the connection, setting <code class="language-plaintext highlighter-rouge">SO_LINGER</code> to 0 and thus preventing the <code class="language-plaintext highlighter-rouge">TIME_WAIT</code> state being entered.
 Typically causes a “Connection reset by peer” type error to be thrown by the client. Note: this only seems to work properly on *nix OSs. On Windows it will most likely cause the connection to hang rather
 than reset.</p>
 
