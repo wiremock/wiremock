@@ -462,7 +462,8 @@ public class JettyHttpServer implements HttpServer {
     swaggerUiServletHolder.setAsyncSupported(false);
     adminContext.addServlet(DefaultServlet.class, "/recorder/*");
 
-    adminContext.addServlet(DefaultServlet.class, "/webapp/*");
+    ServletHolder webapp = adminContext.addServlet(DefaultServlet.class, "/webapp/*");
+    webapp.setAsyncSupported(false);
 
         WebSocketServerContainerInitializer.configure(adminContext, (servletContext, serverContainer) -> {
             serverContainer.addEndpoint(WebSocketEndpoint.class);
