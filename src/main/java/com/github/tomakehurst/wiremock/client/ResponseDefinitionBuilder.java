@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -262,6 +263,23 @@ public class ResponseDefinitionBuilder {
   }
 
   private boolean isJsonBody() {
+    if (jsonBody != null) {
+        return true;
+    }
+    if(headers == null || stringBody == null) {
+        return false;
+    }
+    HttpHeader contentTypeHeader = headers.stream()
+        .filter(header -> header.keyEquals(ContentTypeHeader.KEY)).findFirst().orElse(null);
+    if(contentTypeHeader != null) {
+        boolean isJson = contentTypeHeader.hasValueMatching(new ContainsPattern("json"));
+        if(isJson) {
+            try {
+                jsonBody = Json.node(stringBody);
+            } catch (Exception e) {
+            }
+        }
+    }
     return jsonBody != null;
   }
 

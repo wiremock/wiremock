@@ -157,4 +157,69 @@ public class ResponseDefinitionBuilderTest {
         equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
+
+   @Test 
+    public void proxyResponseDefinitionWithJsonContentType1() {
+        ResponseDefinition originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .withStatus(200)
+                .withStatusMessage("OK")
+                .withBody("{\"data\": \"Hello, world\" }")
+                .withHeader("content-type", "application/json")
+                .build();
+        assertThat(originalResponseDefinition.getJsonBody(),
+        		equalTo(Json.node("{\"data\": \"Hello, world\" }")));
+        
+        originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .withStatus(200)
+                .withStatusMessage("OK")
+                .withBody("{}")
+                .withHeader("content-type", "application/json")
+                .build();
+        assertThat(originalResponseDefinition.getJsonBody(),
+        		equalTo(Json.node("{}")));
+    }
+    
+    @Test 
+    public void proxyResponseDefinitionWithJsonContentType2() {
+        ResponseDefinition originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .withStatus(200)
+                .withStatusMessage("OK")
+                .withBody("[{\"data\": 23}]")
+                .withHeader("content-type", "application/json")
+                .build();
+        assertThat(originalResponseDefinition.getJsonBody(), 
+        		equalTo(Json.node("[{\"data\": 23}]")));
+        
+        originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .withStatus(200)
+                .withStatusMessage("OK")
+                .withBody("[]")
+                .withHeader("content-type", "application/json")
+                .build();
+        assertThat(originalResponseDefinition.getJsonBody(), equalTo(Json.node("[]")));
+    }
+
+    
+    @Test 
+    public void proxyResponseDefinitionWithJsonContentType3() {
+        ResponseDefinition originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .withStatus(200)
+                .withStatusMessage("OK")
+                .withBody("Hello,world!")
+                .withHeader("content-type", "application/json")
+                .build();
+        assertThat(originalResponseDefinition.getJsonBody(), equalTo(null));
+        assertThat(originalResponseDefinition.getBody(), equalTo("Hello,world!"));
+    }
+    
+    @Test 
+    public void proxyResponseDefinitionWithJsonContentType4() {
+        ResponseDefinition originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
+                .withStatus(200)
+                .withStatusMessage("OK")
+                .withBody("{}")
+                .build();
+        assertThat(originalResponseDefinition.getJsonBody(), equalTo(null));
+        assertThat(originalResponseDefinition.getBody(), equalTo("{}"));
+    }
 }
