@@ -14,7 +14,7 @@
     "redoc": "2.0.0-rc.18",
     "shx": "0.2.2",
     "swagger-cli": "2.3.4",
-    "swagger-ui-dist": "3.48.0",
+    "swagger-ui-dist": "4.1.3",
     "to": "^0.2.9",
     "uglify-js": "^2.6.1"
   },
