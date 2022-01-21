@@ -147,6 +147,26 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
+  public void responseWithCappedLogNormalDistributedDelay() {
+    stubFor(
+        get(urlEqualTo("/cappedlognormal/delayed/resource"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody("Content")
+                    .withCappedLogNormalRandomDelay(90, 0.1, 95)));
+
+    long start = System.currentTimeMillis();
+    testClient.get("/cappedlognormal/delayed/resource");
+    int duration = (int) (System.currentTimeMillis() - start);
+
+    assertThat(duration, greaterThanOrEqualTo(60));
+    // Ideally we'd check the response time was less than or equal to the CappedLogNormal
+    // maxValue, but of course, there is also arbitrary request latency to take into account.
+    // Following the same pattern as other tests and not checking that for now.
+  }
+
+  @Test
   public void responseWithUniformDistributedDelay() {
     stubFor(
         get(urlEqualTo("/uniform/delayed/resource"))

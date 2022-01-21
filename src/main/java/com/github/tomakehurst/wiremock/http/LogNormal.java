@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *     href="https://www.wolframalpha.com/input/?i=lognormaldistribution%28log%2890%29%2C+0.1%29">lognormal
  *     example</a>
  */
-public final class LogNormal implements DelayDistribution {
+public class LogNormal implements DelayDistribution {
 
   @JsonProperty("median")
   private final double median;

@@ -11,6 +11,20 @@ oneOf:
         enum:
           - lognormal
         type: string
+  - title: Capped Log normal
+    description: Log normal randomly distributed response delay, capped at a maximum value.
+    type: object
+    properties:
+      median:
+        type: integer
+      sigma:
+        type: number
+      maxValue:
+        type: integer
+      type:
+        enum:
+          - cappedlognormal
+        type: string
   - title: Uniform
     description: Uniformly distributed random response delay.
     type: object
