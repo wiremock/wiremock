@@ -19,6 +19,8 @@ jobs:
     env:
       JDK_VERSION: ${{ matrix.jdk }}
 
+    outputs:
+      version: steps.vars.outputs.version
     steps:
       - uses: actions/checkout@v2
         with:
@@ -74,3 +76,36 @@ jobs:
           asset_path: ./build/libs/wiremock-jre8-standalone-${{ steps.vars.outputs.version }}-all.jar
           asset_name: wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive
+  docker:
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    strategy:
+      matrix:
+        versions:
+          - IMAGE: holomekc/wiremock-gui
+            PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Checkout sources
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: wiremock
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Wiremock Docker image
+        run: docker buildx build --tag ${{ matrix.versions.IMAGE }} --env WIREMOCK_VERSION=${{ needs.outputs.version }}
+
+      - name: docker tag
+        run: docker tag ${{ matrix.versions.IMAGE }} ${{ matrix.versions.IMAGE }}:${{ needs.outputs.version }}
+
+      - name: Test Wiremock Docker image
+        run: |
+          docker container run -d --name test -p 8080:8080 ${{ matrix.versions.IMAGE }}
+          timeout 10 bash -c 'while ! curl --fail http://localhost:8080/__admin/; do sleep 1; done'
+          docker container rm -f test
