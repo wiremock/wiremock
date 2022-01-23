@@ -24,7 +24,7 @@ import {Subject} from 'rxjs/internal/Subject';
 @Component({
   selector: 'wm-layout',
   templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss']
+  styleUrls: [ './layout.component.scss' ]
 })
 export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -32,8 +32,8 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
 
   private ngUnsubscribe: Subject<any> = new Subject();
 
-  @ContentChild('content') content: TemplateRef<ElementRef>;
-  @ContentChild('actions') actions: TemplateRef<ElementRef>;
+  @ContentChild('content', {static: false}) content: TemplateRef<ElementRef>;
+  @ContentChild('actions', {static: false}) actions: TemplateRef<ElementRef>;
 
   @Input()
   items: Item[];
@@ -98,14 +98,14 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
       const newPath = this.router.url.split('?')[0];
 
       if (currentUrl.indexOf(newPath) === -1 || (currentUrl.indexOf(newPath) > -1 && currentUrl.indexOf(this.activeItemId) === -1)) {
-        this.router.navigate([this.router.url.split('?')[0]], {queryParams: {active: this.activeItemId}});
+        this.router.navigate([ this.router.url.split('?')[0] ], {queryParams: {active: this.activeItemId}});
       }
     } else {
       this.activeItemId = null;
       const currentUrl = this.router.url;
       const newUrl = this.router.url.split('?')[0];
       if (currentUrl !== newUrl) {
-        this.router.navigate([newUrl]);
+        this.router.navigate([ newUrl ]);
       }
     }
   }

@@ -9,22 +9,22 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import * as joint from "jointjs";
-import {dia} from "jointjs";
+import * as joint from 'jointjs';
+import {dia} from 'jointjs';
 import Paper = dia.Paper;
-import {StateMachineItems} from "./state-machine-items";
+import {StateMachineItems} from './state-machine-items';
 import Element = dia.Element;
-import {UtilService} from "../../services/util.service";
-import {StateLink} from "../../model/state-link";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {UtilService} from '../../services/util.service';
+import {StateLink} from '../../model/state-link';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import LinkView = dia.LinkView;
-import {Scenario} from "../../model/wiremock/scenario";
+import {Scenario} from '../../model/wiremock/scenario';
 
 
 @Component({
   selector: 'wm-state-machine',
   templateUrl: './state-machine.component.html',
-  styleUrls: ['./state-machine.component.scss']
+  styleUrls: [ './state-machine.component.scss' ]
 })
 export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
@@ -35,11 +35,11 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   private lastItem: Scenario;
 
-  @ViewChild('canvas')
+  @ViewChild('canvas', {static: false})
   canvas: ElementRef;
 
   @Input()
-  grid: boolean = true;
+  grid = true;
 
   private graph;
   private paper: Paper;
@@ -50,7 +50,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   private dragStartPosition = null;
   space = false;
 
-  private paperPos: {x:number, y:number};
+  private paperPos: { x: number, y: number };
 
   constructor(private container: ElementRef, private modalService: NgbModal) {
   }
@@ -119,13 +119,13 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
       if (stateName === 'Started') {
         if (this.item.state === 'Started') {
           states.set(stateName, StateMachineItems.createActiveStartState());
-        }else{
+        } else {
           states.set(stateName, StateMachineItems.createStartState());
         }
       } else {
-        if (this.item.state == stateName) {
+        if (this.item.state === stateName) {
           states.set(stateName, StateMachineItems.createActiveState(stateName));
-        }else{
+        } else {
           states.set(stateName, StateMachineItems.createState(stateName));
         }
       }
@@ -152,7 +152,6 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   private addStatesToGraph(states: Map<String, dia.Element>) {
     states.forEach((state, stateName) => {
-      // state.position(pos.x * widthFactor + this.container.nativeElement.offsetWidth / 2, pos.y * heightFactor + this.container.nativeElement.offsetHeight / 2);
       state.addTo(this.graph);
     });
   }
@@ -195,7 +194,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
       edgeSep: 100,
       rankSep: 100,
       clusterPadding: 50,
-      rankDir: "TB",
+      rankDir: 'TB',
       marginX: 100,
       marginY: 50
     });
@@ -204,7 +203,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   ngAfterViewInit(): void {
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize', [ '$event' ])
   onResize() {
     if (UtilService.isDefined(this.paper)) {
       this.paper.setDimensions(0, 0);
@@ -221,13 +220,13 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  @HostListener('document:keyup.space', ['$event'])
+  @HostListener('document:keyup.space', [ '$event' ])
   onSpaceUp(event) {
     this.space = false;
     this.dragStartPosition = null;
   }
 
-  @HostListener('document:keydown.space', ['$event'])
+  @HostListener('document:keydown.space', [ '$event' ])
   onSpaceDown(event) {
     this.space = true;
   }
@@ -258,8 +257,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
         //   data.link.removeVertex(0);
         // });
 
-        linkView.addVertex(conn.bbox().center().x - gap * (index + 1), conn.bbox().center().y - gap/2 * (index + 1));
-        linkView.addVertex(conn.bbox().center().x - gap/2 * (index + 1), conn.bbox().center().y - gap * (index + 1));
+        linkView.addVertex(conn.bbox().center().x - gap * (index + 1), conn.bbox().center().y - gap / 2 * (index + 1));
+        linkView.addVertex(conn.bbox().center().x - gap / 2 * (index + 1), conn.bbox().center().y - gap * (index + 1));
       });
     });
   }
@@ -274,7 +273,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
           // same direction but other way around
           linkMap.get(data.target + data.source).push(data);
           return;
-        }else if (UtilService.isUndefined(linkMap.get(data.source + data.target))) {
+        } else if (UtilService.isUndefined(linkMap.get(data.source + data.target))) {
           linkMap.set(data.source + data.target, []);
         }
         linkMap.get(data.source + data.target).push(data);

@@ -53,7 +53,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, On
     // minLines: 10
   };
 
-  @ViewChild('editorCanvas')
+  @ViewChild('editorCanvas', {static: false})
   editorCanvas: ElementRef;
 
   private editor;

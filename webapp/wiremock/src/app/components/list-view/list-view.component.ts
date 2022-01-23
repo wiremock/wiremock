@@ -7,7 +7,7 @@ import {MessageService} from '../message/message.service';
 @Component({
   selector: 'wm-list-view',
   templateUrl: './list-view.component.html',
-  styleUrls: ['./list-view.component.scss']
+  styleUrls: [ './list-view.component.scss' ]
 })
 export class ListViewComponent implements OnInit, OnChanges {
 

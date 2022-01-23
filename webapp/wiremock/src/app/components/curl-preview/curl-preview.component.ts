@@ -6,20 +6,20 @@ import {
   OnInit,
   SimpleChanges, ViewChild
 } from '@angular/core';
-import {Curl, CurlExtractor} from "../../services/curl-extractor";
-import {CodeEditorComponent} from "../code-editor/code-editor.component";
-import {UtilService} from "../../services/util.service";
-import {Message, MessageService, MessageType} from "../message/message.service";
-import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {Curl, CurlExtractor} from '../../services/curl-extractor';
+import {CodeEditorComponent} from '../code-editor/code-editor.component';
+import {UtilService} from '../../services/util.service';
+import {Message, MessageService, MessageType} from '../message/message.service';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'wm-curl-preview',
   templateUrl: './curl-preview.component.html',
-  styleUrls: ['./curl-preview.component.scss']
+  styleUrls: [ './curl-preview.component.scss' ]
 })
 export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, AfterContentChecked {
 
-  @ViewChild('editor')
+  @ViewChild('editor', {static: false})
   private codeEditor: CodeEditorComponent;
 
   private _curl: Curl;
@@ -36,7 +36,7 @@ export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, A
     }
   }
 
-  constructor(private elementRef: ElementRef, private messageService:MessageService, public activeModal: NgbActiveModal) {
+  constructor(private elementRef: ElementRef, private messageService: MessageService, public activeModal: NgbActiveModal) {
   }
 
   ngOnInit() {

@@ -11,12 +11,12 @@ import {RecordingStatus} from '../../model/wiremock/recording-status';
 import {Subject} from 'rxjs/internal/Subject';
 import {WebSocketService} from '../../services/web-socket.service';
 import {debounceTime, takeUntil} from 'rxjs/operators';
-import {AutoRefreshService} from "../../services/auto-refresh.service";
+import {AutoRefreshService} from '../../services/auto-refresh.service';
 
 @Component({
   selector: 'wm-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: [ './home.component.scss' ]
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   RecordingStatus = RecordingStatus;
 
-  autoRefreshEnabled: boolean = true;
+  autoRefreshEnabled = true;
 
 
   constructor(private wiremockService: WiremockService, private messageService: MessageService,
@@ -99,7 +99,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (UtilService.isDefined(results) && UtilService.isDefined(results.getIds()) && results.getIds().length > 0) {
         const result = results.getIds().join('|');
 
-        this.router.navigate(['/mappings']).then(() => {
+        this.router.navigate([ '/mappings' ]).then(() => {
           this.searchService.setValue(result);
           this.messageService.setMessage(new Message('Recording stopped', MessageType.INFO, 3000));
         }, () => {
@@ -118,7 +118,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (UtilService.isDefined(results) && UtilService.isDefined(results.mappings) && results.getIds().length > 0) {
         const result = results.getIds().join('|');
 
-        this.router.navigate(['/mappings']).then(() => {
+        this.router.navigate([ '/mappings' ]).then(() => {
           this.searchService.setValue(result);
           this.messageService.setMessage(new Message('Snapshot stopped', MessageType.INFO, 3000));
         }, () => {

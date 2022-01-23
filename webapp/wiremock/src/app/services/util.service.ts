@@ -107,7 +107,7 @@ export class UtilService {
 
   public static itemModelStringify(item: any): string {
     if (item._code === null || typeof item._code === 'undefined') {
-      Object.defineProperty(item, "_code", {
+      Object.defineProperty(item, '_code', {
         enumerable: false,
         writable: true
       });
@@ -243,11 +243,11 @@ export class UtilService {
       return vkbeautify.json(code);
     } catch (err) {
       // Try to escape single quote
-      try{
+      try {
         const replaced = code.replace(new RegExp(/\\'/, 'g'), '%replaceMyQuote%');
         const pretty = vkbeautify.json(replaced);
         return pretty.replace(new RegExp(/%replaceMyQuote%/, 'g'), '\'');
-      }catch (err2) {
+      } catch (err2) {
         try {
           return vkbeautify.xml(code);
         } catch (err3) {

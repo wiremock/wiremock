@@ -8,14 +8,14 @@ import {ServeEvent} from '../../model/wiremock/serve-event';
 import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/internal/Subject';
 import {CurlExtractor} from '../../services/curl-extractor';
-import {AutoRefreshService} from "../../services/auto-refresh.service";
-import {CurlPreviewComponent} from "../curl-preview/curl-preview.component";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {AutoRefreshService} from '../../services/auto-refresh.service';
+import {CurlPreviewComponent} from '../curl-preview/curl-preview.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'wm-matched',
   templateUrl: './matched.component.html',
-  styleUrls: ['./matched.component.scss']
+  styleUrls: [ './matched.component.scss' ]
 })
 export class MatchedComponent implements OnInit, OnDestroy {
 
@@ -32,8 +32,8 @@ export class MatchedComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.webSocketService.observe('matched').pipe(
-        filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
-        takeUntil(this.ngUnsubscribe), debounceTime(100))
+      filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
+      takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadMappings();
       });
@@ -59,7 +59,7 @@ export class MatchedComponent implements OnInit, OnDestroy {
   }
 
   editCurl(request: ServeEvent) {
-    let curl = CurlExtractor.extractCurl(request);
+    const curl = CurlExtractor.extractCurl(request);
     const modalRef = this.modalService.open(CurlPreviewComponent, {
       size: 'lg',
       windowClass: 'modal-h70'

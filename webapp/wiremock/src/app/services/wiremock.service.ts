@@ -15,7 +15,7 @@ import {GetServeEventsResult} from '../model/wiremock/get-serve-events-result';
 import {SnapshotRecordResult} from '../model/wiremock/snapshot-record-result';
 import {ProxyConfig} from '../model/wiremock/proxy-config';
 import {RecordingStatus} from '../model/wiremock/recording-status';
-import {ScenarioResult} from "../model/wiremock/scenario-result";
+import {ScenarioResult} from '../model/wiremock/scenario-result';
 
 @Injectable()
 export class WiremockService {
@@ -124,7 +124,7 @@ export class WiremockService {
     return this.defaultPipe(this.http.delete<any>(WiremockService.getUrl('proxy/' + uuid)));
   }
 
-  getFileBody(fileName: string): Observable<string>{
+  getFileBody(fileName: string): Observable<string> {
     return this.defaultPipe(this.http.get<string>(WiremockService.getUrl('files/' + fileName)));
   }
 
@@ -150,7 +150,7 @@ export class WiremockService {
     return observable.pipe(retryWhen(this.genericRetryStrategy({
       scalingDuration: 1000,
       maxRetryAttempts: 3,
-      excludedStatusCodes: [400, 422]
+      excludedStatusCodes: [ 400, 422 ]
     })));
   }
 

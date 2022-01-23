@@ -1,9 +1,9 @@
-import * as joint from "jointjs";
-import {dia} from "jointjs";
+import * as joint from 'jointjs';
+import {dia} from 'jointjs';
 import Element = dia.Element;
-import {StateMappingInfoComponent} from "../state-mapping-info/state-mapping-info.component";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {StubMapping} from "../../model/wiremock/stub-mapping";
+import {StateMappingInfoComponent} from '../state-mapping-info/state-mapping-info.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {StubMapping} from '../../model/wiremock/stub-mapping';
 
 export class StateMachineItems {
 
@@ -11,7 +11,7 @@ export class StateMachineItems {
     (joint.linkTools as any).InfoButton = joint.linkTools.Button.extend({
       name: 'info-button',
       options: {
-        markup: [{
+        markup: [ {
           tagName: 'circle',
           selector: 'button',
           attributes: {
@@ -29,7 +29,7 @@ export class StateMachineItems {
             'stroke-width': 2,
             'pointer-events': 'none'
           }
-        }],
+        } ],
         distance: '50%',
         offset: 0,
         action: function (evt) {
@@ -45,11 +45,11 @@ export class StateMachineItems {
     const infoButton = new (joint.linkTools as any).InfoButton();
 
     return new joint.dia.ToolsView({
-      tools: [infoButton]
+      tools: [ infoButton ]
     });
   }
 
-  public static createSelfState(): Element{
+  public static createSelfState(): Element {
     const circle = new joint.shapes.standard.Circle();
     circle.resize(1, 1);
     circle.attr({

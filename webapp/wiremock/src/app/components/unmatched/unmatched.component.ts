@@ -8,15 +8,15 @@ import {LoggedRequest} from '../../model/wiremock/logged-request';
 import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/internal/Subject';
 import {CurlExtractor} from '../../services/curl-extractor';
-import {AutoRefreshService} from "../../services/auto-refresh.service";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {StateMappingInfoComponent} from "../state-mapping-info/state-mapping-info.component";
-import {CurlPreviewComponent} from "../curl-preview/curl-preview.component";
+import {AutoRefreshService} from '../../services/auto-refresh.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {StateMappingInfoComponent} from '../state-mapping-info/state-mapping-info.component';
+import {CurlPreviewComponent} from '../curl-preview/curl-preview.component';
 
 @Component({
   selector: 'wm-unmatched',
   templateUrl: './unmatched.component.html',
-  styleUrls: ['./unmatched.component.scss']
+  styleUrls: [ './unmatched.component.scss' ]
 })
 export class UnmatchedComponent implements OnInit, OnDestroy {
 
@@ -33,8 +33,8 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.webSocketService.observe('unmatched').pipe(
-        filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
-        takeUntil(this.ngUnsubscribe), debounceTime(100))
+      filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
+      takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadMappings();
       });

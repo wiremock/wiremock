@@ -36,7 +36,7 @@ export class HighlightJsDirective implements OnChanges {
 
     const prettyCode = UtilService.prettify(this.wmHighlightJs);
 
-    const highlighted = hljs.highlightAuto(prettyCode, this.isLangAvailable() ? [this.language] : ['html', 'json', 'xml', 'http']);
+    const highlighted = hljs.highlightAuto(prettyCode, this.isLangAvailable() ? [ this.language ] : [ 'html', 'json', 'xml', 'http' ]);
 
     if (highlighted.language === 'json' || highlighted.language === 'xml' ||
       highlighted.language === 'http' || highlighted.language === 'html') {

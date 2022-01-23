@@ -123,9 +123,9 @@ library.add(faFolder);
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [WiremockService, WebSocketService, MessageService, SearchService, NgbModal],
-  bootstrap: [AppComponent],
-  entryComponents: [DialogRecordingComponent, StateMappingInfoComponent, CurlPreviewComponent]
+  providers: [ WiremockService, WebSocketService, MessageService, SearchService, NgbModal ],
+  bootstrap: [ AppComponent ],
+  entryComponents: [ DialogRecordingComponent, StateMappingInfoComponent, CurlPreviewComponent ]
 })
 export class AppModule {
 }
