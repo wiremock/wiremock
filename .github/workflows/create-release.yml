@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        jdk: [ 8 ]
+        jdk: [ 8, 11, 17 ]
     runs-on: ${{ matrix.os }}
     env:
       JDK_VERSION: ${{ matrix.jdk }}
@@ -64,13 +64,33 @@ jobs:
           body: test
           draft: true
           prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Release Asset Java 8
+        id: upload-release-asset-java-8
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./build/libs/wiremock-jre8-standalone-${{ steps.vars.outputs.version }}-all.jar
+          asset_name: wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
+          asset_content_type: application/java-archive
+      - name: Upload Release Asset Java 11
+        id: upload-release-asset-java-11
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/libs/wiremock-jre11-standalone-${{ steps.vars.outputs.version }}-all.jar
+          asset_name: wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
+          asset_content_type: application/java-archive
+      - name: Upload Release Asset Java 17
+        id: upload-release-asset-java-17
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/libs/wiremock-jre17-standalone-${{ steps.vars.outputs.version }}-all.jar
           asset_name: wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive
