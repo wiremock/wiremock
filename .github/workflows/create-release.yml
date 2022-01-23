@@ -47,7 +47,7 @@ jobs:
         os: [ ubuntu-latest ]
         jdk: [ 8, 11, 17 ]
     runs-on: ${{ matrix.os }}
-    needs: [release]
+    needs: [ create_release ]
     env:
       JDK_VERSION: ${{ matrix.jdk }}
 
