@@ -63,8 +63,8 @@ jobs:
         with:
           tag_name: ${{ steps.vars.outputs.tag }}
           release_name: ${{ steps.vars.outputs.tag }}
-          body: test
-          draft: true
+          body: automatically generated release
+          draft: false
           prerelease: false
       - name: Upload Release Asset
         id: upload-release-asset
