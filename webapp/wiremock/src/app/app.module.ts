@@ -3,11 +3,10 @@ import {NgModule} from '@angular/core';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {HomeComponent} from './components/home/home.component';
 import {MappingsComponent} from './components/mappings/mappings.component';
 import {NgbModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import {FontAwesomeModule, FaIconLibrary} from '@fortawesome/angular-fontawesome';
 import {
   faAlignJustify,
   faAngleDoubleUp,
@@ -61,30 +60,6 @@ import {StateMachineComponent} from './components/state-machine/state-machine.co
 import {StateMappingInfoComponent} from './components/state-mapping-info/state-mapping-info.component';
 import {CurlPreviewComponent} from './components/curl-preview/curl-preview.component';
 
-
-// add icons. Only remove if not used anymore otherwise app will crash!
-library.add(faBars);
-library.add(faSearch);
-library.add(faPlus);
-library.add(faPencilAlt);
-library.add(faTrash);
-library.add(faSave);
-library.add(faTimes);
-library.add(faSyncAlt);
-library.add(faClock);
-library.add(faAngleDoubleUp);
-library.add(faAlignJustify);
-library.add(faFileAlt);
-library.add(faLink);
-library.add(faExchangeAlt);
-library.add(faCopy);
-library.add(faCog);
-library.add(faPowerOff);
-library.add(faDotCircle);
-library.add(faStop);
-library.add(faCamera);
-library.add(faFolder);
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -117,7 +92,7 @@ library.add(faFolder);
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgbModule.forRoot(),
+    NgbModule,
     FontAwesomeModule,
     HttpClientModule,
     ReactiveFormsModule,
@@ -128,4 +103,29 @@ library.add(faFolder);
   entryComponents: [ DialogRecordingComponent, StateMappingInfoComponent, CurlPreviewComponent ]
 })
 export class AppModule {
+
+  constructor(library: FaIconLibrary) {
+    // add icons. Only remove if not used anymore otherwise app will crash!
+    library.addIcons(faBars);
+    library.addIcons(faSearch);
+    library.addIcons(faPlus);
+    library.addIcons(faPencilAlt);
+    library.addIcons(faTrash);
+    library.addIcons(faSave);
+    library.addIcons(faTimes);
+    library.addIcons(faSyncAlt);
+    library.addIcons(faClock);
+    library.addIcons(faAngleDoubleUp);
+    library.addIcons(faAlignJustify);
+    library.addIcons(faFileAlt);
+    library.addIcons(faLink);
+    library.addIcons(faExchangeAlt);
+    library.addIcons(faCopy);
+    library.addIcons(faCog);
+    library.addIcons(faPowerOff);
+    library.addIcons(faDotCircle);
+    library.addIcons(faStop);
+    library.addIcons(faCamera);
+    library.addIcons(faFolder);
+  }
 }

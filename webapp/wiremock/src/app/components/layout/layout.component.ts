@@ -32,8 +32,8 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
 
   private ngUnsubscribe: Subject<any> = new Subject();
 
-  @ContentChild('content', {static: false}) content: TemplateRef<ElementRef>;
-  @ContentChild('actions', {static: false}) actions: TemplateRef<ElementRef>;
+  @ContentChild('content') content: TemplateRef<ElementRef>;
+  @ContentChild('actions') actions: TemplateRef<ElementRef>;
 
   @Input()
   items: Item[];

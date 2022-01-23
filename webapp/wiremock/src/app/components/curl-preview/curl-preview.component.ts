@@ -19,7 +19,7 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 })
 export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, AfterContentChecked {
 
-  @ViewChild('editor', {static: false})
+  @ViewChild('editor')
   private codeEditor: CodeEditorComponent;
 
   private _curl: Curl;

@@ -15,7 +15,7 @@ export class RawSeparatedComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
 
-  @ViewChild('tabSet', {static: false}) tabSet: NgbTabset;
+  @ViewChild('tabSet') tabSet: NgbTabset;
 
   private ngUnsubscribe: Subject<any> = new Subject();
 

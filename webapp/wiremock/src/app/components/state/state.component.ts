@@ -25,10 +25,10 @@ import {ProxyConfig} from '../../model/wiremock/proxy-config';
 })
 export class StateComponent implements OnInit, OnDestroy {
 
-  @ViewChild('canvas', {static: false})
+  @ViewChild('canvas')
   canvas: ElementRef;
 
-  @ViewChild('container', {static: false})
+  @ViewChild('container')
   container: ElementRef;
 
   result: Scenario[];

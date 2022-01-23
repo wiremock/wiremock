@@ -35,7 +35,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   private lastItem: Scenario;
 
-  @ViewChild('canvas', {static: false})
+  @ViewChild('canvas')
   canvas: ElementRef;
 
   @Input()

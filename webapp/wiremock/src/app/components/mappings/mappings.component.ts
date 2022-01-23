@@ -27,7 +27,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
 
-  @ViewChild('editor', {static: false}) editor;
+  @ViewChild('editor') editor;
 
   private ngUnsubscribe: Subject<any> = new Subject();
 
