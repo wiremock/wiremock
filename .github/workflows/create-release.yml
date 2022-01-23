@@ -100,10 +100,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Wiremock Docker image
-        run: docker buildx build --tag ${{ matrix.versions.IMAGE }} --env WIREMOCK_VERSION=${{ needs.outputs.version }}
+        run: docker buildx build --tag ${{ matrix.versions.IMAGE }} --build-arg WIREMOCK_VERSION=${{ needs.build.outputs.version }}
 
       - name: docker tag
-        run: docker tag ${{ matrix.versions.IMAGE }} ${{ matrix.versions.IMAGE }}:${{ needs.outputs.version }}
+        run: docker tag ${{ matrix.versions.IMAGE }} ${{ matrix.versions.IMAGE }}:${{ needs.build.outputs.version }}
 
       - name: Test Wiremock Docker image
         run: |
