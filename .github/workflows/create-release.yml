@@ -9,8 +9,16 @@ on:
       - "*-ui"
 
 jobs:
-  create_release:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        jdk: [ 8 ]
+    runs-on: ${{ matrix.os }}
+    env:
+      JDK_VERSION: ${{ matrix.jdk }}
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,37 +32,6 @@ jobs:
         run: |
           echo ${{ steps.vars.outputs.tag }}
           echo ${{ steps.vars.outputs.version }}
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.vars.outputs.tag }}
-          release_name: ${{ steps.vars.outputs.tag }}
-          body: test
-          draft: true
-          prerelease: false
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      tag: ${{ steps.vars.outputs.tag }}
-      version: ${{ steps.vars.outputs.version }}
-
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        jdk: [ 8, 11, 17 ]
-    runs-on: ${{ matrix.os }}
-    needs: [ create_release ]
-    env:
-      JDK_VERSION: ${{ matrix.jdk }}
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
       - name: Set up JDK
@@ -76,13 +53,24 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
       - name: Build
         run: ./gradlew jar shadowJar
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          release_name: ${{ steps.vars.outputs.tag }}
+          body: test
+          draft: true
+          prerelease: false
       - name: Upload Release Asset
-        id: upload-release-asset-java
+        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./build/libs/wiremock-jre${{ matrix.jdk }}-standalone-${{ needs.create_release.outputs.version }}-all.jar
-          asset_name: wiremock-jre${{ matrix.jdk }}-standalone-${{ needs.create_release.outputs.version }}.jar
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/libs/wiremock-jre8-standalone-${{ steps.vars.outputs.version }}-all.jar
+          asset_name: wiremock-jre8-standalone-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive
