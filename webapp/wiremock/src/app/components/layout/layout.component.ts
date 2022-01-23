@@ -114,7 +114,8 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
     if (UtilService.isUndefined(changes)) {
       return;
     }
-    if (UtilService.isDefined(changes.items) && (UtilService.isDefined(changes.items.currentValue) || UtilService.isDefined(changes.items.previousValue))) {
+    if (UtilService.isDefined(changes.items) && (UtilService.isDefined(changes.items.currentValue)
+      || UtilService.isDefined(changes.items.previousValue))) {
       // We only update filteredItems when actual items changed. activeItemId can be set but it is only a suggestion. This component
       // is responsible for selecting items
       this.onSearchChanged(new SearchEvent(this.lastSearch, this.caseSensitiveSearchEnabled));
@@ -161,7 +162,7 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.next(true);
     this.ngUnsubscribe.complete();
   }
 }

@@ -5,44 +5,46 @@ import {StateMappingInfoComponent} from '../state-mapping-info/state-mapping-inf
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {StubMapping} from '../../model/wiremock/stub-mapping';
 
+class InfoButton extends joint.linkTools.Button {
+  constructor(modalService: NgbModal, mapping: StubMapping) {
+    super({
+      markup: [ {
+        tagName: 'circle',
+        selector: 'button',
+        attributes: {
+          'r': 7,
+          'fill': '#f58e00',
+          'cursor': 'pointer'
+        }
+      }, {
+        tagName: 'path',
+        selector: 'icon',
+        attributes: {
+          'd': 'M -2 4 2 4 M 0 3 0 0 M -2 -1 1 -1 M -1 -4 1 -4',
+          'fill': 'none',
+          'stroke': '#FFFFFF',
+          'stroke-width': 2,
+          'pointer-events': 'none'
+        }
+      } ],
+      distance: '50%',
+      offset: 0,
+      action: function (evt) {
+        const modalRef = modalService.open(StateMappingInfoComponent, {
+          size: 'lg',
+          windowClass: 'modal-h70'
+        });
+        modalRef.componentInstance.mapping = mapping;
+      }
+    });
+  }
+}
+
+
 export class StateMachineItems {
 
   public static createInfoButton(modalService: NgbModal, mapping: StubMapping) {
-    (joint.linkTools as any).InfoButton = joint.linkTools.Button.extend({
-      name: 'info-button',
-      options: {
-        markup: [ {
-          tagName: 'circle',
-          selector: 'button',
-          attributes: {
-            'r': 7,
-            'fill': '#f58e00',
-            'cursor': 'pointer'
-          }
-        }, {
-          tagName: 'path',
-          selector: 'icon',
-          attributes: {
-            'd': 'M -2 4 2 4 M 0 3 0 0 M -2 -1 1 -1 M -1 -4 1 -4',
-            'fill': 'none',
-            'stroke': '#FFFFFF',
-            'stroke-width': 2,
-            'pointer-events': 'none'
-          }
-        } ],
-        distance: '50%',
-        offset: 0,
-        action: function (evt) {
-          const modalRef = modalService.open(StateMappingInfoComponent, {
-            size: 'lg',
-            windowClass: 'modal-h70'
-          });
-          modalRef.componentInstance.mapping = mapping;
-        }
-      }
-    });
-
-    const infoButton = new (joint.linkTools as any).InfoButton();
+    const infoButton = new InfoButton(modalService, mapping);
 
     return new joint.dia.ToolsView({
       tools: [ infoButton ]

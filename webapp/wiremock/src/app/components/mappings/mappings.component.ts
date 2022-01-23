@@ -303,7 +303,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.next(true);
     this.ngUnsubscribe.complete();
   }
 

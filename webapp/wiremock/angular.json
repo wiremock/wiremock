@@ -17,6 +17,10 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+                "dagre",
+                "graphlib"
+            ],
             "aot": true,
             "outputPath": "../../src/main/resources/assets/webapp",
             "index": "src/index.html",
@@ -32,7 +36,13 @@
             ],
             "scripts": [
               "node_modules/highlightjs/highlight.pack.min.js"
-            ]
+            ],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {

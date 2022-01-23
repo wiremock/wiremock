@@ -10,6 +10,8 @@ import {
   ViewChild
 } from '@angular/core';
 import * as joint from 'jointjs';
+import dagre from 'dagre';
+import graphlib from 'graphlib';
 import {dia} from 'jointjs';
 import Paper = dia.Paper;
 import {StateMachineItems} from './state-machine-items';
@@ -190,6 +192,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   private doLayout() {
     joint.layout.DirectedGraph.layout(this.graph, {
+      dagre: dagre,
+      graphlib: graphlib,
       nodeSep: 100,
       edgeSep: 100,
       rankSep: 100,
@@ -233,7 +237,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   private selfLinks(links: StateLink[]) {
 
-    const gap = 20;
+    const xgap = 20;
+    const ygap = 20;
     const linkMap = new Map<String, StateLink[]>();
 
     links.forEach(data => {
@@ -257,8 +262,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
         //   data.link.removeVertex(0);
         // });
 
-        linkView.addVertex(conn.bbox().center().x - gap * (index + 1), conn.bbox().center().y - gap / 2 * (index + 1));
-        linkView.addVertex(conn.bbox().center().x - gap / 2 * (index + 1), conn.bbox().center().y - gap * (index + 1));
+        linkView.addVertex(conn.bbox().center().x + xgap * (index + 1), conn.bbox().center().y - ygap / 2 * (index + 1));
+        linkView.addVertex(conn.bbox().center().x + xgap / 2 * (index + 1), conn.bbox().center().y - ygap * (index + 1));
       });
     });
   }

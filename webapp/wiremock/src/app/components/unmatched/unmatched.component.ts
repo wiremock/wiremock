@@ -77,7 +77,7 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
   }
 
   editCurl(request: LoggedRequest) {
-    let curl = CurlExtractor.extractCurl(request);
+    const curl = CurlExtractor.extractCurl(request);
     const modalRef = this.modalService.open(CurlPreviewComponent, {
       size: 'lg',
       windowClass: 'modal-h70'
@@ -151,7 +151,7 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.next(true);
     this.ngUnsubscribe.complete();
   }
 
