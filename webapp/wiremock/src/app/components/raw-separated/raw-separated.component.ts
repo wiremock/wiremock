@@ -3,19 +3,17 @@ import {takeUntil} from 'rxjs/operators';
 import {UtilService} from '../../services/util.service';
 import {Tab, TabSelectionService} from '../../services/tab-selection.service';
 import {Subject} from 'rxjs/internal/Subject';
-import {NgbTabset} from '@ng-bootstrap/ng-bootstrap';
+import {NgbNav} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'wm-raw-separated',
   templateUrl: './raw-separated.component.html',
-  styleUrls: ['./raw-separated.component.scss'],
+  styleUrls: [ './raw-separated.component.scss' ],
   encapsulation: ViewEncapsulation.None
 })
 export class RawSeparatedComponent implements OnInit, OnDestroy {
 
-  @HostBinding('class') classes = 'wmHolyGrailBody';
-
-  @ViewChild('tabSet') tabSet: NgbTabset;
+  @HostBinding('class') classes = 'wmHolyGrailBody column';
 
   private ngUnsubscribe: Subject<any> = new Subject();
 
@@ -25,6 +23,8 @@ export class RawSeparatedComponent implements OnInit, OnDestroy {
   @Input()
   rawDisabled = false;
 
+  activeId = 'tab-raw';
+
   constructor(private tabSelectionService: TabSelectionService) {
   }
 
@@ -33,10 +33,12 @@ export class RawSeparatedComponent implements OnInit, OnDestroy {
       if (UtilService.isDefined(tabToSelect)) {
         switch (tabToSelect) {
           case Tab.RAW:
-            this.tabSet.select('tab-raw');
+            // this.nav.select('tab-raw');
+            this.activeId = 'tab-raw';
             break;
           case Tab.SEPARATED:
-            this.tabSet.select('tab-separated');
+            // this.nav.select('tab-separated');
+            this.activeId = 'tab-separated';
             break;
         }
       }

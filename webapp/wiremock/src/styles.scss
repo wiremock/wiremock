@@ -1,5 +1,10 @@
 @import "bootstrapCustom";
 
+.tab-pane {
+  display: flex!important;
+  flex: 1;
+}
+
 .wmTabs > .nav {
   margin: 0;
   padding: .5rem 1.25rem 0;
@@ -86,7 +91,7 @@ body {
   > * {
     position: absolute;
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     //flex-grow: 1;
   }
 }
