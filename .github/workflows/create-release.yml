@@ -84,6 +84,7 @@ jobs:
         versions:
           - IMAGE: holomekc/wiremock-gui
             PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+    steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
