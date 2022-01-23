@@ -100,13 +100,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Wiremock Docker image
-        run: docker buildx build . -t ${{ matrix.versions.IMAGE }} --build-arg WIREMOCK_VERSION=${{ needs.build.outputs.version }} --load
-
-      - name: docker tag
-        run: docker tag ${{ matrix.versions.IMAGE }} ${{ matrix.versions.IMAGE }}:${{ needs.build.outputs.version }}
+        run: docker buildx build . -t ${{ matrix.versions.IMAGE }} -t ${{ matrix.versions.IMAGE }}:${{ needs.build.outputs.version }} --build-arg WIREMOCK_VERSION=${{ needs.build.outputs.version }} --load
 
       - name: Test Wiremock Docker image
         run: |
+          # latest
           docker container run -d --name test -p 8080:8080 ${{ matrix.versions.IMAGE }}
           timeout 10 bash -c 'while ! curl --fail http://localhost:8080/__admin/; do sleep 1; done'
           docker container rm -f test
+
+          # version
+          docker container run -d --name test -p 8080:8080 ${{ matrix.versions.IMAGE }}:${{ needs.build.outputs.version }}
+          timeout 10 bash -c 'while ! curl --fail http://localhost:8080/__admin/; do sleep 1; done'
+          docker container rm -f test
+
+      - name: Push wiremock-gui image to Docker HUB
+        run: docker buildx build . -t ${{ matrix.versions.IMAGE }} -t ${{ matrix.versions.IMAGE }}:${{ needs.build.outputs.version }} --build-arg WIREMOCK_VERSION=${{ needs.build.outputs.version }} --platform ${{ matrix.versions.PLATFORMS }} --push
