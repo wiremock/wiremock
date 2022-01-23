@@ -20,7 +20,7 @@ jobs:
       JDK_VERSION: ${{ matrix.jdk }}
 
     outputs:
-      version: steps.vars.outputs.version
+      version: ${{ steps.vars.outputs.version }}
     steps:
       - uses: actions/checkout@v2
         with:
