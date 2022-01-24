@@ -3,13 +3,25 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
+  production: true,
   getWebSocket: function (): WebSocket {
     return new WebSocket('ws://localhost:8089/__admin/events');
   },
-  url: 'http://localhost:8089/__admin/',
-  resourcesUrl: '/'
+  wiremockUrl: '/',
+  url: '/__admin/',
+  resourcesUrl: '/__admin/webapp/'
 };
+
+
+// export const environment = {
+//   production: false,
+//   getWebSocket: function (): WebSocket {
+//     return new WebSocket('ws://localhost:8089/__admin/events');
+//   },
+//   wiremockUrl: 'http://localhost:8089/',
+//   url: 'http://localhost:8089/__admin/',
+//   resourcesUrl: '/'
+// };
 
 /*
  * In development mode, to ignore zone related error stack frames such as

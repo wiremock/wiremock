@@ -13,6 +13,7 @@ export const environment = {
 
     return new WebSocket(new_uri);
   },
+  wiremockUrl: '/',
   url: '/__admin/',
   resourcesUrl: '/__admin/webapp/'
 };

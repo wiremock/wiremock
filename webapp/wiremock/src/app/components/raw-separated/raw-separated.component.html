@@ -1,4 +1,4 @@
-<ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
+<ul ngbNav #nav="ngbNav" [(activeId)]="activeId" [animation]="false" class="nav-tabs">
   <li [ngbNavItem]="'tab-raw'" [disabled]="rawDisabled">
     <a ngbNavLink>Raw</a>
     <ng-template ngbNavContent>
@@ -9,6 +9,12 @@
     <a ngbNavLink>Separated</a>
     <ng-template ngbNavContent>
       <ng-content select="wm-raw-separated-separated"></ng-content>
+    </ng-template>
+  </li>
+  <li [ngbNavItem]="'tab-test'" *ngIf="!testHidden">
+    <a ngbNavLink><fa-icon icon="play"></fa-icon> Test</a>
+    <ng-template ngbNavContent>
+      <ng-content select="wm-raw-separated-test"></ng-content>
     </ng-template>
   </li>
 </ul>

@@ -1,5 +1,5 @@
 <div class="wmSeparatedWrapper" *ngIf="activeItem">
-  <div class="card text-white bg-success mb-3">
+  <div class="card text-black bg-success mb-3">
     <div class="card-header">
       General
     </div>
@@ -28,7 +28,7 @@
 
   <ng-container *ngFor="let property of activeItem | keys | isObject; let i = index">
 
-    <div *ngIf="isObject(property.value)" class="card {{color[i]}} text-white mb-3">
+    <div *ngIf="isObject(property.value)" class="card {{color[i]}} text-black mb-3">
       <div class="card-header">
         {{property.key | capitalizeFirst}}
       </div>
@@ -47,7 +47,7 @@
                 <td class="wmTableColumnKey">{{subProperty.key}}</td>
                 <!--<td>{{subProperty.value | prettify}}</td>-->
                 <td class="wmTableColumnValue">
-                  <wm-code-entry [code]="subProperty.value | json" [language]="'json'"></wm-code-entry>
+                  <wm-code-entry [code]="subProperty.value | prettify" [language]="'json'"></wm-code-entry>
                 </td>
               </tr>
             </ng-container>

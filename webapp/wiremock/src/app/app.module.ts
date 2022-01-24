@@ -24,11 +24,13 @@ import {
   faPowerOff,
   faSave,
   faSearch,
+  faPlay,
   faStop,
   faSyncAlt,
   faTimes,
   faTrash,
-  faFolder
+  faFolder,
+  faCheck
 } from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';
@@ -59,6 +61,8 @@ import {StateComponent} from './components/state/state.component';
 import {StateMachineComponent} from './components/state-machine/state-machine.component';
 import {StateMappingInfoComponent} from './components/state-mapping-info/state-mapping-info.component';
 import {CurlPreviewComponent} from './components/curl-preview/curl-preview.component';
+import { MappingTestComponent } from './components/mapping-test/mapping-test.component';
+import {TestDirective} from './components/raw-separated/test.directive';
 
 @NgModule({
   declarations: [
@@ -74,6 +78,7 @@ import {CurlPreviewComponent} from './components/curl-preview/curl-preview.compo
     RawSeparatedComponent,
     RawDirective,
     SeparatedDirective,
+    TestDirective,
     SeparatedComponent,
     KeysPipe,
     CapitalizeFirstPipe,
@@ -87,7 +92,8 @@ import {CurlPreviewComponent} from './components/curl-preview/curl-preview.compo
     StateComponent,
     StateMachineComponent,
     StateMappingInfoComponent,
-    CurlPreviewComponent
+    CurlPreviewComponent,
+    MappingTestComponent
   ],
   imports: [
     BrowserModule,
@@ -100,7 +106,7 @@ import {CurlPreviewComponent} from './components/curl-preview/curl-preview.compo
   ],
   providers: [ WiremockService, WebSocketService, MessageService, SearchService, NgbModal ],
   bootstrap: [ AppComponent ],
-  entryComponents: [ DialogRecordingComponent, StateMappingInfoComponent, CurlPreviewComponent ]
+  entryComponents: [ DialogRecordingComponent, StateMappingInfoComponent, CurlPreviewComponent, MappingTestComponent ]
 })
 export class AppModule {
 
@@ -124,8 +130,10 @@ export class AppModule {
     library.addIcons(faCog);
     library.addIcons(faPowerOff);
     library.addIcons(faDotCircle);
+    library.addIcons(faPlay);
     library.addIcons(faStop);
     library.addIcons(faCamera);
     library.addIcons(faFolder);
+    library.addIcons(faCheck);
   }
 }

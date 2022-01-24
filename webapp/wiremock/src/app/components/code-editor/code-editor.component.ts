@@ -10,14 +10,14 @@ import {
   SimpleChanges, ViewChild
 } from '@angular/core';
 import {UtilService} from '../../services/util.service';
-import {Subject, timer} from "rxjs";
+import {Subject, timer} from 'rxjs';
 import * as ace from 'ace-builds';
-import {debounce, takeUntil} from "rxjs/operators";
+import {debounce, takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'wm-code-editor',
   templateUrl: './code-editor.component.html',
-  styleUrls: ['./code-editor.component.scss'],
+  styleUrls: [ './code-editor.component.scss' ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
@@ -91,13 +91,13 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, On
       .subscribe(value => {
         this._code = value;
         this.valueChange.emit(this._code);
-      })
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (UtilService.isDefined(this.editor)) {
 
-      if(UtilService.isDefined(changes.options)){
+      if (UtilService.isDefined(changes.options)) {
         this.zone.runOutsideAngular(() => {
           this.setOptions();
         });
@@ -105,13 +105,13 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, On
 
       if (UtilService.isDefined(changes.language)) {
         this.zone.runOutsideAngular(() => {
-          this.editor.session.setMode("ace/mode/" + this.language);
+          this.editor.session.setMode('ace/mode/' + this.language);
         });
       }
     }
   }
 
-  private setEditorValue(){
+  private setEditorValue() {
     if (UtilService.isDefined(this.editor)) {
       this.zone.runOutsideAngular(() => {
         this.editor.setValue(this._code);
@@ -125,8 +125,9 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, On
   }
 
   resize(): void {
-    if (UtilService.isDefined(this.editor))
+    if (UtilService.isDefined(this.editor)) {
       this.editor.resize();
+    }
   }
 
   private setOptions() {
@@ -144,7 +145,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, On
       this.editor.setTheme('ace/theme/monokai');
       this.editor.container.style.lineHeight = 1.5;
       this.setOptions();
-      this.editor.session.setMode("ace/mode/" + this.language);
+      this.editor.session.setMode('ace/mode/' + this.language);
       this.setEditorValue();
 
       this.editor.session.on('change', () => {
@@ -152,8 +153,8 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit, On
         // delta.start, delta.end, delta.lines, delta.action
         this.zone.run(() => {
           this.editorChanges.next(this.editor.getValue());
-        })
-      })
+        });
+      });
     });
   }
 

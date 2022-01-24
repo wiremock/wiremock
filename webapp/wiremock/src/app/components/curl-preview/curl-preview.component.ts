@@ -55,18 +55,14 @@ export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, A
   }
 
   ngAfterViewInit(): void {
-  }
-
-  ngAfterContentChecked(): void {
-    // this may look very strange but we need to resize ace when actual view size is known. This way we know when
-    // ng-bootstrap created modal, because it is initially created in body and then moved to separate div. I could
-    // not find a suitable hook there.
-
     const offsetParent = this.elementRef.nativeElement.offsetParent;
 
     if (!this.visible && UtilService.isDefined(offsetParent) && offsetParent.offsetParent !== document.body) {
       this.visible = true;
       this.codeEditor.resize();
     }
+  }
+
+  ngAfterContentChecked(): void {
   }
 }

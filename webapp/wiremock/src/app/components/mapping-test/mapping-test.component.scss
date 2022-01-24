@@ -1,0 +1,38 @@
+.wmEditorContainer {
+  position: relative;
+  display: flex;
+  flex: 1;
+  height: 200px;
+}
+
+.wmEditorResponseContainer {
+  height: 400px;
+}
+
+.wmContainer {
+  padding: 0.25em;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.wmMatches {
+  align-self: center;
+  padding: 5px;
+}
+
+.wmMatchContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+}
+
+.wmMappingId {
+  font-size: 75%;
+  margin-left: 10px;
+}
+
+form {
+  margin-bottom: 0;
+}

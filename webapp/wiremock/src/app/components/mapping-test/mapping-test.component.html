@@ -1,0 +1,83 @@
+<div class="wmContainer wmHolyGrailBody">
+  <div class="card text-black bg-info mb-3">
+    <div class="card-header">
+      Request
+    </div>
+    <div class="card-body bg-light text-dark">
+      <form class="wmHolyGrailBody column">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Url</span>
+          </div>
+          <input [formControl]="url" type="url" class="form-control" id="play-url">
+        </div>
+        <div class="form-group">
+          <label for="header">Headers</label>
+          <div class="wmEditorContainer">
+            <wm-code-editor #headerContent
+                            id="header"
+                            [code]="headerCode"
+                            [language]="'json'" [options]="codeOptions"
+                            (valueChange)="headerValueChange($event)"
+            ></wm-code-editor>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="body">Body</label>
+          <div class="wmEditorContainer">
+            <wm-code-editor #bodyContent
+                            id="body"
+                            [code]="''"
+                            [language]="language" [options]="codeOptions"></wm-code-editor>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" (click)="run()">
+          <fa-icon icon="play"></fa-icon>
+          Run
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="card text-black bg-primary mb-3" *ngIf="response">
+    <div class="card-header">
+      Response
+    </div>
+    <div class="card-body bg-light text-dark">
+      <form class="wmHolyGrailBody column">
+        <div class="wmMatchContainer">
+          <h4><span class="badge"
+                    [class.badge-success]="responseIsMapping"
+                    [class.badge-danger]="!responseIsMapping">{{responseIsMapping ? 'Matches' : 'No Match'}}
+            <fa-icon class="wmMatches" [icon]="responseIsMapping ? 'check' : 'times'"></fa-icon></span></h4>
+          <h4 *ngIf="!responseIsMapping && responseMappingId">
+            <a [routerLink]="['/mappings']" [queryParams]="{active: responseMappingId}" class="wmMappingId wmStubMappingLink">{{responseMappingId}}</a>
+          </h4>
+        </div>
+        <div class="form-group">
+
+          <div class="wmEditorContainer wmEditorResponseContainer">
+            <wm-code-editor [code]="response"
+                            [language]="'json'" [options]="codeReadOnlyOptions"></wm-code-editor>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="body">Body</label>
+          <div class="wmEditorContainer wmEditorResponseContainer">
+            <wm-code-editor [code]="responseBody"
+                            [language]="responseLanguage" [options]="codeReadOnlyOptions"></wm-code-editor>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+

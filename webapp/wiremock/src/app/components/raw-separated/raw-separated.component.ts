@@ -1,4 +1,13 @@
-import {Component, HostBinding, Input, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component, ContentChild, ElementRef,
+  HostBinding,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import {takeUntil} from 'rxjs/operators';
 import {UtilService} from '../../services/util.service';
 import {Tab, TabSelectionService} from '../../services/tab-selection.service';
@@ -11,7 +20,7 @@ import {NgbNav} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: [ './raw-separated.component.scss' ],
   encapsulation: ViewEncapsulation.None
 })
-export class RawSeparatedComponent implements OnInit, OnDestroy {
+export class RawSeparatedComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @HostBinding('class') classes = 'wmHolyGrailBody column';
 
@@ -23,6 +32,12 @@ export class RawSeparatedComponent implements OnInit, OnDestroy {
   @Input()
   rawDisabled = false;
 
+  @Input()
+  testHidden = true;
+
+  @ContentChild('wm-raw-separated-test')
+  test: ElementRef;
+
   activeId = 'tab-raw';
 
   constructor(private tabSelectionService: TabSelectionService) {
@@ -33,21 +48,29 @@ export class RawSeparatedComponent implements OnInit, OnDestroy {
       if (UtilService.isDefined(tabToSelect)) {
         switch (tabToSelect) {
           case Tab.RAW:
-            // this.nav.select('tab-raw');
             this.activeId = 'tab-raw';
             break;
           case Tab.SEPARATED:
-            // this.nav.select('tab-separated');
             this.activeId = 'tab-separated';
             break;
+          case Tab.TEST:
+            if (!this.testHidden) {
+              this.activeId = 'tab-test';
+              break;
+            }
         }
       }
     });
   }
 
+
   ngOnDestroy(): void {
     this.ngUnsubscribe.next(true);
     this.ngUnsubscribe.complete();
+  }
+
+  ngAfterViewInit(): void {
+    console.log(this.test);
   }
 
 }

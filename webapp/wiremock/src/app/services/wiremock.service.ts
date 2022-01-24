@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {environment} from '../../environments/environment';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest} from '@angular/common/http';
 import {RecordSpec} from '../model/wiremock/record-spec';
 import {Observable} from 'rxjs/internal/Observable';
 import {finalize, map, mergeMap, retryWhen} from 'rxjs/operators';
@@ -127,6 +127,18 @@ export class WiremockService {
   getFileBody(fileName: string): Observable<string> {
     return this.defaultPipe(this.http.get<string>(WiremockService.getUrl('files/' + fileName)));
   }
+
+  test(path: string, method: string, body: unknown | null, headers: {[header: string]: string | string[]}): Observable<HttpEvent<any>> {
+    path = path.charAt(0) === '/' ? path.substring(1) : path;
+    const url = environment.wiremockUrl + path;
+    const request = new HttpRequest(method, url, body, {
+      headers: new HttpHeaders(headers),
+      responseType: 'text',
+      reportProgress: true
+    });
+    return this.http.request(request);
+  }
+
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {

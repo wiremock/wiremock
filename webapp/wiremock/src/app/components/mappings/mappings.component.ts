@@ -13,6 +13,9 @@ import {Subject} from 'rxjs/internal/Subject';
 import {ProxyConfig} from '../../model/wiremock/proxy-config';
 import {Tab, TabSelectionService} from '../../services/tab-selection.service';
 import {AutoRefreshService} from '../../services/auto-refresh.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {StateMappingInfoComponent} from '../state-mapping-info/state-mapping-info.component';
+import {MappingTestComponent} from '../mapping-test/mapping-test.component';
 
 @Component({
   selector: 'wm-mappings',
@@ -25,7 +28,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   private static ACTION_GENERAL_FAILURE = 'Was not able to execute the selected action';
   private static ACTION_FAILURE_PREFIX = 'Action not possible: ';
 
-  @HostBinding('class') classes = 'wmHolyGrailBody';
+  @HostBinding('class') classes = 'wmHolyGrailBody column';
 
   @ViewChild('editor') editor;
 
@@ -68,7 +71,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     enableMultiselect: true
   };
 
-  codeReadonOnlyOptions = {
+  codeReadOnlyOptions = {
     selectionStyle: 'text',
     highlightActiveLine: true, // readOnly
     highlightSelectedWord: true,
@@ -97,7 +100,8 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
               private messageService: MessageService, private tabSelectionService: TabSelectionService,
-              private autoRefreshService: AutoRefreshService) {
+              private autoRefreshService: AutoRefreshService,
+              private modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -215,6 +219,14 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
+
+  // test(item: StubMapping): void {
+  //   const modalRef = this.modalService.open(MappingTestComponent, {
+  //     size: 'lg',
+  //     windowClass: 'modal-h70'
+  //   });
+  //   modalRef.componentInstance.mapping = item;
+  // }
 
   onMessage(): void {
     this.loadMappings();

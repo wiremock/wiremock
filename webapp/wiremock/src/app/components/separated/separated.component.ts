@@ -21,7 +21,7 @@ export class SeparatedComponent implements OnInit, OnChanges {
 
   private _activeItem: Item;
 
-  color: string[] = [ 'bg-warning', 'bg-info', 'bg-danger', 'bg-primary', 'bg-secondary', 'bg-dark' ];
+  color: string[] = [ 'bg-info', 'bg-warning', 'bg-danger', 'bg-primary', 'bg-secondary', 'bg-dark' ];
 
   bodyFileData: string;
   bodyGroupKey: string;
