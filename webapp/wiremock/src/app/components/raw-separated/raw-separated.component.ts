@@ -70,7 +70,6 @@ export class RawSeparatedComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log(this.test);
   }
 
 }

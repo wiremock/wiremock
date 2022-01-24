@@ -186,8 +186,6 @@ export class MappingTestComponent implements OnInit, OnChanges {
 
     const headers: { [header: string]: string | string[] } = {} = this.getHeaders();
 
-    console.log(headers);
-
     this.wiremockService.test(this.url.value, this.mapping.request.method.toUpperCase(), body, headers).subscribe(resp => {
       this.handleResponse(resp);
     }, (error: Error) => {

@@ -11,8 +11,10 @@
       <ng-content select="wm-raw-separated-separated"></ng-content>
     </ng-template>
   </li>
-  <li [ngbNavItem]="'tab-test'" *ngIf="!testHidden">
-    <a ngbNavLink><fa-icon icon="play"></fa-icon> Test</a>
+  <li [ngbNavItem]="'tab-test'" *ngIf="!testHidden" [disabled]="separatedDisabled">
+    <a ngbNavLink>
+      <fa-icon icon="play"></fa-icon>
+      Test</a>
     <ng-template ngbNavContent>
       <ng-content select="wm-raw-separated-test"></ng-content>
     </ng-template>

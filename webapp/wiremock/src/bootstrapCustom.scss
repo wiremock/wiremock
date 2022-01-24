@@ -1,8 +1,4 @@
-$primary: #f58e00 !default;
-$secondary: #ced4da !default;
-$component-active-color: white !default;
-$navbar-light-active-color: $primary !default;
-
+@import "variables";
 @import "~bootstrap/scss/bootstrap.scss";
 //@import "~highlightjs/styles/railscasts.css";
 @import "hljs-monokai";
