@@ -151,6 +151,8 @@ One example of this might be where you want to define a catch-all stub
 for any URL that doesn't match any more specific cases. Adding a
 priority to a stub mapping facilitates this:
 
+The default priority is 5. A lower number priority overrides stubs with a higher number priority. For instance, a priority of 1 overrides any stubs of priority of 5.
+
 ```java
 //Catch-all case
 stubFor(get(urlMatching("/api/.*")).atPriority(5)
