@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -83,7 +84,7 @@ public class ProxyAcceptanceTest {
 
     targetServiceBaseUrl = "http://localhost:" + targetService.port();
 
-    proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
+    proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1").extensions(new ResponseTemplateTransformer(true));
     proxyingService = new WireMockServer(proxyingServiceOptions);
     proxyingService.start();
     proxy = WireMock.create().port(proxyingService.port()).build();
@@ -118,6 +119,29 @@ public class ProxyAcceptanceTest {
         any(urlEqualTo("/proxied/resource?param=value"))
             .atPriority(10)
             .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+    WireMockResponse response = testClient.get("/proxied/resource?param=value");
+
+    assertThat(response.content(), is("Proxied content"));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
+  public void successfullyGetsResponseFromOtherServiceViaProxyRemovingPrefix() {
+    initWithDefaultConfig();
+
+    target.register(
+            get(urlEqualTo("/resource?param=value"))
+                    .willReturn(
+                            aResponse()
+                                    .withStatus(200)
+                                    .withHeader("Content-Type", "text/plain")
+                                    .withBody("Proxied content")));
+
+    proxy.register(
+            any(urlEqualTo("/proxied/resource?param=value"))
+                    .atPriority(10)
+                    .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl).withProxyUrlPrefixToRemove("/proxied")));
 
     WireMockResponse response = testClient.get("/proxied/resource?param=value");
 
