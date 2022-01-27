@@ -104,7 +104,9 @@ export class TreeViewComponent implements OnInit, OnChanges {
               // group does not exist yet. Create it
               this.tree.insert(groupParent.getId(), new Folder(groupId, groupName));
             }
-            groupParent = this.tree.find(groupId).value;
+            const folder = this.tree.find(groupId);
+            folder.collapsed = true;
+            groupParent = folder.value;
           });
 
 
