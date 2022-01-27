@@ -3,6 +3,7 @@ import * as vkbeautify from 'vkbeautify';
 // import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../model/wiremock/item';
 import {Message, MessageService, MessageType} from '../components/message/message.service';
+import {StubMapping} from '../model/wiremock/stub-mapping';
 
 @Injectable()
 export class UtilService {
@@ -91,6 +92,11 @@ export class UtilService {
 
   public static isDefined(value: any): boolean {
     return !(value === null || typeof value === 'undefined');
+  }
+
+  public static isGroupDefined(value: StubMapping): boolean {
+    return UtilService.isDefined(value.metadata) && UtilService.isDefined(value.metadata.gui) &&
+      UtilService.isDefined(value.metadata.gui.group);
   }
 
   public static isUndefined(value: any): boolean {

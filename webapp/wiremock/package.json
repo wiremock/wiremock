@@ -48,7 +48,8 @@
     "tslib": "^1.10.0",
     "vkbeautify": "^0.99.3",
     "zone.js": "~0.11.4",
-    "mime-db": "^1.51.0"
+    "mime-db": "^1.51.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.1.4",

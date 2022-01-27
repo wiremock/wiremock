@@ -1,8 +1,8 @@
-import {StubMapping} from "./stub-mapping";
-import {Item} from "./item";
-import {ProxyConfig} from "./proxy-config";
+import {StubMapping} from './stub-mapping';
+import {Item} from './item';
+import {ProxyConfig} from './proxy-config';
 
-export class Scenario implements Item{
+export class Scenario implements Item {
   private _id: string;
   private _name: string;
   private _state: string;
@@ -29,7 +29,15 @@ export class Scenario implements Item{
     return this._possibleStates;
   }
 
-  public deserialize(unchecked: Scenario, proxyConfig: ProxyConfig) : Scenario{
+  hasGroup(): boolean {
+    return false;
+  }
+
+  getGroup(): string | undefined {
+    return undefined;
+  }
+
+  public deserialize(unchecked: Scenario, proxyConfig: ProxyConfig): Scenario {
     this._id = unchecked.id;
     this._name = unchecked.name;
     this._state = unchecked.state;

@@ -3,11 +3,11 @@ export class Proxy {
   private _isProxyEnabled = true;
 
   public constructor() {
-    Object.defineProperty(this, "_isProxy", {
+    Object.defineProperty(this, '_isProxy', {
       enumerable: false,
       writable: true
     });
-    Object.defineProperty(this, "_isProxyEnabled", {
+    Object.defineProperty(this, '_isProxyEnabled', {
       enumerable: false,
       writable: true
     });

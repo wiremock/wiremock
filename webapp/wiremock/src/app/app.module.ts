@@ -63,6 +63,7 @@ import {StateMappingInfoComponent} from './components/state-mapping-info/state-m
 import {CurlPreviewComponent} from './components/curl-preview/curl-preview.component';
 import { MappingTestComponent } from './components/mapping-test/mapping-test.component';
 import {TestDirective} from './components/raw-separated/test.directive';
+import { TreeViewComponent } from './components/tree-view/tree-view.component';
 
 @NgModule({
   declarations: [
@@ -93,7 +94,8 @@ import {TestDirective} from './components/raw-separated/test.directive';
     StateMachineComponent,
     StateMappingInfoComponent,
     CurlPreviewComponent,
-    MappingTestComponent
+    MappingTestComponent,
+    TreeViewComponent
   ],
   imports: [
     BrowserModule,

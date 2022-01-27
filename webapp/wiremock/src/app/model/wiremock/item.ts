@@ -10,4 +10,8 @@ export interface Item {
   isProxy(): boolean;
 
   isProxyEnabled(): boolean;
+
+  hasGroup(): boolean;
+
+  getGroup(): string | undefined;
 }

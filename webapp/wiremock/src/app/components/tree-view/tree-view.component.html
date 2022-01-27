@@ -1,0 +1,43 @@
+<!--<ngb-pagination *ngIf="rootNode?.children.length > 0" [collectionSize]="items?.length" [pageSize]="pageSize" [size]="'sm'" [page]="page"-->
+<!--                (pageChange)="onPageChange($event)"></ngb-pagination>-->
+<div *ngIf="rootNode?.children.length > 0" class="wmHolyGrailScroll wmListView">
+  <div class="wmListScrollWrapper">
+    <ul class="list-group wmListGroup">
+
+      <ng-container *ngFor="let node of treeItems">
+
+        <li class="list-group-item wmListItem"
+            [class.active]="node.value === activeItem"
+            (click)="selectActiveItem(node.value)"
+            *ngIf="node !== rootNode">
+          <div class="wmListItemTextContainer">
+            <div class="wmListItemTitle">{{node.value.getTitle()}}</div>
+            <div class="wmListItemSubtitle">{{node.value.getSubtitle()}}</div>
+          </div>
+          <div *ngIf="node.value.isProxy()">
+            <div class="btn-group btn-group-toggle wmProxyButtons" ngbRadioGroup name="proxyToggle"
+                 [ngModel]="node.value.isProxyEnabled()">
+              <label ngbButtonLabel class="" [class.btn-info]="node.value.isProxyEnabled()"
+                     [class.btn-secondary]="!node.value.isProxyEnabled()"
+                     ngbPopover="Restore proxying and forward requests to specified url"
+                     triggers="mouseenter:mouseleave"
+                     container="body"
+                     popoverTitle="Proxying">
+                <input ngbButton type="radio" [value]="true" [disabled]="node.value.isProxyEnabled()"
+                       (click)="enableProxy(node.value)"> I
+              </label>
+              <label ngbButtonLabel class="" [class.btn-info]="!node.value.isProxyEnabled()"
+                     [class.btn-secondary]="node.value.isProxyEnabled()"
+                     ngbPopover="Disable proxying and use mapping response" triggers="mouseenter:mouseleave"
+                     container="body"
+                     popoverTitle="Proxying">
+                <input ngbButton type="radio" [value]="false" [disabled]="!node.value.isProxyEnabled()"
+                       (click)="disableProxy(node.value)"> 0
+              </label>
+            </div>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</div>

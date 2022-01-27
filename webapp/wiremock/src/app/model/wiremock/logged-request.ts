@@ -1,8 +1,7 @@
 import {Item} from './item';
 import {UtilService} from '../../services/util.service';
 import {Proxy} from './proxy';
-import * as moment from "moment";
-import {Moment} from "moment";
+import * as moment from 'moment';
 
 export class LoggedRequest extends Proxy implements Item {
 
@@ -43,6 +42,14 @@ export class LoggedRequest extends Proxy implements Item {
 
   getCode(): string {
     return UtilService.itemModelStringify(this);
+  }
+
+  hasGroup(): boolean {
+    return false;
+  }
+
+  getGroup(): string | undefined {
+    return undefined;
   }
 
   deserialize(unchecked: LoggedRequest): LoggedRequest {

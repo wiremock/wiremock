@@ -100,4 +100,15 @@ export class StubMapping extends Proxy implements Item {
   getCode(): string {
     return UtilService.itemModelStringify(this);
   }
+
+  hasGroup(): boolean {
+    return UtilService.isDefined(this.getGroup());
+  }
+
+  getGroup(): string | undefined {
+    if (UtilService.isGroupDefined(this)) {
+      return this.metadata.gui.group;
+    }
+    return undefined;
+  }
 }

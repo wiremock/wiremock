@@ -1,0 +1,43 @@
+@import "../../../variables";
+
+.wmListItem {
+  border-radius: 0;
+  border-left: 0;
+  font-size: 12px;
+  display: flex;
+}
+
+.wmListItemTextContainer {
+  flex: 1 auto;
+}
+
+.wmListItem:not(.active):hover {
+  background-color: rgba(255, 135, 0, 0.21);
+  cursor: pointer;
+}
+
+.wmListItemTitle {
+  font-weight: bold;
+  word-break: break-word;
+}
+
+.wmListItemSubtitle {
+  word-break: break-word;
+}
+
+.wmProxyButtons ::ng-deep label.active {
+  opacity: 1;
+}
+
+.wmListGroup {
+  margin-top: -1px;
+}
+
+.wmListGroup > .wmListItem:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+ngb-pagination {
+  border-bottom: 1px solid $gray-300;
+}
