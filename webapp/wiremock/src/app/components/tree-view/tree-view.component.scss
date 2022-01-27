@@ -21,6 +21,7 @@
 }
 
 .folder {
+  height: 25px;
   background-color: lighten(#17a2b8, 45%);
 }
 
@@ -71,7 +72,7 @@ ngb-pagination {
 
 @for $i from 0 through 10 {
   .line-#{$i} {
-    margin-left: -10px * ($i * 2) - 14.5px;
+    margin-left: -10px * ($i * 2) - 15px;
   }
 }
 
