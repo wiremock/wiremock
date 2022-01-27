@@ -41,11 +41,16 @@ export class TreeViewComponent implements OnInit, OnChanges {
               private messageService: MessageService) {
   }
 
-  selectActiveItem(item: Item) {
-    if (this.activeItem === item) {
+  selectActiveItem(node: TreeNode) {
+    if (node.value instanceof Folder) {
+      node.collapsed = !node.collapsed;
       return;
     }
-    this.activeItem = item;
+
+    if (this.activeItem === node.value) {
+      return;
+    }
+    this.activeItem = node.value;
     this.activeItemChange.emit(this.activeItem);
   }
 
