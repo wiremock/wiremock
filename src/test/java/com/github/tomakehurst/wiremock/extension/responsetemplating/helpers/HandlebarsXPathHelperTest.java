@@ -148,7 +148,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   public void rendersXmlWhenElementIsSelected() throws Exception {
     String one =
         renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one").toString();
-    assertThat(one, is("<one>1</one>"));
+    assertThat(one.trim(), is("<one>1</one>"));
   }
 
   @Test

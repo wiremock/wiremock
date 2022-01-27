@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,37 +174,28 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @SuppressWarnings("unchecked")
   @Override
   public String getHeader(String key) {
-    List<String> headerNames = list(request.getHeaderNames());
-    for (String currentKey : headerNames) {
-      if (currentKey.equalsIgnoreCase(key)) {
-        return request.getHeader(currentKey);
-      }
-    }
-
-    return null;
+    return request.getHeader(key); // case-insensitive per javadoc
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public HttpHeader header(String key) {
-    List<String> headerNames = list(request.getHeaderNames());
-    for (String currentKey : headerNames) {
-      if (currentKey.equalsIgnoreCase(key)) {
-        List<String> valueList = list(request.getHeaders(currentKey));
-        if (valueList.isEmpty()) {
-          return HttpHeader.empty(key);
-        }
-
-        return new HttpHeader(key, valueList);
+    if (request.getHeader(key) == null) {
+      return HttpHeader.absent(key);
+    } else {
+      List<String> valueList = list(request.getHeaders(key));
+      if (valueList.isEmpty()) {
+        return HttpHeader.empty(key);
       }
-    }
 
-    return HttpHeader.absent(key);
+      return new HttpHeader(key, valueList);
+    }
   }
 
   @Override
   public ContentTypeHeader contentTypeHeader() {
-    return getHeaders().getContentTypeHeader();
+    String firstValue = getHeader(ContentTypeHeader.KEY);
+    return firstValue == null ? ContentTypeHeader.absent() : new ContentTypeHeader(firstValue);
   }
 
   @Override

@@ -74,6 +74,8 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class HttpsBrowserProxyAcceptanceTest {
@@ -258,8 +260,10 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void certificatesSignedWithUsersRootCertificate() throws Exception {
-
     WireMockServer proxyWithCustomCaKeyStore =
         new WireMockServer(
             wireMockConfig()
@@ -304,8 +308,10 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void certificatesSignedWithGeneratedRootCertificate() throws Exception {
-
     KeyStore trustStore =
         HttpsAcceptanceTest.readKeyStore(NO_PREEXISTING_KEYSTORE_PATH, "password");
 
@@ -359,6 +365,9 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void certificateAuthorityCertCanBeDownloaded() throws Exception {
     WireMockTestClient proxyTestClient = new WireMockTestClient(proxy.getPort());
 

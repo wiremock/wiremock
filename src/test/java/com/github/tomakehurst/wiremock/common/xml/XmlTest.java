@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 public class XmlTest {
 
@@ -103,11 +105,16 @@ public class XmlTest {
     ListOrSingle<XmlNode> nodes = xmlDocument.findNodes("/one/two");
 
     assertThat(
-        nodes.getFirst().toString(),
+        nodes.getFirst().toString().trim(),
         equalsMultiLine("<two>\n" + "  <three name=\"3\"/>\n" + "</two>"));
   }
 
   @Test
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason =
+          "SaxSource unavailable to parse undeclared namespace prefix, due to "
+              + "IllegalAccessException: class com.github.tomakehurst.wiremock.common.xml.XmlNode cannot access class com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX (in module java.xml) because module java.xml does not export com.sun.org.apache.xalan.internal.xsltc.trax to unnamed module @2892dae4")
   public void printsNamespacedXmlWhenPrefixDeclarationNotInScope() {
     String xml =
         "<?xml version=\"1.0\"?>\n"

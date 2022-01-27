@@ -25,12 +25,16 @@ import java.util.Collection;
 import java.util.List;
 import javax.net.ssl.SSLException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@DisabledForJreRange(
+    min = JRE.JAVA_17,
+    disabledReason = "does not support generating certificates at runtime")
 public class HttpClientFactoryRejectsUntrustedCertificatesTest
     extends HttpClientFactoryCertificateVerificationTest {
-
   public static Collection<Object[]> data() {
     return asList(
         new Object[][] {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,17 +99,20 @@ public final class Xml {
   }
 
   private static TransformerFactory createTransformerFactory() {
+    TransformerFactory transformerFactory;
     try {
-      TransformerFactory transformerFactory =
+      // Optimization to get likely transformerFactory directly, rather than going through
+      // FactoryFinder#find
+      transformerFactory =
           (TransformerFactory)
               Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
                   .getDeclaredConstructor()
                   .newInstance();
-      transformerFactory.setAttribute("indent-number", 2);
-      return transformerFactory;
     } catch (Exception e) {
-      return TransformerFactory.newInstance();
+      transformerFactory = TransformerFactory.newInstance();
     }
+    transformerFactory.setAttribute("indent-number", 2);
+    return transformerFactory;
   }
 
   public static Document read(String xml) {

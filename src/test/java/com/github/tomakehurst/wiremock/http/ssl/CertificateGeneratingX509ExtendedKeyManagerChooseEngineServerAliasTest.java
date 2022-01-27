@@ -34,10 +34,15 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import javax.net.ssl.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasTest {
 
   @Test
+  @DisabledForJreRange(
+      min = JRE.JAVA_17,
+      disabledReason = "does not support generating certificates at runtime")
   public void generatesAndReturnsNewAliasForWorkingPrivateKey() throws Exception {
 
     KeyStore keyStore = readKeyStore(KEY_STORE_WITH_CA_PATH, "password");
