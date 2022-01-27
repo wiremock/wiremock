@@ -246,9 +246,10 @@ public class MockRequest implements Request {
 
   @Override
   public Part getPart(final String name) {
-    return getParts() == null || name == null
-        ? null
-        : from(multiparts).firstMatch(input -> name.equals(input.getName())).get();
+    if (getParts() == null || name == null) {
+      return null;
+    }
+    return from(multiparts).firstMatch(input -> name.equals(input.getName())).get();
   }
 
   public MockRequest multipartBody(String body) {
