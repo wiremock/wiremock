@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
       throws IOException {
     List<Callable<TimedHttpResponse>> requests = new ArrayList<>();
     for (int i = 0; i < requestCount; i++) {
-      final Stopwatch stopwatch = Stopwatch.createStarted();
+      Stopwatch stopwatch = Stopwatch.createStarted();
       requests.add(
           new Callable<TimedHttpResponse>() {
             @Override

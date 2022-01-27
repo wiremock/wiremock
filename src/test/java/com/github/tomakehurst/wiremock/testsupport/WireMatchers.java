@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ public class WireMatchers {
   }
 
   public static Matcher<String> equalToJson(
-      final String expectedJson, final JSONCompareMode jsonCompareMode) {
+      String expectedJson, final JSONCompareMode jsonCompareMode) {
     return new TypeSafeMatcher<String>() {
 
       @Override
@@ -281,7 +281,7 @@ public class WireMatchers {
                 new Predicate<File>() {
                   @Override
                   public boolean apply(File file) {
-                    final String fileContents = fileContents(file);
+                    String fileContents = fileContents(file);
                     return all(
                         asList(contents),
                         new Predicate<String>() {
@@ -357,8 +357,7 @@ public class WireMatchers {
     return stubMappingWithUrl(urlEqualTo(url));
   }
 
-  public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(
-      final UrlPattern urlPattern) {
+  public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(UrlPattern urlPattern) {
     return new TypeSafeDiagnosingMatcher<StubMapping>() {
       @Override
       public void describeTo(Description description) {

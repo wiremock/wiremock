@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void scenarioIsRemovedWhenLastMappingReferringToItIsRemoved() {
-    final String name = "remove_this_scenario";
+    String name = "remove_this_scenario";
 
     StubMapping stub1 =
         stubFor(
@@ -180,10 +180,10 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void scenarioIsRemovedWhenLastMappingReferringToHasItsScenarioNameChanged() {
-    final UUID id1 = UUID.randomUUID();
-    final UUID id2 = UUID.randomUUID();
-    final String oldName = "old_scenario";
-    final String newName = "new_scenario";
+    UUID id1 = UUID.randomUUID();
+    UUID id2 = UUID.randomUUID();
+    String oldName = "old_scenario";
+    String newName = "new_scenario";
 
     stubFor(
         get("/scenarios/33")

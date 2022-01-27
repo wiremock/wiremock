@@ -132,7 +132,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     private String runTestAndGetMessage(Class<?> testClass) {
-      final AtomicReference<String> message = new AtomicReference<>("");
+      AtomicReference<String> message = new AtomicReference<>("");
 
       LauncherDiscoveryRequest request =
           LauncherDiscoveryRequestBuilder.request().selectors(selectClass(testClass)).build();

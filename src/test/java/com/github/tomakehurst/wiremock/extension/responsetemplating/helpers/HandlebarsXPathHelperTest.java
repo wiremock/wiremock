@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void rendersASimpleValue() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
             aResponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>").build(),
@@ -53,7 +53,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
             aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>").build(),
@@ -153,7 +153,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void supportsIterationOverNodeListWithEachHelper() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .body(
@@ -175,7 +175,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void supportsIterationOverElementsWithAttributes() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .body(
@@ -197,7 +197,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void supportsIterationOverNamespacedElements() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .body(
@@ -219,7 +219,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void rendersNamespacedElement() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .body(
@@ -245,7 +245,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void rendersElementNames() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .body(

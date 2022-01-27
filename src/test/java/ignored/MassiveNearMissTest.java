@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class MassiveNearMissTest {
 
   @Test
   public void timeToCalculateBigNearMissDiffXml() {
-    final int stubs = 1000;
+    int stubs = 1000;
     for (int i = 0; i < stubs; i++) {
       wm.stubFor(
           post(urlPathMatching("/things/.*/" + i))
@@ -55,8 +55,8 @@ public class MassiveNearMissTest {
               .willReturn(ok("i: " + i)));
     }
 
-    final int drop = 2;
-    final int reps = 10;
+    int drop = 2;
+    int reps = 10;
     List<Long> times = new ArrayList<>(reps);
     long sum = 0;
     for (int i = 0; i < reps; i++) {
@@ -101,7 +101,7 @@ public class MassiveNearMissTest {
 
   @Test
   public void timeToCalculateBigNearMissDiffJson() {
-    final int stubs = 1000;
+    int stubs = 1000;
     for (int i = 0; i < stubs; i++) {
       wm.stubFor(
           post(urlPathMatching("/things/.*/" + i))
@@ -109,8 +109,8 @@ public class MassiveNearMissTest {
               .willReturn(ok("i: " + i)));
     }
 
-    final int drop = 2;
-    final int reps = 30;
+    int drop = 2;
+    int reps = 30;
     List<Long> times = new ArrayList<>(reps);
     long sum = 0;
     for (int i = 0; i < reps; i++) {

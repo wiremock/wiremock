@@ -24,9 +24,9 @@ public class MatchResultTest {
 
   @Test
   public void aggregatesLazily() {
-    final MatchResult result1 = new ExceptionThrowingMatchResult();
-    final MatchResult result2 = new ExceptionThrowingMatchResult();
-    final MatchResult result3 = new ExceptionThrowingMatchResult();
+    MatchResult result1 = new ExceptionThrowingMatchResult();
+    MatchResult result2 = new ExceptionThrowingMatchResult();
+    MatchResult result3 = new ExceptionThrowingMatchResult();
 
     MatchResult.aggregate(
         result1, result2,

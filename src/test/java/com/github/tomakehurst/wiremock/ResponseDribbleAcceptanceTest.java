@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class ResponseDribbleAcceptanceTest {
   public void servesAStringBodyInChunks() throws Exception {
     doNotRunOnMacOSXInCI();
 
-    final int totalTime = 500;
+    int totalTime = 500;
 
     stubFor(
         get("/delayedDribble")

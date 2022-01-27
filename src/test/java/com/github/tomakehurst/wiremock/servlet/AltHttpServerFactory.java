@@ -38,7 +38,7 @@ public class AltHttpServerFactory implements HttpServerFactory {
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
 
-    final Server jettyServer = new Server(0);
+    Server jettyServer = new Server(0);
     ConsoleNotifier notifier = new ConsoleNotifier(false);
     ServletContextHandler adminContext =
         addAdminContext(jettyServer, adminRequestHandler, notifier);

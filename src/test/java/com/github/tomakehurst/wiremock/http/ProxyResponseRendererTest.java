@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class ProxyResponseRendererTest {
 
     origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
-    final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+    ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
     Response response = proxyResponseRenderer.render(serveEvent);
 
@@ -100,11 +100,11 @@ public class ProxyResponseRendererTest {
   @Test
   public void acceptsSelfSignedCertificateForForwardProxyingIfTrustAllProxyTargets() {
 
-    final ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
+    ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
 
     origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
-    final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+    ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
     Response response = trustAllProxyResponseRenderer.render(serveEvent);
 

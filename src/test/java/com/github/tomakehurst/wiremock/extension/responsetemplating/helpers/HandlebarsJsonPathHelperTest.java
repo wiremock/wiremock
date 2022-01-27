@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void mergesASimpleValueFromRequestIntoResponseBody() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
@@ -62,7 +62,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}").build(),
@@ -75,7 +75,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void listResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .url("/json")
@@ -105,7 +105,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void mapResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .url("/json")
@@ -130,7 +130,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void singleValueResultFromJsonPathQueryCanBeUsedByHandlebarsIfHelper() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
                 .url("/json")
@@ -292,7 +292,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
           }
         };
 
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         transformer.transform(
             mockRequest(),
             aResponse().withBody("{{jsonPath mapData '$.things'}}").build(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void helperIsIncludedInTemplateTransformerWithNowTagName() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/random-value"),
             aResponse().withBody("{{now offset='6 days'}}").build(),
@@ -155,7 +155,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void helperIsIncludedInTemplateTransformerWithDateTagName() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/random-value"),
             aResponse().withBody("{{date offset='6 days'}}").build(),
@@ -168,7 +168,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void acceptsDateParameterwithDateTagName() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/parsed-date"),
             aResponse()

@@ -157,7 +157,7 @@ public class NearMissCalculatorTest {
   }
 
   private void givenStubMappings(final MappingBuilder... mappingBuilders) {
-    final List<StubMapping> mappings =
+    List<StubMapping> mappings =
         from(mappingBuilders)
             .transform(
                 new Function<MappingBuilder, StubMapping>() {
@@ -171,7 +171,7 @@ public class NearMissCalculatorTest {
   }
 
   private void givenRequests(final Request... requests) {
-    final List<ServeEvent> serveEvents =
+    List<ServeEvent> serveEvents =
         from(requests)
             .transform(
                 new Function<Request, ServeEvent>() {

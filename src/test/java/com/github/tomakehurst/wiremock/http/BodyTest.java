@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class BodyTest {
 
   @Test
   public void bodyAsJson() {
-    final JsonNode jsonContent = Json.node("{\"name\":\"wiremock\",\"isCool\":true}");
+    JsonNode jsonContent = Json.node("{\"name\":\"wiremock\",\"isCool\":true}");
     Body body = Body.fromOneOf(null, null, jsonContent, "lskdjflsjdflks");
 
     assertThat(body.asJson(), is(jsonContent));

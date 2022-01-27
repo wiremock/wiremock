@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void canExtractSingleRegexMatch() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/api/abc,def,ghi"),
             aResponse()
@@ -54,7 +54,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void canExtractMultipleRegexMatches() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/api/abc,def,ghi"),
             aResponse()

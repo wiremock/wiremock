@@ -293,8 +293,8 @@ public class EqualToXmlPatternTest {
 
   @Test
   public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() throws Exception {
-    final EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
-    final MatchResult matchResult = pattern.match("<two>Hello</two>");
+    EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
+    MatchResult matchResult = pattern.match("<two>Hello</two>");
 
     assertThat(matchResult.isExactMatch(), equalTo(false));
     assertThat(matchResult.getDistance(), not(equalTo(0.0)));

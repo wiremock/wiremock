@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class ResponseDefinitionBodyMatcherDeserializerTest {
   @Test
   public void correctlyParsesFileSize() {
-    final Map<String, Long> testCases =
+    Map<String, Long> testCases =
         ImmutableMap.<String, Long>builder()
             .put("100", 100L)
             .put("1KB", 1024L)

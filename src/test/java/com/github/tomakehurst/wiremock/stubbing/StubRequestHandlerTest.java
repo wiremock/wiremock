@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,8 +90,8 @@ public class StubRequestHandlerTest {
 
   @Test
   public void shouldNotifyListenersOnRequest() {
-    final Request request = aRequest().build();
-    final RequestListener listener = mock(RequestListener.class);
+    Request request = aRequest().build();
+    RequestListener listener = mock(RequestListener.class);
     requestHandler.addRequestListener(listener);
 
     doReturn(ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured()))
@@ -105,7 +105,7 @@ public class StubRequestHandlerTest {
 
   @Test
   public void shouldLogInfoOnRequest() {
-    final Request request = aRequest().withUrl("/").withMethod(GET).withClientIp("1.2.3.5").build();
+    Request request = aRequest().withUrl("/").withMethod(GET).withClientIp("1.2.3.5").build();
 
     doReturn(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request)))
         .when(stubServer)

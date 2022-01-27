@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,9 +109,9 @@ public class MockRequestBuilder {
   }
 
   public Request build() {
-    final HttpHeaders headers = new HttpHeaders(individualHeaders);
+    HttpHeaders headers = new HttpHeaders(individualHeaders);
 
-    final Request request =
+    Request request =
         mockName == null ? Mockito.mock(Request.class) : Mockito.mock(Request.class, mockName);
     when(request.getUrl()).thenReturn(url);
     when(request.getMethod()).thenReturn(method);

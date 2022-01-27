@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,8 +210,8 @@ public class RequestWrapperTest {
 
   @Test
   public void transformsABinaryBody() {
-    final byte[] initialBytes = new byte[] {1, 2, 3};
-    final byte[] finalBytes = new byte[] {4, 5, 6};
+    byte[] initialBytes = new byte[] {1, 2, 3};
+    byte[] finalBytes = new byte[] {4, 5, 6};
 
     MockRequest request = mockRequest().body(initialBytes);
 

@@ -500,7 +500,7 @@ public class RequestPatternTest {
   }
 
   static Matcher<ContentPattern<?>> valuePattern(
-      final Class<? extends StringValuePattern> patternClass, final String expectedValue) {
+      Class<? extends StringValuePattern> patternClass, final String expectedValue) {
     return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
       @Override
       protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {

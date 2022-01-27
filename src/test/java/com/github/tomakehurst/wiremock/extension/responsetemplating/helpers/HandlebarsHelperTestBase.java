@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public abstract class HandlebarsHelperTestBase {
   }
 
   protected static Map<String, Object> map(String key, Object value) {
-    final HashMap<String, Object> map = new HashMap<>();
+    HashMap<String, Object> map = new HashMap<>();
     map.put(key, value);
     return map;
   }

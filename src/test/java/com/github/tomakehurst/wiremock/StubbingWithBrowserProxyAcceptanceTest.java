@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
 
     @Override
     public String resolveCanonicalHostname(String host) throws UnknownHostException {
-      final InetAddress[] resolvedAddresses = resolve(host);
+      InetAddress[] resolvedAddresses = resolve(host);
       if (resolvedAddresses.length > 0) {
         return resolvedAddresses[0].getCanonicalHostName();
       }

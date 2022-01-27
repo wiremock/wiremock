@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -578,11 +578,7 @@ public class StubMappingJsonRecorderTest {
   }
 
   private static Request.Part createPart(
-      final String name,
-      final byte[] data,
-      final String contentType,
-      final String fileName,
-      String... extraHeaderLines) {
+      String name, byte[] data, String contentType, String fileName, String... extraHeaderLines) {
     MockMultipart part = new MockMultipart().name(name).body(data);
 
     for (String headerLine : extraHeaderLines) {

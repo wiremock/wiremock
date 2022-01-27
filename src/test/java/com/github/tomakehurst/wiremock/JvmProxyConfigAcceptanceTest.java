@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public class JvmProxyConfigAcceptanceTest {
   }
 
   private String getContentUsingDefaultJvmHttpClient(String url) throws Exception {
-    final HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
+    HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
     try (InputStream in = urlConnection.getInputStream()) {
       return new String(ByteStreams.toByteArray(in));
     }

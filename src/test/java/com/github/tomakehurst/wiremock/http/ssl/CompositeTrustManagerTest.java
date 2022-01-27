@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,12 @@ public class CompositeTrustManagerTest {
   @Test
   public void checkServerTrustedFailsForSingleTrustManager() throws CertificateException {
 
-    final CertificateException invalidCertForTrustManager1 =
+    CertificateException invalidCertForTrustManager1 =
         new CertificateException("Invalid cert for trustManager1");
 
     willThrow(invalidCertForTrustManager1).given(trustManager1).checkServerTrusted(chain, authType);
 
-    final CompositeTrustManager compositeTrustManager =
+    CompositeTrustManager compositeTrustManager =
         new CompositeTrustManager(singletonList(trustManager1));
 
     CertificateException thrown =
@@ -102,7 +102,7 @@ public class CompositeTrustManagerTest {
   @Test
   public void checkServerNotTrustedIfNeitherPass() throws CertificateException {
 
-    final CertificateException invalidCertForTrustManager2 =
+    CertificateException invalidCertForTrustManager2 =
         new CertificateException("Invalid cert for trustManager2");
 
     willThrow(new CertificateException("Invalid cert for trustManager1"))
@@ -110,7 +110,7 @@ public class CompositeTrustManagerTest {
         .checkServerTrusted(chain, authType);
     willThrow(invalidCertForTrustManager2).given(trustManager2).checkServerTrusted(chain, authType);
 
-    final CompositeTrustManager compositeTrustManager =
+    CompositeTrustManager compositeTrustManager =
         new CompositeTrustManager(asList(trustManager1, trustManager2));
 
     CertificateException thrown =
@@ -126,15 +126,15 @@ public class CompositeTrustManagerTest {
   @Test
   public void returnAllAcceptedIssuers() {
 
-    final X509Certificate cert1 = mock(X509Certificate.class, "cert1");
-    final X509Certificate cert2 = mock(X509Certificate.class, "cert2");
-    final X509Certificate cert3 = mock(X509Certificate.class, "cert3");
-    final X509Certificate cert4 = mock(X509Certificate.class, "cert4");
+    X509Certificate cert1 = mock(X509Certificate.class, "cert1");
+    X509Certificate cert2 = mock(X509Certificate.class, "cert2");
+    X509Certificate cert3 = mock(X509Certificate.class, "cert3");
+    X509Certificate cert4 = mock(X509Certificate.class, "cert4");
 
     given(trustManager1.getAcceptedIssuers()).willReturn(new X509Certificate[] {cert1, cert2});
     given(trustManager2.getAcceptedIssuers()).willReturn(new X509Certificate[] {cert3, cert4});
 
-    final CompositeTrustManager compositeTrustManager =
+    CompositeTrustManager compositeTrustManager =
         new CompositeTrustManager(asList(trustManager1, trustManager2));
 
     X509Certificate[] acceptedIssuers = compositeTrustManager.getAcceptedIssuers();
@@ -149,7 +149,7 @@ public class CompositeTrustManagerTest {
   }
 
   private X509ExtendedTrustManager mockX509ExtendedTrustManager() {
-    final X509ExtendedTrustManager trustManager = mock(X509ExtendedTrustManager.class);
+    X509ExtendedTrustManager trustManager = mock(X509ExtendedTrustManager.class);
     when(trustManager.getAcceptedIssuers()).thenReturn(new X509Certificate[0]);
     return trustManager;
   }

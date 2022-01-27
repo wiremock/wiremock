@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import org.junit.jupiter.api.Test;
 public class SnapshotStubMappingGeneratorTest {
   @Test
   public void apply() {
-    final RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("/foo");
-    final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+    RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("/foo");
+    ResponseDefinition responseDefinition = ResponseDefinition.ok();
 
     SnapshotStubMappingGenerator stubMappingTransformer =
         new SnapshotStubMappingGenerator(
@@ -50,7 +50,7 @@ public class SnapshotStubMappingGeneratorTest {
   }
 
   private static RequestPatternTransformer requestPatternTransformer(
-      final RequestPatternBuilder requestPatternBuilder) {
+      RequestPatternBuilder requestPatternBuilder) {
     return new RequestPatternTransformer(null, null) {
       @Override
       public RequestPatternBuilder apply(Request request) {
@@ -60,7 +60,7 @@ public class SnapshotStubMappingGeneratorTest {
   }
 
   private static LoggedResponseDefinitionTransformer responseDefinitionTransformer(
-      final ResponseDefinition responseDefinition) {
+      ResponseDefinition responseDefinition) {
     return new LoggedResponseDefinitionTransformer() {
       @Override
       public ResponseDefinition apply(LoggedResponse response) {

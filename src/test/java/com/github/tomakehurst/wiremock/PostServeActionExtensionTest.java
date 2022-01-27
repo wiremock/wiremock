@@ -113,7 +113,7 @@ public class PostServeActionExtensionTest {
 
   @Test
   public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
-    final AtomicInteger finalStatus = new AtomicInteger();
+    AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()
             .dynamicPort()

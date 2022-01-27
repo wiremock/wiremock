@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ public class TransferEncodingAcceptanceTest {
   public void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNever() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
 
-    final String url = "/content-length-encoding";
-    final String body = "Body content";
+    String url = "/content-length-encoding";
+    String body = "Body content";
 
     wm.stubFor(get(url).willReturn(ok(body)));
 
@@ -61,8 +61,8 @@ public class TransferEncodingAcceptanceTest {
   public void sendsTransferEncodingChunkedWhenPolicyIsAlways() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
 
-    final String url = "/chunked-encoding-always";
-    final String body = "Body content";
+    String url = "/chunked-encoding-always";
+    String body = "Body content";
 
     wm.stubFor(get(url).willReturn(ok(body)));
 
@@ -77,8 +77,8 @@ public class TransferEncodingAcceptanceTest {
   public void sendsTransferEncodingChunkedWhenPolicyIsBodyFileAndBodyFileIsUsed() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.BODY_FILE);
 
-    final String fileUrl = "/chunked-encoding-body";
-    final String inlineBodyUrl = "/chunked-encoding-body-file";
+    String fileUrl = "/chunked-encoding-body";
+    String inlineBodyUrl = "/chunked-encoding-body-file";
 
     wm.stubFor(get(fileUrl).willReturn(ok().withBodyFile("plain-example.txt")));
     wm.stubFor(get(inlineBodyUrl).willReturn(ok("Body content")));
@@ -98,8 +98,8 @@ public class TransferEncodingAcceptanceTest {
   public void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNeverAndDribbleDelayIsApplied() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
 
-    final String url = "/content-length-encoding";
-    final String body = "Slightly longer body content in this string";
+    String url = "/content-length-encoding";
+    String body = "Slightly longer body content in this string";
 
     wm.stubFor(get(url).willReturn(ok(body).withChunkedDribbleDelay(5, 200)));
 

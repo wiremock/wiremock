@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -269,7 +269,7 @@ public class WireMockJUnitRuleTest {
 
     @Test
     public void requestReceivedByListener() {
-      final List<String> urls = new ArrayList<>();
+      List<String> urls = new ArrayList<>();
       wireMockRule.addMockServiceRequestListener(
           new RequestListener() {
             @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,12 +89,12 @@ public class DeadlockTest {
   private void downloadContentAndMeasure(String urlDir, String expectedBody) throws IOException {
     System.out.printf("downloadContentAndMeasure urlDir=%s", urlDir);
 
-    final long start = System.currentTimeMillis();
+    long start = System.currentTimeMillis();
 
     boolean exceptionOccurred = false;
     try {
-      final String url = "http://localhost:" + wireMockServer.port() + urlDir;
-      final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+      String url = "http://localhost:" + wireMockServer.port() + urlDir;
+      HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
       connection.setConnectTimeout(2000);
       connection.setReadTimeout(READ_TIMEOUT);
       connection.setDoInput(true);
@@ -106,7 +106,7 @@ public class DeadlockTest {
           assertThat(e, instanceOf(SocketTimeoutException.class));
         }
       } else {
-        final String body = httpGetContent(connection);
+        String body = httpGetContent(connection);
         assertEquals(expectedBody, body);
       }
     } catch (Exception e) {

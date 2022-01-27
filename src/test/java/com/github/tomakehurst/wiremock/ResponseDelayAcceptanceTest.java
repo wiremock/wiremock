@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ public class ResponseDelayAcceptanceTest {
         get(urlEqualTo("/delayed"))
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
-    final HttpResponse execute = httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
+    HttpResponse execute = httpClient.execute(new HttpGet(wireMockRule.url("/delayed")));
     assertThat(execute.getCode(), is(200));
   }
 
@@ -190,7 +190,7 @@ public class ResponseDelayAcceptanceTest {
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
+    AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
 
     sleep(BRIEF_DELAY_TO_ALLOW_CALL_TO_BE_MADE_MILLISECONDS);
     verify(getRequestedFor(urlEqualTo("/delayed")));
@@ -207,7 +207,7 @@ public class ResponseDelayAcceptanceTest {
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
+    AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
 
     sleep(BRIEF_DELAY_TO_ALLOW_CALL_TO_BE_MADE_MILLISECONDS);
     assertExpectedCallCount(1, urlEqualTo("/delayed"));
@@ -220,14 +220,14 @@ public class ResponseDelayAcceptanceTest {
   }
 
   private AtomicBoolean callDelayedEndpointAsynchronously(ExecutorService executorService) {
-    final AtomicBoolean success = new AtomicBoolean(false);
+    AtomicBoolean success = new AtomicBoolean(false);
     executorService.submit(
         new Runnable() {
           @Override
           public void run() {
             try {
               HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
-              final HttpResponse execute = httpClient.execute(request);
+              HttpResponse execute = httpClient.execute(request);
               assertThat(execute.getCode(), is(200));
               success.set(true);
             } catch (Throwable e) {

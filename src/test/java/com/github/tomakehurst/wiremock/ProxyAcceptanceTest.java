@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -213,7 +213,7 @@ public class ProxyAcceptanceTest {
   public void successfullyGetsResponseBinaryResponses() throws IOException {
     initWithDefaultConfig();
 
-    final byte[] bytes =
+    byte[] bytes =
         new byte[] {
           0x10, 0x49, 0x6e, (byte) 0xb7, 0x46, (byte) 0xe6, 0x52, (byte) 0x95, (byte) 0x95, 0x42
         };

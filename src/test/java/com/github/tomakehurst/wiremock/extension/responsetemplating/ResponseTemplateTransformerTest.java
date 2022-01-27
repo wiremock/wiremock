@@ -297,7 +297,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void escapingIsTheDefault() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
@@ -310,7 +310,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void jsonPathValueDefaultsToEmptyString() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
             aResponse().withBody("{{jsonPath request.body '$.b'}}").build(),
@@ -321,7 +321,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void jsonPathValueDefaultCanBeProvided() {
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
             aResponse().withBody("{{jsonPath request.body '$.b' default='foo'}}").build(),
@@ -335,7 +335,7 @@ public class ResponseTemplateTransformerTest {
     Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
     ResponseTemplateTransformer transformerWithEscapingDisabled =
         ResponseTemplateTransformer.builder().global(true).handlebars(handlebars).build();
-    final ResponseDefinition responseDefinition =
+    ResponseDefinition responseDefinition =
         transformerWithEscapingDisabled.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -289,7 +289,7 @@ public class WebhooksAcceptanceTest {
 
   @Test
   public void addsFixedDelayViaDSL() throws Exception {
-    final int delayMilliseconds = 1_000;
+    int delayMilliseconds = 1_000;
 
     rule.stubFor(
         post(urlPathEqualTo("/delayed"))

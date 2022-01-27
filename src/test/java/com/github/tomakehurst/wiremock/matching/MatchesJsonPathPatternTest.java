@@ -423,7 +423,7 @@ public class MatchesJsonPathPatternTest {
   }
 
   private static Notifier setMockNotifier() {
-    final Notifier notifier = Mockito.mock(Notifier.class);
+    Notifier notifier = Mockito.mock(Notifier.class);
     LocalNotifier.set(notifier);
     return notifier;
   }

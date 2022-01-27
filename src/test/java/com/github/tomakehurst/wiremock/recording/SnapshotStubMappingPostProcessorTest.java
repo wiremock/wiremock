@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
   @Test
   public void processFiltersRepeatedRequestsWhenNotRecordingScenarios() {
-    final List<StubMapping> actual =
+    List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, noopTransformerRunner(), null, null)
             .process(TEST_STUB_MAPPINGS);
 
@@ -56,7 +56,7 @@ public class SnapshotStubMappingPostProcessorTest {
           }
         };
 
-    final List<StubMapping> actual =
+    List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, transformerRunner, null, null)
             .process(TEST_STUB_MAPPINGS);
 
@@ -67,7 +67,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
   @Test
   public void processExtractsBodiesWhenMatched() {
-    final ResponseDefinitionBodyMatcher bodyMatcher =
+    ResponseDefinitionBodyMatcher bodyMatcher =
         new ResponseDefinitionBodyMatcher(0, 0) {
           @Override
           public MatchResult match(ResponseDefinition responseDefinition) {
@@ -78,7 +78,7 @@ public class SnapshotStubMappingPostProcessorTest {
           }
         };
 
-    final SnapshotStubMappingBodyExtractor bodyExtractor =
+    SnapshotStubMappingBodyExtractor bodyExtractor =
         new SnapshotStubMappingBodyExtractor(null) {
           @Override
           public void extractInPlace(StubMapping stubMapping) {
@@ -86,7 +86,7 @@ public class SnapshotStubMappingPostProcessorTest {
           }
         };
 
-    final List<StubMapping> actual =
+    List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(
                 false, noopTransformerRunner(), bodyMatcher, bodyExtractor)
             .process(TEST_STUB_MAPPINGS);
