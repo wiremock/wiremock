@@ -80,7 +80,7 @@ public class BindAddressTest {
   public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
     executeGetIn(localhost);
 
-    assertThrows(RuntimeException.class, () -> executeGetIn(nonBindAddress));
+    assertThrows(Exception.class, () -> executeGetIn(nonBindAddress));
   }
 
   @Test
