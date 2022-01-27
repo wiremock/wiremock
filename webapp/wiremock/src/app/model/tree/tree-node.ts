@@ -1,7 +1,7 @@
 import {Item} from '../wiremock/item';
 
 export class TreeNode {
-  constructor(public value: Item, public parent?: TreeNode, public children: TreeNode[] = []) {
+  constructor(public value: Item, public depth: number, public parent?: TreeNode, public children: TreeNode[] = []) {
   }
 
   isLeaf() {

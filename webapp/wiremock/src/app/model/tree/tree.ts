@@ -5,7 +5,7 @@ export class Tree {
   private root: TreeNode;
 
   constructor(value: Item) {
-    this.root = new TreeNode(value);
+    this.root = new TreeNode(value, -1);
   }
 
   * preOrderTraversal(node: TreeNode = this.root): IterableIterator<TreeNode> {
@@ -29,7 +29,17 @@ export class Tree {
   insert(parentId: string, value: Item): boolean {
     for (const node of this.preOrderTraversal()) {
       if (node.value.getId() === parentId) {
-        node.children.push(new TreeNode(value, node));
+        node.children.push(new TreeNode(value, this.find(parentId).depth + 1, node));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  insertByNode(parent: TreeNode, value: Item): boolean {
+    for (const node of this.preOrderTraversal()) {
+      if (node.value.getId() === parent.value.getId()) {
+        node.children.push(new TreeNode(value, parent.depth + 1, node));
         return true;
       }
     }

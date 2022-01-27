@@ -30,7 +30,9 @@ import {
   faTimes,
   faTrash,
   faFolder,
-  faCheck
+  faCheck,
+  faChevronRight,
+  faChevronDown
 } from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';
@@ -137,5 +139,7 @@ export class AppModule {
     library.addIcons(faCamera);
     library.addIcons(faFolder);
     library.addIcons(faCheck);
+    library.addIcons(faChevronRight);
+    library.addIcons(faChevronDown);
   }
 }

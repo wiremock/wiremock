@@ -5,6 +5,7 @@
   border-left: 0;
   font-size: 12px;
   display: flex;
+  align-items: center;
 }
 
 .wmListItemTextContainer {
@@ -12,8 +13,19 @@
 }
 
 .wmListItem:not(.active):hover {
-  background-color: rgba(255, 135, 0, 0.21);
   cursor: pointer;
+}
+
+.wmListItem:not(.active,.folder):hover {
+  background-color: rgba(255, 135, 0, 0.21);
+}
+
+.folder {
+  background-color: lighten(#17a2b8, 45%);
+}
+
+.folder:hover {
+  background-color: #17a2b8;
 }
 
 .wmListItemTitle {
@@ -40,4 +52,27 @@
 
 ngb-pagination {
   border-bottom: 1px solid $gray-300;
+}
+
+@for $i from 1 through 10 {
+  //.depth-#{$i}:not(.folder) {
+  //  padding-left: 10px * ($i + 2) !important;
+  //}
+  //
+  //.depth-#{$i}.folder {
+  //  padding-left: 10px * ($i + 2) !important;
+  //}
+
+  .depth-#{$i} {
+    padding-left: 10px * (($i * 2) + 1) !important;
+  }
+}
+
+.chevron {
+  margin-right: 10px;
+  width: 10px;
+}
+
+.wmListItem {
+  padding: 10px;
 }

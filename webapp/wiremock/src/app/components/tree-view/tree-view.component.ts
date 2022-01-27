@@ -107,7 +107,7 @@ export class TreeViewComponent implements OnInit, OnChanges {
 
           if (UtilService.isDefined(parent)) {
             // found group
-            this.tree.insert(parent.value.getId(), value);
+            this.tree.insertByNode(parent, value);
           } else {
             // create group folder
             console.log('oO Something went wrong!!!');

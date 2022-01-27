@@ -8,8 +8,13 @@
 
         <li class="list-group-item wmListItem"
             [class.active]="node.value === activeItem"
+            [class.folder]="!node.isLeaf()"
+            [ngClass]="['depth-' + node.depth]"
             (click)="selectActiveItem(node.value)"
             *ngIf="node !== rootNode">
+          <div *ngIf="!node.isLeaf()" class="chevron">
+            <fa-icon icon="chevron-down"></fa-icon>
+          </div>
           <div class="wmListItemTextContainer">
             <div class="wmListItemTitle">{{node.value.getTitle()}}</div>
             <div class="wmListItemSubtitle">{{node.value.getSubtitle()}}</div>
