@@ -90,7 +90,7 @@ public class LoadTestConfiguration {
 
         List<Future<?>> futures = new ArrayList<>();
         for (int i = 1; i <= 6000; i++) {
-             int count = i;
+            int count = i;
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -128,7 +128,7 @@ public class LoadTestConfiguration {
 
         List<Future<?>> futures = new ArrayList<>();
         for (int i = 1; i <= 100; i++) {
-             int count = i;
+            int count = i;
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
