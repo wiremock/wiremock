@@ -24,10 +24,6 @@
   background-color: lighten(#17a2b8, 45%);
 }
 
-//.collapsed {
-//  display: none;
-//}
-
 .folder:hover {
   background-color: #17a2b8;
 }
@@ -59,16 +55,23 @@ ngb-pagination {
 }
 
 @for $i from 1 through 10 {
-  //.depth-#{$i}:not(.folder) {
-  //  padding-left: 10px * ($i + 2) !important;
-  //}
-  //
-  //.depth-#{$i}.folder {
-  //  padding-left: 10px * ($i + 2) !important;
-  //}
-
   .depth-#{$i} {
     padding-left: 10px * (($i * 2) + 1) !important;
+  }
+}
+
+.line {
+  height: 100%;
+  width: 1px;
+  border-left: 1px solid rgba(0, 0, 0, 0.125);
+  margin-top: -1px;
+  margin-bottom: -1px;
+  position: absolute;
+}
+
+@for $i from 0 through 10 {
+  .line-#{$i} {
+    margin-left: -10px * ($i * 2) - 14.5px;
   }
 }
 
