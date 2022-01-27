@@ -143,7 +143,7 @@ public class Scenario {
     return Objects.hash(getId(), getName(), getState(), getMappings());
   }
 
-  public static Predicate<Scenario> withName(final String name) {
+  public static final Predicate<Scenario> withName(final String name) {
     return new Predicate<Scenario>() {
       @Override
       public boolean apply(Scenario input) {
