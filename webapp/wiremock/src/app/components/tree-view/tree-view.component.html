@@ -1,13 +1,12 @@
-<!--<ngb-pagination *ngIf="rootNode?.children.length > 0" [collectionSize]="items?.length" [pageSize]="pageSize" [size]="'sm'" [page]="page"-->
-<!--                (pageChange)="onPageChange($event)"></ngb-pagination>-->
-<div *ngIf="rootNode?.children.length > 0" class="wmHolyGrailScroll wmListView">
+<div *ngIf="rootNode?.children.length > 0" class="wmHolyGrailScroll wmListView" #childrenContainer>
   <div class="wmListScrollWrapper">
     <ul class="list-group wmListGroup">
 
       <ng-container *ngFor="let node of treeItems">
 
-<!--            [class.collapsed]="node.isHidden()"-->
-        <li class="list-group-item wmListItem"
+        <li #listChildren
+            [id]="node.value.getId()"
+            class="list-group-item wmListItem"
             [class.active]="node.value === activeItem"
             [class.folder]="!node.isLeaf()"
             [ngClass]="['depth-' + node.depth]"

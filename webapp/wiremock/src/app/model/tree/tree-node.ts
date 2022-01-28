@@ -29,4 +29,11 @@ export class TreeNode {
     }
     return false;
   }
+
+  expandParents() {
+    if (UtilService.isDefined(this.parent)) {
+      this.parent.collapsed = false;
+      this.parent.expandParents();
+    }
+  }
 }
