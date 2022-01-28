@@ -27,7 +27,7 @@
           <div *ngIf="node.value.isProxy()">
             <div class="btn-group btn-group-toggle wmProxyButtons" ngbRadioGroup name="proxyToggle"
                  [ngModel]="node.value.isProxyEnabled()">
-              <label ngbButtonLabel class="" [class.btn-info]="node.value.isProxyEnabled()"
+              <label ngbButtonLabel class="wmProxyEnable" [class.btn-info]="node.value.isProxyEnabled()"
                      [class.btn-secondary]="!node.value.isProxyEnabled()"
                      ngbPopover="Restore proxying and forward requests to specified url"
                      triggers="mouseenter:mouseleave"
@@ -36,7 +36,7 @@
                 <input ngbButton type="radio" [value]="true" [disabled]="node.value.isProxyEnabled()"
                        (click)="enableProxy(node.value)"> I
               </label>
-              <label ngbButtonLabel class="" [class.btn-info]="!node.value.isProxyEnabled()"
+              <label ngbButtonLabel class="wmProxyDisable" [class.btn-info]="!node.value.isProxyEnabled()"
                      [class.btn-secondary]="node.value.isProxyEnabled()"
                      ngbPopover="Disable proxying and use mapping response" triggers="mouseenter:mouseleave"
                      container="body"

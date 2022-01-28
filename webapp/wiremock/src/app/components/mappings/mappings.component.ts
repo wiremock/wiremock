@@ -13,9 +13,6 @@ import {Subject} from 'rxjs/internal/Subject';
 import {ProxyConfig} from '../../model/wiremock/proxy-config';
 import {Tab, TabSelectionService} from '../../services/tab-selection.service';
 import {AutoRefreshService} from '../../services/auto-refresh.service';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {StateMappingInfoComponent} from '../state-mapping-info/state-mapping-info.component';
-import {MappingTestComponent} from '../mapping-test/mapping-test.component';
 
 @Component({
   selector: 'wm-mappings',
@@ -100,8 +97,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
               private messageService: MessageService, private tabSelectionService: TabSelectionService,
-              private autoRefreshService: AutoRefreshService,
-              private modalService: NgbModal) {
+              private autoRefreshService: AutoRefreshService) {
   }
 
   ngOnInit() {

@@ -5,7 +5,17 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {HomeComponent} from './components/home/home.component';
 import {MappingsComponent} from './components/mappings/mappings.component';
-import {NgbModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbAlertModule,
+  NgbButtonsModule,
+  NgbCollapseModule, NgbDropdownMenu, NgbDropdownModule,
+  NgbModal,
+  NgbModalModule,
+  NgbModule,
+  NgbNav,
+  NgbNavbar,
+  NgbNavModule, NgbPopoverModule, NgbTooltipModule
+} from '@ng-bootstrap/ng-bootstrap';
 import {FontAwesomeModule, FaIconLibrary} from '@fortawesome/angular-fontawesome';
 import {
   faAlignJustify,
@@ -102,11 +112,19 @@ import { TreeViewComponent } from './components/tree-view/tree-view.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgbModule,
     FontAwesomeModule,
     HttpClientModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    // ng-bootstrap
+    NgbNavModule,
+    NgbCollapseModule,
+    NgbModalModule,
+    NgbButtonsModule,
+    NgbDropdownModule,
+    NgbAlertModule,
+    NgbTooltipModule,
+    NgbPopoverModule,
   ],
   providers: [ WiremockService, WebSocketService, MessageService, SearchService, NgbModal ],
   bootstrap: [ AppComponent ],
