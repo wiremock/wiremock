@@ -7,6 +7,19 @@ export class MappingHelperService {
 
   // private static COPY_FAILURE = 'Was not able to copy. Details in log';
 
+  static helperAddFolder(mapping: StubMapping): StubMapping {
+    if (UtilService.isUndefined(mapping.metadata)) {
+      mapping.metadata = {};
+    }
+    if (UtilService.isUndefined(mapping.metadata.gui)) {
+      mapping.metadata.gui = {};
+    }
+    if (UtilService.isUndefined(mapping.metadata.gui.folder)) {
+      mapping.metadata.gui.folder = '/some/path';
+    }
+    return mapping;
+  }
+
   static helperAddDelay(mapping: StubMapping): StubMapping {
     if (UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) &&
       UtilService.isUndefined(mapping.response.fixedDelayMilliseconds)) {
@@ -98,7 +111,7 @@ export class MappingHelperService {
   static helperAddResponseTemplatingTransformer(mapping: StubMapping): StubMapping {
     if (UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response)) {
       if (UtilService.isUndefined(mapping.response.transformers)) {
-        mapping.response.transformers = ['response-template'];
+        mapping.response.transformers = [ 'response-template' ];
       } else if (typeof mapping.response.transformers.includes === 'function' &&
         typeof mapping.response.transformers.push === 'function') {
         const transformers = (mapping.response.transformers as string[]);

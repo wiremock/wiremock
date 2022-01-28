@@ -266,6 +266,10 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     }
   }
 
+  helpersAddFolder(): void {
+    this.setMappingForHelper(MappingHelperService.helperAddFolder(this.getMappingForHelper()));
+  }
+
   helpersAddDelay(): void {
     this.setMappingForHelper(MappingHelperService.helperAddDelay(this.getMappingForHelper()));
   }

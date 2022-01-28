@@ -156,7 +156,6 @@ public class JsonFileMappingsSource implements MappingsSource {
         Metadata metadata = mapping.getMetadata();
         if (metadata == null) {
             metadata = new Metadata();
-            mapping.setMetadata(metadata);
         } else if (hasFolderDefinition(mapping)) {
             // skip files which contain a folder definition already.
             // TODO: This allows async between folder definition and actual file. Not sure if good or bad yet.
@@ -176,6 +175,7 @@ public class JsonFileMappingsSource implements MappingsSource {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
         metadata.put("gui", map);
         map.put("folder", path);
+        mapping.setMetadata(metadata);
     }
 
     private static class StubMappingFileMetadata {
