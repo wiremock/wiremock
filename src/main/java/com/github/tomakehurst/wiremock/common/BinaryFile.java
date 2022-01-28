@@ -38,7 +38,7 @@ public class BinaryFile implements InputStreamSource {
     }
   }
 
-  protected URI getUri() {
+  public URI getUri() {
     return uri;
   }
 

@@ -68,7 +68,7 @@ export class TreeHelper {
    * @private
    */
   private static createFoldersAndGetFolderNode(folderText: string, tree: Tree, rootNode: TreeNode): TreeNode {
-    const folders = folderText.split('.');
+    const folders = folderText.split('/').filter(i => i);
 
     let folderParentNode: TreeNode = rootNode;
     let folderId = '';
@@ -76,7 +76,7 @@ export class TreeHelper {
       if (index === 0) {
         folderId = groupName;
       } else {
-        folderId = folderId + '.' + groupName;
+        folderId = folderId + '/' + groupName;
       }
       let folder = tree.find(folderId);
       if (!UtilService.isDefined(folder)) {

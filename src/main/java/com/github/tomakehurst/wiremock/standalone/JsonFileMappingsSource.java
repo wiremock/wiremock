@@ -25,116 +25,166 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
-  private final FileSource mappingsFileSource;
-  private final Map<UUID, StubMappingFileMetadata> fileNameMap;
+    private final FileSource mappingsFileSource;
+    private final Map<UUID, StubMappingFileMetadata> fileNameMap;
 
-  public JsonFileMappingsSource(FileSource mappingsFileSource) {
-    this.mappingsFileSource = mappingsFileSource;
-    fileNameMap = new HashMap<>();
-  }
-
-  @Override
-  public void save(List<StubMapping> stubMappings) {
-    for (StubMapping mapping : stubMappings) {
-      if (mapping != null && mapping.isDirty()) {
-        save(mapping);
-      }
-    }
-  }
-
-  @Override
-  public void save(StubMapping stubMapping) {
-    StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
-    if (fileMetadata == null) {
-      fileMetadata = new StubMappingFileMetadata(SafeNames.makeSafeFileName(stubMapping), false);
+    public JsonFileMappingsSource(FileSource mappingsFileSource) {
+        this.mappingsFileSource = mappingsFileSource;
+        fileNameMap = new HashMap<>();
     }
 
-    if (fileMetadata.multi) {
-      throw new NotWritableException(
-          "Stubs loaded from multi-mapping files are read-only, and therefore cannot be saved");
-    }
-
-    mappingsFileSource.writeTextFile(fileMetadata.path, writePrivate(stubMapping));
-
-    fileNameMap.put(stubMapping.getId(), fileMetadata);
-    stubMapping.setDirty(false);
-  }
-
-  @Override
-  public void remove(StubMapping stubMapping) {
-    StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
-    if (fileMetadata.multi) {
-      throw new NotWritableException(
-          "Stubs loaded from multi-mapping files are read-only, and therefore cannot be removed");
-    }
-
-    mappingsFileSource.deleteFile(fileMetadata.path);
-    fileNameMap.remove(stubMapping.getId());
-  }
-
-  @Override
-  public void removeAll() {
-    if (anyFilesAreMultiMapping()) {
-      throw new NotWritableException(
-          "Some stubs were loaded from multi-mapping files which are read-only, so remove all cannot be performed");
-    }
-
-    for (StubMappingFileMetadata fileMetadata : fileNameMap.values()) {
-      mappingsFileSource.deleteFile(fileMetadata.path);
-    }
-    fileNameMap.clear();
-  }
-
-  private boolean anyFilesAreMultiMapping() {
-    return any(
-        fileNameMap.values(),
-        new Predicate<StubMappingFileMetadata>() {
-          @Override
-          public boolean apply(StubMappingFileMetadata input) {
-            return input.multi;
-          }
-        });
-  }
-
-  @Override
-  public void loadMappingsInto(StubMappings stubMappings) {
-    if (!mappingsFileSource.exists()) {
-      return;
-    }
-
-    Iterable<TextFile> mappingFiles =
-        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
-    for (TextFile mappingFile : mappingFiles) {
-      try {
-        StubMappingCollection stubCollection =
-            Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
-        for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-          mapping.setDirty(false);
-          stubMappings.addMapping(mapping);
-          StubMappingFileMetadata fileMetadata =
-              new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());
-          fileNameMap.put(mapping.getId(), fileMetadata);
+    @Override
+    public void save(List<StubMapping> stubMappings) {
+        for (StubMapping mapping : stubMappings) {
+            if (mapping != null && mapping.isDirty()) {
+                save(mapping);
+            }
         }
-      } catch (JsonException e) {
-        throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
-      }
     }
-  }
 
-  private static class StubMappingFileMetadata {
-    final String path;
-    final boolean multi;
+    @Override
+    public void save(StubMapping stubMapping) {
+        StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
+        if (fileMetadata == null) {
+            // we use gui folder definition to change path as sub directory from root.
+            // Only when not saved yet.
+            // TODO: This allows async between folder definition and actual file. Not sure if good or bad yet.
+            final String folderDefinition = getFolderDefinition(stubMapping);
+            if (folderDefinition != null) {
+                fileMetadata = new StubMappingFileMetadata(folderDefinition.replaceFirst("/", "") + "/" + SafeNames.makeSafeFileName(stubMapping), false);
+            } else {
+                fileMetadata = new StubMappingFileMetadata(SafeNames.makeSafeFileName(stubMapping), false);
+            }
+        }
 
-    public StubMappingFileMetadata(String path, boolean multi) {
-      this.path = path;
-      this.multi = multi;
+        if (fileMetadata.multi) {
+            throw new NotWritableException(
+                    "Stubs loaded from multi-mapping files are read-only, and therefore cannot be saved");
+        }
+
+
+        mappingsFileSource.writeTextFile(fileMetadata.path, writePrivate(stubMapping));
+
+        fileNameMap.put(stubMapping.getId(), fileMetadata);
+        stubMapping.setDirty(false);
     }
-  }
+
+    @Override
+    public void remove(StubMapping stubMapping) {
+        StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
+        if (fileMetadata.multi) {
+            throw new NotWritableException(
+                    "Stubs loaded from multi-mapping files are read-only, and therefore cannot be removed");
+        }
+
+        mappingsFileSource.deleteFile(fileMetadata.path);
+        fileNameMap.remove(stubMapping.getId());
+    }
+
+    @Override
+    public void removeAll() {
+        if (anyFilesAreMultiMapping()) {
+            throw new NotWritableException(
+                    "Some stubs were loaded from multi-mapping files which are read-only, so remove all cannot be performed");
+        }
+
+        for (StubMappingFileMetadata fileMetadata : fileNameMap.values()) {
+            mappingsFileSource.deleteFile(fileMetadata.path);
+        }
+        fileNameMap.clear();
+    }
+
+    private boolean anyFilesAreMultiMapping() {
+        return any(
+                fileNameMap.values(),
+                new Predicate<StubMappingFileMetadata>() {
+                    @Override
+                    public boolean apply(StubMappingFileMetadata input) {
+                        return input.multi;
+                    }
+                });
+    }
+
+    @Override
+    public void loadMappingsInto(StubMappings stubMappings) {
+        if (!mappingsFileSource.exists()) {
+            return;
+        }
+
+        Iterable<TextFile> mappingFiles =
+                filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+        for (TextFile mappingFile : mappingFiles) {
+            try {
+                StubMappingCollection stubCollection =
+                        Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+                for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
+                    mapping.setDirty(false);
+                    createGuiFolderStructure(mapping, mappingFile);
+                    stubMappings.addMapping(mapping);
+                    StubMappingFileMetadata fileMetadata =
+                            new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());
+                    fileNameMap.put(mapping.getId(), fileMetadata);
+                }
+            } catch (JsonException e) {
+                throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
+            }
+        }
+    }
+
+    private boolean hasFolderDefinition(final StubMapping mapping) {
+        Metadata metadata = mapping.getMetadata();
+        if (metadata == null) {
+            return false;
+        }
+        return metadata.getMap("gui") != null && metadata.getMap("gui").get("folder") != null &&
+                metadata.getMap("gui").get("folder") instanceof String;
+    }
+
+    private String getFolderDefinition(final StubMapping mapping) {
+        if (hasFolderDefinition(mapping)) {
+            return (String) mapping.getMetadata().getMap("gui").get("folder");
+        }
+        return null;
+    }
+
+    private void createGuiFolderStructure(StubMapping mapping, TextFile mappingFile) {
+        Metadata metadata = mapping.getMetadata();
+        if (metadata == null) {
+            metadata = new Metadata();
+            mapping.setMetadata(metadata);
+        } else if (hasFolderDefinition(mapping)) {
+            // skip files which contain a folder definition already.
+            // TODO: This allows async between folder definition and actual file. Not sure if good or bad yet.
+            return;
+        }
+
+        String path = mappingFile.getUri().getSchemeSpecificPart()
+                .replace(this.mappingsFileSource.getUri().getSchemeSpecificPart(), "")
+                .replace(".json", "");
+        final int index = path.lastIndexOf('/');
+        if (index != -1) {
+            path = "/" + path.substring(0, path.lastIndexOf('/'));
+        } else {
+            return;
+        }
+
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        metadata.put("gui", map);
+        map.put("folder", path);
+    }
+
+    private static class StubMappingFileMetadata {
+        final String path;
+        final boolean multi;
+
+        public StubMappingFileMetadata(String path, boolean multi) {
+            this.path = path;
+            this.multi = multi;
+        }
+    }
 }
