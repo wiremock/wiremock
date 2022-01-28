@@ -32,7 +32,7 @@ import {
   faFolder,
   faCheck,
   faChevronRight,
-  faChevronDown
+  faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';

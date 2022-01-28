@@ -17,6 +17,9 @@
             <fa-icon icon="chevron-right" *ngIf="node.collapsed"></fa-icon>
             <fa-icon icon="chevron-down" *ngIf="!node.collapsed"></fa-icon>
           </div>
+          <div *ngIf="!node.isLeaf()" class="wmFolder">
+            <fa-icon icon="folder"></fa-icon>
+          </div>
           <div class="wmListItemTextContainer">
             <div class="wmListItemTitle">{{node.value.getTitle()}}</div>
             <div class="wmListItemSubtitle">{{node.value.getSubtitle()}}</div>

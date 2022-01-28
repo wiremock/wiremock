@@ -61,10 +61,15 @@ ngb-pagination {
   }
 }
 
+.wmFolder {
+  margin-right: 10px;
+}
+
 .line {
   height: 100%;
   width: 1px;
-  border-left: 1px solid rgba(0, 0, 0, 0.125);
+  //border-left: 1px solid rgba(0, 0, 0, 0.125);
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
   margin-top: -1px;
   margin-bottom: -1px;
   position: absolute;

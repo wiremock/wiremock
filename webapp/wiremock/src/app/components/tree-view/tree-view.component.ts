@@ -160,14 +160,34 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
           }
         }
       }
-      const nV = newTree.find(this.activeItem.getId());
-      if (UtilService.isDefined(nV)) {
-        nV.expandParents();
+      if (UtilService.isDefined(this.activeItem)) {
+        const nV = newTree.find(this.activeItem.getId());
+        if (UtilService.isDefined(nV)) {
+          nV.expandParents();
+        }
       }
 
 
       this.tree = newTree;
-      this.treeItems = Array.from(this.tree.preOrderTraversal());
+      const newTreeItems: TreeNode[] = [];
+      for (const node of this.tree.preOrderTraversal()) {
+        // we sort children by folder before we add them too tree list.
+        node.children.sort((a, b) => {
+          if (a.value instanceof Folder && b.value instanceof Folder) {
+            return a.value.getGroup() <= b.value.getGroup() ? -1 : 1;
+          } else if (a.value instanceof Folder) {
+            return -1;
+          } else if (b.value instanceof Folder) {
+            return 1;
+          } else {
+            return a.value.getGroup() <= b.value.getGroup() ? -1 : 1;
+          }
+        });
+
+        newTreeItems.push(node);
+      }
+
+      this.treeItems = newTreeItems;
 
       this.activeItemChanged = true;
     }
