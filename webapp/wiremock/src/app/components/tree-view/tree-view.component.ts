@@ -103,6 +103,7 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
   ngAfterViewChecked(): void {
     if (this.activeItemChanged) {
+      this.activeItemChanged = false;
       // only once after something changed.
       this.listChildren.forEach(item => {
         if (item.nativeElement.id === this.activeItem.getId()) {
@@ -113,7 +114,6 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
           } else if (rectElem.top < rectContainer.top) {
             item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
           }
-          this.activeItemChanged = false;
         }
       });
     }
