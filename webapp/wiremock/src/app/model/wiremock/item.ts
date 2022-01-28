@@ -11,7 +11,7 @@ export interface Item {
 
   isProxyEnabled(): boolean;
 
-  hasGroup(): boolean;
+  hasFolderDefinition(): boolean;
 
-  getGroup(): string | undefined;
+  getFolderName(): string | undefined;
 }

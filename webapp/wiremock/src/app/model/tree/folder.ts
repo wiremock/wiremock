@@ -29,11 +29,11 @@ export class Folder implements Item {
     return false;
   }
 
-  getGroup(): string | undefined {
+  getFolderName(): string | undefined {
     return undefined;
   }
 
-  hasGroup(): boolean {
+  hasFolderDefinition(): boolean {
     return false;
   }
 

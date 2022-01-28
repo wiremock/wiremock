@@ -17,9 +17,8 @@ import {MessageService} from '../message/message.service';
 import {Tree} from '../../model/tree/tree';
 import {Root} from '../../model/tree/root';
 import {TreeNode} from '../../model/tree/tree-node';
-import {StubMapping} from '../../model/wiremock/stub-mapping';
 import {Folder} from '../../model/tree/folder';
-import {SearchService} from '../../services/search.service';
+import {TreeHelper} from './tree-helper';
 
 @Component({
   selector: 'wm-tree-view',
@@ -37,18 +36,14 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
   activeItem: Item;
   activeItemChanged = false;
 
-  pageSize = 20;
-
-  page = 1;
-
   @Output()
   activeItemChange: EventEmitter<Item> = new EventEmitter();
 
-  tree: Tree;
   rootNode: TreeNode;
-  private root: Item;
+  private rootItem: Item;
 
   treeItems: TreeNode[];
+  private previousTree: Tree;
 
   @ViewChild('childrenContainer')
   childrenContainer: ElementRef;
@@ -57,8 +52,7 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
   listChildren: QueryList<ElementRef>;
 
   constructor(private wiremockService: WiremockService,
-              private messageService: MessageService,
-              private searchService: SearchService) {
+              private messageService: MessageService) {
   }
 
   selectActiveItem(node: TreeNode) {
@@ -75,120 +69,31 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
   }
 
   ngOnInit() {
-    this.root = new Root();
+    this.rootItem = new Root();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // let changed = false;
-
+    // only when we actually change items. No need to change when activeItem changes because this would only
+    // include expand and this is done by user.
     if (UtilService.isDefined(changes.items) && UtilService.isDefined(this.items)) {
+      // First we sort items by group so that folders are shown first
+      TreeHelper.sortItemsByFolderName(this.items);
 
-      this.items.sort((a: Item, b: Item) => {
-        if (a.hasGroup() && b.hasGroup()) {
-          if (a.getGroup() < b.getGroup()) {
-            return -1;
-          }
-          if (a.getGroup() > b.getGroup()) {
-            return 1;
-          }
-          return 0;
-        } else if (a.hasGroup()) {
-          return -1;
-        } else {
-          return 1;
-        }
-      });
+      // We create a new Tree using our one root value always as basis
+      this.rootNode = new TreeNode(this.rootItem, -1);
+      const newTree = Tree.createFromNode(this.rootNode);
 
-      // console.log(this.items);
+      // Insert all items into the new tree
+      TreeHelper.insertIntoTree(newTree, this.items, this.rootNode);
 
-      const newTree = new Tree(this.root);
-      this.rootNode = newTree.find(this.root.getId());
+      // Open folders based on old tree and active item.
+      TreeHelper.openFolders(newTree, this.previousTree, this.activeItem);
 
-      this.items.forEach(value => {
+      // We store tree for next item change
+      this.previousTree = newTree;
 
-        if (value instanceof StubMapping && UtilService.isGroupDefined(value)) {
-
-          const groupText = value.metadata.gui.group as string;
-          const groups = groupText.split('.');
-
-          let groupParent: Item = this.root;
-          let groupId = '';
-          groups.forEach((groupName, index) => {
-            if (index === 0) {
-              groupId = groupName;
-            } else {
-              groupId = groupId + '.' + groupName;
-            }
-            const groupNode = newTree.find(groupId);
-            if (!UtilService.isDefined(groupNode)) {
-              // group does not exist yet. Create it
-              newTree.insert(groupParent.getId(), new Folder(groupId, groupName));
-            }
-            const folder = newTree.find(groupId);
-            // TODO: Not sure how to do that with available information. We have no clue here what triggered the
-            //  rendering. And I actually want to keep it that way. But we have:
-            //  Focus active item seems useful as long as we do not prevent usage
-            //  Show search results. Not all? Just at least one. But this could be active one.
-            // folder.collapsed = this.items.length >= 10;
-            folder.collapsed = true;
-            groupParent = folder.value;
-          });
-
-
-          const parent = newTree.find(groupText);
-
-          if (UtilService.isDefined(parent)) {
-            // found group
-            newTree.insertByNode(parent, value);
-          } else {
-            // create group folder
-            console.log('oO Something went wrong!!!');
-          }
-        } else {
-          newTree.insert(this.root.getId(), value);
-        }
-      });
-
-      // open folders again
-      if (UtilService.isDefined(this.tree)) {
-        for (const node of this.tree.preOrderTraversal()) {
-          if (!node.collapsed) {
-            const newValue = newTree.find(node.value.getId());
-            if (UtilService.isDefined(newValue)) {
-              newValue.collapsed = false;
-            }
-          }
-        }
-      }
-      if (UtilService.isDefined(this.activeItem)) {
-        const nV = newTree.find(this.activeItem.getId());
-        if (UtilService.isDefined(nV)) {
-          nV.expandParents();
-        }
-      }
-
-
-      this.tree = newTree;
-      const newTreeItems: TreeNode[] = [];
-      for (const node of this.tree.preOrderTraversal()) {
-        // we sort children by folder before we add them too tree list.
-        node.children.sort((a, b) => {
-          if (a.value instanceof Folder && b.value instanceof Folder) {
-            return a.value.getGroup() <= b.value.getGroup() ? -1 : 1;
-          } else if (a.value instanceof Folder) {
-            return -1;
-          } else if (b.value instanceof Folder) {
-            return 1;
-          } else {
-            return a.value.getGroup() <= b.value.getGroup() ? -1 : 1;
-          }
-        });
-
-        newTreeItems.push(node);
-      }
-
-      this.treeItems = newTreeItems;
-
+      // We actually set a list of tree items to render top-down. Everything is Angular and CSS magic.
+      this.treeItems = TreeHelper.sortTreeFoldersFirstAndMapToList(this.previousTree);
       this.activeItemChanged = true;
     }
   }
@@ -215,7 +120,7 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
   }
 
   enableProxy(item: Item) {
-    this.wiremockService.enableProxy(item.getId()).subscribe(data => {
+    this.wiremockService.enableProxy(item.getId()).subscribe(() => {
         // do nothing
       },
       err => {
@@ -224,7 +129,7 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
   }
 
   disableProxy(item: Item) {
-    this.wiremockService.disableProxy(item.getId()).subscribe(data => {
+    this.wiremockService.disableProxy(item.getId()).subscribe(() => {
         // do nothing
       },
       err => {

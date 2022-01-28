@@ -101,13 +101,13 @@ export class StubMapping extends Proxy implements Item {
     return UtilService.itemModelStringify(this);
   }
 
-  hasGroup(): boolean {
-    return UtilService.isDefined(this.getGroup());
+  hasFolderDefinition(): boolean {
+    return UtilService.isDefined(this.getFolderName());
   }
 
-  getGroup(): string | undefined {
-    if (UtilService.isGroupDefined(this)) {
-      return this.metadata.gui.group;
+  getFolderName(): string | undefined {
+    if (UtilService.isFolderDefined(this)) {
+      return this.metadata.gui.folder;
     }
     return undefined;
   }

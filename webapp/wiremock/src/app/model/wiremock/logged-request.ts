@@ -44,11 +44,11 @@ export class LoggedRequest extends Proxy implements Item {
     return UtilService.itemModelStringify(this);
   }
 
-  hasGroup(): boolean {
+  hasFolderDefinition(): boolean {
     return false;
   }
 
-  getGroup(): string | undefined {
+  getFolderName(): string | undefined {
     return undefined;
   }
 

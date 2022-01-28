@@ -4,9 +4,19 @@ import {Item} from '../wiremock/item';
 export class Tree {
   private root: TreeNode;
 
-  constructor(value: Item) {
-    this.root = new TreeNode(value, -1);
+  private constructor(node: TreeNode) {
+    this.root = node;
   }
+
+  public static createFromItem(value: Item) {
+    return new Tree(new TreeNode(value, -1));
+  }
+
+  public static createFromNode(node: TreeNode) {
+    node.depth = -1;
+    return new Tree(node);
+  }
+
 
   * preOrderTraversal(node: TreeNode = this.root): IterableIterator<TreeNode> {
     yield node;
@@ -26,24 +36,21 @@ export class Tree {
     yield node;
   }
 
-  insert(parentId: string, value: Item): boolean {
+  insert(parentId: string, value: Item): TreeNode {
     for (const node of this.preOrderTraversal()) {
       if (node.value.getId() === parentId) {
-        node.children.push(new TreeNode(value, this.find(parentId).depth + 1, node));
-        return true;
+        const newNode = new TreeNode(value, this.find(parentId).depth + 1, node);
+        node.children.push(newNode);
+        return newNode;
       }
     }
-    return false;
+    return undefined;
   }
 
-  insertByNode(parent: TreeNode, value: Item): boolean {
-    for (const node of this.preOrderTraversal()) {
-      if (node.value.getId() === parent.value.getId()) {
-        node.children.push(new TreeNode(value, parent.depth + 1, node));
-        return true;
-      }
-    }
-    return false;
+  insertByNode(parent: TreeNode, value: Item): TreeNode {
+    const newNode = new TreeNode(value, parent.depth + 1, parent);
+    parent.children.push(newNode);
+    return newNode;
   }
 
   remove(id: string): boolean {

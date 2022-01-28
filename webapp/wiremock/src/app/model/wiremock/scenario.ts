@@ -29,11 +29,11 @@ export class Scenario implements Item {
     return this._possibleStates;
   }
 
-  hasGroup(): boolean {
+  hasFolderDefinition(): boolean {
     return false;
   }
 
-  getGroup(): string | undefined {
+  getFolderName(): string | undefined {
     return undefined;
   }
 

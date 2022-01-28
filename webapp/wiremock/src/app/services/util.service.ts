@@ -94,9 +94,12 @@ export class UtilService {
     return !(value === null || typeof value === 'undefined');
   }
 
-  public static isGroupDefined(value: StubMapping): boolean {
-    return UtilService.isDefined(value.metadata) && UtilService.isDefined(value.metadata.gui) &&
-      UtilService.isDefined(value.metadata.gui.group);
+  public static isGuiDefined(value: StubMapping): boolean {
+    return UtilService.isDefined(value.metadata) && UtilService.isDefined(value.metadata.gui);
+  }
+
+  public static isFolderDefined(value: StubMapping): boolean {
+    return UtilService.isGuiDefined(value) && UtilService.isDefined(value.metadata.gui.folder);
   }
 
   public static isUndefined(value: any): boolean {
