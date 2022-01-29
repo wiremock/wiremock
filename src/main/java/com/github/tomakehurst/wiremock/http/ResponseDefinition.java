@@ -128,7 +128,7 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
-  private ResponseDefinition(
+  public ResponseDefinition(
       int status,
       String statusMessage,
       Body body,
