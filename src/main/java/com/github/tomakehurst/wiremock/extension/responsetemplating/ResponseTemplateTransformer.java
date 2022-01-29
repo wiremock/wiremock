@@ -103,7 +103,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
             .build();
 
     if (responseDefinition.specifiesTextBodyContent()) {
-      boolean isJsonBody = responseDefinition.isJsonBody();
+      boolean isJsonBody = responseDefinition.getReponseBody().isJson();
       HandlebarsOptimizedTemplate bodyTemplate =
           templateEngine.getTemplate(
               HttpTemplateCacheKey.forInlineBody(responseDefinition),

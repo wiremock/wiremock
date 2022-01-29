@@ -355,8 +355,9 @@ public class ResponseDefinition {
     return body.isBinary() ? body.asBase64() : null;
   }
 
-  public boolean isJsonBody() {
-    return body.isJson();
+  @JsonIgnore
+  public Body getReponseBody() {
+    return body;
   }
 
   public JsonNode getJsonBody() {
