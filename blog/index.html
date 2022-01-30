@@ -236,65 +236,6 @@
 </div>
 
 
-<div class="webinarFooterBanner">
-  <div class="webinarFooterLeftBlock">
-      <img src="/images/sponsoredByUP9.svg" alt="sponsored by up9" />
-  </div>
-  <div class="wrapperWebinarFT">
-      <div class="webinarBannerLecturer">
-          <img class="refael" src="/images/refael.png" alt="refael" />
-          <img class="tom" src="/images/TomAkehurst.png" alt="tom" />
-      </div>
-      <div class="counterDownWrapper">
-          <h4 class="upcomingWebinarTXT">
-              UPCOMING WEBINAR
-          </h4>
-          <span class="webinarDescriptionTXT">
-              Demonstrating our new
-              <img
-                  class="kubernetesFooterBannerIMG"
-                  src="/images/kubernetesFooterBanner.png"
-                  alt="kubernetes"
-              />
-              capabilities.
-          </span>
-      </div>
-      <div class="webinarCountDownWrapper">
-          <div class="countDownBlock">
-              <h4 class="days"></h4>
-              <span>Days</span>
-          </div>
-          <div class="countDownBlock">
-              <h4 class="hours"></h4>
-              <span>Hours</span>
-          </div>
-          <div class="countDownBlock">
-              <h4 class="minutes"></h4>
-              <span>Minutes</span>
-          </div>
-          <div class="countDownBlock">
-              <h4 class="seconds"></h4>
-              <span>Seconds</span>
-          </div>
-      </div>
-
-      <button
-          id="footerWebinarRegister"
-          class="deffaultBTN webinarBannerRegisterBTN"
-      >
-          REGISTER NOW
-      </button>
-  </div>
-  <div class="webinarFooterRightBlock">
-      <img
-          id="closeWebinarFooterBannerIMG"
-          class="closeWebinarFooterBannerIMG"
-          src="/images/closeBTNwebinarFooterBanner.svg"
-          alt="close footer webinar banner"
-      />
-  </div>
-</div>
-
 <div class="page__footer-copyright">&copy; 2022 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
                                                                                                                                                                   rel="nofollow">Jekyll</a> &amp; <a
   href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
@@ -305,7 +246,7 @@
   <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
 </div>
 
-<script src="../assets/js/countdownClock.js"></script>
+
 
 <script type="text/javascript">
   
@@ -316,9 +257,7 @@
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
-  function setFooterWebinarBannerCookie() {
-    document.cookie = "mocklab_footerWebinar_seen=true;path=/";
-  }
+  
 
   function sendNavigatedToMockLabEvent(location) {
     ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
@@ -334,29 +273,7 @@
       ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
     });
 
-    if (!document.cookie.includes('mocklab_footerWebinar_seen')) {
-
-      document.getElementById("footerWebinarRegister").addEventListener("click", registerToWebinar);
-      document.getElementById('closeWebinarFooterBannerIMG').addEventListener("click", closeFooterWebinar);
-      const webinarFooterBanner = document.getElementsByClassName('webinarFooterBanner');
-
-      webinarFooterBanner[0].classList.add('displayFooterWebinarBanner');
-
-      function registerToWebinar() {
-        setFooterWebinarBannerCookie()
-        webinarFooterBanner[0].classList.add('hideFooterWebinarBanner');
-        window.location.href = "https://bit.ly/3fv1SOs";
-      }
-
-      function closeFooterWebinar() {
-        setFooterWebinarBannerCookie()
-        webinarFooterBanner[0].classList.add('hideFooterWebinarBanner');
-      }
-
-      window.setTimeout(function () {
-        countDownClock();
-      })
-    }
+    
 
     if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
       window.setTimeout(function () {
