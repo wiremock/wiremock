@@ -296,7 +296,7 @@ R. Michael Rogers<br />
 
 
 <script type="text/javascript">
-  
+
 
   function setNotificationSeenCookie() {
     var expiresDate = new Date();
@@ -304,7 +304,7 @@ R. Michael Rogers<br />
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
-  
+
 
   function sendNavigatedToMockLabEvent(location) {
     ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
@@ -320,7 +320,7 @@ R. Michael Rogers<br />
       ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
     });
 
-    
+
 
     if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
       window.setTimeout(function () {
@@ -358,6 +358,10 @@ R. Michael Rogers<br />
     $("#mocklab-callout-try-it-now").click(function() {
       ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
       sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+
+    $("#wiremock-studio-download").click(function() {
+      ga('send', 'event', 'wiremock_studio_beta_doc', 'download_link_clicked', 'Download clicked', 3);
     });
   };
 </script>

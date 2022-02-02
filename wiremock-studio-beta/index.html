@@ -1,0 +1,474 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>WireMock Studio Beta - Getting Started - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="How to download, run and use the WireMock Studio beta.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="WireMock Studio Beta - Getting Started">
+
+
+
+
+  <meta property="og:description" content="How to download, run and use the WireMock Studio beta.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
+            
+
+          
+
+          <li class="masthead__menu-item">
+            <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=primary-nav&utm_campaign=mocklab" title="MockLab" target="_blank">
+              <img src="/images/mocklab_logo_transparent.png" style="height: 23px; width: auto; margin-right: 5px; vertical-align: top;" />
+              MockLab
+            </a>
+          </li>
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+
+
+<div id="main" role="main">
+  <article class="splash" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="WireMock Studio Beta - Getting Started">
+    
+    
+    
+
+    <section class="page__content" itemprop="text">
+      <h1 id="wiremock-studio-beta---getting-started">WireMock Studio Beta - Getting Started</h1>
+
+<p><img src="/images/studio/hero-screenshot.png" alt="WireMock Studio UI" style="width:70%" /></p>
+
+<p>WireMock Studio is currently released as a standalone JAR and a Docker image, making
+it straightforward to run on your own machine or in your test environment.</p>
+
+<h2 id="running-the-standalone-jar">Running the standalone JAR</h2>
+
+<p>The standalone JAR requires a minimum of <strong>Java 11</strong>, and this is the best
+version to use, however we’ve tested it on Java 17 and this also works fine except
+if you try to enable and use HTTPS browser proxying.</p>
+
+<p>After ensuring you’ve got a suitable Java version installed, download the
+<a href="http://wiremock-studio.s3-website-us-east-1.amazonaws.com/wiremock-studio-2.32.0-7.jar" id="wiremock-studio-download">WireMock Studio standalone JAR</a>.</p>
+
+<p>Then open a terminal in the directory containing the JAR file and run:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-jar</span> wiremock-studio-2.32.0-7.jar
+</code></pre></div></div>
+
+<p>You should see something like the following in the console:</p>
+
+<p><img src="/images/studio/console-splash.png" alt="WireMock Studio console" style="width: 50%;height: auto;" /></p>
+
+<p>You can now visit the console URL shown, which defaults to <a href="http://localhost:9000" target="_blank">http://localhost:9000</a>.</p>
+
+<h2 id="running-in-docker">Running in Docker</h2>
+
+<p>To start WireMock Studio in Docker locally, run the following in a shell:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="se">\</span>
+  <span class="nt">-p</span> 9000:9000 <span class="se">\</span>
+  <span class="nt">-p</span> 8000:8000 <span class="se">\</span>
+  <span class="nt">-p</span> 8001:8001 <span class="se">\</span>
+  up9inc/wiremock-studio:2.32.0-7
+</code></pre></div></div>
+
+<p>Note that ports 8000 and 8001 that are exposed in this case are ports we expect
+to assign new mock APIs to when we create them. You’ll need to add more (or fewer)
+of these per your requirements.</p>
+
+<p>Port 9000 is the UI and management port so should always be exposed.</p>
+
+<h2 id="deploying-to-kubernetes">Deploying to Kubernetes</h2>
+
+<p>Start by creating a Kubernetes manifest file called <code class="language-plaintext highlighter-rouge">wiremock-studio.yaml</code> with the following contents
+(tweaking parameters for your environment where appropriate):</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">apps/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Deployment</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">replicas</span><span class="pi">:</span> <span class="m">1</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">matchLabels</span><span class="pi">:</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">metadata</span><span class="pi">:</span>
+      <span class="na">labels</span><span class="pi">:</span>
+        <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">containers</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">up9inc/wiremock-studio:2.32.0-7</span>
+        <span class="na">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">9000</span>
+        <span class="na">livenessProbe</span><span class="pi">:</span>
+          <span class="na">httpGet</span><span class="pi">:</span>
+            <span class="na">path</span><span class="pi">:</span> <span class="s">/status</span>
+            <span class="na">port</span><span class="pi">:</span> <span class="m">9000</span>
+          <span class="na">initialDelaySeconds</span><span class="pi">:</span> <span class="m">60</span>
+          <span class="na">periodSeconds</span><span class="pi">:</span> <span class="m">3</span>
+        <span class="na">readinessProbe</span><span class="pi">:</span>
+          <span class="na">httpGet</span><span class="pi">:</span>
+            <span class="na">path</span><span class="pi">:</span> <span class="s">/status</span>
+            <span class="na">port</span><span class="pi">:</span> <span class="m">9000</span>
+          <span class="na">initialDelaySeconds</span><span class="pi">:</span> <span class="m">10</span>
+          <span class="na">periodSeconds</span><span class="pi">:</span> <span class="m">3</span>
+
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+  <span class="na">labels</span><span class="pi">:</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">externalTrafficPolicy</span><span class="pi">:</span> <span class="s">Cluster</span>
+  <span class="na">ports</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
+    <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+    <span class="na">targetPort</span><span class="pi">:</span> <span class="m">9000</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
+  <span class="na">sessionAffinity</span><span class="pi">:</span> <span class="s">None</span>
+  <span class="na">type</span><span class="pi">:</span> <span class="s">LoadBalancer</span>
+</code></pre></div></div>
+
+<p>Then apply the manifest to your cluster:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl apply <span class="nt">-f</span> wiremock-studio.yaml
+</code></pre></div></div>
+
+<p>After a few moments pod and service will have started in your cluster and you’ll
+be able to access the console via port forwarding:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl port-forward deployment/wiremock-studio 9000
+</code></pre></div></div>
+
+<p>Then you can access the web UI by pointing your browser to <a href="http://localhost:9000" target="_blank">http://localhost:9000</a>.</p>
+
+<h2 id="data-storage-when-running-in-docker-or-kubernetes">Data storage when running in Docker or Kubernetes</h2>
+
+<p>By default, WireMock Studio writes stub mappings and the mock API catalogue to JSON files under
+its home directory inside the container <code class="language-plaintext highlighter-rouge">/home/wiremock</code>.</p>
+
+<p>When running in Docker or K8s as described above this will be a temporary, writable
+filesystem that will disappear when the container is removed.</p>
+
+<p>If you want to preserve your mock APIs and their stubs you can mount a volume to
+<code class="language-plaintext highlighter-rouge">/home/wiremock</code>. When running directly in Docker you could do something like this
+(first ensuring Docker has permission to mount the directory you’re in):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="se">\</span>
+  <span class="nt">-p</span> 9000:9000 <span class="se">\</span>
+  <span class="nt">-p</span> 8000:8000 <span class="se">\</span>
+  <span class="nt">-v</span> <span class="nv">$PWD</span>/wiremock:/home/wiremock <span class="se">\</span>
+  up9inc/wiremock-studio:2.32.0-7
+</code></pre></div></div>
+
+<p>This will mount the <code class="language-plaintext highlighter-rouge">wiremock</code> subdirectory under the current directory as the root.
+This directory and its contents can be committed to source control.</p>
+
+<h2 id="more-info-on-wiremock-studio-features">More info on WireMock Studio features</h2>
+
+<p>We’re still in the process of producing new documentation, but since WireMock Studio’s
+UI is very similar to MockLab’s we invite you in the meantime to browse <a href="https://www.mocklab.io/docs/" target="_blank">MockLab’s documentation</a>.
+Most things will work identically in both products.</p>
+
+<h2 id="getting-help-and-support">Getting help and support</h2>
+
+<p>Please join our <a href="https://up9.com/slack?utm_source=wiremock.org&amp;utm_medium=docs&amp;utm_campaign=studio-beta-docs" target="_blank">community Slack</a>
+for help from the WireMock + UP9 team, and other community members.</p>
+
+    </section>
+  </article>
+</div>
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+
+<div class="page__footer-copyright">&copy; 2022 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
+  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
+</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+
+
+<script type="text/javascript">
+
+
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+
+
+  function sendNavigatedToMockLabEvent(location) {
+    ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
+  }
+
+  window.onload = function () {
+    $("a[title='MockLab']").click(function() {
+      ga('send', 'event', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1);
+      sendNavigatedToMockLabEvent('primary_nav');
+    });
+
+    $("a[title='Consulting Services']").click(function() {
+      ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
+    });
+
+
+
+    if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
+      window.setTimeout(function () {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+            effect: 'fade',
+            duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function () {
+              ga('send', 'event', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1);
+              sendNavigatedToMockLabEvent();
+              window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+        ga('send', 'event', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0);
+      }, 500);
+
+    }
+
+    $("#mocklab-callout-learn-more").click(function() {
+      ga('send', 'event', 'mocklab_homepage_section', 'learn_more_clicked', 'Learn More clicked', 1);
+      sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+
+    $("#mocklab-callout-try-it-now").click(function() {
+      ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
+      sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+
+    $("#wiremock-studio-download").click(function() {
+      ga('send', 'event', 'wiremock_studio_beta_doc', 'download_link_clicked', 'Download clicked', 3);
+    });
+  };
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  </body>
+</html>
+

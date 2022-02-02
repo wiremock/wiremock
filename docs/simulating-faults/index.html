@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-30T21:02:56+00:00">
+  <meta property="article:published_time" content="2022-02-02T20:36:29+00:00">
   
     <link rel="next" href="/docs/spring-boot/" title="Spring Boot">
   
@@ -379,7 +379,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Simulating Faults">
     <meta itemprop="description" content="One of the main reasons it’s beneficial to use web service fakes whentesting is to inject faulty behaviour that might be difficult to get thereal service to produce on demand. In addition to being able to sendback any HTTP response code indicating an error, WireMock is able togenerate a few other types of problem.">
-    <meta itemprop="datePublished" content="January 30, 2022">
+    <meta itemprop="datePublished" content="February 02, 2022">
     
 
     <div class="page__inner-wrap">
@@ -660,7 +660,7 @@ than reset.</p>
 
 
 <script type="text/javascript">
-  
+
 
   function setNotificationSeenCookie() {
     var expiresDate = new Date();
@@ -668,7 +668,7 @@ than reset.</p>
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
-  
+
 
   function sendNavigatedToMockLabEvent(location) {
     ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
@@ -684,7 +684,7 @@ than reset.</p>
       ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
     });
 
-    
+
 
     if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
       window.setTimeout(function () {
@@ -722,6 +722,10 @@ than reset.</p>
     $("#mocklab-callout-try-it-now").click(function() {
       ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
       sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+
+    $("#wiremock-studio-download").click(function() {
+      ga('send', 'event', 'wiremock_studio_beta_doc', 'download_link_clicked', 'Download clicked', 3);
     });
   };
 </script>

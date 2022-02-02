@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-01-30T21:02:56+00:00">
+  <meta property="article:published_time" content="2022-02-02T20:36:29+00:00">
   
     <link rel="next" href="/docs/stub-metadata/" title="Stub Metadata">
   
@@ -379,7 +379,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stateful Behaviour">
     <meta itemprop="description" content="Most web services tend to have some state, which changes as you andothers interact with it. So it’s pretty useful to be able to simulatethis when you’ve swapped a real service for a test double.">
-    <meta itemprop="datePublished" content="January 30, 2022">
+    <meta itemprop="datePublished" content="February 02, 2022">
     
 
     <div class="page__inner-wrap">
@@ -577,7 +577,7 @@ Java, or posting an empty request to <code class="language-plaintext highlighter
 
 
 <script type="text/javascript">
-  
+
 
   function setNotificationSeenCookie() {
     var expiresDate = new Date();
@@ -585,7 +585,7 @@ Java, or posting an empty request to <code class="language-plaintext highlighter
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
-  
+
 
   function sendNavigatedToMockLabEvent(location) {
     ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
@@ -601,7 +601,7 @@ Java, or posting an empty request to <code class="language-plaintext highlighter
       ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
     });
 
-    
+
 
     if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
       window.setTimeout(function () {
@@ -639,6 +639,10 @@ Java, or posting an empty request to <code class="language-plaintext highlighter
     $("#mocklab-callout-try-it-now").click(function() {
       ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
       sendNavigatedToMockLabEvent('mocklab_homepage_section');
+    });
+
+    $("#wiremock-studio-download").click(function() {
+      ga('send', 'event', 'wiremock_studio_beta_doc', 'download_link_clicked', 'Download clicked', 3);
     });
   };
 </script>
