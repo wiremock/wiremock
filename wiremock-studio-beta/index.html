@@ -218,11 +218,11 @@ version to use, however we’ve tested it on Java 17 and this also works fine ex
 if you try to enable and use HTTPS browser proxying.</p>
 
 <p>After ensuring you’ve got a suitable Java version installed, download the
-<a href="http://wiremock-studio.s3-website-us-east-1.amazonaws.com/wiremock-studio-2.32.0-7.jar" id="wiremock-studio-download">WireMock Studio standalone JAR</a>.</p>
+<a href="http://wiremock-studio.s3-website-us-east-1.amazonaws.com/wiremock-studio-2.32.0-8.jar" id="wiremock-studio-download">WireMock Studio standalone JAR</a>.</p>
 
 <p>Then open a terminal in the directory containing the JAR file and run:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-jar</span> wiremock-studio-2.32.0-7.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="nt">-jar</span> wiremock-studio-2.32.0-8.jar
 </code></pre></div></div>
 
 <p>You should see something like the following in the console:</p>
@@ -239,7 +239,7 @@ if you try to enable and use HTTPS browser proxying.</p>
   <span class="nt">-p</span> 9000:9000 <span class="se">\</span>
   <span class="nt">-p</span> 8000:8000 <span class="se">\</span>
   <span class="nt">-p</span> 8001:8001 <span class="se">\</span>
-  up9inc/wiremock-studio:2.32.0-7
+  up9inc/wiremock-studio:2.32.0-8
 </code></pre></div></div>
 
 <p>Note that ports 8000 and 8001 that are exposed in this case are ports we expect
@@ -272,7 +272,7 @@ of these per your requirements.</p>
     <span class="na">spec</span><span class="pi">:</span>
       <span class="na">containers</span><span class="pi">:</span>
       <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">wiremock-studio</span>
-        <span class="na">image</span><span class="pi">:</span> <span class="s">up9inc/wiremock-studio:2.32.0-7</span>
+        <span class="na">image</span><span class="pi">:</span> <span class="s">up9inc/wiremock-studio:2.32.0-8</span>
         <span class="na">ports</span><span class="pi">:</span>
         <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">9000</span>
         <span class="na">livenessProbe</span><span class="pi">:</span>
@@ -336,7 +336,7 @@ filesystem that will disappear when the container is removed.</p>
   <span class="nt">-p</span> 9000:9000 <span class="se">\</span>
   <span class="nt">-p</span> 8000:8000 <span class="se">\</span>
   <span class="nt">-v</span> <span class="nv">$PWD</span>/wiremock:/home/wiremock <span class="se">\</span>
-  up9inc/wiremock-studio:2.32.0-7
+  up9inc/wiremock-studio:2.32.0-8
 </code></pre></div></div>
 
 <p>This will mount the <code class="language-plaintext highlighter-rouge">wiremock</code> subdirectory under the current directory as the root.
