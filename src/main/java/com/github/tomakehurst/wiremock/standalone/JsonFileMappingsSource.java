@@ -30,6 +30,9 @@ import java.util.*;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
+    private static final String WIREMOCK_GUI_KEY = "wiremock-gui";
+    private static final String DIR_KEY = "folder";
+
     private final FileSource mappingsFileSource;
     private final Map<UUID, StubMappingFileMetadata> fileNameMap;
 
@@ -141,13 +144,13 @@ public class JsonFileMappingsSource implements MappingsSource {
         if (metadata == null) {
             return false;
         }
-        return metadata.getMap("gui") != null && metadata.getMap("gui").get("folder") != null &&
-                metadata.getMap("gui").get("folder") instanceof String;
+        return metadata.getMap(WIREMOCK_GUI_KEY) != null && metadata.getMap(WIREMOCK_GUI_KEY).get(DIR_KEY) != null &&
+                metadata.getMap(WIREMOCK_GUI_KEY).get(DIR_KEY) instanceof String;
     }
 
     private String getFolderDefinition(final StubMapping mapping) {
         if (hasFolderDefinition(mapping)) {
-            return (String) mapping.getMetadata().getMap("gui").get("folder");
+            return (String) mapping.getMetadata().getMap(WIREMOCK_GUI_KEY).get(DIR_KEY);
         }
         return null;
     }
@@ -172,9 +175,9 @@ public class JsonFileMappingsSource implements MappingsSource {
             return;
         }
 
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        metadata.put("gui", map);
-        map.put("folder", path);
+        LinkedHashMap<String, String> guiData = new LinkedHashMap<>();
+        metadata.put(WIREMOCK_GUI_KEY, guiData);
+        guiData.put(DIR_KEY, path);
         mapping.setMetadata(metadata);
     }
 

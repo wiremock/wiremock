@@ -11,11 +11,11 @@ export class MappingHelperService {
     if (UtilService.isUndefined(mapping.metadata)) {
       mapping.metadata = {};
     }
-    if (UtilService.isUndefined(mapping.metadata.gui)) {
-      mapping.metadata.gui = {};
+    if (UtilService.isUndefined(mapping.metadata[UtilService.WIREMOCK_GUI_KEY])) {
+      mapping.metadata[UtilService.WIREMOCK_GUI_KEY] = {};
     }
-    if (UtilService.isUndefined(mapping.metadata.gui.folder)) {
-      mapping.metadata.gui.folder = '/some/path';
+    if (UtilService.isUndefined(mapping.metadata[UtilService.WIREMOCK_GUI_KEY][UtilService.DIR_KEY])) {
+      mapping.metadata[UtilService.WIREMOCK_GUI_KEY][UtilService.DIR_KEY] = '/some/path';
     }
     return mapping;
   }

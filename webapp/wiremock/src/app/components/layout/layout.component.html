@@ -1,8 +1,8 @@
 <div id="wmListView" class="wmHolyGrailBody">
-  <div *ngIf="supportsTreeView" class="wmHolyGrailBody column">
+  <div *ngIf="supportsTreeView" class="wmHolyGrailBody column mt-1">
     <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs" [animation]="false">
       <li [ngbNavItem]="0">
-        <a ngbNavLink class="wmNavLink bg-light" [class.text-primary]="activeTab==0" [class.text-dark]="activeTab!=0">
+        <a ngbNavLink class="wmNavLink">
           <fa-icon icon="folder"></fa-icon>
           Directory</a>
         <ng-template ngbNavContent>
@@ -11,7 +11,7 @@
         </ng-template>
       </li>
       <li [ngbNavItem]="1">
-        <a ngbNavLink class="wmNavLink bg-light" [class.text-primary]="activeTab==1" [class.text-dark]="activeTab!=1">
+        <a ngbNavLink class="wmNavLink">
           <fa-icon icon="list"></fa-icon>
           List</a>
         <ng-template ngbNavContent>

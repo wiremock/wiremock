@@ -1,6 +1,5 @@
 import {ElementRef, Injectable, QueryList} from '@angular/core';
 import * as vkbeautify from 'vkbeautify';
-// import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../model/wiremock/item';
 import {Message, MessageService, MessageType} from '../components/message/message.service';
 import {StubMapping} from '../model/wiremock/stub-mapping';
@@ -8,6 +7,9 @@ import {v4 as uuidv4} from 'uuid';
 
 @Injectable()
 export class UtilService {
+
+  public static WIREMOCK_GUI_KEY = 'wiremock-gui';
+  public static DIR_KEY = 'folder';
 
   public static copyToClipboard(text: string): boolean {
     // https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
@@ -96,11 +98,11 @@ export class UtilService {
   }
 
   public static isGuiDefined(value: StubMapping): boolean {
-    return UtilService.isDefined(value.metadata) && UtilService.isDefined(value.metadata.gui);
+    return UtilService.isDefined(value.metadata) && UtilService.isDefined(value.metadata[UtilService.WIREMOCK_GUI_KEY]);
   }
 
   public static isFolderDefined(value: StubMapping): boolean {
-    return UtilService.isGuiDefined(value) && UtilService.isDefined(value.metadata.gui.folder);
+    return UtilService.isGuiDefined(value) && UtilService.isDefined(value.metadata[UtilService.WIREMOCK_GUI_KEY][UtilService.DIR_KEY]);
   }
 
   public static isUndefined(value: any): boolean {
@@ -312,19 +314,21 @@ export class UtilService {
     }
   }
 
-  public static scrollIntoView(container: ElementRef, children: QueryList<ElementRef>, itemId: string) {
-    setTimeout(() => {
-      children.forEach(item => {
-        if (item.nativeElement.id === itemId) {
-          const rectElem = item.nativeElement.getBoundingClientRect();
-          const rectContainer = container.nativeElement.getBoundingClientRect();
-          if (rectElem.bottom > rectContainer.bottom) {
-            item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'end'});
-          } else if (rectElem.top < rectContainer.top) {
-            item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+  public static scrollIntoView(container: ElementRef, children: QueryList<ElementRef>, activeItem: Item) {
+    if (this.isDefined(activeItem) && this.isDefined(activeItem.getId())) {
+      setTimeout(() => {
+        children.forEach(item => {
+          if (item.nativeElement.id === activeItem.getId()) {
+            const rectElem = item.nativeElement.getBoundingClientRect();
+            const rectContainer = container.nativeElement.getBoundingClientRect();
+            if (rectElem.bottom > rectContainer.bottom) {
+              item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'end'});
+            } else if (rectElem.top < rectContainer.top) {
+              item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
           }
-        }
-      });
-    }, 0);
+        });
+      }, 0);
+    }
   }
 }

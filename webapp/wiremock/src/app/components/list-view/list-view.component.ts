@@ -125,7 +125,7 @@ export class ListViewComponent implements OnInit, OnChanges, AfterViewChecked {
     if (this.activeItemChanged) {
       this.activeItemChanged = false;
       // only once after something changed.
-      UtilService.scrollIntoView(this.childrenContainer, this.listChildren, this.activeItem.getId());
+      UtilService.scrollIntoView(this.childrenContainer, this.listChildren, this.activeItem);
     }
   }
 }

@@ -107,7 +107,7 @@ export class StubMapping extends Proxy implements Item {
 
   getFolderName(): string | undefined {
     if (UtilService.isFolderDefined(this)) {
-      return this.metadata.gui.folder;
+      return this.metadata[UtilService.WIREMOCK_GUI_KEY][UtilService.DIR_KEY];
     }
     return undefined;
   }
