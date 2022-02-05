@@ -1,9 +1,9 @@
 import {Item} from '../wiremock/item';
-import {v4 as uuidv4} from 'uuid';
+import {UtilService} from '../../services/util.service';
 
 export class Root implements Item {
 
-  constructor(private id = uuidv4()) {
+  constructor(private id = UtilService.generateUUID()) {
 
   }
 

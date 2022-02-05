@@ -1,4 +1,5 @@
-<wm-layout [items]="result?.mappings" [activeItemId]="activeItemId" (activeItemChange)="onActiveItemChange()">
+<wm-layout [items]="result?.mappings" [activeItemId]="activeItemId" (activeItemChange)="onActiveItemChange()"
+           [supportsTreeView]="true">
   <ng-template #actions let-activeItem>
     <div class="btn-group" role="group">
       <ng-container *ngIf="editMode === State.NEW">
@@ -147,10 +148,10 @@
             </button>
           </div>
         </div>
-<!--        <button type="button" class="btn btn-secondary" (click)="test(activeItem)" [disabled]="!activeItem">-->
-<!--          <fa-icon icon="play"></fa-icon>-->
-<!--          Test-->
-<!--        </button>-->
+        <!--        <button type="button" class="btn btn-secondary" (click)="test(activeItem)" [disabled]="!activeItem">-->
+        <!--          <fa-icon icon="play"></fa-icon>-->
+        <!--          Test-->
+        <!--        </button>-->
       </ng-container>
     </div>
 

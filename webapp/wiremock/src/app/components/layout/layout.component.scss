@@ -15,3 +15,15 @@
 #wmCaseSensitiveSearchText {
   user-select: none;
 }
+
+#wmTabContent {
+  flex: 1;
+  display: flex;
+  margin-top: -1px;
+}
+
+.wmNavLink {
+  padding: 5px 10px;
+}
+
+

@@ -53,6 +53,7 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
 
   constructor(private wiremockService: WiremockService,
               private messageService: MessageService) {
+    this.rootItem = new Root();
   }
 
   selectActiveItem(node: TreeNode) {
@@ -69,7 +70,6 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
   }
 
   ngOnInit() {
-    this.rootItem = new Root();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -105,17 +105,7 @@ export class TreeViewComponent implements OnInit, OnChanges, AfterViewInit, Afte
     if (this.activeItemChanged) {
       this.activeItemChanged = false;
       // only once after something changed.
-      this.listChildren.forEach(item => {
-        if (item.nativeElement.id === this.activeItem.getId()) {
-          const rectElem = item.nativeElement.getBoundingClientRect();
-          const rectContainer = this.childrenContainer.nativeElement.getBoundingClientRect();
-          if (rectElem.bottom > rectContainer.bottom) {
-            item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'end'});
-          } else if (rectElem.top < rectContainer.top) {
-            item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-          }
-        }
-      });
+      UtilService.scrollIntoView(this.childrenContainer, this.listChildren, this.activeItem.getId());
     }
   }
 

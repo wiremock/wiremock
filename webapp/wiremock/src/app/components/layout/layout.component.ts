@@ -43,10 +43,15 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
   activeItem: Item;
 
   @Input()
+  supportsTreeView = false;
+
+  @Input()
   activeItemId: string;
 
   @Output()
   activeItemChange: EventEmitter<Item> = new EventEmitter();
+
+  activeTab = 0;
 
   search = new FormControl();
 

@@ -14,7 +14,7 @@ import {
   NgbModule,
   NgbNav,
   NgbNavbar,
-  NgbNavModule, NgbPopoverModule, NgbTooltipModule
+  NgbNavModule, NgbPaginationModule, NgbPopoverModule, NgbTooltipModule
 } from '@ng-bootstrap/ng-bootstrap';
 import {FontAwesomeModule, FaIconLibrary} from '@fortawesome/angular-fontawesome';
 import {
@@ -43,6 +43,7 @@ import {
   faCheck,
   faChevronRight,
   faChevronDown,
+  faList,
 } from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';
@@ -125,6 +126,7 @@ import { TreeViewComponent } from './components/tree-view/tree-view.component';
     NgbAlertModule,
     NgbTooltipModule,
     NgbPopoverModule,
+    NgbPaginationModule,
   ],
   providers: [ WiremockService, WebSocketService, MessageService, SearchService, NgbModal ],
   bootstrap: [ AppComponent ],
@@ -159,5 +161,6 @@ export class AppModule {
     library.addIcons(faCheck);
     library.addIcons(faChevronRight);
     library.addIcons(faChevronDown);
+    library.addIcons(faList);
   }
 }

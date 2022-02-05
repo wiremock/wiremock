@@ -1,6 +1,29 @@
 <div id="wmListView" class="wmHolyGrailBody">
-<!--  <wm-list-view [items]="filteredItems" [activeItem]="activeItem" (activeItemChange)="onActiveItemChange($event)"></wm-list-view>-->
-  <wm-tree-view [items]="filteredItems" [activeItem]="activeItem" (activeItemChange)="onActiveItemChange($event)"></wm-tree-view>
+  <div *ngIf="supportsTreeView" class="wmHolyGrailBody column">
+    <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs" [animation]="false">
+      <li [ngbNavItem]="0">
+        <a ngbNavLink class="wmNavLink bg-light" [class.text-primary]="activeTab==0" [class.text-dark]="activeTab!=0">
+          <fa-icon icon="folder"></fa-icon>
+          Directory</a>
+        <ng-template ngbNavContent>
+          <wm-tree-view [items]="filteredItems" [activeItem]="activeItem"
+                        (activeItemChange)="onActiveItemChange($event)"></wm-tree-view>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="1">
+        <a ngbNavLink class="wmNavLink bg-light" [class.text-primary]="activeTab==1" [class.text-dark]="activeTab!=1">
+          <fa-icon icon="list"></fa-icon>
+          List</a>
+        <ng-template ngbNavContent>
+          <wm-list-view [items]="filteredItems" [activeItem]="activeItem"
+                        (activeItemChange)="onActiveItemChange($event)"></wm-list-view>
+        </ng-template>
+      </li>
+    </ul>
+    <div id="wmTabContent" [ngbNavOutlet]="nav"></div>
+  </div>
+  <wm-list-view *ngIf="!supportsTreeView" [items]="filteredItems" [activeItem]="activeItem"
+                (activeItemChange)="onActiveItemChange($event)"></wm-list-view>
 </div>
 
 <div id="wmContainer">
@@ -9,11 +32,12 @@
     <nav class="navbar navbar-light bg-light">
       <div class="input-group">
         <div class="input-group-prepend">
-          <fa-icon class="input-group-text" icon="search" ngbTooltip="Search in TODO..."></fa-icon>
+          <fa-icon class="input-group-text" icon="search" ngbTooltip="Search in all items"></fa-icon>
         </div>
         <!--<div class="wmFormGroup">-->
         <div class="wmFormGroupMid">
-          <input #wmSearchInput type="text" class="form-control" [formControl]="search" placeholder="Enter expression or text here.">
+          <input #wmSearchInput type="text" class="form-control" [formControl]="search"
+                 placeholder="Enter expression or text here.">
           <fa-icon id="wmSearchClear" icon="times" class="form-control-clear form-control-feedback"
                    [class.hidden]="!searchClearVisible" (click)="clearSearch()"></fa-icon>
         </div>
@@ -24,7 +48,8 @@
               <input #wmCaseSensitiveSearch type="checkbox" class="custom-control-input" id="wmCaseSensitiveSearch"
                      [checked]="caseSensitiveSearchEnabled"
                      (change)="onCaseSensitiveChanged()">
-              <label class="custom-control-label" for="wmCaseSensitiveSearch" id="wmCaseSensitiveSearchText">{{caseSensitiveSearchEnabled
+              <label class="custom-control-label" for="wmCaseSensitiveSearch"
+                     id="wmCaseSensitiveSearchText">{{caseSensitiveSearchEnabled
                 ? 'Ab' : 'ab'}}
               </label>
             </div>

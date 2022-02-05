@@ -1,9 +1,10 @@
-import {Injectable} from '@angular/core';
+import {ElementRef, Injectable, QueryList} from '@angular/core';
 import * as vkbeautify from 'vkbeautify';
 // import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../model/wiremock/item';
 import {Message, MessageService, MessageType} from '../components/message/message.service';
 import {StubMapping} from '../model/wiremock/stub-mapping';
+import {v4 as uuidv4} from 'uuid';
 
 @Injectable()
 export class UtilService {
@@ -289,8 +290,8 @@ export class UtilService {
     obj.__proto__[key] = value;
   }
 
-  public static generateUUID(): string { // Public Domain/MIT
-    return new UUID().generate();
+  public static generateUUID(): string {
+    return uuidv4();
   }
 
   constructor() {
@@ -310,28 +311,20 @@ export class UtilService {
       return null;
     }
   }
-}
 
-/* tslint:disable */
-export class UUID {
-  lut = [];
-
-  constructor() {
-    for (let i = 0; i < 256; i++) {
-      this.lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
-    }
-  }
-
-  generate(): string {
-    const d0 = Math.random() * 0xffffffff | 0;
-    const d1 = Math.random() * 0xffffffff | 0;
-    const d2 = Math.random() * 0xffffffff | 0;
-    const d3 = Math.random() * 0xffffffff | 0;
-    return this.lut[d0 & 0xff] + this.lut[d0 >> 8 & 0xff] + this.lut[d0 >> 16 & 0xff] + this.lut[d0 >> 24 & 0xff] + '-' +
-      this.lut[d1 & 0xff] + this.lut[d1 >> 8 & 0xff] + '-' + this.lut[d1 >> 16 & 0x0f | 0x40] + this.lut[d1 >> 24 & 0xff] + '-' +
-      this.lut[d2 & 0x3f | 0x80] + this.lut[d2 >> 8 & 0xff] + '-' + this.lut[d2 >> 16 & 0xff] + this.lut[d2 >> 24 & 0xff] +
-      this.lut[d3 & 0xff] + this.lut[d3 >> 8 & 0xff] + this.lut[d3 >> 16 & 0xff] + this.lut[d3 >> 24 & 0xff];
+  public static scrollIntoView(container: ElementRef, children: QueryList<ElementRef>, itemId: string) {
+    setTimeout(() => {
+      children.forEach(item => {
+        if (item.nativeElement.id === itemId) {
+          const rectElem = item.nativeElement.getBoundingClientRect();
+          const rectContainer = container.nativeElement.getBoundingClientRect();
+          if (rectElem.bottom > rectContainer.bottom) {
+            item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'end'});
+          } else if (rectElem.top < rectContainer.top) {
+            item.nativeElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+          }
+        }
+      });
+    }, 0);
   }
 }
-
-/* tslint:enable */
