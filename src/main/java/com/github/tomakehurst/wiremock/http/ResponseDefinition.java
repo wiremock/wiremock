@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
-  private ResponseDefinition(
+  public ResponseDefinition(
       int status,
       String statusMessage,
       Body body,
@@ -353,6 +353,11 @@ public class ResponseDefinition {
 
   public String getBase64Body() {
     return body.isBinary() ? body.asBase64() : null;
+  }
+
+  @JsonIgnore
+  public Body getReponseBody() {
+    return body;
   }
 
   public JsonNode getJsonBody() {
