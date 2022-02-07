@@ -17,25 +17,21 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +99,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
             .build();
 
     if (responseDefinition.specifiesTextBodyContent()) {
-      boolean isJsonBody = responseDefinition.getJsonBody() != null;
+      boolean isJsonBody = responseDefinition.getReponseBody().isJson();
       HandlebarsOptimizedTemplate bodyTemplate =
           templateEngine.getTemplate(
               HttpTemplateCacheKey.forInlineBody(responseDefinition),
@@ -200,12 +196,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
       ImmutableMap<String, Object> model,
       HandlebarsOptimizedTemplate bodyTemplate,
       boolean isJsonBody) {
-    String newBody = uncheckedApplyTemplate(bodyTemplate, model);
-    if (isJsonBody) {
-      newResponseDefBuilder.withJsonBody(Json.read(newBody, JsonNode.class));
-    } else {
-      newResponseDefBuilder.withBody(newBody);
-    }
+    String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
+    Body body =
+        isJsonBody
+            ? Body.fromJsonBytes(bodyString.getBytes(StandardCharsets.UTF_8))
+            : Body.fromOneOf(null, bodyString, null, null);
+    newResponseDefBuilder.withResponseBody(body);
   }
 
   private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {

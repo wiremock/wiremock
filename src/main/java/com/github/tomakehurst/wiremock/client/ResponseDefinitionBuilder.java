@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,7 @@ public class ResponseDefinitionBuilder {
 
   protected int status = HTTP_OK;
   protected String statusMessage;
-  protected byte[] binaryBody;
-  protected JsonNode jsonBody;
-  protected String stringBody;
-  protected String base64Body;
+  protected Body body = Body.none();
   protected String bodyFileName;
   protected List<HttpHeader> headers = newArrayList();
   protected Integer fixedDelayMilliseconds;
@@ -56,10 +53,7 @@ public class ResponseDefinitionBuilder {
         responseDefinition.getHeaders() != null
             ? newArrayList(responseDefinition.getHeaders().all())
             : Lists.<HttpHeader>newArrayList();
-    builder.binaryBody = responseDefinition.getByteBodyIfBinary();
-    builder.stringBody = responseDefinition.getBody();
-    builder.base64Body = responseDefinition.getBase64Body();
-    builder.jsonBody = responseDefinition.getJsonBody();
+    builder.body = responseDefinition.getReponseBody();
     builder.bodyFileName = responseDefinition.getBodyFileName();
     builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
     builder.delayDistribution = responseDefinition.getDelayDistribution();
@@ -107,17 +101,22 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBody(String body) {
-    this.stringBody = body;
+    this.body = Body.fromOneOf(null, body, null, null);
     return this;
   }
 
   public ResponseDefinitionBuilder withBody(byte[] body) {
-    this.binaryBody = body;
+    this.body = Body.fromOneOf(body, null, null, null);
+    return this;
+  }
+
+  public ResponseDefinitionBuilder withResponseBody(Body body) {
+    this.body = body;
     return this;
   }
 
   public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
-    this.jsonBody = jsonBody;
+    this.body = Body.fromOneOf(null, null, jsonBody, null);
     return this;
   }
 
@@ -197,7 +196,7 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBase64Body(String base64Body) {
-    this.base64Body = base64Body;
+    this.body = Body.fromOneOf(null, null, null, base64Body);
     return this;
   }
 
@@ -215,10 +214,7 @@ public class ResponseDefinitionBuilder {
       this.status = from.status;
       this.statusMessage = from.statusMessage;
       this.headers = from.headers;
-      this.binaryBody = from.binaryBody;
-      this.stringBody = from.stringBody;
-      this.jsonBody = from.jsonBody;
-      this.base64Body = from.base64Body;
+      this.body = from.body;
       this.bodyFileName = from.bodyFileName;
       this.fault = from.fault;
       this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
@@ -257,14 +253,6 @@ public class ResponseDefinitionBuilder {
     return build(null, null);
   }
 
-  private boolean isBinaryBody() {
-    return binaryBody != null;
-  }
-
-  private boolean isJsonBody() {
-    return jsonBody != null;
-  }
-
   protected ResponseDefinition build(
       HttpHeaders additionalProxyRequestHeaders, String proxyUrlPrefixToRemove) {
     HttpHeaders httpHeaders =
@@ -273,63 +261,21 @@ public class ResponseDefinitionBuilder {
         this.transformerParameters == null || this.transformerParameters.isEmpty()
             ? null
             : Parameters.from(this.transformerParameters);
-    if (isBinaryBody()) {
-      return new ResponseDefinition(
-          status,
-          statusMessage,
-          binaryBody,
-          null,
-          base64Body,
-          bodyFileName,
-          httpHeaders,
-          additionalProxyRequestHeaders,
-          fixedDelayMilliseconds,
-          delayDistribution,
-          chunkedDribbleDelay,
-          proxyBaseUrl,
-          proxyUrlPrefixToRemove,
-          fault,
-          responseTransformerNames,
-          transformerParameters,
-          wasConfigured);
-    } else if (isJsonBody()) {
-      return new ResponseDefinition(
-          status,
-          statusMessage,
-          binaryBody,
-          jsonBody,
-          null,
-          bodyFileName,
-          httpHeaders,
-          additionalProxyRequestHeaders,
-          fixedDelayMilliseconds,
-          delayDistribution,
-          chunkedDribbleDelay,
-          proxyBaseUrl,
-          proxyUrlPrefixToRemove,
-          fault,
-          responseTransformerNames,
-          transformerParameters,
-          wasConfigured);
-    } else {
-      return new ResponseDefinition(
-          status,
-          statusMessage,
-          stringBody,
-          null,
-          base64Body,
-          bodyFileName,
-          httpHeaders,
-          additionalProxyRequestHeaders,
-          fixedDelayMilliseconds,
-          delayDistribution,
-          chunkedDribbleDelay,
-          proxyBaseUrl,
-          proxyUrlPrefixToRemove,
-          fault,
-          responseTransformerNames,
-          transformerParameters,
-          wasConfigured);
-    }
+    return new ResponseDefinition(
+        status,
+        statusMessage,
+        body,
+        bodyFileName,
+        httpHeaders,
+        additionalProxyRequestHeaders,
+        fixedDelayMilliseconds,
+        delayDistribution,
+        chunkedDribbleDelay,
+        proxyBaseUrl,
+        proxyUrlPrefixToRemove,
+        fault,
+        responseTransformerNames,
+        transformerParameters,
+        wasConfigured);
   }
 }
