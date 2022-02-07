@@ -15,7 +15,7 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '6.0.4'
+  id 'com.diffplug.spotless' version '6.2.1'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
   id "org.sonarqube" version "3.3"
   id 'jacoco'
