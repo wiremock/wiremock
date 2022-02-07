@@ -38,12 +38,11 @@ import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
 import com.google.common.base.*;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 public class WireMockHttpServletRequestAdapter implements Request {
@@ -205,6 +204,23 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public HttpHeaders getHeaders() {
+    if (request instanceof org.eclipse.jetty.server.Request) {
+      return getHeadersLinear((org.eclipse.jetty.server.Request) request);
+    } else {
+      return getHeadersQuadratic();
+    }
+  }
+
+  private static HttpHeaders getHeadersLinear(org.eclipse.jetty.server.Request request) {
+    org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
+    List<HttpHeader> headers =
+        jettyRequest.getHttpFields().stream()
+            .map(field -> HttpHeader.httpHeader(field.getName(), field.getValue()))
+            .collect(Collectors.toList());
+    return new HttpHeaders(headers);
+  }
+
+  private HttpHeaders getHeadersQuadratic() {
     List<HttpHeader> headerList = newArrayList();
     for (String key : getAllHeaderKeys()) {
       headerList.add(header(key));
