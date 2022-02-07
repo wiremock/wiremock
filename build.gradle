@@ -138,6 +138,7 @@ allprojects {
       ratchetFrom 'origin/master'
       trimTrailingWhitespace()
       endWithNewline()
+      targetExclude '**/Tmp*.java'
     }
     groovyGradle {
       target '**/*.gradle'
@@ -148,7 +149,7 @@ allprojects {
     }
     json {
       target 'src/**/*.json'
-      targetExclude 'src/test/resources/sample.json'
+      targetExclude '**/tmp*.json', 'src/test/resources/sample.json', 'src/main/resources/swagger/*.json'
       simple().indentWithSpaces(2)
     }
   }
