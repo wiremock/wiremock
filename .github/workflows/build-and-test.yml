@@ -35,9 +35,7 @@ jobs:
       uses: dcodeIO/setup-node-nvm@v4
       with:
         node-version: 8.12.0
-    - name: Pre-generate API docs
-      run: ./gradlew classes testClasses -x generateApiDocs
-
+    
     - name: Cache SonarCloud packages
       uses: actions/cache@v1
       with:
