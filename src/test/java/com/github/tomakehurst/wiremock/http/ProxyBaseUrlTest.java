@@ -188,7 +188,6 @@ public class ProxyBaseUrlTest {
 
     private void addProxyStub(MappingBuilder stubBuilder) {
         proxyInstance.stubFor(
-//                any(urlPathEqualTo("/api"))
                 stubBuilder.willReturn(aResponse().proxiedFrom(endInstance.baseUrl()))
         );
     }
