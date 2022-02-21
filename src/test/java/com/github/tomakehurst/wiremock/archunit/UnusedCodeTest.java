@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,59 +114,6 @@ class UnusedCodeTest {
       reason =
           "Disabled due to the potential for false positives in a public API; use to audit sporadically")
   static ArchRule methodsShouldNotBeUnused =
-      methods()
-          .that(
-              describe(
-                  "are not declared in super type",
-                  input ->
-                      !input.getOwner().getAllRawSuperclasses().stream()
-                          .flatMap(c -> c.getMethods().stream())
-                          .anyMatch(hasMatchingNameAndParameters(input))))
-          .and(
-              describe(
-                  "are not declared in interface",
-                  input ->
-                      !input.getOwner().getAllRawInterfaces().stream()
-                          .flatMap(i -> i.getMethods().stream())
-                          .anyMatch(hasMatchingNameAndParameters(input))))
-          .and()
-          .doNotHaveName("main")
-          .and()
-          .haveNameNotContaining("lambda")
-          .and(not(declaredIn(JavaClass.Predicates.ENUMS.or(JavaClass.Predicates.ANNOTATIONS))))
-          .and(
-              not(
-                  declaredIn(
-                      describe(
-                          "are not declared in Builder",
-                          input -> input.getName().endsWith("Builder")))))
-          .and()
-          .areNotDeclaredIn(com.github.tomakehurst.wiremock.client.WireMock.class)
-          .and()
-          .areNotDeclaredIn(com.github.tomakehurst.wiremock.core.WireMockConfiguration.class)
-          .and()
-          .areNotDeclaredIn(com.github.tomakehurst.wiremock.junit5.WireMockExtension.class)
-          .and(
-              not(
-                  describe(
-                      "are not getters",
-                      input ->
-                          input.getParameterTypes().isEmpty()
-                              && (input.getName().startsWith("get")
-                                  || input.getName().startsWith("is")))))
-          .and(
-              not(
-                  describe(
-                      "are not builders",
-                      input ->
-                          input.getParameterTypes().size() <= 1
-                              && input.getOwner().tryGetField(input.getName()).isPresent())))
-          .should(beReferencedMethod)
-          .as("should use all methods")
-          .because("unused methods should be removed");
-
-  @ArchTest
-  static ArchRule nonPublicMethodsShouldNotBeUnusedFrozen =
       freeze(
           methods()
               .that(
@@ -184,10 +131,63 @@ class UnusedCodeTest {
                               .flatMap(i -> i.getMethods().stream())
                               .anyMatch(hasMatchingNameAndParameters(input))))
               .and()
-              .haveNameNotContaining("lambda")
+              .doNotHaveName("main")
               .and()
-              .areNotPublic()
+              .haveNameNotContaining("lambda")
+              .and(not(declaredIn(JavaClass.Predicates.ENUMS.or(JavaClass.Predicates.ANNOTATIONS))))
+              .and(
+                  not(
+                      declaredIn(
+                          describe(
+                              "are not declared in Builder",
+                              input -> input.getName().endsWith("Builder")))))
+              .and()
+              .areNotDeclaredIn(com.github.tomakehurst.wiremock.client.WireMock.class)
+              .and()
+              .areNotDeclaredIn(com.github.tomakehurst.wiremock.core.WireMockConfiguration.class)
+              .and()
+              .areNotDeclaredIn(com.github.tomakehurst.wiremock.junit5.WireMockExtension.class)
+              .and(
+                  not(
+                      describe(
+                          "are not getters",
+                          input ->
+                              input.getParameterTypes().isEmpty()
+                                  && (input.getName().startsWith("get")
+                                      || input.getName().startsWith("is")))))
+              .and(
+                  not(
+                      describe(
+                          "are not builders",
+                          input ->
+                              input.getParameterTypes().size() <= 1
+                                  && input.getOwner().tryGetField(input.getName()).isPresent())))
               .should(beReferencedMethod)
-              .as("should use all non public methods")
+              .as("should use all methods")
               .because("unused methods should be removed"));
+
+  @ArchTest
+  static ArchRule nonPublicMethodsShouldNotBeUnusedFrozen =
+      methods()
+          .that(
+              describe(
+                  "are not declared in super type",
+                  input ->
+                      !input.getOwner().getAllRawSuperclasses().stream()
+                          .flatMap(c -> c.getMethods().stream())
+                          .anyMatch(hasMatchingNameAndParameters(input))))
+          .and(
+              describe(
+                  "are not declared in interface",
+                  input ->
+                      !input.getOwner().getAllRawInterfaces().stream()
+                          .flatMap(i -> i.getMethods().stream())
+                          .anyMatch(hasMatchingNameAndParameters(input))))
+          .and()
+          .haveNameNotContaining("lambda")
+          .and()
+          .areNotPublic()
+          .should(beReferencedMethod)
+          .as("should use all non public methods")
+          .because("unused methods should be removed");
 }
