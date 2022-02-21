@@ -26,8 +26,8 @@ import static com.tngtech.archunit.library.freeze.FreezingArchRule.freeze;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchIgnore;
@@ -82,7 +82,7 @@ class UnusedCodeTest {
       new ArchCondition<JavaMethod>("be referenced") {
         @Override
         public void check(JavaMethod javaMethod, ConditionEvents events) {
-          Set<JavaMethodCall> accesses = new HashSet<>(javaMethod.getAccessesToSelf());
+          Set<JavaCodeUnitAccess<?>> accesses = new HashSet<>(javaMethod.getAccessesToSelf());
           accesses.removeAll(javaMethod.getAccessesFromSelf());
           if (accesses.isEmpty()) {
             events.add(
