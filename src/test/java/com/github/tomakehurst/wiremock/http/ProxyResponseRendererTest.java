@@ -174,7 +174,8 @@ public class ProxyResponseRendererTest {
         /* hostHeaderValue = */ null,
         new GlobalSettingsHolder(),
         trustAllProxyTargets,
-        Collections.<String>emptyList());
+        Collections.<String>emptyList(),
+        false);
   }
 
   // Just exists to make the compiler happy by having the throws clause
