@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class DirectCallHttpServerIntegrationTest {
     stopwatch.stop();
 
     assertEquals(200, response.getStatus());
-    assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(500L));
+    assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(499L));
   }
 
   @Test
