@@ -19,25 +19,12 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Base64;
 
 public class Encoding {
 
-  private static Base64Encoder encoder = null;
-
-  private static Base64Encoder getInstance() {
-    if (encoder == null) {
-      synchronized (Encoding.class) {
-        if (encoder == null) {
-          encoder = new GuavaBase64Encoder();
-        }
-      }
-    }
-
-    return encoder;
-  }
-
   public static byte[] decodeBase64(String base64) {
-    return base64 != null ? getInstance().decode(base64) : null;
+    return base64 != null ? Base64.getDecoder().decode(base64) : null;
   }
 
   public static String encodeBase64(byte[] content) {
@@ -45,7 +32,9 @@ public class Encoding {
   }
 
   public static String encodeBase64(byte[] content, boolean padding) {
-    return content != null ? getInstance().encode(content, padding) : null;
+    Base64.Encoder encoder = getEncoder(padding);
+
+    return content != null ? encoder.encodeToString(content) : null;
   }
 
   public static String urlEncode(String unencodedUrl) {
@@ -53,6 +42,14 @@ public class Encoding {
       return URLEncoder.encode(unencodedUrl, "utf-8");
     } catch (UnsupportedEncodingException e) {
       return throwUnchecked(e, String.class);
+    }
+  }
+
+  private static Base64.Encoder getEncoder(boolean padding) {
+    if (!padding) {
+      return Base64.getEncoder().withoutPadding();
+    } else {
+      return Base64.getEncoder();
     }
   }
 }
