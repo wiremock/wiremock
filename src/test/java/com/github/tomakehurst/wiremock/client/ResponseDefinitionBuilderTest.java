@@ -23,12 +23,16 @@ import static org.hamcrest.Matchers.nullValue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.ChunkedDribbleDelay;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.codec.binary.Base64;
+import java.util.ArrayList;
+
+import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import org.junit.jupiter.api.Test;
 
 public class ResponseDefinitionBuilderTest {
@@ -54,21 +58,24 @@ public class ResponseDefinitionBuilderTest {
 
   @Test
   public void likeShouldCreateCompleteResponseDefinitionCopy() throws Exception {
+    final ArrayList<String> transformerNames = new ArrayList<>();
+    transformerNames.add("some transformer");
     ResponseDefinition originalResponseDefinition =
-        ResponseDefinitionBuilder.responseDefinition()
-            .withStatus(200)
-            .withStatusMessage("OK")
-            .withBody("some body")
-            .withBase64Body(Base64.encodeBase64String("some body".getBytes(StandardCharsets.UTF_8)))
-            .withBodyFile("some_body.json")
-            .withHeader("some header", "some value")
-            .withFixedDelay(100)
-            .withUniformRandomDelay(1, 2)
-            .withChunkedDribbleDelay(1, 1000)
-            .withFault(Fault.EMPTY_RESPONSE)
-            .withTransformers("some transformer")
-            .withTransformerParameter("some param", "some value")
-            .build();
+        new ResponseDefinition(200,
+                               "OK",
+                               Body.fromOneOf(null, "some body", null, null),
+                               "some_body.json",
+                               new HttpHeaders(new HttpHeader("some header", "some value")),
+                               null,
+                               100,
+                               new UniformDistribution(1, 2),
+                               new ChunkedDribbleDelay(1, 1000),
+                               "",
+                               null,
+                               Fault.EMPTY_RESPONSE,
+                               transformerNames,
+                               Parameters.one("some param", "some value"),
+                               true);
 
     ResponseDefinition copiedResponseDefinition =
         ResponseDefinitionBuilder.like(originalResponseDefinition).build();
