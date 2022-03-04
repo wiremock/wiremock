@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +67,13 @@ public class ResponseDefinitionBuilder {
             ? Parameters.from(responseDefinition.getTransformerParameters())
             : Parameters.empty();
     builder.wasConfigured = responseDefinition.isFromConfiguredStub();
-    return builder;
+
+    ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder = new ProxyResponseDefinitionBuilder(builder);
+    proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove = responseDefinition.getProxyUrlPrefixToRemove();
+    proxyResponseDefinitionBuilder.additionalRequestHeaders =
+        (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all();
+
+    return proxyResponseDefinitionBuilder;
   }
 
   public static ResponseDefinition jsonResponse(Object body) {
