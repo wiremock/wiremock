@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.github.jknack.handlebars.Options;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 public class ParseDateHelperTest {
 
-  private static final DateFormat df = new ISO8601DateFormat();
+  private static final DateFormat df = new StdDateFormat();
 
   private ParseDateHelper helper;
 

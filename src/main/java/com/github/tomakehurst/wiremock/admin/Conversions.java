@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
@@ -30,7 +30,7 @@ public class Conversions {
 
   public static Date toDate(QueryParameter parameter) {
     try {
-      return parameter.isPresent() ? new ISO8601DateFormat().parse(parameter.firstValue()) : null;
+      return parameter.isPresent() ? new StdDateFormat().parse(parameter.firstValue()) : null;
     } catch (ParseException e) {
       throw new InvalidInputException(
           Errors.validation(

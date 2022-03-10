@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
@@ -120,7 +120,7 @@ public class HandlebarsCurrentDateHelperTest {
             "offset", "3 days",
             "timezone", "Australia/Sydney");
 
-    Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
+    Date inputDate = new StdDateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
 
     assertThat(output.toString(), is("2014-10-12T17:06:01+11:00"));
@@ -134,7 +134,7 @@ public class HandlebarsCurrentDateHelperTest {
             "timezone", "Australia/Sydney",
             "format", "yyyy-MM-dd HH:mm:ssZ");
 
-    Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
+    Date inputDate = new StdDateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
 
     assertThat(output.toString(), is("2014-10-12 17:06:01+1100"));

@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -48,7 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -261,7 +260,7 @@ public class AdminApiTest extends AcceptanceTestBase {
       testClient.get("/received-request/" + i);
     }
 
-    String midPoint = new ISO8601DateFormat().format(new Date());
+    String midPoint = Clock.systemUTC().instant().toString();
 
     for (int i = 6; i <= 9; i++) {
       testClient.get("/received-request/" + i);

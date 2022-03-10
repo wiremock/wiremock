@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.text.DateFormat;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 public class DateTimeOffsetTest {
 
-  static final DateFormat ISO8601 = new ISO8601DateFormat();
+  static final DateFormat STD_DATE_FORMAT = new StdDateFormat();
 
   @Test
   public void parsesSecondsOffset() {
@@ -113,10 +113,10 @@ public class DateTimeOffsetTest {
   @Test
   public void offsetsProvidedDateByConfiguredAmount() throws Exception {
     DateTimeOffset offset = DateTimeOffset.fromString("3 days");
-    Date startingDate = ISO8601.parse("2018-04-16T12:01:01Z");
+    Date startingDate = STD_DATE_FORMAT.parse("2018-04-16T12:01:01Z");
     Date finalDate = offset.shift(startingDate);
 
-    assertThat(ISO8601.format(finalDate), is("2018-04-19T12:01:01Z"));
+    assertThat(STD_DATE_FORMAT.format(finalDate), is("2018-04-19T12:01:01.000+00:00"));
   }
 
   @Test
