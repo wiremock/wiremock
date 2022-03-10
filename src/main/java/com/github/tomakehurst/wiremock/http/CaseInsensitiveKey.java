@@ -39,7 +39,10 @@ public class CaseInsensitiveKey {
 
     CaseInsensitiveKey that = (CaseInsensitiveKey) o;
 
-    return key == null ? that.key == null : key.equalsIgnoreCase(that.key);
+    if (key == null) {
+      return that.key == null;
+    }
+    return key.equalsIgnoreCase(that.key);
   }
 
   @Override
