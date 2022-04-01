@@ -1,0 +1,1016 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+<!--  -->
+
+
+
+
+
+
+
+<title>Exploratory Testing a Spring Boot App - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Exploratory testing a Spring Boot app with WireMock Studio">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Exploratory Testing a Spring Boot App">
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="WireMock" />
+<meta name="twitter:description" content="Exploratory testing a Spring Boot app with WireMock Studio">
+
+
+  <link rel="canonical" href="https://wiremock.org/studio/docs/exploratory-testing-tutorial/">
+  <meta property="og:url" content="https://wiremock.org/studio/docs/exploratory-testing-tutorial/">
+
+
+
+  <meta property="og:description" content="Exploratory testing a Spring Boot app with WireMock Studio">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2022-04-01T20:21:51+01:00">
+  
+    <link rel="next" href="https://wiremock.org/studio/docs/getting-started/desktop/" title="WireMock Studio - Getting Started - Desktop">
+  
+  
+    <link rel="prev" href="https://wiremock.org/studio/docs/delays/" title="Response Delays">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : "https://wiremock.org",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:2905132,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+<link href="https://wiremock.org/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://wiremock.org/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="https://wiremock.org/images/favicon.svg">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+  <div class="signup-modal-overlay"></div>
+
+  <div class="signup-modal">
+    <div class="close-modal-icon">
+      <img src="https://wiremock.org/images/closeModalIcon.png" width="7" height="7" alt="close icon"/>
+    </div>
+
+    <div class="signup-modal-robot">
+      <h2>Get Started with</h2>
+      <img src="https://wiremock.org/images/wiremockBigModal.png" width="384" />
+      <h4>Studio <span>Enterprise</span></h4>
+
+      <div class="box-description-modal">
+        <p>Submit your request for WireMock Enterprise and our team will connect you.</p>
+      </div>
+
+      <div class="box-description-modal-second">
+        <p>Enterprise brings SSO, collaboration features, multiple host on-premise deployment and monitoring integration.</p>
+      </div>
+
+    </div>
+    <div class="signup-modal-form">
+      <h2>Schedule a Demo</h2>
+      <script charset="utf-8" type="text/javascript" src="//js-eu1.hsforms.net/forms/shell.js"></script>
+      <script>
+        hbspt.forms.create({
+          region: "eu1",
+          portalId: "25724978",
+          formId: "4a4ac91e-ce09-4e84-b7e8-4f90df8d3803"
+        });
+      </script>
+
+    </div>
+  </div>
+    
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<style>
+  .navlink {
+    position: relative !important;
+    color: #7d93bd;
+    padding-bottom: 0.9rem;
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .divSubNav {
+    position: relative;
+    cursor: default;
+    padding: 10px 15px;
+    display: none;
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 32px;
+    width: fit-content;
+    background: #FFFFFF;
+    box-shadow: 0px -5px 20px rgba(210, 223, 249, 0.5);
+  }
+
+  .divSubNav::before {
+    position: absolute;
+    content: "";
+    left: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+    top: -7px;
+  }
+
+  .divSubNav a {
+    padding: 0 !important;
+    margin: 0 0 5px 0;
+    width: fit-content !important;
+  }
+
+  .divSubNav a:last-child {
+    margin-bottom: 0;
+  }
+
+  .divSubNav a::before {
+    background: none !important;
+    
+  }
+
+  .navlink:hover > .divSubNav {
+    display: block;
+  }
+
+  .navlink::before {
+    background: unset !important;
+  }
+  .navHover::before {
+    background: unset !important;
+  }
+</style>
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <a href="/"><img src="https://wiremock.org/images/wireMockLogo.png" style="width: 160px; height: 20px" /></a>
+      <nav id="site-nav" class="greedy-nav">
+        <!-- <button><div class="navicon"></div></button> -->
+        <ul class="visible-links">
+          
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Docs
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="/docs/">
+                        WireMock Open Source
+                      </a>
+                    
+                      <a href="/studio/docs/">
+                        WireMock Studio
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <a class="base_path navHover" href="https://wiremock.org/support" title="Support">
+                  Support
+                </a>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Community
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="https://github.com/wiremock/wiremock">
+                        Github
+                      </a>
+                    
+                      <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
+                        Contributing
+                      </a>
+                    
+                      <a href="/external-resources">
+                        Resources
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+
+        </ul>
+        <!-- <ul class="hidden-links hidden"></ul> -->
+      </nav>
+      <ul class="social-links">
+        <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
+        <span class="schedule-demo-nav">Schedule a demo</span>
+      </ul>
+      <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
+      <div id="overlay-menu" class="overlay-menu"></div>
+      <div class="mobile-menu-wrapper">
+        <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
+        <ul>
+          <li><a href="/docs">Wiremock Open Source</a></li>
+          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/support">Support</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="/external-resources">Resources</a></li>
+          <li><span class="schedule-demo-mobile-nav">Schedule a demo</span></li>
+        </ul>
+        <ul class="mobile-social-links">
+          <li>
+            <a href="http://github.com/" target="_blank">
+              <img src="https://wiremock.org/images/githubIcon.svg" />
+            </a>
+          </li>
+          <li>
+            <img src="https://wiremock.org/images/slackIcon.svg" />
+          </li>
+          
+          <li>
+            <img src="https://wiremock.org/images/twitterIcon.svg" />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" class="custom-doc-wrapper" role="main">
+
+  
+    
+
+<div class="sidebar">
+  <nav class="nav__list">
+    <ul class="doc-categories">
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Getting Started</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/desktop/">Desktop</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/docker/">Docker</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/kubernetes/">Kubernetes</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Stubbing</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stubbing/"> Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/advanced-stubbing/">Advanced </a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/delays/">Response Delays</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/simulating-faults/">Simulating Faults</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stateful-scenarios/">Simulating State with Scenarios</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/proxying/">Proxying</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/soap-stubbing/">Working with SOAP</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Request Matching</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/matcher-types/">Overview of Matcher Types</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/url/">Matching URLs</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/json/">Matching JSON requests</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/xml/">Matching XML bodies</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Response Templating</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/basics/">Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/conditional-logic-and-iteration/">Conditional Logic and Iteration</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-helpers/">String Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-encodings/">String Encodings</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/number-helpers/">Number Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/dates-and-times/">Dates and Times</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/random-values/">Random Values</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/xml/">Working with XML</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/json/">Working with JSON</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/misc-helpers/">Miscellaneous Helpers</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Import & Export</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-and-export/">Overview</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/wiremock/">WireMock</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/swagger/">Swagger and OpenAPI</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/postman/">Postman</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/api/">Via the API</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Record & Playback</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/recording-stubs/">Recording Stubs</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Tutorials</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           doc-category__sub-nav--active
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/mock-rest-api/">How to build a mock REST API</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li doc-category__li--selected">
+                <a href="/studio/docs/exploratory-testing-tutorial/">Exploratory Testing a Spring Boot App</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/automated-testing-with-java/">Automated Testing with Java</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/default-responses/">Serving a Default Response</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href=""></a>
+              </li>
+            
+          </ul>
+        </li>
+      
+    </ul>
+
+  </nav>
+</div>
+
+  
+
+  
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <meta itemprop="description" content="This tutorial demonstrates how WireMock Studio can be used to perform a manual exploratory test of an application with an API back-end.The app is a simple to-do list based on Java and Spring Boot, supporting listing of to-do items and posting new ones.">
+    <meta itemprop="datePublished" content="April 01, 2022">
+    
+
+    <meta itemprop="headline" content="zzzz">
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Exploratory Testing a Spring Boot App
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>This tutorial demonstrates how WireMock Studio can be used to perform a manual exploratory test of an application with an API back-end.
+The app is a simple to-do list based on Java and Spring Boot, supporting listing of to-do items and posting new ones.</p>
+
+<h2 id="mock-api-setup">Mock API setup</h2>
+
+<p>If you haven’t yet created a mock API in WireMock Studio, start by doing this. See <a href="/docs/getting-started/">Getting Started</a> for how to do this.
+Make a note of the base URL from the Settings page (any of them will do).</p>
+
+<h2 id="app-setup">App setup</h2>
+
+<p>Ensure that you have Java 8+ installed and the <code class="language-plaintext highlighter-rouge">java</code> executable on your shell’s <code class="language-plaintext highlighter-rouge">PATH</code>.</p>
+
+<p>Clone the MockLab demo project and change the working directory to the newly checked out project:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone git@github.com:mocklab/mocklab-demo-app.git
+<span class="nb">cd </span>mocklab-demo-app
+</code></pre></div></div>
+
+<p>Edit <code class="language-plaintext highlighter-rouge">src/main/resources/application.yml</code> changing the <code class="language-plaintext highlighter-rouge">todo-api.baseurl</code> value to your mock API’s base URL noted earlier e.g. <code class="language-plaintext highlighter-rouge">http://localhost:8000</code>.</p>
+
+<p>Run the app:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./gradlew bootRun
+</code></pre></div></div>
+
+<p>This should start the app locally on port <code class="language-plaintext highlighter-rouge">7100</code>.</p>
+
+<h2 id="step-1---show-a-list-of-to-do-items">Step 1 - show a list of to do items</h2>
+
+<p>Navigate to the Stubs page and create a new stub with method <code class="language-plaintext highlighter-rouge">GET</code>, URL <code class="language-plaintext highlighter-rouge">/todo-items</code>, response <code class="language-plaintext highlighter-rouge">Content-Type</code> header <code class="language-plaintext highlighter-rouge">application/json</code> and the following JSON in the response body:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"First item"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Item number two"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Do that number three thing"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Don't forget the fourth thing on the list"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Your stub should look something like this:</p>
+
+<p><img title="To do list stub request" src="/images/screenshots/to-do-stub-request.png" />
+<img title="To do list stub response" src="/images/screenshots/to-do-stub-response.png" /></p>
+
+<p>Once you’ve saved the stub, point your browser to <a href="http://localhost:7100/todo">http://localhost:7100/todo</a>.
+You should see the to-do items in your response body listed in the page:</p>
+
+<p><img title="To do list" src="/images/screenshots/to-do-list-app.png" style="width: 80%" /></p>
+
+<p>What has happened here is that the Spring Boot app has made a REST request to WireMock, which was matched by the stub you just created.
+The stub returned a JSON response which the app parsed and rendered into an HTML page.</p>
+
+<p>Now try modifying one or more of the item descriptions in the stub response and saving it, then refreshing the page. You should
+immediately see your new items in the to-to list.</p>
+
+<h2 id="step-2---simulating-the-posting-of-a-new-item">Step 2 - simulating the posting of a new item</h2>
+
+<p>Next we’re going to simulate a new item being added to the list via a POST request.</p>
+
+<p>For this you’ll need another new stub, this time for <code class="language-plaintext highlighter-rouge">POST</code> to <code class="language-plaintext highlighter-rouge">/todo-items</code> , response <code class="language-plaintext highlighter-rouge">Content-Type</code> header <code class="language-plaintext highlighter-rouge">application/json</code> and the following JSON in the response body:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Successfully sent new item."</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Your stub should look like this:</p>
+
+<p><img title="To do list POST stub request" src="/images/screenshots/to-do-post-stub-request.png" />
+<img title="To do list POST stub response" src="/images/screenshots/to-do-post-stub-response.png" /></p>
+
+<p>Once that’s saved, go to the to-do list page and add a new item by typing a description in the field and clicking the button:</p>
+
+<p><img title="New to-do item" src="/images/screenshots/new-to-do-item-field.png" style="width: 80%" /></p>
+
+<p>You should now see the success message you put in the stub response:</p>
+
+<p><img title="Success message" src="/images/screenshots/to-do-list-success-message.png" style="width: 80%" /></p>
+
+<p>You’ll notice that the contents of the list hasn’t changed. This is because WireMock stubs aren’t stateful - the app will load whatever is
+in the <code class="language-plaintext highlighter-rouge">GET /todo-items</code> stub you created at the start until you change it. However, if you visit the request log in the WireMock Studio UI you can confirm that
+the request you expected actually arrived:</p>
+
+<p><img title="To do post request log" src="/images/screenshots/to-do-request-log.png" /></p>
+
+<p>If you want to simulate statefulness, returning different responses for successive calls to <code class="language-plaintext highlighter-rouge">GET /todo-items</code> you can use WireMock’s <a href="/studio/docs/stateful-scenarios/">Scenarios feature</a>.</p>
+
+<h2 id="step-3---posting-a-new-item-fails">Step 3 - posting a new item fails</h2>
+
+<p>In this step we’re going to deliberately return an error from the API in order to test that the app behaves appropriately.</p>
+
+<p>Navigate to the <code class="language-plaintext highlighter-rouge">POST /todo-items</code> stub you created in the previous step and clone it (using the Clone button at the end of the form).</p>
+
+<p>In the newly cloned stub, expand the Advanced section and give the stub a higher priority - 4 or less will work as the default is 5.
+The reason we need to do this is to ensure that this and not the OK posting stub we cloned from is guaranteed to match an incoming <code class="language-plaintext highlighter-rouge">POST /todo-items</code>.</p>
+
+<p>In the response section change the response code to 502 and the message in the JSON body to something suitable:</p>
+
+<p><img title="To do list stub" src="/images/screenshots/to-do-bad-post-stub-request.png" />
+<img title="To do list stub" src="/images/screenshots/to-do-bad-post-stub-response.png" /></p>
+
+<p>Now try adding a new to-do item as you did in Step 2. When after submitting it, you should see an error page like this:</p>
+
+<p><img title="To do error" src="/images/screenshots/to-do-error-page.png" style="width: 50%" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-copyright">
+  <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
+  
+  <span class="footer-copyright-description">&copy; 2022 
+  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
+  </span>
+  
+  <ul class="footer-social-links">
+    <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+  </ul>
+</div>
+
+<script src="https://wiremock.org/assets/js/mobile-navbar.js"></script>
+<script src="https://wiremock.org/assets/js/codeTab.js"></script>
+
+<script src="https://wiremock.org/assets/js/sidebar-docs.js"></script>
+<script src="https://wiremock.org/assets/js/signup-modal.js"></script>
+
+      </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <!-- <script src="https://wiremock.org/assets/js/main.min.js"></script> -->
+
+
+
+
+  </body>
+</html>
+

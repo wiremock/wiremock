@@ -1,0 +1,1085 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+<!--  -->
+
+
+
+
+
+
+
+<title>Response Templating - Basics - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Returning dynamic responses using Handlebars templates">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Response Templating - Basics">
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="WireMock" />
+<meta name="twitter:description" content="Returning dynamic responses using Handlebars templates">
+
+
+  <link rel="canonical" href="https://wiremock.org/studio/docs/response-templating/basics/">
+  <meta property="og:url" content="https://wiremock.org/studio/docs/response-templating/basics/">
+
+
+
+  <meta property="og:description" content="Returning dynamic responses using Handlebars templates">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2022-04-01T20:21:51+01:00">
+  
+    <link rel="next" href="https://wiremock.org/studio/docs/response-templating/conditional-logic-and-iteration/" title="Response Templating - Conditional Logic and Iteration">
+  
+  
+    <link rel="prev" href="https://wiremock.org/studio/docs/request-matching/xml/" title="Request Matching - Matching XML bodies">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : "https://wiremock.org",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:2905132,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+<link href="https://wiremock.org/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://wiremock.org/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="https://wiremock.org/images/favicon.svg">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+  <div class="signup-modal-overlay"></div>
+
+  <div class="signup-modal">
+    <div class="close-modal-icon">
+      <img src="https://wiremock.org/images/closeModalIcon.png" width="7" height="7" alt="close icon"/>
+    </div>
+
+    <div class="signup-modal-robot">
+      <h2>Get Started with</h2>
+      <img src="https://wiremock.org/images/wiremockBigModal.png" width="384" />
+      <h4>Studio <span>Enterprise</span></h4>
+
+      <div class="box-description-modal">
+        <p>Submit your request for WireMock Enterprise and our team will connect you.</p>
+      </div>
+
+      <div class="box-description-modal-second">
+        <p>Enterprise brings SSO, collaboration features, multiple host on-premise deployment and monitoring integration.</p>
+      </div>
+
+    </div>
+    <div class="signup-modal-form">
+      <h2>Schedule a Demo</h2>
+      <script charset="utf-8" type="text/javascript" src="//js-eu1.hsforms.net/forms/shell.js"></script>
+      <script>
+        hbspt.forms.create({
+          region: "eu1",
+          portalId: "25724978",
+          formId: "4a4ac91e-ce09-4e84-b7e8-4f90df8d3803"
+        });
+      </script>
+
+    </div>
+  </div>
+    
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<style>
+  .navlink {
+    position: relative !important;
+    color: #7d93bd;
+    padding-bottom: 0.9rem;
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .divSubNav {
+    position: relative;
+    cursor: default;
+    padding: 10px 15px;
+    display: none;
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 32px;
+    width: fit-content;
+    background: #FFFFFF;
+    box-shadow: 0px -5px 20px rgba(210, 223, 249, 0.5);
+  }
+
+  .divSubNav::before {
+    position: absolute;
+    content: "";
+    left: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+    top: -7px;
+  }
+
+  .divSubNav a {
+    padding: 0 !important;
+    margin: 0 0 5px 0;
+    width: fit-content !important;
+  }
+
+  .divSubNav a:last-child {
+    margin-bottom: 0;
+  }
+
+  .divSubNav a::before {
+    background: none !important;
+    
+  }
+
+  .navlink:hover > .divSubNav {
+    display: block;
+  }
+
+  .navlink::before {
+    background: unset !important;
+  }
+  .navHover::before {
+    background: unset !important;
+  }
+</style>
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <a href="/"><img src="https://wiremock.org/images/wireMockLogo.png" style="width: 160px; height: 20px" /></a>
+      <nav id="site-nav" class="greedy-nav">
+        <!-- <button><div class="navicon"></div></button> -->
+        <ul class="visible-links">
+          
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Docs
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="/docs/">
+                        WireMock Open Source
+                      </a>
+                    
+                      <a href="/studio/docs/">
+                        WireMock Studio
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <a class="base_path navHover" href="https://wiremock.org/support" title="Support">
+                  Support
+                </a>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Community
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="https://github.com/wiremock/wiremock">
+                        Github
+                      </a>
+                    
+                      <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
+                        Contributing
+                      </a>
+                    
+                      <a href="/external-resources">
+                        Resources
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+
+        </ul>
+        <!-- <ul class="hidden-links hidden"></ul> -->
+      </nav>
+      <ul class="social-links">
+        <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
+        <span class="schedule-demo-nav">Schedule a demo</span>
+      </ul>
+      <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
+      <div id="overlay-menu" class="overlay-menu"></div>
+      <div class="mobile-menu-wrapper">
+        <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
+        <ul>
+          <li><a href="/docs">Wiremock Open Source</a></li>
+          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/support">Support</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="/external-resources">Resources</a></li>
+          <li><span class="schedule-demo-mobile-nav">Schedule a demo</span></li>
+        </ul>
+        <ul class="mobile-social-links">
+          <li>
+            <a href="http://github.com/" target="_blank">
+              <img src="https://wiremock.org/images/githubIcon.svg" />
+            </a>
+          </li>
+          <li>
+            <img src="https://wiremock.org/images/slackIcon.svg" />
+          </li>
+          
+          <li>
+            <img src="https://wiremock.org/images/twitterIcon.svg" />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" class="custom-doc-wrapper" role="main">
+
+  
+    
+
+<div class="sidebar">
+  <nav class="nav__list">
+    <ul class="doc-categories">
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Getting Started</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/desktop/">Desktop</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/docker/">Docker</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/kubernetes/">Kubernetes</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Stubbing</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stubbing/"> Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/advanced-stubbing/">Advanced </a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/delays/">Response Delays</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/simulating-faults/">Simulating Faults</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stateful-scenarios/">Simulating State with Scenarios</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/proxying/">Proxying</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/soap-stubbing/">Working with SOAP</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Request Matching</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/matcher-types/">Overview of Matcher Types</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/url/">Matching URLs</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/json/">Matching JSON requests</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/xml/">Matching XML bodies</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Response Templating</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           doc-category__sub-nav--active
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li doc-category__li--selected">
+                <a href="/studio/docs/response-templating/basics/">Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/conditional-logic-and-iteration/">Conditional Logic and Iteration</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-helpers/">String Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-encodings/">String Encodings</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/number-helpers/">Number Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/dates-and-times/">Dates and Times</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/random-values/">Random Values</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/xml/">Working with XML</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/json/">Working with JSON</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/misc-helpers/">Miscellaneous Helpers</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Import & Export</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-and-export/">Overview</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/wiremock/">WireMock</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/swagger/">Swagger and OpenAPI</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/postman/">Postman</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/api/">Via the API</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Record & Playback</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/recording-stubs/">Recording Stubs</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Tutorials</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/mock-rest-api/">How to build a mock REST API</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/exploratory-testing-tutorial/">Exploratory Testing a Spring Boot App</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/automated-testing-with-java/">Automated Testing with Java</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/default-responses/">Serving a Default Response</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href=""></a>
+              </li>
+            
+          </ul>
+        </li>
+      
+    </ul>
+
+  </nav>
+</div>
+
+  
+
+  
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <meta itemprop="description" content="Some elements of WireMock stub responses can be configured generated dynamically, via the use of Handlebars templates.">
+    <meta itemprop="datePublished" content="April 01, 2022">
+    
+
+    <meta itemprop="headline" content="zzzz">
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Response Templating - Basics
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>Some elements of WireMock stub responses can be configured generated dynamically, via the use of <a href="https://github.com/jknack/handlebars.java" target="_blank">Handlebars templates</a>.</p>
+
+<p>Most commonly this is used in the response body but response header values can also
+be templated. For proxy responses, the target URL can be a template.</p>
+
+<h2 id="enabling-templating">Enabling templating</h2>
+
+<p>Enable templating for a stub by ticking the “Enable templating” box in the Response section:</p>
+
+<p><img src="/images/screenshots/enable-response-templating-screenshot.png" title="Enable templating" style="height: 60px" class="boxed-image" /></p>
+
+<p>Ticking this box means that header values can be templated e.g.</p>
+
+<p><img src="/images/screenshots/header-template-screenshot.png" title="Header template" style="height: 60px" /></p>
+
+<p>And also the response body e.g.</p>
+
+<p><img src="/images/screenshots/body-template-screenshot.png" title="Body template" /></p>
+
+<h2 id="handlebars-overview">Handlebars overview</h2>
+
+<p>A complete description of the Handlebars syntax and core helpers can be found on the <a href="https://handlebarsjs.com/guide/" target="_blank">Handlebars JS</a>, but we’ll cover the essentials here.</p>
+
+<p>Handlebars works like many other template languages - a template is provided a data model
+and uses a special tag syntax to denote dynamic elements, referred to as a “helper” in this case.</p>
+
+<p>Helpers are always delimited by double or triple curly braces (<code class="language-plaintext highlighter-rouge">{</code> and <code class="language-plaintext highlighter-rouge">}</code>). In the simplest case a helper can
+simply output the value of a variable in the model:</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">myVariable</span><span class="k">}}</span>        // Top-level model variable
+<span class="k">{{</span><span class="nv">outerVar</span><span class="p">.</span><span class="nv">innerVar</span><span class="k">}}</span> // Nested model variable
+</code></pre></div></div>
+
+<h3 id="helper-parameters">Helper parameters</h3>
+
+<p>Helpers can take both positional and named parameters. In both cases they are delimited by spaces.</p>
+
+<p>The following helper takes three positional parameters -
+the string in which the replacement should take place, the substring to find and the
+replacement value:</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">replace</span> <span class="nv">myString</span> <span class="s1">'foo'</span> <span class="s1">'bar'</span><span class="k">}}</span>
+</code></pre></div></div>
+
+<p>Named values are of the form <code class="language-plaintext highlighter-rouge">name=value</code>. The following helper has a single
+positional parameter followed by a parameter named <code class="language-plaintext highlighter-rouge">format</code>:</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">dateFormat</span> <span class="nv">myDate</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span><span class="k">}}</span>
+</code></pre></div></div>
+
+<h3 id="nesting-helpers">Nesting helpers</h3>
+
+<p>Sometimes it’s necessary to apply a helper to the result of another one. This can
+be achieved by nesting helpers using bracket syntax. For example, this template
+will truncate the input string, then capitalise the first letter:</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">capitalize</span> <span class="p">(</span><span class="nv">substring</span> <span class="nv">myString</span> <span class="nv">0</span> <span class="nv">4</span><span class="p">)</span><span class="k">}}</span>
+</code></pre></div></div>
+
+<h3 id="blocks">Blocks</h3>
+
+<p>Blocks can be used to apply processing to an inner piece of content.</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#if</span> <span class="nv">productExists</span><span class="k">}}</span>
+  // do something with the product
+<span class="k">{{else}}</span>
+  // product not found
+<span class="k">{{/if}}</span>
+</code></pre></div></div>
+
+<p>Blocks form the foundation of logical and looping structures in Handlebars and are <a href="/docs/response-templating/conditional-logic-and-iteration/">described here in more detail</a>.</p>
+
+<h3 id="html-escaping">HTML escaping</h3>
+
+<p>We mentioned earlier that double or triple curly braces are used to delimit helpers.
+The difference between these two forms is that with double braces, Handlebars will
+automatically HTML escape the output of the helper, whereas with triple braces no escaping will be
+applied.</p>
+
+<p>For instance, suppose we have a data model where the variable <code class="language-plaintext highlighter-rouge">tag</code> has the value <code class="language-plaintext highlighter-rouge">&lt;html&gt;</code>.</p>
+
+<p>The template</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">tag</span><span class="k">}}</span>
+</code></pre></div></div>
+
+<p>will output</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&amp;lt;html&amp;gt;
+</code></pre></div></div>
+
+<p>whereas the template</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{{</span><span class="nv">tag</span><span class="k">}}}</span>
+</code></pre></div></div>
+
+<p>will output</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;html&gt;
+</code></pre></div></div>
+
+<h2 id="the-data-model">The data model</h2>
+<p>Currently the data model supplied to response templates contains a single top-level object
+which represents the incoming HTTP request.</p>
+
+<p>The following request attributes are available on the request object:</p>
+
+<p><code class="language-plaintext highlighter-rouge">request.url</code> - URL path and query</p>
+
+<p><code class="language-plaintext highlighter-rouge">request.path</code> - URL path</p>
+
+<p><code class="language-plaintext highlighter-rouge">request.pathSegments.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="language-plaintext highlighter-rouge">request.pathSegments.[2]</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="language-plaintext highlighter-rouge">request.query.search</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="language-plaintext highlighter-rouge">request.query.search.[5]</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.method</code>- request method e.g. <code class="language-plaintext highlighter-rouge">POST</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.host</code>- hostname part of the URL e.g. <code class="language-plaintext highlighter-rouge">my.example.com</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.port</code>- port number e.g. <code class="language-plaintext highlighter-rouge">8080</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.scheme</code>- protocol part of the URL e.g. <code class="language-plaintext highlighter-rouge">https</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.baseUrl</code>- URL up to the start of the path e.g. <code class="language-plaintext highlighter-rouge">https://my.example.com:8080</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.headers.&lt;key&gt;</code>- First value of a request header e.g. <code class="language-plaintext highlighter-rouge">request.headers.X-Request-Id</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.headers.[&lt;key&gt;]</code>- Header with awkward characters e.g. <code class="language-plaintext highlighter-rouge">request.headers.[$?blah]</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.headers.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a header (zero indexed) e.g. <code class="language-plaintext highlighter-rouge">request.headers.ManyThings.[1]</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.cookies.&lt;key&gt;</code> - First value of a request cookie e.g. <code class="language-plaintext highlighter-rouge">request.cookies.JSESSIONID</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.cookies.&lt;key&gt;.[&lt;n&gt;]</code> - nth value of a request cookie e.g. <code class="language-plaintext highlighter-rouge">request.cookies.JSESSIONID.[2]</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">request.body</code> - Request body text (avoid for non-text bodies)</p>
+
+<h3 id="values-that-can-be-one-or-many">Values that can be one or many</h3>
+
+<p>A number of HTTP elements (query parameters, form fields, headers) can be single or multiple valued. The template request model and built-in helpers attempt to make
+this easy to work with by wrapping these in a “list or single” type that returns the first (and often only) value when no index is specified, but also support index access.</p>
+
+<p>For instance, given a request URL like <code class="language-plaintext highlighter-rouge">/multi-query?things=1&amp;things=2&amp;things=3</code> I can extract the query data in the following ways:</p>
+
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="k">}}</span> // Will return 1
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">0</span><span class="k">}}</span> // Will return 1
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">first</span><span class="k">}}</span> // Will return 1
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">1</span><span class="k">}}</span> // Will return 2
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.[</span><span class="nv">-1</span><span class="p">]</span><span class="k">}}</span> // Will return 2
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">last</span><span class="k">}}</span> // Will return 3
+</code></pre></div></div>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>When using the <code class="language-plaintext highlighter-rouge">eq</code> helper with one-or-many values, it is necessary to use the indexed form, even if only one value is present.
+The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
+with another String value.</p>
+</blockquote>
+
+<h2 id="handlebars-helpers">Handlebars helpers</h2>
+
+<p>WireMock provides a set of Handlebars helpers that perform a variety of logical functions and transformations inside templates. These include all of the standard helpers from the <a href="https://github.com/jknack/handlebars.java" target="_blank">Java Handlebars implementation by jknack</a>.</p>
+
+<p>All of the available helpers are described in detail in these articles:</p>
+
+<p><a href="/docs/response-templating/conditional-logic-and-iteration/">Conditional Logic and Iteration</a></p>
+
+<p><a href="/docs/response-templating/string-helpers/">Strings</a></p>
+
+<p><a href="/docs/response-templating/string-encodings/">String Encodings</a></p>
+
+<p><a href="/docs/response-templating/dates-and-times/">Dates &amp; Times</a></p>
+
+<p><a href="/docs/response-templating/random-values/">Random Values</a></p>
+
+<p><a href="/docs/response-templating/xml/">XML</a></p>
+
+<p><a href="/docs/response-templating/json/">JSON</a></p>
+
+<p><a href="/docs/response-templating/jwt/">JSON Web Tokens</a></p>
+
+<p><a href="/docs/response-templating/misc-helpers/">Miscellaneous Helpers</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-copyright">
+  <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
+  
+  <span class="footer-copyright-description">&copy; 2022 
+  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
+  </span>
+  
+  <ul class="footer-social-links">
+    <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+  </ul>
+</div>
+
+<script src="https://wiremock.org/assets/js/mobile-navbar.js"></script>
+<script src="https://wiremock.org/assets/js/codeTab.js"></script>
+
+<script src="https://wiremock.org/assets/js/sidebar-docs.js"></script>
+<script src="https://wiremock.org/assets/js/signup-modal.js"></script>
+
+      </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <!-- <script src="https://wiremock.org/assets/js/main.min.js"></script> -->
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,1075 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+<!--  -->
+
+
+
+
+
+
+
+<title>Advanced Stubbing - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Advanced request matching and response definition">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Advanced Stubbing">
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="WireMock" />
+<meta name="twitter:description" content="Advanced request matching and response definition">
+
+
+  <link rel="canonical" href="https://wiremock.org/studio/docs/advanced-stubbing/">
+  <meta property="og:url" content="https://wiremock.org/studio/docs/advanced-stubbing/">
+
+
+
+  <meta property="og:description" content="Advanced request matching and response definition">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2022-04-01T20:21:51+01:00">
+  
+    <link rel="next" href="https://wiremock.org/studio/docs/automated-testing-with-java/" title="Automated Testing with Java">
+  
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : "https://wiremock.org",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:2905132,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+<link href="https://wiremock.org/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://wiremock.org/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="https://wiremock.org/images/favicon.svg">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+  <div class="signup-modal-overlay"></div>
+
+  <div class="signup-modal">
+    <div class="close-modal-icon">
+      <img src="https://wiremock.org/images/closeModalIcon.png" width="7" height="7" alt="close icon"/>
+    </div>
+
+    <div class="signup-modal-robot">
+      <h2>Get Started with</h2>
+      <img src="https://wiremock.org/images/wiremockBigModal.png" width="384" />
+      <h4>Studio <span>Enterprise</span></h4>
+
+      <div class="box-description-modal">
+        <p>Submit your request for WireMock Enterprise and our team will connect you.</p>
+      </div>
+
+      <div class="box-description-modal-second">
+        <p>Enterprise brings SSO, collaboration features, multiple host on-premise deployment and monitoring integration.</p>
+      </div>
+
+    </div>
+    <div class="signup-modal-form">
+      <h2>Schedule a Demo</h2>
+      <script charset="utf-8" type="text/javascript" src="//js-eu1.hsforms.net/forms/shell.js"></script>
+      <script>
+        hbspt.forms.create({
+          region: "eu1",
+          portalId: "25724978",
+          formId: "4a4ac91e-ce09-4e84-b7e8-4f90df8d3803"
+        });
+      </script>
+
+    </div>
+  </div>
+    
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<style>
+  .navlink {
+    position: relative !important;
+    color: #7d93bd;
+    padding-bottom: 0.9rem;
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .divSubNav {
+    position: relative;
+    cursor: default;
+    padding: 10px 15px;
+    display: none;
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 32px;
+    width: fit-content;
+    background: #FFFFFF;
+    box-shadow: 0px -5px 20px rgba(210, 223, 249, 0.5);
+  }
+
+  .divSubNav::before {
+    position: absolute;
+    content: "";
+    left: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+    top: -7px;
+  }
+
+  .divSubNav a {
+    padding: 0 !important;
+    margin: 0 0 5px 0;
+    width: fit-content !important;
+  }
+
+  .divSubNav a:last-child {
+    margin-bottom: 0;
+  }
+
+  .divSubNav a::before {
+    background: none !important;
+    
+  }
+
+  .navlink:hover > .divSubNav {
+    display: block;
+  }
+
+  .navlink::before {
+    background: unset !important;
+  }
+  .navHover::before {
+    background: unset !important;
+  }
+</style>
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <a href="/"><img src="https://wiremock.org/images/wireMockLogo.png" style="width: 160px; height: 20px" /></a>
+      <nav id="site-nav" class="greedy-nav">
+        <!-- <button><div class="navicon"></div></button> -->
+        <ul class="visible-links">
+          
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Docs
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="/docs/">
+                        WireMock Open Source
+                      </a>
+                    
+                      <a href="/studio/docs/">
+                        WireMock Studio
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <a class="base_path navHover" href="https://wiremock.org/support" title="Support">
+                  Support
+                </a>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Community
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="https://github.com/wiremock/wiremock">
+                        Github
+                      </a>
+                    
+                      <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
+                        Contributing
+                      </a>
+                    
+                      <a href="/external-resources">
+                        Resources
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+
+        </ul>
+        <!-- <ul class="hidden-links hidden"></ul> -->
+      </nav>
+      <ul class="social-links">
+        <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
+        <span class="schedule-demo-nav">Schedule a demo</span>
+      </ul>
+      <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
+      <div id="overlay-menu" class="overlay-menu"></div>
+      <div class="mobile-menu-wrapper">
+        <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
+        <ul>
+          <li><a href="/docs">Wiremock Open Source</a></li>
+          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/support">Support</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="/external-resources">Resources</a></li>
+          <li><span class="schedule-demo-mobile-nav">Schedule a demo</span></li>
+        </ul>
+        <ul class="mobile-social-links">
+          <li>
+            <a href="http://github.com/" target="_blank">
+              <img src="https://wiremock.org/images/githubIcon.svg" />
+            </a>
+          </li>
+          <li>
+            <img src="https://wiremock.org/images/slackIcon.svg" />
+          </li>
+          
+          <li>
+            <img src="https://wiremock.org/images/twitterIcon.svg" />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" class="custom-doc-wrapper" role="main">
+
+  
+    
+
+<div class="sidebar">
+  <nav class="nav__list">
+    <ul class="doc-categories">
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Getting Started</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/desktop/">Desktop</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/docker/">Docker</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/kubernetes/">Kubernetes</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Stubbing</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           doc-category__sub-nav--active
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stubbing/"> Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li doc-category__li--selected">
+                <a href="/studio/docs/advanced-stubbing/">Advanced </a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/delays/">Response Delays</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/simulating-faults/">Simulating Faults</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stateful-scenarios/">Simulating State with Scenarios</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/proxying/">Proxying</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/soap-stubbing/">Working with SOAP</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Request Matching</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/matcher-types/">Overview of Matcher Types</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/url/">Matching URLs</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/json/">Matching JSON requests</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/xml/">Matching XML bodies</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Response Templating</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/basics/">Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/conditional-logic-and-iteration/">Conditional Logic and Iteration</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-helpers/">String Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-encodings/">String Encodings</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/number-helpers/">Number Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/dates-and-times/">Dates and Times</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/random-values/">Random Values</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/xml/">Working with XML</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/json/">Working with JSON</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/misc-helpers/">Miscellaneous Helpers</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Import & Export</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-and-export/">Overview</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/wiremock/">WireMock</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/swagger/">Swagger and OpenAPI</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/postman/">Postman</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/api/">Via the API</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Record & Playback</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/recording-stubs/">Recording Stubs</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Tutorials</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/mock-rest-api/">How to build a mock REST API</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/exploratory-testing-tutorial/">Exploratory Testing a Spring Boot App</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/automated-testing-with-java/">Automated Testing with Java</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/default-responses/">Serving a Default Response</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href=""></a>
+              </li>
+            
+          </ul>
+        </li>
+      
+    </ul>
+
+  </nav>
+</div>
+
+  
+
+  
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <meta itemprop="description" content="In some cases matching on the URL alone is not specific enough. For instance you may want to simulate creation of a newto-do item in a RESTful API by stubbing POST to /api/to-do. In order to test both success and failure cases it will benecessary to return different responses depending on the post body (since the URL would always be the same).">
+    <meta itemprop="datePublished" content="April 01, 2022">
+    
+
+    <meta itemprop="headline" content="zzzz">
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Advanced Stubbing
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>In some cases matching on the URL alone is not specific enough. For instance you may want to simulate creation of a new
+to-do item in a RESTful API by stubbing <code class="language-plaintext highlighter-rouge">POST</code> to <code class="language-plaintext highlighter-rouge">/api/to-do</code>. In order to test both success and failure cases it will be
+necessary to return different responses depending on the post body (since the URL would always be the same).</p>
+
+<p>We can do this by adding a body matching clause in the Advanced portion of the Request section.</p>
+
+<p>Click the <img style="margin-bottom: 0.8rem; vertical-align: middle; border: none; height: 30px" src="/images/screenshots/new-body-pattern-button.png" title="New body pattern" /> button to add the clause,
+select the match type from the drop-down, then write (or paste) the expected value or expression into the text area.</p>
+
+<p>If your API uses JSON as its serialisation format you might want to match using <code class="language-plaintext highlighter-rouge">equalToJson</code>:</p>
+
+<p><img src="/images/screenshots/advanced-section-body-match.png" title="Advanced" /></p>
+
+<p>The remainder of this article describes each stubbing parameter in detail:</p>
+
+<h2 id="request-method-matching">Request method matching</h2>
+<p>The HTTP method that required for this stub to match. This defaults to <code class="language-plaintext highlighter-rouge">ANY</code>, meaning that a request with any method
+will match.</p>
+
+<h2 id="request-priority-matching">Request priority matching</h2>
+<p>Requests of a higher priority (i.e. lower number) will be matched first, in cases where more than one stub mapping in the
+list would match a given request.</p>
+
+<p>Normally it’s fine to leave the priority at its default. However it can sometimes be useful to so create a low priority,
+broadly matching stub defining some default behaviour e.g. a 404 page, and then create a set of higher priority, more specific
+stubs for testing individual cases. See <a href="/docs/default-responses/">Serving Default Responses</a> for more details.</p>
+
+<h2 id="url-matching">URL matching</h2>
+<p>Determines how the URL will be matched. The options are:</p>
+
+<ul>
+  <li><strong>Path and query</strong> - exactly matches the path and query string parts of the URL</li>
+  <li><strong>Path and query regex</strong> - matches the path and query string parts of the URL against a regular expression</li>
+  <li><strong>Path</strong> - exactly matches the path part of the URL</li>
+  <li><strong>Path regex</strong> - matches the path part of the URL against a regular expression</li>
+  <li><strong>Any URL</strong> - matches any URL</li>
+</ul>
+
+<p><img src="/images/screenshots/url-match-type.png" title="URL match types" style="height: 150px" /></p>
+
+<h2 id="advanced-request-parameter-matching">Advanced request parameter matching</h2>
+<p>In addition to the URL and body, requests can be matched on:</p>
+
+<ul>
+  <li>Headers</li>
+  <li>Query parameters</li>
+  <li>Cookies</li>
+</ul>
+
+<p>Parameter match clauses can use the same set of match operations as body clauses:</p>
+
+<p><img src="/images/screenshots/request-parameters.png" alt="Request parameters" /></p>
+
+<p>It’s usually a good idea to use path only URL matching with query parameter matches.</p>
+
+<p>When multiple match clauses are added a request must match all of them for the response to be served (they are combined
+with logical AND).</p>
+
+<h2 id="matching-json-request-bodies">Matching JSON request bodies</h2>
+
+<p>Two specific match types exist for JSON formatted request bodies: equality (<code class="language-plaintext highlighter-rouge">equalToJson</code>) and JSONPath (<code class="language-plaintext highlighter-rouge">matchesJsonPath</code>).</p>
+
+<h3 id="equality">Equality</h3>
+
+<p><code class="language-plaintext highlighter-rouge">equalToJson</code> performs a semantic comparison between the incoming JSON and the expected value, meaning that
+it will return a match even when, for instance, the two documents have different amounts of whitespace.</p>
+
+<p>You can also specify that array order an additional elements in the request JSON be ignored.</p>
+
+<p><img src="/images/screenshots/equal-to-json.png" alt="JSON equality" /></p>
+
+<h3 id="json-placeholders">JSON Placeholders</h3>
+
+<p>JSON equality matching is implemented by <a href="https://github.com/lukas-krecan/JsonUnit">JsonUnit</a>, and
+therefore supports placeholder syntax, allowing looser specification of fields within the document.</p>
+
+<p>For instance, consider a request body like this, where <code class="language-plaintext highlighter-rouge">transaction_id</code> is unique to
+each request:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"details-updated"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"transaction_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abc-123-def"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Requiring an exact match on this document would ensure no match could ever be made, since
+the same transaction ID would never be repeated.</p>
+
+<p>This can be solved using a placeholder:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"details-updated"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"transaction_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.ignore}"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If you want to constrain the value to a specific type or pattern the following placeholders are also valid:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">${json-unit.regex}[A-Z]+</code> (any Java-style regular expression can be used)</li>
+  <li><code class="language-plaintext highlighter-rouge">${json-unit.any-string}</code></li>
+  <li><code class="language-plaintext highlighter-rouge">${json-unit.any-boolean}</code></li>
+  <li><code class="language-plaintext highlighter-rouge">${json-unit.any-number}</code></li>
+</ul>
+
+<h3 id="jsonpath">JSONPath</h3>
+
+<p><code class="language-plaintext highlighter-rouge">matchesJsonPath</code> allows request bodies to be matched according to a <a href="https://github.com/json-path/JsonPath">JSONPath</a> expression. The
+JSONPath expression is used to select one or more values from the request body, then the result is matched against sub-matcher (<code class="language-plaintext highlighter-rouge">equal to</code>, <code class="language-plaintext highlighter-rouge">contains</code> etc.).
+It is also possible to simply assert that the expression returns something, by selecting <code class="language-plaintext highlighter-rouge">is present</code> from the list.</p>
+
+<p><img src="/images/screenshots/matches-json-path.png" alt="JSONPath matching" /></p>
+
+<p>The expression in the above screenshot (<code class="language-plaintext highlighter-rouge">$.event</code> <code class="language-plaintext highlighter-rouge">equal to</code> <code class="language-plaintext highlighter-rouge">description-updated</code>) would match a request body of</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"description-updated"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>but not</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"document-created"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="matching-xml-request-bodies">Matching XML request bodies</h2>
+
+<p>As with JSON matching, there are two match types available for working with XML: <code class="language-plaintext highlighter-rouge">equalToXml</code> and <code class="language-plaintext highlighter-rouge">matchesXPath</code>.</p>
+
+<h3 id="equality-1">Equality</h3>
+
+<p><code class="language-plaintext highlighter-rouge">equalToXml</code> performs a semantic comparison between the incoming and expected XML documents, meaning that it will return a match regardless of whitespace, comments and node order.</p>
+
+<h3 id="xml-placeholders">XML placeholders</h3>
+
+<p>When using <code class="language-plaintext highlighter-rouge">equalToXml</code> it is possible to ignore the value of specific elements using <a href="https://github.com/xmlunit/user-guide/wiki/Placeholders" target="_blank">XMLUnit</a>’s placeholder syntax. For instance if you
+expected to receive an XML request body containing a transaction ID that changed on every request you could ignore that value like this:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;transaction&gt;</span>
+  <span class="nt">&lt;id&gt;</span>${xmlunit.ignore}<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;value&gt;</span>1234<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/transaction&gt;</span>
+</code></pre></div></div>
+
+<p>To use XML placeholders you must enable them by ticking the box:</p>
+
+<p><img src="/images/screenshots/enable-xml-placeholders.png" title="Enable XML placeholders" /></p>
+
+<h3 id="xpath">XPath</h3>
+
+<p><code class="language-plaintext highlighter-rouge">matchesXPath</code> allows XML request bodies to be matched according to an <a href="https://www.w3schools.com/xml/xpath_syntax.asp" target="_blank">XPath</a> expression.</p>
+
+<p>For instance, an XML request body like</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;stuff&gt;</span>
+  <span class="nt">&lt;id&gt;</span>abc123<span class="nt">&lt;/id&gt;</span>
+<span class="nt">&lt;/stuff&gt;</span>
+</code></pre></div></div>
+
+<p>could be matched using the XPath expression</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//stuff[id='abc123']
+</code></pre></div></div>
+
+<h2 id="setting-the-response-status">Setting the response status</h2>
+<p>The HTTP status code to be sent with the response.</p>
+
+<h2 id="sending-response-headers">Sending response headers</h2>
+<p>Headers can be set on the response:</p>
+
+<p><img alt="Response headers" src="/images/screenshots/response-headers.png" width="500px" /></p>
+
+<h2 id="response-body">Response body</h2>
+<p>A response body can optionally be specified. If <a href="/docs/response-templating/">response templating</a>
+is enabled, certain parts can be dynamically generated using request attributes and random data.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-copyright">
+  <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
+  
+  <span class="footer-copyright-description">&copy; 2022 
+  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
+  </span>
+  
+  <ul class="footer-social-links">
+    <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+  </ul>
+</div>
+
+<script src="https://wiremock.org/assets/js/mobile-navbar.js"></script>
+<script src="https://wiremock.org/assets/js/codeTab.js"></script>
+
+<script src="https://wiremock.org/assets/js/sidebar-docs.js"></script>
+<script src="https://wiremock.org/assets/js/signup-modal.js"></script>
+
+      </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <!-- <script src="https://wiremock.org/assets/js/main.min.js"></script> -->
+
+
+
+
+  </body>
+</html>
+

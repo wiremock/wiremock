@@ -13,13 +13,7 @@
 
 
 
-
-
-
-
-
-
-<title>Download and Installation - WireMock</title>
+<!--  -->
 
 
 
@@ -27,16 +21,31 @@
 
 
 
-<meta name="description" content="Getting WireMock into your project">
+<title>Download and Installation | WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containing WireMock plus all its dependencies.">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
 <meta property="og:title" content="Download and Installation">
 
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="WireMock" />
+<meta name="twitter:description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containing WireMock plus all its dependencies.">
+
+
+  <link rel="canonical" href="https://wiremock.org/docs/download-and-installation/">
+  <meta property="og:url" content="https://wiremock.org/docs/download-and-installation/">
 
 
 
-  <meta property="og:description" content="Getting WireMock into your project">
+  <meta property="og:description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containing WireMock plus all its dependencies.">
 
 
 
@@ -51,12 +60,12 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-02-03T17:17:46+00:00">
+  <meta property="article:published_time" content="2022-04-01T20:21:51+01:00">
   
-    <link rel="next" href="/docs/extending-wiremock/" title="Extending WireMock">
+    <link rel="next" href="https://wiremock.org/docs/extending-wiremock/" title="Extending WireMock">
   
   
-    <link rel="prev" href="/docs/docker/" title="Running in Docker">
+    <link rel="prev" href="https://wiremock.org/docs/docker/" title="Running in Docker">
   
 
 
@@ -68,7 +77,7 @@
       "@context" : "http://schema.org",
       "@type" : "Person",
       "name" : "Tom Akehurst",
-      "url" : null,
+      "url" : "https://wiremock.org",
       "sameAs" : null
     }
   </script>
@@ -106,8 +115,18 @@
 
 
 
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:2905132,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
 
-<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+<link href="https://wiremock.org/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
 
 <!-- http://t.co/dKP3o1e -->
 <meta name="HandheldFriendly" content="True">
@@ -119,13 +138,16 @@
 </script>
 
 <link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
 
 <!-- For all browsers -->
-<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://wiremock.org/assets/css/main.css">
 
 <meta http-equiv="cleartype" content="on">
 
-<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+<link rel="shortcut icon" type="image/x-icon" href="https://wiremock.org/images/favicon.svg">
 
     <!-- start custom head snippets -->
 
@@ -135,67 +157,258 @@
   </head>
 
   <body>
+  <div class="signup-modal-overlay"></div>
 
+  <div class="signup-modal">
+    <div class="close-modal-icon">
+      <img src="https://wiremock.org/images/closeModalIcon.png" width="7" height="7" alt="close icon"/>
+    </div>
+
+    <div class="signup-modal-robot">
+      <h2>Get Started with</h2>
+      <img src="https://wiremock.org/images/wiremockBigModal.png" width="384" />
+      <h4>Studio <span>Enterprise</span></h4>
+
+      <div class="box-description-modal">
+        <p>Submit your request for WireMock Enterprise and our team will connect you.</p>
+      </div>
+
+      <div class="box-description-modal-second">
+        <p>Enterprise brings SSO, collaboration features, multiple host on-premise deployment and monitoring integration.</p>
+      </div>
+
+    </div>
+    <div class="signup-modal-form">
+      <h2>Schedule a Demo</h2>
+      <script charset="utf-8" type="text/javascript" src="//js-eu1.hsforms.net/forms/shell.js"></script>
+      <script>
+        hbspt.forms.create({
+          region: "eu1",
+          portalId: "25724978",
+          formId: "4a4ac91e-ce09-4e84-b7e8-4f90df8d3803"
+        });
+      </script>
+
+    </div>
+  </div>
+    
     <!--[if lt IE 9]>
 <div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
 <![endif]-->
     
 
+<style>
+  .navlink {
+    position: relative !important;
+    color: #7d93bd;
+    padding-bottom: 0.9rem;
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .divSubNav {
+    position: relative;
+    cursor: default;
+    padding: 10px 15px;
+    display: none;
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 32px;
+    width: fit-content;
+    background: #FFFFFF;
+    box-shadow: 0px -5px 20px rgba(210, 223, 249, 0.5);
+  }
+
+  .divSubNav::before {
+    position: absolute;
+    content: "";
+    left: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+    top: -7px;
+  }
+
+  .divSubNav a {
+    padding: 0 !important;
+    margin: 0 0 5px 0;
+    width: fit-content !important;
+  }
+
+  .divSubNav a:last-child {
+    margin-bottom: 0;
+  }
+
+  .divSubNav a::before {
+    background: none !important;
+    
+  }
+
+  .navlink:hover > .divSubNav {
+    display: block;
+  }
+
+  .navlink::before {
+    background: unset !important;
+  }
+  .navHover::before {
+    background: unset !important;
+  }
+</style>
+
 <div class="masthead">
   <div class="masthead__inner-wrap">
     <div class="masthead__menu">
+      <a href="/"><img src="https://wiremock.org/images/wireMockLogo.png" style="width: 160px; height: 20px" /></a>
       <nav id="site-nav" class="greedy-nav">
-        <button><div class="navicon"></div></button>
+        <!-- <button><div class="navicon"></div></button> -->
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg">
-            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
-          </li>
+          
           
             
 
             
-            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Docs
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="/docs/">
+                        WireMock Open Source
+                      </a>
+                    
+                      <a href="/studio/docs/">
+                        WireMock Studio
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <a class="base_path navHover" href="https://wiremock.org/support" title="Support">
+                  Support
+                </a>
+              
+              
+            </li>
+            
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Community
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="https://github.com/wiremock/wiremock">
+                        Github
+                      </a>
+                    
+                      <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
+                        Contributing
+                      </a>
+                    
+                      <a href="/external-resources">
+                        Resources
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
             
 
           
-            
 
-            
-            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
-            
-
-          
-            
-
-            
-            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
-            
-
-          
-
-          <li class="masthead__menu-item">
-            <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=primary-nav&utm_campaign=mocklab" title="MockLab" target="_blank">
-              <img src="/images/mocklab_logo_transparent.png" style="height: 23px; width: auto; margin-right: 5px; vertical-align: top;" />
-              MockLab
+        </ul>
+        <!-- <ul class="hidden-links hidden"></ul> -->
+      </nav>
+      <ul class="social-links">
+        <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
+        <span class="schedule-demo-nav">Schedule a demo</span>
+      </ul>
+      <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
+      <div id="overlay-menu" class="overlay-menu"></div>
+      <div class="mobile-menu-wrapper">
+        <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
+        <ul>
+          <li><a href="/docs">Wiremock Open Source</a></li>
+          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/support">Support</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="/external-resources">Resources</a></li>
+          <li><span class="schedule-demo-mobile-nav">Schedule a demo</span></li>
+        </ul>
+        <ul class="mobile-social-links">
+          <li>
+            <a href="http://github.com/" target="_blank">
+              <img src="https://wiremock.org/images/githubIcon.svg" />
             </a>
           </li>
+          <li>
+            <img src="https://wiremock.org/images/slackIcon.svg" />
+          </li>
+          
+          <li>
+            <img src="https://wiremock.org/images/twitterIcon.svg" />
+          </li>
         </ul>
-        <ul class="hidden-links hidden"></ul>
-      </nav>
+      </div>
     </div>
   </div>
 </div>
@@ -203,184 +416,308 @@
 
     
 
-<div id="main" role="main">
+<div id="main" class="custom-doc-wrapper" role="main">
+
   
+    
 
-
-<div class="sidebar sticky">
+<div class="sidebar">
   <nav class="nav__list">
-
-    <ul>
+    <ul class="doc-categories">
       
-
       
-      <li>
-        <a href="/docs/getting-started/">
-
-        Getting Started
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Setup</span>
+          <ul class="
+          doc-category__sub-nav
+          doc-category__sub-nav--active
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/getting-started/">Getting Started</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li doc-category__li--selected">
+                <a href="/docs/download-and-installation/">Download and Installation</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/running-standalone/">Running as a Standalone Process</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/docker/">Running in Docker</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/android/">Running on Android</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/spring-boot/">Using with Spring Boot</a>
+              </li>
+            
+          </ul>
+        </li>
       
-      <li>
-        <a href="/docs/download-and-installation/" class="nav__list-item--selected">
-        
-
-        Download and Installation
-      </a>
       
-      <li>
-        <a href="/docs/junit-extensions/">
-
-        JUnit 4 and Vintage Usage
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Configuration</span>
+          <ul class="
+          doc-category__sub-nav
+          
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/https/">HTTPS</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/multi-domain-mocking/">Multi-domain Mocking</a>
+              </li>
+            
+          </ul>
+        </li>
       
-      <li>
-        <a href="/docs/junit-jupiter/">
-
-        JUnit 5+ Jupiter Usage
-      </a>
       
-      <li>
-        <a href="/docs/java-usage/">
-
-        Java (Non-JUnit) Usage
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Java Usage</span>
+          <ul class="
+          doc-category__sub-nav
+          
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/junit-jupiter/">JUnit 5+ Jupiter</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/junit-extensions/">JUnit 4 and Vintage</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/java-usage/">Plain Java</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/configuration/">Java configuration</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/running-without-http-server/">Running without the HTTP Server</a>
+              </li>
+            
+          </ul>
+        </li>
       
-      <li>
-        <a href="/docs/configuration/">
-
-        Configuration
-      </a>
       
-      <li>
-        <a href="/docs/running-standalone/">
-
-        Running as a Standalone Process
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Stubbing & Verifying</span>
+          <ul class="
+          doc-category__sub-nav
+          
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/stubbing/">Stubbing</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/request-matching/">Request Matching</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/response-templating/">Response Templating</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/simulating-faults/">Simulating Faults</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/stateful-behaviour/">Stateful Behaviour</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/proxying/">Proxying</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/verifying/">Verifying</a>
+              </li>
+            
+          </ul>
+        </li>
       
-      <li>
-        <a href="/docs/running-without-http-server/">
-
-        Running without the HTTP Server
-      </a>
       
-      <li>
-        <a href="/docs/docker/">
-
-        Running in Docker
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Record & Playback</span>
+          <ul class="
+          doc-category__sub-nav
+          
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/record-playback/">Record and Playback</a>
+              </li>
+            
+          </ul>
+        </li>
       
-      <li>
-        <a href="/docs/stubbing/">
-
-        Stubbing
-      </a>
       
-      <li>
-        <a href="/docs/verifying/">
-
-        Verifying
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Extensibility</span>
+          <ul class="
+          doc-category__sub-nav
+          
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/extending-wiremock/">Extending WireMock</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/stub-metadata/">Stub Metadata</a>
+              </li>
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/webhooks-and-callbacks/">Webhooks and Callbacks</a>
+              </li>
+            
+          </ul>
+        </li>
       
-      <li>
-        <a href="/docs/request-matching/">
-
-        Request Matching
-      </a>
       
-      <li>
-        <a href="/docs/proxying/">
-
-        Proxying
-      </a>
-      
-      <li>
-        <a href="/docs/multi-domain-mocking/">
-
-        Multi-domain Mocking
-      </a>
-      
-      <li>
-        <a href="/docs/record-playback/">
-
-        Record and Playback (New)
-      </a>
-      
-      <li>
-        <a href="/docs/record-playback-legacy/">
-
-        Record and Playback (Legacy)
-      </a>
-      
-      <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
-        <a href="/docs/simulating-faults/">
-
-        Simulating Faults
-      </a>
-      
-      <li>
-        <a href="/docs/stateful-behaviour/">
-
-        Stateful Behaviour
-      </a>
-      
-      <li>
-        <a href="/docs/https/">
-
-        HTTPS
-      </a>
-      
-      <li>
-        <a href="/docs/webhooks-and-callbacks/">
-
-        Webhooks and Callbacks
-      </a>
-      
-      <li>
-        <a href="/docs/extending-wiremock/">
-
-        Extending WireMock
-      </a>
-      
-      <li>
-        <a href="/docs/android/">
-
-        Android
-      </a>
-      
-      <li>
-        <a href="/docs/spring-boot/">
-
-        Spring Boot
-      </a>
-      
-      <li>
-        <a href="/docs/stub-metadata/">
-
-        Stub Metadata
-      </a>
-      
-      <li>
-        <a href="/docs/api/">
-
-        Admin API Reference
-      </a>
+        <li class="doc-category">
+          <span class="doc-category__title">Reference</span>
+          <ul class="
+          doc-category__sub-nav
+          
+          ">
+            
+              
+              
+              
+              
+              <li class="doc-category__li">
+                <a href="/docs/api/">Admin API </a>
+              </li>
+            
+          </ul>
+        </li>
       
     </ul>
+
   </nav>
 </div>
 
+  
+
+  
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Download and Installation">
-    <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containingWireMock plus all its dependencies.">
-    <meta itemprop="datePublished" content="February 03, 2022">
     
+    <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containingWireMock plus all its dependencies.">
+    <meta itemprop="datePublished" content="April 01, 2022">
+    
+
+    <meta itemprop="headline" content="zzzz">
 
     <div class="page__inner-wrap">
       <header>
@@ -508,107 +845,45 @@ here</a>.</p>
 <!-- end custom footer snippets -->
         
 
-<div class="page__footer-follow">
-  <ul class="social-icons">
-    
-    <li><strong>Follow:</strong></li>
-    
-    
-    
-    
-    
-    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+<div class="page__footer-copyright">
+  <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
+  
+  <span class="footer-copyright-description">&copy; 2022 
+  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
+  </span>
+  
+  <ul class="footer-social-links">
+    <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
   </ul>
 </div>
 
+<script src="https://wiremock.org/assets/js/mobile-navbar.js"></script>
+<script src="https://wiremock.org/assets/js/codeTab.js"></script>
 
-<div class="page__footer-copyright">&copy; 2022 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
-                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
-  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
-</div>
-
-<div id="dialog" style="display: none">
-  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
-  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
-</div>
-
-
-
-<script type="text/javascript">
-
-
-  function setNotificationSeenCookie() {
-    var expiresDate = new Date();
-    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
-    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
-  }
-
-
-
-  function sendNavigatedToMockLabEvent(location) {
-    ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
-  }
-
-  window.onload = function () {
-    $("a[title='MockLab']").click(function() {
-      ga('send', 'event', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1);
-      sendNavigatedToMockLabEvent('primary_nav');
-    });
-
-    $("a[title='Consulting Services']").click(function() {
-      ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
-    });
-
-
-
-    if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
-      window.setTimeout(function () {
-        $("#dialog").dialog({
-          dialogClass: 'mocklab-popup',
-          draggable: false,
-          resizable: false,
-          modal: true,
-          show: {
-            effect: 'fade',
-            duration: 1000
-          },
-          buttons: [{
-            class: 'mocklab-popup__confirm-button',
-            text: "Learn More",
-            click: function () {
-              ga('send', 'event', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1);
-              sendNavigatedToMockLabEvent();
-              window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
-            }
-          }]
-        });
-
-        setNotificationSeenCookie();
-        ga('send', 'event', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0);
-      }, 500);
-
-    }
-
-    $("#mocklab-callout-learn-more").click(function() {
-      ga('send', 'event', 'mocklab_homepage_section', 'learn_more_clicked', 'Learn More clicked', 1);
-      sendNavigatedToMockLabEvent('mocklab_homepage_section');
-    });
-
-    $("#mocklab-callout-try-it-now").click(function() {
-      ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
-      sendNavigatedToMockLabEvent('mocklab_homepage_section');
-    });
-
-    $("#wiremock-studio-download").click(function() {
-      ga('send', 'event', 'wiremock_studio_beta_doc', 'download_link_clicked', 'Download clicked', 3);
-    });
-  };
-</script>
+<script src="https://wiremock.org/assets/js/sidebar-docs.js"></script>
+<script src="https://wiremock.org/assets/js/signup-modal.js"></script>
 
       </footer>
     </div>
 
-    <script src="/assets/js/main.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <!-- <script src="https://wiremock.org/assets/js/main.min.js"></script> -->
 
 
 

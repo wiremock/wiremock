@@ -13,13 +13,7 @@
 
 
 
-
-
-
-
-
-
-<title>WireMock - WireMock</title>
+<!--  -->
 
 
 
@@ -27,16 +21,31 @@
 
 
 
-<meta name="description" content="WireMock is a flexible API mocking tool for fast, robust and comprehensive testing.">
+<title>Mock your APIs for fast &amp; comprehensive testing | WireMock - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="WireMock is a simulator for HTTP-based APIs. It enables you to stay productive when an API you depend on doesn’t exist or isn’t complete.">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="WireMock">
+<meta property="og:title" content="Mock your APIs for fast & comprehensive testing | WireMock">
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="WireMock" />
+<meta name="twitter:description" content="WireMock is a simulator for HTTP-based APIs. It enables you to stay productive when an API you depend on doesn’t exist or isn’t complete.">
+
+
+  <link rel="canonical" href="https://wiremock.org/">
+  <meta property="og:url" content="https://wiremock.org/">
 
 
 
-
-  <meta property="og:description" content="WireMock is a flexible API mocking tool for fast, robust and comprehensive testing.">
+  <meta property="og:description" content="WireMock is a simulator for HTTP-based APIs. It enables you to stay productive when an API you depend on doesn’t exist or isn’t complete.">
 
 
 
@@ -59,7 +68,7 @@
       "@context" : "http://schema.org",
       "@type" : "Person",
       "name" : "Tom Akehurst",
-      "url" : null,
+      "url" : "https://wiremock.org",
       "sameAs" : null
     }
   </script>
@@ -97,8 +106,18 @@
 
 
 
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:2905132,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
 
-<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+<link href="https://wiremock.org/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
 
 <!-- http://t.co/dKP3o1e -->
 <meta name="HandheldFriendly" content="True">
@@ -110,13 +129,16 @@
 </script>
 
 <link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
 
 <!-- For all browsers -->
-<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://wiremock.org/assets/css/main.css">
 
 <meta http-equiv="cleartype" content="on">
 
-<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+<link rel="shortcut icon" type="image/x-icon" href="https://wiremock.org/images/favicon.svg">
 
     <!-- start custom head snippets -->
 
@@ -126,185 +148,639 @@
   </head>
 
   <body>
+  <div class="signup-modal-overlay"></div>
 
+  <div class="signup-modal">
+    <div class="close-modal-icon">
+      <img src="https://wiremock.org/images/closeModalIcon.png" width="7" height="7" alt="close icon"/>
+    </div>
+
+    <div class="signup-modal-robot">
+      <h2>Get Started with</h2>
+      <img src="https://wiremock.org/images/wiremockBigModal.png" width="384" />
+      <h4>Studio <span>Enterprise</span></h4>
+
+      <div class="box-description-modal">
+        <p>Submit your request for WireMock Enterprise and our team will connect you.</p>
+      </div>
+
+      <div class="box-description-modal-second">
+        <p>Enterprise brings SSO, collaboration features, multiple host on-premise deployment and monitoring integration.</p>
+      </div>
+
+    </div>
+    <div class="signup-modal-form">
+      <h2>Schedule a Demo</h2>
+      <script charset="utf-8" type="text/javascript" src="//js-eu1.hsforms.net/forms/shell.js"></script>
+      <script>
+        hbspt.forms.create({
+          region: "eu1",
+          portalId: "25724978",
+          formId: "4a4ac91e-ce09-4e84-b7e8-4f90df8d3803"
+        });
+      </script>
+
+    </div>
+  </div>
+    
     <!--[if lt IE 9]>
 <div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
 <![endif]-->
     
 
+<style>
+  .navlink {
+    position: relative !important;
+    color: #7d93bd;
+    padding-bottom: 0.9rem;
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .divSubNav {
+    position: relative;
+    cursor: default;
+    padding: 10px 15px;
+    display: none;
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 32px;
+    width: fit-content;
+    background: #FFFFFF;
+    box-shadow: 0px -5px 20px rgba(210, 223, 249, 0.5);
+  }
+
+  .divSubNav::before {
+    position: absolute;
+    content: "";
+    left: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+    top: -7px;
+  }
+
+  .divSubNav a {
+    padding: 0 !important;
+    margin: 0 0 5px 0;
+    width: fit-content !important;
+  }
+
+  .divSubNav a:last-child {
+    margin-bottom: 0;
+  }
+
+  .divSubNav a::before {
+    background: none !important;
+    
+  }
+
+  .navlink:hover > .divSubNav {
+    display: block;
+  }
+
+  .navlink::before {
+    background: unset !important;
+  }
+  .navHover::before {
+    background: unset !important;
+  }
+</style>
+
 <div class="masthead">
   <div class="masthead__inner-wrap">
     <div class="masthead__menu">
+      <a href="/"><img src="https://wiremock.org/images/wireMockLogo.png" style="width: 160px; height: 20px" /></a>
       <nav id="site-nav" class="greedy-nav">
-        <button><div class="navicon"></div></button>
+        <!-- <button><div class="navicon"></div></button> -->
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg">
-            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
-          </li>
+          
           
             
 
             
-            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Docs
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="/docs/">
+                        WireMock Open Source
+                      </a>
+                    
+                      <a href="/studio/docs/">
+                        WireMock Studio
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <a class="base_path navHover" href="https://wiremock.org/support" title="Support">
+                  Support
+                </a>
+              
+              
+            </li>
+            
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Community
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="https://github.com/wiremock/wiremock">
+                        Github
+                      </a>
+                    
+                      <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
+                        Contributing
+                      </a>
+                    
+                      <a href="/external-resources">
+                        Resources
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
             
 
           
-            
 
-            
-            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
-            
-
-          
-            
-
-            
-            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
-            
-
-          
-
-          <li class="masthead__menu-item">
-            <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=primary-nav&utm_campaign=mocklab" title="MockLab" target="_blank">
-              <img src="/images/mocklab_logo_transparent.png" style="height: 23px; width: auto; margin-right: 5px; vertical-align: top;" />
-              MockLab
+        </ul>
+        <!-- <ul class="hidden-links hidden"></ul> -->
+      </nav>
+      <ul class="social-links">
+        <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
+        <span class="schedule-demo-nav">Schedule a demo</span>
+      </ul>
+      <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
+      <div id="overlay-menu" class="overlay-menu"></div>
+      <div class="mobile-menu-wrapper">
+        <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
+        <ul>
+          <li><a href="/docs">Wiremock Open Source</a></li>
+          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/support">Support</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="/external-resources">Resources</a></li>
+          <li><span class="schedule-demo-mobile-nav">Schedule a demo</span></li>
+        </ul>
+        <ul class="mobile-social-links">
+          <li>
+            <a href="http://github.com/" target="_blank">
+              <img src="https://wiremock.org/images/githubIcon.svg" />
             </a>
           </li>
+          <li>
+            <img src="https://wiremock.org/images/slackIcon.svg" />
+          </li>
+          
+          <li>
+            <img src="https://wiremock.org/images/twitterIcon.svg" />
+          </li>
         </ul>
-        <ul class="hidden-links hidden"></ul>
-      </nav>
+      </div>
     </div>
   </div>
 </div>
 
 
-    
+    <style>
+  #main {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.codeTabDescription {
+    margin: 0px !important;
+    padding: 0px !important;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    color: #000;
+}
+
+.code-tabs-main-example {
+  padding: 30px;
+}
+
+.code-tabs-main-example .highlight {
+  background: #F0F5FF;
+  border: 1px solid #D2DFF9;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+.codeSnippet {
+  display: none;
+  width: 100%;
+  position: relative;
+}
+
+.codeSnippet.activeCodeSnippet {
+  display: block;
+}
+
+.code-tabs-main {
+  width: 1018px;
+}
+
+@media (max-width:670px) {
+  .code-tabs-main {
+    width: 100% !important;
+  }
+}
+
+  #a-studio-enterprise {
+    display: none;
+  }
+
+</style>
 
 
 
-<div id="main" role="main">
-  <article class="splash" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="WireMock">
-    
-    
-    
 
-    <section class="page__content" itemprop="text">
-      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; margin-top: 3em; margin-bottom: -2em;">
-  <section class="homepage-section" style="margin-right: 2em; flex: 1; border-bottom: none;">
+<div class="home-header-wrapper">
+  <div class="home-header-leftHeaderHP"></div>
+  <div class="home-header-rightHeaderHP"></div>
+  <div class="container home-header-container">
+    <div class="home-header-title-wrapper">
+      <h2>Flexible mocking for</h2>
+      <h2>HTTP APIs</h2>
+    </div>
+    <div class="home-header-description-wrapper">
+      <p>
+        <b>WireMock</b> is a tool for mocking HTTP-based APIs that runs in your unit tests, on your desktop or in your test environment.
+      </p>
+    </div>
+    <div class="home-header-footer">
+        <div id="openSourceCard" class="wiremock-card-info">
+          <div class="wiremock-card-info-header">
+            <img src="/images/wiremockTypeExample.svg" alt="Wiremock api testing api monitoring">
+            <h2>Open Source</h2>
+          </div>
 
-    <h1 class="page__title homepage__title">WireMock</h1>
-    <h2 class="homepage__subtitle">Mock your APIs for fast, robust and comprehensive testing</h2>
-    <p>WireMock is a simulator for HTTP-based APIs. Some might consider it a <strong>service virtualization</strong> tool or a <strong>mock server</strong>.<br><br>
-      It enables you to <strong>stay productive</strong> when an API you depend on <strong>doesn't exist</strong> or isn't complete.
-      It supports testing of <strong>edge cases and failure modes</strong> that the real API won't reliably produce.
-      And because it's fast it can <strong>reduce your build time</strong> from hours down to minutes.<p>
-
-  </section>
-  <img class="code-shots__code-shot" src="/images/small-json-idea-shot.png" style="position: relative; top: -48px; height: 460px; width: auto;"/>
+          <p>
+            The core WireMock engine. Embed in your unit tests, or run as a standalone server anywhere there's Java or Docker available
+          </p>
+          <div class="link-card-info">
+            <img src="/images/blackGithubIcon.svg" alt="Wiremock Github" />
+            <a href="#open-source-get-started">
+              Get Started
+            </a>
+            <img src="/images/openSourceRightIcon.svg" alt="Wiremock Open Source" />
+          </div>
+        </div>
+        <div id="studioCard" class="wiremock-card-info">
+          <div class="wiremock-card-info-header">
+            <img src="/images/wiremockTypeExample.svg" alt="Wiremock mock api">
+            <h2>Studio</h2>
+          </div>
+          <p>
+            A full UI for WireMock supporting multiple mock APIs, Swagger, OpenAPI and Postman imports. Run on your desktop or in your Kubernetes cluster.
+          </p>
+          <div class="link-card-info">
+            <a href="#studio-learn-more">
+              Learn More
+            </a>
+            <img src="/images/studioRightIcon.svg" alt="Wiremock Learn More"/>
+          </div>
+        </div>
+        
+    </div>
+  </div>
 </div>
-
-<section class="mocklab-section">
-  <div class="mocklab-section__screenshot-chrome">
-    <div style="margin-top: -8px; margin-left: 3px;">
-      <i class="fa fa-circle mocklab-section__screenshot-chrome-control" aria-hidden="true" style="color: #FF6259"></i>
-      <i class="fa fa-circle mocklab-section__screenshot-chrome-control" aria-hidden="true" style="color: #FFBD2E"></i>
-      <i class="fa fa-circle mocklab-section__screenshot-chrome-control" aria-hidden="true" style="color: #2AD043"></i>
+<div class="main-wrapper">
+  <div class="container clients-wrapper">
+    <div class="client-wrapper">
+      <img src="/images/clients/pivotal.jpg" alt="wiremock pivotal" />
     </div>
-
-    <img src="/images/mocklab/stub-form-screenshot-5.png" title="Stub form" class="mocklab-section__screenshot"/>
+    <div class="client-wrapper">
+      <img src="/images/clients/softwire.jpg" alt="wiremock softwire"/>
+    </div>
+    <div class="client-wrapper">
+      <img src="/images/clients/yenlo.jpg" alt="wiremock yenlo"/>
+    </div>
+    <div class="client-wrapper">
+      <img src="/images/clients/sky.jpg" />
+    </div>
+    <div class="client-wrapper">
+      <img src="/images/clients/theguardian.jpg" alt="wiremock theguardian"/>
+    </div>
+    <div class="client-wrapper">
+      <img src="/images/clients/ft.jpg" alt="wiremock ft"/>
+    </div>
+    <div class="client-wrapper">
+      <img src="/images/clients/intuit.jpg" alt="wiremock intuit"/>
+    </div>
+    <div class="client-wrapper">
+      <img src="/images/clients/piksel.jpg" alt="wiremock piksel"/>
+    </div>
   </div>
 
-  <div class="mocklab-section__copy">
-    <img src="/images/mocklab/Mocklab_Logo_4x.png" title="MockLab Logo" class="mocklab-section__logo" />
 
-    <p class="mocklab-section__copy-paragraph">
-      MockLab is a <strong>hosted API simulator</strong> built on WireMock, with an intuitive web UI, team collaboration and nothing to install.
-    </p>
-
-    <p class="mocklab-section__copy-paragraph">
-      The 100% compatible API supports drop-in replacement of the WireMock server with a single line of code.
-    </p>
-
-    <div class="mocklab-section__cta">
-      <a id="mocklab-callout-learn-more" href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=homepage-callout_learn-more&utm_campaign=homepage_baseline" class="mocklab-cta mocklab-cta--secondary">Learn more</a>
-      <a id="mocklab-callout-try-it-now" href="https://app.mocklab.io/login?for=signup&utm_source=wiremock.org&utm_medium=homepage-callout_try-it-now&utm_campaign=homepage_baseline" class="mocklab-cta mocklab-cta--primary">Try it now</a>
-    </div>
-
-  </div>
-
-</section>
-
-<div class="feature__wrapper">
-  <div class="feature__item">
-    <div class="archive__item">
-
-      <div class="archive__item-body"><h2 class="archive__item-title">Flexible Deployment</h2>
-        <div class="archive__item-excerpt">
-          <p>Run WireMock from within your Java application, JUnit test, Servlet container or as a standalone process.</p>
+  <div id="open-source-get-started" class="container code-tabs-wrapper">
+    <div class="code-tabs-row">
+      <div class="code-tabs-sidebar-wrapper">
+        <div class="code-tabs-sidebar">
+          <div class="code-tabs-example-card">
+            <img src="/images/maven.png" alt="Maven" />
+          </div>
+          <div class="code-tabs-example-card">
+            <img src="/images/elephantIcon.png" alt="Gradle"/>
+          </div>
+          <div class="code-tabs-example-card">
+            <img src="/images/kotlin.png" alt="Kotlin" />
+          </div>
+          <div class="code-tabs-example-card">
+            <img src="/images/sbt.png" alt="SBT"/>
+          </div>
+          <div class="code-tabs-example-card">
+            <img src="/images/java.png" alt="Java"/>
+          </div>
+          <div class="code-tabs-example-card">
+            <img src="/images/docker.png" alt="Docker"/>
+          </div>
         </div>
-        <p><a href="/docs/getting-started/" class="btn">Learn More</a></p></div>
-    </div>
-  </div>
-  <div class="feature__item">
-    <div class="archive__item">
-
-      <div class="archive__item-body"><h2 class="archive__item-title">Powerful Request Matching</h2>
-        <div class="archive__item-excerpt">
-          <p>Match request URLs, methods, headers cookies and bodies using a wide variety of strategies. First class support for JSON and XML.</p>
+      </div>
+      <div class="code-tabs-main">
+        <div class="code-tabs-main-wrapper">
+          <ul>
+            <li class="active-tab-example">Maven</li>
+            <li>Gradle Groovy</li>
+            <li>Gradle Kotlin</li>
+            <li>Scala SBT</li>
+            <li>Standalone</li>
+            <li>Docker</li>
+          </ul>
+          <div class="code-tabs-main-example">
+            <div class="codeSnippet activeCodeSnippet" data-snippettab="maven">
+              <h4 class="codeTabDescription">Add the following to your project's <strong>pom.xml</strong> dependencies:</h4>
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.32.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span></code></pre></figure>
+          </div>
+          <div class="codeSnippet" data-snippettab="gradle groovy">
+            <h4 class="codeTabDescription">Add the following to your project's <strong>build.gradle</strong>:</h4>
+<figure class="highlight"><pre><code class="language-groovy" data-lang="groovy"><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.32.0"</span></code></pre></figure>
+          </div>
+          <div class="codeSnippet" data-snippettab="gradle kotlin">
+            <h4 class="codeTabDescription">Add the following to your project's <strong>build.gradle.kts</strong>:</h4>
+<figure class="highlight"><pre><code class="language-kotlin" data-lang="kotlin"><span class="nf">testImplementation</span><span class="p">(</span><span class="s">"com.github.tomakehurst:wiremock-jre8:2.32.0"</span><span class="p">)</span></code></pre></figure>
+          </div>
+          <div class="codeSnippet" data-snippettab="scala sbt">
+            <h4 class="codeTabDescription">Add the following to your project’s <strong>build.sbt</strong>:</h4>
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">libraryDependencies</span> <span class="o">+=</span>
+  <span class="s">"com.github.tomakehurst"</span> <span class="o">%</span> <span class="s">"wiremock-jre8"</span> <span class="o">%</span> <span class="s">"2.32.0"</span> <span class="o">%</span> <span class="nc">Test</span></code></pre></figure>
+          </div>
+          <div class="codeSnippet" data-snippettab="standalone">
+            <h4 class="codeTabDescription">
+              Download the <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.32.0/wiremock-jre8-standalone-2.32.0.jar">latest standalone JAR</a>
+              then run the following in a terminal:
+            </h4>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">java <span class="nt">-jar</span> wiremock-jre8-standalone-2.32.0.jar</code></pre></figure>
+          </div>
+          <div class="codeSnippet" data-snippettab="docker">
+            <h4 class="codeTabDescription">Run the following in a terminal:</h4>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="se">\</span>
+  <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
+  <span class="nt">--name</span> wiremock <span class="se">\</span>
+  wiremock/wiremock:2.32.0</code></pre></figure>
+          </div>
+        </div> 
         </div>
-        <p><a href="/docs/request-matching/" class="btn ">Learn More</a></p></div>
+      </div>
     </div>
-  </div>
-  <div class="feature__item">
-    <div class="archive__item">
+    <div class="code-tabs-footer">
+      <div class="ctIMGWrapper">
+        <img src="/images/codeTabsFootergithubIcon.svg" width="27" height="26" />
+      </div>
+      <div class="ct-github-info-wrapper">
 
-      <div class="archive__item-body"><h2 class="archive__item-title">Record and Playback</h2>
-        <div class="archive__item-excerpt">
-          <p>Get up and running quickly by capturing traffic to and from an existing API.<br><br></p>
+        <div class="github-card-info-wrapper">
+          <div class="github-card-info">
+            <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/wiremock/wiremock?style=social" >
+          </div>
         </div>
-        <p><a href="/docs/record-playback/" class="btn ">Learn More</a></p></div>
+
+        <div class="github-card-info-wrapper">
+          <div class="github-card-info">
+            <img alt="GitHub forks" src="https://img.shields.io/github/forks/wiremock/wiremock?style=social" >
+          </div>
+        </div>
+
+      </div>
+      <a href="https://github.com/wiremock/wiremock" class="ctDownloadBTN" target="_blank">
+        <img src="/images/ctGithubDownloadIcon.svg" />
+        <span>View Repo</span>
+      </a>
     </div>
   </div>
+
+
+  <div id="studio-learn-more" class="container wiremock-studio-wrapper">
+      <div class="wiremock-studio-img-wrapper">
+        <img class="wiremock-studio-img" src="/images/wiremockDashboard.png" alt="wiremock mock server"/>
+      </div>
+      <div class="wiremock-studio-vLine"></div>
+      <div class="wiremock-studio-details">
+        <img class="wiremockIMGwidth" src="/images/wiremockTypeExample.svg" alt="wiremock api testing"/>
+        <h1>Studio</h1>
+        <p class="p-margin-studio p-width-studio">
+          WireMock Studio is tool built on top of the core WireMock engine, bringing a full web UI, management of multiple mock APIs and support for OpenAPI and Postman.
+        </p>
+        <p class="p-width-studio">
+          It can run on your laptop, in Docker or in your test environment, and has exactly the same data format as the underlying WireMock engine, so it's easy to reuse mock APIs or test code you've already created.
+        </p>
+        <div class="wiremock-studio-links-wrapper">
+          <a class="btn-card-info btnDownload" href="/studio/docs/">Get Started</a>
+        </div>
+        
+    </div>
+  </div>
+
+  <a id="a-studio-enterprise" href="#studio-enterprise-learn-more">z</a>
+  <div id="studio-enterprise-learn-more" class="container wiremock-studio-robot-wrapper">
+    <div class="wiremock-studio-robot">
+      <img class="wiremock-studio-img" src="/images/wiremockRobot.png" alt="wiremock robot"/>
+    </div>
+    <div class="wiremock-studio-vLine"></div>
+
+    <div id="studio-enterprise" class="wiremock-studio-details details-custom">
+      <img class="wiremockIMGwidth" src="/images/wiremockTypeExample.svg" alt="wiremock api testing"/>
+      <h1>Studio <span class="enterprise">Enterprise</span></h1>
+      <h3 class="robot-subtitle">Scalable and collaborative on-premise deployment</h3>
+
+      <div class="enterpirse-feature">
+        <div class="enterprise-bullet"></div>
+        <h4>Users, teams and SSO</h4>
+      </div>
+      
+      <div class="enterpirse-feature">
+        <div class="enterprise-bullet"></div>
+        <h4>Multiple scalable hosts</h4>
+      </div>
+      <div class="enterpirse-feature">
+        <div class="enterprise-bullet"></div>
+        <h4>Persistent data</h4>
+      </div>
+      <div class="enterpirse-feature">
+        <div class="enterprise-bullet"></div>
+        <h4>Monitoring tool integration</h4>
+      </div>
+      <div class="enterpirse-feature">
+        <div class="enterprise-bullet"></div>
+        <h4>Private TLS certificate and DNS management</h4>
+      </div>
+      <div class="enterpirse-feature">
+        <div class="enterprise-bullet"></div>
+        <h4>Deploy into your own VPC or Kubernetes cluster</h4>
+      </div>
+
+      <span id="btnschedulecall" class="btn-schedule-call">Schedule a Demo</span>
+  </div>
+</div> 
+
 </div>
-
-<section class="homepage-section">
-  <h2 class="homepage-section__heading homepage-section__heading--centred">Who uses WireMock?</h2>
-  <div class="users-of">
-    <img src="/images/logos/Pivotal_WhiteOnTeal.png" alt="Pivotal" class="users-of__logo"/>
-    <img src="/images/logos/softwire-logo.jpg" alt="Softwire" class="users-of__logo"/>
-    <img src="/images/logos/Yenlo_logo_trans.png" alt="Yenlo" class="users-of__logo"/>
-    <img src="/images/logos/EW-logo.png" alt="Energized Work" class="users-of__logo"/>
-    <img src="/images/logos/sky-logo.png" alt="Sky" class="users-of__logo"/>
-    <img src="/images/logos/The_Guardian_logo.png" alt="The Guardian" class="users-of__logo"/>
-    <img src="/images/logos/FT-Logo.jpg" alt="The Financial Times" class="users-of__logo"/>
-    <img src="/images/logos/intuit_blue.gif" alt="Intuit" class="users-of__logo" style="height: 70px;"/>
-    <img src="/images/logos/Piksel_master.png" alt="Piksel" class="users-of__logo" style="height: 70px;"/>
-
-  </div>
-</section>
+<div class="key-features-wrapper">
+    <h2 class="keyFeaturesTXT">Key Features</h2>
+    <div class="container key-features-grid">
+      <div class="key-features-card">
+        <img src="/images/requestIcon.svg" alt="Wiremock Features"/>
+        <p>
+          Advanced request
+        </p>
+        <p>
+          matching
+        </p>
+      </div>
+      <div class="key-features-card">
+        <img src="/images/responseIcon.svg" alt="wiremock dynamic response"/>
+        <p>
+          Dynamic response
+        </p>
+        <p>
+          templating
+        </p>
+      </div>
+      <div class="key-features-card">
+        <img src="/images/unitTestIcon.svg" alt="wiremock unit tests" />
+        <p>
+          Run in your unit tests, on your
+        </p>
+        <p>
+          laptop or in your test environment.
+        </p>
+      </div>
+      <div class="key-features-card">
+        <img src="/images/faultIcon.svg" alt="wiremock fault and latency"/>
+        <p>
+          Fault and latency
+        </p>
+        <p>
+          injection
+        </p>
+      </div>
+      <div class="key-features-card">
+        <img src="/images/recordIcon.svg" alt="wiremock record playback"/>
+        <p>
+          Record / Playback
+        </p>
+      </div>
+      <div class="key-features-card">
+        <img src="/images/httpIcon.svg" alt="wiremock java, python, http" />
+        <p>
+          Java, Python, HTTP and
+        </p>
+        <p>
+          JSON file APIs
+        </p>
+      </div>
+    </div>
+    <div class="container key-features-btn-full">
+      <a class="btn-card-info btnGetStarted" href="/docs/">Full Documentation</a>
+    </div>
+</div>
 
 <script type="text/javascript">
   window.suppressMockLabPopover = true;
-</script>
 
-    </section>
-  </article>
-</div>
+  const schedulecall = document.getElementById('btnschedulecall');
+
+  schedulecall.addEventListener('click', () => {
+      activateSignupModalForm();
+  })
+
+
+
+</script>
+<script src="/assets/js/homeHeaderCard.js"></script>
+
 
     <div class="page__footer">
       <footer>
@@ -313,107 +789,45 @@
 <!-- end custom footer snippets -->
         
 
-<div class="page__footer-follow">
-  <ul class="social-icons">
-    
-    <li><strong>Follow:</strong></li>
-    
-    
-    
-    
-    
-    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+<div class="page__footer-copyright">
+  <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
+  
+  <span class="footer-copyright-description">&copy; 2022 
+  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
+  </span>
+  
+  <ul class="footer-social-links">
+    <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
   </ul>
 </div>
 
+<script src="https://wiremock.org/assets/js/mobile-navbar.js"></script>
+<script src="https://wiremock.org/assets/js/codeTab.js"></script>
 
-<div class="page__footer-copyright">&copy; 2022 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
-                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
-  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
-</div>
-
-<div id="dialog" style="display: none">
-  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
-  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
-</div>
-
-
-
-<script type="text/javascript">
-
-
-  function setNotificationSeenCookie() {
-    var expiresDate = new Date();
-    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
-    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
-  }
-
-
-
-  function sendNavigatedToMockLabEvent(location) {
-    ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
-  }
-
-  window.onload = function () {
-    $("a[title='MockLab']").click(function() {
-      ga('send', 'event', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1);
-      sendNavigatedToMockLabEvent('primary_nav');
-    });
-
-    $("a[title='Consulting Services']").click(function() {
-      ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
-    });
-
-
-
-    if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
-      window.setTimeout(function () {
-        $("#dialog").dialog({
-          dialogClass: 'mocklab-popup',
-          draggable: false,
-          resizable: false,
-          modal: true,
-          show: {
-            effect: 'fade',
-            duration: 1000
-          },
-          buttons: [{
-            class: 'mocklab-popup__confirm-button',
-            text: "Learn More",
-            click: function () {
-              ga('send', 'event', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1);
-              sendNavigatedToMockLabEvent();
-              window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
-            }
-          }]
-        });
-
-        setNotificationSeenCookie();
-        ga('send', 'event', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0);
-      }, 500);
-
-    }
-
-    $("#mocklab-callout-learn-more").click(function() {
-      ga('send', 'event', 'mocklab_homepage_section', 'learn_more_clicked', 'Learn More clicked', 1);
-      sendNavigatedToMockLabEvent('mocklab_homepage_section');
-    });
-
-    $("#mocklab-callout-try-it-now").click(function() {
-      ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
-      sendNavigatedToMockLabEvent('mocklab_homepage_section');
-    });
-
-    $("#wiremock-studio-download").click(function() {
-      ga('send', 'event', 'wiremock_studio_beta_doc', 'download_link_clicked', 'Download clicked', 3);
-    });
-  };
-</script>
+<script src="https://wiremock.org/assets/js/sidebar-docs.js"></script>
+<script src="https://wiremock.org/assets/js/signup-modal.js"></script>
 
       </footer>
     </div>
 
-    <script src="/assets/js/main.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <!-- <script src="https://wiremock.org/assets/js/main.min.js"></script> -->
 
 
 

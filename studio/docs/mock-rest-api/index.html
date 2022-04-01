@@ -1,0 +1,1339 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+<!--  -->
+
+
+
+
+
+
+
+<title>How to build a mock REST API [Tutorial] - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="How to build an online mock REST API in WireMock Studio for functional, integration and performance testing">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="How to build a mock REST API [Tutorial]">
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="WireMock" />
+<meta name="twitter:description" content="How to build an online mock REST API in WireMock Studio for functional, integration and performance testing">
+
+
+  <link rel="canonical" href="https://wiremock.org/studio/docs/mock-rest-api/">
+  <meta property="og:url" content="https://wiremock.org/studio/docs/mock-rest-api/">
+
+
+
+  <meta property="og:description" content="How to build an online mock REST API in WireMock Studio for functional, integration and performance testing">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2022-04-01T20:21:51+01:00">
+  
+    <link rel="next" href="https://wiremock.org/studio/docs/proxying/" title="Proxying">
+  
+  
+    <link rel="prev" href="https://wiremock.org/studio/docs/" title="WireMock Studio Documentation - Home">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : "https://wiremock.org",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:2905132,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+
+<link href="https://wiremock.org/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://wiremock.org/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="https://wiremock.org/images/favicon.svg">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+  <div class="signup-modal-overlay"></div>
+
+  <div class="signup-modal">
+    <div class="close-modal-icon">
+      <img src="https://wiremock.org/images/closeModalIcon.png" width="7" height="7" alt="close icon"/>
+    </div>
+
+    <div class="signup-modal-robot">
+      <h2>Get Started with</h2>
+      <img src="https://wiremock.org/images/wiremockBigModal.png" width="384" />
+      <h4>Studio <span>Enterprise</span></h4>
+
+      <div class="box-description-modal">
+        <p>Submit your request for WireMock Enterprise and our team will connect you.</p>
+      </div>
+
+      <div class="box-description-modal-second">
+        <p>Enterprise brings SSO, collaboration features, multiple host on-premise deployment and monitoring integration.</p>
+      </div>
+
+    </div>
+    <div class="signup-modal-form">
+      <h2>Schedule a Demo</h2>
+      <script charset="utf-8" type="text/javascript" src="//js-eu1.hsforms.net/forms/shell.js"></script>
+      <script>
+        hbspt.forms.create({
+          region: "eu1",
+          portalId: "25724978",
+          formId: "4a4ac91e-ce09-4e84-b7e8-4f90df8d3803"
+        });
+      </script>
+
+    </div>
+  </div>
+    
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<style>
+  .navlink {
+    position: relative !important;
+    color: #7d93bd;
+    padding-bottom: 0.9rem;
+    cursor: pointer;
+    font-family: "Ubuntu";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .divSubNav {
+    position: relative;
+    cursor: default;
+    padding: 10px 15px;
+    display: none;
+    position: absolute;
+    content: "";
+    left: 0;
+    top: 32px;
+    width: fit-content;
+    background: #FFFFFF;
+    box-shadow: 0px -5px 20px rgba(210, 223, 249, 0.5);
+  }
+
+  .divSubNav::before {
+    position: absolute;
+    content: "";
+    left: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid #fff;
+    top: -7px;
+  }
+
+  .divSubNav a {
+    padding: 0 !important;
+    margin: 0 0 5px 0;
+    width: fit-content !important;
+  }
+
+  .divSubNav a:last-child {
+    margin-bottom: 0;
+  }
+
+  .divSubNav a::before {
+    background: none !important;
+    
+  }
+
+  .navlink:hover > .divSubNav {
+    display: block;
+  }
+
+  .navlink::before {
+    background: unset !important;
+  }
+  .navHover::before {
+    background: unset !important;
+  }
+</style>
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <a href="/"><img src="https://wiremock.org/images/wireMockLogo.png" style="width: 160px; height: 20px" /></a>
+      <nav id="site-nav" class="greedy-nav">
+        <!-- <button><div class="navicon"></div></button> -->
+        <ul class="visible-links">
+          
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Docs
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="/docs/">
+                        WireMock Open Source
+                      </a>
+                    
+                      <a href="/studio/docs/">
+                        WireMock Studio
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <a class="base_path navHover" href="https://wiremock.org/support" title="Support">
+                  Support
+                </a>
+              
+              
+            </li>
+            
+            
+
+          
+            
+
+            
+
+            
+            
+            <li class="masthead__menu-item">
+              
+                <span class="navlink">
+                  Community
+
+                  
+                  <div class="divSubNav">
+                    
+                      <a href="https://github.com/wiremock/wiremock">
+                        Github
+                      </a>
+                    
+                      <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
+                        Contributing
+                      </a>
+                    
+                      <a href="/external-resources">
+                        Resources
+                      </a>
+                    
+                  </div>
+                  
+                </span>
+              
+              
+            </li>
+            
+            
+
+          
+
+        </ul>
+        <!-- <ul class="hidden-links hidden"></ul> -->
+      </nav>
+      <ul class="social-links">
+        <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
+        <span class="schedule-demo-nav">Schedule a demo</span>
+      </ul>
+      <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
+      <div id="overlay-menu" class="overlay-menu"></div>
+      <div class="mobile-menu-wrapper">
+        <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
+        <ul>
+          <li><a href="/docs">Wiremock Open Source</a></li>
+          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/support">Support</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+          <li><a href="/external-resources">Resources</a></li>
+          <li><span class="schedule-demo-mobile-nav">Schedule a demo</span></li>
+        </ul>
+        <ul class="mobile-social-links">
+          <li>
+            <a href="http://github.com/" target="_blank">
+              <img src="https://wiremock.org/images/githubIcon.svg" />
+            </a>
+          </li>
+          <li>
+            <img src="https://wiremock.org/images/slackIcon.svg" />
+          </li>
+          
+          <li>
+            <img src="https://wiremock.org/images/twitterIcon.svg" />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" class="custom-doc-wrapper" role="main">
+
+  
+    
+
+<div class="sidebar">
+  <nav class="nav__list">
+    <ul class="doc-categories">
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Getting Started</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/desktop/">Desktop</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/docker/">Docker</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/getting-started/kubernetes/">Kubernetes</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Stubbing</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stubbing/"> Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/advanced-stubbing/">Advanced </a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/delays/">Response Delays</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/simulating-faults/">Simulating Faults</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/stateful-scenarios/">Simulating State with Scenarios</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/proxying/">Proxying</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/soap-stubbing/">Working with SOAP</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Request Matching</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/matcher-types/">Overview of Matcher Types</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/url/">Matching URLs</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/json/">Matching JSON requests</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/request-matching/xml/">Matching XML bodies</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Response Templating</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/basics/">Basics</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/conditional-logic-and-iteration/">Conditional Logic and Iteration</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-helpers/">String Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/string-encodings/">String Encodings</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/number-helpers/">Number Helpers</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/dates-and-times/">Dates and Times</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/random-values/">Random Values</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/xml/">Working with XML</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/json/">Working with JSON</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/jwt/">JSON Web Tokens (JWT)</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/response-templating/misc-helpers/">Miscellaneous Helpers</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Import & Export</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-and-export/">Overview</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/wiremock/">WireMock</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/swagger/">Swagger and OpenAPI</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/postman/">Postman</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/import-export/api/">Via the API</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Record & Playback</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/recording-stubs/">Recording Stubs</a>
+              </li>
+            
+          </ul>
+        </li>
+      
+        
+        <li class="doc-category">
+          <span class="doc-category__title">Tutorials</span>
+          <ul
+           class="
+           doc-category__sub-nav
+           doc-category__sub-nav--active
+           ">
+            
+              
+              
+              
+
+              <li class="doc-category__li doc-category__li--selected">
+                <a href="/studio/docs/mock-rest-api/">How to build a mock REST API</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/exploratory-testing-tutorial/">Exploratory Testing a Spring Boot App</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/automated-testing-with-java/">Automated Testing with Java</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href="/studio/docs/default-responses/">Serving a Default Response</a>
+              </li>
+            
+              
+              
+              
+
+              <li class="doc-category__li">
+                <a href=""></a>
+              </li>
+            
+          </ul>
+        </li>
+      
+    </ul>
+
+  </nav>
+</div>
+
+  
+
+  
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    
+    <meta itemprop="description" content="REST is the dominant style of API at present and it’s common for web,mobile and microservice developers to have to integrate with at least a few andsometimes many REST APIs to the the job done.">
+    <meta itemprop="datePublished" content="April 01, 2022">
+    
+
+    <meta itemprop="headline" content="zzzz">
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">How to build a mock REST API [Tutorial]
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>REST is the dominant style of API at present and it’s common for web,
+mobile and microservice developers to have to integrate with at least a few and
+sometimes many REST APIs to the the job done.</p>
+
+<p>Inevitably this means that teams are delayed shipping new features when APIs aren’t
+finished, sandbox environments are down or test scenarios can’t be run, so being
+able to quickly deploy a mock API is essential to keep things moving.</p>
+
+<p>In this tutorial you’ll build a mock REST API from a fictitious contact manager,
+which is suitable for integration, functional and performance testing.
+You’ll also implement common REST patterns and see how to solve common problems.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>In order to follow this tutorial you’ll need:</p>
+
+<ul>
+  <li>A basic working knowledge of HTTP and REST</li>
+  <li>An HTTP client for testing, such as <a href="https://www.postman.com/" target="_blank">Postman</a>
+or <a href="https://insomnia.rest/" target="_blank">Insomnia</a></li>
+  <li>Basic familiarity with <a href="https://www.regular-expressions.info/" target="_blank">Regular Expressions</a></li>
+  <li>Ideally, some familiarity with <a href="https://goessner.net/articles/JsonPath/" target="_blank">JSONPath</a>, but
+this is not esssential as it’ll be explained in the places it’s used.</li>
+</ul>
+
+<h2 id="setting-up">Setting up</h2>
+
+<p>Create a blank mock API by hitting <img style="padding:0;vertical-align: middle; border: none; height: 27px" src="/images/screenshots/new-mock-api-button.png" alt="New mock API" />
+in the app. Make sure you choose the “blank” template on the new API form.</p>
+
+<div style="width:80%;border:1px solid #bbc3cd;padding:10px;margin-left:auto;margin-right:auto;margin-bottom:1rem">
+  <h3 style="margin-top:0">tl;dr</h3>
+
+  If you just want to take a look at the end result of this tutorial you can select
+  the <strong>"rest-example"</strong> API template instead of "blank" when when creating a new mock API.
+
+  <img alt="Example REST API template" src="/images/screenshots/mock-rest-api/rest-api-template.png" style="width:80%;border:none;" />
+</div>
+
+<p>After creating a new mock API you’ll be taken to the Settings page where you can find
+its base URLs (one for HTTP one for HTTPS):</p>
+
+<p><img alt="Base URL" src="/images/screenshots/base-url.png" style="width: 60%;border:none;" /></p>
+
+<p>You can check that your new API is live by copying the base URL by clicking the icon
+to the right of the box and making a request from your HTTP client (e.g. Postman):</p>
+
+<p><img alt="Postman request to empty API" src="/images/screenshots/postman-empty-api.png" style="width: 80%;border:none;" /></p>
+
+<h2 id="basic-contact-list">Basic contact list</h2>
+
+<p>A contact manager application is likely to have the ability to list all stored contacts.
+Let’s assume our imaginary API responds to <code class="language-plaintext highlighter-rouge">GET /v1/contacts</code> with JSON like:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"11111"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tom"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tom.smith@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-03"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"22222"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Suki"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patel"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"spatel@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-11-12"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"33333"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Lexine"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Barnfield"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"barnfield8@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-03"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"234"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can simulate this by creating a basic stub, matched on a <code class="language-plaintext highlighter-rouge">GET</code> with the exact
+URL path <code class="language-plaintext highlighter-rouge">/v1/contacts</code>. Go to the Stubs page under your new mock API and hit the
+new stub button:
+<img style="padding:0;vertical-align: middle; border: none; height: 30px" src="/images/screenshots/new-stub-button.png" alt="Create new stub" />.</p>
+
+<p>Then in the request section, set the method to <code class="language-plaintext highlighter-rouge">GET</code>, the URL to <code class="language-plaintext highlighter-rouge">/v1/contacts</code>
+and the URL match type to <code class="language-plaintext highlighter-rouge">Path</code>:</p>
+
+<p><img alt="Contact list stub request" src="/images/screenshots/mock-rest-api/contact-list-request.png" /></p>
+
+<p>In the response section put the JSON in the body field, and for good measure
+we’ll also send a <code class="language-plaintext highlighter-rouge">Content-Type: application/json</code> header:</p>
+
+<p><img alt="Contact list stub response" src="/images/screenshots/mock-rest-api/contact-list-response.png" /></p>
+
+<p>After hitting Save, you can now test the stub using WireMock’s Test Requester or
+your preferred HTTP client:</p>
+
+<p><img alt="Contact list test request" src="/images/screenshots/mock-rest-api/contact-list-test-request.png" /></p>
+
+<h2 id="filtering-via-query-parameters">Filtering via query parameters</h2>
+
+<p>REST APIs often allow collection resources like the contact list to be filtered
+using parameters in the request’s query string.</p>
+
+<p>For instance, so that we can find contacts for a specific company our contact
+manager might support filtering by company ID. For instance <code class="language-plaintext highlighter-rouge">/v1/contacts?companyId=123</code>
+would return:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"contacts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"11111"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tom"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tom.smith@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2021-01-03"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"22222"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Suki"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patel"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"spatel@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2020-11-12"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We’ll simulate this by creating a similar stub to the first one, but with a
+query parameter match and the filtered JSON document in the response body. To save some time we can
+clone the first stub rather than starting from scratch, which can be done by
+clicking <img style="padding:0;vertical-align: middle; border: none; height: 30px" src="/images/screenshots/clone-stub-button.png" alt="Clone stub" /> at the bottom of the stub form.</p>
+
+<p>Then we add a query parameter match for <code class="language-plaintext highlighter-rouge">companyId</code> equalling <code class="language-plaintext highlighter-rouge">123</code>:</p>
+
+<p><img alt="Query parameter matching" src="/images/screenshots/mock-rest-api/query-parameter-match.png" /></p>
+
+<p>And finally paste the filtered JSON in the body field:</p>
+
+<p><img alt="Query parameter matching" src="/images/screenshots/mock-rest-api/filtered-contacts-response.png" /></p>
+
+<p>You can find more detail on <a href="/docs/advanced-stubbing/#advanced-request-parameter-matching">matching different parts of incoming requests here</a>.</p>
+
+<p><a href="/docs/request-matching/matcher-types/">See here for the full list of available request matchers</a> (such as <code class="language-plaintext highlighter-rouge">equalTo</code> and <code class="language-plaintext highlighter-rouge">contains</code>).</p>
+
+<h2 id="getting-an-individual-contact">Getting an individual contact</h2>
+
+<p>It’s also very common for REST APIs to support retrieval of individual items of
+data specified by an identifier in the URL path, so in our case we might fetch an
+individual contact via a <code class="language-plaintext highlighter-rouge">GET</code> to <code class="language-plaintext highlighter-rouge">/v1/contacts/22222</code>.</p>
+
+<p>We can stub a single data item in a very similar manner to the contact list we
+created first, relying on exact URL path equality to match the request:</p>
+
+<p><img alt="Single contact request" src="/images/screenshots/mock-rest-api/single-contact-request.png" /></p>
+
+<p><img alt="Single contact response" src="/images/screenshots/mock-rest-api/single-contact-response.png" /></p>
+
+<h2 id="using-url-regex-matching-and-response-templating-to-simulate-many-data-records">Using URL regex matching and response templating to simulate many data records</h2>
+
+<p>If you only need to be able to return a small number of individual contacts then the above
+approach of creating a stub per contact will work OK.</p>
+
+<p>However, you may need return many
+unique contact records e.g. because you’re performance testing and want to spread
+the load across realistic data volumes. In this instance you can use URL regex
+matching and response templating to simulate the presence of many data items.</p>
+
+<p>Let’s modify the single contact stub we’ve already created. First we’ll switch to
+a looser URL match using the <code class="language-plaintext highlighter-rouge">Path regex</code> URL match type with the regular expression <code class="language-plaintext highlighter-rouge">/v1/contacts/[0-9]{1,10}</code> as the value.
+This will match any URL path starting with <code class="language-plaintext highlighter-rouge">/v1/contacts</code> and ending with any
+numeric ID between 1 and 10 characters long:</p>
+
+<p><img alt="Templated contact request" src="/images/screenshots/mock-rest-api/templated-contact-request.png" /></p>
+
+<p>Then we’ll enable templating in the response by ticking “Enable templating” and
+make the response body more dynamic by replacing some elements with template helpers, giving us:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{{request.pathSegments.2}}}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{{randomValue length=6 type='ALPHANUMERIC'}}}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{{randomValue length=10 type='ALPHANUMERIC'}}}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{{randomValue length=12 type='ALPHANUMERIC'}}}@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{{now offset='-3 months' format='yyyy-MM-dd'}}}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img alt="Templated contact response" src="/images/screenshots/mock-rest-api/templated-contact-response.png" style="width: 80%;border:none;" /></p>
+
+<p>Now we can make a test request with any valid ID value (numeric, 1-10 characters)
+and will receive a response with the ID field matching the value in the request URL
+and some of the data randomised:</p>
+
+<p><img alt="Templated contact test request" src="/images/screenshots/mock-rest-api/templated-contact-test-request.png" style="width: 80%;border:none;" /></p>
+
+<p>Unpacking what we’ve done here:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">id</code> is now set from the 3rd segment of the incoming request URL’s path, so it will always be the same as the requested contact ID.</li>
+  <li><code class="language-plaintext highlighter-rouge">firstName</code>, <code class="language-plaintext highlighter-rouge">lastName</code> and <code class="language-plaintext highlighter-rouge">email</code> are now random alphanumeric text (with a fixed domain name in the case of <code class="language-plaintext highlighter-rouge">email</code>).</li>
+  <li><code class="language-plaintext highlighter-rouge">dateAdded</code> is set to 3 months before today’s date.</li>
+</ul>
+
+<p>You can <a href="/docs/response-templating/basics/">learn more about response templating here</a> and <a href="/docs/request-matching/url/">more about URL matching here</a>.</p>
+
+<h2 id="creating-a-new-contact">Creating a new contact</h2>
+
+<p>At some point our contact manager API will need to be able to accept new contacts
+in addition to just returning them. Commonly, REST APIs support sending a <code class="language-plaintext highlighter-rouge">POST</code>
+request to the URL for a collection resource as a means to add new data items.</p>
+
+<p>So our contact manager might accept <code class="language-plaintext highlighter-rouge">POST /v1/contacts</code>, returning a
+response with status code <code class="language-plaintext highlighter-rouge">201 Created</code> and an empty body:</p>
+
+<p><img alt="New contact POST" src="/images/screenshots/mock-rest-api/new-contact-post-stub.png" style="width: 80%;border:none;" /></p>
+
+<h3 id="more-specific-matching">More specific matching</h3>
+<p>In its current state, this stub will be matched regardless of the contents
+of the request body, so a body with incorrectly structured JSON, XML or even no body
+at all will still yield the <code class="language-plaintext highlighter-rouge">201</code> response.</p>
+
+<p>If we want to ensure the stub is only matched when correctly structured JSON is
+sent in the request but without requiring a set of exact values, we can add a body
+matcher by clicking <img style="padding:0;vertical-align: middle; border: none; height: 30px" src="/images/screenshots/new-body-pattern-button.png" alt="New body matcher" />
+ and use <a href="/docs/request-matching/json/#using-placeholders-to-ignore-specific-json-attributes">JSONUnit placeholders</a>
+as wildcards:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"contact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.any-string}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"firstName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.any-string}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"lastName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.any-string}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.regex}[a-z0-9+_.-]+@[^.]+</span><span class="se">\\</span><span class="s2">.[^.]+$"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"dateAdded"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.regex}[0-9]{4}-[0-9]{2}-[0-9]{2}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"companyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${json-unit.any-string}"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img alt="New contact body pattern" src="/images/screenshots/mock-rest-api/new-contact-body-pattern.png" /></p>
+
+<p>Now if we make a request containing an incorrect JSON field (<code class="language-plaintext highlighter-rouge">name</code> instead of
+<code class="language-plaintext highlighter-rouge">firstName</code> and <code class="language-plaintext highlighter-rouge">lastName</code>), we’ll get a <code class="language-plaintext highlighter-rouge">404 Not Found</code> response
+containing a diff report showing which part of the request didn’t match:</p>
+
+<p><img alt="Contact POST mismatch" src="/images/screenshots/mock-rest-api/new-contact-postman-mismatch.png" /></p>
+
+<h2 id="simulating-state-changes">Simulating state changes</h2>
+
+<p>When posting a new item of data to a real API we’d expect it to be
+stored and therefore returned on a subsequent <code class="language-plaintext highlighter-rouge">GET</code> request for
+the collection or the individual resource. However, mock APIs by default don’t
+store any state, so making a request to add a new contact will have no effect on
+the data returned later.</p>
+
+<p>For most testing scenarios this isn’t an issue, but in cases where more realistic
+behaviour is required WireMock supports the concept of “stateful scenarios” whereby
+the state of a scenario can be used to determine which stub to match.</p>
+
+<p>If we wanted to, for instance, create a test case in which posting a new company
+results in it appearing in the companies collection we can achieve this by creating three
+stubs, all associated with the same scenario.</p>
+
+<p>Firstly, we’d stub the initial response for <code class="language-plaintext highlighter-rouge">GET /v1/companies</code> (in much the same manner as we did
+for contacts), returning a single company in the collection:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"companies"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Boring Corp"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This time we’d put the stub in a scenario called “Companies” (the name is not important)
+and require that the scenario be in the “Started” state in order for the stub to match:</p>
+
+<p><img alt="Companies scenario 1" src="/images/screenshots/mock-rest-api/companies-scenario-1.png" style="width:80%;border:none;" /></p>
+
+<p>Next, we’d create a second <code class="language-plaintext highlighter-rouge">GET</code> stub cloned from the first but with a second
+company added to the collection:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"companies"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Boring Corp"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">234</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Az Tech"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This stub would also be in the “Companies” scenario but this time with a different
+required state:</p>
+
+<p><img alt="Companies scenario 2" src="/images/screenshots/mock-rest-api/companies-scenario-2.png" style="width:80%;border:none;" /></p>
+
+<p>Finally, we’d configure the stub that handles the <code class="language-plaintext highlighter-rouge">POST</code> to advance the state of the scenario
+so that it appears to have the effect of storing the new company:</p>
+
+<p><img alt="Companies scenario 2" src="/images/screenshots/mock-rest-api/companies-scenario-state-change.png" style="width:80%;border:none;" /></p>
+
+<h3 id="testing-the-scenario">Testing the scenario</h3>
+
+<p>The first time we make a request to <code class="language-plaintext highlighter-rouge">GET</code> our companies we should see a single item in the collection:</p>
+
+<p><img alt="Companies list in state 1" src="/images/screenshots/mock-rest-api/companies-list-1.png" style="width:80%;border:none;" /></p>
+
+<p>Then we <code class="language-plaintext highlighter-rouge">POST</code> a new company:</p>
+
+<p><img alt="New company POST with state change" src="/images/screenshots/mock-rest-api/new-company-post.png" style="width:80%;border:none;" /></p>
+
+<p>Then when we fetch the companies list a second time we should see two companies
+returned:</p>
+
+<p><img alt="Companies list in state 2" src="/images/screenshots/mock-rest-api/companies-list-2.png" style="width:80%;border:none;" /></p>
+
+<p>The scenario will now remain in state “2 companies” until it is manually reset,
+which you can do by clicking <img style="padding:0;vertical-align: middle; border: none; height: 40px" src="/images/screenshots/scenario-reset-button.png" alt="Reset all scenarios" />, which resets all scenarios to “Started”.</p>
+
+<p>You can <a href="/docs/stateful-scenarios/">find out more about Scenarios here</a>.</p>
+
+<h2 id="returning-errors-for-specific-requests">Returning errors for specific requests</h2>
+
+<p>Sometimes we want to be able to support negative tests, for instance when the
+API we’re calling returns an error rather than the expected response. We can configure our mock API to return errors in response to specific requests
+with the help of the priority stub parameter.</p>
+
+<p>Let’s suppose we want to test the case where our app tries to post a new contact
+but the API returns a <code class="language-plaintext highlighter-rouge">503 Service Unavailable</code> response instead of the expected <code class="language-plaintext highlighter-rouge">201</code>.
+If we configure a stub that expects specific data in the request body and give it
+a higher priority than the existing <code class="language-plaintext highlighter-rouge">POST</code> stub that returns <code class="language-plaintext highlighter-rouge">201</code> then we can
+send a request with appropriate data and see the error returned.</p>
+
+<p>Start by cloning the existing <code class="language-plaintext highlighter-rouge">POST</code> stub for new contacts. Change the Priority value to a number
+lower than <code class="language-plaintext highlighter-rouge">5</code> (<code class="language-plaintext highlighter-rouge">1</code> is highest).</p>
+
+<p><img alt="Raised stub priority" src="/images/screenshots/mock-rest-api/raised-priority.png" style="width:50%" /></p>
+
+<p>Then we’ll modify the body matcher so that it’ll only
+match when a specific piece of data is sent. One option here would be to substitute
+the placeholders in the <code class="language-plaintext highlighter-rouge">equalToJson</code> body match we already have and this would
+work fine if we were confident our test could produce exactly the same values each time.
+However, we can give ourselves a bit more flexibility by choosing one specific bit of
+data and matching it using <code class="language-plaintext highlighter-rouge">matchesJsonPath</code>.</p>
+
+<p>Let’s say that if we receive a specific contact ID then we’ll trigger the error.
+To do this, change the body match type to <code class="language-plaintext highlighter-rouge">matchesJsonPath</code> and the expression to
+<code class="language-plaintext highlighter-rouge">$.contact.id</code> <code class="language-plaintext highlighter-rouge">equalTo</code> <code class="language-plaintext highlighter-rouge">666</code>:</p>
+
+<p><img alt="Matching on JSONPath" src="/images/screenshots/mock-rest-api/matches-json-path.png" /></p>
+
+<p>Finally, change the response status code to <code class="language-plaintext highlighter-rouge">503</code>, and let’s also add a plain text
+error message supported by a <code class="language-plaintext highlighter-rouge">Content-Type: text/plain</code> header:</p>
+
+<p><img alt="Error 503 response" src="/images/screenshots/mock-rest-api/503-response.png" /></p>
+
+<h3 id="testing-the-error-response">Testing the error response</h3>
+
+<p>Now we can send a test request and see the error response returned:</p>
+
+<p><img alt="Error 503 response" src="/images/screenshots/mock-rest-api/503-error-test-request.png" /></p>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>The message in the red text in this case indicates that WireMock couldn’t
+automatically generate a valid request body to match our JSONPath expression.
+This can be safely ignored as we’ve created our own request body.</p>
+</blockquote>
+
+<h3 id="other-types-of-error">Other types of error</h3>
+
+<p>You can also simulate lower-level errors with WireMock such as dropped network
+connections and delays. You can <a href="/docs/simulating-faults/">learn more about faults here</a>.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>You’ve now built a mock of a REST API which can be used in a variety of testing scenarios,
+and it hopefully it’s possible to see how this approach could be applied to mocking
+your own APIs or those of your suppliers and partners.</p>
+
+<p>You could also try expanding the scope of the API by mocking more resources and test more
+negative cases using faults, delays and other not-OK HTTP status codes.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fa fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="https://wiremock.org/categories/#api-mocking" class="page__taxonomy-item" rel="tag">API Mocking</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://wiremock.org/categories/#json" class="page__taxonomy-item" rel="tag">JSON</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://wiremock.org/categories/#mock-api" class="page__taxonomy-item" rel="tag">Mock API</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://wiremock.org/categories/#mock-rest-api" class="page__taxonomy-item" rel="tag">Mock REST API</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://wiremock.org/categories/#rest" class="page__taxonomy-item" rel="tag">REST</a>
+    
+    </span>
+  </p>
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-copyright">
+  <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
+  
+  <span class="footer-copyright-description">&copy; 2022 
+  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
+  </span>
+  
+  <ul class="footer-social-links">
+    <li>
+    <a href="http://github.com/wiremock" target="_blank">
+      <img src="https://wiremock.org/images/githubIcon.svg" />
+    </a>
+  </li>
+  <li>
+    <a href="https://up9.com/slack" target="_blank">
+        <img src="https://wiremock.org/images/slackIcon.svg" />
+    </a>
+  </li>
+  
+  <!-- <li>
+    <a href="https://twitter.com/up9inc" target="_blank">
+        <img src="https://wiremock.org/images/twitterIcon.svg" />
+    </a>
+  </li> -->
+  </ul>
+</div>
+
+<script src="https://wiremock.org/assets/js/mobile-navbar.js"></script>
+<script src="https://wiremock.org/assets/js/codeTab.js"></script>
+
+<script src="https://wiremock.org/assets/js/sidebar-docs.js"></script>
+<script src="https://wiremock.org/assets/js/signup-modal.js"></script>
+
+      </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
+    <!-- <script src="https://wiremock.org/assets/js/main.min.js"></script> -->
+
+
+
+
+  </body>
+</html>
+
