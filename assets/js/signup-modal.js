@@ -18,9 +18,11 @@ signupModalOverlay[0].addEventListener('click', () => {
     deactivateSignupModalForm();
 })
 scheduleCallNavBTN[0].addEventListener('click', () => {
+    ga('send', 'event', 'homepage_masthead', 'schedule_demo_clicked', 'Schedule demo button clicked', 1);
     activateSignupModalForm();
 })
 scheduleCallMobileNav[0].addEventListener('click', () => {
+    ga('send', 'event', 'homepage_mobile_masthead', 'schedule_demo_clicked', 'Schedule demo button clicked', 1);
     closeMenu();
     activateSignupModalForm();
 })
