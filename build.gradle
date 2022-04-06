@@ -64,7 +64,7 @@ dependencies {
   api "com.jayway.jsonpath:json-path:2.7.0", {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
-  api "org.ow2.asm:asm:9.2"
+  api "org.ow2.asm:asm:9.3"
   api "org.slf4j:slf4j-api:1.7.36"
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
