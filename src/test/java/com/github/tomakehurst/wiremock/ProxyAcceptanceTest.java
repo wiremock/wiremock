@@ -46,6 +46,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -55,8 +57,11 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Matchers;
+import org.junit.experimental.theories.DataPoints;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class ProxyAcceptanceTest {
 
@@ -612,6 +617,25 @@ public class ProxyAcceptanceTest {
     WireMockResponse response = testClient.get("/other/service/doc/123");
 
     assertThat(response.statusCode(), is(200));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"GET","HEAD","POST","PUT","PATCH","DELETE","BLAH"})
+  void proxiesRequestBodyForAnyMethod(String method) {
+    initWithDefaultConfig();
+
+    target.register(any(anyUrl())
+            .willReturn(ok()));
+
+    proxy.register(any(anyUrl())
+            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+    testClient.request(method, "/somewhere", "Proxied content");
+
+    List<LoggedRequest> requests = target.find(anyRequestedFor(urlEqualTo("/somewhere")));
+    assertThat(requests.size(), is(1));
+    assertThat(requests.get(0).getMethod().getName(), is(method));
+    assertThat(requests.get(0).getBodyAsString(), is("Proxied content"));
   }
 
   private void register200StubOnProxyAndTarget(String url) {

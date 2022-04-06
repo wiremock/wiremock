@@ -327,6 +327,13 @@ public class WireMockTestClient {
     return executeMethodAndConvertExceptions(httpRequest, headers);
   }
 
+  public WireMockResponse request(final String methodName, String url, String body, TestHttpHeader... headers) {
+    HttpUriRequest httpRequest =
+            new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
+    httpRequest.setEntity(new StringEntity(body));
+    return executeMethodAndConvertExceptions(httpRequest, headers);
+  }
+
   private static CloseableHttpClient httpClient() {
     return HttpClientBuilder.create()
         .disableAuthCaching()
