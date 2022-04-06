@@ -16,9 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
@@ -101,7 +98,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
 
-    addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
+    httpRequest.setEntity(buildEntityFrom(responseDefinition.getOriginalRequest()));
     CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
     try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
       return response()
@@ -208,14 +205,6 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     final String lowerCaseKey = key.toLowerCase();
     return !FORBIDDEN_RESPONSE_HEADERS.contains(lowerCaseKey)
         && !lowerCaseKey.startsWith("access-control");
-  }
-
-  private static void addBodyIfPostPutOrPatch(
-      ClassicHttpRequest httpRequest, ResponseDefinition response) {
-    Request originalRequest = response.getOriginalRequest();
-    if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
-      httpRequest.setEntity(buildEntityFrom(originalRequest));
-    }
   }
 
   private static HttpEntity buildEntityFrom(Request originalRequest) {
