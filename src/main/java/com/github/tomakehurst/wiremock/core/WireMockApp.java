@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,8 @@ public class WireMockApp implements StubServer, Admin {
                 options.proxyHostHeader(),
                 globalSettingsHolder,
                 browserProxySettings.trustAllProxyTargets(),
-                browserProxySettings.trustedProxyTargets()),
+                browserProxySettings.trustedProxyTargets(),
+                options.getStubCorsEnabled()),
             ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())),
         this,
         postServeActions,
