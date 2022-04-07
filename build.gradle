@@ -385,6 +385,10 @@ task release {
   dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag
 }
 
+task localRelease {
+  dependsOn clean, assemble, publishToMavenLocal
+}
+
 task 'bump-patch-version' {
   doLast {
     def filesWithVersion = [
