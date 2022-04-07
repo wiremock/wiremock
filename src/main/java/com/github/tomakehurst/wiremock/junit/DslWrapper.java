@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,6 +159,16 @@ public class DslWrapper implements Admin, Stubbing {
   @Override
   public GetScenariosResult getAllScenarios() {
     return admin.getAllScenarios();
+  }
+
+  @Override
+  public void resetScenario(String name) {
+    admin.resetScenario(name);
+  }
+
+  @Override
+  public void setScenarioState(String name, String state) {
+    admin.setScenarioState(name, state);
   }
 
   @Override

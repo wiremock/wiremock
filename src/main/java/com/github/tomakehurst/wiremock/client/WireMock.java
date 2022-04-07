@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -366,6 +366,22 @@ public class WireMock {
 
   public void resetScenarios() {
     admin.resetScenarios();
+  }
+
+  public static void resetScenario(String name) {
+    defaultInstance.get().resetScenarioState(name);
+  }
+
+  public void resetScenarioState(String name) {
+    admin.resetScenario(name);
+  }
+
+  public static void setScenarioState(String name, String state) {
+    defaultInstance.get().setSingleScenarioState(name, state);
+  }
+
+  public void setSingleScenarioState(String name, String state) {
+    admin.setScenarioState(name, state);
   }
 
   public static List<Scenario> getAllScenarios() {

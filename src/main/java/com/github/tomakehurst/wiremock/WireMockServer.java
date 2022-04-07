@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -438,6 +438,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
   @Override
   public GetScenariosResult getAllScenarios() {
     return wireMockApp.getAllScenarios();
+  }
+
+  @Override
+  public void resetScenario(String name) {
+    wireMockApp.resetScenario(name);
+  }
+
+  @Override
+  public void setScenarioState(String name, String state) {
+    wireMockApp.setScenarioState(name, state);
   }
 
   @Override

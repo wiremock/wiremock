@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class Scenarios {
           scenarioMap.get(oldMapping.getScenarioName()).withoutStubMapping(oldMapping);
 
       if (scenarioForOldMapping.getMappings().isEmpty()) {
-        scenarioMap.remove(scenarioForOldMapping.getName());
+        scenarioMap.remove(scenarioForOldMapping.getId());
       } else {
         scenarioMap.put(oldMapping.getScenarioName(), scenarioForOldMapping);
       }
@@ -103,6 +103,16 @@ public class Scenarios {
                 return input.reset();
               }
             }));
+  }
+
+  public void resetSingle(String name) {
+    Scenario scenario = scenarioMap.get(name);
+    scenarioMap.replace(name, scenario.reset());
+  }
+
+  public void setSingle(String name, String state) {
+    Scenario scenario = scenarioMap.get(name);
+    scenarioMap.replace(name, scenario.setState(state));
   }
 
   public void clear() {

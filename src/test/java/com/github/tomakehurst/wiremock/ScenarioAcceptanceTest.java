@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetScenario;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.withName;
 import static com.google.common.collect.Iterables.find;
@@ -133,7 +134,6 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
     List<Scenario> scenarios = getAllScenarios();
 
     Scenario scenario1 = find(scenarios, withName("scenario_one"));
-    assertThat(scenario1.getId(), notNullValue(UUID.class));
     assertThat(scenario1.getPossibleStates(), hasItems(STARTED, "state_2"));
     assertThat(scenario1.getState(), is("state_2"));
 
@@ -202,7 +202,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok("2")));
 
     assertThat(getAllScenarios().size(), is(1));
-    assertThat(getAllScenarios().get(0).getName(), is(OLD_NAME));
+    assertThat(getAllScenarios().get(0).getId(), is(OLD_NAME));
 
     editStub(
         get("/scenarios/33")
@@ -220,7 +220,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok("2")));
 
     assertThat(getAllScenarios().size(), is(1));
-    assertThat(getAllScenarios().get(0).getName(), is(NEW_NAME));
+    assertThat(getAllScenarios().get(0).getId(), is(NEW_NAME));
   }
 
   @Test
@@ -244,5 +244,49 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
         .whenScenarioStateIs("Prior State")
         .atPriority(1)
         .willSetStateTo("Next State");
+  }
+
+  @Test
+  public void resetsASingleScenarioByName() {
+    stubFor(
+        get("/one")
+            .inScenario("reset-me")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    stubFor(get("/one").inScenario("reset-me").whenScenarioStateIs("2").willReturn(ok("2")));
+
+    testClient.get("/one");
+    assertThat(testClient.get("/one").content(), is("2"));
+
+    resetScenario("reset-me");
+
+    assertThat(testClient.get("/one").content(), is("started"));
+  }
+
+  @Test
+  public void setsASingleScenarioStateByName() {
+    stubFor(
+        get("/one")
+            .inScenario("set-me")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    stubFor(
+        get("/one")
+            .inScenario("set-me")
+            .whenScenarioStateIs("2")
+            .willSetStateTo("3")
+            .willReturn(ok("2")));
+    stubFor(get("/one").inScenario("set-me").whenScenarioStateIs("3").willReturn(ok("3")));
+
+    testClient.get("/one");
+    assertThat(testClient.get("/one").content(), is("2"));
+    assertThat(testClient.get("/one").content(), is("3"));
+
+    setScenarioState("set-me", "2");
+    assertThat(testClient.get("/one").content(), is("2"));
   }
 }
