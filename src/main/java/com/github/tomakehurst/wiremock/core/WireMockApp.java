@@ -411,6 +411,16 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   @Override
+  public void resetScenario(String name) {
+    scenarios.resetSingle(name);
+  }
+
+  @Override
+  public void setScenarioState(String name, String state) {
+    scenarios.setSingle(name, state);
+  }
+
+  @Override
   public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
     return new FindNearMissesResult(nearMissCalculator.findNearestTo(loggedRequest));
   }
