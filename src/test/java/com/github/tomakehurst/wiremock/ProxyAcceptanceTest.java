@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-
 import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -57,7 +55,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Matchers;
-import org.junit.experimental.theories.DataPoints;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -586,22 +583,6 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void stripsCorsHeadersFromTheTarget() {
-    initWithDefaultConfig();
-
-    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
-
-    target.register(any(urlPathEqualTo("/cors")).withName("Target with CORS").willReturn(ok()));
-
-    WireMockResponse response =
-        testClient.get("/cors", withHeader("Origin", "http://somewhere.com"));
-
-    Collection<String> allowOriginHeaderValues =
-        response.headers().get("Access-Control-Allow-Origin");
-    assertThat(allowOriginHeaderValues.size(), is(0));
-  }
-
-  @Test
   public void removesPrefixFromProxyRequestWhenMatching() {
     initWithDefaultConfig();
 
@@ -620,15 +601,13 @@ public class ProxyAcceptanceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"GET","HEAD","POST","PUT","PATCH","DELETE","BLAH"})
+  @ValueSource(strings = {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "BLAH"})
   void proxiesRequestBodyForAnyMethod(String method) {
     initWithDefaultConfig();
 
-    target.register(any(anyUrl())
-            .willReturn(ok()));
+    target.register(any(anyUrl()).willReturn(ok()));
 
-    proxy.register(any(anyUrl())
-            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
     testClient.request(method, "/somewhere", "Proxied content");
 

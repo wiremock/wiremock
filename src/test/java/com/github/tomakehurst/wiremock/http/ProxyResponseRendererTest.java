@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,16 +99,51 @@ public class ProxyResponseRendererTest {
 
   @Test
   public void acceptsSelfSignedCertificateForForwardProxyingIfTrustAllProxyTargets() {
-
-    final ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
+    ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
 
     origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
-    final ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
-
+    ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
     Response response = trustAllProxyResponseRenderer.render(serveEvent);
 
     assertEquals(response.getBodyAsString(), "Result");
+  }
+
+  @Test
+  void passesThroughCorsResponseHeadersWhenStubCorsDisabled() {
+    ProxyResponseRenderer responseRenderer = buildProxyResponseRenderer(true, false);
+
+    origin.stubFor(
+        get("/proxied")
+            .willReturn(ok("Result").withHeader("Access-Control-Allow-Headers", "X-Blah")));
+
+    ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+    Response response = responseRenderer.render(serveEvent);
+
+    HttpHeader corsHeader = response.getHeaders().getHeader("Access-Control-Allow-Headers");
+    assertThat(
+        "CORS response header sent from the origin is not present in the response",
+        corsHeader.isPresent(),
+        is(true));
+    assertThat(corsHeader.firstValue(), is("X-Blah"));
+  }
+
+  @Test
+  void doesNotPassThroughCorsResponseHeadersWhenStubCorsEnabled() {
+    ProxyResponseRenderer responseRenderer = buildProxyResponseRenderer(true, true);
+
+    origin.stubFor(
+        get("/proxied")
+            .willReturn(ok("Result").withHeader("Access-Control-Allow-Headers", "X-Blah")));
+
+    ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+    Response response = responseRenderer.render(serveEvent);
+
+    HttpHeader corsHeader = response.getHeaders().getHeader("Access-Control-Allow-Headers");
+    assertThat(
+        "CORS response header sent from the origin is present in the response",
+        corsHeader.isPresent(),
+        is(false));
   }
 
   private ServeEvent reverseProxyServeEvent(String path) {
@@ -167,6 +202,11 @@ public class ProxyResponseRendererTest {
   }
 
   private ProxyResponseRenderer buildProxyResponseRenderer(boolean trustAllProxyTargets) {
+    return buildProxyResponseRenderer(trustAllProxyTargets, false);
+  }
+
+  private ProxyResponseRenderer buildProxyResponseRenderer(
+      boolean trustAllProxyTargets, boolean stubCorsEnabled) {
     return new ProxyResponseRenderer(
         ProxySettings.NO_PROXY,
         KeyStoreSettings.NO_STORE,
@@ -174,7 +214,8 @@ public class ProxyResponseRendererTest {
         /* hostHeaderValue = */ null,
         new GlobalSettingsHolder(),
         trustAllProxyTargets,
-        Collections.<String>emptyList());
+        Collections.<String>emptyList(),
+        stubCorsEnabled);
   }
 
   // Just exists to make the compiler happy by having the throws clause
