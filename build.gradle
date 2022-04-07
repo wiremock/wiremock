@@ -389,8 +389,6 @@ task 'bump-patch-version' {
   doLast {
     def filesWithVersion = [
       'build.gradle'                                      : { "version = '${it}" },
-      'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-      'docs-v2/package.json'                              : { "version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
         "version: ${it}" }
     ]
@@ -416,8 +414,6 @@ task 'bump-minor-version' {
   doLast {
     def filesWithVersion = [
       'build.gradle'                                      : { "version = '${it}" },
-      'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-      'docs-v2/package.json'                              : { "version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
         "version: ${it}" }
     ]
