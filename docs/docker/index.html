@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-05T13:48:06+01:00">
+  <meta property="article:published_time" content="2022-04-08T18:55:50+01:00">
   
     <link rel="next" href="https://wiremock.org/docs/download-and-installation/" title="Download and Installation">
   
@@ -714,7 +714,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="From version 2.31.0 WireMock has an official Docker image.">
-    <meta itemprop="datePublished" content="April 05, 2022">
+    <meta itemprop="datePublished" content="April 08, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -735,7 +735,7 @@
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="se">\</span>
   <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
   <span class="nt">--name</span> wiremock <span class="se">\</span>
-  wiremock/wiremock:2.32.0
+  wiremock/wiremock:2.33.0
 </code></pre></div></div>
 
 <blockquote>
@@ -750,7 +750,7 @@ These can be passed to the container by appending them to the end of the command
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="se">\</span>
   <span class="nt">-p</span> 8443:8443 <span class="se">\</span>
   <span class="nt">--name</span> wiremock <span class="se">\</span>
-  wiremock/wiremock:2.32.0 <span class="se">\</span>
+  wiremock/wiremock:2.33.0 <span class="se">\</span>
   <span class="nt">--https-port</span> 8443 <span class="nt">--verbose</span>
 </code></pre></div></div>
 
@@ -765,7 +765,7 @@ This means you can mount a directory containing these from your host machine int
   <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
   <span class="nt">--name</span> wiremock <span class="se">\</span>
   <span class="nt">-v</span> <span class="nv">$PWD</span>:/home/wiremock <span class="se">\</span>
-  wiremock/wiremock:2.32.0
+  wiremock/wiremock:2.33.0
 </code></pre></div></div>
 
 <h3 id="running-with-extensions">Running with extensions</h3>
@@ -773,7 +773,7 @@ This means you can mount a directory containing these from your host machine int
 <p><a href="/docs/extending-wiremock/">WireMock extensions</a> are packaged as JAR files. In order to use them they need to be made
 available at runtime and WireMock must be configured to enable them.</p>
 
-<p>For example, to use the <a href="/docs/webhooks-and-callbacks/">Webhooks extension</a> we would first download <a href="https://repo1.maven.org/maven2/org/wiremock/wiremock-webhooks-extension/2.32.0/wiremock-webhooks-extension-2.32.0.jar">wiremock-webhooks-extension-2.32.0.jar</a>
+<p>For example, to use the <a href="/docs/webhooks-and-callbacks/">Webhooks extension</a> we would first download <a href="https://repo1.maven.org/maven2/org/wiremock/wiremock-webhooks-extension/2.33.0/wiremock-webhooks-extension-2.33.0.jar">wiremock-webhooks-extension-2.33.0.jar</a>
 into the <code class="language-plaintext highlighter-rouge">extensions</code> directory under our working directory.</p>
 
 <p>Then when starting Docker we would mount the extensions directory to <code class="language-plaintext highlighter-rouge">/var/wiremock/extensions</code> and enable the webhooks extension

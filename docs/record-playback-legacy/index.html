@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-05T13:48:06+01:00">
+  <meta property="article:published_time" content="2022-04-08T18:55:50+01:00">
   
     <link rel="next" href="https://wiremock.org/docs/record-playback/" title="Record and Playback">
   
@@ -714,7 +714,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="WireMock has the ability to create stub mappings by recording themwhile you send requests. This can be used to quickly capture acollection of responses from a real service then use them offline inyour tests.">
-    <meta itemprop="datePublished" content="April 05, 2022">
+    <meta itemprop="datePublished" content="April 08, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -735,7 +735,7 @@ your tests.</strong></p>
 
 <p>Recording is done by starting the standalone runner like this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.32.0.jar <span class="nt">--proxy-all</span><span class="o">=</span><span class="s2">"http://search.twitter.com"</span> <span class="nt">--record-mappings</span> <span class="nt">--verbose</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.33.0.jar <span class="nt">--proxy-all</span><span class="o">=</span><span class="s2">"http://search.twitter.com"</span> <span class="nt">--record-mappings</span> <span class="nt">--verbose</span>
 </code></pre></div></div>
 
 <p>Once it’s started you send requests to it as if it was the remote
