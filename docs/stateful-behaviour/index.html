@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-08T18:55:50+01:00">
+  <meta property="article:published_time" content="2022-04-08T19:19:36+01:00">
   
     <link rel="next" href="https://wiremock.org/docs/stub-metadata/" title="Stub Metadata">
   
@@ -842,7 +842,7 @@ showing the updated list.</p>
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">GET</span><span class="w"> </span><span class="err">/__admin/scenarios</span><span class="w">
 </span><span class="p">{</span><span class="w">
   </span><span class="nl">"scenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"c8d249ec-d86d-48b1-88a8-a660e6848042"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"my_scenario"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"my_scenario"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"state"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"Started"</span><span class="p">,</span><span class="w">
     </span><span class="nl">"possibleStates"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"Started"</span><span class="p">,</span><span class="w"> </span><span class="s2">"state_2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"state_3"</span><span class="w"> </span><span class="p">]</span><span class="w">
@@ -853,8 +853,42 @@ showing the updated list.</p>
 <h2 id="resetting-scenarios">Resetting scenarios</h2>
 
 <p>The state of all configured scenarios can be reset back to
-<code class="language-plaintext highlighter-rouge">Scenario.START</code> either by calling <code class="language-plaintext highlighter-rouge">WireMock.resetAllScenarios()</code> in
-Java, or posting an empty request to <code class="language-plaintext highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/scenarios/reset</code>.</p>
+<code class="language-plaintext highlighter-rouge">Scenario.START</code> either by calling</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span><span class="o">.</span><span class="na">resetAllScenarios</span><span class="o">()</span>
+</code></pre></div></div>
+
+<p>To do the equivalent via the HTTP API, send an empty <code class="language-plaintext highlighter-rouge">POST</code> request to <code class="language-plaintext highlighter-rouge">/__admin/scenarios/reset</code>.</p>
+
+<h2 id="resetting-a-single-scenario">Resetting a single scenario</h2>
+
+<p>You can reset the state of an individual scenario.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span><span class="o">.</span><span class="na">resetScenario</span><span class="o">(</span><span class="s">"my_scenario"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>The do the equivalent via the HTTP API, send an empty <code class="language-plaintext highlighter-rouge">PUT</code> to <code class="language-plaintext highlighter-rouge">/__admin/scenarios/my_scenario/state</code>.</p>
+
+<h2 id="setting-the-state-of-an-individual-scenario">Setting the state of an individual scenario</h2>
+
+<p>You can also set the state of an individual scenario to a specific value.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span><span class="o">.</span><span class="na">setScenarioState</span><span class="o">(</span><span class="s">"my_scenario"</span><span class="o">,</span> <span class="s">"state_2"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>HTTP:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">PUT</span><span class="w"> </span><span class="err">/__admin/scenarios/my_scenario/state</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"state_2"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
 
         
       </section>
