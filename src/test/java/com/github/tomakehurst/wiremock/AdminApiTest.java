@@ -492,6 +492,28 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  void returnsNotFoundWhenAttemptingToResetNonExistentScenario() {
+    WireMockResponse response = testClient.put("/__admin/scenarios/i-dont-exist/state");
+    assertThat(response.statusCode(), is(404));
+    assertThat(
+        response.content(),
+        jsonPartEquals("errors[0].title", "Scenario i-dont-exist does not exist"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToSetNonExistentScenarioState() {
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/scenarios/i-dont-exist/state",
+            "{\"state\":\"newstate\"}",
+            "application/json");
+    assertThat(response.statusCode(), is(404));
+    assertThat(
+        response.content(),
+        jsonPartEquals("errors[0].title", "Scenario i-dont-exist does not exist"));
+  }
+
+  @Test
   public void defaultsUnspecifiedStubMappingAttributes() {
     WireMockResponse response = testClient.postJson("/__admin/mappings", "{}");
 

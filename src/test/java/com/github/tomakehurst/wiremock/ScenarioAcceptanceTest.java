@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -288,5 +289,10 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
     setScenarioState("set-me", "2");
     assertThat(testClient.get("/one").content(), is("2"));
+  }
+
+  @Test
+  void throwsClientErrorWhenAttemptingToResetNonExistentScenario() {
+    assertThrows(ClientError.class, () -> resetScenario("non-exist"));
   }
 }
