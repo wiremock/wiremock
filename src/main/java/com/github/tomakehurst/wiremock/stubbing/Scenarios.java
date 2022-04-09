@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -106,13 +107,21 @@ public class Scenarios {
   }
 
   public void resetSingle(String name) {
-    Scenario scenario = scenarioMap.get(name);
-    scenarioMap.replace(name, scenario.reset());
+    setSingleScenarioState(name, Scenario::reset);
   }
 
   public void setSingle(String name, String state) {
+    setSingleScenarioState(name, scenario -> scenario.setState(state));
+  }
+
+  private void setSingleScenarioState(
+      String name, java.util.function.Function<Scenario, Scenario> fn) {
     Scenario scenario = scenarioMap.get(name);
-    scenarioMap.replace(name, scenario.setState(state));
+    if (scenario == null) {
+      throw new NotFoundException("Scenario " + name + " does not exist");
+    }
+
+    scenarioMap.replace(name, fn.apply(scenario));
   }
 
   public void clear() {
