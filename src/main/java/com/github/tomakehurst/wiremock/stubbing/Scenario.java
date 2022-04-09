@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.stubbing;
 import static com.google.common.collect.FluentIterable.from;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Function;
@@ -29,7 +28,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.*;
 
-@JsonIgnoreProperties({"name"})
 public class Scenario {
 
   public static final String STARTED = "Started";
@@ -41,16 +39,21 @@ public class Scenario {
   @JsonCreator
   public Scenario(
       @JsonProperty("id") String id,
+      @JsonProperty("name") String ignored,
       @JsonProperty("state") String currentState,
-      @JsonProperty("possibleStates") Set<String> ignored,
+      @JsonProperty("possibleStates") Set<String> ignored2,
       @JsonProperty("mappings") Set<StubMapping> stubMappings) {
     this.id = id;
     this.state = currentState;
     this.stubMappings = stubMappings;
   }
 
+  private Scenario(String id, String state, Set<StubMapping> stubMappings) {
+    this(id, null, state, null, stubMappings);
+  }
+
   public static Scenario inStartedState(String name) {
-    return new Scenario(name, STARTED, ImmutableSet.of(STARTED), Collections.emptySet());
+    return new Scenario(name, STARTED, Collections.emptySet());
   }
 
   public String getId() {
@@ -95,23 +98,23 @@ public class Scenario {
   }
 
   Scenario setState(String newState) {
-    return new Scenario(id, newState, null, stubMappings);
+    return new Scenario(id, newState, stubMappings);
   }
 
   Scenario reset() {
-    return new Scenario(id, STARTED, null, stubMappings);
+    return new Scenario(id, STARTED, stubMappings);
   }
 
   Scenario withStubMapping(StubMapping stubMapping) {
     Set<StubMapping> newMappings =
         ImmutableSet.<StubMapping>builder().addAll(stubMappings).add(stubMapping).build();
 
-    return new Scenario(id, state, null, newMappings);
+    return new Scenario(id, state, newMappings);
   }
 
   Scenario withoutStubMapping(StubMapping stubMapping) {
     Set<StubMapping> newMappings = Sets.difference(stubMappings, ImmutableSet.of(stubMapping));
-    return new Scenario(id, state, null, newMappings);
+    return new Scenario(id, state, newMappings);
   }
 
   @Override
