@@ -514,6 +514,35 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
+  void returnsBadEntityWhenAttemptingToSetNonExistentScenarioState() {
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs("2")
+            .willSetStateTo(STARTED)
+            .willReturn(ok("2")));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/scenarios/my-scenario/state",
+            "{\"state\":\"non-existent-state\"}",
+            "application/json");
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonPartEquals(
+            "errors[0].title", "Scenario my-scenario does not support state non-existent-state"));
+  }
+
+  @Test
   public void defaultsUnspecifiedStubMappingAttributes() {
     WireMockResponse response = testClient.postJson("/__admin/mappings", "{}");
 

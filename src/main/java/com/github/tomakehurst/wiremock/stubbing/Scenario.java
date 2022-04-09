@@ -19,6 +19,8 @@ import static com.google.common.collect.FluentIterable.from;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -98,6 +100,11 @@ public class Scenario {
   }
 
   Scenario setState(String newState) {
+    if (!getPossibleStates().contains(newState)) {
+      throw new InvalidInputException(
+          Errors.single(11, "Scenario my-scenario does not support state " + newState));
+    }
+
     return new Scenario(id, newState, stubMappings);
   }
 
