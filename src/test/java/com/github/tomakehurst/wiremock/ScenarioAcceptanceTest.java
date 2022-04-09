@@ -295,4 +295,23 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   void throwsClientErrorWhenAttemptingToResetNonExistentScenario() {
     assertThrows(ClientError.class, () -> resetScenario("non-exist"));
   }
+
+  @Test
+  void throwsClientErrorWhenAttemptingToSetToNonExistentState() {
+    stubFor(
+        get("/one")
+            .inScenario("set-me")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    stubFor(
+        get("/one")
+            .inScenario("set-me")
+            .whenScenarioStateIs("2")
+            .willSetStateTo("3")
+            .willReturn(ok("2")));
+
+    assertThrows(ClientError.class, () -> setScenarioState("set-me", "non-exist"));
+  }
 }
