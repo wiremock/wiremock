@@ -20,8 +20,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
+import static java.util.Arrays.asList;
+import static net.javacrumbs.jsonunit.JsonMatchers.*;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -462,6 +462,33 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.content(), is("{}"));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
     assertThat(testClient.get("/stateful").content(), is("Initial"));
+  }
+
+  @Test
+  void getScenarios() {
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs("2")
+            .willSetStateTo("3")
+            .willReturn(ok("2")));
+    stubFor(get("/one").inScenario("my-scenario").whenScenarioStateIs("3").willReturn(ok("3")));
+
+    testClient.get("/one");
+
+    String body = testClient.get("/__admin/scenarios").content();
+    assertThat(body, jsonPartEquals("scenarios[0].id", "my-scenario"));
+    assertThat(body, jsonPartEquals("scenarios[0].name", "my-scenario"));
+    assertThat(body, jsonPartEquals("scenarios[0].state", "\"2\""));
+    assertThat(body, jsonPartEquals("scenarios[0].possibleStates", asList("2", "3", "Started")));
+    assertThat(body, jsonPartEquals("scenarios[0].mappings[0].request.url", "/one"));
   }
 
   @Test
