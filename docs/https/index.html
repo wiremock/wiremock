@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-08T19:19:36+01:00">
+  <meta property="article:published_time" content="2022-04-09T12:36:09+01:00">
   
     <link rel="next" href="https://wiremock.org/docs/" title="Home - WireMock User Documentation">
   
@@ -714,7 +714,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="WireMock can optionally accept requests over HTTPS. By default it will serve its own self-signed TLS certificate, but this can beoverridden if required by providing a keystore containing another certificate.">
-    <meta itemprop="datePublished" content="April 08, 2022">
+    <meta itemprop="datePublished" content="April 09, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -793,7 +793,7 @@ HTTP port with a client that’s expecting HTTPS (i.e. has https:// in the URL).
 <p><code class="language-plaintext highlighter-rouge">org.apache.hc.core5.http.NoHttpResponseException: The target server failed to respond</code>: Could mean you’ve tried to connect to the HTTPS port with a
 client expecting HTTP.</p>
 
-<p><code class="language-plaintext highlighter-rouge">javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target</code>: You are using WireMock’s default (self-signed) TLS certificate or another certificate that isn’t signed by a CA. In this case you need to specifically configure your HTTP client to trust the certificate being presented, or to trust all certificates. Here is an example of <a href="https://github.com/tomakehurst/wiremock/blob/2.33.0/src/main/java/com/github/tomakehurst/wiremock/http/HttpClientFactory.java">how to do this with the Apache HTTP client</a>.</p>
+<p><code class="language-plaintext highlighter-rouge">javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target</code>: You are using WireMock’s default (self-signed) TLS certificate or another certificate that isn’t signed by a CA. In this case you need to specifically configure your HTTP client to trust the certificate being presented, or to trust all certificates. Here is an example of <a href="https://github.com/tomakehurst/wiremock/blob/2.33.1/src/main/java/com/github/tomakehurst/wiremock/http/HttpClientFactory.java">how to do this with the Apache HTTP client</a>.</p>
 
         
       </section>
