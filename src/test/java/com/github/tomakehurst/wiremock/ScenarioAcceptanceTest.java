@@ -258,7 +258,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
     stubFor(get("/one").inScenario("reset-me").whenScenarioStateIs("2").willReturn(ok("2")));
 
-    testClient.get("/one");
+    assertThat(testClient.get("/one").content(), is("started"));
     assertThat(testClient.get("/one").content(), is("2"));
 
     resetScenario("reset-me");
@@ -283,7 +283,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok("2")));
     stubFor(get("/one").inScenario("set-me").whenScenarioStateIs("3").willReturn(ok("3")));
 
-    testClient.get("/one");
+    assertThat(testClient.get("/one").content(), is("started"));
     assertThat(testClient.get("/one").content(), is("2"));
     assertThat(testClient.get("/one").content(), is("3"));
 
