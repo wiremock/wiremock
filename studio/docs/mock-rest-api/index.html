@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-09T12:36:09+01:00">
+  <meta property="article:published_time" content="2022-04-11T18:10:16+01:00">
   
     <link rel="next" href="https://wiremock.org/studio/docs/proxying/" title="Proxying">
   
@@ -809,7 +809,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="REST is the dominant style of API at present and it’s common for web,mobile and microservice developers to have to integrate with at least a few andsometimes many REST APIs to the the job done.">
-    <meta itemprop="datePublished" content="April 09, 2022">
+    <meta itemprop="datePublished" content="April 11, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -969,9 +969,9 @@ clicking <img style="padding:0;vertical-align: middle; border: none; height: 30p
 
 <p><img alt="Query parameter matching" src="/images/screenshots/mock-rest-api/filtered-contacts-response.png" /></p>
 
-<p>You can find more detail on <a href="/docs/advanced-stubbing/#advanced-request-parameter-matching">matching different parts of incoming requests here</a>.</p>
+<p>You can find more detail on <a href="/studio/docs/advanced-stubbing/#advanced-request-parameter-matching">matching different parts of incoming requests here</a>.</p>
 
-<p><a href="/docs/request-matching/matcher-types/">See here for the full list of available request matchers</a> (such as <code class="language-plaintext highlighter-rouge">equalTo</code> and <code class="language-plaintext highlighter-rouge">contains</code>).</p>
+<p><a href="/studio/docs/request-matching/matcher-types/">See here for the full list of available request matchers</a> (such as <code class="language-plaintext highlighter-rouge">equalTo</code> and <code class="language-plaintext highlighter-rouge">contains</code>).</p>
 
 <h2 id="getting-an-individual-contact">Getting an individual contact</h2>
 
@@ -1034,7 +1034,7 @@ and some of the data randomised:</p>
   <li><code class="language-plaintext highlighter-rouge">dateAdded</code> is set to 3 months before today’s date.</li>
 </ul>
 
-<p>You can <a href="/docs/response-templating/basics/">learn more about response templating here</a> and <a href="/docs/request-matching/url/">more about URL matching here</a>.</p>
+<p>You can <a href="/studio/docs/response-templating/basics/">learn more about response templating here</a> and <a href="/studio/docs/request-matching/url/">more about URL matching here</a>.</p>
 
 <h2 id="creating-a-new-contact">Creating a new contact</h2>
 
@@ -1055,7 +1055,7 @@ at all will still yield the <code class="language-plaintext highlighter-rouge">2
 <p>If we want to ensure the stub is only matched when correctly structured JSON is
 sent in the request but without requiring a set of exact values, we can add a body
 matcher by clicking <img style="padding:0;vertical-align: middle; border: none; height: 30px" src="/images/screenshots/new-body-pattern-button.png" alt="New body matcher" />
- and use <a href="/docs/request-matching/json/#using-placeholders-to-ignore-specific-json-attributes">JSONUnit placeholders</a>
+ and use <a href="/studio/docs/request-matching/json/#using-placeholders-to-ignore-specific-json-attributes">JSONUnit placeholders</a>
 as wildcards:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
@@ -1157,7 +1157,7 @@ returned:</p>
 <p>The scenario will now remain in state “2 companies” until it is manually reset,
 which you can do by clicking <img style="padding:0;vertical-align: middle; border: none; height: 40px" src="/images/screenshots/scenario-reset-button.png" alt="Reset all scenarios" />, which resets all scenarios to “Started”.</p>
 
-<p>You can <a href="/docs/stateful-scenarios/">find out more about Scenarios here</a>.</p>
+<p>You can <a href="/studio/docs/stateful-scenarios/">find out more about Scenarios here</a>.</p>
 
 <h2 id="returning-errors-for-specific-requests">Returning errors for specific requests</h2>
 
@@ -1211,7 +1211,7 @@ This can be safely ignored as we’ve created our own request body.</p>
 <h3 id="other-types-of-error">Other types of error</h3>
 
 <p>You can also simulate lower-level errors with WireMock such as dropped network
-connections and delays. You can <a href="/docs/simulating-faults/">learn more about faults here</a>.</p>
+connections and delays. You can <a href="/studio/docs/simulating-faults/">learn more about faults here</a>.</p>
 
 <h2 id="conclusion">Conclusion</h2>
 

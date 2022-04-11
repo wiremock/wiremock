@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-09T12:36:09+01:00">
+  <meta property="article:published_time" content="2022-04-11T18:10:16+01:00">
   
     <link rel="next" href="https://wiremock.org/studio/docs/recording-stubs/" title="Recording Stubs">
   
@@ -809,7 +809,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="When working with an existing API it can be useful to pass some requests through to it for testing, whileserving stubbed responses for others.For instance, if an API is not yet fully implemented then testing progress can still be madefor the calling application by stubbing the parts not yet completed.">
-    <meta itemprop="datePublished" content="April 09, 2022">
+    <meta itemprop="datePublished" content="April 11, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -848,7 +848,7 @@ or will override the existing value if present.</p>
 <h2 id="templating-the-base-url">Templating the base URL</h2>
 
 <p>When the Enable templating check box is ticked, the base URL can be a handlebars template, meaning that properties from the
-incoming request can be used to determine the URL. See <a href="/docs/response-templating/">Response Templating</a> for details of the
+incoming request can be used to determine the URL. See <a href="/studio/docs/response-templating/">Response Templating</a> for details of the
 model and syntax used.</p>
 
 <p><img src="/images/screenshots/templated-proxy-response.png" title="Proxy response with templating" /></p>
@@ -862,10 +862,10 @@ errors that are hard to reliably replicate in the target API e.g.</p>
 <ul>
   <li>Return an HTTP 503 response</li>
   <li>Return response data in a format not expected by your app’s client</li>
-  <li>Close the connection prematurely without sending a response (see <a href="/docs/simulating-faults/">Simulating Faults</a>)</li>
+  <li>Close the connection prematurely without sending a response (see <a href="/studio/docs/simulating-faults/">Simulating Faults</a>)</li>
 </ul>
 
-<p>This can be achieved using a variation of the <a href="/docs/default-responses/">Default Responses</a> approach and setting the default response to Proxy:</p>
+<p>This can be achieved using a variation of the <a href="/studio/docs/default-responses/">Default Responses</a> approach and setting the default response to Proxy:</p>
 
 <p><img src="/images/screenshots/proxy-all-by-default-stub.png" title="Proxy all by default stub" /></p>
 
