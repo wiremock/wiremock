@@ -1,12 +1,17 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.common.Json;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public enum DataType {
 
@@ -35,8 +40,12 @@ public enum DataType {
             String fieldName = fieldNames.next();
             JsonNode nextNode = jsonNode.get(fieldName);
             JsonNodeType type = nextNode.getNodeType();
-            if (type.equals(JsonNodeType.STRING) && containsIn(nextNode.textValue()))
-                ((ObjectNode) jsonNode).replace(fieldName, JsonNodeFactory.instance.pojoNode(convertValue(nextNode.textValue())));
+            DataType dataType = getDataTypeIfRequired(nextNode.textValue());
+            if (type.equals(JsonNodeType.STRING) && Objects.nonNull(dataType))
+                ((ObjectNode) jsonNode).replace(
+                        fieldName,
+                        JsonNodeFactory.instance.pojoNode(convertValue(nextNode.textValue(), dataType))
+                );
             else handle(nextNode);
         }
     }
@@ -46,23 +55,22 @@ public enum DataType {
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode nextNode = arrayNode.get(i);
             JsonNodeType type = nextNode.getNodeType();
-            if (type.equals(JsonNodeType.STRING) && containsIn(nextNode.textValue()))
-                arrayNode.setPOJO(i, convertValue(nextNode.textValue()));
+            DataType dataType = getDataTypeIfRequired(nextNode.textValue());
+            if (type.equals(JsonNodeType.STRING) && Objects.nonNull(dataType))
+                arrayNode.setPOJO(i, convertValue(nextNode.textValue(), dataType));
             else handle(nextNode);
         }
     }
 
-    private static boolean containsIn(String value) {
-        return getFilteredStream(value).count() == 1;
+    private static DataType getDataTypeIfRequired(String value) {
+        List<DataType> dataTypes = Arrays.stream(values())
+                .filter(type -> value.contains(type.toString()))
+                .collect(Collectors.toList());
+        return dataTypes.size() == 1 ? dataTypes.get(0) : null;
     }
 
-    private static Stream<DataType> getFilteredStream(String value) {
-        return Arrays.stream(values()).filter(type -> value.contains(type.toString()));
-    }
-
-    private static Object convertValue(String value) {
+    private static Object convertValue(String value, DataType dataType) {
         Object result = null;
-        DataType dataType = getFilteredStream(value).collect(Collectors.toList()).get(0);
         if (!dataType.equals(DataType.__null))
             try {
                 result = Json.getObjectMapper().convertValue(value.replace(dataType.toString(), ""), dataType.CLASS);

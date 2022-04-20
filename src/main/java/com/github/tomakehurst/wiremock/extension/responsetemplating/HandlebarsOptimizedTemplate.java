@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.DataType;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class HandlebarsOptimizedTemplate {
 
@@ -70,11 +71,16 @@ public class HandlebarsOptimizedTemplate {
     String result = startContent
             + Exceptions.uncheck(() -> template.apply(context), String.class)
             + endContent;
-    try {
-      JsonNode json = Json.node(result);
-      DataType.handle(json);
-      result = json.toString();
-    } catch (JsonException ignore) {}
+    String finalResult = result;
+    boolean isDataTypeHandlingNeeded = Arrays.stream(DataType.values())
+            .anyMatch(dataType -> finalResult.contains(dataType.toString()));
+    if (isDataTypeHandlingNeeded) {
+      try {
+        JsonNode json = Json.node(result);
+        DataType.handle(json);
+        result = json.toString();
+      } catch (JsonException ignore) {}
+    }
     return result;
   }
 }
