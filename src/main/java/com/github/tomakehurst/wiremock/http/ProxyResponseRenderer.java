@@ -101,7 +101,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
 
-    httpRequest.setEntity(buildEntityFrom(responseDefinition.getOriginalRequest()));
+    Request originalRequest = responseDefinition.getOriginalRequest();
+    if (originalRequest.getBody() != null && originalRequest.getBody().length > 0) {
+      httpRequest.setEntity(buildEntityFrom(originalRequest));
+    }
     CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
     try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
       return response()
