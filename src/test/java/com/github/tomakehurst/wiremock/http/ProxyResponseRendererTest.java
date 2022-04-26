@@ -24,6 +24,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.spy;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
@@ -37,16 +39,21 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mockito;
 
 @DisabledForJreRange(
     min = JRE.JAVA_17,
@@ -146,15 +153,73 @@ public class ProxyResponseRendererTest {
         is(false));
   }
 
+  @Test
+  void doesNotAddEntityIfEmptyBodyReverseProxy() throws IOException {
+    CloseableHttpClient clientSpy =
+        reflectiveSpyField(CloseableHttpClient.class, "reverseProxyClient", proxyResponseRenderer);
+
+    ServeEvent serveEvent = reverseProxyServeEvent("/proxied");
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null));
+  }
+
+  @Test
+  void doesNotAddEntityIfEmptyBodyForwardProxy() throws IOException {
+    CloseableHttpClient clientSpy =
+        reflectiveSpyField(CloseableHttpClient.class, "forwardProxyClient", proxyResponseRenderer);
+
+    ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null));
+  }
+
+  @Test
+  void addsEntityIfNotEmptyBodyReverseProxy() throws IOException {
+    CloseableHttpClient clientSpy =
+        reflectiveSpyField(CloseableHttpClient.class, "reverseProxyClient", proxyResponseRenderer);
+
+    ServeEvent serveEvent =
+        serveEvent("/proxied", false, "Text body".getBytes(StandardCharsets.UTF_8));
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+  }
+
+  @Test
+  void addsEntityIfNotEmptyBodyForwardProxy() throws IOException {
+    CloseableHttpClient clientSpy =
+        reflectiveSpyField(CloseableHttpClient.class, "forwardProxyClient", proxyResponseRenderer);
+
+    ServeEvent serveEvent =
+        serveEvent("/proxied", true, "Text body".getBytes(StandardCharsets.UTF_8));
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+  }
+
+  private static <T> T reflectiveSpyField(Class<T> fieldType, String fieldName, Object object) {
+    try {
+      Field field = object.getClass().getDeclaredField(fieldName);
+      field.setAccessible(true);
+      T spy = spy(fieldType.cast(field.get(object)));
+      field.set(object, spy);
+      return spy;
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private ServeEvent reverseProxyServeEvent(String path) {
-    return serveEvent(path, false);
+    return serveEvent(path, false, new byte[0]);
   }
 
   private ServeEvent forwardProxyServeEvent(String path) {
-    return serveEvent(path, true);
+    return serveEvent(path, true, new byte[0]);
   }
 
-  private ServeEvent serveEvent(String path, boolean isBrowserProxyRequest) {
+  private ServeEvent serveEvent(String path, boolean isBrowserProxyRequest, byte[] body) {
     LoggedRequest loggedRequest =
         new LoggedRequest(
             /* url = */ path,
@@ -165,7 +230,7 @@ public class ProxyResponseRendererTest {
             /* cookies = */ new HashMap<String, Cookie>(),
             /* isBrowserProxyRequest = */ isBrowserProxyRequest,
             /* loggedDate = */ new Date(),
-            /* body = */ new byte[0],
+            /* body = */ body,
             /* multiparts = */ null);
     ResponseDefinition responseDefinition = aResponse().proxiedFrom(origin.baseUrl()).build();
     responseDefinition.setOriginalRequest(loggedRequest);
