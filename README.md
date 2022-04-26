@@ -7,7 +7,7 @@ WireMock - a web service test double for all occasions
 !!! Log4j notice !!!
 --------------------
 WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
-you can continue to use WireMock 2.32.0 without any risk of exposure to the recently discovered vulnerability. 
+you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability. 
 
 Key Features
 ------------
