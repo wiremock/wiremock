@@ -396,7 +396,8 @@ task 'bump-patch-version' {
       'ui/package.json'                                   : { "version: ${it}" },
       'ui/package-lock.json'                              : { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
-      'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+      'src/main/resources/swagger/wiremock-admin-api.yaml': {
+        "version: ${it}" }
     ]
 
     def currentVersion = project.version
@@ -423,7 +424,8 @@ task 'bump-minor-version' {
       'ui/package.json'                                   : { "version: ${it}" },
       'ui/package-lock.json'                              : { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
-      'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+      'src/main/resources/swagger/wiremock-admin-api.yaml': {
+        "version: ${it}" }
     ]
 
     def currentVersion = project.version
