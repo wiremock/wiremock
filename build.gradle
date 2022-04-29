@@ -368,6 +368,7 @@ task checkReleasePreconditions {
     def REQUIRED_GIT_BRANCH = 'master'
     def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
     assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
+    assert JavaVersion.current().isJava8(), 'Must use Java 8 when releasing'
   }
 }
 publish.dependsOn checkReleasePreconditions
