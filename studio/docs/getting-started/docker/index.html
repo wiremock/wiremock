@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-04-29T15:16:11+01:00">
+  <meta property="article:published_time" content="2022-05-04T13:50:44+01:00">
   
     <link rel="next" href="https://wiremock.org/studio/docs/getting-started/kubernetes/" title="WireMock Studio - Getting Started - Kubernetes">
   
@@ -809,7 +809,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="To start WireMock Studio in Docker locally, run the following in a shell:">
-    <meta itemprop="datePublished" content="April 29, 2022">
+    <meta itemprop="datePublished" content="May 04, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -824,9 +824,10 @@
         <p>To start WireMock Studio in Docker locally, run the following in a shell:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="se">\</span>
+  <span class="nt">--name</span> wiremock-studio <span class="se">\</span>
   <span class="nt">-p</span> 9000:9000 <span class="se">\</span>
   <span class="nt">-p</span> 8000-8100:8000-8100 <span class="se">\</span>
-  up9inc/wiremock-studio:2.32.0-17
+  up9inc/wiremock-studio:2.32.0-18
 </code></pre></div></div>
 
 <p>Note that WireMock Studio will assign new mock APIs to port 8000 and upwards, so we expose ports 8000 to 8100
@@ -844,10 +845,11 @@ If you want to run more than 100 mock APIs you’ll need to raise the upper limi
 <p>If you want to preserve your mock APIs and their stubs you can mount a volume to <code class="language-plaintext highlighter-rouge">/home/wiremock</code>. When running directly in Docker you could do something like this (first ensuring Docker has permission to mount the directory you’re in):</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-it</span> <span class="se">\</span>
+  <span class="nt">--name</span> wiremock-studio <span class="se">\</span>
   <span class="nt">-p</span> 9000:9000 <span class="se">\</span>
   <span class="nt">-p</span> 8000-8100:8000-8100 <span class="se">\</span>
   <span class="nt">-v</span> <span class="nv">$PWD</span>/wiremock:/home/wiremock <span class="se">\</span>
-  up9inc/wiremock-studio:2.32.0-17
+  up9inc/wiremock-studio:2.32.0-18
 </code></pre></div></div>
 
 <p>This will mount the wiremock subdirectory under the current directory as the root. This directory and its contents can be committed to source control.</p>
