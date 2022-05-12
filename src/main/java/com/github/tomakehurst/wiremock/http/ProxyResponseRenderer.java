@@ -102,7 +102,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     addRequestHeaders(httpRequest, responseDefinition);
 
     Request originalRequest = responseDefinition.getOriginalRequest();
-    if (originalRequest.getBody() != null && originalRequest.getBody().length > 0) {
+    if ((originalRequest.getBody() != null && originalRequest.getBody().length > 0)
+        || originalRequest.containsHeader(CONTENT_LENGTH)) {
       httpRequest.setEntity(buildEntityFrom(originalRequest));
     }
     CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
@@ -229,7 +230,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     return applyGzipWrapperIfRequired(
         originalRequest,
-        new ByteArrayEntity(originalRequest.getBody(), ContentType.DEFAULT_BINARY));
+        new ByteArrayEntity(
+            originalRequest.getBody(),
+            originalRequest.contentTypeHeader().isPresent() ? contentType : null));
   }
 
   private static HttpEntity applyGzipWrapperIfRequired(
