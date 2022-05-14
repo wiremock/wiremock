@@ -38,6 +38,8 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Function;
@@ -58,6 +60,7 @@ public class WireMockApp implements StubServer, Admin {
   public static final String MAPPINGS_ROOT = "mappings";
   private static final MutableBoolean FACTORIES_LOADING_OPTIMIZED = new MutableBoolean(false);
 
+  private final Stores stores;
   private final Scenarios scenarios;
   private final StubMappings stubMappings;
   private final RequestJournal requestJournal;
@@ -73,6 +76,8 @@ public class WireMockApp implements StubServer, Admin {
   private Options options;
 
   public WireMockApp(Options options, Container container) {
+    this.stores = new DefaultStores();
+
     if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
       Xml.optimizeFactoriesLoading();
       FACTORIES_LOADING_OPTIMIZED.setTrue();
@@ -98,6 +103,7 @@ public class WireMockApp implements StubServer, Admin {
     scenarios = new Scenarios();
     stubMappings =
         new InMemoryStubMappings(
+            stores.getStubStore(),
             scenarios,
             customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
@@ -123,6 +129,8 @@ public class WireMockApp implements StubServer, Admin {
       FileSource rootFileSource,
       Container container) {
 
+    this.stores = new DefaultStores();
+
     this.browserProxyingEnabled = browserProxyingEnabled;
     this.defaultMappingsLoader = defaultMappingsLoader;
     this.mappingsSaver = mappingsSaver;
@@ -134,6 +142,7 @@ public class WireMockApp implements StubServer, Admin {
     scenarios = new Scenarios();
     stubMappings =
         new InMemoryStubMappings(
+            stores.getStubStore(),
             scenarios,
             requestMatchers,
             transformers,
@@ -249,13 +258,14 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void removeStubMapping(StubMapping stubMapping) {
-    final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
-    if (maybeStub.isPresent()) {
-      StubMapping stubToDelete = maybeStub.get();
-      if (stubToDelete.shouldBePersisted()) {
-        mappingsSaver.remove(stubToDelete);
-      }
-    }
+    stubMappings
+        .get(stubMapping.getId())
+        .ifPresent(
+            stubToDelete -> {
+              if (stubToDelete.shouldBePersisted()) {
+                mappingsSaver.remove(stubToDelete);
+              }
+            });
 
     stubMappings.removeMapping(stubMapping);
   }

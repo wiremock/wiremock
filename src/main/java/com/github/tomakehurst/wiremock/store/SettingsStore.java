@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.store;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.util.Optional;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 
-public class SingleStubMappingResult extends SingleItemResult<StubMapping> {
+public interface SettingsStore {
 
-  @JsonCreator
-  public SingleStubMappingResult(StubMapping item) {
-    super(item);
-  }
+  GlobalSettings get();
 
-  public static SingleStubMappingResult fromOptional(Optional<StubMapping> optional) {
-    return new SingleStubMappingResult(optional.orElse(null));
-  }
+  void put(GlobalSettings newSettings);
 }

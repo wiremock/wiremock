@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.store;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.io.Serializable;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public class SingleStubMappingResult extends SingleItemResult<StubMapping> {
+public interface Store<T> {
 
-  @JsonCreator
-  public SingleStubMappingResult(StubMapping item) {
-    super(item);
-  }
+  Stream<Serializable> getAllKeys();
 
-  public static SingleStubMappingResult fromOptional(Optional<StubMapping> optional) {
-    return new SingleStubMappingResult(optional.orElse(null));
-  }
+  Optional<T> get(Serializable key);
+
+  void put(Serializable key, T content);
+
+  void remove(Serializable key);
+
+  void clear();
 }

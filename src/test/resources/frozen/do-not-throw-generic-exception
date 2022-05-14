@@ -15,4 +15,3 @@ Method <com.github.tomakehurst.wiremock.jetty9.JettyHttpServer.start()> calls co
 Method <com.github.tomakehurst.wiremock.jetty9.JettyHttpServer.start()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (JettyHttpServer.java:198)
 Method <com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.getBody()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (WireMockHttpServletRequestAdapter.java:144)
 Method <com.github.tomakehurst.wiremock.standalone.CommandLineOptions.captureHelpTextIfRequested(joptsimple.OptionParser)> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (CommandLineOptions.java:241)
-Method <com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings.editMapping(com.github.tomakehurst.wiremock.stubbing.StubMapping)> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (InMemoryStubMappings.java:150)
