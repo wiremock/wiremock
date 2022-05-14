@@ -76,14 +76,13 @@ public class WireMockApp implements StubServer, Admin {
   private Options options;
 
   public WireMockApp(Options options, Container container) {
-    this.stores = new DefaultStores();
-
     if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
       Xml.optimizeFactoriesLoading();
       FACTORIES_LOADING_OPTIMIZED.setTrue();
     }
 
     this.options = options;
+    this.stores = options.getStores();
 
     FileSource fileSource = options.filesRoot();
 

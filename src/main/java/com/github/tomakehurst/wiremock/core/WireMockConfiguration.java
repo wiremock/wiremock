@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
@@ -80,6 +82,7 @@ public class WireMockConfiguration implements Options {
   private final List<String> trustedProxyTargets = new ArrayList<>();
 
   private ProxySettings proxySettings = ProxySettings.NO_PROXY;
+  private Stores stores = new DefaultStores();
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
   private MappingsSource mappingsSource;
 
@@ -277,6 +280,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration proxyVia(ProxySettings proxySettings) {
     this.proxySettings = proxySettings;
+    return this;
+  }
+
+  public WireMockConfiguration withStores(Stores stores) {
+    this.stores = stores;
     return this;
   }
 
@@ -492,6 +500,11 @@ public class WireMockConfiguration implements Options {
   @Override
   public ProxySettings proxyVia() {
     return proxySettings;
+  }
+
+  @Override
+  public Stores getStores() {
+    return stores;
   }
 
   @Override

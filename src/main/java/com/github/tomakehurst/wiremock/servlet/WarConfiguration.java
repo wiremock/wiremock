@@ -31,6 +31,8 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
@@ -82,6 +84,11 @@ public class WarConfiguration implements Options {
   @Override
   public ProxySettings proxyVia() {
     return ProxySettings.NO_PROXY;
+  }
+
+  @Override
+  public Stores getStores() {
+    return new DefaultStores();
   }
 
   @Override
