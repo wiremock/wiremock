@@ -100,7 +100,7 @@ dependencies {
   testImplementation 'org.mockito:mockito-junit-jupiter:4.4.0'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
-  testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.1'
+  testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
   testImplementation 'org.awaitility:awaitility:4.2.0'
   testImplementation "com.googlecode.jarjar:jarjar:1.3"
   testImplementation "commons-io:commons-io:2.10.0"
