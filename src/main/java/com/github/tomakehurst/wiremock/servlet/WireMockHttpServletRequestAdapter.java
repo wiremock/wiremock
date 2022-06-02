@@ -58,23 +58,23 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private Collection<Part> cachedMultiparts;
 
   public WireMockHttpServletRequestAdapter(
-      HttpServletRequest request,
-      MultipartRequestConfigurer multipartRequestConfigurer,
-      String urlPrefixToRemove,
-      boolean browserProxyingEnabled) {
+          HttpServletRequest request,
+          MultipartRequestConfigurer multipartRequestConfigurer,
+          String urlPrefixToRemove,
+          boolean browserProxyingEnabled) {
     this.request = request;
     this.multipartRequestConfigurer = multipartRequestConfigurer;
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
 
     cachedQueryParams =
-        Suppliers.memoize(
-            new Supplier<Map<String, QueryParameter>>() {
-              @Override
-              public Map<String, QueryParameter> get() {
-                return splitQuery(request.getQueryString());
-              }
-            });
+            Suppliers.memoize(
+                    new Supplier<Map<String, QueryParameter>>() {
+                      @Override
+                      public Map<String, QueryParameter> get() {
+                        return splitQuery(request.getQueryString());
+                      }
+                    });
   }
 
   @Override
@@ -214,9 +214,9 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private static HttpHeaders getHeadersLinear(org.eclipse.jetty.server.Request request) {
     org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
     List<HttpHeader> headers =
-        jettyRequest.getHttpFields().stream()
-            .map(field -> HttpHeader.httpHeader(field.getName(), field.getValue()))
-            .collect(Collectors.toList());
+            jettyRequest.getHttpFields().stream()
+                    .map(field -> HttpHeader.httpHeader(field.getName(), field.getValue()))
+                    .collect(Collectors.toList());
     return new HttpHeaders(headers);
   }
 
@@ -234,7 +234,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public Set<String> getAllHeaderKeys() {
     LinkedHashSet<String> headerKeys = new LinkedHashSet<>();
     for (Enumeration<String> headerNames = request.getHeaderNames();
-        headerNames.hasMoreElements(); ) {
+         headerNames.hasMoreElements(); ) {
       headerKeys.add(headerNames.nextElement());
     }
 
@@ -246,13 +246,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
     javax.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
+            firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
     for (javax.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
 
     return Maps.transformValues(
-        builder.build().asMap(), input -> new Cookie(null, ImmutableList.copyOf(input)));
+            builder.build().asMap(), input -> new Cookie(null, ImmutableList.copyOf(input)));
   }
 
   @Override
@@ -306,14 +306,14 @@ public class WireMockHttpServletRequestAdapter implements Request {
       }
     }
     return from(cachedMultiparts)
-        .firstMatch(
-            new Predicate<Part>() {
-              @Override
-              public boolean apply(Part input) {
-                return name.equals(input.getName());
-              }
-            })
-        .get();
+            .firstMatch(
+                    new Predicate<Part>() {
+                      @Override
+                      public boolean apply(Part input) {
+                        return name.equals(input.getName());
+                      }
+                    })
+            .get();
   }
 
   @Override
@@ -325,5 +325,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public String toString() {
     return request.toString() + getBodyAsString();
+  }
+
+  @Override
+  public String getProtocol() {
+    return request.getProtocol();
   }
 }

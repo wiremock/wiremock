@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,31 +47,31 @@ public class RequestWrapper implements Request {
 
   public RequestWrapper(Request delegate) {
     this(
-        delegate,
-        null,
-        null,
-        Collections.<HttpHeader>emptyList(),
-        Collections.<String>emptyList(),
-        Collections.<CaseInsensitiveKey, FieldTransformer<List<String>>>emptyMap(),
-        Collections.<String, Cookie>emptyMap(),
-        Collections.<String>emptyList(),
-        Collections.<String, FieldTransformer<Cookie>>emptyMap(),
-        null,
-        null);
+            delegate,
+            null,
+            null,
+            Collections.<HttpHeader>emptyList(),
+            Collections.<String>emptyList(),
+            Collections.<CaseInsensitiveKey, FieldTransformer<List<String>>>emptyMap(),
+            Collections.<String, Cookie>emptyMap(),
+            Collections.<String>emptyList(),
+            Collections.<String, FieldTransformer<Cookie>>emptyMap(),
+            null,
+            null);
   }
 
   public RequestWrapper(
-      Request delegate,
-      RequestMethod method,
-      FieldTransformer<String> absoluteUrlTransformer,
-      List<HttpHeader> addedHeaders,
-      List<String> removedHeaders,
-      Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers,
-      Map<String, Cookie> additionalCookies,
-      List<String> cookiesToRemove,
-      Map<String, FieldTransformer<Cookie>> cookieTransformers,
-      FieldTransformer<Body> bodyTransformer,
-      FieldTransformer<Part> multipartTransformer) {
+          Request delegate,
+          RequestMethod method,
+          FieldTransformer<String> absoluteUrlTransformer,
+          List<HttpHeader> addedHeaders,
+          List<String> removedHeaders,
+          Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers,
+          Map<String, Cookie> additionalCookies,
+          List<String> cookiesToRemove,
+          Map<String, FieldTransformer<Cookie>> cookieTransformers,
+          FieldTransformer<Body> bodyTransformer,
+          FieldTransformer<Part> multipartTransformer) {
     this.delegate = delegate;
 
     this.method = method;
@@ -94,9 +94,9 @@ public class RequestWrapper implements Request {
   public String getUrl() {
     String absoluteUrl = getAbsoluteUrl();
     int relativeStartIndex =
-        countMatches(absoluteUrl, "/") >= 3
-            ? ordinalIndexOf(absoluteUrl, "/", 3)
-            : absoluteUrl.length();
+            countMatches(absoluteUrl, "/") >= 3
+                    ? ordinalIndexOf(absoluteUrl, "/", 3)
+                    : absoluteUrl.length();
     return absoluteUrl.substring(relativeStartIndex);
   }
 
@@ -154,30 +154,30 @@ public class RequestWrapper implements Request {
     Collection<HttpHeader> existingHeaders = delegate.getHeaders().all();
 
     List<HttpHeader> combinedHeaders =
-        from(existingHeaders)
-            .append(addedHeaders)
-            .filter(
-                new Predicate<HttpHeader>() {
-                  @Override
-                  public boolean apply(HttpHeader httpHeader) {
-                    return !removedHeaders.contains(httpHeader.key());
-                  }
-                })
-            .transform(
-                new Function<HttpHeader, HttpHeader>() {
-                  @Override
-                  public HttpHeader apply(HttpHeader httpHeader) {
-                    if (headerTransformers.containsKey(httpHeader.caseInsensitiveKey())) {
-                      FieldTransformer<List<String>> transformer =
-                          headerTransformers.get(httpHeader.caseInsensitiveKey());
-                      List<String> newValues = transformer.transform(httpHeader.values());
-                      return new HttpHeader(httpHeader.key(), newValues);
-                    }
+            from(existingHeaders)
+                    .append(addedHeaders)
+                    .filter(
+                            new Predicate<HttpHeader>() {
+                              @Override
+                              public boolean apply(HttpHeader httpHeader) {
+                                return !removedHeaders.contains(httpHeader.key());
+                              }
+                            })
+                    .transform(
+                            new Function<HttpHeader, HttpHeader>() {
+                              @Override
+                              public HttpHeader apply(HttpHeader httpHeader) {
+                                if (headerTransformers.containsKey(httpHeader.caseInsensitiveKey())) {
+                                  FieldTransformer<List<String>> transformer =
+                                          headerTransformers.get(httpHeader.caseInsensitiveKey());
+                                  List<String> newValues = transformer.transform(httpHeader.values());
+                                  return new HttpHeader(httpHeader.key(), newValues);
+                                }
 
-                    return httpHeader;
-                  }
-                })
-            .toList();
+                                return httpHeader;
+                              }
+                            })
+                    .toList();
     return new HttpHeaders(combinedHeaders);
   }
 
@@ -196,9 +196,9 @@ public class RequestWrapper implements Request {
     ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
     for (Map.Entry<String, Cookie> entry : delegate.getCookies().entrySet()) {
       Cookie newCookie =
-          cookieTransformers.containsKey(entry.getKey())
-              ? cookieTransformers.get(entry.getKey()).transform(entry.getValue())
-              : entry.getValue();
+              cookieTransformers.containsKey(entry.getKey())
+                      ? cookieTransformers.get(entry.getKey()).transform(entry.getValue())
+                      : entry.getValue();
 
       if (!cookiesToRemove.contains(entry.getKey())) {
         builder.put(entry.getKey(), newCookie);
@@ -250,14 +250,14 @@ public class RequestWrapper implements Request {
     }
 
     return from(delegate.getParts())
-        .transform(
-            new Function<Part, Part>() {
-              @Override
-              public Part apply(Part part) {
-                return multipartTransformer.transform(part);
-              }
-            })
-        .toList();
+            .transform(
+                    new Function<Part, Part>() {
+                      @Override
+                      public Part apply(Part part) {
+                        return multipartTransformer.transform(part);
+                      }
+                    })
+            .toList();
   }
 
   @Override
@@ -279,6 +279,11 @@ public class RequestWrapper implements Request {
     return delegate.getOriginalRequest();
   }
 
+  @Override
+  public String getProtocol() {
+    return delegate.getProtocol();
+  }
+
   public static class Builder {
 
     private RequestMethod requestMethod;
@@ -287,7 +292,7 @@ public class RequestWrapper implements Request {
     private final List<HttpHeader> additionalHeaders = newArrayList();
     private final List<String> headersToRemove = newArrayList();
     private final Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers =
-        newHashMap();
+            newHashMap();
 
     private final Map<String, Cookie> additionalCookies = newHashMap();
     private final List<String> cookiesToRemove = newArrayList();
@@ -323,17 +328,17 @@ public class RequestWrapper implements Request {
 
     public Request wrap(Request request) {
       return new RequestWrapper(
-          request,
-          requestMethod,
-          absoluteUrlTransformer,
-          additionalHeaders,
-          headersToRemove,
-          headerTransformers,
-          additionalCookies,
-          cookiesToRemove,
-          cookieTransformers,
-          bodyTransformer,
-          mutlipartTransformer);
+              request,
+              requestMethod,
+              absoluteUrlTransformer,
+              additionalHeaders,
+              headersToRemove,
+              headerTransformers,
+              additionalCookies,
+              cookiesToRemove,
+              cookieTransformers,
+              bodyTransformer,
+              mutlipartTransformer);
     }
 
     public Builder transformBody(FieldTransformer<Body> transformer) {

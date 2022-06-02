@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,58 +56,63 @@ public class LoggedRequest implements Request {
   private final boolean isBrowserProxyRequest;
   private final Date loggedDate;
   private final Collection<Part> multiparts;
+  private final String protocol;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
-        request.getUrl(),
-        request.getAbsoluteUrl(),
-        request.getMethod(),
-        request.getClientIp(),
-        request.getHeaders(),
-        request.getCookies(),
-        request.isBrowserProxyRequest(),
-        new Date(),
-        request.getBody(),
-        request.getParts());
+            request.getUrl(),
+            request.getAbsoluteUrl(),
+            request.getMethod(),
+            request.getClientIp(),
+            request.getHeaders(),
+            request.getCookies(),
+            request.isBrowserProxyRequest(),
+            new Date(),
+            request.getBody(),
+            request.getParts(),
+            request.getProtocol());
   }
 
   @JsonCreator
   public LoggedRequest(
-      @JsonProperty("url") String url,
-      @JsonProperty("absoluteUrl") String absoluteUrl,
-      @JsonProperty("method") RequestMethod method,
-      @JsonProperty("clientIp") String clientIp,
-      @JsonProperty("headers") HttpHeaders headers,
-      @JsonProperty("cookies") Map<String, Cookie> cookies,
-      @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-      @JsonProperty("loggedDate") Date loggedDate,
-      @JsonProperty("bodyAsBase64") String bodyAsBase64,
-      @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
-      @JsonProperty("multiparts") Collection<Part> multiparts) {
+          @JsonProperty("url") String url,
+          @JsonProperty("absoluteUrl") String absoluteUrl,
+          @JsonProperty("method") RequestMethod method,
+          @JsonProperty("clientIp") String clientIp,
+          @JsonProperty("headers") HttpHeaders headers,
+          @JsonProperty("cookies") Map<String, Cookie> cookies,
+          @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+          @JsonProperty("loggedDate") Date loggedDate,
+          @JsonProperty("bodyAsBase64") String bodyAsBase64,
+          @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
+          @JsonProperty("multiparts") Collection<Part> multiparts,
+          @JsonProperty("protocol") String protocol) {
     this(
-        url,
-        absoluteUrl,
-        method,
-        clientIp,
-        headers,
-        cookies,
-        isBrowserProxyRequest,
-        loggedDate,
-        decodeBase64(bodyAsBase64),
-        multiparts);
+            url,
+            absoluteUrl,
+            method,
+            clientIp,
+            headers,
+            cookies,
+            isBrowserProxyRequest,
+            loggedDate,
+            decodeBase64(bodyAsBase64),
+            multiparts,
+            protocol);
   }
 
   public LoggedRequest(
-      String url,
-      String absoluteUrl,
-      RequestMethod method,
-      String clientIp,
-      HttpHeaders headers,
-      Map<String, Cookie> cookies,
-      boolean isBrowserProxyRequest,
-      Date loggedDate,
-      byte[] body,
-      Collection<Part> multiparts) {
+          String url,
+          String absoluteUrl,
+          RequestMethod method,
+          String clientIp,
+          HttpHeaders headers,
+          Map<String, Cookie> cookies,
+          boolean isBrowserProxyRequest,
+          Date loggedDate,
+          byte[] body,
+          Collection<Part> multiparts,
+          String protocol) {
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
@@ -131,6 +136,7 @@ public class LoggedRequest implements Request {
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
     this.multiparts = multiparts;
+    this.protocol = protocol;
   }
 
   @Override
@@ -258,6 +264,11 @@ public class LoggedRequest implements Request {
     return Optional.absent();
   }
 
+  @Override
+  public String getProtocol() {
+    return protocol;
+  }
+
   public Date getLoggedDate() {
     return loggedDate;
   }
@@ -287,15 +298,15 @@ public class LoggedRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (multiparts != null && name != null)
-        ? from(multiparts)
+            ? from(multiparts)
             .firstMatch(
-                new Predicate<Part>() {
-                  @Override
-                  public boolean apply(Part input) {
-                    return (name.equals(input.getName()));
-                  }
-                })
+                    new Predicate<Part>() {
+                      @Override
+                      public boolean apply(Part input) {
+                        return (name.equals(input.getName()));
+                      }
+                    })
             .get()
-        : null;
+            : null;
   }
 }

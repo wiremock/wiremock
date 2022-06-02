@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,11 @@ public class Response {
   private final boolean fromProxy;
   private final long initialDelay;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
+  private String protocol;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND, null, (byte[]) null, noHeaders(), false, null, 0, null, false);
+            HTTP_NOT_FOUND, null, (byte[]) null, noHeaders(), false, null, 0, null, false);
   }
 
   public static Builder response() {
@@ -50,15 +51,15 @@ public class Response {
   }
 
   public Response(
-      int status,
-      String statusMessage,
-      byte[] body,
-      HttpHeaders headers,
-      boolean configured,
-      Fault fault,
-      long initialDelay,
-      ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+          int status,
+          String statusMessage,
+          byte[] body,
+          HttpHeaders headers,
+          boolean configured,
+          Fault fault,
+          long initialDelay,
+          ChunkedDribbleDelay chunkedDribbleDelay,
+          boolean fromProxy) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.bodyStreamSource = StreamSources.forBytes(body);
@@ -71,15 +72,15 @@ public class Response {
   }
 
   public Response(
-      int status,
-      String statusMessage,
-      InputStreamSource streamSource,
-      HttpHeaders headers,
-      boolean configured,
-      Fault fault,
-      long initialDelay,
-      ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+          int status,
+          String statusMessage,
+          InputStreamSource streamSource,
+          HttpHeaders headers,
+          boolean configured,
+          Fault fault,
+          long initialDelay,
+          ChunkedDribbleDelay chunkedDribbleDelay,
+          boolean fromProxy) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.bodyStreamSource = streamSource;
@@ -92,15 +93,15 @@ public class Response {
   }
 
   public Response(
-      int status,
-      String statusMessage,
-      String body,
-      HttpHeaders headers,
-      boolean configured,
-      Fault fault,
-      long initialDelay,
-      ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+          int status,
+          String statusMessage,
+          String body,
+          HttpHeaders headers,
+          boolean configured,
+          Fault fault,
+          long initialDelay,
+          ChunkedDribbleDelay chunkedDribbleDelay,
+          boolean fromProxy) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.headers = headers;
@@ -170,11 +171,7 @@ public class Response {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("HTTP/1.1 ").append(status).append("\n");
-    sb.append(headers).append("\n");
-    // no longer printing body
-    return sb.toString();
+    return protocol + " " + status + "\n" + headers;
   }
 
   public static class Builder {
@@ -255,10 +252,10 @@ public class Response {
     }
 
     public Builder configureDelay(
-        Integer globalFixedDelay,
-        DelayDistribution globalDelayDistribution,
-        Integer fixedDelay,
-        DelayDistribution delayDistribution) {
+            Integer globalFixedDelay,
+            DelayDistribution globalDelayDistribution,
+            Integer fixedDelay,
+            DelayDistribution delayDistribution) {
       addDelayIfSpecifiedGloballyOrIn(fixedDelay, globalFixedDelay);
       addRandomDelayIfSpecifiedGloballyOrIn(delayDistribution, globalDelayDistribution);
       return this;
@@ -266,21 +263,21 @@ public class Response {
 
     private void addDelayIfSpecifiedGloballyOrIn(Integer fixedDelay, Integer globalFixedDelay) {
       Optional<Integer> optionalDelay =
-          getDelayFromResponseOrGlobalSetting(fixedDelay, globalFixedDelay);
+              getDelayFromResponseOrGlobalSetting(fixedDelay, globalFixedDelay);
       if (optionalDelay.isPresent()) {
         incrementInitialDelay(optionalDelay.get());
       }
     }
 
     private Optional<Integer> getDelayFromResponseOrGlobalSetting(
-        Integer fixedDelay, Integer globalFixedDelay) {
+            Integer fixedDelay, Integer globalFixedDelay) {
       Integer delay = fixedDelay != null ? fixedDelay : globalFixedDelay;
 
       return Optional.fromNullable(delay);
     }
 
     private void addRandomDelayIfSpecifiedGloballyOrIn(
-        DelayDistribution localDelayDistribution, DelayDistribution globalDelayDistribution) {
+            DelayDistribution localDelayDistribution, DelayDistribution globalDelayDistribution) {
       DelayDistribution delayDistribution;
 
       if (localDelayDistribution != null) {
@@ -312,49 +309,53 @@ public class Response {
     public Response build() {
       if (bodyBytes != null) {
         return new Response(
-            status,
-            statusMessage,
-            bodyBytes,
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+                status,
+                statusMessage,
+                bodyBytes,
+                headers,
+                configured,
+                fault,
+                initialDelay,
+                chunkedDribbleDelay,
+                fromProxy);
       } else if (bodyString != null) {
         return new Response(
-            status,
-            statusMessage,
-            bodyString,
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+                status,
+                statusMessage,
+                bodyString,
+                headers,
+                configured,
+                fault,
+                initialDelay,
+                chunkedDribbleDelay,
+                fromProxy);
       } else if (bodyStream != null) {
         return new Response(
-            status,
-            statusMessage,
-            bodyStream,
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+                status,
+                statusMessage,
+                bodyStream,
+                headers,
+                configured,
+                fault,
+                initialDelay,
+                chunkedDribbleDelay,
+                fromProxy);
       } else {
         return new Response(
-            status,
-            statusMessage,
-            new byte[0],
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+                status,
+                statusMessage,
+                new byte[0],
+                headers,
+                configured,
+                fault,
+                initialDelay,
+                chunkedDribbleDelay,
+                fromProxy);
       }
     }
+  }
+
+  public void setProtocol(final String protocol) {
+    this.protocol = protocol;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,32 +60,45 @@ public class StubRequestHandlerTest {
     requestJournal = mock(RequestJournal.class);
 
     requestHandler =
-        new StubRequestHandler(
-            stubServer,
-            responseRenderer,
-            admin,
-            Collections.<String, PostServeAction>emptyMap(),
-            requestJournal,
-            Collections.<RequestFilter>emptyList(),
-            false);
+            new StubRequestHandler(
+                    stubServer,
+                    responseRenderer,
+                    admin,
+                    Collections.<String, PostServeAction>emptyMap(),
+                    requestJournal,
+                    Collections.<RequestFilter>emptyList(),
+                    false);
   }
 
   @Test
   public void returnsResponseIndicatedByMappings() {
     when(stubServer.serveStubFor(any(Request.class)))
-        .thenReturn(
-            ServeEvent.of(
-                mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")));
+            .thenReturn(
+                    ServeEvent.of(
+                            mockRequest().protocol("HTTP/2").asLoggedRequest(),
+                            new ResponseDefinition(200, "Body content")));
 
-    Response mockResponse = response().status(200).body("Body content").build();
+    Response mockResponse =
+            response()
+                    .status(200)
+                    .body("Body content")
+                    .headers(
+                            new HttpHeaders(
+                                    new HttpHeader("Content-Type", "application/json"),
+                                    new HttpHeader("Matched-Stub-Id", "123")))
+                    .build();
     when(responseRenderer.render(any(ServeEvent.class))).thenReturn(mockResponse);
 
-    Request request = aRequest().withUrl("/the/required/resource").withMethod(GET).build();
+    Request request =
+            aRequest().withUrl("/the/required/resource").withMethod(GET).withProtocol("HTTP/2").build();
     requestHandler.handle(request, httpResponder);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(200));
     assertThat(response.getBodyAsString(), is("Body content"));
+    assertThat(
+            response.toString(),
+            is("HTTP/2 200\nContent-Type: [application/json]\nMatched-Stub-Id: [123]\n"));
   }
 
   @Test
@@ -95,8 +108,8 @@ public class StubRequestHandlerTest {
     requestHandler.addRequestListener(listener);
 
     doReturn(ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured()))
-        .when(stubServer)
-        .serveStubFor(request);
+            .when(stubServer)
+            .serveStubFor(request);
     when(responseRenderer.render(any(ServeEvent.class))).thenReturn(new Response.Builder().build());
 
     requestHandler.handle(request, httpResponder);
@@ -108,8 +121,8 @@ public class StubRequestHandlerTest {
     final Request request = aRequest().withUrl("/").withMethod(GET).withClientIp("1.2.3.5").build();
 
     doReturn(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request)))
-        .when(stubServer)
-        .serveStubFor(request);
+            .when(stubServer)
+            .serveStubFor(request);
     when(responseRenderer.render(any(ServeEvent.class))).thenReturn(new Response.Builder().build());
 
     TestNotifier notifier = TestNotifier.createAndSet();
