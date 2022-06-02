@@ -4,7 +4,7 @@ WireMock - a web service test double for all occasions
 [![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
-!!! Log4j notice !!
+!!! Log4j notice !!!
 --------------------
 WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
 you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability. 
