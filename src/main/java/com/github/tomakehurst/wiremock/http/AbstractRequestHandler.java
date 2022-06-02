@@ -33,7 +33,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
   protected final List<RequestFilter> requestFilters;
 
   public AbstractRequestHandler(
-          ResponseRenderer responseRenderer, List<RequestFilter> requestFilters) {
+      ResponseRenderer responseRenderer, List<RequestFilter> requestFilters) {
     this.responseRenderer = responseRenderer;
     this.requestFilters = requestFilters;
   }
@@ -55,15 +55,15 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     Request processedRequest = request;
     if (!requestFilters.isEmpty()) {
       RequestFilterAction requestFilterAction =
-              processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
+          processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
       if (requestFilterAction instanceof ContinueAction) {
         processedRequest = ((ContinueAction) requestFilterAction).getRequest();
         serveEvent = handleRequest(processedRequest);
       } else {
         serveEvent =
-                ServeEvent.of(
-                        LoggedRequest.createFrom(request),
-                        ((StopAction) requestFilterAction).getResponseDefinition());
+            ServeEvent.of(
+                LoggedRequest.createFrom(request),
+                ((StopAction) requestFilterAction).getResponseDefinition());
       }
     } else {
       serveEvent = handleRequest(request);
@@ -74,17 +74,17 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     Response response = responseRenderer.render(serveEvent);
     response.setProtocol(request.getProtocol());
     ServeEvent completedServeEvent =
-            serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
+        serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
     if (logRequests()) {
       notifier()
-              .info(
-                      "Request received:\n"
-                              + formatRequest(processedRequest)
-                              + "\n\nMatched response definition:\n"
-                              + responseDefinition
-                              + "\n\nResponse:\n"
-                              + response);
+          .info(
+              "Request received:\n"
+                  + formatRequest(processedRequest)
+                  + "\n\nMatched response definition:\n"
+                  + responseDefinition
+                  + "\n\nResponse:\n"
+                  + response);
     }
 
     for (RequestListener listener : listeners) {
@@ -105,10 +105,10 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
   protected String formatRequest(Request request) {
     StringBuilder sb = new StringBuilder();
     sb.append(request.getClientIp())
-            .append(" - ")
-            .append(request.getMethod())
-            .append(" ")
-            .append(request.getUrl());
+        .append(" - ")
+        .append(request.getMethod())
+        .append(" ")
+        .append(request.getUrl());
 
     if (request.isBrowserProxyRequest()) {
       sb.append(" (via browser proxy request)");

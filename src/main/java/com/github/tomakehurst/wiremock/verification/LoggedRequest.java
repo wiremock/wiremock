@@ -60,59 +60,59 @@ public class LoggedRequest implements Request {
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
-            request.getUrl(),
-            request.getAbsoluteUrl(),
-            request.getMethod(),
-            request.getClientIp(),
-            request.getHeaders(),
-            request.getCookies(),
-            request.isBrowserProxyRequest(),
-            new Date(),
-            request.getBody(),
-            request.getParts(),
-            request.getProtocol());
+        request.getUrl(),
+        request.getAbsoluteUrl(),
+        request.getMethod(),
+        request.getClientIp(),
+        request.getHeaders(),
+        request.getCookies(),
+        request.isBrowserProxyRequest(),
+        new Date(),
+        request.getBody(),
+        request.getParts(),
+        request.getProtocol());
   }
 
   @JsonCreator
   public LoggedRequest(
-          @JsonProperty("url") String url,
-          @JsonProperty("absoluteUrl") String absoluteUrl,
-          @JsonProperty("method") RequestMethod method,
-          @JsonProperty("clientIp") String clientIp,
-          @JsonProperty("headers") HttpHeaders headers,
-          @JsonProperty("cookies") Map<String, Cookie> cookies,
-          @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-          @JsonProperty("loggedDate") Date loggedDate,
-          @JsonProperty("bodyAsBase64") String bodyAsBase64,
-          @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
-          @JsonProperty("multiparts") Collection<Part> multiparts,
-          @JsonProperty("protocol") String protocol) {
+      @JsonProperty("url") String url,
+      @JsonProperty("absoluteUrl") String absoluteUrl,
+      @JsonProperty("method") RequestMethod method,
+      @JsonProperty("clientIp") String clientIp,
+      @JsonProperty("headers") HttpHeaders headers,
+      @JsonProperty("cookies") Map<String, Cookie> cookies,
+      @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+      @JsonProperty("loggedDate") Date loggedDate,
+      @JsonProperty("bodyAsBase64") String bodyAsBase64,
+      @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
+      @JsonProperty("multiparts") Collection<Part> multiparts,
+      @JsonProperty("protocol") String protocol) {
     this(
-            url,
-            absoluteUrl,
-            method,
-            clientIp,
-            headers,
-            cookies,
-            isBrowserProxyRequest,
-            loggedDate,
-            decodeBase64(bodyAsBase64),
-            multiparts,
-            protocol);
+        url,
+        absoluteUrl,
+        method,
+        clientIp,
+        headers,
+        cookies,
+        isBrowserProxyRequest,
+        loggedDate,
+        decodeBase64(bodyAsBase64),
+        multiparts,
+        protocol);
   }
 
   public LoggedRequest(
-          String url,
-          String absoluteUrl,
-          RequestMethod method,
-          String clientIp,
-          HttpHeaders headers,
-          Map<String, Cookie> cookies,
-          boolean isBrowserProxyRequest,
-          Date loggedDate,
-          byte[] body,
-          Collection<Part> multiparts,
-          String protocol) {
+      String url,
+      String absoluteUrl,
+      RequestMethod method,
+      String clientIp,
+      HttpHeaders headers,
+      Map<String, Cookie> cookies,
+      boolean isBrowserProxyRequest,
+      Date loggedDate,
+      byte[] body,
+      Collection<Part> multiparts,
+      String protocol) {
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
@@ -298,15 +298,15 @@ public class LoggedRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (multiparts != null && name != null)
-            ? from(multiparts)
+        ? from(multiparts)
             .firstMatch(
-                    new Predicate<Part>() {
-                      @Override
-                      public boolean apply(Part input) {
-                        return (name.equals(input.getName()));
-                      }
-                    })
+                new Predicate<Part>() {
+                  @Override
+                  public boolean apply(Part input) {
+                    return (name.equals(input.getName()));
+                  }
+                })
             .get()
-            : null;
+        : null;
   }
 }

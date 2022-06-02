@@ -177,7 +177,7 @@ public class MockRequest implements Request {
                 return input.keyEquals(key);
               }
             })
-            .or(HttpHeader.absent(key));
+        .or(HttpHeader.absent(key));
   }
 
   @Override
@@ -258,27 +258,27 @@ public class MockRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (getParts() != null && name != null)
-            ? from(multiparts)
+        ? from(multiparts)
             .firstMatch(
-                    new Predicate<Part>() {
-                      @Override
-                      public boolean apply(Part input) {
-                        if (name.equals(input.getName())) {
-                          return true;
-                        }
-                        return false;
-                      }
-                    })
+                new Predicate<Part>() {
+                  @Override
+                  public boolean apply(Part input) {
+                    if (name.equals(input.getName())) {
+                      return true;
+                    }
+                    return false;
+                  }
+                })
             .get()
-            : null;
+        : null;
   }
 
   public MockRequest multipartBody(String body) {
     ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();
     String contentType =
-            contentTypeHeader.isPresent()
-                    ? contentTypeHeader.firstValue()
-                    : "multipart/form-data; boundary=BOUNDARY";
+        contentTypeHeader.isPresent()
+            ? contentTypeHeader.firstValue()
+            : "multipart/form-data; boundary=BOUNDARY";
     this.multiparts = MultipartParser.parse(bytesFromString(body), contentType);
 
     return this;
