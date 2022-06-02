@@ -72,7 +72,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
     responseDefinition.setOriginalRequest(processedRequest);
     Response response = responseRenderer.render(serveEvent);
-    response.setProtocol(request.getProtocol());
+    response = Response.Builder.like(response).protocol(request.getProtocol()).build();
     ServeEvent completedServeEvent =
         serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
