@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,8 @@ public class LoggedRequestTest {
             loggedDate,
             REQUEST_BODY_AS_BASE64,
             null,
-            null);
+            null,
+            "HTTP/1.1");
 
     String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
 
@@ -142,7 +143,8 @@ public class LoggedRequestTest {
             null,
             REQUEST_BODY_AS_BASE64,
             null,
-            null);
+            null,
+            "HTTP/1.1");
 
     assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
   }
@@ -182,7 +184,8 @@ public class LoggedRequestTest {
             new Date(0),
             null,
             null,
-            null);
+            null,
+            "HTTP/1.1");
 
     Map<String, Object> reqMap = Json.objectToMap(req);
 

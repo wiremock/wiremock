@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ public class LoggedRequest implements Request {
   private final boolean isBrowserProxyRequest;
   private final Date loggedDate;
   private final Collection<Part> multiparts;
+  private final String protocol;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
@@ -68,7 +69,8 @@ public class LoggedRequest implements Request {
         request.isBrowserProxyRequest(),
         new Date(),
         request.getBody(),
-        request.getParts());
+        request.getParts(),
+        request.getProtocol());
   }
 
   @JsonCreator
@@ -83,7 +85,8 @@ public class LoggedRequest implements Request {
       @JsonProperty("loggedDate") Date loggedDate,
       @JsonProperty("bodyAsBase64") String bodyAsBase64,
       @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
-      @JsonProperty("multiparts") Collection<Part> multiparts) {
+      @JsonProperty("multiparts") Collection<Part> multiparts,
+      @JsonProperty("protocol") String protocol) {
     this(
         url,
         absoluteUrl,
@@ -94,7 +97,8 @@ public class LoggedRequest implements Request {
         isBrowserProxyRequest,
         loggedDate,
         decodeBase64(bodyAsBase64),
-        multiparts);
+        multiparts,
+        protocol);
   }
 
   public LoggedRequest(
@@ -107,7 +111,8 @@ public class LoggedRequest implements Request {
       boolean isBrowserProxyRequest,
       Date loggedDate,
       byte[] body,
-      Collection<Part> multiparts) {
+      Collection<Part> multiparts,
+      String protocol) {
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
@@ -131,6 +136,7 @@ public class LoggedRequest implements Request {
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
     this.multiparts = multiparts;
+    this.protocol = protocol;
   }
 
   @Override
@@ -256,6 +262,11 @@ public class LoggedRequest implements Request {
   @Override
   public Optional<Request> getOriginalRequest() {
     return Optional.absent();
+  }
+
+  @Override
+  public String getProtocol() {
+    return protocol;
   }
 
   public Date getLoggedDate() {

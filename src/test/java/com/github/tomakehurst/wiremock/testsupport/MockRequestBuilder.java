@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class MockRequestBuilder {
   private String body = "";
   private String bodyAsBase64 = "";
   private Collection<Request.Part> multiparts = newArrayList();
+  private String protocol = "HTTP/1.1";
 
   private boolean browserProxyRequest = false;
   private String mockName;
@@ -108,6 +109,11 @@ public class MockRequestBuilder {
     return this;
   }
 
+  public MockRequestBuilder withProtocol(String protocol) {
+    this.protocol = protocol;
+    return this;
+  }
+
   public Request build() {
     final HttpHeaders headers = new HttpHeaders(individualHeaders);
 
@@ -145,6 +151,7 @@ public class MockRequestBuilder {
     when(request.isBrowserProxyRequest()).thenReturn(browserProxyRequest);
     when(request.isMultipart()).thenReturn(multiparts != null && !multiparts.isEmpty());
     when(request.getParts()).thenReturn(multiparts);
+    when(request.getProtocol()).thenReturn(protocol);
 
     return request;
   }
