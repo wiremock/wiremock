@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
     responseDefinition.setOriginalRequest(processedRequest);
     Response response = responseRenderer.render(serveEvent);
+    response = Response.Builder.like(response).protocol(request.getProtocol()).build();
     ServeEvent completedServeEvent =
         serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
