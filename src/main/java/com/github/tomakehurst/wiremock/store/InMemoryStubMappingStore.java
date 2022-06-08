@@ -54,4 +54,10 @@ public class InMemoryStubMappingStore implements StubMappingStore {
   public void replace(StubMapping existing, StubMapping updated) {
     mappings.replace(existing, updated);
   }
+
+  @Override
+  public void start() {}
+
+  @Override
+  public void stop() {}
 }

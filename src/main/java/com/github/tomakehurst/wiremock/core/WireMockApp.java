@@ -128,7 +128,7 @@ public class WireMockApp implements StubServer, Admin {
       FileSource rootFileSource,
       Container container) {
 
-    this.stores = new DefaultStores();
+    this.stores = new DefaultStores(rootFileSource);
 
     this.browserProxyingEnabled = browserProxyingEnabled;
     this.defaultMappingsLoader = defaultMappingsLoader;
@@ -174,7 +174,7 @@ public class WireMockApp implements StubServer, Admin {
     return new StubRequestHandler(
         this,
         new StubResponseRenderer(
-            options.filesRoot().child(FILES_ROOT),
+            options.getStores().getFilesBlobStore(),
             getGlobalSettingsHolder(),
             new ProxyResponseRenderer(
                 options.proxyVia(),

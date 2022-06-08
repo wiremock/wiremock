@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
@@ -137,7 +136,8 @@ public class Response {
   }
 
   public boolean hasInlineBody() {
-    return !BinaryFile.class.isAssignableFrom(bodyStreamSource.getClass());
+    return StreamSources.ByteArrayInputStreamSource.class.isAssignableFrom(
+        bodyStreamSource.getClass());
   }
 
   public HttpHeaders getHeaders() {

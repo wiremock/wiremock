@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.ArrayList;
@@ -35,18 +35,18 @@ import org.mockito.Mockito;
 public class StubResponseRendererTest {
   private static final int TEST_TIMEOUT = 500;
 
-  private FileSource fileSource;
+  private BlobStore filesBlobStore;
   private GlobalSettingsHolder globalSettingsHolder;
   private List<ResponseTransformer> responseTransformers;
   private StubResponseRenderer stubResponseRenderer;
 
   @BeforeEach
   public void init() {
-    fileSource = Mockito.mock(FileSource.class);
+    filesBlobStore = Mockito.mock(BlobStore.class);
     globalSettingsHolder = new GlobalSettingsHolder();
     responseTransformers = new ArrayList<>();
     stubResponseRenderer =
-        new StubResponseRenderer(fileSource, globalSettingsHolder, null, responseTransformers);
+        new StubResponseRenderer(filesBlobStore, globalSettingsHolder, null, responseTransformers);
   }
 
   @Test

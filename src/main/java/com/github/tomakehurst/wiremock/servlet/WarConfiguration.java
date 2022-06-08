@@ -88,7 +88,7 @@ public class WarConfiguration implements Options {
 
   @Override
   public Stores getStores() {
-    return new DefaultStores();
+    return new DefaultStores(filesRoot());
   }
 
   @Override

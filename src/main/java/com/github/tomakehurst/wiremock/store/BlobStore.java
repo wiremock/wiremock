@@ -15,4 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-public interface BlobStore extends Store<byte[]> {}
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
+import java.io.InputStream;
+import java.util.Optional;
+
+public interface BlobStore extends Store<byte[]> {
+
+  Optional<InputStream> getStream(String key);
+
+  InputStreamSource getStreamSource(String key);
+}

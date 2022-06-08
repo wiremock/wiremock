@@ -15,9 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 
 public class DefaultStores implements Stores {
+
+  private final FileSource fileRoot;
+
+  public DefaultStores(FileSource fileRoot) {
+    this.fileRoot = fileRoot;
+  }
 
   @Override
   public StubMappingStore getStubStore() {
@@ -40,12 +50,17 @@ public class DefaultStores implements Stores {
   }
 
   @Override
-  public FileSource getFileSource() {
-    return null;
+  public BlobStore getMappingsBlobStore() {
+    return getBlobStore(MAPPINGS_ROOT);
+  }
+
+  @Override
+  public BlobStore getFilesBlobStore() {
+    return getBlobStore(FILES_ROOT);
   }
 
   @Override
   public BlobStore getBlobStore(String name) {
-    return null;
+    return new FileSourceBlobStore(fileRoot.child(name));
   }
 }

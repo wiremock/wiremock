@@ -82,8 +82,8 @@ public class WireMockConfiguration implements Options {
   private final List<String> trustedProxyTargets = new ArrayList<>();
 
   private ProxySettings proxySettings = ProxySettings.NO_PROXY;
-  private Stores stores = new DefaultStores();
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
+  private Stores stores;
   private MappingsSource mappingsSource;
 
   private Notifier notifier = new Slf4jNotifier(false);
@@ -504,6 +504,10 @@ public class WireMockConfiguration implements Options {
 
   @Override
   public Stores getStores() {
+    if (stores == null) {
+      stores = new DefaultStores(filesRoot);
+    }
+
     return stores;
   }
 

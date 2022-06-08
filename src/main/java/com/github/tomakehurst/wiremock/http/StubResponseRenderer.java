@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,35 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
-  private final FileSource fileSource;
+  private final BlobStore filesBlobStore;
+  private final FileSource filesFileSource;
   private final GlobalSettingsHolder globalSettingsHolder;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
 
   public StubResponseRenderer(
-      FileSource fileSource,
+      BlobStore filesBlobStore,
       GlobalSettingsHolder globalSettingsHolder,
       ProxyResponseRenderer proxyResponseRenderer,
       List<ResponseTransformer> responseTransformers) {
-    this.fileSource = fileSource;
+    this.filesBlobStore = filesBlobStore;
     this.globalSettingsHolder = globalSettingsHolder;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
+
+    filesFileSource = new BlobStoreFileSource(filesBlobStore);
   }
 
   @Override
@@ -81,7 +86,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     Response newResponse =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(
-                request, response, fileSource, responseDefinition.getTransformerParameters())
+                request, response, filesFileSource, responseDefinition.getTransformerParameters())
             : response;
 
     return applyTransformations(
@@ -117,8 +122,9 @@ public class StubResponseRenderer implements ResponseRenderer {
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
     if (responseDefinition.specifiesBodyFile()) {
-      BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-      responseBuilder.body(bodyFile);
+      final InputStreamSource bodyStreamSource =
+          filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
+      responseBuilder.body(bodyStreamSource);
     } else if (responseDefinition.specifiesBodyContent()) {
       if (responseDefinition.specifiesBinaryBodyContent()) {
         responseBuilder.body(responseDefinition.getByteBody());

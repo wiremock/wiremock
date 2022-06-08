@@ -122,7 +122,10 @@ public class CommandLineOptions implements Options {
   private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
 
   private final OptionSet optionSet;
+
+  private final Stores stores;
   private final FileSource fileSource;
+
   private final MappingsSource mappingsSource;
   private final Map<String, Extension> extensions;
 
@@ -351,6 +354,8 @@ public class CommandLineOptions implements Options {
     } else {
       fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
     }
+
+    stores = new DefaultStores(fileSource);
 
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
     extensions = buildExtensions();
@@ -639,7 +644,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public Stores getStores() {
-    return new DefaultStores();
+    return stores;
   }
 
   @Override

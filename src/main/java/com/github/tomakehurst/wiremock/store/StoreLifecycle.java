@@ -15,22 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
+public interface StoreLifecycle {
 
-public interface StubMappingStore extends StoreLifecycle {
+  void start();
 
-  Stream<StubMapping> getAll();
-
-  Optional<StubMapping> get(UUID id);
-
-  void add(StubMapping stub);
-
-  void replace(StubMapping existing, StubMapping updated);
-
-  void remove(StubMapping stubMapping);
-
-  void clear();
+  void stop();
 }

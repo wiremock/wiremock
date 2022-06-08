@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import java.io.File;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTransformerAcceptanceTest {
@@ -79,17 +78,7 @@ public class ResponseTransformerAcceptanceTest {
     wm.stubFor(get(urlEqualTo("/response-transform-with-files")).willReturn(ok()));
 
     assertThat(
-        client.get("/response-transform-with-files").content(),
-        endsWith(
-            "src"
-                + File.separator
-                + "test"
-                + File.separator
-                + "resources"
-                + File.separator
-                + "__files"
-                + File.separator
-                + "plain-example.txt"));
+        client.get("/response-transform-with-files").content(), endsWith("plain-example.txt"));
   }
 
   @SuppressWarnings("unchecked")

@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import java.io.Serializable;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface Store<T> {
+public interface Store<T> extends StoreLifecycle {
 
-  Stream<Serializable> getAllKeys();
+  Stream<String> getAllKeys();
 
-  Optional<T> get(Serializable key);
+  Optional<T> get(String key);
 
-  void put(Serializable key, T content);
+  void put(String key, T content);
 
-  void remove(Serializable key);
+  void remove(String key);
 
   void clear();
 }

@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-
 public interface Stores {
 
   StubMappingStore getStubStore();
@@ -27,7 +25,9 @@ public interface Stores {
 
   ScenariosStore getScenariosStore();
 
-  FileSource getFileSource();
+  BlobStore getMappingsBlobStore();
+
+  BlobStore getFilesBlobStore();
 
   BlobStore getBlobStore(String name);
 }
