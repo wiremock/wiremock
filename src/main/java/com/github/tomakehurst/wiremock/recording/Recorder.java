@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Predicate;
@@ -134,19 +133,19 @@ public class Recorder {
 
   public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(
       Options options, RecordSpec recordSpec) {
-    FileSource filesRoot = options.filesRoot().child(FILES_ROOT);
+    final BlobStore filesBlobStore = options.getStores().getFilesBlobStore();
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
             options.extensionsOfType(StubMappingTransformer.class).values(),
             recordSpec.getTransformers(),
             recordSpec.getTransformerParameters(),
-            filesRoot);
+            filesBlobStore);
 
     return new SnapshotStubMappingPostProcessor(
         recordSpec.shouldRecordRepeatsAsScenarios(),
         transformerRunner,
         recordSpec.getExtractBodyCriteria(),
-        new SnapshotStubMappingBodyExtractor(filesRoot));
+        new SnapshotStubMappingBodyExtractor(filesBlobStore));
   }
 
   public RecordingStatus getStatus() {
