@@ -15,21 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.store.Stores;
 
 public class DeleteStubFileTask implements AdminTask {
+
+  private final Stores stores;
+
+  public DeleteStubFileTask(Stores stores) {
+    this.stores = stores;
+  }
+
   @Override
   public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-    FileSource fileSource = admin.getOptions().filesRoot().child(FILES_ROOT);
     String filePath = pathParams.get("0");
-    fileSource.deleteFile(filePath);
+    stores.getFilesBlobStore().remove(filePath);
     return ResponseDefinition.ok();
   }
 }

@@ -156,9 +156,10 @@ public class WireMockApp implements StubServer, Admin {
 
   public AdminRequestHandler buildAdminRequestHandler() {
     AdminRoutes adminRoutes =
-        AdminRoutes.defaultsPlus(
+        AdminRoutes.forServer(
             options.extensionsOfType(AdminApiExtension.class).values(),
-            options.getNotMatchedRenderer());
+            options.getNotMatchedRenderer(),
+            stores);
     return new AdminRequestHandler(
         adminRoutes,
         this,
