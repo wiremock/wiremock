@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "WireMock",
-    "version": "2.32.0"
+    "version": "2.33.2"
   },
   "externalDocs": {
     "description": "WireMock user documentation",
@@ -189,48 +189,6 @@
                           "response": {
                             "allOf": [
                               {
-                                "oneOf": [
-                                  {
-                                    "title": "Log normal",
-                                    "description": "Log normal randomly distributed response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "median": {
-                                        "type": "integer"
-                                      },
-                                      "sigma": {
-                                        "type": "number"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "lognormal"
-                                        ],
-                                        "type": "string"
-                                      }
-                                    }
-                                  },
-                                  {
-                                    "title": "Uniform",
-                                    "description": "Uniformly distributed random response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "lower": {
-                                        "type": "integer"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "uniform"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "upper": {
-                                        "type": "integer"
-                                      }
-                                    }
-                                  }
-                                ]
-                              },
-                              {
                                 "type": "object",
                                 "properties": {
                                   "status": {
@@ -278,6 +236,49 @@
                                   "fixedDelayMilliseconds": {
                                     "type": "integer",
                                     "description": "Number of milliseconds to delay be before sending the response."
+                                  },
+                                  "delayDistribution": {
+                                    "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                                    "oneOf": [
+                                      {
+                                        "title": "Log normal",
+                                        "description": "Log normal randomly distributed response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "median": {
+                                            "type": "integer"
+                                          },
+                                          "sigma": {
+                                            "type": "number"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "lognormal"
+                                            ],
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "title": "Uniform",
+                                        "description": "Uniformly distributed random response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "lower": {
+                                            "type": "integer"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "uniform"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "upper": {
+                                            "type": "integer"
+                                          }
+                                        }
+                                      }
+                                    ]
                                   },
                                   "fromConfiguredStub": {
                                     "type": "boolean",
@@ -331,7 +332,8 @@
                             "type": "object",
                             "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                           }
-                        }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "meta": {
@@ -346,7 +348,8 @@
                         "total"
                       ]
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "meta": {
@@ -498,48 +501,6 @@
                   "response": {
                     "allOf": [
                       {
-                        "oneOf": [
-                          {
-                            "title": "Log normal",
-                            "description": "Log normal randomly distributed response delay.",
-                            "type": "object",
-                            "properties": {
-                              "median": {
-                                "type": "integer"
-                              },
-                              "sigma": {
-                                "type": "number"
-                              },
-                              "type": {
-                                "enum": [
-                                  "lognormal"
-                                ],
-                                "type": "string"
-                              }
-                            }
-                          },
-                          {
-                            "title": "Uniform",
-                            "description": "Uniformly distributed random response delay.",
-                            "type": "object",
-                            "properties": {
-                              "lower": {
-                                "type": "integer"
-                              },
-                              "type": {
-                                "enum": [
-                                  "uniform"
-                                ],
-                                "type": "string"
-                              },
-                              "upper": {
-                                "type": "integer"
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
                         "type": "object",
                         "properties": {
                           "status": {
@@ -587,6 +548,49 @@
                           "fixedDelayMilliseconds": {
                             "type": "integer",
                             "description": "Number of milliseconds to delay be before sending the response."
+                          },
+                          "delayDistribution": {
+                            "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                            "oneOf": [
+                              {
+                                "title": "Log normal",
+                                "description": "Log normal randomly distributed response delay.",
+                                "type": "object",
+                                "properties": {
+                                  "median": {
+                                    "type": "integer"
+                                  },
+                                  "sigma": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "enum": [
+                                      "lognormal"
+                                    ],
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "title": "Uniform",
+                                "description": "Uniformly distributed random response delay.",
+                                "type": "object",
+                                "properties": {
+                                  "lower": {
+                                    "type": "integer"
+                                  },
+                                  "type": {
+                                    "enum": [
+                                      "uniform"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "upper": {
+                                    "type": "integer"
+                                  }
+                                }
+                              }
+                            ]
                           },
                           "fromConfiguredStub": {
                             "type": "boolean",
@@ -640,7 +644,8 @@
                     "type": "object",
                     "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                   }
-                }
+                },
+                "additionalProperties": false
               },
               "example": {
                 "request": {
@@ -755,48 +760,6 @@
                     "response": {
                       "allOf": [
                         {
-                          "oneOf": [
-                            {
-                              "title": "Log normal",
-                              "description": "Log normal randomly distributed response delay.",
-                              "type": "object",
-                              "properties": {
-                                "median": {
-                                  "type": "integer"
-                                },
-                                "sigma": {
-                                  "type": "number"
-                                },
-                                "type": {
-                                  "enum": [
-                                    "lognormal"
-                                  ],
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            {
-                              "title": "Uniform",
-                              "description": "Uniformly distributed random response delay.",
-                              "type": "object",
-                              "properties": {
-                                "lower": {
-                                  "type": "integer"
-                                },
-                                "type": {
-                                  "enum": [
-                                    "uniform"
-                                  ],
-                                  "type": "string"
-                                },
-                                "upper": {
-                                  "type": "integer"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
                           "type": "object",
                           "properties": {
                             "status": {
@@ -844,6 +807,49 @@
                             "fixedDelayMilliseconds": {
                               "type": "integer",
                               "description": "Number of milliseconds to delay be before sending the response."
+                            },
+                            "delayDistribution": {
+                              "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                              "oneOf": [
+                                {
+                                  "title": "Log normal",
+                                  "description": "Log normal randomly distributed response delay.",
+                                  "type": "object",
+                                  "properties": {
+                                    "median": {
+                                      "type": "integer"
+                                    },
+                                    "sigma": {
+                                      "type": "number"
+                                    },
+                                    "type": {
+                                      "enum": [
+                                        "lognormal"
+                                      ],
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                {
+                                  "title": "Uniform",
+                                  "description": "Uniformly distributed random response delay.",
+                                  "type": "object",
+                                  "properties": {
+                                    "lower": {
+                                      "type": "integer"
+                                    },
+                                    "type": {
+                                      "enum": [
+                                        "uniform"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "upper": {
+                                      "type": "integer"
+                                    }
+                                  }
+                                }
+                              ]
                             },
                             "fromConfiguredStub": {
                               "type": "boolean",
@@ -897,7 +903,8 @@
                       "type": "object",
                       "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
@@ -1079,48 +1086,6 @@
                     "response": {
                       "allOf": [
                         {
-                          "oneOf": [
-                            {
-                              "title": "Log normal",
-                              "description": "Log normal randomly distributed response delay.",
-                              "type": "object",
-                              "properties": {
-                                "median": {
-                                  "type": "integer"
-                                },
-                                "sigma": {
-                                  "type": "number"
-                                },
-                                "type": {
-                                  "enum": [
-                                    "lognormal"
-                                  ],
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            {
-                              "title": "Uniform",
-                              "description": "Uniformly distributed random response delay.",
-                              "type": "object",
-                              "properties": {
-                                "lower": {
-                                  "type": "integer"
-                                },
-                                "type": {
-                                  "enum": [
-                                    "uniform"
-                                  ],
-                                  "type": "string"
-                                },
-                                "upper": {
-                                  "type": "integer"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
                           "type": "object",
                           "properties": {
                             "status": {
@@ -1168,6 +1133,49 @@
                             "fixedDelayMilliseconds": {
                               "type": "integer",
                               "description": "Number of milliseconds to delay be before sending the response."
+                            },
+                            "delayDistribution": {
+                              "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                              "oneOf": [
+                                {
+                                  "title": "Log normal",
+                                  "description": "Log normal randomly distributed response delay.",
+                                  "type": "object",
+                                  "properties": {
+                                    "median": {
+                                      "type": "integer"
+                                    },
+                                    "sigma": {
+                                      "type": "number"
+                                    },
+                                    "type": {
+                                      "enum": [
+                                        "lognormal"
+                                      ],
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                {
+                                  "title": "Uniform",
+                                  "description": "Uniformly distributed random response delay.",
+                                  "type": "object",
+                                  "properties": {
+                                    "lower": {
+                                      "type": "integer"
+                                    },
+                                    "type": {
+                                      "enum": [
+                                        "uniform"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "upper": {
+                                      "type": "integer"
+                                    }
+                                  }
+                                }
+                              ]
                             },
                             "fromConfiguredStub": {
                               "type": "boolean",
@@ -1221,7 +1229,8 @@
                       "type": "object",
                       "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
@@ -1351,48 +1360,6 @@
                   "response": {
                     "allOf": [
                       {
-                        "oneOf": [
-                          {
-                            "title": "Log normal",
-                            "description": "Log normal randomly distributed response delay.",
-                            "type": "object",
-                            "properties": {
-                              "median": {
-                                "type": "integer"
-                              },
-                              "sigma": {
-                                "type": "number"
-                              },
-                              "type": {
-                                "enum": [
-                                  "lognormal"
-                                ],
-                                "type": "string"
-                              }
-                            }
-                          },
-                          {
-                            "title": "Uniform",
-                            "description": "Uniformly distributed random response delay.",
-                            "type": "object",
-                            "properties": {
-                              "lower": {
-                                "type": "integer"
-                              },
-                              "type": {
-                                "enum": [
-                                  "uniform"
-                                ],
-                                "type": "string"
-                              },
-                              "upper": {
-                                "type": "integer"
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      {
                         "type": "object",
                         "properties": {
                           "status": {
@@ -1440,6 +1407,49 @@
                           "fixedDelayMilliseconds": {
                             "type": "integer",
                             "description": "Number of milliseconds to delay be before sending the response."
+                          },
+                          "delayDistribution": {
+                            "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                            "oneOf": [
+                              {
+                                "title": "Log normal",
+                                "description": "Log normal randomly distributed response delay.",
+                                "type": "object",
+                                "properties": {
+                                  "median": {
+                                    "type": "integer"
+                                  },
+                                  "sigma": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "enum": [
+                                      "lognormal"
+                                    ],
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "title": "Uniform",
+                                "description": "Uniformly distributed random response delay.",
+                                "type": "object",
+                                "properties": {
+                                  "lower": {
+                                    "type": "integer"
+                                  },
+                                  "type": {
+                                    "enum": [
+                                      "uniform"
+                                    ],
+                                    "type": "string"
+                                  },
+                                  "upper": {
+                                    "type": "integer"
+                                  }
+                                }
+                              }
+                            ]
                           },
                           "fromConfiguredStub": {
                             "type": "boolean",
@@ -1493,7 +1503,8 @@
                     "type": "object",
                     "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                   }
-                }
+                },
+                "additionalProperties": false
               },
               "example": {
                 "request": {
@@ -1608,48 +1619,6 @@
                     "response": {
                       "allOf": [
                         {
-                          "oneOf": [
-                            {
-                              "title": "Log normal",
-                              "description": "Log normal randomly distributed response delay.",
-                              "type": "object",
-                              "properties": {
-                                "median": {
-                                  "type": "integer"
-                                },
-                                "sigma": {
-                                  "type": "number"
-                                },
-                                "type": {
-                                  "enum": [
-                                    "lognormal"
-                                  ],
-                                  "type": "string"
-                                }
-                              }
-                            },
-                            {
-                              "title": "Uniform",
-                              "description": "Uniformly distributed random response delay.",
-                              "type": "object",
-                              "properties": {
-                                "lower": {
-                                  "type": "integer"
-                                },
-                                "type": {
-                                  "enum": [
-                                    "uniform"
-                                  ],
-                                  "type": "string"
-                                },
-                                "upper": {
-                                  "type": "integer"
-                                }
-                              }
-                            }
-                          ]
-                        },
-                        {
                           "type": "object",
                           "properties": {
                             "status": {
@@ -1697,6 +1666,49 @@
                             "fixedDelayMilliseconds": {
                               "type": "integer",
                               "description": "Number of milliseconds to delay be before sending the response."
+                            },
+                            "delayDistribution": {
+                              "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                              "oneOf": [
+                                {
+                                  "title": "Log normal",
+                                  "description": "Log normal randomly distributed response delay.",
+                                  "type": "object",
+                                  "properties": {
+                                    "median": {
+                                      "type": "integer"
+                                    },
+                                    "sigma": {
+                                      "type": "number"
+                                    },
+                                    "type": {
+                                      "enum": [
+                                        "lognormal"
+                                      ],
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                {
+                                  "title": "Uniform",
+                                  "description": "Uniformly distributed random response delay.",
+                                  "type": "object",
+                                  "properties": {
+                                    "lower": {
+                                      "type": "integer"
+                                    },
+                                    "type": {
+                                      "enum": [
+                                        "uniform"
+                                      ],
+                                      "type": "string"
+                                    },
+                                    "upper": {
+                                      "type": "integer"
+                                    }
+                                  }
+                                }
+                              ]
                             },
                             "fromConfiguredStub": {
                               "type": "boolean",
@@ -1750,7 +1762,8 @@
                       "type": "object",
                       "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
@@ -2030,48 +2043,6 @@
                           "response": {
                             "allOf": [
                               {
-                                "oneOf": [
-                                  {
-                                    "title": "Log normal",
-                                    "description": "Log normal randomly distributed response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "median": {
-                                        "type": "integer"
-                                      },
-                                      "sigma": {
-                                        "type": "number"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "lognormal"
-                                        ],
-                                        "type": "string"
-                                      }
-                                    }
-                                  },
-                                  {
-                                    "title": "Uniform",
-                                    "description": "Uniformly distributed random response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "lower": {
-                                        "type": "integer"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "uniform"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "upper": {
-                                        "type": "integer"
-                                      }
-                                    }
-                                  }
-                                ]
-                              },
-                              {
                                 "type": "object",
                                 "properties": {
                                   "status": {
@@ -2119,6 +2090,49 @@
                                   "fixedDelayMilliseconds": {
                                     "type": "integer",
                                     "description": "Number of milliseconds to delay be before sending the response."
+                                  },
+                                  "delayDistribution": {
+                                    "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                                    "oneOf": [
+                                      {
+                                        "title": "Log normal",
+                                        "description": "Log normal randomly distributed response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "median": {
+                                            "type": "integer"
+                                          },
+                                          "sigma": {
+                                            "type": "number"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "lognormal"
+                                            ],
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "title": "Uniform",
+                                        "description": "Uniformly distributed random response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "lower": {
+                                            "type": "integer"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "uniform"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "upper": {
+                                            "type": "integer"
+                                          }
+                                        }
+                                      }
+                                    ]
                                   },
                                   "fromConfiguredStub": {
                                     "type": "boolean",
@@ -2172,7 +2186,8 @@
                             "type": "object",
                             "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                           }
-                        }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "meta": {
@@ -2187,7 +2202,8 @@
                         "total"
                       ]
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "meta": {
@@ -4071,48 +4087,6 @@
                           "response": {
                             "allOf": [
                               {
-                                "oneOf": [
-                                  {
-                                    "title": "Log normal",
-                                    "description": "Log normal randomly distributed response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "median": {
-                                        "type": "integer"
-                                      },
-                                      "sigma": {
-                                        "type": "number"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "lognormal"
-                                        ],
-                                        "type": "string"
-                                      }
-                                    }
-                                  },
-                                  {
-                                    "title": "Uniform",
-                                    "description": "Uniformly distributed random response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "lower": {
-                                        "type": "integer"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "uniform"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "upper": {
-                                        "type": "integer"
-                                      }
-                                    }
-                                  }
-                                ]
-                              },
-                              {
                                 "type": "object",
                                 "properties": {
                                   "status": {
@@ -4160,6 +4134,49 @@
                                   "fixedDelayMilliseconds": {
                                     "type": "integer",
                                     "description": "Number of milliseconds to delay be before sending the response."
+                                  },
+                                  "delayDistribution": {
+                                    "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                                    "oneOf": [
+                                      {
+                                        "title": "Log normal",
+                                        "description": "Log normal randomly distributed response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "median": {
+                                            "type": "integer"
+                                          },
+                                          "sigma": {
+                                            "type": "number"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "lognormal"
+                                            ],
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "title": "Uniform",
+                                        "description": "Uniformly distributed random response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "lower": {
+                                            "type": "integer"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "uniform"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "upper": {
+                                            "type": "integer"
+                                          }
+                                        }
+                                      }
+                                    ]
                                   },
                                   "fromConfiguredStub": {
                                     "type": "boolean",
@@ -4213,7 +4230,8 @@
                             "type": "object",
                             "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                           }
-                        }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "meta": {
@@ -4228,7 +4246,8 @@
                         "total"
                       ]
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "mappings": [
@@ -4689,48 +4708,6 @@
                           "response": {
                             "allOf": [
                               {
-                                "oneOf": [
-                                  {
-                                    "title": "Log normal",
-                                    "description": "Log normal randomly distributed response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "median": {
-                                        "type": "integer"
-                                      },
-                                      "sigma": {
-                                        "type": "number"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "lognormal"
-                                        ],
-                                        "type": "string"
-                                      }
-                                    }
-                                  },
-                                  {
-                                    "title": "Uniform",
-                                    "description": "Uniformly distributed random response delay.",
-                                    "type": "object",
-                                    "properties": {
-                                      "lower": {
-                                        "type": "integer"
-                                      },
-                                      "type": {
-                                        "enum": [
-                                          "uniform"
-                                        ],
-                                        "type": "string"
-                                      },
-                                      "upper": {
-                                        "type": "integer"
-                                      }
-                                    }
-                                  }
-                                ]
-                              },
-                              {
                                 "type": "object",
                                 "properties": {
                                   "status": {
@@ -4778,6 +4755,49 @@
                                   "fixedDelayMilliseconds": {
                                     "type": "integer",
                                     "description": "Number of milliseconds to delay be before sending the response."
+                                  },
+                                  "delayDistribution": {
+                                    "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                                    "oneOf": [
+                                      {
+                                        "title": "Log normal",
+                                        "description": "Log normal randomly distributed response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "median": {
+                                            "type": "integer"
+                                          },
+                                          "sigma": {
+                                            "type": "number"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "lognormal"
+                                            ],
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "title": "Uniform",
+                                        "description": "Uniformly distributed random response delay.",
+                                        "type": "object",
+                                        "properties": {
+                                          "lower": {
+                                            "type": "integer"
+                                          },
+                                          "type": {
+                                            "enum": [
+                                              "uniform"
+                                            ],
+                                            "type": "string"
+                                          },
+                                          "upper": {
+                                            "type": "integer"
+                                          }
+                                        }
+                                      }
+                                    ]
                                   },
                                   "fromConfiguredStub": {
                                     "type": "boolean",
@@ -4831,7 +4851,8 @@
                             "type": "object",
                             "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                           }
-                        }
+                        },
+                        "additionalProperties": false
                       }
                     },
                     "meta": {
@@ -4846,7 +4867,8 @@
                         "total"
                       ]
                     }
-                  }
+                  },
+                  "additionalProperties": false
                 },
                 "example": {
                   "mappings": [
@@ -5240,48 +5262,6 @@
                 "response": {
                   "allOf": [
                     {
-                      "oneOf": [
-                        {
-                          "title": "Log normal",
-                          "description": "Log normal randomly distributed response delay.",
-                          "type": "object",
-                          "properties": {
-                            "median": {
-                              "type": "integer"
-                            },
-                            "sigma": {
-                              "type": "number"
-                            },
-                            "type": {
-                              "enum": [
-                                "lognormal"
-                              ],
-                              "type": "string"
-                            }
-                          }
-                        },
-                        {
-                          "title": "Uniform",
-                          "description": "Uniformly distributed random response delay.",
-                          "type": "object",
-                          "properties": {
-                            "lower": {
-                              "type": "integer"
-                            },
-                            "type": {
-                              "enum": [
-                                "uniform"
-                              ],
-                              "type": "string"
-                            },
-                            "upper": {
-                              "type": "integer"
-                            }
-                          }
-                        }
-                      ]
-                    },
-                    {
                       "type": "object",
                       "properties": {
                         "status": {
@@ -5329,6 +5309,49 @@
                         "fixedDelayMilliseconds": {
                           "type": "integer",
                           "description": "Number of milliseconds to delay be before sending the response."
+                        },
+                        "delayDistribution": {
+                          "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                          "oneOf": [
+                            {
+                              "title": "Log normal",
+                              "description": "Log normal randomly distributed response delay.",
+                              "type": "object",
+                              "properties": {
+                                "median": {
+                                  "type": "integer"
+                                },
+                                "sigma": {
+                                  "type": "number"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "lognormal"
+                                  ],
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "title": "Uniform",
+                              "description": "Uniformly distributed random response delay.",
+                              "type": "object",
+                              "properties": {
+                                "lower": {
+                                  "type": "integer"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "uniform"
+                                  ],
+                                  "type": "string"
+                                },
+                                "upper": {
+                                  "type": "integer"
+                                }
+                              }
+                            }
+                          ]
                         },
                         "fromConfiguredStub": {
                           "type": "boolean",
@@ -5382,7 +5405,8 @@
                   "type": "object",
                   "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                 }
-              }
+              },
+              "additionalProperties": false
             },
             "example": {
               "request": {
@@ -6075,48 +6099,6 @@
                 "response": {
                   "allOf": [
                     {
-                      "oneOf": [
-                        {
-                          "title": "Log normal",
-                          "description": "Log normal randomly distributed response delay.",
-                          "type": "object",
-                          "properties": {
-                            "median": {
-                              "type": "integer"
-                            },
-                            "sigma": {
-                              "type": "number"
-                            },
-                            "type": {
-                              "enum": [
-                                "lognormal"
-                              ],
-                              "type": "string"
-                            }
-                          }
-                        },
-                        {
-                          "title": "Uniform",
-                          "description": "Uniformly distributed random response delay.",
-                          "type": "object",
-                          "properties": {
-                            "lower": {
-                              "type": "integer"
-                            },
-                            "type": {
-                              "enum": [
-                                "uniform"
-                              ],
-                              "type": "string"
-                            },
-                            "upper": {
-                              "type": "integer"
-                            }
-                          }
-                        }
-                      ]
-                    },
-                    {
                       "type": "object",
                       "properties": {
                         "status": {
@@ -6164,6 +6146,49 @@
                         "fixedDelayMilliseconds": {
                           "type": "integer",
                           "description": "Number of milliseconds to delay be before sending the response."
+                        },
+                        "delayDistribution": {
+                          "description": "The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.",
+                          "oneOf": [
+                            {
+                              "title": "Log normal",
+                              "description": "Log normal randomly distributed response delay.",
+                              "type": "object",
+                              "properties": {
+                                "median": {
+                                  "type": "integer"
+                                },
+                                "sigma": {
+                                  "type": "number"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "lognormal"
+                                  ],
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            {
+                              "title": "Uniform",
+                              "description": "Uniformly distributed random response delay.",
+                              "type": "object",
+                              "properties": {
+                                "lower": {
+                                  "type": "integer"
+                                },
+                                "type": {
+                                  "enum": [
+                                    "uniform"
+                                  ],
+                                  "type": "string"
+                                },
+                                "upper": {
+                                  "type": "integer"
+                                }
+                              }
+                            }
+                          ]
                         },
                         "fromConfiguredStub": {
                           "type": "boolean",
@@ -6217,7 +6242,8 @@
                   "type": "object",
                   "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
                 }
-              }
+              },
+              "additionalProperties": false
             },
             "example": {
               "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
@@ -6329,4 +6355,3 @@
     }
   }
 }
-
