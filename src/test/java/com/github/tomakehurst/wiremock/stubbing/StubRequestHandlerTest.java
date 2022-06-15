@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,17 +75,30 @@ public class StubRequestHandlerTest {
     when(stubServer.serveStubFor(any(Request.class)))
         .thenReturn(
             ServeEvent.of(
-                mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")));
+                mockRequest().protocol("HTTP/2").asLoggedRequest(),
+                new ResponseDefinition(200, "Body content")));
 
-    Response mockResponse = response().status(200).body("Body content").build();
+    Response mockResponse =
+        response()
+            .status(200)
+            .body("Body content")
+            .headers(
+                new HttpHeaders(
+                    new HttpHeader("Content-Type", "application/json"),
+                    new HttpHeader("Matched-Stub-Id", "123")))
+            .build();
     when(responseRenderer.render(any(ServeEvent.class))).thenReturn(mockResponse);
 
-    Request request = aRequest().withUrl("/the/required/resource").withMethod(GET).build();
+    Request request =
+        aRequest().withUrl("/the/required/resource").withMethod(GET).withProtocol("HTTP/2").build();
     requestHandler.handle(request, httpResponder);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(200));
     assertThat(response.getBodyAsString(), is("Body content"));
+    assertThat(
+        response.toString(),
+        is("HTTP/2 200\nContent-Type: [application/json]\nMatched-Stub-Id: [123]\n"));
   }
 
   @Test

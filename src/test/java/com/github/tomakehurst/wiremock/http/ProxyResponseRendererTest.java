@@ -231,7 +231,8 @@ public class ProxyResponseRendererTest {
             /* isBrowserProxyRequest = */ isBrowserProxyRequest,
             /* loggedDate = */ new Date(),
             /* body = */ body,
-            /* multiparts = */ null);
+            /* multiparts = */ null,
+            /* protocol = */ "HTTP/1.1");
     ResponseDefinition responseDefinition = aResponse().proxiedFrom(origin.baseUrl()).build();
     responseDefinition.setOriginalRequest(loggedRequest);
 

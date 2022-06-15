@@ -38,10 +38,11 @@ public class Response {
   private final boolean fromProxy;
   private final long initialDelay;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
+  private final String protocol;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND, null, (byte[]) null, noHeaders(), false, null, 0, null, false);
+        HTTP_NOT_FOUND, null, (byte[]) null, noHeaders(), false, null, 0, null, false, null);
   }
 
   public static Builder response() {
@@ -57,7 +58,8 @@ public class Response {
       Fault fault,
       long initialDelay,
       ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+      boolean fromProxy,
+      String protocol) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.bodyStreamSource = StreamSources.forBytes(body);
@@ -67,6 +69,7 @@ public class Response {
     this.initialDelay = initialDelay;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
+    this.protocol = protocol;
   }
 
   public Response(
@@ -78,7 +81,8 @@ public class Response {
       Fault fault,
       long initialDelay,
       ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+      boolean fromProxy,
+      String protocol) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.bodyStreamSource = streamSource;
@@ -88,6 +92,7 @@ public class Response {
     this.initialDelay = initialDelay;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
+    this.protocol = protocol;
   }
 
   public Response(
@@ -99,7 +104,8 @@ public class Response {
       Fault fault,
       long initialDelay,
       ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+      boolean fromProxy,
+      String protocol) {
     this.status = status;
     this.statusMessage = statusMessage;
     this.headers = headers;
@@ -109,6 +115,7 @@ public class Response {
     this.initialDelay = initialDelay;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
+    this.protocol = protocol;
   }
 
   public int getStatus() {
@@ -170,11 +177,7 @@ public class Response {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("HTTP/1.1 ").append(status).append("\n");
-    sb.append(headers).append("\n");
-    // no longer printing body
-    return sb.toString();
+    return protocol + " " + status + "\n" + headers;
   }
 
   public static class Builder {
@@ -189,6 +192,7 @@ public class Response {
     private boolean fromProxy;
     private long initialDelay;
     private ChunkedDribbleDelay chunkedDribbleDelay;
+    private String protocol;
 
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
@@ -320,7 +324,8 @@ public class Response {
             fault,
             initialDelay,
             chunkedDribbleDelay,
-            fromProxy);
+            fromProxy,
+            protocol);
       } else if (bodyString != null) {
         return new Response(
             status,
@@ -331,7 +336,8 @@ public class Response {
             fault,
             initialDelay,
             chunkedDribbleDelay,
-            fromProxy);
+            fromProxy,
+            protocol);
       } else if (bodyStream != null) {
         return new Response(
             status,
@@ -342,7 +348,8 @@ public class Response {
             fault,
             initialDelay,
             chunkedDribbleDelay,
-            fromProxy);
+            fromProxy,
+            protocol);
       } else {
         return new Response(
             status,
@@ -353,8 +360,14 @@ public class Response {
             fault,
             initialDelay,
             chunkedDribbleDelay,
-            fromProxy);
+            fromProxy,
+            protocol);
       }
+    }
+
+    public Builder protocol(final String protocol) {
+      this.protocol = protocol;
+      return this;
     }
   }
 }
