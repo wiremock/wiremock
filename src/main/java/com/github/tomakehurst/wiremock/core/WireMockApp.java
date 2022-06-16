@@ -84,8 +84,6 @@ public class WireMockApp implements StubServer, Admin {
     this.options = options;
     this.stores = options.getStores();
 
-    FileSource fileSource = options.filesRoot();
-
     this.browserProxyingEnabled = options.browserProxySettings().enabled();
     this.defaultMappingsLoader = options.mappingsLoader();
     this.mappingsSaver = options.mappingsSaver();
