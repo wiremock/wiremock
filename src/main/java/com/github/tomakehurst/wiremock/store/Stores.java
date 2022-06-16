@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+
 public interface Stores {
 
   StubMappingStore getStubStore();
@@ -25,9 +28,15 @@ public interface Stores {
 
   ScenariosStore getScenariosStore();
 
-  BlobStore getMappingsBlobStore();
+  default BlobStore getMappingsBlobStore() {
+    return getBlobStore(MAPPINGS_ROOT);
+  }
 
-  BlobStore getFilesBlobStore();
+  default BlobStore getFilesBlobStore() {
+    return getBlobStore(FILES_ROOT);
+  }
 
   BlobStore getBlobStore(String name);
+
+  // TODO: Recorder store to share record state and possibly persist recordings?
 }

@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
@@ -31,7 +30,9 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
+import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -45,7 +46,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final Scenarios scenarios;
   protected final Map<String, RequestMatcherExtension> customMatchers;
   protected final Map<String, ResponseDefinitionTransformer> transformers;
-  protected final FileSource rootFileSource;
+  protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final StubMappingStore store;
 
@@ -54,14 +55,14 @@ public abstract class AbstractStubMappings implements StubMappings {
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,
       Map<String, ResponseDefinitionTransformer> transformers,
-      FileSource rootFileSource,
+      BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners) {
 
     this.store = store;
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
     this.transformers = transformers;
-    this.rootFileSource = rootFileSource;
+    this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
   }
 
@@ -98,7 +99,7 @@ public abstract class AbstractStubMappings implements StubMappings {
             ? transformer.transform(
                 request,
                 responseDefinition,
-                rootFileSource.child(FILES_ROOT),
+                filesFileSource,
                 firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
             : responseDefinition;
 

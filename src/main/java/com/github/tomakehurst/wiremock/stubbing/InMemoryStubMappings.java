@@ -15,14 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.InMemoryStubMappingStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
-import java.util.*;
+import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class InMemoryStubMappings extends AbstractStubMappings {
 
@@ -31,9 +34,9 @@ public class InMemoryStubMappings extends AbstractStubMappings {
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,
       Map<String, ResponseDefinitionTransformer> transformers,
-      FileSource rootFileSource,
+      BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners) {
-    super(store, scenarios, customMatchers, transformers, rootFileSource, stubLifecycleListeners);
+    super(store, scenarios, customMatchers, transformers, filesBlobStore, stubLifecycleListeners);
   }
 
   public InMemoryStubMappings() {
@@ -42,7 +45,7 @@ public class InMemoryStubMappings extends AbstractStubMappings {
         new Scenarios(),
         Collections.<String, RequestMatcherExtension>emptyMap(),
         Collections.<String, ResponseDefinitionTransformer>emptyMap(),
-        new SingleRootFileSource("."),
+        new FileSourceBlobStore(new SingleRootFileSource(".")),
         Collections.<StubLifecycleListener>emptyList());
   }
 }

@@ -15,9 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 
@@ -47,16 +44,6 @@ public class DefaultStores implements Stores {
   @Override
   public ScenariosStore getScenariosStore() {
     return null;
-  }
-
-  @Override
-  public BlobStore getMappingsBlobStore() {
-    return getBlobStore(MAPPINGS_ROOT);
-  }
-
-  @Override
-  public BlobStore getFilesBlobStore() {
-    return getBlobStore(FILES_ROOT);
   }
 
   @Override

@@ -47,7 +47,7 @@ public class BlobStoreFileSource implements FileSource {
 
   @Override
   public FileSource child(String subDirectoryName) {
-    return null;
+    return this;
   }
 
   @Override
