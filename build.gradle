@@ -110,7 +110,7 @@ dependencies {
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
 
-  testRuntimeOnly platform("org.apache.logging.log4j:log4j-bom:2.17.2")
+  testRuntimeOnly platform("org.apache.logging.log4j:log4j-bom:2.18.0")
   testRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
