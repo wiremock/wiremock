@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,10 +174,10 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
     MultipartValuePattern that = (MultipartValuePattern) o;
 
-    return  Objects.equals(name, that.name)
-              && Objects.equals(headers, that.headers)
-              && Objects.equals(bodyPatterns, that.bodyPatterns)
-              && matchingType == that.matchingType;
+    return Objects.equals(name, that.name)
+        && Objects.equals(headers, that.headers)
+        && Objects.equals(bodyPatterns, that.bodyPatterns)
+        && matchingType == that.matchingType;
   }
 
   @Override

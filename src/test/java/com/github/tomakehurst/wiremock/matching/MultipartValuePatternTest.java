@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -214,20 +214,19 @@ public class MultipartValuePatternTest {
   @Test
   public void equalsShouldReturnTrueOnIdenticalButNotSameObjects() {
     MultipartValuePattern patternA =
-            aMultipart()
-                    .withName("title")
-                    .withHeader("X-First-Header", equalTo("One"))
-                    .withHeader("X-Second-Header", matching(".*2"))
-                    .withBody(equalToJson("{ \"thing\": 123 }"))
-                    .build();
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
+            .build();
 
     MultipartValuePattern patternB =
-            aMultipart()
-                    .withName("title")
-                    .withHeader("X-First-Header", equalTo("One"))
-                    .withHeader("X-Second-Header", matching(".*2"))
-                    .withBody(equalToJson("{ \"thing\": 123 }"))
-                    .build();
+        aMultipart()
+            .withName("anotherTitle")
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": \"abc\" }"))
+            .build();
 
     assertThat(patternA.equals(patternB), is(true));
   }
@@ -235,19 +234,19 @@ public class MultipartValuePatternTest {
   @Test
   public void equalsShouldReturnFalseOnDifferentObjects() {
     MultipartValuePattern patternA =
-            aMultipart()
-                    .withName("title")
-                    .withHeader("X-First-Header", equalTo("One"))
-                    .withHeader("X-Second-Header", matching(".*2"))
-                    .withBody(equalToJson("{ \"thing\": 123 }"))
-                    .build();
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
+            .build();
 
     MultipartValuePattern patternB =
-            aMultipart()
-                    .withName("anotherTitle")
-                    .withHeader("X-Second-Header", matching(".*2"))
-                    .withBody(equalToJson("{ \"thing\": \"abc\" }"))
-                    .build();
+        aMultipart()
+            .withName("anotherTitle")
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": \"abc\" }"))
+            .build();
 
     assertThat(patternA.equals(patternB), is(false));
   }
