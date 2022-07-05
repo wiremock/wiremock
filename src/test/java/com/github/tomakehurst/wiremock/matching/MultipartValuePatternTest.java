@@ -223,9 +223,10 @@ public class MultipartValuePatternTest {
 
     MultipartValuePattern patternB =
         aMultipart()
-            .withName("anotherTitle")
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
-            .withBody(equalToJson("{ \"thing\": \"abc\" }"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
             .build();
 
     assertThat(patternA.equals(patternB), is(true));
