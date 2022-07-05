@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
@@ -164,5 +165,23 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     }
 
     return ((StringValuePattern) bodyPattern).match(body.asString());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    MultipartValuePattern that = (MultipartValuePattern) o;
+
+    return Objects.equals(name, that.name)
+        && Objects.equals(headers, that.headers)
+        && Objects.equals(bodyPatterns, that.bodyPatterns)
+        && matchingType == that.matchingType;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, headers, bodyPatterns, matchingType);
   }
 }
