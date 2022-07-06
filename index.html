@@ -21,7 +21,7 @@
 
 
 
-<title>Flexible API mocking | WireMock - WireMock</title>
+<title>WireMock - WireMock</title>
 
 
 
@@ -33,7 +33,7 @@
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Flexible API mocking | WireMock">
+<meta property="og:title" content="WireMock">
 
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:site" content="WireMock" />
@@ -361,27 +361,14 @@
         </ul>
         
       </nav>
-      <ul class="social-links">
-          <li>
-    <a href="http://github.com/wiremock" target="_blank">
-      <img src="https://wiremock.org/images/githubIcon.svg" />
-    </a>
-  </li>
-  <li>
-    <a id="slack-link" href="https://up9.com/slack" target="_blank">
-        <img src="https://wiremock.org/images/slackIcon.svg" />
-    </a>
-    </li>
-        <img class="separator-line-nav" src="https://wiremock.org/images/separatorLine.png" alt="separator line"/>
-        <span class="schedule-demo-nav">Schedule a call</span>
-      </ul>
+      
       <img id="hamburgerMenuIcon" class="hamburgerMenuIcon" src="https://wiremock.org/images/hamburgerMenuIcon.svg" />
       <div id="overlay-menu" class="overlay-menu"></div>
       <div class="mobile-menu-wrapper">
         <img id="closeMenuIcon" class="closeMenuIcon" src="https://wiremock.org/images/closeMenuIcon.svg" />
         <ul>
-          <li><a href="/docs">Wiremock Open Source</a></li>
-          <li><a href="/studio/docs">WireMock Studio</a></li>
+          <li><a href="/docs">Open Source docs</a></li>
+          <li><a href="/studio/docs">Studio docs</a></li>
           <li>
               <a href="https://get.mocklab.io?utm_source=wiremock.org&utm_medium=masthead&utm_campaign=homepage_2022_baseline" title="MockLab">
               <img src="/images/mocklab_logo_transparent.png" alt="MockLab logo" style="vertical-align: top;height: 20px;margin-right: 2px;"/>
@@ -392,19 +379,6 @@
           <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
           <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
           <li><a href="/external-resources">Resources</a></li>
-          <li><span class="schedule-demo-mobile-nav">Enterprise</span></li>
-        </ul>
-        <ul class="mobile-social-links">
-            <li>
-    <a href="http://github.com/wiremock" target="_blank">
-      <img src="https://wiremock.org/images/githubIcon.svg" />
-    </a>
-  </li>
-  <li>
-    <a id="slack-link" href="https://up9.com/slack" target="_blank">
-        <img src="https://wiremock.org/images/slackIcon.svg" />
-    </a>
-    </li>
         </ul>
       </div>
     </div>
@@ -420,8 +394,8 @@
 }
 
 .codeTabDescription {
-    margin: 0px !important;
-    padding: 0px !important;
+    margin: 0px;
+    padding: 0px;
     font-family: "Ubuntu";
     font-style: normal;
     font-weight: normal;
@@ -466,88 +440,72 @@
 
 </style>
 
-
-
-
 <div class="home-header-wrapper">
-  <div class="home-header-leftHeaderHP"></div>
-  <div class="home-header-rightHeaderHP"></div>
+  
   <div class="container home-header-container">
-    <div class="home-header-title-wrapper">
-      <h1>Flexible API mocking for unit, integration and performance testing</h1>
-    </div>
-    <div class="home-header-description-wrapper">
+    <div class="home-header-hero-text">
+      <h1>WireMock</h1>
+      <p>The flexible tool for building mock APIs.</p>
       <p>
-        <b>WireMock</b> is a tool for creating mock APIs. Build predictable development environments, isolate yourself from flakey 3rd party APIs and prototype APIs that don't exist yet.
+        Create stable development environments, isolate yourself from flakey 3rd parties and simulate APIs that don't exist yet.
       </p>
-    </div>
-    <div class="home-header-footer">
-        <div id="openSourceCard" class="wiremock-card-info">
-          <div class="wiremock-card-info-header">
-            <img src="/images/wiremockTypeExample.svg" alt="Wiremock api testing api monitoring" style="margin-top:5px;margin-bottom:5px">
-            <h2>Open Source</h2>
-          </div>
 
-          <p>
-            The core WireMock engine. Embed in your <strong>unit tests</strong>, or run as a <strong>standalone server</strong> anywhere there's <strong>Java</strong> or <strong>Docker</strong> available
-          </p>
-          <div class="link-card-info">
-            <a href="#open-source-get-started">
-              Get Started
-            </a>
-          </div>
+      <div style="margin-top: 45px">
+        <a href="#open-source-get-started" class="btn-primary">Get started</a>
+        <a href="/docs/" class="btn-secondary">View docs</a>
+      </div>
+    </div>
+    <div class="home-header-hero-image">
+      <div class="fake-osx-chrome">
+        <div class="fake-osx-chrome-title-bar">
+          <span class="dot" style="background:#ED6A5E;border-color:#ad473e;"></span>
+          <span class="dot" style="background:#F4BF4F;border-color:#9e7930"></span>
+          <span class="dot" style="background:#62C856;border-color:#408636"></span>
         </div>
-        <div id="studioCard" class="wiremock-card-info">
-          <div class="wiremock-card-info-header">
-            <img src="/images/mocklab/Mocklab_Logo_4x_greyscale.png" alt="MockLab" style="height:20px">
-            <h2>Cloud</h2>
-          </div>
-          <p>
-            MockLab is an <strong>IDE for your mock APIs</strong>, powered by WireMock and <strong>hosted in the cloud</strong>. With support for <strong>Swagger</strong>, <strong>OpenAPI</strong> and <strong>Postman</strong> imports.
-          </p>
-          <div class="link-card-info">
-            <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=homepage-hero_learn-more&utm_campaign=homepage_2022_baseline" style="color:black;margin-right:20px">
-              Learn More
-            </a>
-          
-            <a href="https://app.mocklab.io/login?for=signup&utm_source=wiremock.org&utm_medium=homepage-hero_try-it-now&utm_campaign=homepage_2022_baseline">
-              Try it now
-            </a>
-            <img src="/images/studioRightIcon.svg" alt="Try MockLab now"/>
-          </div>
+        <div class="fake-osx-chrome-content-pane">
+          <figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">
+  </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/wiremock"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+
+  </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Easy!"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
         </div>
-        
+      </div>
     </div>
   </div>
 </div>
-<div class="main-wrapper">
-  <div class="container clients-wrapper">
-    <div class="client-wrapper">
-      <img src="/images/clients/pivotal.jpg" alt="wiremock pivotal" />
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/softwire.jpg" alt="wiremock softwire"/>
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/yenlo.jpg" alt="wiremock yenlo"/>
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/sky.jpg" />
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/theguardian.jpg" alt="wiremock theguardian"/>
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/ft.jpg" alt="wiremock ft"/>
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/intuit.jpg" alt="wiremock intuit"/>
-    </div>
-    <div class="client-wrapper">
-      <img src="/images/clients/piksel.jpg" alt="wiremock piksel"/>
-    </div>
-  </div>
 
+<div class="main-wrapper">
+  <a id="a-studio-enterprise" href="#studio-enterprise-learn-more">z</a>
+  <div id="studio-enterprise-learn-more" class="container wiremock-studio-wrapper">
+    <div class="wiremock-studio-img-wrapper">
+      <img class="wiremock-studio-img" src="/images/mocklab/rest-example-stubs-screenshot.png" alt="mocklab screenshot"/>
+    </div>
+    <div class="wiremock-studio-vLine"></div>
+
+    <div id="studio-enterprise" class="wiremock-studio-details details-custom">
+      <img class="wiremockIMGwidth" src="/images/mocklab/Mocklab_Logo_4x.png" alt="mocklab logo"/>
+      <h3 class="robot-subtitle">Hosted API mocking for teams and enterprises</h3>
+
+      <ul class="mocklab-callout-bullets">
+        <li>Cloud hosted - nothing to install</li>
+        <li>Intuitive web UI</li>
+        <li>Team collaboration</li>
+        <li>Swagger, OpenAPI and Postman import</li>
+        <li>100% WireMock API compatible</li>
+      </ul>
+
+      <div style="margin-top:40px">
+        <a href="https://get.mocklab.io/?utm_source=wiremock.org&utm_medium=homepage-callout_learn-more&utm_campaign=homepage_baseline" class="btn-secondary btn-secondary--mocklab">Learn more</a>
+        <a href="https://app.mocklab.io/login?for=signup&utm_source=wiremock.org&utm_medium=homepage-callout_try-it-now&utm_campaign=homepage_baseline" class="btn-primary btn-primary--mocklab">Try it now</a>
+      </div>
+  </div>
+</div> 
 
   <div id="open-source-get-started" class="container code-tabs-wrapper">
     <div class="code-tabs-row">
@@ -585,40 +543,45 @@
           </ul>
           <div class="code-tabs-main-example">
             <div class="codeSnippet activeCodeSnippet" data-snippettab="maven">
-              <h4 class="codeTabDescription">Add the following to your project's <strong>pom.xml</strong> dependencies:</h4>
+              <p class="codeTabDescription">Add the following to your project's <strong>pom.xml</strong> dependencies:</p>
 <figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>2.33.2<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span></code></pre></figure>
+            <p class="codeTabDescription" style="margin-top:2rem;">Then follow the next steps for <a href="/docs/junit-jupiter/">JUnit 5+</a> or <a href="/docs/java-usage/">plain Java</a>.</p>
           </div>
           <div class="codeSnippet" data-snippettab="gradle groovy">
-            <h4 class="codeTabDescription">Add the following to your project's <strong>build.gradle</strong>:</h4>
+            <p class="codeTabDescription">Add the following to your project's <strong>build.gradle</strong>:</p>
 <figure class="highlight"><pre><code class="language-groovy" data-lang="groovy"><span class="n">testImplementation</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.33.2"</span></code></pre></figure>
+            <p class="codeTabDescription" style="margin-top:2rem;">Then follow the next steps for <a href="/docs/junit-jupiter/">JUnit 5+</a> or <a href="/docs/java-usage/">plain Java</a>.</p>
           </div>
           <div class="codeSnippet" data-snippettab="gradle kotlin">
-            <h4 class="codeTabDescription">Add the following to your project's <strong>build.gradle.kts</strong>:</h4>
+            <p class="codeTabDescription">Add the following to your project's <strong>build.gradle.kts</strong>:</p>
 <figure class="highlight"><pre><code class="language-kotlin" data-lang="kotlin"><span class="nf">testImplementation</span><span class="p">(</span><span class="s">"com.github.tomakehurst:wiremock-jre8:2.33.2"</span><span class="p">)</span></code></pre></figure>
+            <p class="codeTabDescription" style="margin-top:2rem;">Then follow the next steps for <a href="/docs/junit-jupiter/">JUnit 5+</a> or <a href="/docs/java-usage/">plain Java</a>.</p>
           </div>
           <div class="codeSnippet" data-snippettab="scala sbt">
-            <h4 class="codeTabDescription">Add the following to your project’s <strong>build.sbt</strong>:</h4>
+            <p class="codeTabDescription">Add the following to your project’s <strong>build.sbt</strong>:</p>
 <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">libraryDependencies</span> <span class="o">+=</span>
   <span class="s">"com.github.tomakehurst"</span> <span class="o">%</span> <span class="s">"wiremock-jre8"</span> <span class="o">%</span> <span class="s">"2.33.2"</span> <span class="o">%</span> <span class="nc">Test</span></code></pre></figure>
           </div>
           <div class="codeSnippet" data-snippettab="standalone">
-            <h4 class="codeTabDescription">
+            <p class="codeTabDescription">
               Download the <a id="wiremock-standalone-download" href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.33.2/wiremock-jre8-standalone-2.33.2.jar">latest standalone JAR</a>
               then run the following in a terminal:
-            </h4>
+            </p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">java <span class="nt">-jar</span> wiremock-jre8-standalone-2.33.2.jar</code></pre></figure>
+            <p class="codeTabDescription" style="margin-top:2rem;">Learn more in the <a href="/docs/running-standalone/">running standalone guide.</a></p>
           </div>
           <div class="codeSnippet" data-snippettab="docker">
-            <h4 class="codeTabDescription">Run the following in a terminal:</h4>
+            <p class="codeTabDescription">Run the following in a terminal:</p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">docker run <span class="nt">-it</span> <span class="nt">--rm</span> <span class="se">\</span>
   <span class="nt">-p</span> 8080:8080 <span class="se">\</span>
   <span class="nt">--name</span> wiremock <span class="se">\</span>
   wiremock/wiremock:2.33.2</code></pre></figure>
+            <p class="codeTabDescription" style="margin-top:2rem;">Learn more in the <a href="/docs/docker/">Docker guide.</a></p>
           </div>
         </div> 
         </div>
@@ -630,13 +593,17 @@
 
         <div class="github-card-info-wrapper">
           <div class="github-card-info">
-            <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/wiremock/wiremock?style=social" >
+            <a href="https://github.com/wiremock/wiremock/stargazers" target="_blank">
+              <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/wiremock/wiremock?style=social" >
+            </a>
           </div>
         </div>
 
         <div class="github-card-info-wrapper">
           <div class="github-card-info">
-            <img alt="GitHub forks" src="https://img.shields.io/github/forks/wiremock/wiremock?style=social" >
+            <a href="https://github.com/wiremock/wiremock" target="_blank">
+              <img alt="GitHub forks" src="https://img.shields.io/github/forks/wiremock/wiremock?style=social" >
+            </a>
           </div>
         </div>
 
@@ -648,71 +615,6 @@
     </div>
   </div>
 
-
-  <div id="studio-learn-more" class="container wiremock-studio-wrapper">
-      <div class="wiremock-studio-img-wrapper">
-        <img class="wiremock-studio-img" src="/images/wiremockDashboard.png" alt="wiremock mock server"/>
-      </div>
-      <div class="wiremock-studio-vLine"></div>
-      <div class="wiremock-studio-details">
-        <img class="wiremockIMGwidth" src="/images/wiremockTypeExample.svg" alt="wiremock api testing"/>
-        <h2>Studio</h2>
-        <p class="p-margin-studio p-width-studio">
-          WireMock Studio is tool built on top of the core WireMock engine, bringing a full web UI, management of multiple mock APIs and support for OpenAPI and Postman.
-        </p>
-        <p class="p-width-studio">
-          It can run on your laptop, in Docker or in your test environment, and has exactly the same data format as the underlying WireMock engine, so it's easy to reuse mock APIs or test code you've already created.
-        </p>
-        <div class="wiremock-studio-links-wrapper">
-          <a class="btn-card-info btnDownload" href="/studio/docs/">Get Started</a>
-        </div>
-        
-    </div>
-  </div>
-
-  <a id="a-studio-enterprise" href="#studio-enterprise-learn-more">z</a>
-  <div id="studio-enterprise-learn-more" class="container wiremock-studio-robot-wrapper">
-    <div class="wiremock-studio-robot">
-      <img class="wiremock-studio-img" src="/images/wiremockRobot.png" alt="wiremock robot"/>
-    </div>
-    <div class="wiremock-studio-vLine"></div>
-
-    <div id="studio-enterprise" class="wiremock-studio-details details-custom">
-      <img class="wiremockIMGwidth" src="/images/wiremockTypeExample.svg" alt="wiremock api testing"/>
-      <h2><span class="enterprise">Enterprise</span></h2>
-      <h3 class="robot-subtitle">Scalable and collaborative on-premise deployment</h3>
-
-      <div class="enterpirse-feature">
-        <div class="enterprise-bullet"></div>
-        <h4>Users, teams and SSO</h4>
-      </div>
-      
-      <div class="enterpirse-feature">
-        <div class="enterprise-bullet"></div>
-        <h4>Multiple scalable hosts</h4>
-      </div>
-      <div class="enterpirse-feature">
-        <div class="enterprise-bullet"></div>
-        <h4>Persistent data</h4>
-      </div>
-      <div class="enterpirse-feature">
-        <div class="enterprise-bullet"></div>
-        <h4>Monitoring tool integration</h4>
-      </div>
-      <div class="enterpirse-feature">
-        <div class="enterprise-bullet"></div>
-        <h4>Private TLS certificate and DNS management</h4>
-      </div>
-      <div class="enterpirse-feature">
-        <div class="enterprise-bullet"></div>
-        <h4>Deploy into your own VPC or Kubernetes cluster</h4>
-      </div>
-
-      <span id="btnschedulecall" class="btn-schedule-call">Schedule a Demo</span>
-  </div>
-</div> 
-
-</div>
 <div class="key-features-wrapper">
     <h2 class="keyFeaturesTXT">Key Features</h2>
     <div class="container key-features-grid">
@@ -782,11 +684,7 @@
       ga('send', 'event', 'homepage_body', 'schedule_call_clicked', 'Schedule demo button clicked', 1);
       activateSignupModalForm();
   })
-
-
-
 </script>
-<script src="/assets/js/homeHeaderCard.js"></script>
 
 
     <div class="page__footer">
@@ -799,9 +697,7 @@
 <div class="page__footer-copyright">
   <img src="https://wiremock.org/images/shortLogo.png" class="short-logo"/>
   
-  <span class="footer-copyright-description">&copy; 2022 
-  WireMock. Powered by <a href="https://up9.com" target="_new">UP9</a>
-  </span>
+  <span class="footer-copyright-description">&copy; 2022</span>
   
   <ul class="footer-social-links">
       <li>
@@ -809,11 +705,7 @@
       <img src="https://wiremock.org/images/githubIcon.svg" />
     </a>
   </li>
-  <li>
-    <a id="slack-link" href="https://up9.com/slack" target="_blank">
-        <img src="https://wiremock.org/images/slackIcon.svg" />
-    </a>
-    </li>
+
   </ul>
 </div>
 
