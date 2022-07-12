@@ -87,10 +87,17 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
+  public void doesNotMatchWhenActualValueIsNull() {
+    StringValuePattern matcher = WireMock.after("2021-06-14T15:15:15Z");
+    assertFalse(matcher.match(null).isExactMatch());
+  }
+
+  @Test
   public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.after("2021-01-01T00:00:00Z");
     assertThat(matcher.match("1971-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("1921-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(-1.0));
     assertThat(matcher.match("2020-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 

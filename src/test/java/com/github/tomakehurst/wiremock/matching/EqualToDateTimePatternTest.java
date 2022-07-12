@@ -106,10 +106,17 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
+  public void doesNotMatchWhenActualValueIsNull() {
+    StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14Z");
+    assertFalse(matcher.match(null).isExactMatch());
+  }
+
+  @Test
   public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(-1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 

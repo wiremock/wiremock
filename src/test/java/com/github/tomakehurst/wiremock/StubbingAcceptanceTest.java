@@ -817,7 +817,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnLiteralZonedDate() {
+  public void matchesInRequestBodyOnLiteralZonedDate() {
     stubFor(
         post("/date")
             .withRequestBody(matchingJsonPath("$.date", before("2021-10-11T00:00:00Z")))
@@ -833,6 +833,26 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         testClient
             .postJson("/date", "{\n" + "  \"date\": \"2121-06-22T23:59:59Z\"\n" + "}")
             .statusCode(),
+        is(404));
+  }
+
+  @Test
+  public void matchesQueryParameterOnLiteralZonedDate() {
+    stubFor(
+        get(urlPathEqualTo("/match-query-parameter"))
+            .withQueryParam("date", before("2021-10-11T00:00:00Z"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient.get("/match-query-parameter?date=2021-06-22T23%3A59%3A59Z").statusCode(),
+        is(200));
+
+    assertThat(
+        testClient.get("/match-query-parameter?date=2121-06-22T23%3A59%3A59Z").statusCode(),
+        is(404));
+
+    assertThat(
+        testClient.get("/match-query-parameter").statusCode(),
         is(404));
   }
 
