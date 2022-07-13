@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ public class EqualToDateTimePatternTest {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
-    assertThat(matcher.match(null).getDistance(), is(-1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 
