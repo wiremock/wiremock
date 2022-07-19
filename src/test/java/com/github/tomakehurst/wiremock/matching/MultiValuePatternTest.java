@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParam;
@@ -40,6 +40,12 @@ public class MultiValuePatternTest {
   public void returnsNonMatchForPresentHeaderWhenRequiredAbsent() {
     assertFalse(
         MultiValuePattern.absent().match(httpHeader("the-key", "the value")).isExactMatch());
+  }
+
+  @Test
+  public void returnsNonMatchForAbsentHeaderWhenRequiredBeforeNow() {
+    assertFalse(
+        MultiValuePattern.of(beforeNow()).match(HttpHeader.absent("any-key")).isExactMatch());
   }
 
   @Test

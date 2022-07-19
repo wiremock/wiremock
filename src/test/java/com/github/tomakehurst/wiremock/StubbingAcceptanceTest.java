@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Collections.singletonList;
-import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
-import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
-import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.apache.hc.core5.http.ContentType.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -817,7 +814,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnLiteralZonedDate() {
+  public void matchesInRequestBodyOnLiteralZonedDate() {
     stubFor(
         post("/date")
             .withRequestBody(matchingJsonPath("$.date", before("2021-10-11T00:00:00Z")))
@@ -834,6 +831,24 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .postJson("/date", "{\n" + "  \"date\": \"2121-06-22T23:59:59Z\"\n" + "}")
             .statusCode(),
         is(404));
+  }
+
+  @Test
+  public void matchesQueryParameterOnLiteralZonedDate() {
+    stubFor(
+        get(urlPathEqualTo("/match-query-parameter"))
+            .withQueryParam("date", before("2021-10-11T00:00:00Z"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient.get("/match-query-parameter?date=2021-06-22T23%3A59%3A59Z").statusCode(),
+        is(200));
+
+    assertThat(
+        testClient.get("/match-query-parameter?date=2121-06-22T23%3A59%3A59Z").statusCode(),
+        is(404));
+
+    assertThat(testClient.get("/match-query-parameter").statusCode(), is(404));
   }
 
   @Test
