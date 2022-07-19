@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,12 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
+  public void doesNotMatchWhenActualValueIsNull() {
+    StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15");
+    assertFalse(matcher.match(null).isExactMatch());
+  }
+
+  @Test
   public void doesNotMatchWhenExpectedValueUnparseable() {
     StringValuePattern matcher = WireMock.before("2021-06-wrongstuff:15:15");
     assertFalse(matcher.match("2021-06-01T15:15:15Z").isExactMatch());
@@ -84,6 +90,7 @@ public class BeforeDateTimePatternTest {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 
@@ -92,6 +99,7 @@ public class BeforeDateTimePatternTest {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 
@@ -100,6 +108,7 @@ public class BeforeDateTimePatternTest {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
     assertThat(matcher.match("2071-01-01T00:00:00").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00").getDistance(), is(0.01));
   }
 
