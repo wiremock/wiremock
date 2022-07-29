@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public abstract class AbstractFileSource implements FileSource {
@@ -159,7 +160,7 @@ public abstract class AbstractFileSource implements FileSource {
               ? new File(path).getCanonicalPath()
               : new File(rootDirectory, path).getCanonicalPath();
 
-      if (!filePath.startsWith(rootPath)) {
+      if (!Paths.get(filePath).normalize().startsWith(rootPath)) {
         throw new NotAuthorisedException("Access to file " + path + " is not permitted");
       }
     } catch (IOException ioe) {
