@@ -46,7 +46,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
+      <artifactId>wiremock-jre8-standalone</artifactId>
       <version>2.33.2</version>
       <scope>test</scope>
     </dependency>
