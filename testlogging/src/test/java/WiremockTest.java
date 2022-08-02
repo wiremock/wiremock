@@ -12,9 +12,10 @@ import java.io.PrintStream;
 import java.net.URL;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class WiremockTest {
 
@@ -43,9 +44,9 @@ public class WiremockTest {
         URL uri = new URL("http://localhost:8080/blah");
         InputStream content = uri.openConnection().getInputStream();
 
-        final String retrievedBody = IOUtils.toString(content);
+        final String retrievedBody = IOUtils.toString(content, UTF_8);
         assertEquals("body", retrievedBody);
-        assertThat(stdOutCapture.toString(), containsString("c.g.t.wiremock.common.Log4jNotifier - Received request to /mappings/new"));
+        assertThat(stdOutCapture.toString(), containsString("INFO  o.e.j.s.h.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler"));
     }
 
     private static class StringPrintStream extends PrintStream {
