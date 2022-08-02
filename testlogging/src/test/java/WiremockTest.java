@@ -46,7 +46,7 @@ public class WiremockTest {
 
         final String retrievedBody = IOUtils.toString(content, UTF_8);
         assertEquals("body", retrievedBody);
-        assertThat(stdOutCapture.toString(), containsString("INFO  o.e.j.s.h.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler"));
+        assertThat(stdOutCapture.toString(), containsString("LOGBACK INFO  w.o.e.j.s.h.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler"));
     }
 
     private static class StringPrintStream extends PrintStream {
