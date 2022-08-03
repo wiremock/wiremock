@@ -101,7 +101,7 @@ public class WireMockApp implements StubServer, Admin {
                 customMatchers,
                 stores.getRequestJournalStore());
 
-    scenarios = new Scenarios();
+    scenarios = new InMemoryScenarios(stores.getScenariosStore());
     stubMappings =
         new InMemoryStubMappings(
             stores.getStubStore(),
@@ -142,7 +142,7 @@ public class WireMockApp implements StubServer, Admin {
             ? new DisabledRequestJournal()
             : new InMemoryRequestJournal(
                 maxRequestJournalEntries, requestMatchers, stores.getRequestJournalStore());
-    scenarios = new Scenarios();
+    scenarios = new InMemoryScenarios(stores.getScenariosStore());
     stubMappings =
         new InMemoryStubMappings(
             stores.getStubStore(),

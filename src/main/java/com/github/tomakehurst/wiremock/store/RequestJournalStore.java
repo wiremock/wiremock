@@ -21,9 +21,9 @@ import java.util.stream.Stream;
 
 public interface RequestJournalStore extends Store<UUID, ServeEvent> {
 
-  void add(ServeEvent event);
-
   Stream<ServeEvent> getAll();
+
+  void add(ServeEvent event);
 
   void removeLast();
 }

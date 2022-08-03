@@ -42,7 +42,7 @@ public class InMemoryStubMappings extends AbstractStubMappings {
   public InMemoryStubMappings() {
     this(
         new InMemoryStubMappingStore(),
-        new Scenarios(),
+        new InMemoryScenarios(),
         Collections.<String, RequestMatcherExtension>emptyMap(),
         Collections.<String, ResponseDefinitionTransformer>emptyMap(),
         new FileSourceBlobStore(new SingleRootFileSource(".")),

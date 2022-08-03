@@ -15,28 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import java.util.List;
+import com.github.tomakehurst.wiremock.store.InMemoryScenariosStore;
+import com.github.tomakehurst.wiremock.store.ScenariosStore;
 
-public interface Scenarios {
-  Scenario getByName(String name);
+public class InMemoryScenarios extends AbstractScenarios {
 
-  List<Scenario> getAll();
+  public InMemoryScenarios(ScenariosStore store) {
+    super(store);
+  }
 
-  void onStubMappingAdded(StubMapping mapping);
-
-  void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping);
-
-  void onStubMappingRemoved(StubMapping mapping);
-
-  void onStubServed(StubMapping mapping);
-
-  void reset();
-
-  void resetSingle(String name);
-
-  void setSingle(String name, String state);
-
-  void clear();
-
-  boolean mappingMatchesScenarioState(StubMapping mapping);
+  public InMemoryScenarios() {
+    this(new InMemoryScenariosStore());
+  }
 }

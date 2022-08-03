@@ -26,12 +26,15 @@ public class DefaultStores implements Stores {
   private final RequestJournalStore requestJournalStore;
   private final SettingsStore settingsStore;
 
+  private final ScenariosStore scenariosStore;
+
   public DefaultStores(FileSource fileRoot) {
     this.fileRoot = fileRoot;
 
     this.stubMappingStore = new InMemoryStubMappingStore();
     this.requestJournalStore = new InMemoryRequestJournalStore();
     this.settingsStore = new InMemorySettingsStore();
+    this.scenariosStore = new InMemoryScenariosStore();
   }
 
   @Override
@@ -51,7 +54,7 @@ public class DefaultStores implements Stores {
 
   @Override
   public ScenariosStore getScenariosStore() {
-    return null;
+    return scenariosStore;
   }
 
   @Override
