@@ -21,5 +21,5 @@ public interface SettingsStore {
 
   GlobalSettings get();
 
-  void put(GlobalSettings newSettings);
+  void set(GlobalSettings newSettings);
 }

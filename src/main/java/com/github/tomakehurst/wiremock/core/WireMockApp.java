@@ -31,7 +31,6 @@ import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -39,6 +38,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
@@ -64,7 +64,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Scenarios scenarios;
   private final StubMappings stubMappings;
   private final RequestJournal requestJournal;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final SettingsStore settingsStore;
   private final boolean browserProxyingEnabled;
   private final MappingsLoader defaultMappingsLoader;
   private final Container container;
@@ -87,7 +87,8 @@ public class WireMockApp implements StubServer, Admin {
     this.browserProxyingEnabled = options.browserProxySettings().enabled();
     this.defaultMappingsLoader = options.mappingsLoader();
     this.mappingsSaver = options.mappingsSaver();
-    globalSettingsHolder = new GlobalSettingsHolder();
+
+    this.settingsStore = stores.getSettingsStore();
 
     Map<String, RequestMatcherExtension> customMatchers =
         options.extensionsOfType(RequestMatcherExtension.class);
@@ -134,7 +135,8 @@ public class WireMockApp implements StubServer, Admin {
     this.browserProxyingEnabled = browserProxyingEnabled;
     this.defaultMappingsLoader = defaultMappingsLoader;
     this.mappingsSaver = mappingsSaver;
-    globalSettingsHolder = new GlobalSettingsHolder();
+    //    globalSettingsHolder = new GlobalSettingsHolder();
+    this.settingsStore = stores.getSettingsStore();
     requestJournal =
         requestJournalDisabled
             ? new DisabledRequestJournal()
@@ -178,13 +180,13 @@ public class WireMockApp implements StubServer, Admin {
         this,
         new StubResponseRenderer(
             options.getStores().getFilesBlobStore(),
-            getGlobalSettingsHolder(),
+            settingsStore,
             new ProxyResponseRenderer(
                 options.proxyVia(),
                 options.httpsSettings().trustStore(),
                 options.shouldPreserveHostHeader(),
                 options.proxyHostHeader(),
-                globalSettingsHolder,
+                settingsStore,
                 browserProxySettings.trustAllProxyTargets(),
                 browserProxySettings.trustedProxyTargets(),
                 options.getStubCorsEnabled()),
@@ -218,10 +220,6 @@ public class WireMockApp implements StubServer, Admin {
               }
             })
         .toList();
-  }
-
-  public GlobalSettingsHolder getGlobalSettingsHolder() {
-    return globalSettingsHolder;
   }
 
   private void loadDefaultMappings() {
@@ -444,18 +442,18 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public GetGlobalSettingsResult getGlobalSettings() {
-    return new GetGlobalSettingsResult(globalSettingsHolder.get());
+    return new GetGlobalSettingsResult(settingsStore.get());
   }
 
   @Override
   public void updateGlobalSettings(GlobalSettings newSettings) {
-    GlobalSettings oldSettings = globalSettingsHolder.get();
+    GlobalSettings oldSettings = settingsStore.get();
 
     for (GlobalSettingsListener listener : globalSettingsListeners) {
       listener.beforeGlobalSettingsUpdated(oldSettings, newSettings);
     }
 
-    globalSettingsHolder.replaceWith(newSettings);
+    settingsStore.set(newSettings);
 
     for (GlobalSettingsListener listener : globalSettingsListeners) {
       listener.afterGlobalSettingsUpdated(oldSettings, newSettings);

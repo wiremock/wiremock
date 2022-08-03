@@ -22,23 +22,31 @@ public class DefaultStores implements Stores {
 
   private final FileSource fileRoot;
 
+  private final StubMappingStore stubMappingStore;
+  private final RequestJournalStore requestJournalStore;
+  private final SettingsStore settingsStore;
+
   public DefaultStores(FileSource fileRoot) {
     this.fileRoot = fileRoot;
+
+    this.stubMappingStore = new InMemoryStubMappingStore();
+    this.requestJournalStore = new InMemoryRequestJournalStore();
+    this.settingsStore = new InMemorySettingsStore();
   }
 
   @Override
   public StubMappingStore getStubStore() {
-    return new InMemoryStubMappingStore();
+    return stubMappingStore;
   }
 
   @Override
   public RequestJournalStore getRequestJournalStore() {
-    return new InMemoryRequestJournalStore();
+    return requestJournalStore;
   }
 
   @Override
   public SettingsStore getSettingsStore() {
-    return null;
+    return settingsStore;
   }
 
   @Override

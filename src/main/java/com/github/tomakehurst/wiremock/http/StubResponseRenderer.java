@@ -21,8 +21,9 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -32,17 +33,17 @@ public class StubResponseRenderer implements ResponseRenderer {
 
   private final BlobStore filesBlobStore;
   private final FileSource filesFileSource;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final SettingsStore settingsStore;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
 
   public StubResponseRenderer(
       BlobStore filesBlobStore,
-      GlobalSettingsHolder globalSettingsHolder,
+      SettingsStore settingsStore,
       ProxyResponseRenderer proxyResponseRenderer,
       List<ResponseTransformer> responseTransformers) {
     this.filesBlobStore = filesBlobStore;
-    this.globalSettingsHolder = globalSettingsHolder;
+    this.settingsStore = settingsStore;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
 
@@ -108,6 +109,7 @@ public class StubResponseRenderer implements ResponseRenderer {
       }
     }
 
+    GlobalSettings settings = settingsStore.get();
     Response.Builder responseBuilder =
         response()
             .status(responseDefinition.getStatus())
@@ -115,8 +117,8 @@ public class StubResponseRenderer implements ResponseRenderer {
             .headers(headers)
             .fault(responseDefinition.getFault())
             .configureDelay(
-                globalSettingsHolder.get().getFixedDelay(),
-                globalSettingsHolder.get().getDelayDistribution(),
+                settings.getFixedDelay(),
+                settings.getDelayDistribution(),
                 responseDefinition.getFixedDelayMilliseconds(),
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());

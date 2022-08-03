@@ -21,7 +21,8 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
@@ -58,7 +59,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final CloseableHttpClient forwardProxyClient;
   private final boolean preserveHostHeader;
   private final String hostHeaderValue;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final SettingsStore settingsStore;
   private final boolean stubCorsEnabled;
 
   public ProxyResponseRenderer(
@@ -66,11 +67,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       KeyStoreSettings trustStoreSettings,
       boolean preserveHostHeader,
       String hostHeaderValue,
-      GlobalSettingsHolder globalSettingsHolder,
+      SettingsStore settingsStore,
       boolean trustAllProxyTargets,
       List<String> trustedProxyTargets,
       boolean stubCorsEnabled) {
-    this.globalSettingsHolder = globalSettingsHolder;
+    this.settingsStore = settingsStore;
+
     reverseProxyClient =
         HttpClientFactory.createClient(
             1000,
@@ -101,6 +103,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
 
+    GlobalSettings settings = settingsStore.get();
+
     Request originalRequest = responseDefinition.getOriginalRequest();
     if (originalRequest.getBody() != null && originalRequest.getBody().length > 0) {
       httpRequest.setEntity(buildEntityFrom(originalRequest));
@@ -113,8 +117,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
           .body(getEntityAsByteArrayAndCloseStream(httpResponse))
           .fromProxy(true)
           .configureDelay(
-              globalSettingsHolder.get().getFixedDelay(),
-              globalSettingsHolder.get().getDelayDistribution(),
+              settings.getFixedDelay(),
+              settings.getDelayDistribution(),
               responseDefinition.getFixedDelayMilliseconds(),
               responseDefinition.getDelayDistribution())
           .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
@@ -141,7 +145,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private static String extractUri(HttpUriRequest request) {
     try {
       return request.getUri().toString();
-    } catch (URISyntaxException e1) {
+    } catch (URISyntaxException ignored) {
     }
     return request.getRequestUri();
   }

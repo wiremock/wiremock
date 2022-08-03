@@ -21,8 +21,9 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.ArrayList;
@@ -36,23 +37,23 @@ public class StubResponseRendererTest {
   private static final int TEST_TIMEOUT = 500;
 
   private BlobStore filesBlobStore;
-  private GlobalSettingsHolder globalSettingsHolder;
+  private SettingsStore settingsStore;
   private List<ResponseTransformer> responseTransformers;
   private StubResponseRenderer stubResponseRenderer;
 
   @BeforeEach
   public void init() {
     filesBlobStore = Mockito.mock(BlobStore.class);
-    globalSettingsHolder = new GlobalSettingsHolder();
+    settingsStore = new InMemorySettingsStore();
     responseTransformers = new ArrayList<>();
     stubResponseRenderer =
-        new StubResponseRenderer(filesBlobStore, globalSettingsHolder, null, responseTransformers);
+        new StubResponseRenderer(filesBlobStore, settingsStore, null, responseTransformers);
   }
 
   @Test
   @Timeout(TEST_TIMEOUT)
   public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
-    globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(100));
 
@@ -62,7 +63,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
-    globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -72,7 +73,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
-    globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -89,7 +90,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
-    globalSettingsHolder.replaceWith(
+    settingsStore.set(
         GlobalSettings.builder()
             .delayDistribution(
                 new DelayDistribution() {
@@ -108,7 +109,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldCombineFixedDelayDistributionDelay() throws Exception {
-    globalSettingsHolder.replaceWith(
+    settingsStore.set(
         GlobalSettings.builder()
             .delayDistribution(
                 new DelayDistribution() {

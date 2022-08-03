@@ -33,8 +33,8 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -278,7 +278,7 @@ public class ProxyResponseRendererTest {
         KeyStoreSettings.NO_STORE,
         /* preserveHostHeader = */ false,
         /* hostHeaderValue = */ null,
-        new GlobalSettingsHolder(),
+        new InMemorySettingsStore(),
         trustAllProxyTargets,
         Collections.<String>emptyList(),
         stubCorsEnabled);

@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.RequestListener;
@@ -128,10 +127,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     wireMockApp.loadMappingsUsing(mappingsLoader);
-  }
-
-  public GlobalSettingsHolder getGlobalSettingsHolder() {
-    return wireMockApp.getGlobalSettingsHolder();
   }
 
   public void addMockServiceRequestListener(RequestListener listener) {
