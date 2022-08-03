@@ -33,7 +33,7 @@ public class DefaultStores implements Stores {
 
   @Override
   public RequestJournalStore getRequestJournalStore() {
-    return null;
+    return new InMemoryRequestJournalStore();
   }
 
   @Override

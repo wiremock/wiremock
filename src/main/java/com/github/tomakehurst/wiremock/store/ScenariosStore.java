@@ -17,4 +17,4 @@ package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 
-public interface ScenariosStore extends Store<Scenario> {}
+public interface ScenariosStore extends Store<String, Scenario> {}

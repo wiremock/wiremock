@@ -16,5 +16,14 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.UUID;
+import java.util.stream.Stream;
 
-public interface RequestJournalStore extends Store<ServeEvent> {}
+public interface RequestJournalStore extends Store<UUID, ServeEvent> {
+
+  void add(ServeEvent event);
+
+  Stream<ServeEvent> getAll();
+
+  void removeLast();
+}

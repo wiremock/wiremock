@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
-    RequestJournal journal =
-        new InMemoryRequestJournal(Optional.<Integer>absent(), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(Optional.absent(), NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent1);
@@ -92,8 +91,7 @@ public class InMemoryRequestJournalTest {
   @Test
   public void matchesRequestWithCustomMatcherDefinition() throws Exception {
     RequestJournal journal =
-        new InMemoryRequestJournal(
-            Optional.<Integer>absent(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));
+        new InMemoryRequestJournal(Optional.absent(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);

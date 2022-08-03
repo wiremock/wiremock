@@ -18,15 +18,15 @@ package com.github.tomakehurst.wiremock.store;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface Store<T> extends StoreLifecycle {
+public interface Store<K, V> extends StoreLifecycle {
 
-  Stream<String> getAllKeys();
+  Stream<K> getAllKeys();
 
-  Optional<T> get(String key);
+  Optional<V> get(K key);
 
-  void put(String key, T content);
+  void put(K key, V content);
 
-  void remove(String key);
+  void remove(K key);
 
   void clear();
 }
