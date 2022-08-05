@@ -292,6 +292,7 @@ public class WireMockApp implements StubServer, Admin {
   public void saveMappings() {
     for (StubMapping stubMapping : stubMappings.getAll()) {
       stubMapping.setPersistent(true);
+      stubMappings.editMapping(stubMapping);
     }
     mappingsSaver.save(stubMappings.getAll());
   }
