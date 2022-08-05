@@ -53,10 +53,4 @@ public class InMemoryScenariosStore implements ScenariosStore {
   public void clear() {
     scenarioMap.clear();
   }
-
-  @Override
-  public void start() {}
-
-  @Override
-  public void stop() {}
 }

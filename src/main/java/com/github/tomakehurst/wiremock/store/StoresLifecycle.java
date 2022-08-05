@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-public interface StoreLifecycle {
+public interface StoresLifecycle {
 
   void start();
 

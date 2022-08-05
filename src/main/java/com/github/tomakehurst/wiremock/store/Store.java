@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.store;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface Store<K, V> extends StoreLifecycle {
+public interface Store<K, V> {
 
   Stream<K> getAllKeys();
 

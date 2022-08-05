@@ -67,10 +67,4 @@ public class FileSourceBlobStore implements BlobStore {
   public void clear() {
     fileSource.listFilesRecursively().forEach(file -> fileSource.deleteFile(file.getPath()));
   }
-
-  @Override
-  public void start() {}
-
-  @Override
-  public void stop() {}
 }

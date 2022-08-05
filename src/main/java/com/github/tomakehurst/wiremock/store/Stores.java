@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.store;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 
-public interface Stores {
+public interface Stores extends StoresLifecycle {
 
   StubMappingStore getStubStore();
 

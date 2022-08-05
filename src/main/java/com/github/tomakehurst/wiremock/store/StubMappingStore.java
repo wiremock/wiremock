@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public interface StubMappingStore extends StoreLifecycle {
+public interface StubMappingStore {
 
   Stream<StubMapping> getAll();
 

@@ -61,4 +61,10 @@ public class DefaultStores implements Stores {
   public BlobStore getBlobStore(String name) {
     return new FileSourceBlobStore(fileRoot.child(name));
   }
+
+  @Override
+  public void start() {}
+
+  @Override
+  public void stop() {}
 }

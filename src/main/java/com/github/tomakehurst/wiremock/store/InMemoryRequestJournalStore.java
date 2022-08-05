@@ -65,10 +65,4 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
   public void clear() {
     serveEvents.clear();
   }
-
-  @Override
-  public void start() {}
-
-  @Override
-  public void stop() {}
 }
