@@ -137,8 +137,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
   @Override
   public void editMapping(StubMapping stubMapping) {
-    final Optional<StubMapping> optionalExistingMapping =
-        store.getAll().filter(mappingMatchingUuid(stubMapping.getUuid())).findFirst();
+    final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
     if (!optionalExistingMapping.isPresent()) {
       String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
@@ -218,9 +217,5 @@ public abstract class AbstractStubMappings implements StubMappings {
         stubMapping.getRequest().match(request, customMatchers).isExactMatch()
             && (stubMapping.isIndependentOfScenarioState()
                 || scenarios.mappingMatchesScenarioState(stubMapping));
-  }
-
-  private Predicate<StubMapping> mappingMatchingUuid(final UUID uuid) {
-    return stubMapping -> stubMapping.getUuid().equals(uuid);
   }
 }
