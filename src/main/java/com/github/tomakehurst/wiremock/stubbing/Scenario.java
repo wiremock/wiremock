@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.stream.Collectors.toSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,6 +30,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Scenario {
 
@@ -120,7 +122,9 @@ public class Scenario {
   }
 
   Scenario withoutStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings = Sets.difference(stubMappings, ImmutableSet.of(stubMapping));
+    Set<StubMapping> newMappings = stubMappings.stream()
+            .filter(stub -> !stub.getId().equals(stubMapping.getId()))
+            .collect(toSet());
     return new Scenario(id, state, newMappings);
   }
 
