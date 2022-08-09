@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Predicate;
@@ -37,14 +38,16 @@ import java.util.UUID;
 public class Recorder {
 
   private final Admin admin;
-  private State state;
 
-  public Recorder(Admin admin) {
+  private final RecorderStateStore stateStore;
+
+  public Recorder(Admin admin, RecorderStateStore stateStore) {
     this.admin = admin;
-    state = State.initial();
+    this.stateStore = stateStore;
   }
 
   public synchronized void startRecording(RecordSpec spec) {
+    RecorderState state = stateStore.get();
     if (state.getStatus() == RecordingStatus.Recording) {
       return;
     }
@@ -60,11 +63,13 @@ public class Recorder {
     List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
     UUID initialId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
     state = state.start(initialId, proxyMapping, spec);
+    stateStore.set(state);
 
     notifier().info("Started recording with record spec:\n" + Json.write(spec));
   }
 
   public synchronized SnapshotRecordResult stopRecording() {
+    RecorderState state = stateStore.get();
     if (state.getStatus() != RecordingStatus.Recording) {
       throw new NotRecordingException();
     }
@@ -73,6 +78,7 @@ public class Recorder {
 
     UUID lastId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
     state = state.stop(lastId);
+    stateStore.set(state);
     admin.removeStubMapping(state.getProxyMapping());
 
     if (serveEvents.isEmpty()) {
@@ -149,61 +155,6 @@ public class Recorder {
   }
 
   public RecordingStatus getStatus() {
-    return state.getStatus();
-  }
-
-  private static class State {
-
-    private final RecordingStatus status;
-    private final StubMapping proxyMapping;
-    private final RecordSpec spec;
-    private final UUID startingServeEventId;
-    private final UUID finishingServeEventId;
-
-    public State(
-        RecordingStatus status,
-        StubMapping proxyMapping,
-        RecordSpec spec,
-        UUID startingServeEventId,
-        UUID finishingServeEventId) {
-      this.status = status;
-      this.proxyMapping = proxyMapping;
-      this.spec = spec;
-      this.startingServeEventId = startingServeEventId;
-      this.finishingServeEventId = finishingServeEventId;
-    }
-
-    public static State initial() {
-      return new State(RecordingStatus.NeverStarted, null, null, null, null);
-    }
-
-    public State start(UUID startingServeEventId, StubMapping proxyMapping, RecordSpec spec) {
-      return new State(RecordingStatus.Recording, proxyMapping, spec, startingServeEventId, null);
-    }
-
-    public State stop(UUID finishingServeEventId) {
-      return new State(
-          RecordingStatus.Stopped, proxyMapping, spec, startingServeEventId, finishingServeEventId);
-    }
-
-    public RecordingStatus getStatus() {
-      return status;
-    }
-
-    public StubMapping getProxyMapping() {
-      return proxyMapping;
-    }
-
-    public RecordSpec getSpec() {
-      return spec;
-    }
-
-    public UUID getStartingServeEventId() {
-      return startingServeEventId;
-    }
-
-    public UUID getFinishingServeEventId() {
-      return finishingServeEventId;
-    }
+    return stateStore.get().getStatus();
   }
 }

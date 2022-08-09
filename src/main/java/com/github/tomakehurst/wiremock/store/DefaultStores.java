@@ -58,6 +58,11 @@ public class DefaultStores implements Stores {
   }
 
   @Override
+  public RecorderStateStore getRecorderStateStore() {
+    return new InMemoryRecorderStateStore();
+  }
+
+  @Override
   public BlobStore getBlobStore(String name) {
     return new FileSourceBlobStore(fileRoot.child(name));
   }

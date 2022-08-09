@@ -20,6 +20,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 
 public interface Stores extends StoresLifecycle {
 
+  String RECORDER_STATE = "recorder-state";
+
   StubMappingStore getStubStore();
 
   RequestJournalStore getRequestJournalStore();
@@ -27,6 +29,8 @@ public interface Stores extends StoresLifecycle {
   SettingsStore getSettingsStore();
 
   ScenariosStore getScenariosStore();
+
+  RecorderStateStore getRecorderStateStore();
 
   default BlobStore getMappingsBlobStore() {
     return getBlobStore(MAPPINGS_ROOT);
