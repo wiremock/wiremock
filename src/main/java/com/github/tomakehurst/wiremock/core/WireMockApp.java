@@ -83,6 +83,7 @@ public class WireMockApp implements StubServer, Admin {
 
     this.options = options;
     this.stores = options.getStores();
+    this.stores.start();
 
     this.browserProxyingEnabled = options.browserProxySettings().enabled();
     this.defaultMappingsLoader = options.mappingsLoader();
@@ -472,6 +473,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void shutdownServer() {
+    stores.stop();
     container.shutdown();
   }
 
