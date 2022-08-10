@@ -97,7 +97,7 @@ public class WireMockApp implements StubServer, Admin {
     requestJournal =
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
-            : new InMemoryRequestJournal(
+            : new StoreBackedRequestJournal(
                 options.maxRequestJournalEntries(),
                 customMatchers,
                 stores.getRequestJournalStore());
@@ -136,12 +136,11 @@ public class WireMockApp implements StubServer, Admin {
     this.browserProxyingEnabled = browserProxyingEnabled;
     this.defaultMappingsLoader = defaultMappingsLoader;
     this.mappingsSaver = mappingsSaver;
-    //    globalSettingsHolder = new GlobalSettingsHolder();
     this.settingsStore = stores.getSettingsStore();
     requestJournal =
         requestJournalDisabled
             ? new DisabledRequestJournal()
-            : new InMemoryRequestJournal(
+            : new StoreBackedRequestJournal(
                 maxRequestJournalEntries, requestMatchers, stores.getRequestJournalStore());
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
     stubMappings =

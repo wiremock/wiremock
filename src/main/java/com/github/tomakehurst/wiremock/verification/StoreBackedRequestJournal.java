@@ -16,14 +16,16 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.store.InMemoryRequestJournalStore;
+import com.github.tomakehurst.wiremock.store.RequestJournalStore;
 import com.google.common.base.Optional;
 import java.util.Map;
 
-public class InMemoryRequestJournal extends StoreBackedRequestJournal {
+public class StoreBackedRequestJournal extends AbstractRequestJournal {
 
-  public InMemoryRequestJournal(
-      Optional<Integer> maxEntries, Map<String, RequestMatcherExtension> customMatchers) {
-    super(maxEntries, customMatchers, new InMemoryRequestJournalStore());
+  public StoreBackedRequestJournal(
+      Optional<Integer> maxEntries,
+      Map<String, RequestMatcherExtension> customMatchers,
+      RequestJournalStore store) {
+    super(maxEntries, customMatchers, store);
   }
 }
