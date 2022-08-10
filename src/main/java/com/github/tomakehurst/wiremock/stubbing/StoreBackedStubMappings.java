@@ -15,23 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.store.InMemoryStubMappingStore;
-import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
-import java.util.Collections;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.StubMappingStore;
+import java.util.List;
+import java.util.Map;
 
-public class InMemoryStubMappings extends StoreBackedStubMappings {
+public class StoreBackedStubMappings extends AbstractStubMappings {
 
-  public InMemoryStubMappings() {
-    super(
-        new InMemoryStubMappingStore(),
-        new InMemoryScenarios(),
-        Collections.<String, RequestMatcherExtension>emptyMap(),
-        Collections.<String, ResponseDefinitionTransformer>emptyMap(),
-        new FileSourceBlobStore(new SingleRootFileSource(".")),
-        Collections.<StubLifecycleListener>emptyList());
+  public StoreBackedStubMappings(
+      StubMappingStore store,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, ResponseDefinitionTransformer> transformers,
+      BlobStore filesBlobStore,
+      List<StubLifecycleListener> stubLifecycleListeners) {
+    super(store, scenarios, customMatchers, transformers, filesBlobStore, stubLifecycleListeners);
   }
 }
