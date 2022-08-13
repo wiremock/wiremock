@@ -15,7 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -25,6 +28,13 @@ public interface StubMappingStore {
   Stream<StubMapping> getAll();
 
   Optional<StubMapping> get(UUID id);
+
+  default Stream<StubMapping> findAllMatchingRequest(
+      Request request, Map<String, RequestMatcherExtension> customMatchers) {
+    return getAll()
+        .filter(
+            stubMapping -> stubMapping.getRequest().match(request, customMatchers).isExactMatch());
+  }
 
   void add(StubMapping stub);
 

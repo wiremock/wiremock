@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
@@ -70,8 +69,11 @@ public abstract class AbstractStubMappings implements StubMappings {
   public ServeEvent serveFor(Request request) {
     StubMapping matchingMapping =
         store
-            .getAll()
-            .filter(mappingMatchingAndInCorrectScenarioState(request))
+            .findAllMatchingRequest(request, customMatchers)
+            .filter(
+                stubMapping ->
+                    stubMapping.isIndependentOfScenarioState()
+                        || scenarios.mappingMatchesScenarioState(stubMapping))
             .findFirst()
             .orElse(StubMapping.NOT_CONFIGURED);
 
@@ -205,17 +207,5 @@ public abstract class AbstractStubMappings implements StubMappings {
               return pattern.match(metadataJson).isExactMatch();
             })
         .collect(toList());
-  }
-
-  private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
-    return mappingMatchingAndInCorrectScenarioStateNew(request);
-  }
-
-  private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(
-      final Request request) {
-    return stubMapping ->
-        stubMapping.getRequest().match(request, customMatchers).isExactMatch()
-            && (stubMapping.isIndependentOfScenarioState()
-                || scenarios.mappingMatchesScenarioState(stubMapping));
   }
 }
