@@ -18,9 +18,12 @@ package com.github.tomakehurst.wiremock.store;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 
+/**
+ * Note: BETA
+ * This interface and everything else under the stores package is in beta so breaking changes may occur
+ * between minor releases.
+ */
 public interface Stores extends StoresLifecycle {
-
-  String RECORDER_STATE = "recorder-state";
 
   StubMappingStore getStubStore();
 
@@ -41,6 +44,4 @@ public interface Stores extends StoresLifecycle {
   }
 
   BlobStore getBlobStore(String name);
-
-  // TODO: Recorder store to share record state and possibly persist recordings?
 }
