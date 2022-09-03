@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.multipart;
+package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import java.util.Collection;
+import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.HttpServletRequest;
 
-public class PartParser {
+public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
 
-  public static Collection<Request.Part> parseFrom(Request request) {
-    return request.getParts();
+  @Override
+  public void configure(HttpServletRequest request) {
+    MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
+    request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ public class Http2ClientFactory {
   public static HttpClient create() {
     SslContextFactory sslContextFactory = new SslContextFactory.Client(true);
     HttpClientTransport transport = new HttpClientTransportOverHTTP2(new HTTP2Client());
-    HttpClient httpClient = new HttpClient(transport, sslContextFactory);
+    HttpClient httpClient = new HttpClient(transport);
+    httpClient.addBean(sslContextFactory);
 
     httpClient.setFollowRedirects(false);
     try {

@@ -35,15 +35,15 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
-import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
+import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
@@ -245,9 +245,9 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public Map<String, Cookie> getCookies() {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
-    javax.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
-    for (javax.servlet.http.Cookie cookie : cookies) {
+    jakarta.servlet.http.Cookie[] cookies =
+        firstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+    for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
 
