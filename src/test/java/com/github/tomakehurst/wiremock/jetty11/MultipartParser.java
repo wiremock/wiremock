@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty11;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.FluentIterable.from;
@@ -21,10 +21,10 @@ import static com.google.common.collect.FluentIterable.from;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapter;
 import com.google.common.base.Function;
+import jakarta.servlet.http.Part;
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
-import javax.servlet.http.Part;
-import org.eclipse.jetty.util.MultiPartInputStreamParser;
+import org.eclipse.jetty.server.MultiPartInputStreamParser;
 
 public class MultipartParser {
 

@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty94;
+package com.github.tomakehurst.wiremock.jetty11;
 
-import static com.github.tomakehurst.wiremock.jetty94.SslContexts.buildManInTheMiddleSslContextFactory;
+import static com.github.tomakehurst.wiremock.jetty11.SslContexts.buildManInTheMiddleSslContextFactory;
 
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
-import com.github.tomakehurst.wiremock.jetty9.JettyHttpServer;
+import com.github.tomakehurst.wiremock.jetty.DefaultMultipartRequestConfigurer;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
@@ -34,11 +34,11 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-public class Jetty94HttpServer extends JettyHttpServer {
+public class Jetty11HttpServer extends JettyHttpServer {
 
   private ServerConnector mitmProxyConnector;
 
-  public Jetty94HttpServer(
+  public Jetty11HttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
@@ -55,7 +55,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
     HttpConfiguration httpConfig = super.createHttpConfig(jettySettings);
     httpConfig.setSendXPoweredBy(false);
     httpConfig.setSendServerVersion(false);
-    httpConfig.addCustomizer(new SecureRequestCustomizer());
+    httpConfig.addCustomizer(new SecureRequestCustomizer(false));
     return httpConfig;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty94;
+package com.github.tomakehurst.wiremock.jetty11;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.Promise;
@@ -61,7 +61,7 @@ public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
     try {
       if (closeable != null) closeable.close();
     } catch (Throwable x) {
-      LOG.ignore(x);
+      /* Ignore */
     }
   }
 }

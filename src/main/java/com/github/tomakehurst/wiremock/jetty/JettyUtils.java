@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.HttpChannel;
@@ -74,7 +75,9 @@ public class JettyUtils {
         (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
     Object endpoint = sslEndpoint.getSslConnection().getEndPoint();
     try {
-      return (Socket) endpoint.getClass().getMethod("getSocket").invoke(endpoint);
+      final SocketChannel channel =
+          (SocketChannel) endpoint.getClass().getMethod("getChannel").invoke(endpoint);
+      return channel.socket();
     } catch (Exception e) {
       return throwUnchecked(e, Socket.class);
     }

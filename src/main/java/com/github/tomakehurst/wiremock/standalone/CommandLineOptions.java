@@ -38,7 +38,7 @@ import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -440,7 +440,7 @@ public class CommandLineOptions implements Options {
     try {
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       Class<?> cls =
-          loader.loadClass("com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory");
+          loader.loadClass("com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory");
       return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
     } catch (Exception e) {
       return throwUnchecked(e, null);

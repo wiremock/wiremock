@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -34,23 +34,15 @@ public class JettyHttpServerFactory implements HttpServerFactory {
     try {
       Class<? extends JettyHttpServer> serverClass =
           (Class<? extends JettyHttpServer>)
-              Class.forName("com.github.tomakehurst.wiremock.jetty94.Jetty94HttpServer");
+              Class.forName("com.github.tomakehurst.wiremock.jetty11.Jetty11HttpServer");
       return safelyGetConstructor(
           serverClass, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
     } catch (ClassNotFoundException e) {
-      try {
-        Class<? extends JettyHttpServer> serverClass =
-            (Class<? extends JettyHttpServer>)
-                Class.forName("com.github.tomakehurst.wiremock.jetty92.Jetty92HttpServer");
-        return safelyGetConstructor(
-            serverClass, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
-      } catch (ClassNotFoundException cnfe) {
-        return safelyGetConstructor(
-            JettyHttpServer.class,
-            Options.class,
-            AdminRequestHandler.class,
-            StubRequestHandler.class);
-      }
+      return safelyGetConstructor(
+          JettyHttpServer.class,
+          Options.class,
+          AdminRequestHandler.class,
+          StubRequestHandler.class);
     }
   }
 

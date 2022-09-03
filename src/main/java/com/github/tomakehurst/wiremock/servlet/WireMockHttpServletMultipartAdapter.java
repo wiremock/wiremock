@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.io.ByteStreams;
+import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.util.Collection;
-import javax.servlet.http.Part;
 
 public class WireMockHttpServletMultipartAdapter implements Request.Part {
 
