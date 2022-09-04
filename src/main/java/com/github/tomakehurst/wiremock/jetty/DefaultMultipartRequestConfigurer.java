@@ -23,7 +23,9 @@ public class DefaultMultipartRequestConfigurer implements MultipartRequestConfig
 
   @Override
   public void configure(HttpServletRequest request) {
-    MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
-    request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
+    request.setAttribute(
+        org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT,
+        new MultipartConfigElement(
+            System.getProperty("java.io.tmpdir"), Integer.MAX_VALUE, -1L, 0));
   }
 }
