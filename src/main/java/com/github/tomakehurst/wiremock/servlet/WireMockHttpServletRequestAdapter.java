@@ -75,6 +75,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
                 return splitQuery(request.getQueryString());
               }
             });
+
+    if (multipartRequestConfigurer != null) {
+      this.multipartRequestConfigurer.configure(request);
+    }
   }
 
   @Override
@@ -283,7 +287,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     if (cachedMultiparts == null) {
-      cachedMultiparts = PartParser.parseFrom(this);
+      cachedMultiparts = PartParser.parseFrom(request);
     }
 
     return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;

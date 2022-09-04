@@ -20,15 +20,17 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpClientTransport;
 import org.eclipse.jetty.http2.client.HTTP2Client;
 import org.eclipse.jetty.http2.client.http.HttpClientTransportOverHTTP2;
+import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Http2ClientFactory {
 
   public static HttpClient create() {
-    SslContextFactory sslContextFactory = new SslContextFactory.Client(true);
-    HttpClientTransport transport = new HttpClientTransportOverHTTP2(new HTTP2Client());
+    final SslContextFactory.Client sslContextFactory = new SslContextFactory.Client(true);
+    final ClientConnector connector = new ClientConnector();
+    connector.setSslContextFactory(sslContextFactory);
+    HttpClientTransport transport = new HttpClientTransportOverHTTP2(new HTTP2Client(connector));
     HttpClient httpClient = new HttpClient(transport);
-    httpClient.addBean(sslContextFactory);
 
     httpClient.setFollowRedirects(false);
     try {
