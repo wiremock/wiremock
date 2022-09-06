@@ -82,6 +82,9 @@ dependencies {
     exclude group: 'org.mozilla', module: 'rhino'
   }
 
+  api 'commons-fileupload:commons-fileupload:1.4',  {
+    exclude group: 'commons-io', module: 'commons-io'
+  }
   api "commons-io:commons-io:2.11.0"
 
   testImplementation "junit:junit:4.13"
@@ -106,14 +109,8 @@ dependencies {
 
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
-
-<<<<<<< HEAD
-  testImplementation "ch.qos.logback:logback-classic:1.3.0"
-
-=======
   testRuntimeOnly "org.slf4j:log4j-over-slf4j:2.0.0"
   testRuntimeOnly "ch.qos.logback:logback-classic:1.4.0"
->>>>>>> ffeee5ae (Jetty 11 support)
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
   testImplementation ('net.jockx:littleproxy:1.1.3') {
