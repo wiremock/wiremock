@@ -240,7 +240,17 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     if (response.getStatusMessage() == null) {
       httpServletResponse.setStatus(response.getStatus());
     } else {
-      httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+      // The Jetty 11 does not implement HttpServletResponse::setStatus and always sets the
+      // reason as `null`, the workaround using
+      // org.eclipse.jetty.server.Response::setStatusWithReason
+      // still works.
+      if (httpServletResponse instanceof org.eclipse.jetty.server.Response) {
+        final org.eclipse.jetty.server.Response jettyResponse =
+            (org.eclipse.jetty.server.Response) httpServletResponse;
+        jettyResponse.setStatusWithReason(response.getStatus(), response.getStatusMessage());
+      } else {
+        httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+      }
     }
 
     for (HttpHeader header : response.getHeaders().all()) {

@@ -287,7 +287,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     if (cachedMultiparts == null) {
-      cachedMultiparts = PartParser.parseFrom(request);
+      cachedMultiparts = PartParser.parseFrom(this);
     }
 
     return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
