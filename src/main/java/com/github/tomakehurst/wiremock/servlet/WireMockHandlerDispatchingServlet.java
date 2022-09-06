@@ -133,6 +133,12 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       throws ServletException, IOException {
     LocalNotifier.set(notifier);
 
+    // TODO: The HTTP/1.x CONNECT is also forwarded to the servlet now. To keep backward
+    // compatible behavior (with proxy involved), skipping the CONNECT handling altogether.
+    if (httpServletRequest.getMethod() == "CONNECT") {
+      return;
+    }
+
     Request request =
         new WireMockHttpServletRequestAdapter(
             httpServletRequest, multipartRequestConfigurer, mappedUnder, browserProxyingEnabled);
