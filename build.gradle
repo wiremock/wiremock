@@ -15,8 +15,8 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '6.4.2'
   id 'com.github.johnrengelman.shadow' version '7.1.2'
+  id 'com.diffplug.spotless' version '6.10.0'
   id "org.sonarqube" version "3.4.0.2513"
   id 'jacoco'
 }
@@ -31,7 +31,7 @@ project.ext {
     jackson        : '2.13.4',
     xmlUnit        : '2.9.0',
     jsonUnit       : '2.35.0',
-    junitJupiter   : '5.8.2'
+    junitJupiter   : '5.9.0'
   ]
 }
 
@@ -65,7 +65,7 @@ dependencies {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
   api "org.ow2.asm:asm:9.3"
-  api "org.slf4j:slf4j-api:1.7.36"
+  api "org.slf4j:slf4j-api:2.0.0"
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
   compileOnly("junit:junit:4.13.2") {
@@ -92,12 +92,12 @@ dependencies {
   testImplementation("org.junit.platform:junit-platform-testkit")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
   testImplementation("org.junit.platform:junit-platform-launcher")
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.4.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:4.8.0'
 
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
   testImplementation 'org.mockito:mockito-core:4.8.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.4.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:4.8.0'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
