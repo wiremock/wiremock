@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,9 +99,14 @@ public class Urls {
 
   public static URL safelyCreateURL(String url) {
     try {
-      return new URL(url);
+      return new URL(clean(url));
     } catch (MalformedURLException e) {
       return throwUnchecked(e, URL.class);
     }
+  }
+
+  // Workaround for a Jetty bug that appends "null" onto the end of the URL
+  private static String clean(String url) {
+    return url.matches(".*:[0-9]+null$") ? url.substring(0, url.length() - 4) : url;
   }
 }
