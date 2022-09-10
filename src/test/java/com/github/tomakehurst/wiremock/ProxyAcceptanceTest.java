@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -592,6 +593,24 @@ public class ProxyAcceptanceTest {
                 aResponse()
                     .proxiedFrom(targetServiceBaseUrl + "/approot")
                     .withProxyUrlPrefixToRemove("/other/service")));
+
+    target.register(get("/approot/doc/123").willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/other/service/doc/123");
+
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  public void removesPrefixFromProxyRequestWhenResponseTransformersAreUsed() {
+    init(wireMockConfig().extensions(new ResponseTemplateTransformer(true)));
+
+    proxy.register(
+            get("/other/service/doc/123")
+                    .willReturn(
+                            aResponse()
+                                    .proxiedFrom(targetServiceBaseUrl + "/approot")
+                                    .withProxyUrlPrefixToRemove("/other/service")));
 
     target.register(get("/approot/doc/123").willReturn(ok()));
 
