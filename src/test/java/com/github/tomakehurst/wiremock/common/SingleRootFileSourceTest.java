@@ -90,6 +90,17 @@ public class SingleRootFileSourceTest {
         });
   }
 
+    @Test
+    public void listFilesRecursivelyThrowsExceptionWhenLastPathNodeIsSimilarToRootButWithExtraCharacters() {
+        assertThrows(
+                NotAuthorisedException.class,
+                () -> {
+                    SingleRootFileSource fileSource =
+                            new SingleRootFileSource("src/test/resources/filesource/root");
+                    fileSource.getBinaryFileNamed("../rootdir/file.json");
+                });
+    }
+
   @Test
   public void writeTextFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
     assertThrows(
