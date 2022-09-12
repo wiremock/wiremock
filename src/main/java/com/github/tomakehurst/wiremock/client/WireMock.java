@@ -388,7 +388,7 @@ public class WireMock {
     return defaultInstance.get().getScenarios();
   }
 
-  private List<Scenario> getScenarios() {
+  public List<Scenario> getScenarios() {
     return admin.getAllScenarios().getScenarios();
   }
 
