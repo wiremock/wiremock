@@ -48,7 +48,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -199,6 +201,60 @@ public class ProxyResponseRendererTest {
     Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
   }
 
+  @Test
+  void addsEmptyEntityIfEmptyBodyForwardProxyPOST() throws IOException {
+    ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
+    CloseableHttpClient clientSpy =
+        reflectiveSpyField(
+            CloseableHttpClient.class, "forwardProxyClient", trustAllProxyResponseRenderer);
+
+    origin.stubFor(post("/proxied/empty-post").willReturn(aResponse().withBody("Result")));
+
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied/empty-post",
+            true,
+            new byte[0],
+            RequestMethod.POST,
+            new HttpHeaders(new HttpHeader("Content-Length", "0")));
+
+    trustAllProxyResponseRenderer.render(serveEvent);
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+    List<LoggedRequest> requests =
+        origin.findAll(postRequestedFor(urlPathMatching("/proxied/empty-post")));
+    Assertions.assertThat(requests)
+        .hasSizeGreaterThan(0)
+        .allMatch(r -> "0".equals(r.getHeader("Content-Length")))
+        .noneMatch(r -> r.containsHeader("Content-Type"));
+  }
+
+  @Test
+  void addsEmptyEntityIfEmptyBodyForwardProxyGET() throws IOException {
+    ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
+    CloseableHttpClient clientSpy =
+        reflectiveSpyField(
+            CloseableHttpClient.class, "forwardProxyClient", trustAllProxyResponseRenderer);
+
+    origin.stubFor(get("/proxied/empty-get").willReturn(aResponse().withBody("Result")));
+
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied/empty-get",
+            true,
+            new byte[0],
+            RequestMethod.GET,
+            new HttpHeaders(new HttpHeader("Content-Length", "0")));
+
+    trustAllProxyResponseRenderer.render(serveEvent);
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+    List<LoggedRequest> requests =
+        origin.findAll(getRequestedFor(urlPathMatching("/proxied/empty-get")));
+    Assertions.assertThat(requests)
+        .hasSizeGreaterThan(0)
+        .allMatch(r -> "0".equals(r.getHeader("Content-Length")))
+        .noneMatch(r -> r.containsHeader("Content-Type"));
+  }
+
   private static <T> T reflectiveSpyField(Class<T> fieldType, String fieldName, Object object) {
     try {
       Field field = object.getClass().getDeclaredField(fieldName);
@@ -220,13 +276,22 @@ public class ProxyResponseRendererTest {
   }
 
   private ServeEvent serveEvent(String path, boolean isBrowserProxyRequest, byte[] body) {
+    return serveEvent(path, isBrowserProxyRequest, body, RequestMethod.GET, new HttpHeaders());
+  }
+
+  private ServeEvent serveEvent(
+      String path,
+      boolean isBrowserProxyRequest,
+      byte[] body,
+      RequestMethod method,
+      HttpHeaders headers) {
     LoggedRequest loggedRequest =
         new LoggedRequest(
             /* url = */ path,
             /* absoluteUrl = */ origin.url(path),
-            /* method = */ RequestMethod.GET,
+            /* method = */ method,
             /* clientIp = */ "127.0.0.1",
-            /* headers = */ new HttpHeaders(),
+            /* headers = */ headers,
             /* cookies = */ new HashMap<String, Cookie>(),
             /* isBrowserProxyRequest = */ isBrowserProxyRequest,
             /* loggedDate = */ new Date(),
