@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
@@ -117,6 +118,8 @@ public class WireMockConfiguration implements Options {
 
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
+
+  private Limit responseBodySizeLimit = UNLIMITED;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -627,6 +630,11 @@ public class WireMockConfiguration implements Options {
     return disableStrictHttpHeaders;
   }
 
+  @Override
+  public DataTruncationSettings getDataTruncationSettings() {
+    return new DataTruncationSettings(responseBodySizeLimit);
+  }
+
   public WireMockConfiguration disableStrictHttpHeaders(boolean disableStrictHttpHeaders) {
     this.disableStrictHttpHeaders = disableStrictHttpHeaders;
     return this;
@@ -647,5 +655,10 @@ public class WireMockConfiguration implements Options {
         .trustedProxyTargets(trustedProxyTargets)
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  public WireMockConfiguration maxLoggedResponseSize(int maxSize) {
+    this.responseBodySizeLimit = new Limit(maxSize);
+    return this;
   }
 }

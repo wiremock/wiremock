@@ -157,7 +157,8 @@ public class WireMockApp implements StubServer, Admin {
         new BasicResponseRenderer(),
         options.getAdminAuthenticator(),
         options.getHttpsRequiredForAdminApi(),
-        getAdminRequestFilters());
+        getAdminRequestFilters(),
+        options.getDataTruncationSettings());
   }
 
   public StubRequestHandler buildStubRequestHandler() {
@@ -182,7 +183,8 @@ public class WireMockApp implements StubServer, Admin {
         postServeActions,
         requestJournal,
         getStubRequestFilters(),
-        options.getStubRequestLoggingDisabled());
+        options.getStubRequestLoggingDisabled(),
+        options.getDataTruncationSettings());
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
@@ -226,7 +228,7 @@ public class WireMockApp implements StubServer, Admin {
     ServeEvent serveEvent = stubMappings.serveFor(request);
 
     if (serveEvent.isNoExactMatch()) {
-      LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
+      LoggedRequest loggedRequest = serveEvent.getRequest();
       if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
         return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
       }

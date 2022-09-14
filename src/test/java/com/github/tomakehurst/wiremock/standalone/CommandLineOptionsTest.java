@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -735,6 +732,25 @@ public class CommandLineOptionsTest {
     MappingsSaver mappingsSaver = options.mappingsSaver();
 
     assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
+  }
+
+  @Test
+  void loggedResponseBodySizeLimit() {
+    CommandLineOptions options = new CommandLineOptions("--logged-response-body-size-limit", "18");
+
+    Limit limit = options.getDataTruncationSettings().getMaxResponseBodySize();
+
+    assertThat(limit.isExceededBy(18), is(false));
+    assertThat(limit.isExceededBy(19), is(true));
+  }
+
+  @Test
+  void defaultLoggedResponseBodySizeLimit() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    Limit limit = options.getDataTruncationSettings().getMaxResponseBodySize();
+
+    assertThat(limit.isExceededBy(Integer.MAX_VALUE), is(false));
   }
 
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
