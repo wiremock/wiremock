@@ -37,6 +37,12 @@ public class Body {
     this(content, true);
   }
 
+  public Body(String content) {
+    this.content = Strings.bytesFromString(content);
+    binary = false;
+    json = false;
+  }
+
   private Body(byte[] content, boolean binary) {
     this.content = content;
     this.binary = binary;
@@ -49,13 +55,7 @@ public class Body {
     this.json = json;
   }
 
-  public Body(String content) {
-    this.content = Strings.bytesFromString(content);
-    binary = false;
-    json = false;
-  }
-
-  public Body(JsonNode content) {
+  private Body(JsonNode content) {
     this.content = Json.toByteArray(content);
     binary = false;
     json = true;

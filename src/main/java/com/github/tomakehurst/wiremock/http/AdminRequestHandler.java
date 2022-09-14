@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,7 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
-import com.github.tomakehurst.wiremock.common.InvalidParameterException;
-import com.github.tomakehurst.wiremock.common.NotPermittedException;
-import com.github.tomakehurst.wiremock.common.Urls;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -48,8 +45,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
       ResponseRenderer responseRenderer,
       Authenticator authenticator,
       boolean requireHttps,
-      List<RequestFilter> requestFilters) {
-    super(responseRenderer, requestFilters);
+      List<RequestFilter> requestFilters,
+      DataTruncationSettings dataTruncationSettings) {
+    super(responseRenderer, requestFilters, dataTruncationSettings);
     this.adminRoutes = adminRoutes;
     this.admin = admin;
     this.authenticator = authenticator;
@@ -58,16 +56,17 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
   @Override
   public ServeEvent handleRequest(Request request) {
+    final LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
     if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
       notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
       return ServeEvent.of(
-          LoggedRequest.createFrom(request),
+          loggedRequest,
           ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API"));
     }
 
     if (!authenticator.authenticate(request)) {
       notifier().info("Authentication failed for " + request.getMethod() + " " + request.getUrl());
-      return ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notAuthorised());
+      return ServeEvent.of(loggedRequest, ResponseDefinition.notAuthorised());
     }
 
     notifier().info("Admin request received:\n" + formatRequest(request));
@@ -80,16 +79,15 @@ public class AdminRequestHandler extends AbstractRequestHandler {
           adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
       PathParams pathParams = uriTemplate.parse(path);
 
-      return ServeEvent.of(
-          LoggedRequest.createFrom(request), adminTask.execute(admin, request, pathParams));
+      return ServeEvent.of(loggedRequest, adminTask.execute(admin, request, pathParams));
     } catch (NotFoundException e) {
-      return ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request));
+      return ServeEvent.forUnmatchedRequest(loggedRequest);
     } catch (InvalidParameterException ipe) {
-      return ServeEvent.forBadRequest(LoggedRequest.createFrom(request), ipe.getErrors());
+      return ServeEvent.forBadRequest(loggedRequest, ipe.getErrors());
     } catch (InvalidInputException iie) {
-      return ServeEvent.forBadRequestEntity(LoggedRequest.createFrom(request), iie.getErrors());
+      return ServeEvent.forBadRequestEntity(loggedRequest, iie.getErrors());
     } catch (NotPermittedException npe) {
-      return ServeEvent.forNotAllowedRequest(LoggedRequest.createFrom(request), npe.getErrors());
+      return ServeEvent.forNotAllowedRequest(loggedRequest, npe.getErrors());
     } catch (Throwable t) {
       notifier().error("Unrecoverable error handling admin request", t);
       throw t;

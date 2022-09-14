@@ -20,6 +20,7 @@ import static com.google.common.net.MediaType.OCTET_STREAM;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Encoding;
+import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
 
@@ -46,13 +47,13 @@ public class LoggedResponse {
     this.fault = fault;
   }
 
-  public static LoggedResponse from(Response response) {
+  public static LoggedResponse from(Response response, Limit responseBodySizeLimit) {
     return new LoggedResponse(
         response.getStatus(),
         response.getHeaders() == null || response.getHeaders().all().isEmpty()
             ? null
             : response.getHeaders(),
-        response.getBody(),
+        response.getBody(responseBodySizeLimit),
         response.getFault());
   }
 

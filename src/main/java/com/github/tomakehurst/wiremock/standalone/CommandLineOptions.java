@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,6 +118,7 @@ public class CommandLineOptions implements Options {
       "disable-optimize-xml-factories-loading";
   private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
   private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
+  private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
 
   private final OptionSet optionSet;
   private final FileSource fileSource;
@@ -335,6 +336,11 @@ public class CommandLineOptions implements Options {
                 + " and "
                 + WireMockApp.FILES_ROOT
                 + " folders)")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            LOGGED_RESPONSE_BODY_SIZE_LIMIT,
+            "Maximum size for response bodies stored in the request journal beyond which truncation will be applied")
         .withRequiredArg();
 
     optionParser.accepts(HELP, "Print this message").forHelp();
@@ -819,6 +825,15 @@ public class CommandLineOptions implements Options {
   @Override
   public boolean getDisableStrictHttpHeaders() {
     return optionSet.has(DISABLE_STRICT_HTTP_HEADERS);
+  }
+
+  @Override
+  public DataTruncationSettings getDataTruncationSettings() {
+    return optionSet.has(LOGGED_RESPONSE_BODY_SIZE_LIMIT)
+        ? new DataTruncationSettings(
+            new Limit(
+                Integer.parseInt((String) optionSet.valueOf(LOGGED_RESPONSE_BODY_SIZE_LIMIT))))
+        : DataTruncationSettings.DEFAULTS;
   }
 
   @SuppressWarnings("unchecked")

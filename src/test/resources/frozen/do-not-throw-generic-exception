@@ -10,7 +10,6 @@ Method <com.github.tomakehurst.wiremock.common.ClasspathFileSource.getZipEntryUr
 Method <com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream(org.apache.hc.core5.http.ClassicHttpResponse)> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (HttpClientUtils.java:52)
 Method <com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream(org.apache.hc.core5.http.ClassicHttpResponse)> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (HttpClientUtils.java:37)
 Method <com.github.tomakehurst.wiremock.common.StreamSources$3.getStream()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (StreamSources.java:51)
-Method <com.github.tomakehurst.wiremock.http.Response.getBody()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (Response.java:112)
 Method <com.github.tomakehurst.wiremock.jetty9.JettyHttpServer.start()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (JettyHttpServer.java:208)
 Method <com.github.tomakehurst.wiremock.jetty9.JettyHttpServer.start()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (JettyHttpServer.java:198)
 Method <com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.getBody()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (WireMockHttpServletRequestAdapter.java:144)

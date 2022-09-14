@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
@@ -88,13 +89,14 @@ public class ServeEvent {
     return new ServeEvent(request, stubMapping, responseDefinition);
   }
 
-  public ServeEvent complete(Response response, int processTimeMillis) {
+  public ServeEvent complete(
+      Response response, int processTimeMillis, DataTruncationSettings dataTruncationSettings) {
     return new ServeEvent(
         id,
         request,
         stubMapping,
         responseDefinition,
-        LoggedResponse.from(response),
+        LoggedResponse.from(response, dataTruncationSettings.getMaxResponseBodySize()),
         false,
         new Timing((int) response.getInitialDelay(), processTimeMillis));
   }
