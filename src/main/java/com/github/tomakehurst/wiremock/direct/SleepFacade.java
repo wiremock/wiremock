@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.direct;
 
+import java.util.concurrent.TimeUnit;
+
 class SleepFacade {
   void sleep(long millis) {
     try {
-      Thread.sleep(millis);
+      TimeUnit.MILLISECONDS.sleep(millis);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
