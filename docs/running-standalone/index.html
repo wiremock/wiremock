@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-07-08T17:49:59+01:00">
+  <meta property="article:published_time" content="2022-09-15T19:17:02+01:00">
   
     <link rel="next" href="https://wiremock.org/docs/running-without-http-server/" title="Running without the HTTP Server">
   
@@ -682,7 +682,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="The WireMock server can be run in its own process, and configured viathe Java API, JSON over HTTP or JSON files.">
-    <meta itemprop="datePublished" content="July 08, 2022">
+    <meta itemprop="datePublished" content="September 15, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -697,9 +697,9 @@
         <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.33.2/wiremock-jre8-standalone-2.33.2.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-jre8-standalone/2.34.0/wiremock-jre8-standalone-2.34.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.33.2.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-jre8-standalone-2.34.0.jar
 </code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
@@ -853,6 +853,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 <p><code class="language-plaintext highlighter-rouge">--permitted-system-keys</code>: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to <code class="language-plaintext highlighter-rouge">wiremock.*</code>.</p>
 
 <p><code class="language-plaintext highlighter-rouge">--enable-stub-cors</code>: Enable automatic sending of cross-origin (CORS) response headers. Defaults to off.</p>
+
+<p><code class="language-plaintext highlighter-rouge">--logged-response-body-size-limit</code>: Set a limit in bytes beyond which response bodies in the log will be truncated. When enabled this helps avoid out of memory errors when serving large response bodies.</p>
 
 <p><code class="language-plaintext highlighter-rouge">--help</code>: Show command line help</p>
 
