@@ -1,8 +1,12 @@
 version: 2
 updates:
-- package-ecosystem: gradle
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "04:00"
-  open-pull-requests-limit: 10
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "04:00"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: org.slf4j:*
+        update-types:
+          ["version-update:semver-major", "version-update:semver-minor"]
