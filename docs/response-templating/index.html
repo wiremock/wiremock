@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2022-09-15T19:17:02+01:00">
+  <meta property="article:published_time" content="2022-09-16T08:25:58+01:00">
   
     <link rel="next" href="https://wiremock.org/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -326,7 +326,7 @@
                   <div class="divSubNav">
                     
                       <a href="https://github.com/wiremock/wiremock">
-                        Github
+                        GitHub
                       </a>
                     
                       <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
@@ -372,7 +372,7 @@
             </a>
           </li>
           <li><a href="/support">Support</a></li>
-          <li><a href="https://github.com/wiremock/wiremock" target="_blank">Github</a></li>
+          <li><a href="https://github.com/wiremock/wiremock" target="_blank">GitHub</a></li>
           <li><a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md" target="_blank">Contributing</a></li>
           <li><a href="/external-resources">Resources</a></li>
         </ul>
@@ -682,7 +682,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.">
-    <meta itemprop="datePublished" content="September 15, 2022">
+    <meta itemprop="datePublished" content="September 16, 2022">
     
 
     <meta itemprop="headline" content="zzzz">
@@ -848,12 +848,12 @@ this easy to work with by wrapping these in a “list or single” type that ret
 
 <p>For instance, given a request URL like <code class="language-plaintext highlighter-rouge">/multi-query?things=1&amp;things=2&amp;things=3</code> I can extract the query data in the following ways:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{request.query.things}} // Will return 1
-{{request.query.things.0}} // Will return 1
-{{request.query.things.first}} // Will return 1
-{{request.query.things.1}} // Will return 2
-{{request.query.things.[-1]}} // Will return 2
-{{request.query.things.last}} // Will return 3
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="k">}}</span> // Will return 1
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">0</span><span class="k">}}</span> // Will return 1
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">first</span><span class="k">}}</span> // Will return 1
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">1</span><span class="k">}}</span> // Will return 2
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.[</span><span class="nv">-1</span><span class="p">]</span><span class="k">}}</span> // Will return 2
+<span class="k">{{</span><span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="p">.</span><span class="nv">last</span><span class="k">}}</span> // Will return 3
 </code></pre></div></div>
 
 <blockquote>
@@ -873,7 +873,7 @@ name as a string literal and thus avoid the restriction.</p>
 <p>Probably the most common occurrence of this issue is with array-style query parameters, so for instance if your request
 URLs you’re matching are of the form <code class="language-plaintext highlighter-rouge">/stuff?ids[]=111&amp;ids[]=222&amp;ids[]=333</code> then you can access these values like:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup request.query 'ids[].1'}} // Will return 222
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">lookup</span> <span class="nv">request</span><span class="p">.</span><span class="nv">query</span> <span class="s1">'ids[].1'</span><span class="k">}}</span> // Will return 222
 </code></pre></div></div>
 
 <h2 id="using-transformer-parameters">Using transformer parameters</h2>
@@ -907,7 +907,7 @@ URLs you’re matching are of the form <code class="language-plaintext highlight
 
 <p>These parameters can be referenced in template body content using the <code class="language-plaintext highlighter-rouge">parameters.</code> prefix:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;h1&gt;The MyCustomParameter value is {{parameters.MyCustomParameter}}&lt;/h1&gt;
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;h1&gt;</span>The MyCustomParameter value is <span class="k">{{</span><span class="nv">parameters</span><span class="p">.</span><span class="nv">MyCustomParameter</span><span class="k">}}</span><span class="nt">&lt;/h1&gt;</span>
 </code></pre></div></div>
 
 <h2 id="handlebars-helpers">Handlebars helpers</h2>
@@ -917,22 +917,22 @@ plus all of the <a href="https://github.com/jknack/handlebars.java/blob/master/h
 and the <a href="https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/ConditionalHelpers.java">conditional helpers</a>
 are available e.g.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{capitalize request.query.search}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">capitalize</span> <span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">search</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="number-and-assignment-helpers">Number and assignment helpers</h2>
 
 <p>Variable assignment and number helpers are available:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#assign 'myCapitalisedQuery'}}{{capitalize request.query.search}}{{/assign}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#</span><span class="nn">assign</span> <span class="s1">'myCapitalisedQuery'</span><span class="k">}}{{</span><span class="nv">capitalize</span> <span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">search</span><span class="k">}}{{/</span><span class="nn">assign</span><span class="k">}}</span>
 
-{{isOdd 3}}
-{{isOdd 3 'rightBox'}}
+<span class="k">{{</span><span class="nv">isOdd</span> <span class="nv">3</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">isOdd</span> <span class="nv">3</span> <span class="s1">'rightBox'</span><span class="k">}}</span>
 
-{{isEven 2}}
-{{isEven 4 'leftBox'}}
+<span class="k">{{</span><span class="nv">isEven</span> <span class="nv">2</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">isEven</span> <span class="nv">4</span> <span class="s1">'leftBox'</span><span class="k">}}</span>
 
-{{stripes 3 'row-even' 'row-odd'}}
+<span class="k">{{</span><span class="nv">stripes</span> <span class="nv">3</span> <span class="s1">'row-even'</span> <span class="s1">'row-odd'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="xpath-helpers">XPath helpers</h2>
@@ -948,12 +948,12 @@ are available e.g.</p>
 
 <p>The following will render “Stuff” into the output:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner/text()'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">xPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'/outer/inner/text()'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>And given the same XML the following will render <code class="language-plaintext highlighter-rouge">&lt;inner&gt;Stuff&lt;/inner&gt;</code>:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">xPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'/outer/inner'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>As a convenience the <code class="language-plaintext highlighter-rouge">soapXPath</code> helper also exists for extracting values from SOAP bodies e.g. for the SOAP document:</p>
@@ -969,7 +969,7 @@ are available e.g.</p>
 
 <p>The following will render “success” in the output:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{soapXPath request.body '/a/test/text()'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">soapXPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'/a/test/text()'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h3 id="using-the-output-of-xpath-in-other-helpers">Using the output of <code class="language-plaintext highlighter-rouge">xPath</code> in other helpers</h3>
@@ -989,9 +989,9 @@ can be used in further helpers.</p>
 
 <p>A common use case for returned node objects is to iterate over the collection with the <code class="language-plaintext highlighter-rouge">each</code> helper:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (xPath request.body '/things/item') as |node|}}
-  name: {{node.name}}, text: {{node.text}}, ID attribute: {{node.attributes.id}}
-{{/each}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#</span><span class="nn">each</span> <span class="p">(</span><span class="nv">xPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'/things/item'</span><span class="p">)</span> <span class="nv">as</span> <span class="p">|</span><span class="nv">node</span><span class="p">|</span><span class="k">}}</span>
+  name: <span class="k">{{</span><span class="nv">node</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>, text: <span class="k">{{</span><span class="nv">node</span><span class="p">.</span><span class="nv">text</span><span class="k">}}</span>, ID attribute: <span class="k">{{</span><span class="nv">node</span><span class="p">.</span><span class="nv">attributes</span><span class="p">.</span><span class="nv">id</span><span class="k">}}</span>
+<span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="jsonpath-helper">JSONPath helper</h2>
@@ -1007,17 +1007,17 @@ can be used in further helpers.</p>
 
 <p>The following will render “Stuff” into the output:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer.inner'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">jsonPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'$.outer.inner'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>And for the same JSON the following will render <code class="language-plaintext highlighter-rouge">{ "inner": "Stuff" }</code>:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">jsonPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'$.outer'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Default value can be specified if the path evaluates to null or undefined:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.size' default='M'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">jsonPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'$.size'</span> <span class="nv">default</span><span class="o">=</span><span class="s1">'M'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="parse-json-helper">Parse JSON helper</h2>
@@ -1027,68 +1027,68 @@ otherwise the result will be returned.</p>
 
 <p>It can accept the JSON from a block:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#parseJson 'parsedObj'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#</span><span class="nn">parseJson</span> <span class="s1">'parsedObj'</span><span class="k">}}</span>
 {
   "name": "transformed"
 }
-{{/parseJson}}
+<span class="k">{{/</span><span class="nn">parseJson</span><span class="k">}}</span>
 
-{{!- Now we can access the object as usual --}}
-{{parsedObj.name}}
+<span class="c">{{!- Now we can access the object as usual --}}</span>
+<span class="k">{{</span><span class="nv">parsedObj</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Or as a parameter:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{parseJson request.body 'bodyJson'}}
-{{bodyJson.name}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">parseJson</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'bodyJson'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">bodyJson</span><span class="p">.</span><span class="nv">name</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Without assigning to a variable:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{lookup (parseJson request.body) 'name'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">lookup</span> <span class="p">(</span><span class="nv">parseJson</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span><span class="p">)</span> <span class="s1">'name'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="date-and-time-helpers">Date and time helpers</h2>
 
 <p>A helper is present to render the current date/time, with the ability to specify the format (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">via Java’s SimpleDateFormat</a>) and offset.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now}}
-{{now offset='3 days'}}
-{{now offset='-24 seconds'}}
-{{now offset='1 years'}}
-{{now offset='10 years' format='yyyy-MM-dd'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">now</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">now</span> <span class="nv">offset</span><span class="o">=</span><span class="s1">'3 days'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">now</span> <span class="nv">offset</span><span class="o">=</span><span class="s1">'-24 seconds'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">now</span> <span class="nv">offset</span><span class="o">=</span><span class="s1">'1 years'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">now</span> <span class="nv">offset</span><span class="o">=</span><span class="s1">'10 years'</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Dates can be rendered in a specific timezone (the default is UTC):</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">now</span> <span class="nv">timezone</span><span class="o">=</span><span class="s1">'Australia/Sydney'</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'yyyy-MM-dd HH:mm:ssZ'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Pass <code class="language-plaintext highlighter-rouge">epoch</code> as the format to render the date as UNIX epoch time (in milliseconds), or <code class="language-plaintext highlighter-rouge">unix</code> as the format to render
 the UNIX timestamp in seconds.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now offset='2 years' format='epoch'}}
-{{now offset='2 years' format='unix'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">now</span> <span class="nv">offset</span><span class="o">=</span><span class="s1">'2 years'</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'epoch'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">now</span> <span class="nv">offset</span><span class="o">=</span><span class="s1">'2 years'</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'unix'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Dates can be parsed using the <code class="language-plaintext highlighter-rouge">parseDate</code> helper:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Attempts parsing using ISO8601, RFC 1123, RFC 1036 and ASCTIME formats.
 // We wrap in the date helper in order to print the result as a string.
-{{date (parseDate request.headers.MyDate)}}
+<span class="k">{{</span><span class="nv">date</span> <span class="p">(</span><span class="nv">parseDate</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">MyDate</span><span class="p">)</span><span class="k">}}</span>
 
 // Parse using a custom date format
-{{date (parseDate request.headers.MyDate format='dd/MM/yyyy')}}
+<span class="k">{{</span><span class="nv">date</span> <span class="p">(</span><span class="nv">parseDate</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">MyDate</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'dd/MM/yyyy'</span><span class="p">)</span><span class="k">}}</span>
 
 // Format can also be unix (epoch seconds) or epoch (epoch milliseconds)
-{{date (parseDate request.headers.MyDate format='unix')}}
+<span class="k">{{</span><span class="nv">date</span> <span class="p">(</span><span class="nv">parseDate</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">MyDate</span> <span class="nv">format</span><span class="o">=</span><span class="s1">'unix'</span><span class="p">)</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Dates can be truncated to e.g. first day of month using the <code class="language-plaintext highlighter-rouge">truncateDate</code> helper:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// If the MyDate header is Tue, 15 Jun 2021 15:16:17 GMT
 // then the result of the following will be 2021-06-01T00:00:00Z
-{{date (truncateDate (parseDate request.headers.MyDate) 'first day of month')}}
+<span class="k">{{</span><span class="nv">date</span> <span class="p">(</span><span class="nv">truncateDate</span> <span class="p">(</span><span class="nv">parseDate</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">MyDate</span><span class="p">)</span> <span class="s1">'first day of month'</span><span class="p">)</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>See the <a href="/docs/request-matching/#all-truncations">full list of truncations here</a>.</p>
@@ -1097,26 +1097,26 @@ the UNIX timestamp in seconds.</p>
 
 <p>Random strings of various kinds can be generated:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomValue length=33 type='ALPHANUMERIC'}}
-{{randomValue length=12 type='ALPHANUMERIC' uppercase=true}}
-{{randomValue length=55 type='ALPHABETIC'}}
-{{randomValue length=27 type='ALPHABETIC' uppercase=true}}
-{{randomValue length=10 type='NUMERIC'}}
-{{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
-{{randomValue type='UUID'}}
-{{randomValue length=32 type='HEXADECIMAL' uppercase=true}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">33</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'ALPHANUMERIC'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">12</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'ALPHANUMERIC'</span> <span class="nv">uppercase</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">55</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'ALPHABETIC'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">27</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'ALPHABETIC'</span> <span class="nv">uppercase</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">10</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'NUMERIC'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">5</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'ALPHANUMERIC_AND_SYMBOLS'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'UUID'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomValue</span> <span class="nv">length</span><span class="o">=</span><span class="nv">32</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'HEXADECIMAL'</span> <span class="nv">uppercase</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="pick-random-helper">Pick random helper</h2>
 
 <p>A value can be randomly selected from a literal list:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom '1' '2' '3'}}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{{</span><span class="nv">pickRandom</span> <span class="s1">'1'</span> <span class="s1">'2'</span> <span class="s1">'3'</span><span class="k">}}}</span>
 </code></pre></div></div>
 
 <p>Or from a list passed as a parameter:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{{pickRandom (jsonPath request.body '$.names')}}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{{</span><span class="nv">pickRandom</span> <span class="p">(</span><span class="nv">jsonPath</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'$.names'</span><span class="p">)</span><span class="k">}}}</span>
 </code></pre></div></div>
 
 <h2 id="random-number-helpers">Random number helpers</h2>
@@ -1126,18 +1126,18 @@ we can use them for further work e.g. by doing arithemetic with the <code class=
 
 <p>Random integers can be produced with lower and/or upper bounds, or neither:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomInt}}
-{{randomInt lower=5 upper=9}}
-{{randomInt upper=54323}}
-{{randomInt lower=-24}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">randomInt</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomInt</span> <span class="nv">lower</span><span class="o">=</span><span class="nv">5</span> <span class="nv">upper</span><span class="o">=</span><span class="nv">9</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomInt</span> <span class="nv">upper</span><span class="o">=</span><span class="nv">54323</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomInt</span> <span class="nv">lower</span><span class="o">=</span><span class="nv">-24</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>Likewise decimals can be produced with or without bounds:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomDecimal}}
-{{randomDecimal lower=-10.1 upper=-0.9}}
-{{randomDecimal upper=12.5}}
-{{randomDecimal lower=-24.01}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">randomDecimal</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomDecimal</span> <span class="nv">lower</span><span class="o">=</span><span class="nv">-10</span><span class="p">.</span><span class="nv">1</span> <span class="nv">upper</span><span class="o">=</span><span class="nv">-0</span><span class="p">.</span><span class="nv">9</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomDecimal</span> <span class="nv">upper</span><span class="o">=</span><span class="nv">12</span><span class="p">.</span><span class="nv">5</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">randomDecimal</span> <span class="nv">lower</span><span class="o">=</span><span class="nv">-24</span><span class="p">.</span><span class="nv">01</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="math-helper">Math helper</h2>
@@ -1147,26 +1147,26 @@ or strings as its operands and will always yield a number as its output rather t
 
 <p>Addition, subtraction, multiplication, division and remainder (mod) are supported:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{math 1 '+' 2}}
-{{math 4 '-' 2}}
-{{math 2 '*' 3}}
-{{math 8 '/' 2}}
-{{math 10 '%' 3}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">math</span> <span class="nv">1</span> <span class="s1">'+'</span> <span class="nv">2</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">math</span> <span class="nv">4</span> <span class="s1">'-'</span> <span class="nv">2</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">math</span> <span class="nv">2</span> <span class="s1">'*'</span> <span class="nv">3</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">math</span> <span class="nv">8</span> <span class="s1">'/'</span> <span class="nv">2</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">math</span> <span class="nv">10</span> <span class="s1">'%'</span> <span class="nv">3</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="range-helper">Range helper</h2>
 
 <p>The <code class="language-plaintext highlighter-rouge">range</code> helper will produce an array of integers between the bounds specified:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{range 3 8}}
-{{range -2 2}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">range</span> <span class="nv">3</span> <span class="nv">8</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">range</span> <span class="nv">-2</span> <span class="nv">2</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>This can be usefully combined with <code class="language-plaintext highlighter-rouge">randomInt</code> and <code class="language-plaintext highlighter-rouge">each</code> to output random length, repeating pieces of content e.g.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#each (range 0 (randomInt lower=1 upper=10)) as |index|}}
-id: {{index}}
-{{/each}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#</span><span class="nn">each</span> <span class="p">(</span><span class="nv">range</span> <span class="nv">0</span> <span class="p">(</span><span class="nv">randomInt</span> <span class="nv">lower</span><span class="o">=</span><span class="nv">1</span> <span class="nv">upper</span><span class="o">=</span><span class="nv">10</span><span class="p">))</span> <span class="nv">as</span> <span class="p">|</span><span class="nv">index</span><span class="p">|</span><span class="k">}}</span>
+id: <span class="k">{{</span><span class="nv">index</span><span class="k">}}</span>
+<span class="k">{{/</span><span class="nn">each</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="array-literal-helper">Array literal helper</h2>
@@ -1174,8 +1174,8 @@ id: {{index}}
 <p>The <code class="language-plaintext highlighter-rouge">array</code> helper will produce an array from the list of parameters specified. The values can be any valid type.
 Providing no parameters will result in an empty array.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{array 1 'two' true}}
-{{array}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">array</span> <span class="nv">1</span> <span class="s1">'two'</span> <span class="kc">true</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">array</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="contains-helper">Contains helper</h2>
@@ -1185,14 +1185,14 @@ contains the string passed in the second.</p>
 
 <p>It can be used as parameter to the <code class="language-plaintext highlighter-rouge">if</code> helper:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (contains 'abcde' 'abc')}}YES{{/if}}
-{{#if (contains (array 'a' 'b' 'c') 'a')}}YES{{/if}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#if</span> <span class="p">(</span><span class="nv">contains</span> <span class="s1">'abcde'</span> <span class="s1">'abc'</span><span class="p">)</span><span class="k">}}</span>YES<span class="k">{{/if}}</span>
+<span class="k">{{#if</span> <span class="p">(</span><span class="nv">contains</span> <span class="p">(</span><span class="nv">array</span> <span class="s1">'a'</span> <span class="s1">'b'</span> <span class="s1">'c'</span><span class="p">)</span> <span class="s1">'a'</span><span class="p">)</span><span class="k">}}</span>YES<span class="k">{{/if}}</span>
 </code></pre></div></div>
 
 <p>Or as a block element on its own:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#contains 'abcde' 'abc'}}YES{{/contains}}
-{{#contains (array 'a' 'b' 'c') 'a'}}YES{{/contains}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#</span><span class="nn">contains</span> <span class="s1">'abcde'</span> <span class="s1">'abc'</span><span class="k">}}</span>YES<span class="k">{{/</span><span class="nn">contains</span><span class="k">}}</span>
+<span class="k">{{#</span><span class="nn">contains</span> <span class="p">(</span><span class="nv">array</span> <span class="s1">'a'</span> <span class="s1">'b'</span> <span class="s1">'c'</span><span class="p">)</span> <span class="s1">'a'</span><span class="k">}}</span>YES<span class="k">{{/</span><span class="nn">contains</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="matches-helper">Matches helper</h2>
@@ -1202,61 +1202,61 @@ regular expression passed in the second:</p>
 
 <p>Like the <code class="language-plaintext highlighter-rouge">contains</code> helper it can be used as parameter to the <code class="language-plaintext highlighter-rouge">if</code> helper:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#if (matches '123' '[0-9]+')}}YES{{/if}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#if</span> <span class="p">(</span><span class="nv">matches</span> <span class="s1">'123'</span> <span class="s1">'[0-9]+'</span><span class="p">)</span><span class="k">}}</span>YES<span class="k">{{/if}}</span>
 </code></pre></div></div>
 
 <p>Or as a block element on its own:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#matches '123' '[0-9]+'}}YES{{/matches}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{#</span><span class="nn">matches</span> <span class="s1">'123'</span> <span class="s1">'[0-9]+'</span><span class="k">}}</span>YES<span class="k">{{/</span><span class="nn">matches</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="string-trim-helper">String trim helper</h2>
 
 <p>Use the <code class="language-plaintext highlighter-rouge">trim</code> helper to remove whitespace from the start and end of the input:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{trim request.headers.X-Padded-Header}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">trim</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">X-Padded-Header</span><span class="k">}}</span>
 
-{{#trim}}
+<span class="k">{{#</span><span class="nn">trim</span><span class="k">}}</span>
 
     Some stuff with whitespace
 
-{{/trim}}
+<span class="k">{{/</span><span class="nn">trim</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="base64-helper">Base64 helper</h2>
 
 <p>The <code class="language-plaintext highlighter-rouge">base64</code> helper can be used to base64 encode and decode values:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{base64 request.headers.X-Plain-Header}}
-{{base64 request.headers.X-Encoded-Header decode=true}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">base64</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">X-Plain-Header</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">base64</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">X-Encoded-Header</span> <span class="nv">decode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
 
-{{#base64}}
+<span class="k">{{#</span><span class="nn">base64</span><span class="k">}}</span>
 Content to encode
-{{/base64}}
+<span class="k">{{/</span><span class="nn">base64</span><span class="k">}}</span>
 
-{{#base64 padding=false}}
+<span class="k">{{#</span><span class="nn">base64</span> <span class="nv">padding</span><span class="o">=</span><span class="kc">false</span><span class="k">}}</span>
 Content to encode without padding
-{{/base64}}
+<span class="k">{{/</span><span class="nn">base64</span><span class="k">}}</span>
 
-{{#base64 decode=true}}
+<span class="k">{{#</span><span class="nn">base64</span> <span class="nv">decode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
 Q29udGVudCB0byBkZWNvZGUK
-{{/base64}}
+<span class="k">{{/</span><span class="nn">base64</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="url-encoding-helper">URL encoding helper</h2>
 
 <p>The <code class="language-plaintext highlighter-rouge">urlEncode</code> helper can be used to URL encode and decode values:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{urlEncode request.headers.X-Plain-Header}}
-{{urlEncode request.headers.X-Encoded-Header decode=true}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">urlEncode</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">X-Plain-Header</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">urlEncode</span> <span class="nv">request</span><span class="p">.</span><span class="nv">headers</span><span class="p">.</span><span class="nv">X-Encoded-Header</span> <span class="nv">decode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
 
-{{#urlEncode}}
+<span class="k">{{#</span><span class="nn">urlEncode</span><span class="k">}}</span>
 Content to encode
-{{/urlEncode}}
+<span class="k">{{/</span><span class="nn">urlEncode</span><span class="k">}}</span>
 
-{{#urlEncode decode=true}}
+<span class="k">{{#</span><span class="nn">urlEncode</span> <span class="nv">decode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}</span>
 Content%20to%20decode
-{{/urlEncode}}
+<span class="k">{{/</span><span class="nn">urlEncode</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="form-helper">Form helper</h2>
@@ -1265,13 +1265,13 @@ Content%20to%20decode
 The helper takes the input string and variable name as its required parameters, with an optional <code class="language-plaintext highlighter-rouge">urlDecode</code> parameter
 indicating that values should be URL decoded. The folowing example will parse the request body as a form, then output a single field <code class="language-plaintext highlighter-rouge">formField3</code>:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.formField3}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">formData</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'form'</span> <span class="nv">urlDecode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}{{</span><span class="nv">form</span><span class="p">.</span><span class="nv">formField3</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>If the form submitted has multiple values for a given field, these can be accessed by index:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.1}}, {{form.multiValueField.2}}
-{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.first}}, {{form.multiValueField.last}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">formData</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'form'</span> <span class="nv">urlDecode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}{{</span><span class="nv">form</span><span class="p">.</span><span class="nv">multiValueField</span><span class="p">.</span><span class="nv">1</span><span class="k">}}</span>, <span class="k">{{</span><span class="nv">form</span><span class="p">.</span><span class="nv">multiValueField</span><span class="p">.</span><span class="nv">2</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">formData</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'form'</span> <span class="nv">urlDecode</span><span class="o">=</span><span class="kc">true</span><span class="k">}}{{</span><span class="nv">form</span><span class="p">.</span><span class="nv">multiValueField</span><span class="p">.</span><span class="nv">first</span><span class="k">}}</span>, <span class="k">{{</span><span class="nv">form</span><span class="p">.</span><span class="nv">multiValueField</span><span class="p">.</span><span class="nv">last</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="regular-expression-extract-helper">Regular expression extract helper</h2>
@@ -1280,41 +1280,41 @@ indicating that values should be URL decoded. The folowing example will parse th
 
 <p>A single value can be extracted like this:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '[A-Z]+'}}"
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">regexExtract</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'[A-Z]+'</span><span class="k">}}</span>"
 </code></pre></div></div>
 
 <p>Regex groups can be used to extract multiple parts into an object for later use (the last parameter is a variable name to which the object will be assigned):</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
-{{parts.0}},{{parts.1}},{{parts.2}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">regexExtract</span> <span class="nv">request</span><span class="p">.</span><span class="nv">body</span> <span class="s1">'([a-z]+)-([A-Z]+)-([0-9]+)'</span> <span class="s1">'parts'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">parts</span><span class="p">.</span><span class="nv">0</span><span class="k">}}</span>,<span class="k">{{</span><span class="nv">parts</span><span class="p">.</span><span class="nv">1</span><span class="k">}}</span>,<span class="k">{{</span><span class="nv">parts</span><span class="p">.</span><span class="nv">2</span><span class="k">}}</span>
 </code></pre></div></div>
 
-<p>Optionally, a default value can be specified for when there is no match.</p>
+<p>Optionally, a default value can be specified for when there is no match. When the regex does not match and no default is specified, an error will be thrown instead.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract 'abc' '[0-9]+' default='my default value'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">regexExtract</span> <span class="s1">'abc'</span> <span class="s1">'[0-9]+'</span> <span class="nv">default</span><span class="o">=</span><span class="s1">'my default value'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="size-helper">Size helper</h2>
 
 <p>The <code class="language-plaintext highlighter-rouge">size</code> helper returns the size of a string, list or map:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{size 'abcde'}}
-{{size request.query.things}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">size</span> <span class="s1">'abcde'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">size</span> <span class="nv">request</span><span class="p">.</span><span class="nv">query</span><span class="p">.</span><span class="nv">things</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="hostname-helper">Hostname helper</h2>
 
 <p>The local machine’s hostname can be printed:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{hostname}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">hostname</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <h2 id="system-property-helper">System property helper</h2>
 
 <p>Environment variables and system properties can be printed:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{systemValue type='ENVIRONMENT' key='PATH'}}
-{{systemValue type='PROPERTY' key='os.path'}}
+<div class="language-handlebars highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">{{</span><span class="nv">systemValue</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'ENVIRONMENT'</span> <span class="nv">key</span><span class="o">=</span><span class="s1">'PATH'</span><span class="k">}}</span>
+<span class="k">{{</span><span class="nv">systemValue</span> <span class="nv">type</span><span class="o">=</span><span class="s1">'PROPERTY'</span> <span class="nv">key</span><span class="o">=</span><span class="s1">'os.path'</span><span class="k">}}</span>
 </code></pre></div></div>
 
 <p>To avoid disclosure of sensitive variables, only permitted variables can be read. Permitted variable names
@@ -1352,6 +1352,13 @@ are defined via a set of regular expressions. These can be configured when const
     <span class="n">options</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="nc">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="s">"string-length"</span><span class="o">,</span> <span class="n">stringLengthHelper</span><span class="o">))</span>
 <span class="o">);</span>
 </code></pre></div></div>
+
+<p>This custom <code class="language-plaintext highlighter-rouge">string-length</code> helper will return the string length of the supplied parameter and is used like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{string-length 'abcde'}}
+{{string-length request.body}}
+</code></pre></div></div>
+
 
         
       </section>
