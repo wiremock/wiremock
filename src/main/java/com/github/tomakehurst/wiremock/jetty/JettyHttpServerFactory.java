@@ -15,58 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import com.github.tomakehurst.wiremock.jetty11.Jetty11HttpServer;
 
 public class JettyHttpServerFactory implements HttpServerFactory {
-
-  private static final Constructor<? extends JettyHttpServer> SERVER_CONSTRUCTOR =
-      getServerConstructor();
-
-  @SuppressWarnings("unchecked")
-  private static Constructor<? extends JettyHttpServer> getServerConstructor() {
-    try {
-      Class<? extends JettyHttpServer> serverClass =
-          (Class<? extends JettyHttpServer>)
-              Class.forName("com.github.tomakehurst.wiremock.jetty11.Jetty11HttpServer");
-      return safelyGetConstructor(
-          serverClass, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
-    } catch (ClassNotFoundException e) {
-      return safelyGetConstructor(
-          JettyHttpServer.class,
-          Options.class,
-          AdminRequestHandler.class,
-          StubRequestHandler.class);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T> Constructor<T> safelyGetConstructor(
-      Class<T> clazz, Class<?>... parameterTypes) {
-    try {
-      return clazz.getConstructor(parameterTypes);
-    } catch (NoSuchMethodException e) {
-      return Exceptions.throwUnchecked(e, Constructor.class);
-    }
-  }
-
   @Override
   public HttpServer buildHttpServer(
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    try {
-      return SERVER_CONSTRUCTOR.newInstance(options, adminRequestHandler, stubRequestHandler);
-    } catch (InstantiationException | IllegalAccessException e) {
-      return Exceptions.throwUnchecked(e, HttpServer.class);
-    } catch (InvocationTargetException e) {
-      return Exceptions.throwUnchecked(e.getCause(), null);
-    }
+    return new Jetty11HttpServer(options, adminRequestHandler, stubRequestHandler);
   }
 }
