@@ -65,7 +65,7 @@ dependencies {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
   api "org.ow2.asm:asm:9.3"
-  api "org.slf4j:slf4j-api:2.0.1"
+  api "org.slf4j:slf4j-api:2.0.2"
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
   compileOnly("junit:junit:4.13.2") {
