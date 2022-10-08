@@ -150,12 +150,14 @@ public class Jetty11HttpServer extends JettyHttpServer {
                */
               HttpVersion.HTTP_1_1.asString());
 
-      HttpConfiguration httpConfig = createHttpConfig(options.jettySettings());
+      JettySettings jettySettings = options.jettySettings();
+      HttpConfiguration httpConfig = createHttpConfig(jettySettings);
       HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
       mitmProxyConnector =
           new NetworkTrafficServerConnector(jettyServer, null, null, null, 2, 2, ssl, http);
 
       mitmProxyConnector.setPort(0);
+      mitmProxyConnector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(100L));
 
       jettyServer.addConnector(mitmProxyConnector);
     }
