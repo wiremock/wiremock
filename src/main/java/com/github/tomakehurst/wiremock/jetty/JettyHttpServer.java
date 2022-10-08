@@ -193,7 +193,7 @@ public class JettyHttpServer implements HttpServer {
 
   protected void finalizeSetup(Options options) {
     if (!options.jettySettings().getStopTimeout().isPresent()) {
-      jettyServer.setStopTimeout(5000);
+      jettyServer.setStopTimeout(1000);
     }
   }
 
@@ -204,6 +204,7 @@ public class JettyHttpServer implements HttpServer {
     if (stopTimeout.isPresent()) {
       server.setStopTimeout(stopTimeout.get());
     }
+
     return server;
   }
 
@@ -361,6 +362,8 @@ public class JettyHttpServer implements HttpServer {
     if (jettySettings.getIdleTimeout().isPresent()) {
       connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
     }
+
+    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(100L));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})

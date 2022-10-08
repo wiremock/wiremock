@@ -75,7 +75,7 @@ public class JettyHttpServerTest {
 
   @Test
   public void testStopTimeout() {
-    long expectedStopTimeout = 500L;
+    long expectedStopTimeout = 1000L;
     WireMockConfiguration config =
         WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
 
@@ -88,7 +88,7 @@ public class JettyHttpServerTest {
 
   @Test
   public void testStopTimeoutNotSet() {
-    long expectedStopTimeout = 5000L;
+    long expectedStopTimeout = 1000L;
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
     JettyHttpServer jettyHttpServer =
