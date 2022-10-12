@@ -115,12 +115,37 @@ public class WireMockExtension extends DslWrapper
   protected void onBeforeAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
   /**
+   * To be overridden in subclasses in order to run code immediately after per-class WireMock setup.
+   *
+   * @param extensionContext the current extension context; never {@code null}
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
+   */
+  protected void onBeforeAll(
+      ExtensionContext extensionContext, WireMockRuntimeInfo wireMockRuntimeInfo) {
+    this.onBeforeAll(wireMockRuntimeInfo);
+  }
+
+  /**
    * To be overridden in subclasses in order to run code immediately after per-test WireMock setup.
    *
    * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
    *     instance/
    */
   protected void onBeforeEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
+
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-test cleanup of
+   * WireMock and its associated resources.
+   *
+   * @param extensionContext the current extension context; never {@code null}
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
+   */
+  protected void onBeforeEach(
+      ExtensionContext extensionContext, WireMockRuntimeInfo wireMockRuntimeInfo) {
+    this.onBeforeEach(wireMockRuntimeInfo);
+  }
 
   /**
    * To be overridden in subclasses in order to run code immediately after per-test cleanup of
@@ -135,10 +160,36 @@ public class WireMockExtension extends DslWrapper
    * To be overridden in subclasses in order to run code immediately after per-class cleanup of
    * WireMock.
    *
+   * @param extensionContext the current extension context; never {@code null}
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
+   */
+  protected void onAfterEach(
+      ExtensionContext extensionContext, WireMockRuntimeInfo wireMockRuntimeInfo) {
+    this.onAfterEach(wireMockRuntimeInfo);
+  }
+
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-class cleanup of
+   * WireMock.
+   *
    * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
    *     instance/
    */
   protected void onAfterAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
+
+  /**
+   * To be overridden in subclasses in order to run code immediately after per-class cleanup of
+   * WireMock.
+   *
+   * @param extensionContext the current extension context; never {@code null}
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
+   */
+  protected void onAfterAll(
+      ExtensionContext extensionContext, WireMockRuntimeInfo wireMockRuntimeInfo) {
+    this.onAfterAll(wireMockRuntimeInfo);
+  }
 
   @Override
   public boolean supportsParameter(
@@ -230,7 +281,7 @@ public class WireMockExtension extends DslWrapper
     startServerIfRequired(context);
     setAdditionalOptions(context);
 
-    onBeforeAll(runtimeInfo);
+    onBeforeAll(context, runtimeInfo);
   }
 
   @Override
@@ -248,14 +299,14 @@ public class WireMockExtension extends DslWrapper
       JvmProxyConfigurer.configureFor(wireMockServer);
     }
 
-    onBeforeEach(runtimeInfo);
+    onBeforeEach(context, runtimeInfo);
   }
 
   @Override
   public final void afterAll(ExtensionContext context) throws Exception {
     stopServerIfRunning();
 
-    onAfterAll(runtimeInfo);
+    onAfterAll(context, runtimeInfo);
   }
 
   @Override
@@ -272,7 +323,7 @@ public class WireMockExtension extends DslWrapper
       JvmProxyConfigurer.restorePrevious();
     }
 
-    onAfterEach(runtimeInfo);
+    onAfterEach(context, runtimeInfo);
   }
 
   public WireMockRuntimeInfo getRuntimeInfo() {
