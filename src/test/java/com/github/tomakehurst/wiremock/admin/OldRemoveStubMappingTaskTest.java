@@ -42,7 +42,7 @@ public class OldRemoveStubMappingTaskTest {
   private OldRemoveStubMappingTask removeStubMappingTask = new OldRemoveStubMappingTask();
 
   @Test
-  public void delegatesSavingMappingsToAdmin() {
+  public void delegatesDeletingMappingsToAdmin() {
     when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
     removeStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
