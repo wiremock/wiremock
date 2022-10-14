@@ -279,6 +279,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
   }
 
   @Override
+  public void removeStubMapping(UUID id) {
+    wireMockApp.removeStubMapping(id);
+  }
+
+  @Override
   public void verify(RequestPatternBuilder requestPatternBuilder) {
     client.verifyThat(requestPatternBuilder);
   }
