@@ -283,6 +283,19 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void matchesOnQueryParametersNotContaining() {
+    stubFor(
+        get(urlPathEqualTo("/query/match"))
+            .withQueryParam("search", notContaining("WireMock"))
+            .willReturn(aResponse().withStatus(200)));
+
+    assertThat(
+        testClient.get("/query/match?search=WireMock%20stubbing").statusCode(), is(HTTP_NOT_FOUND));
+
+    assertThat(testClient.get("/query/match?search=Other%20stubbing").statusCode(), is(HTTP_OK));
+  }
+
+  @Test
   public void responseBodyLoadedFromFile() {
     stubFor(
         get(urlEqualTo("/my/file"))
@@ -322,6 +335,21 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
+    assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+    response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
+    assertThat(response.statusCode(), is(HTTP_OK));
+  }
+
+  @Test
+  public void matchingOnRequestBodyWithNotContaining() {
+    stubFor(
+        put(urlEqualTo("/match/this/body/too"))
+            .withRequestBody(notContaining("OtherBody"))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+
+    WireMockResponse response =
+        testClient.putWithBody("/match/this/body/too", "BlahOtherBody12345", "text/plain");
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
     response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
@@ -665,6 +693,27 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     response =
         testClient.postWithMultiparts(
             "/match/this/part/too", singletonList(part("part-name", "BlahBlahBlah", TEXT_PLAIN)));
+    assertThat(response.statusCode(), is(HTTP_OK));
+  }
+
+  @Test
+  public void matchingOnMultipartRequestBodyWithNotContaining() {
+    stubFor(
+        post(urlEqualTo("/match/this/part/too"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withHeader("Content-Type", notContaining("application/json"))
+                    .withBody(notContaining("OtherStuff")))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+
+    WireMockResponse response =
+        testClient.postWithMultiparts(
+            "/match/this/part/too", singletonList(part("part", "BlahOtherStuff12345", TEXT_PLAIN)));
+    assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+    response =
+        testClient.postWithMultiparts(
+            "/match/this/part/too", singletonList(part("part", "BlahBlahBlah", TEXT_PLAIN)));
     assertThat(response.statusCode(), is(HTTP_OK));
   }
 

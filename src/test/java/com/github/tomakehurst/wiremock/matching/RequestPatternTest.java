@@ -458,6 +458,7 @@ public class RequestPatternTest {
           + "        { \"equalToXml\": \"<thing />\" },             \n"
           + "        { \"matchesXPath\": \"//thing\" },             \n"
           + "        { \"contains\": \"thin\" },                    \n"
+          + "        { \"doesNotContain\": \"stuff\" },            \n"
           + "        { \"matches\": \".*thing.*\" },                \n"
           + "        { \"doesNotMatch\": \"^stuff.+\" }             \n"
           + "    ]                                                  \n"
@@ -476,6 +477,7 @@ public class RequestPatternTest {
             valuePattern(EqualToXmlPattern.class, "<thing />"),
             valuePattern(MatchesXPathPattern.class, "//thing"),
             valuePattern(ContainsPattern.class, "thin"),
+            valuePattern(NegativeContainsPattern.class, "stuff"),
             valuePattern(RegexPattern.class, ".*thing.*"),
             valuePattern(NegativeRegexPattern.class, "^stuff.+")));
   }
@@ -490,6 +492,7 @@ public class RequestPatternTest {
             .withRequestBody(equalToXml("<thing />"))
             .withRequestBody(matchingXPath("//thing"))
             .withRequestBody(containing("thin"))
+            .withRequestBody(notContaining("stuff"))
             .withRequestBody(matching(".*thing.*"))
             .withRequestBody(notMatching("^stuff.+"))
             .build();
