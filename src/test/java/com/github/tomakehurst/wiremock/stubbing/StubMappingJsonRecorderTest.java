@@ -15,7 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
+
+import static com.github.tomakehurst.wiremock.common.Compression.GZIP;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -392,7 +393,7 @@ public class StubMappingJsonRecorderTest {
             .headers(
                 new HttpHeaders(
                     httpHeader("Content-Encoding", "gzip"), httpHeader("Content-Length", "123")))
-            .body(gzip("Recorded body content"))
+            .body(GZIP.compress("Recorded body content"))
             .build();
 
     listener.requestReceived(request, response);

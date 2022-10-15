@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Compression.GZIP;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
@@ -271,7 +272,7 @@ public class NotMatchedPageAcceptanceTest {
             .willReturn(ok()));
 
     ByteArrayEntity entity =
-        new ByteArrayEntity(Gzip.gzip("{\"id\":\"wrong\"}"), ContentType.DEFAULT_BINARY);
+        new ByteArrayEntity(GZIP.compress("{\"id\":\"wrong\"}"), ContentType.DEFAULT_BINARY);
     WireMockResponse response =
         testClient.post("/gzip", entity, withHeader("Content-Encoding", "gzip"));
 

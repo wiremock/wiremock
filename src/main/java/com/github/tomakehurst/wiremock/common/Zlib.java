@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 Thomas Akehurst
+ * Copyright (C) 2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,30 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
-public class Gzip implements CompressionAlgorithm {
+public class Zlib implements CompressionAlgorithm {
 
   @Override
   public InputStream decompressionStream(InputStream source) {
-    try {
-      return new GZIPInputStream(source);
-    } catch (IOException e) {
-      return throwUnchecked(e, InputStream.class);
-    }
+    return new InflaterInputStream(source);
   }
 
   @Override
-  public OutputStream compressionStream(OutputStream outputStream) {
-    try {
-      return new GZIPOutputStream(outputStream);
-    } catch (IOException e) {
-      return throwUnchecked(e, OutputStream.class);
-    }
+  public OutputStream compressionStream(OutputStream source) {
+    return new DeflaterOutputStream(source);
   }
 
   @Override
   public boolean matches(byte[] content) {
-    return content.length >= 2
-        && content[0] == (byte) GZIPInputStream.GZIP_MAGIC
-        && content[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8);
+    if (content.length < 2) return false;
+    if (content[0] != (byte) 0x78) return false;
+    return content[1] == (byte) 0x01
+        || content[1] == (byte) 0x9C
+        || content[1] == (byte) 0xDA
+        || content[1] == (byte) 0x5E;
   }
 }

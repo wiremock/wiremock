@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
+import static com.github.tomakehurst.wiremock.common.Compression.GZIP;
 import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
@@ -271,7 +271,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   public void recordsIntoPlainTextWhenResponseIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
 
-    byte[] gzippedBody = gzip("Zippy");
+    byte[] gzippedBody = GZIP.compress("Zippy");
     targetService.stubFor(
         get("/gzipped-response")
             .willReturn(
@@ -291,7 +291,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     proxyingService.startRecording(targetBaseUrl);
 
     byte[] originalBody = "sdkfnslkdjfsjdf".getBytes(DEFAULT_CHARSET);
-    byte[] gzippedBody = gzip(originalBody);
+    byte[] gzippedBody = GZIP.compress(originalBody);
     targetService.stubFor(
         get("/gzipped-response")
             .willReturn(

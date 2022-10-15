@@ -16,12 +16,18 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.common.Compression.DEFLATE;
+import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
+import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.github.tomakehurst.wiremock.common.Compression;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
 
 public class LoggedResponseDefinitionTransformerTest {
   private LoggedResponseDefinitionTransformer aTransformer() {
@@ -69,22 +75,26 @@ public class LoggedResponseDefinitionTransformerTest {
 
   @Test
   public void preservesHeadersExceptThoseSpecificallyExcluded() {
+    final String uncompressed = "Giant response body... so we'll compress it";
+    final byte[] compressedData = DEFLATE.compress(uncompressed);
     final LoggedResponse response =
         LoggedResponse.from(
             Response.response()
                 .headers(
                     new HttpHeaders(
-                        httpHeader("Content-Encoding", "gzip"), // Excluded
-                        httpHeader("content-LENGTH", "10"), // Excluded
+                        httpHeader("Content-Encoding", DEFLATE.contentEncodingValue), // Excluded
+                        httpHeader("content-LENGTH", Integer.toString(compressedData.length)), // Excluded
                         httpHeader("transfer-encoding", "chunked"), // Excluded
                         httpHeader("Accept", "application/json"),
                         httpHeader("X-foo", "Bar")))
+                    .body(compressedData)
                 .build(),
             UNLIMITED);
     final ResponseDefinition expected =
         responseDefinition()
             .withHeader("Accept", "application/json")
             .withHeader("X-foo", "Bar")
+            .withBase64Body(encodeBase64(uncompressed.getBytes(DEFAULT_CHARSET)))
             .build();
     assertEquals(expected, aTransformer().apply(response));
   }
