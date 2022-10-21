@@ -25,7 +25,7 @@ group = 'com.github.tomakehurst'
 
 project.ext {
   versions = [
-    handlebars     : '4.3.0',
+    handlebars     : '4.3.1',
     jetty          : '9.4.49.v20220914',
     guava          : '31.1-jre',
     jackson        : '2.13.4.20221013',
