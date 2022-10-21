@@ -294,7 +294,7 @@ shadowJar {
 
   mergeServiceFiles()
 
-  exclude 'META-INF/maven/javax.servlet/**'
+  exclude 'META-INF/maven/**'
   exclude 'module-info.class'
   exclude 'handlebars-*.js'
 }
