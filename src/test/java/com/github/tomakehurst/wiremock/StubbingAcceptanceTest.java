@@ -1004,6 +1004,29 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.content(), containsString("\"Json From Object\""));
   }
 
+  @Test
+  public void removesASingleStubMapping() {
+    final UUID id = UUID.randomUUID();
+    stubFor(get("/stub-to-remove").withId(id).willReturn(aResponse()));
+
+    assertThat(testClient.get("/stub-to-remove").statusCode(), is(200));
+
+    StubMapping stub = wireMockServer.getSingleStubMapping(id);
+    wireMockServer.removeStubMapping(stub);
+    assertThat(testClient.get("/stub-to-remove").statusCode(), is(404));
+  }
+
+  @Test
+  public void removesASingleStubMappingById() {
+    final UUID id = UUID.randomUUID();
+    stubFor(get("/stub-to-remove-by-id").withId(id).willReturn(aResponse()));
+
+    assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(200));
+
+    wireMockServer.removeStubMapping(id);
+    assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(404));
+  }
+
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
     connection.setRequestMethod("GET");
