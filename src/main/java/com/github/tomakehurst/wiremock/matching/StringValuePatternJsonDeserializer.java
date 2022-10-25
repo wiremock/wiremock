@@ -49,6 +49,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
           .put("equalToXml", EqualToXmlPattern.class)
           .put("matchesXPath", MatchesXPathPattern.class)
           .put("contains", ContainsPattern.class)
+          .put("doesNotContain", NegativeContainsPattern.class)
           .put("matches", RegexPattern.class)
           .put("doesNotMatch", NegativeRegexPattern.class)
           .put("before", BeforeDateTimePattern.class)
