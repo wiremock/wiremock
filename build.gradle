@@ -35,6 +35,10 @@ project.ext {
   ]
 }
 
+configurations {
+  standaloneOnly
+}
+
 dependencies {
   api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
   api "org.eclipse.jetty:jetty-server"
@@ -67,6 +71,7 @@ dependencies {
   api "org.ow2.asm:asm:9.4"
 
   implementation "org.slf4j:slf4j-api:1.7.36"
+  standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
@@ -265,6 +270,10 @@ jar {
 }
 
 shadowJar {
+  configurations = [
+    project.configurations.runtimeClasspath,
+    project.configurations.standaloneOnly
+  ]
   archiveBaseName.set('wiremock-jre8-standalone')
 
   relocate "org.mortbay", 'wiremock.org.mortbay'
