@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 import java.util.Arrays;
 
 public class BodyChunker {
 
-  private static final Notifier notifier = new Slf4jNotifier(false);
-
   public static byte[][] chunkBody(byte[] body, int numberOfChunks) {
 
     if (numberOfChunks < 1) {
-      notifier.error("Number of chunks set to value less than 1: " + numberOfChunks);
+      notifier().error("Number of chunks set to value less than 1: " + numberOfChunks);
       numberOfChunks = 1;
     }
 
     if (body.length < numberOfChunks) {
-      notifier.error(
-          "Number of chunks set to value greater then body length. Number of chunks: "
-              + numberOfChunks
-              + ". Body length: "
-              + body.length
-              + ". Overriding number of chunks to body length.");
+      notifier()
+          .error(
+              "Number of chunks set to value greater then body length. Number of chunks: "
+                  + numberOfChunks
+                  + ". Body length: "
+                  + body.length
+                  + ". Overriding number of chunks to body length.");
       numberOfChunks = body.length;
     }
 
