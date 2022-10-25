@@ -201,7 +201,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '2.34.0'
+  version = '2.35.0'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
