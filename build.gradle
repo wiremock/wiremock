@@ -65,7 +65,9 @@ dependencies {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
   api "org.ow2.asm:asm:9.4"
-  api "org.slf4j:slf4j-api:2.0.3"
+
+  implementation "org.slf4j:slf4j-api:1.7.36"
+
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
   compileOnly("junit:junit:4.13.2") {
@@ -287,6 +289,7 @@ shadowJar {
   relocate "javax.servlet", "wiremock.javax.servlet"
   relocate "org.checkerframework", "wiremock.org.checkerframework"
   relocate "org.hamcrest", "wiremock.org.hamcrest"
+  relocate "org.slf4j", "wiremock.org.slf4j"
 
   dependencies {
     exclude(dependency('junit:junit'))
