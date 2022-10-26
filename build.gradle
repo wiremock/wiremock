@@ -71,7 +71,7 @@ dependencies {
   api "org.ow2.asm:asm:9.4"
 
   implementation "org.slf4j:slf4j-api:1.7.36"
-  standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
+  standaloneOnly "org.slf4j:slf4j-nop:2.0.3"
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
