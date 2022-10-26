@@ -37,7 +37,7 @@ public abstract class KeyStoreSource implements Source<KeyStore> {
   public KeyStore load() {
     InputStream instream = null;
     try {
-      KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      KeyStore trustStore = KeyStore.getInstance(keyStoreType);
       instream = createInputStream();
       trustStore.load(instream, keyStorePassword);
       return trustStore;
