@@ -477,6 +477,7 @@ public class RequestPatternTest {
             valuePattern(EqualToXmlPattern.class, "<thing />"),
             valuePattern(MatchesXPathPattern.class, "//thing"),
             valuePattern(ContainsPattern.class, "thin"),
+            notValuePattern(NotPattern.class, new ContainsPattern("thing")),
             valuePattern(NegativeContainsPattern.class, "stuff"),
             valuePattern(RegexPattern.class, ".*thing.*"),
             valuePattern(NegativeRegexPattern.class, "^stuff.+")));
@@ -517,6 +518,25 @@ public class RequestPatternTest {
                 + patternClass.getSimpleName()
                 + " with expected value "
                 + expectedValue);
+      }
+    };
+  }
+
+  static Matcher<ContentPattern<?>> notValuePattern(
+          final Class<? extends StringValuePattern> patternClass, final StringValuePattern unexpectedPattern) {
+    return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
+      @Override
+      protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
+        return item.getClass().equals(patternClass) && item.getValue().equals(unexpectedPattern.expectedValue);
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(
+                "a value pattern of type "
+                        + patternClass.getSimpleName()
+                        + " with expected value "
+                        + unexpectedPattern.expectedValue);
       }
     };
   }
