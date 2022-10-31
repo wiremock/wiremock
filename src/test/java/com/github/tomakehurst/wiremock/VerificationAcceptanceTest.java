@@ -318,6 +318,11 @@ public class VerificationAcceptanceTest {
                           .withRequestBody(not(containing("Important value"))))
           );
       }
+      @Test
+      public void verifiesWithBodyDoesNotContainValue(){
+          testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+          verify(postRequestedFor(urlEqualTo("/body/json")).withRequestBody(not(containing("stuff"))));
+      }
 
     @Test
     public void verifiesWithQueryParam() {
