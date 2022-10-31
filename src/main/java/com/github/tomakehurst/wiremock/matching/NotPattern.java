@@ -1,18 +1,20 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NotPattern extends StringValuePattern{
 
     private StringValuePattern unexpectedPattern;
 
-    public NotPattern(@JsonProperty("not") StringValuePattern unexpectedPattern){
+    public NotPattern(@JsonProperty("not") StringValuePattern unexpectedPattern) {
         super(unexpectedPattern.expectedValue);
         this.unexpectedPattern = unexpectedPattern;
     }
 
-    public String getNotExpectedValue(){
-        return unexpectedPattern.expectedValue;
+    public StringValuePattern getNot(){
+        return unexpectedPattern;
     }
 
     @Override

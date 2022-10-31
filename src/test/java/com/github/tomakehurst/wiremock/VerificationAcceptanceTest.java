@@ -310,6 +310,15 @@ public class VerificationAcceptanceTest {
               .withRequestBody(containing("Important value")));
     }
 
+      @Test
+      public void throwsVerificitationExceptionWhenBodyMatches() {
+          testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+          assertThrows(VerificationException.class, ()->verify(
+                  postRequestedFor(urlEqualTo("/body/json"))
+                          .withRequestBody(not(containing("Important value"))))
+          );
+      }
+
     @Test
     public void verifiesWithQueryParam() {
       testClient.get("/query?param=my-value");

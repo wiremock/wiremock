@@ -95,6 +95,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return deserializeAnd(rootNode);
         } else if (patternClass.equals(LogicalOr.class)) {
             return deserializeOr(rootNode);
+        } else if (patternClass.equals(NotPattern.class)) {
+            return deserializeNot(rootNode);
         }
 
         final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
@@ -306,6 +308,22 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return new LogicalOr(operands);
         } catch (IOException e) {
             return throwUnchecked(e, LogicalOr.class);
+        }
+    }
+
+    private StringValuePattern deserializeNot(JsonNode rootNode) throws JsonMappingException {
+        if(!rootNode.has("not")){
+            throw new JsonMappingException(rootNode.toString() + " is not a valid not operation");
+        }
+
+        JsonNode notNode = rootNode.findValue("not");
+        JsonParser parser = Json.getObjectMapper().treeAsTokens(notNode);
+
+        try{
+            StringValuePattern unexpectedPattern = parser.readValueAs(new TypeReference<StringValuePattern>(){});
+            return new NotPattern(unexpectedPattern);
+        } catch (IOException e) {
+            return throwUnchecked(e, NotPattern.class);
         }
     }
 
