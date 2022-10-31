@@ -328,9 +328,7 @@ public class VerificationAcceptanceTest {
       public void verifiesWithHeaderDoesNotContainValue(){
           testClient.get(
                   "/header/not",
-                  withHeader("X-Thing", "One"),
-                  withHeader("X-Thing", "Two"),
-                  withHeader("X-Thing", "Three"));
+                  withHeader("X-Thing", "One"));
           verify(getRequestedFor(urlEqualTo("/header/not")).withHeader("X-Thing", not(containing("Four"))));
       }
 
