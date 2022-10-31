@@ -324,6 +324,16 @@ public class VerificationAcceptanceTest {
           verify(postRequestedFor(urlEqualTo("/body/json")).withRequestBody(not(containing("stuff"))));
       }
 
+      @Test
+      public void verifiesWithHeaderDoesNotContainValue(){
+          testClient.get(
+                  "/header/not",
+                  withHeader("X-Thing", "One"),
+                  withHeader("X-Thing", "Two"),
+                  withHeader("X-Thing", "Three"));
+          verify(getRequestedFor(urlEqualTo("/header/not")).withHeader("X-Thing", not(containing("Four"))));
+      }
+
     @Test
     public void verifiesWithQueryParam() {
       testClient.get("/query?param=my-value");
