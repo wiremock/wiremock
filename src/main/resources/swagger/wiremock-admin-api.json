@@ -971,6 +971,20 @@
         }
       }
     },
+    "/__admin/mappings/import": {
+      "post": {
+        "summary": "Import stub mappings",
+        "description": "Import given stub mappings to the backing store",
+        "tags": [
+          "Stub Mappings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully imported"
+          }
+        }
+      }
+    },
     "/__admin/mappings/{stubMappingId}": {
       "parameters": [
         {
