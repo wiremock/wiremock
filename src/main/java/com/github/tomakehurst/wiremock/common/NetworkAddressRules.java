@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static java.util.Collections.emptySet;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class NetworkAddressRules {
@@ -34,13 +35,31 @@ public class NetworkAddressRules {
       new NetworkAddressRules(ImmutableSet.of(ALL), emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
-    this.allowed = allowed;
-    this.denied = denied;
+    this.allowed = allowed == null || allowed.isEmpty() ? ImmutableSet.of(ALL) : allowed;
+    this.denied = denied == null ? emptySet() : denied;
   }
 
   public boolean isAllowed(String testValue) {
     return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
         && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    NetworkAddressRules that = (NetworkAddressRules) o;
+    return allowed.equals(that.allowed) && denied.equals(that.denied);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(allowed, denied);
+  }
+
+  @Override
+  public String toString() {
+    return "NetworkAddressRules{" + "allowed=" + allowed + ", denied=" + denied + '}';
   }
 
   public static class Builder {

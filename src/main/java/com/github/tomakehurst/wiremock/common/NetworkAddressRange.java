@@ -19,11 +19,18 @@ import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public abstract class NetworkAddressRange {
 
-  public static final NetworkAddressRange ALL = new All();
+  public static final NetworkAddressRange ALL =
+      new NetworkAddressRange() {
+        @Override
+        public boolean isIncluded(String testValue) {
+          return true;
+        }
+      };
 
   private static final Pattern SINGLE_IP =
       Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
@@ -32,6 +39,11 @@ public abstract class NetworkAddressRange {
           "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
 
   public static NetworkAddressRange of(String value) {
+
+    if (value == null || value.isEmpty()) {
+      throw new InvalidInputException(Errors.single(17, value + " is not a valid network address"));
+    }
+
     if (SINGLE_IP.matcher(value).matches()) {
       return new SingleIp(value);
     }
@@ -57,6 +69,24 @@ public abstract class NetworkAddressRange {
     public boolean isIncluded(String testValue) {
       return lookup(testValue).equals(inetAddress);
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      SingleIp singleIp = (SingleIp) o;
+      return inetAddress.equals(singleIp.inetAddress);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(inetAddress);
+    }
+
+    @Override
+    public String toString() {
+      return "SingleIp{" + "inetAddress=" + inetAddress + '}';
+    }
   }
 
   private static class IpRange extends NetworkAddressRange {
@@ -79,6 +109,24 @@ public abstract class NetworkAddressRange {
       BigInteger intVal = InetAddresses.toBigInteger(testValueAddress);
       return intVal.compareTo(start) >= 0 && intVal.compareTo(end) <= 0;
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      IpRange ipRange = (IpRange) o;
+      return start.equals(ipRange.start) && end.equals(ipRange.end);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(start, end);
+    }
+
+    @Override
+    public String toString() {
+      return "IpRange{" + "start=" + start + ", end=" + end + '}';
+    }
   }
 
   private static class DomainNameWildcard extends NetworkAddressRange {
@@ -94,13 +142,23 @@ public abstract class NetworkAddressRange {
     public boolean isIncluded(String testValue) {
       return namePattern.matcher(testValue).matches();
     }
-  }
-
-  private static class All extends NetworkAddressRange {
 
     @Override
-    public boolean isIncluded(String testValue) {
-      return true;
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      DomainNameWildcard that = (DomainNameWildcard) o;
+      return namePattern.pattern().equals(that.namePattern.pattern());
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(namePattern.pattern());
+    }
+
+    @Override
+    public String toString() {
+      return "DomainNameWildcard{" + "namePattern=" + namePattern + '}';
     }
   }
 

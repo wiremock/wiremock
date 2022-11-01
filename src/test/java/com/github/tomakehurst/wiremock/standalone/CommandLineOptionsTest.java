@@ -43,8 +43,10 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Map;
+import joptsimple.OptionException;
 import org.junit.jupiter.api.Test;
 
 public class CommandLineOptionsTest {
@@ -754,7 +756,16 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  void proxyTargetRules() {
+  void defaultProxyTargetRules() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    NetworkAddressRules proxyTargetRules = options.getProxyTargetRules();
+
+    assertThat(proxyTargetRules, is(NetworkAddressRules.ALLOW_ALL));
+  }
+
+  @Test
+  void proxyTargetRulesWhenBothSupplied() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--allow-proxy-targets", "192.168.1.1,10.1.1.1-10.2.2.2",
@@ -762,11 +773,66 @@ public class CommandLineOptionsTest {
 
     NetworkAddressRules proxyTargetRules = options.getProxyTargetRules();
 
-    assertThat(proxyTargetRules.isAllowed("192.168.1.1"), is(true));
-    assertThat(proxyTargetRules.isAllowed("10.1.2.3"), is(true));
+    assertThat(
+        proxyTargetRules,
+        is(
+            new NetworkAddressRules(
+                ImmutableSet.of(
+                    NetworkAddressRange.of("192.168.1.1"),
+                    NetworkAddressRange.of("10.1.1.1-10.2.2.2")),
+                ImmutableSet.of(
+                    NetworkAddressRange.of("192.168.56.1"), NetworkAddressRange.of("*host")))));
+  }
 
-    assertThat(proxyTargetRules.isAllowed("10.3.2.1"), is(false));
-    assertThat(proxyTargetRules.isAllowed("localhost"), is(false));
+  @Test
+  void proxyTargetRulesOnlyAllow() {
+    CommandLineOptions options = new CommandLineOptions("--allow-proxy-targets", "192.168.1.1");
+
+    NetworkAddressRules proxyTargetRules = options.getProxyTargetRules();
+
+    assertThat(
+        proxyTargetRules,
+        is(
+            new NetworkAddressRules(
+                ImmutableSet.of(NetworkAddressRange.of("192.168.1.1")), ImmutableSet.of())));
+  }
+
+  @Test
+  void proxyTargetRulesOnlyDeny() {
+    CommandLineOptions options = new CommandLineOptions("--deny-proxy-targets", "192.168.1.1");
+
+    NetworkAddressRules proxyTargetRules = options.getProxyTargetRules();
+
+    assertThat(
+        proxyTargetRules,
+        is(
+            new NetworkAddressRules(
+                ImmutableSet.of(NetworkAddressRange.ALL),
+                ImmutableSet.of(NetworkAddressRange.of("192.168.1.1")))));
+  }
+
+  @Test
+  void proxyTargetRulesAllowRequiresValue() {
+    assertThrows(OptionException.class, () -> new CommandLineOptions("--allow-proxy-targets"));
+  }
+
+  @Test
+  void proxyTargetRulesAllowRequiresValidValue() {
+    CommandLineOptions options = new CommandLineOptions("--allow-proxy-targets", "");
+
+    assertThrows(InvalidInputException.class, options::getProxyTargetRules);
+  }
+
+  @Test
+  void proxyTargetRulesDenyRequiresValue() {
+    assertThrows(OptionException.class, () -> new CommandLineOptions("--deny-proxy-targets"));
+  }
+
+  @Test
+  void proxyTargetRulesDenyRequiresValidValue() {
+    CommandLineOptions options = new CommandLineOptions("--deny-proxy-targets", "");
+
+    assertThrows(InvalidInputException.class, options::getProxyTargetRules);
   }
 
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

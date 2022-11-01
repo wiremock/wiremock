@@ -849,19 +849,17 @@ public class CommandLineOptions implements Options {
 
   @Override
   public NetworkAddressRules getProxyTargetRules() {
-    final Set<NetworkAddressRange> allowed =
-        optionSet.has(ALLOW_PROXY_TARGETS)
-            ? Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
-                .map(NetworkAddressRange::of)
-                .collect(toSet())
-            : ImmutableSet.of(NetworkAddressRange.ALL);
-    final Set<NetworkAddressRange> denied =
-        optionSet.has(DENY_PROXY_TARGETS)
-            ? Arrays.stream(((String) optionSet.valueOf(DENY_PROXY_TARGETS)).split(","))
-                .map(NetworkAddressRange::of)
-                .collect(toSet())
-            : emptySet();
+    final Set<NetworkAddressRange> allowed = parseNetworkAddressRanges(ALLOW_PROXY_TARGETS);
+    final Set<NetworkAddressRange> denied = parseNetworkAddressRanges(DENY_PROXY_TARGETS);
     return new NetworkAddressRules(allowed, denied);
+  }
+
+  private Set<NetworkAddressRange> parseNetworkAddressRanges(String optionKey) {
+    return optionSet.has(optionKey)
+        ? Arrays.stream(((String) optionSet.valueOf(optionKey)).split(","))
+            .map(NetworkAddressRange::of)
+            .collect(toSet())
+        : emptySet();
   }
 
   @SuppressWarnings("unchecked")
