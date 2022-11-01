@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressRules.ALLOW_ALL;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -346,7 +347,8 @@ public class ProxyResponseRendererTest {
         new GlobalSettingsHolder(),
         trustAllProxyTargets,
         Collections.<String>emptyList(),
-        stubCorsEnabled);
+        stubCorsEnabled,
+        ALLOW_ALL);
   }
 
   // Just exists to make the compiler happy by having the throws clause
