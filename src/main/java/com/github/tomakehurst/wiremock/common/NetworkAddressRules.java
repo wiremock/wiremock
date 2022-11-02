@@ -58,7 +58,11 @@ public class NetworkAddressRules {
     }
 
     public NetworkAddressRules build() {
-      return new NetworkAddressRules(allowed.build(), denied.build());
+      Set<NetworkAddressRange> allowedRanges = allowed.build();
+      if (allowedRanges.isEmpty()) {
+        allowedRanges = ImmutableSet.of(ALL);
+      }
+      return new NetworkAddressRules(allowedRanges, denied.build());
     }
   }
 }
