@@ -38,4 +38,73 @@ public class NetworkAddressRulesTest {
     assertThat(rules.isAllowed("10.1.2.3"), is(false));
     assertThat(rules.isAllowed("10.5.5.5"), is(false));
   }
+
+  @Test
+  void onlyAllowSingleIp() {
+    NetworkAddressRules rules =
+            NetworkAddressRules.builder()
+                    .allow("10.1.1.1")
+                    .build();
+
+    assertThat(rules.isAllowed("10.1.1.1"), is(true));
+    assertThat(rules.isAllowed("10.1.1.0"), is(false));
+    assertThat(rules.isAllowed("10.1.1.2"), is(false));
+  }
+
+  @Test
+  void onlyDenySingleIp() {
+    NetworkAddressRules rules =
+            NetworkAddressRules.builder()
+                    .deny("10.1.1.1")
+                    .build();
+
+    assertThat(rules.isAllowed("10.1.1.1"), is(false));
+    assertThat(rules.isAllowed("10.1.1.0"), is(true));
+    assertThat(rules.isAllowed("10.1.1.2"), is(true));
+  }
+
+  @Test
+  void allowAndDenySingleIps() {
+    NetworkAddressRules rules =
+            NetworkAddressRules.builder()
+                    .deny("10.1.1.1")
+                    .allow("10.1.1.3")
+                    .build();
+
+    assertThat(rules.isAllowed("10.1.1.0"), is(false));
+    assertThat(rules.isAllowed("10.1.1.1"), is(false));
+    assertThat(rules.isAllowed("10.1.1.2"), is(false));
+    assertThat(rules.isAllowed("10.1.1.3"), is(true));
+    assertThat(rules.isAllowed("10.1.1.4"), is(false));
+  }
+
+  @Test
+  void allowRangeAndDenySingleIp() {
+    NetworkAddressRules rules =
+            NetworkAddressRules.builder()
+                    .allow("10.1.1.1-10.1.1.3")
+                    .deny("10.1.1.2")
+                    .build();
+
+    assertThat(rules.isAllowed("10.1.1.0"), is(false));
+    assertThat(rules.isAllowed("10.1.1.1"), is(true));
+    assertThat(rules.isAllowed("10.1.1.2"), is(false));
+    assertThat(rules.isAllowed("10.1.1.3"), is(true));
+    assertThat(rules.isAllowed("10.1.1.4"), is(false));
+  }
+
+  @Test
+  void denyRangeAndAllowSingleIp() {
+    NetworkAddressRules rules =
+            NetworkAddressRules.builder()
+                    .deny("10.1.1.1-10.1.1.3")
+                    .allow("10.1.1.2")
+                    .build();
+
+    assertThat(rules.isAllowed("10.1.1.0"), is(false));
+    assertThat(rules.isAllowed("10.1.1.1"), is(false));
+    assertThat(rules.isAllowed("10.1.1.2"), is(false));
+    assertThat(rules.isAllowed("10.1.1.3"), is(false));
+    assertThat(rules.isAllowed("10.1.1.4"), is(false));
+  }
 }
