@@ -4,7 +4,7 @@ set -euo pipefail
 
 npm i -g npm-run-all swagger-cli
 npm i
-bundle install
+rbenv exec bundle install
 
 npm run build:all
-bundle exec jekyll build
+rbenv exec bundle exec jekyll build
