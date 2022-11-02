@@ -31,7 +31,10 @@ public class NotPattern extends StringValuePattern{
 
             @Override
             public double getDistance() {
-                return 1.0 - matchResult.getDistance();
+                if(matchResult.isExactMatch()){
+                    return 0;
+                }
+                return 1.0;
             }
         };
     }
