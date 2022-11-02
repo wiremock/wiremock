@@ -41,10 +41,7 @@ public class NetworkAddressRulesTest {
 
   @Test
   void onlyAllowSingleIp() {
-    NetworkAddressRules rules =
-            NetworkAddressRules.builder()
-                    .allow("10.1.1.1")
-                    .build();
+    NetworkAddressRules rules = NetworkAddressRules.builder().allow("10.1.1.1").build();
 
     assertThat(rules.isAllowed("10.1.1.1"), is(true));
     assertThat(rules.isAllowed("10.1.1.0"), is(false));
@@ -53,10 +50,7 @@ public class NetworkAddressRulesTest {
 
   @Test
   void onlyDenySingleIp() {
-    NetworkAddressRules rules =
-            NetworkAddressRules.builder()
-                    .deny("10.1.1.1")
-                    .build();
+    NetworkAddressRules rules = NetworkAddressRules.builder().deny("10.1.1.1").build();
 
     assertThat(rules.isAllowed("10.1.1.1"), is(false));
     assertThat(rules.isAllowed("10.1.1.0"), is(true));
@@ -66,10 +60,7 @@ public class NetworkAddressRulesTest {
   @Test
   void allowAndDenySingleIps() {
     NetworkAddressRules rules =
-            NetworkAddressRules.builder()
-                    .deny("10.1.1.1")
-                    .allow("10.1.1.3")
-                    .build();
+        NetworkAddressRules.builder().deny("10.1.1.1").allow("10.1.1.3").build();
 
     assertThat(rules.isAllowed("10.1.1.0"), is(false));
     assertThat(rules.isAllowed("10.1.1.1"), is(false));
@@ -81,10 +72,7 @@ public class NetworkAddressRulesTest {
   @Test
   void allowRangeAndDenySingleIp() {
     NetworkAddressRules rules =
-            NetworkAddressRules.builder()
-                    .allow("10.1.1.1-10.1.1.3")
-                    .deny("10.1.1.2")
-                    .build();
+        NetworkAddressRules.builder().allow("10.1.1.1-10.1.1.3").deny("10.1.1.2").build();
 
     assertThat(rules.isAllowed("10.1.1.0"), is(false));
     assertThat(rules.isAllowed("10.1.1.1"), is(true));
@@ -96,10 +84,7 @@ public class NetworkAddressRulesTest {
   @Test
   void denyRangeAndAllowSingleIp() {
     NetworkAddressRules rules =
-            NetworkAddressRules.builder()
-                    .deny("10.1.1.1-10.1.1.3")
-                    .allow("10.1.1.2")
-                    .build();
+        NetworkAddressRules.builder().deny("10.1.1.1-10.1.1.3").allow("10.1.1.2").build();
 
     assertThat(rules.isAllowed("10.1.1.0"), is(false));
     assertThat(rules.isAllowed("10.1.1.1"), is(false));
