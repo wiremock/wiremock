@@ -28,8 +28,7 @@ public abstract class NetworkAddressRange {
   private static final Pattern SINGLE_IP =
       Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
   private static final Pattern IP_RANGE =
-      Pattern.compile(
-          "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+      Pattern.compile(SINGLE_IP.pattern() + "-" + SINGLE_IP.pattern());
 
   public static NetworkAddressRange of(String value) {
     if (SINGLE_IP.matcher(value).matches()) {
