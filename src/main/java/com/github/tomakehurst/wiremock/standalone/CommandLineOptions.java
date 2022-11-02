@@ -22,8 +22,6 @@ import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toSet;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
@@ -849,19 +847,18 @@ public class CommandLineOptions implements Options {
 
   @Override
   public NetworkAddressRules getProxyTargetRules() {
-    final Set<NetworkAddressRange> allowed =
-        optionSet.has(ALLOW_PROXY_TARGETS)
-            ? Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
-                .map(NetworkAddressRange::of)
-                .collect(toSet())
-            : ImmutableSet.of(NetworkAddressRange.ALL);
-    final Set<NetworkAddressRange> denied =
-        optionSet.has(DENY_PROXY_TARGETS)
-            ? Arrays.stream(((String) optionSet.valueOf(DENY_PROXY_TARGETS)).split(","))
-                .map(NetworkAddressRange::of)
-                .collect(toSet())
-            : emptySet();
-    return new NetworkAddressRules(allowed, denied);
+    NetworkAddressRules.Builder builder = NetworkAddressRules.builder();
+    if (optionSet.has(ALLOW_PROXY_TARGETS)) {
+      Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
+          .forEach(builder::allow);
+    }
+
+    if (optionSet.has(DENY_PROXY_TARGETS)) {
+      Arrays.stream(((String) optionSet.valueOf(DENY_PROXY_TARGETS)).split(","))
+          .forEach(builder::deny);
+    }
+
+    return builder.build();
   }
 
   @SuppressWarnings("unchecked")
