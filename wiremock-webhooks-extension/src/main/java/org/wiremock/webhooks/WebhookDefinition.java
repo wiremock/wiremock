@@ -18,11 +18,15 @@ package org.wiremock.webhooks;
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,8 +45,9 @@ public class WebhookDefinition {
         parameters.getString("method", "GET"),
         parameters.getString("url"),
         toHttpHeaders(parameters.getMetadata("headers", null)),
-        parameters.getString("body", null),
+        parameters.getString("body", null),        
         parameters.getString("base64Body", null),
+		parameters.getString("bodyFile", null),
         getDelayDistribution(parameters.getMetadata("delay", null)),
         parameters);
   }
@@ -79,6 +84,21 @@ public class WebhookDefinition {
     return delayParams.as(DelayDistribution.class);
   }
 
+  public static String getFileAsString(String filepath) throws IOException {
+    StringBuilder builder = new StringBuilder();
+    try {
+      BufferedReader br = new BufferedReader(new FileReader(filepath));
+      while (true) {
+        String line = br.readLine();
+        if (line == null) break;
+        builder.append(line + "\n");
+      }
+      return builder.toString();
+    } catch (IOException e) {
+      throw e;
+    }
+  }
+
   @JsonCreator
   public WebhookDefinition(
       String method,
@@ -86,6 +106,7 @@ public class WebhookDefinition {
       HttpHeaders headers,
       String body,
       String base64Body,
+      String bodyFile,
       DelayDistribution delay,
       Parameters parameters) {
     this.method = method;
@@ -96,6 +117,12 @@ public class WebhookDefinition {
       this.body = new Body(body);
     } else if (base64Body != null) {
       this.body = new Body(decodeBase64(base64Body));
+    } else if (bodyFile != null) {
+      try {
+        this.body = new Body(getFileAsString(FILES_ROOT+bodyFile));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
 
     this.delay = delay;
@@ -189,6 +216,11 @@ public class WebhookDefinition {
 
   public WebhookDefinition withBinaryBody(byte[] body) {
     this.body = new Body(body);
+    return this;
+  }
+
+  public WebhookDefinition withBodyFile(String filename) {
+    this.body = new Body(getFileAsString(FILES_ROOT+filename));
     return this;
   }
 
