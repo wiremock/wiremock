@@ -28,7 +28,7 @@ project.ext {
     handlebars     : '4.3.1',
     jetty          : '9.4.49.v20220914',
     guava          : '31.1-jre',
-    jackson        : '2.13.4.20221013',
+    jackson        : '2.14.0',
     xmlUnit        : '2.9.0',
     jsonUnit       : '2.36.0',
     junitJupiter   : '5.9.1'
