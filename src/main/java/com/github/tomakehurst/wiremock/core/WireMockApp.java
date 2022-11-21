@@ -162,7 +162,8 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   public StubRequestHandler buildStubRequestHandler() {
-    Map<String, PostServeAction> postServeActions = options.extensionsOfType(PostServeAction.class);
+    Map<String, ServeAction> preServeActions = options.extensionsOfType(ServeAction.class);
+    Map<String, ServeAction> postServeActions = options.extensionsOfType(ServeAction.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
     return new StubRequestHandler(
         this,
@@ -181,6 +182,7 @@ public class WireMockApp implements StubServer, Admin {
                 options.getProxyTargetRules()),
             ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())),
         this,
+        preServeActions,
         postServeActions,
         requestJournal,
         getStubRequestFilters(),

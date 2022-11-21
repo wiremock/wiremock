@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
-import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -139,7 +139,14 @@ public class ServeEvent {
   }
 
   @JsonIgnore
-  public List<PostServeActionDefinition> getPostServeActions() {
+  public List<ServeActionDefinition> getPreServeActions() {
+    return stubMapping != null && stubMapping.getPreServeActions() != null
+        ? getStubMapping().getPreServeActions()
+        : Collections.emptyList();
+  }
+
+  @JsonIgnore
+  public List<ServeActionDefinition> getPostServeActions() {
     return stubMapping != null && stubMapping.getPostServeActions() != null
         ? getStubMapping().getPostServeActions()
         : Collections.emptyList();

@@ -44,7 +44,7 @@ public class JettyHttpServerTest {
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
-  private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
+  private final JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
   @BeforeEach
   public void init() {
@@ -64,6 +64,7 @@ public class JettyHttpServerTest {
             Mockito.mock(StubServer.class),
             Mockito.mock(ResponseRenderer.class),
             admin,
+            Collections.emptyMap(),
             Collections.emptyMap(),
             Mockito.mock(RequestJournal.class),
             Collections.emptyList(),

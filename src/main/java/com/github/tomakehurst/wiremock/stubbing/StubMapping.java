@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.List;
@@ -48,7 +48,8 @@ public class StubMapping {
   private String requiredScenarioState;
   private String newScenarioState;
 
-  private List<PostServeActionDefinition> postServeActions;
+  private List<ServeActionDefinition> preServeActions;
+  private List<ServeActionDefinition> postServeActions;
 
   private Metadata metadata;
 
@@ -204,11 +205,45 @@ public class StubMapping {
     return thisPriority - otherPriority;
   }
 
-  public List<PostServeActionDefinition> getPostServeActions() {
+  public List<ServeActionDefinition> getPreServeActions() {
+    return preServeActions;
+  }
+
+  public void setPreServeActions(List<ServeActionDefinition> preServeActions) {
+    this.preServeActions = preServeActions;
+  }
+
+  @SuppressWarnings("unchecked")
+  @JsonProperty("preServeActions")
+  public void setPreServeActions(Object preServeActions) {
+    if (preServeActions == null) {
+      return;
+    }
+
+    // Ensure backwards compatibility with object/map form
+    if (Map.class.isAssignableFrom(preServeActions.getClass())) {
+      this.preServeActions =
+          ((Map<String, Parameters>) preServeActions)
+              .entrySet().stream()
+                  .map(
+                      entry ->
+                          new ServeActionDefinition(
+                              entry.getKey(), Parameters.from(entry.getValue())))
+                  .collect(Collectors.toList());
+    } else if (List.class.isAssignableFrom(preServeActions.getClass())) {
+      this.preServeActions =
+          ((List<Map<String, Object>>) preServeActions)
+              .stream()
+                  .map(item -> Json.mapToObject(item, ServeActionDefinition.class))
+                  .collect(Collectors.toList());
+    }
+  }
+
+  public List<ServeActionDefinition> getPostServeActions() {
     return postServeActions;
   }
 
-  public void setPostServeActions(List<PostServeActionDefinition> postServeActions) {
+  public void setPostServeActions(List<ServeActionDefinition> postServeActions) {
     this.postServeActions = postServeActions;
   }
 
@@ -226,14 +261,14 @@ public class StubMapping {
               .entrySet().stream()
                   .map(
                       entry ->
-                          new PostServeActionDefinition(
+                          new ServeActionDefinition(
                               entry.getKey(), Parameters.from(entry.getValue())))
                   .collect(Collectors.toList());
     } else if (List.class.isAssignableFrom(postServeActions.getClass())) {
       this.postServeActions =
           ((List<Map<String, Object>>) postServeActions)
               .stream()
-                  .map(item -> Json.mapToObject(item, PostServeActionDefinition.class))
+                  .map(item -> Json.mapToObject(item, ServeActionDefinition.class))
                   .collect(Collectors.toList());
     }
   }

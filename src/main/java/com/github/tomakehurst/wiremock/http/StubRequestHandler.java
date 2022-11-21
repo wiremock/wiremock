@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeAction;
+import com.github.tomakehurst.wiremock.extension.ServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
@@ -33,7 +33,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   private final StubServer stubServer;
   private final Admin admin;
-  private final Map<String, PostServeAction> postServeActions;
+  private final Map<String, ServeAction> postServeActions;
+  private final Map<String, ServeAction> preServeActions;
   private final RequestJournal requestJournal;
   private final boolean loggingDisabled;
 
@@ -41,7 +42,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
       StubServer stubServer,
       ResponseRenderer responseRenderer,
       Admin admin,
-      Map<String, PostServeAction> postServeActions,
+      Map<String, ServeAction> preServeActions,
+      Map<String, ServeAction> postServeActions,
       RequestJournal requestJournal,
       List<RequestFilter> requestFilters,
       boolean loggingDisabled,
@@ -49,6 +51,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
     super(responseRenderer, requestFilters, dataTruncationSettings);
     this.stubServer = stubServer;
     this.admin = admin;
+    this.preServeActions = preServeActions;
     this.postServeActions = postServeActions;
     this.requestJournal = requestJournal;
     this.loggingDisabled = loggingDisabled;
@@ -66,24 +69,37 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   @Override
   protected void beforeResponseSent(ServeEvent serveEvent, Response response) {
+    for (ServeAction preServeAction : preServeActions.values()) {
+      preServeAction.doGlobalAction(serveEvent, admin);
+    }
+    List<ServeActionDefinition> serveActionDefs = serveEvent.getPreServeActions();
+    for (ServeActionDefinition preServeActionDef : serveActionDefs) {
+      ServeAction action = preServeActions.get(preServeActionDef.getName());
+      runServeAction(serveEvent, action, preServeActionDef);
+    }
     requestJournal.requestReceived(serveEvent);
   }
 
   @Override
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {
-    for (PostServeAction postServeAction : postServeActions.values()) {
+    for (ServeAction postServeAction : postServeActions.values()) {
       postServeAction.doGlobalAction(serveEvent, admin);
     }
 
-    List<PostServeActionDefinition> postServeActionDefs = serveEvent.getPostServeActions();
-    for (PostServeActionDefinition postServeActionDef : postServeActionDefs) {
-      PostServeAction action = postServeActions.get(postServeActionDef.getName());
-      if (action != null) {
-        Parameters parameters = postServeActionDef.getParameters();
-        action.doAction(serveEvent, admin, parameters);
-      } else {
-        notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
-      }
+    List<ServeActionDefinition> serveActionDefs = serveEvent.getPostServeActions();
+    for (ServeActionDefinition postServeActionDef : serveActionDefs) {
+      ServeAction action = postServeActions.get(postServeActionDef.getName());
+      runServeAction(serveEvent, action, postServeActionDef);
+    }
+  }
+
+  private void runServeAction(
+      ServeEvent event, ServeAction action, ServeActionDefinition actionDefinition) {
+    if (action != null) {
+      Parameters parameters = actionDefinition.getParameters();
+      action.doAction(event, admin, parameters);
+    } else {
+      notifier().error("No extension was found named \"" + actionDefinition.getName() + "\"");
     }
   }
 }

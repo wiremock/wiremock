@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -43,7 +43,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
-  private List<PostServeActionDefinition> postServeActions = newArrayList();
+  private List<ServeActionDefinition> postServeActions = newArrayList();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
@@ -177,10 +177,18 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
+  public <P> BasicMappingBuilder withPreServeAction(String extensionName, P parameters) {
+    Parameters params =
+        parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
+    postServeActions.add(new ServeActionDefinition(extensionName, params));
+    return this;
+  }
+
+  @Override
   public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
     Parameters params =
         parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
-    postServeActions.add(new PostServeActionDefinition(extensionName, params));
+    postServeActions.add(new ServeActionDefinition(extensionName, params));
     return this;
   }
 

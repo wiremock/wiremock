@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.ServeAction;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.concurrent.CountDownLatch;
@@ -48,7 +48,7 @@ public class FailingWebhookTest {
               options()
                   .dynamicPort()
                   .extensions(
-                      new PostServeAction() {
+                      new ServeAction() {
                         @Override
                         public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
                           if (serveEvent.getRequest().getUrl().startsWith("/callback")) {

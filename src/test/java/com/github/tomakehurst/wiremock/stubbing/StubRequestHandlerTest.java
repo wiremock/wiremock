@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.ServeAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
@@ -65,7 +65,8 @@ public class StubRequestHandlerTest {
             stubServer,
             responseRenderer,
             admin,
-            Collections.<String, PostServeAction>emptyMap(),
+            Collections.<String, ServeAction>emptyMap(),
+            Collections.<String, ServeAction>emptyMap(),
             requestJournal,
             Collections.<RequestFilter>emptyList(),
             false,

@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class PostServeActionExtensionTest {
+class PreServeActionExtensionTest {
 
   WireMockServer wm;
   WireMockTestClient client;
@@ -68,21 +68,19 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void triggersActionWhenAppliedToAStubMapping() throws Exception {
+  void triggersActionWhenAppliedToAStubMapping() throws Exception {
     initWithOptions(options().dynamicPort().extensions(new NamedCounterAction()));
 
     StubMapping stubMapping =
         wm.stubFor(
             get(urlPathEqualTo("/count-me"))
-                .withPostServeAction("count-request", counterNameParameter().withName("things"))
+                .withPreServeAction("count-request", counterNameParameter().withName("things"))
                 .willReturn(aResponse()));
 
     client.get("/count-me");
     client.get("/count-me");
     client.get("/count-me");
     client.get("/count-me");
-
-    await().atMost(5, SECONDS).until(getContent("/__admin/named-counter/things"), is("4"));
 
     // We should serialise out in array form
     assertThat(
@@ -100,19 +98,19 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void continuesWithNoEffectIfANonExistentActionIsReferenced() {
+  void continuesWithNoEffectIfANonExistentActionIsReferenced() {
     initWithOptions(options().dynamicPort());
 
     wm.stubFor(
         get(urlPathEqualTo("/as-normal"))
-            .withPostServeAction("does-not-exist", counterNameParameter().withName("things"))
+            .withPreServeAction("does-not-exist", counterNameParameter().withName("things"))
             .willReturn(aResponse().withStatus(200)));
 
     assertThat(client.get("/as-normal").statusCode(), is(200));
   }
 
   @Test
-  public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
+  void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
     final AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()
@@ -140,7 +138,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void canBeSpecifiedAsAJsonObject() {
+  void canBeSpecifiedAsAJsonObject() {
     initWithOptions(
         options()
             .dynamicPort()
@@ -174,7 +172,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
+  void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
     initWithOptions(
         options()
             .dynamicPort()
@@ -184,8 +182,8 @@ public class PostServeActionExtensionTest {
     wm.stubFor(
         get(urlPathEqualTo("/count-me"))
             .willReturn(ok())
-            .withPostServeAction("count-request", counterNameParameter().withName("one"))
-            .withPostServeAction("count-request", counterNameParameter().withName("two")));
+            .withPreServeAction("count-request", counterNameParameter().withName("one"))
+            .withPreServeAction("count-request", counterNameParameter().withName("two")));
 
     client.get("/count-me");
     client.get("/count-me");
@@ -197,7 +195,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
+  void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
     initWithOptions(
         options()
             .dynamicPort()
