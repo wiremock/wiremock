@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
@@ -82,6 +83,7 @@ public class CommandLineOptions implements Options {
   private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
   private static final String DISABLE_BANNER = "disable-banner";
   private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
+  private static final String REQUEST_JOURNAL_EXTERNAL = "request-journal-external";
   private static final String EXTENSIONS = "extensions";
   private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
   private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
@@ -219,6 +221,7 @@ public class CommandLineOptions implements Options {
     optionParser.accepts(
         DISABLE_REQUEST_JOURNAL,
         "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
+    optionParser.accepts(REQUEST_JOURNAL_EXTERNAL, "Request journal external");
     optionParser.accepts(DISABLE_BANNER, "Disable print banner logo");
     optionParser
         .accepts(
@@ -409,6 +412,10 @@ public class CommandLineOptions implements Options {
 
     if (optionSet.has(RECORD_MAPPINGS) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
       throw new IllegalArgumentException("Request journal must be enabled to record stubs");
+    }
+
+    if (optionSet.has(REQUEST_JOURNAL_EXTERNAL) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
+      throw new IllegalArgumentException("Only external request journal should be assigned");
     }
   }
 
@@ -673,6 +680,16 @@ public class CommandLineOptions implements Options {
   @Override
   public boolean requestJournalDisabled() {
     return optionSet.has(DISABLE_REQUEST_JOURNAL);
+  }
+
+  @Override
+  public boolean requestJournalExternal() {
+    return optionSet.has(REQUEST_JOURNAL_EXTERNAL);
+  }
+
+  @Override
+  public RequestJournal requestJournalExternalImplementation() {
+    return null;
   }
 
   public boolean bannerDisabled() {

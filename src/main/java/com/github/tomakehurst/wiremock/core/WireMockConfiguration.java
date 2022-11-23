@@ -43,6 +43,7 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
@@ -86,6 +87,7 @@ public class WireMockConfiguration implements Options {
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
+  private boolean requestJournalExternal = false;
   private Optional<Integer> maxRequestJournalEntries = Optional.absent();
   private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
@@ -538,6 +540,16 @@ public class WireMockConfiguration implements Options {
   @Override
   public boolean requestJournalDisabled() {
     return requestJournalDisabled;
+  }
+
+  @Override
+  public boolean requestJournalExternal() {
+    return requestJournalExternal;
+  }
+
+  @Override
+  public RequestJournal requestJournalExternalImplementation() {
+    return null;
   }
 
   @Override

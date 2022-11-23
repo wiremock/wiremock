@@ -90,10 +90,14 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, RequestMatcherExtension> customMatchers =
         options.extensionsOfType(RequestMatcherExtension.class);
 
-    requestJournal =
-        options.requestJournalDisabled()
-            ? new DisabledRequestJournal()
-            : new InMemoryRequestJournal(options.maxRequestJournalEntries(), customMatchers);
+    if (options.requestJournalDisabled()) {
+      requestJournal = new DisabledRequestJournal();
+    } else if (options.requestJournalExternal()) {
+      requestJournal = options.requestJournalExternalImplementation();
+    } else {
+      requestJournal =
+          new InMemoryRequestJournal(options.maxRequestJournalEntries(), customMatchers);
+    }
 
     scenarios = new Scenarios();
     stubMappings =
@@ -117,6 +121,7 @@ public class WireMockApp implements StubServer, Admin {
       MappingsLoader defaultMappingsLoader,
       MappingsSaver mappingsSaver,
       boolean requestJournalDisabled,
+      boolean requestJournalExternal,
       Optional<Integer> maxRequestJournalEntries,
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, RequestMatcherExtension> requestMatchers,
@@ -127,10 +132,13 @@ public class WireMockApp implements StubServer, Admin {
     this.defaultMappingsLoader = defaultMappingsLoader;
     this.mappingsSaver = mappingsSaver;
     globalSettingsHolder = new GlobalSettingsHolder();
-    requestJournal =
-        requestJournalDisabled
-            ? new DisabledRequestJournal()
-            : new InMemoryRequestJournal(maxRequestJournalEntries, requestMatchers);
+    if (requestJournalDisabled) {
+      requestJournal = new DisabledRequestJournal();
+    } else if (requestJournalExternal) {
+      requestJournal = options.requestJournalExternalImplementation();
+    } else {
+      requestJournal = new InMemoryRequestJournal(maxRequestJournalEntries, requestMatchers);
+    }
     scenarios = new Scenarios();
     stubMappings =
         new InMemoryStubMappings(

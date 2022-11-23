@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
@@ -108,6 +109,16 @@ public class WarConfiguration implements Options {
   @Override
   public boolean requestJournalDisabled() {
     return false;
+  }
+
+  @Override
+  public boolean requestJournalExternal() {
+    return false;
+  }
+
+  @Override
+  public RequestJournal requestJournalExternalImplementation() {
+    return null;
   }
 
   @Override

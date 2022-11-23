@@ -266,6 +266,16 @@ public class CommandLineOptionsTest {
     assertThat(options.requestJournalDisabled(), is(true));
   }
 
+  @Test()
+  public void
+      returnsIllegalArgumentExceptionWhenNoRequestJournalAndRequestJournalExternalInOptions() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          new CommandLineOptions("--no-request-journal", "--request-journal-external");
+        });
+  }
+
   @Test
   public void returnsMaxRequestJournalEntries() {
     CommandLineOptions options = new CommandLineOptions("--max-request-journal-entries", "2");
