@@ -23,7 +23,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,6 +46,7 @@ public class WebhookDefinition {
         toHttpHeaders(parameters.getMetadata("headers", null)),
         parameters.getString("body", null),
         parameters.getString("base64Body", null),
+        parameters.getString("bodyFile", null),
         getDelayDistribution(parameters.getMetadata("delay", null)),
         parameters);
   }
@@ -86,6 +90,7 @@ public class WebhookDefinition {
       HttpHeaders headers,
       String body,
       String base64Body,
+      String bodyFile,
       DelayDistribution delay,
       Parameters parameters) {
     this.method = method;
@@ -96,6 +101,12 @@ public class WebhookDefinition {
       this.body = new Body(body);
     } else if (base64Body != null) {
       this.body = new Body(decodeBase64(base64Body));
+    } else if (bodyFile != null) {
+      try {
+        this.body = new Body(getFileAsString(bodyFile));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
 
     this.delay = delay;
@@ -221,4 +232,14 @@ public class WebhookDefinition {
   public boolean hasBody() {
     return body != null && body.isPresent();
   }
+
+  public WebhookDefinition withBodyFile(String filename) throws IOException {
+    this.body = new Body(getFileAsString(filename));
+    return this;
+  }
+
+  private byte[] getFileAsString(String filename) throws IOException {
+    return Files.readAllBytes(Path.of(com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT+"/"+filename));
+  }
+
 }
