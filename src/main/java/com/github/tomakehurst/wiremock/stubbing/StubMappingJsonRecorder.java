@@ -81,7 +81,7 @@ public class StubMappingJsonRecorder implements RequestListener {
       }
     }
 
-    if (request.isMultipart()) {
+    if (request.isMultipart() && request.getParts() != null) {
       for (Request.Part part : request.getParts()) {
         builder.withRequestBodyPart(valuePatternForPart(part));
       }
