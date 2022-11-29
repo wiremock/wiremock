@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -75,7 +76,7 @@ public class SnapshotStubMappingGeneratorTest {
         LoggedRequest.createFrom(aRequest().build()),
         null,
         null,
-        LoggedResponse.from(Response.notConfigured()),
+        LoggedResponse.from(Response.notConfigured(), UNLIMITED),
         false,
         Timing.UNTIMED);
   }

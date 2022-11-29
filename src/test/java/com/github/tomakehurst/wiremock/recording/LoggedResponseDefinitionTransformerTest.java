@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,7 +30,8 @@ public class LoggedResponseDefinitionTransformerTest {
 
   @Test
   public void applyWithEmptyHeadersAndBody() {
-    final LoggedResponse response = LoggedResponse.from(Response.response().status(401).build());
+    final LoggedResponse response =
+        LoggedResponse.from(Response.response().status(401).build(), UNLIMITED);
     assertEquals(responseDefinition().withStatus(401).build(), aTransformer().apply(response));
   }
 
@@ -40,7 +42,8 @@ public class LoggedResponseDefinitionTransformerTest {
             Response.response()
                 .headers(new HttpHeaders(new ContentTypeHeader("text/plain")))
                 .body("foo")
-                .build());
+                .build(),
+            UNLIMITED);
     final ResponseDefinition expected =
         responseDefinition().withHeader("Content-Type", "text/plain").withBody("foo").build();
     assertEquals(expected, aTransformer().apply(response));
@@ -54,7 +57,8 @@ public class LoggedResponseDefinitionTransformerTest {
             Response.response()
                 .headers(new HttpHeaders(new ContentTypeHeader("application/octet-stream")))
                 .body(body)
-                .build());
+                .build(),
+            UNLIMITED);
     final ResponseDefinition expected =
         responseDefinition()
             .withHeader("Content-Type", "application/octet-stream")
@@ -75,7 +79,8 @@ public class LoggedResponseDefinitionTransformerTest {
                         httpHeader("transfer-encoding", "chunked"), // Excluded
                         httpHeader("Accept", "application/json"),
                         httpHeader("X-foo", "Bar")))
-                .build());
+                .build(),
+            UNLIMITED);
     final ResponseDefinition expected =
         responseDefinition()
             .withHeader("Accept", "application/json")
@@ -88,7 +93,8 @@ public class LoggedResponseDefinitionTransformerTest {
   public void transformsWhenNoHeadersArePresent() {
     final byte[] body = new byte[] {0x1, 0xc, 0x3, 0xb, 0x1};
     final LoggedResponse response =
-        LoggedResponse.from(Response.response().status(500).body(body).headers(null).build());
+        LoggedResponse.from(
+            Response.response().status(500).body(body).headers(null).build(), UNLIMITED);
 
     final ResponseDefinition expected = responseDefinition().withStatus(500).withBody(body).build();
     assertEquals(expected, aTransformer().apply(response));

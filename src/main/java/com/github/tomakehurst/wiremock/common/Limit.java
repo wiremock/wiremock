@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.direct;
+package com.github.tomakehurst.wiremock.common;
 
-import java.util.concurrent.*;
+public class Limit {
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+  public static final Limit UNLIMITED = new Limit(null);
 
-class SleepFacade {
+  private final Integer limit;
 
-  private final ScheduledExecutorService executorService;
-
-  public SleepFacade() {
-    this.executorService = Executors.newSingleThreadScheduledExecutor();
+  public Limit(Integer limit) {
+    this.limit = limit;
   }
 
-  void sleep(long millis) {
-    try {
-      executorService.schedule(() -> {}, millis, MILLISECONDS).get();
-    } catch (Exception e) {
-      Thread.currentThread().interrupt();
-    }
+  public boolean isExceededBy(int value) {
+    return limit != null && value > limit;
+  }
+
+  public Integer getValue() {
+    return limit;
+  }
+
+  public boolean isUnlimited() {
+    return limit == null;
   }
 }

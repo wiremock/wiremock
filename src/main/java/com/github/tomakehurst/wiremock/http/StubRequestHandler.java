@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -43,8 +44,9 @@ public class StubRequestHandler extends AbstractRequestHandler {
       Map<String, PostServeAction> postServeActions,
       RequestJournal requestJournal,
       List<RequestFilter> requestFilters,
-      boolean loggingDisabled) {
-    super(responseRenderer, requestFilters);
+      boolean loggingDisabled,
+      DataTruncationSettings dataTruncationSettings) {
+    super(responseRenderer, requestFilters, dataTruncationSettings);
     this.stubServer = stubServer;
     this.admin = admin;
     this.postServeActions = postServeActions;

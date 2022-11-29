@@ -215,6 +215,16 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public DataTruncationSettings getDataTruncationSettings() {
+    return DataTruncationSettings.DEFAULTS;
+  }
+
+  @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    return NetworkAddressRules.ALLOW_ALL;
+  }
+
+  @Override
   public BrowserProxySettings browserProxySettings() {
     return BrowserProxySettings.DISABLED;
   }

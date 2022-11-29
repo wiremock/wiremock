@@ -264,6 +264,10 @@ public class WireMock {
     return new ContainsPattern(value);
   }
 
+  public static StringValuePattern notContaining(String value) {
+    return new NegativeContainsPattern(value);
+  }
+
   public static StringValuePattern matching(String regex) {
     return new RegexPattern(regex);
   }
@@ -388,7 +392,7 @@ public class WireMock {
     return defaultInstance.get().getScenarios();
   }
 
-  private List<Scenario> getScenarios() {
+  public List<Scenario> getScenarios() {
     return admin.getAllScenarios().getScenarios();
   }
 

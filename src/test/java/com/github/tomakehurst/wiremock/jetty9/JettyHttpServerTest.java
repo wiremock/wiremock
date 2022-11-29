@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
@@ -39,6 +39,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class JettyHttpServerTest {
+
+  static final DataTruncationSettings NO_TRUNCATION = new DataTruncationSettings(Limit.UNLIMITED);
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
@@ -55,16 +57,18 @@ public class JettyHttpServerTest {
             new BasicResponseRenderer(),
             new NoAuthenticator(),
             false,
-            Collections.<RequestFilter>emptyList());
+            Collections.emptyList(),
+            NO_TRUNCATION);
     stubRequestHandler =
         new StubRequestHandler(
             Mockito.mock(StubServer.class),
             Mockito.mock(ResponseRenderer.class),
             admin,
-            Collections.<String, PostServeAction>emptyMap(),
+            Collections.emptyMap(),
             Mockito.mock(RequestJournal.class),
-            Collections.<RequestFilter>emptyList(),
-            false);
+            Collections.emptyList(),
+            false,
+            NO_TRUNCATION);
   }
 
   @Test

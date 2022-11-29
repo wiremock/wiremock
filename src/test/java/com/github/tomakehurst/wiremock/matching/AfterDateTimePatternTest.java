@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.DateTimeOffset;
+import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
+import com.github.tomakehurst.wiremock.common.DateTimeUnit;
+import com.github.tomakehurst.wiremock.common.Json;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -87,10 +90,17 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
+  public void doesNotMatchWhenActualValueIsNull() {
+    StringValuePattern matcher = WireMock.after("2021-06-14T15:15:15Z");
+    assertFalse(matcher.match(null).isExactMatch());
+  }
+
+  @Test
   public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.after("2021-01-01T00:00:00Z");
     assertThat(matcher.match("1971-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("1921-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2020-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 

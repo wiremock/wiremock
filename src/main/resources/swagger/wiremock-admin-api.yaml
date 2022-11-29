@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: WireMock
-  version: 2.33.2
+  version: 2.35.0
 
 externalDocs:
   description: WireMock user documentation
@@ -106,6 +106,16 @@ paths:
       responses:
         '200':
           description: Successfully saved
+
+  /__admin/mappings/import:
+    post:
+      summary: Import stub mappings
+      description: Import given stub mappings to the backing store
+      tags:
+        - Stub Mappings
+      responses:
+        '200':
+          description: Successfully imported
 
   /__admin/mappings/{stubMappingId}:
     parameters:

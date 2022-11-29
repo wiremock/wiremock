@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ public class Jetty94HttpServer extends JettyHttpServer {
         super.createHandler(options, adminRequestHandler, stubRequestHandler);
 
     if (options.browserProxySettings().enabled()) {
-      handler.addHandler(new ManInTheMiddleSslConnectHandler(mitmProxyConnector));
+      handler.prependHandler(new ManInTheMiddleSslConnectHandler(mitmProxyConnector));
     }
 
     return handler;

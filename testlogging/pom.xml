@@ -10,22 +10,19 @@
 
   <properties>
     <slf4jversion>1.7.1</slf4jversion>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.resources.sourceEncoding>UTF-8</project.resources.sourceEncoding>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>version99</id>
-      <url>https://version99.qos.ch/</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
     </plugins>
@@ -49,8 +46,8 @@
     </dependency>
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock</artifactId>
-      <version>1.30</version>
+      <artifactId>wiremock-jre8-standalone</artifactId>
+      <version>2.33.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -81,18 +78,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>log4j-over-slf4j</artifactId>
       <version>${slf4jversion}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>99-empty</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>99-empty</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.direct;
+package com.github.tomakehurst.wiremock.common;
 
-import java.util.concurrent.*;
+public class DataTruncationSettings {
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+  public static final DataTruncationSettings NO_TRUNCATION =
+      new DataTruncationSettings(Limit.UNLIMITED);
+  public static final DataTruncationSettings DEFAULTS = NO_TRUNCATION;
 
-class SleepFacade {
+  private final Limit maxResponseBodySize;
 
-  private final ScheduledExecutorService executorService;
-
-  public SleepFacade() {
-    this.executorService = Executors.newSingleThreadScheduledExecutor();
+  public DataTruncationSettings(Limit maxResponseBodySize) {
+    this.maxResponseBodySize = maxResponseBodySize;
   }
 
-  void sleep(long millis) {
-    try {
-      executorService.schedule(() -> {}, millis, MILLISECONDS).get();
-    } catch (Exception e) {
-      Thread.currentThread().interrupt();
-    }
+  public Limit getMaxResponseBodySize() {
+    return maxResponseBodySize;
   }
 }

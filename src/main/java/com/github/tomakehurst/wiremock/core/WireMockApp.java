@@ -157,7 +157,8 @@ public class WireMockApp implements StubServer, Admin {
         new BasicResponseRenderer(),
         options.getAdminAuthenticator(),
         options.getHttpsRequiredForAdminApi(),
-        getAdminRequestFilters());
+        getAdminRequestFilters(),
+        options.getDataTruncationSettings());
   }
 
   public StubRequestHandler buildStubRequestHandler() {
@@ -176,13 +177,15 @@ public class WireMockApp implements StubServer, Admin {
                 globalSettingsHolder,
                 browserProxySettings.trustAllProxyTargets(),
                 browserProxySettings.trustedProxyTargets(),
-                options.getStubCorsEnabled()),
+                options.getStubCorsEnabled(),
+                options.getProxyTargetRules()),
             ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())),
         this,
         postServeActions,
         requestJournal,
         getStubRequestFilters(),
-        options.getStubRequestLoggingDisabled());
+        options.getStubRequestLoggingDisabled(),
+        options.getDataTruncationSettings());
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
@@ -226,7 +229,7 @@ public class WireMockApp implements StubServer, Admin {
     ServeEvent serveEvent = stubMappings.serveFor(request);
 
     if (serveEvent.isNoExactMatch()) {
-      LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
+      LoggedRequest loggedRequest = serveEvent.getRequest();
       if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
         return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
       }
@@ -258,6 +261,14 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     stubMappings.removeMapping(stubMapping);
+  }
+
+  @Override
+  public void removeStubMapping(UUID id) {
+    final Optional<StubMapping> maybeStub = stubMappings.get(id);
+    if (maybeStub.isPresent()) {
+      removeStubMapping(maybeStub.get());
+    }
   }
 
   @Override

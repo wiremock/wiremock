@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,18 @@ public class SingleRootFileSourceTest {
           SingleRootFileSource fileSource =
               new SingleRootFileSource("src/test/resources/filesource/one");
           fileSource.writeTextFile("thing", "stuff");
+        });
+  }
+
+  @Test
+  public void
+      listFilesRecursivelyThrowsExceptionWhenLastPathNodeIsSimilarToRootButWithExtraCharacters() {
+    assertThrows(
+        NotAuthorisedException.class,
+        () -> {
+          SingleRootFileSource fileSource =
+              new SingleRootFileSource("src/test/resources/security-filesource/root");
+          fileSource.getBinaryFileNamed("../rootdir/file.json");
         });
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
@@ -61,7 +62,8 @@ public class AdminRequestHandlerTest {
             new BasicResponseRenderer(),
             new NoAuthenticator(),
             false,
-            Collections.<RequestFilter>emptyList());
+            Collections.emptyList(),
+            new DataTruncationSettings(Limit.UNLIMITED));
   }
 
   @Test
