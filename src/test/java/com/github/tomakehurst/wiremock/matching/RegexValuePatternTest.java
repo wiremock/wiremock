@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.matching;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -50,5 +52,17 @@ public class RegexValuePatternTest {
   @Test
   public void noMatchWhenValueIsNull() {
     assertThat(WireMock.matching(".*").match(null).isExactMatch(), is(false));
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    RegexPattern a = new RegexPattern("test");
+    RegexPattern b = new RegexPattern("test");
+    RegexPattern c = new RegexPattern("anotherTest");
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
   }
 }

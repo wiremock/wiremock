@@ -20,8 +20,7 @@ import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
@@ -328,5 +327,17 @@ public class BeforeDateTimePatternTest {
   public void acceptsJavaLocalDateTimeAsExpected() {
     BeforeDateTimePattern matcher = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
     assertTrue(matcher.match("2019-01-01T00:00:00").isExactMatch());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    BeforeDateTimePattern a = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
+    BeforeDateTimePattern b = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
+    BeforeDateTimePattern c = WireMock.before(LocalDateTime.parse("2022-01-01T10:10:10"));
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
   }
 }

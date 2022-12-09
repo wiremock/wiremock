@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
@@ -72,5 +72,17 @@ public class UrlPatternTest {
   @Test
   public void noMatchOnNullValueForUrlPathRegex() {
     assertThat(WireMock.urlPathMatching("/things/.*").match(null).isExactMatch(), is(false));
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    UrlPathPattern a = WireMock.urlPathMatching("/things/.*");
+    UrlPathPattern b = WireMock.urlPathMatching("/things/.*");
+    UrlPathPattern c = WireMock.urlPathMatching("/test/.*");
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
   }
 }

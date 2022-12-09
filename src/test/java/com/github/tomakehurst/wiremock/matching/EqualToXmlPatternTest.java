@@ -22,10 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
@@ -477,5 +474,38 @@ public class EqualToXmlPatternTest {
     StringValuePattern pattern = equalToXml(expected).exemptingComparisons(NAMESPACE_URI);
 
     assertTrue(pattern.match(actual).isExactMatch());
+  }
+
+  @Test
+  public void testEquals() {
+    EqualToXmlPattern a =
+        new EqualToXmlPattern(
+            "<ns2:GetValue\n"
+                + "        xmlns=\"http://CIS/BIR/PUBL/2014/07/DataContract\"\n"
+                + "        xmlns:ns2=\"http://CIS/BIR/2014/07\"                         \n"
+                + "        xmlns:ns3=\"http://CIS/BIR/PUBL/2014/07\"                    \n"
+                + "        xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serializa  \n"
+                + "        tion/\"/>");
+    EqualToXmlPattern b =
+        new EqualToXmlPattern(
+            "<ns2:GetValue\n"
+                + "        xmlns=\"http://CIS/BIR/PUBL/2014/07/DataContract\"\n"
+                + "        xmlns:ns2=\"http://CIS/BIR/2014/07\"                         \n"
+                + "        xmlns:ns3=\"http://CIS/BIR/PUBL/2014/07\"                    \n"
+                + "        xmlns:ns4=\"http://schemas.microsoft.com/2003/10/Serializa  \n"
+                + "        tion/\"/>");
+    EqualToXmlPattern c =
+        new EqualToXmlPattern(
+            "<ns2:GetValue\n"
+                + "        xmlns=\"http://CIS/BIR/PUBL/2015/07/DataContract\"\n"
+                + "        xmlns:ns2=\"http://CIS/BIR/2015/07\"                         \n"
+                + "        xmlns:ns3=\"http://CIS/BIR/PUBL/2015/07\"                    \n"
+                + "        xmlns:ns4=\"http://schemas.microsoft.com/2004/10/Serializa  \n"
+                + "        tion/\"/>");
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
   }
 }

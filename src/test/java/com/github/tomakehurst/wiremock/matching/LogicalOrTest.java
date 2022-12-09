@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.matching;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -98,5 +98,19 @@ public class LogicalOrTest {
 
     double expectedDistance = WireMock.equalTo("defgh").match("efgh").getDistance();
     assertThat(matchResult.getDistance(), is(expectedDistance));
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    LogicalOr a =
+        new LogicalOr(WireMock.equalTo("A"), WireMock.equalTo("B"), WireMock.equalTo("C"));
+    LogicalOr b =
+        new LogicalOr(WireMock.equalTo("A"), WireMock.equalTo("B"), WireMock.equalTo("C"));
+    LogicalOr c = new LogicalOr(WireMock.equalTo("D"), WireMock.equalTo("E"));
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
   }
 }

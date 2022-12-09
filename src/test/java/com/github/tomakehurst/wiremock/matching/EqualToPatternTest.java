@@ -106,4 +106,16 @@ public class EqualToPatternTest {
   public void noMatchOnNullValue() {
     assertThat(WireMock.equalTo("this_thing").match(null).isExactMatch(), is(false));
   }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    EqualToPattern a = new EqualToPattern("someString");
+    EqualToPattern b = new EqualToPattern("someString");
+    EqualToPattern c = new EqualToPattern("someOtherString");
+
+    assertThat(a, equalTo(b));
+    assertThat(b, equalTo(a));
+    assertThat(a, not(equalTo(c)));
+    assertThat(b, not(equalTo(c)));
+  }
 }

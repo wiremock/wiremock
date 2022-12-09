@@ -17,8 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
@@ -35,5 +34,17 @@ public class ContainsPatternTest {
     MatchResult matchResult = WireMock.containing("thing").match("otherstuff");
     assertFalse(matchResult.isExactMatch());
     assertThat(matchResult.getDistance(), is(1.0));
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    ContainsPattern a = new ContainsPattern("someString");
+    ContainsPattern b = new ContainsPattern("someString");
+    ContainsPattern c = new ContainsPattern("someOtherString");
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
   }
 }

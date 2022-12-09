@@ -251,4 +251,35 @@ public class MultipartValuePatternTest {
 
     assertThat(patternA.equals(patternB), is(false));
   }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    MultipartValuePattern patternA =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(binaryEqualTo("RG9jdW1lbnQgYm9keSBjb250ZW50cw=="))
+            .build();
+
+    MultipartValuePattern patternB =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(binaryEqualTo("RG9jdW1lbnQgYm9keSBjb250ZW50cw=="))
+            .build();
+
+    MultipartValuePattern patternC =
+        aMultipart()
+            .withName("Description")
+            .withHeader("X-First-Header", equalTo("Second"))
+            .withBody(binaryEqualTo("SGVsbG9Xb3JsZA=="))
+            .build();
+
+    assertEquals(patternA, patternB);
+    assertEquals(patternB, patternA);
+    assertNotEquals(patternA, patternC);
+    assertNotEquals(patternB, patternC);
+  }
 }

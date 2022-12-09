@@ -422,6 +422,21 @@ public class MatchesJsonPathPatternTest {
     assertTrue(result.isExactMatch());
   }
 
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    MatchesJsonPathPattern a =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
+    MatchesJsonPathPattern b =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
+    MatchesJsonPathPattern c =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '1234')].date");
+
+    assertEquals(a, b);
+    assertEquals(b, a);
+    assertNotEquals(a, c);
+    assertNotEquals(b, c);
+  }
+
   private static Notifier setMockNotifier() {
     final Notifier notifier = Mockito.mock(Notifier.class);
     LocalNotifier.set(notifier);
