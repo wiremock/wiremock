@@ -48,7 +48,7 @@ public class Scenarios {
 
   public void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
     if (oldMapping.isInScenario()
-        && !newMapping.getScenarioName().equals(oldMapping.getScenarioName())) {
+        && !oldMapping.getScenarioName().equals(newMapping.getScenarioName())) {
       Scenario scenarioForOldMapping =
           scenarioMap.get(oldMapping.getScenarioName()).withoutStubMapping(oldMapping);
 
