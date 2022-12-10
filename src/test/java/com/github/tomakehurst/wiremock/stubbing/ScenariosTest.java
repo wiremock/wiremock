@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,6 +157,26 @@ public class ScenariosTest {
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
+
+    scenarios.onStubMappingUpdated(oldMapping, newMapping);
+
+    assertThat(scenarios.getByName("one"), nullValue());
+  }
+
+  @Test
+  public void stubMappingCanStopBeingInScenario() {
+    StubMapping oldMapping =
+        get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+    scenarios.onStubMappingAdded(oldMapping);
+
+    assertThat(scenarios.getByName("one"), notNullValue());
+
+    StubMapping newMapping = get("/scenarios/1").willReturn(ok()).build();
 
     scenarios.onStubMappingUpdated(oldMapping, newMapping);
 
