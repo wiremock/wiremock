@@ -43,7 +43,7 @@ public class WireMockResponse {
     if (content == null) {
       return null;
     }
-    return new String(content, Charset.forName(UTF_8.name()));
+    return new String(content, UTF_8);
   }
 
   public byte[] binaryContent() {

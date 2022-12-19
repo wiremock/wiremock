@@ -667,7 +667,7 @@ public class StandaloneAcceptanceTest {
         baos.write(buf, 0, read);
       }
 
-      return new String(baos.toByteArray(), Charset.forName(UTF_8.name()));
+      return new String(baos.toByteArray(), UTF_8);
 
     } catch (IOException e) {
       return null;
