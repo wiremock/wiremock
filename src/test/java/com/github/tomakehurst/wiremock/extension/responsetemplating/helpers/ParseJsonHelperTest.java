@@ -58,7 +58,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
     assertThat(result, aMapWithSize(1));
     assertThat(result, hasKey("arr"));
     assertThat(result.get("arr"), instanceOf(List.class));
-    assertThat(result, hasEntry("arr", Arrays.asList(new String[] {"one", "two", "three"})));
+    assertThat(result, hasEntry("arr", Arrays.asList("one", "two", "three")));
   }
 
   @Test

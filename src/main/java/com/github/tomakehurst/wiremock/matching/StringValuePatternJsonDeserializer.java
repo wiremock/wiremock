@@ -111,12 +111,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
     return find(
         rootNode.fields(),
-        new Predicate<Map.Entry<String, JsonNode>>() {
-          @Override
-          public boolean apply(Map.Entry<String, JsonNode> input) {
-            return PATTERNS.keySet().contains(input.getKey());
-          }
-        });
+            input -> PATTERNS.containsKey(input.getKey()));
   }
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {

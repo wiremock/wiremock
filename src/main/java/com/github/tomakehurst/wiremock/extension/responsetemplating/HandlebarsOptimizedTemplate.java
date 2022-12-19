@@ -44,7 +44,7 @@ public class HandlebarsOptimizedTemplate {
                 firstDelimStartPosition, lastDelimEndPosition + Handlebars.DELIM_END.length());
         endContent =
             content.substring(
-                lastDelimEndPosition + Handlebars.DELIM_END.length(), content.length());
+                lastDelimEndPosition + Handlebars.DELIM_END.length());
       }
     }
 
