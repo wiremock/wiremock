@@ -120,16 +120,16 @@ class UnusedCodeTest {
                   describe(
                       "are not declared in super type",
                       input ->
-                          !input.getOwner().getAllRawSuperclasses().stream()
-                              .flatMap(c -> c.getMethods().stream())
-                              .anyMatch(hasMatchingNameAndParameters(input))))
+                              input.getOwner().getAllRawSuperclasses().stream()
+                                  .flatMap(c -> c.getMethods().stream())
+                                  .noneMatch(hasMatchingNameAndParameters(input))))
               .and(
                   describe(
                       "are not declared in interface",
                       input ->
-                          !input.getOwner().getAllRawInterfaces().stream()
-                              .flatMap(i -> i.getMethods().stream())
-                              .anyMatch(hasMatchingNameAndParameters(input))))
+                              input.getOwner().getAllRawInterfaces().stream()
+                                  .flatMap(i -> i.getMethods().stream())
+                                  .noneMatch(hasMatchingNameAndParameters(input))))
               .and()
               .doNotHaveName("main")
               .and()
@@ -173,16 +173,16 @@ class UnusedCodeTest {
               describe(
                   "are not declared in super type",
                   input ->
-                      !input.getOwner().getAllRawSuperclasses().stream()
-                          .flatMap(c -> c.getMethods().stream())
-                          .anyMatch(hasMatchingNameAndParameters(input))))
+                          input.getOwner().getAllRawSuperclasses().stream()
+                              .flatMap(c -> c.getMethods().stream())
+                              .noneMatch(hasMatchingNameAndParameters(input))))
           .and(
               describe(
                   "are not declared in interface",
                   input ->
-                      !input.getOwner().getAllRawInterfaces().stream()
-                          .flatMap(i -> i.getMethods().stream())
-                          .anyMatch(hasMatchingNameAndParameters(input))))
+                          input.getOwner().getAllRawInterfaces().stream()
+                              .flatMap(i -> i.getMethods().stream())
+                              .noneMatch(hasMatchingNameAndParameters(input))))
           .and()
           .haveNameNotContaining("lambda")
           .and()
