@@ -48,12 +48,12 @@ public class HostVerifyingSSLSocketFactory extends SSLSocketFactory {
     return verifyHosts(delegate.createSocket());
   }
 
-  public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+  public Socket createSocket(String host, int port) throws IOException {
     return verifyHosts(delegate.createSocket(host, port));
   }
 
   public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
-      throws IOException, UnknownHostException {
+      throws IOException {
     return verifyHosts(delegate.createSocket(host, port, localHost, localPort));
   }
 

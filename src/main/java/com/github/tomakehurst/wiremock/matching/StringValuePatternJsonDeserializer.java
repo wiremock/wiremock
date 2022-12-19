@@ -63,7 +63,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   @Override
   public StringValuePattern deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     JsonNode rootNode = parser.readValueAsTree();
     return buildStringValuePattern(rootNode);
   }

@@ -29,7 +29,7 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
 
   @Override
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     JsonNode rootNode = parser.readValueAsTree();
 
     if (isAbsent(rootNode)) {

@@ -25,7 +25,7 @@ public class StringValuePatternJsonSerializer extends JsonSerializer<StringValue
 
   @Override
   public void serialize(StringValuePattern value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     gen.writeStartObject();
     if (value.nullSafeIsAbsent()) {
       gen.writeBooleanField("absent", true);

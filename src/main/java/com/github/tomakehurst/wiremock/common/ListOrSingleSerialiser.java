@@ -29,7 +29,7 @@ public class ListOrSingleSerialiser extends JsonSerializer<ListOrSingle<Object>>
   @Override
   public void serialize(
       ListOrSingle<Object> value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     if (value.isEmpty()) {
       gen.writeStartArray();
       gen.writeEndArray();

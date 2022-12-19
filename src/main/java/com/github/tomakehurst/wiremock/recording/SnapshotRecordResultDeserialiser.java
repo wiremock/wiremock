@@ -37,7 +37,7 @@ public class SnapshotRecordResultDeserialiser extends StdDeserializer<SnapshotRe
   @SuppressWarnings("unchecked")
   public SnapshotRecordResult deserialize(
       JsonParser parser, DeserializationContext deserializationContext)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     String name = parser.nextFieldName();
     parser.nextToken();
 

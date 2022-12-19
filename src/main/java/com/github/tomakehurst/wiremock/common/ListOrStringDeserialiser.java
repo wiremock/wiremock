@@ -32,7 +32,7 @@ public class ListOrStringDeserialiser<T> extends JsonDeserializer<ListOrSingle<T
   @Override
   @SuppressWarnings("unchecked")
   public ListOrSingle<T> deserialize(JsonParser parser, DeserializationContext ctxt)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     JsonNode rootNode = parser.readValueAsTree();
     if (rootNode.isArray()) {
       ArrayNode arrayNode = (ArrayNode) rootNode;
