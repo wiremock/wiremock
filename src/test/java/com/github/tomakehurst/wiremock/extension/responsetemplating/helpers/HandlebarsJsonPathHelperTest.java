@@ -352,7 +352,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             null,
             new Object[] {"$.stuff"},
             null,
-            new ArrayList<String>(0));
+                new ArrayList<>(0));
 
     Object result = helper.apply("{\"stuff\":1}", options);
 

@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 public class LocalNotifier {
 
-  private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
+  private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<>();
 
   public static Notifier notifier() {
     Notifier notifier = notifierHolder.get();

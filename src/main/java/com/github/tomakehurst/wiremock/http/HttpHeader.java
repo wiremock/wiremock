@@ -21,6 +21,7 @@ import static java.util.Arrays.asList;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 public class HttpHeader extends MultiValue {
 
@@ -68,7 +69,7 @@ public class HttpHeader extends MultiValue {
     HttpHeader that = (HttpHeader) o;
 
     if (key != null ? !key.equalsIgnoreCase(that.key) : that.key != null) return false;
-    if (values != null ? !values.equals(that.values) : that.values != null) return false;
+    if (!Objects.equals(values, that.values)) return false;
 
     return true;
   }

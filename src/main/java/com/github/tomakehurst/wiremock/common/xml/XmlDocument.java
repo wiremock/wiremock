@@ -67,7 +67,7 @@ public class XmlDocument extends XmlNode {
   }
 
   private static Map<String, String> addStandardNamespaces(Map<String, String> namespaces) {
-    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> result = new HashMap<>();
     for (String prefix : namespaces.keySet()) {
       String uri = namespaces.get(prefix);
       // according to the Javadocs only the constants defined in

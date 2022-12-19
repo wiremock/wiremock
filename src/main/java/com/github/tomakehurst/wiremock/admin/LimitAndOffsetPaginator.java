@@ -36,10 +36,10 @@ public class LimitAndOffsetPaginator<T> implements Paginator<T> {
   }
 
   public static <T> LimitAndOffsetPaginator<T> fromRequest(List<T> source, Request request) {
-    return new LimitAndOffsetPaginator<T>(
-        source,
-        Conversions.toInt(request.queryParameter("limit")),
-        Conversions.toInt(request.queryParameter("offset")));
+    return new LimitAndOffsetPaginator<>(
+            source,
+            Conversions.toInt(request.queryParameter("limit")),
+            Conversions.toInt(request.queryParameter("offset")));
   }
 
   @Override

@@ -84,7 +84,7 @@ public abstract class HandlebarsHelperTestBase {
     Context context = createContext(renderCache);
 
     return new Options(
-        null, null, null, context, null, null, optionParams, hash, new ArrayList<String>(0));
+        null, null, null, context, null, null, optionParams, hash, new ArrayList<>(0));
   }
 
   protected Context createContext() {

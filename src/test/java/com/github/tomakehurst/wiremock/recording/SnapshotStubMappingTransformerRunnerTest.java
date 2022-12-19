@@ -32,7 +32,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   @Test
   public void applyWithNoTransformers() {
     StubMapping result =
-        new SnapshotStubMappingTransformerRunner(new ArrayList<StubMappingTransformer>())
+        new SnapshotStubMappingTransformerRunner(new ArrayList<>())
             .apply(stubMapping);
 
     assertEquals(stubMapping, result);

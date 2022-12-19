@@ -27,10 +27,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
@@ -117,7 +115,7 @@ public class HttpHeaders {
 
     HttpHeaders that = (HttpHeaders) o;
 
-    if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
+    if (!Objects.equals(headers, that.headers)) return false;
 
     return true;
   }

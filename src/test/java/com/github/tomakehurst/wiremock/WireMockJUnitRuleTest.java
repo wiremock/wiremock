@@ -269,7 +269,7 @@ public class WireMockJUnitRuleTest {
 
     @Test
     public void requestReceivedByListener() {
-      final List<String> urls = new ArrayList<String>();
+      final List<String> urls = new ArrayList<>();
       wireMockRule.addMockServiceRequestListener(
           new RequestListener() {
             @Override

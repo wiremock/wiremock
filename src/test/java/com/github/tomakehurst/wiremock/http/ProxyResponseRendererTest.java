@@ -293,7 +293,7 @@ public class ProxyResponseRendererTest {
             /* method = */ method,
             /* clientIp = */ "127.0.0.1",
             /* headers = */ headers,
-            /* cookies = */ new HashMap<String, Cookie>(),
+            /* cookies = */ new HashMap<>(),
             /* isBrowserProxyRequest = */ isBrowserProxyRequest,
             /* loggedDate = */ new Date(),
             /* body = */ body,
