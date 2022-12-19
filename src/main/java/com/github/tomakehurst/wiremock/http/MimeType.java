@@ -20,9 +20,9 @@ public enum MimeType {
   XML("text/xml"),
   PLAIN("text/plain");
 
-  private String mimeString;
+  private final String mimeString;
 
-  private MimeType(String mimeString) {
+  MimeType(String mimeString) {
     this.mimeString = mimeString;
   }
 
