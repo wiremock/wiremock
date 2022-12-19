@@ -22,6 +22,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.lang.System.out;
+import com.github.tomakehurst.wiremock.common.TimeUtil;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
@@ -130,6 +131,8 @@ public class WireMockServerRunner {
   }
 
   public static void main(String... args) {
-    new WireMockServerRunner().run(args);
+      long startTime = System.currentTimeMillis();
+      TimeUtil.setStartTime(startTime);
+      new WireMockServerRunner().run(args);
   }
 }
