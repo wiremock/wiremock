@@ -22,7 +22,7 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.junit.jupiter.api.BeforeEach;

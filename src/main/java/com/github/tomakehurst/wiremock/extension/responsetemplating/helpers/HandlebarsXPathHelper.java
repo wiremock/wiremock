@@ -19,7 +19,6 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
-import java.io.IOException;
 
 /**
  * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for

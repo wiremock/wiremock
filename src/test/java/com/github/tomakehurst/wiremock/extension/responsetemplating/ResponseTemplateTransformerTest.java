@@ -31,7 +31,7 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import java.io.IOException;
+
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;

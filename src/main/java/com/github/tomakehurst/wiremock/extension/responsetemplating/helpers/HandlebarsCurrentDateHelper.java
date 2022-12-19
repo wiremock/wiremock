@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
-import java.io.IOException;
+
 import java.time.ZoneId;
 import java.util.Date;
 

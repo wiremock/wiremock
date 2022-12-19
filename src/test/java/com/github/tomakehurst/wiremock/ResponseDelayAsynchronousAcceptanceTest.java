@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.base.Stopwatch;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;

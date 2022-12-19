@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
-import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 

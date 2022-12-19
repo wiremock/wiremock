@@ -21,7 +21,6 @@ import static com.google.common.collect.Iterables.getFirst;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
-import java.nio.charset.Charset;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 
