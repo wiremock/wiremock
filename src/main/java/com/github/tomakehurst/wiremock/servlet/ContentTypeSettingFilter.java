@@ -25,7 +25,7 @@ public class ContentTypeSettingFilter implements Filter {
   private ServletContext context;
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public void init(FilterConfig filterConfig) {
     context = filterConfig.getServletContext();
   }
 

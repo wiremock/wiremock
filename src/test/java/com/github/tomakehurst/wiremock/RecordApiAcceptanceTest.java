@@ -100,7 +100,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsRequestsWithDefaultOptions() throws Exception {
+  public void returnsRequestsWithDefaultOptions() {
     proxyServerStart(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
     proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
@@ -150,7 +150,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
+  public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() {
     proxyServerStartWithEmptyFileRoot();
 
     // Matches both

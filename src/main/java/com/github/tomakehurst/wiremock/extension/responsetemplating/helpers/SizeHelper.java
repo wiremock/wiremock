@@ -23,7 +23,7 @@ import java.util.Map;
 public class SizeHelper extends HandlebarsHelper<Object> {
 
   @Override
-  public Object apply(Object context, Options options) throws IOException {
+  public Object apply(Object context, Options options) {
     Class<?> contextClass = context.getClass();
 
     if (CharSequence.class.isAssignableFrom(contextClass)) {

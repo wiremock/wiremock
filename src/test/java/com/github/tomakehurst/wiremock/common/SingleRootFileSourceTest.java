@@ -176,7 +176,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void readBinaryFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() throws Exception {
+  public void readBinaryFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -187,7 +187,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void readTextFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() throws Exception {
+  public void readTextFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {

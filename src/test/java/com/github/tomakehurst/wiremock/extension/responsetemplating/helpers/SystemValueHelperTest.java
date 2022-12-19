@@ -117,7 +117,7 @@ public class SystemValueHelperTest {
     assertNull(output);
   }
 
-  private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private String render(ImmutableMap<String, Object> optionsHash) {
     return helper.apply(
         null, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
   }

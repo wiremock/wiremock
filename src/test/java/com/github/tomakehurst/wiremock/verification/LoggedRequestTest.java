@@ -130,7 +130,7 @@ public class LoggedRequestTest {
   }
 
   @Test
-  public void bodyEncodedAsUTF8() throws Exception {
+  public void bodyEncodedAsUTF8() {
     LoggedRequest loggedRequest =
         new LoggedRequest(
             "/my/url",

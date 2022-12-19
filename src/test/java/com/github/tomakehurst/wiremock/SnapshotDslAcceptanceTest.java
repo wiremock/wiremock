@@ -119,7 +119,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsFilteringByCriteria() throws Exception {
+  public void supportsFilteringByCriteria() {
     client.get("/things/1");
     client.get("/things/2");
     client.get("/stuff/1");
@@ -139,7 +139,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsFilteringByServeEventId() throws Exception {
+  public void supportsFilteringByServeEventId() {
     client.get("/1");
     client.get("/2");
     client.get("/3");
@@ -155,7 +155,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void willAllowNonProxiedEventsIfSpecified() throws Exception {
+  public void willAllowNonProxiedEventsIfSpecified() {
     proxyingService.removeStub(proxyStub);
 
     client.postJson("/record-this-anyway", "{ \"things\": 123 }");
@@ -191,7 +191,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsBodyExtractCriteria() throws Exception {
+  public void supportsBodyExtractCriteria() {
     targetService.stubFor(
         get("/small/text")
             .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("123")));

@@ -23,7 +23,7 @@ import java.util.Date;
 public class TruncateDateTimeHelper extends HandlebarsHelper<Object> {
 
   @Override
-  public Object apply(Object context, Options options) throws IOException {
+  public Object apply(Object context, Options options) {
     if (options.params.length < 1) {
       return handleError(
           "Truncation type must be specified as the first parameter to truncateDate");

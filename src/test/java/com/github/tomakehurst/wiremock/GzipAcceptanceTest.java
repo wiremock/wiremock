@@ -62,7 +62,7 @@ public class GzipAcceptanceTest {
     }
 
     @Test
-    public void servesGzippedResponseForPost() throws Exception {
+    public void servesGzippedResponseForPost() {
       wireMockServer.stubFor(post("/gzip-response").willReturn(ok("body text")));
 
       WireMockResponse response =

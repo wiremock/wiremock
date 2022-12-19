@@ -73,35 +73,35 @@ public class CountMatchingStrategyTest {
   }
 
   @Test
-  public void shouldCorrectlyObtainFriendlyNameForLessThanMode() throws Exception {
+  public void shouldCorrectlyObtainFriendlyNameForLessThanMode() {
     CountMatchingStrategy countStrategy =
         new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN, 5);
     assertThat(countStrategy.toString(), is("Less than 5"));
   }
 
   @Test
-  public void shouldCorrectlyObtainFriendlyNameForLessThanOrEqualMode() throws Exception {
+  public void shouldCorrectlyObtainFriendlyNameForLessThanOrEqualMode() {
     CountMatchingStrategy countStrategy =
         new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN_OR_EQUAL, 5);
     assertThat(countStrategy.toString(), is("Less than or exactly 5"));
   }
 
   @Test
-  public void shouldCorrectlyObtainFriendlyNameForEqualMode() throws Exception {
+  public void shouldCorrectlyObtainFriendlyNameForEqualMode() {
     CountMatchingStrategy countStrategy =
         new CountMatchingStrategy(CountMatchingStrategy.EQUAL_TO, 5);
     assertThat(countStrategy.toString(), is("Exactly 5"));
   }
 
   @Test
-  public void shouldCorrectlyObtainFriendlyNameForGreaterThanOrEqualMode() throws Exception {
+  public void shouldCorrectlyObtainFriendlyNameForGreaterThanOrEqualMode() {
     CountMatchingStrategy countStrategy =
         new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN_OR_EQUAL, 5);
     assertThat(countStrategy.toString(), is("More than or exactly 5"));
   }
 
   @Test
-  public void shouldCorrectlyObtainFriendlyNameForGreaterThanMode() throws Exception {
+  public void shouldCorrectlyObtainFriendlyNameForGreaterThanMode() {
     CountMatchingStrategy countStrategy =
         new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN, 5);
     assertThat(countStrategy.toString(), is("More than 5"));

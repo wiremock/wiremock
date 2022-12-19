@@ -28,7 +28,7 @@ import java.io.IOException;
 public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
   @Override
-  public Object apply(final String inputXml, final Options options) throws IOException {
+  public Object apply(final String inputXml, final Options options) {
     if (inputXml == null) {
       return "";
     }

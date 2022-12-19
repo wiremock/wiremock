@@ -62,7 +62,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     resetFileSourceRoot();
     reset();
   }

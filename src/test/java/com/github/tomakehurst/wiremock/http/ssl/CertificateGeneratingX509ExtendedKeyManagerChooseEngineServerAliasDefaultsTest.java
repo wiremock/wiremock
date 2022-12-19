@@ -176,6 +176,5 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
     return certificate;
   }
 
-  public CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest()
-      throws Exception {}
+  public CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest() {}
 }

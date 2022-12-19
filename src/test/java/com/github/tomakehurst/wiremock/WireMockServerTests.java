@@ -38,7 +38,7 @@ public class WireMockServerTests {
   @TempDir public File tempDir;
 
   @Test
-  public void instantiationWithEmptyFileSource() throws IOException {
+  public void instantiationWithEmptyFileSource() {
     Options options =
         new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir));
 

@@ -87,7 +87,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void testRemove() throws Exception {
+  public void testRemove() {
 
     StubMapping stubMapping = aMapping(1, "/priority1/1");
 
@@ -99,7 +99,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void testReplace() throws Exception {
+  public void testReplace() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);
@@ -118,7 +118,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void testReplaceNotExists() throws Exception {
+  public void testReplaceNotExists() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);

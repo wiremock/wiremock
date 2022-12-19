@@ -36,7 +36,7 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
   private final ParseContext parseContext = JsonPath.using(config);
 
   @Override
-  public Object apply(final Object input, final Options options) throws IOException {
+  public Object apply(final Object input, final Options options) {
     if (input == null) {
       return "";
     }

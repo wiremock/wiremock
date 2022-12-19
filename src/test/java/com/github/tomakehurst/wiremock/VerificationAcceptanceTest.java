@@ -525,13 +525,13 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    public void verifiesBodyAbsent() throws Exception {
+    public void verifiesBodyAbsent() {
       testClient.post("/no/body", new StringEntity(""));
       verify(postRequestedFor(urlEqualTo("/no/body")).withRequestBody(absent()));
     }
 
     @Test
-    public void failsVerificationWhenAbsentBodyPresent() throws Exception {
+    public void failsVerificationWhenAbsentBodyPresent() {
       assertThrows(
           VerificationException.class,
           () -> {

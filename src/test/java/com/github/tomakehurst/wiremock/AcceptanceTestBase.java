@@ -95,7 +95,7 @@ public class AcceptanceTestBase {
   }
 
   @BeforeEach
-  public void init() throws InterruptedException {
+  public void init() {
     WireMock.resetToDefault();
   }
 }

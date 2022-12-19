@@ -80,6 +80,6 @@ public class Exceptions {
   }
 
   public interface RunnableWithException {
-    void run() throws Exception;
+    void run();
   }
 }

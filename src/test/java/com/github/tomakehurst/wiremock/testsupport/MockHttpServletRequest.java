@@ -60,7 +60,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public void setCharacterEncoding(String env) throws UnsupportedEncodingException {}
+  public void setCharacterEncoding(String env) {}
 
   @Override
   public int getContentLength() {
@@ -80,7 +80,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public ServletInputStream getInputStream() throws IOException {
+  public ServletInputStream getInputStream() {
 
     return null;
   }
@@ -136,7 +136,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public BufferedReader getReader() throws IOException {
+  public BufferedReader getReader() {
 
     return null;
   }
@@ -408,33 +408,32 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpServletResponse response) {
     throw new UnsupportedOperationException("not yet implemented");
   }
 
   @Override
-  public void login(String username, String password) throws ServletException {
+  public void login(String username, String password) {
     throw new UnsupportedOperationException("not yet implemented");
   }
 
   @Override
-  public void logout() throws ServletException {
+  public void logout() {
     throw new UnsupportedOperationException("not yet implemented");
   }
 
   @Override
-  public Collection<Part> getParts() throws IOException, ServletException {
+  public Collection<Part> getParts() {
     throw new UnsupportedOperationException("not yet implemented");
   }
 
   @Override
-  public Part getPart(String name) throws IOException, ServletException {
+  public Part getPart(String name) {
     throw new UnsupportedOperationException("not yet implemented");
   }
 
   @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-      throws IOException, ServletException {
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
     throw new UnsupportedOperationException("not yet implemented");
   }
 }

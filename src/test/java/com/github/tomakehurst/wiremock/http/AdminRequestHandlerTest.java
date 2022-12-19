@@ -38,7 +38,7 @@ public class AdminRequestHandlerTest {
       WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
   @Test
-  public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
+  public void shouldLogInfoOnRequest() {
     WireMockTestClient client = new WireMockTestClient(wm.getPort());
 
     String postHeaderABCName = "ABC";

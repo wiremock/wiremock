@@ -47,7 +47,7 @@ public class JsonFileMappingsSourceTest {
   File stubMappingFile;
 
   @BeforeEach
-  public void init() throws Exception {
+  public void init() {
     stubMappings = new InMemoryStubMappings();
   }
 

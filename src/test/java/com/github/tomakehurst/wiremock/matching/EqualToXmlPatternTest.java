@@ -292,7 +292,7 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() throws Exception {
+  public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() {
     final EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
     final MatchResult matchResult = pattern.match("<two>Hello</two>");
 
@@ -309,7 +309,7 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() throws Exception {
+  public void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() {
     String xmlWithDtdThatCannotBeFetched =
         "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
     EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);

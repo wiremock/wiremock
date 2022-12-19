@@ -43,8 +43,7 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
     return new StringValuePatternJsonDeserializer().buildStringValuePattern(rootNode);
   }
 
-  private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode)
-      throws JsonMappingException {
+  private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode) {
     String operand = rootNode.findValue("binaryEqualTo").textValue();
 
     return new BinaryEqualToPattern(operand);

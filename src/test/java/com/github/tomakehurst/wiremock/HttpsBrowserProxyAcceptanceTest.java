@@ -116,7 +116,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canProxyHttpsInBrowserProxyMode() throws Exception {
+  public void canProxyHttpsInBrowserProxyMode() {
     target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
     assertThat(
@@ -124,7 +124,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
+  public void canProxyHttpsInBrowserHttpsProxyMode() {
     target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
     WireMockResponse response =
@@ -149,7 +149,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canStubHttpsInBrowserProxyMode() throws Exception {
+  public void canStubHttpsInBrowserProxyMode() {
     target.stubFor(
         get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Should Not Be Returned")));
     proxy.stubFor(get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Stubbed Value")));
@@ -166,7 +166,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canRecordHttpsInBrowserProxyMode() throws Exception {
+  public void canRecordHttpsInBrowserProxyMode() {
 
     // given
     proxy.startRecording(target.baseUrl());
@@ -341,7 +341,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
+  public void failsIfCaKeystorePathIsNotAKeystore() {
     assertThrows(
         IOException.class,
         () -> {
@@ -354,7 +354,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
+  public void failsIfCaKeystoreDoesNotContainACaCertificate() {
     assertThrows(
         FatalStartupException.class,
         () -> {

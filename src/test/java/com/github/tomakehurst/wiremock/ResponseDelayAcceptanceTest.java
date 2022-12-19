@@ -161,7 +161,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void requestTimesOutWhenDelayIsLongerThanSocketTimeout() throws Exception {
+  public void requestTimesOutWhenDelayIsLongerThanSocketTimeout() {
     assertThrows(
         SocketTimeoutException.class,
         () -> {

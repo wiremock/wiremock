@@ -145,7 +145,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void shouldEqualWhenIdentical() throws Exception {
+  public void shouldEqualWhenIdentical() {
     HttpHeaders httpHeaders =
         new HttpHeaders(
             httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));

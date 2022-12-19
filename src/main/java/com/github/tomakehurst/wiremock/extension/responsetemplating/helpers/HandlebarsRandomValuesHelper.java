@@ -23,7 +23,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
 
   @Override
-  public Object apply(Void context, Options options) throws IOException {
+  public Object apply(Void context, Options options) {
     int length = options.hash("length", 36);
     boolean uppercase = options.hash("uppercase", false);
 

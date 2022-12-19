@@ -23,7 +23,7 @@ import java.math.RoundingMode;
 public class MathsHelper extends HandlebarsHelper<Object> {
 
   @Override
-  public Object apply(Object context, Options options) throws IOException {
+  public Object apply(Object context, Options options) {
     if (options.params.length != 2) {
       return handleError(
           "All maths functions require two operands and an operator as parameters e.g. 3 '+' 2");

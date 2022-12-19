@@ -53,7 +53,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void likeShouldCreateCompleteResponseDefinitionCopy() throws Exception {
+  public void likeShouldCreateCompleteResponseDefinitionCopy() {
     ResponseDefinition originalResponseDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .withStatus(200)

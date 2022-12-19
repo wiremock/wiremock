@@ -51,7 +51,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
+  public void endpointFixedDelayShouldOverrideGlobalDelay() {
     globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(100));
@@ -61,7 +61,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
+  public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() {
     globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
@@ -71,7 +71,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
+  public void shouldSetGlobalFixedDelayOnResponse() {
     globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
@@ -80,7 +80,7 @@ public class StubResponseRendererTest {
   }
 
   @Test
-  public void shouldSetEndpointFixedDelayOnResponse() throws Exception {
+  public void shouldSetEndpointFixedDelayOnResponse() {
     Response response = stubResponseRenderer.render(createServeEvent(2000));
 
     assertThat(response.getInitialDelay(), is(2000L));
@@ -88,7 +88,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
+  public void shouldSetEndpointDistributionDelayOnResponse() {
     globalSettingsHolder.replaceWith(
         GlobalSettings.builder()
             .delayDistribution(
@@ -107,7 +107,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void shouldCombineFixedDelayDistributionDelay() throws Exception {
+  public void shouldCombineFixedDelayDistributionDelay() {
     globalSettingsHolder.replaceWith(
         GlobalSettings.builder()
             .delayDistribution(

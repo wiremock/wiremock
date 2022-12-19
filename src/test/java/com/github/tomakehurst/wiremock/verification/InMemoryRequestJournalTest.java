@@ -62,7 +62,7 @@ public class InMemoryRequestJournalTest {
   }
 
   @Test
-  public void resettingTheJournalClearsAllEntries() throws Exception {
+  public void resettingTheJournalClearsAllEntries() {
     LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
     RequestJournal journal = new InMemoryRequestJournal(Optional.of(1), NO_CUSTOM_MATCHERS);
@@ -73,7 +73,7 @@ public class InMemoryRequestJournalTest {
   }
 
   @Test
-  public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
+  public void discardsOldRequestsWhenJournalSizeIsLimited() {
     RequestJournal journal = new InMemoryRequestJournal(Optional.of(2), NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
@@ -90,7 +90,7 @@ public class InMemoryRequestJournalTest {
   }
 
   @Test
-  public void matchesRequestWithCustomMatcherDefinition() throws Exception {
+  public void matchesRequestWithCustomMatcherDefinition() {
     RequestJournal journal =
         new InMemoryRequestJournal(
             Optional.<Integer>absent(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));

@@ -221,7 +221,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
     };
   }
 
-  private static Date parse(String dateString) throws ParseException {
+  private static Date parse(String dateString) {
     return Dates.parse(dateString);
   }
 }

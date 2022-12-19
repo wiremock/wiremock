@@ -61,7 +61,7 @@ public enum WireMockHelpers implements Helper<Object> {
     private final HostnameHelper helper = new HostnameHelper();
 
     @Override
-    public Object apply(Object context, Options options) throws IOException {
+    public Object apply(Object context, Options options) {
       return this.helper.apply(context, options);
     }
   },
@@ -130,7 +130,7 @@ public enum WireMockHelpers implements Helper<Object> {
     private final FormDataHelper helper = new FormDataHelper();
 
     @Override
-    public Object apply(Object context, Options options) throws IOException {
+    public Object apply(Object context, Options options) {
       return helper.apply(context, options);
     }
   },
@@ -139,7 +139,7 @@ public enum WireMockHelpers implements Helper<Object> {
     private final RegexExtractHelper helper = new RegexExtractHelper();
 
     @Override
-    public Object apply(Object context, Options options) throws IOException {
+    public Object apply(Object context, Options options) {
       return helper.apply(context, options);
     }
   },

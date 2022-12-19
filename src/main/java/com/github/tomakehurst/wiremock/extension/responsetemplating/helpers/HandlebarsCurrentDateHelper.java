@@ -24,7 +24,7 @@ import java.util.Date;
 public class HandlebarsCurrentDateHelper extends HandlebarsHelper<Date> {
 
   @Override
-  public Object apply(Date context, Options options) throws IOException {
+  public Object apply(Date context, Options options) {
     String format = options.hash("format", null);
     String offset = options.hash("offset", null);
     String timezone = options.hash("timezone", null);

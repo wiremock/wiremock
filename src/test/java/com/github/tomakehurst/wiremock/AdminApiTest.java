@@ -114,7 +114,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllStubMappingsWithLimitedResults() throws Exception {
+  public void getAllStubMappingsWithLimitedResults() {
     for (int i = 1; i <= 20; i++) {
       dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
@@ -127,7 +127,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllStubMappingsWithLimitedAndOffsetResults() throws Exception {
+  public void getAllStubMappingsWithLimitedAndOffsetResults() {
     for (int i = 1; i <= 20; i++) {
       dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
@@ -203,7 +203,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequests() throws Exception {
+  public void getLoggedRequests() {
     dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
 
     for (int i = 1; i <= 5; i++) {
@@ -227,7 +227,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimit() throws Exception {
+  public void getLoggedRequestsWithLimit() {
     dsl.stubFor(
         get(urlPathEqualTo("/received-request/7"))
             .willReturn(aResponse().withStatus(200).withBody("This was matched")));
@@ -256,7 +256,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
+  public void getLoggedRequestsWithLimitAndSinceDate() {
     for (int i = 1; i <= 5; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -287,7 +287,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+  public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() {
     WireMockResponse response = testClient.get("/__admin/requests?since=foo");
 
     assertThat(response.statusCode(), is(400));
@@ -300,7 +300,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
+  public void getLoggedRequestsWithLimitLargerThanResults() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -313,7 +313,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestById() throws Exception {
+  public void getLoggedRequestById() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -332,7 +332,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deleteStubMappingById() throws Exception {
+  public void deleteStubMappingById() {
     StubMapping stubMapping =
         dsl.stubFor(get(urlPathEqualTo("/delete/this")).willReturn(aResponse().withStatus(200)));
 
@@ -846,7 +846,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deleteStubFile() throws Exception {
+  public void deleteStubFile() {
     String fileName = "bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -861,7 +861,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deleteStubFileInTree() throws Exception {
+  public void deleteStubFileInTree() {
     String fileName = "foo/bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -876,7 +876,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void editStubFileContent() throws Exception {
+  public void editStubFileContent() {
     String fileName = "bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -893,7 +893,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void createStubFileContentInTree() throws Exception {
+  public void createStubFileContentInTree() {
     String fileName = "foo/bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -909,7 +909,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void listStubFiles() throws Exception {
+  public void listStubFiles() {
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile("bar.txt", "contents");

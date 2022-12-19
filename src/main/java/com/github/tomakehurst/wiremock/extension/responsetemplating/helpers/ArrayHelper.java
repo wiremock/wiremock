@@ -24,7 +24,7 @@ import java.io.IOException;
 public class ArrayHelper extends HandlebarsHelper<Object> {
 
   @Override
-  public Object apply(Object context, Options options) throws IOException {
+  public Object apply(Object context, Options options) {
     if (context == null || context == options.context.model()) {
       return ImmutableList.of();
     }

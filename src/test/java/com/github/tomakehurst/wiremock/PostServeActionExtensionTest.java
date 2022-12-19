@@ -68,7 +68,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void triggersActionWhenAppliedToAStubMapping() throws Exception {
+  public void triggersActionWhenAppliedToAStubMapping() {
     initWithOptions(options().dynamicPort().extensions(new NamedCounterAction()));
 
     StubMapping stubMapping =
@@ -112,7 +112,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
+  public void providesServeEventWithResponseFieldPopulated() {
     final AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()
@@ -245,7 +245,7 @@ public class PostServeActionExtensionTest {
   private Callable<Integer> getValue(final AtomicInteger value) {
     return new Callable<Integer>() {
       @Override
-      public Integer call() throws Exception {
+      public Integer call() {
         return value.get();
       }
     };
@@ -254,7 +254,7 @@ public class PostServeActionExtensionTest {
   private Callable<String> getContent(final String url) {
     return new Callable<String>() {
       @Override
-      public String call() throws Exception {
+      public String call() {
         return client.get(url).content();
       }
     };

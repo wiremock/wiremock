@@ -86,8 +86,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     }
   }
 
-  private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount)
-      throws IOException {
+  private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount) {
     List<Callable<TimedHttpResponse>> requests = new ArrayList<>();
     for (int i = 0; i < requestCount; i++) {
       final Stopwatch stopwatch = Stopwatch.createStarted();

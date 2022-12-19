@@ -76,7 +76,7 @@ public class BindAddressTest {
   }
 
   @Test
-  public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
+  public void shouldRespondInTheBindAddressOnlyOnHttp() {
     executeGetIn(localhost);
     try {
       executeGetIn(nonBindAddress);

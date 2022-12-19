@@ -129,8 +129,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
   @Override
   protected void service(
-      HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-      throws ServletException, IOException {
+      HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     LocalNotifier.set(notifier);
 
     Request request =

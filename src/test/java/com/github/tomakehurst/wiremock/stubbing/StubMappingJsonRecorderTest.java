@@ -545,7 +545,7 @@ public class StubMappingJsonRecorderTest {
   }
 
   private void assertResultingFileExtension(
-      String url, final String expectedExension, String contentTypeHeader) throws Exception {
+      String url, final String expectedExension, String contentTypeHeader) {
     when(admin.countRequestsMatching((any(RequestPattern.class))))
         .thenReturn(VerificationResult.withCount(0));
     Request request = new MockRequestBuilder().withMethod(RequestMethod.GET).withUrl(url).build();

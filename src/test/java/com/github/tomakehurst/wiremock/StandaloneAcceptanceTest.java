@@ -104,7 +104,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void acceptsMappingRequestOnDefaultPort() throws Exception {
+  public void acceptsMappingRequestOnDefaultPort() {
     startRunner();
     givenThat(
         get(urlEqualTo("/standalone/test/resource"))
@@ -255,7 +255,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void startsOnPortSpecifiedOnCommandLine() throws Exception {
+  public void startsOnPortSpecifiedOnCommandLine() {
     int port = findFreePort();
     startRunner("--port", "" + port);
     WireMock client = WireMock.create().host("localhost").port(port).build();
@@ -266,7 +266,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void proxiesToHostSpecifiedOnCommandLine() throws Exception {
+  public void proxiesToHostSpecifiedOnCommandLine() {
     WireMock otherServerClient = startOtherServerAndClient();
     otherServerClient.register(
         get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
@@ -277,7 +277,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void respondsWithPreExistingRecordingInProxyMode() throws Exception {
+  public void respondsWithPreExistingRecordingInProxyMode() {
     writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
     writeFileToFilesDir("body-test.xml", "Existing recorded body");
 
@@ -329,7 +329,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsGzippedResponseBodiesDecompressed() throws Exception {
+  public void recordsGzippedResponseBodiesDecompressed() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -362,7 +362,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void performsBrowserProxyingWhenEnabled() throws Exception {
+  public void performsBrowserProxyingWhenEnabled() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--enable-browser-proxying");
     otherServerClient.register(
