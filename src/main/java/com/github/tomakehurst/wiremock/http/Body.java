@@ -135,7 +135,7 @@ public class Body {
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, binary);
+    return Objects.hash(Arrays.hashCode(content), binary);
   }
 
   @Override
