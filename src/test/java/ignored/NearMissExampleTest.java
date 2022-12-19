@@ -45,7 +45,7 @@ public class NearMissExampleTest {
   }
 
   @Test
-  public void showFullUnmatchedVerification() throws Exception {
+  public void showFullUnmatchedVerification() {
     client.get("/some-other-thing");
     client.get("/totally-something-else");
     client.get("/whatever");

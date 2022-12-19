@@ -153,8 +153,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void appendsTransferEncodingHeaderIfNoContentLengthHeaderIsPresentInMapping()
-      throws Exception {
+  public void appendsTransferEncodingHeaderIfNoContentLengthHeaderIsPresentInMapping() {
     testClient.addResponse(
         "{ 													\n"
             + "	\"request\": {									\n"
@@ -173,8 +172,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping()
-      throws Exception {
+  public void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping() {
     testClient.addResponse(
         "{ 													\n"
             + "	\"request\": {									\n"

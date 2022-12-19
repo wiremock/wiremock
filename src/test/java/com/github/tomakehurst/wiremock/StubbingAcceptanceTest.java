@@ -841,7 +841,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesExactContentTypeEncodingSpecified() throws Exception {
+  public void matchesExactContentTypeEncodingSpecified() {
     String contentType = "application/json; charset=UTF-8";
     String url = "/request-content-type-case";
 

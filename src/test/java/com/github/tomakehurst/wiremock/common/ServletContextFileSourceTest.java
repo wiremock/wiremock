@@ -115,7 +115,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public URL getResource(String path) throws MalformedURLException {
+    public URL getResource(String path) {
       return null;
     }
 
@@ -135,7 +135,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public Servlet getServlet(String name) throws ServletException {
+    public Servlet getServlet(String name) {
       return null;
     }
 
@@ -225,7 +225,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+    public <T extends Servlet> T createServlet(Class<T> clazz) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -256,7 +256,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+    public <T extends Filter> T createFilter(Class<T> clazz) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -306,7 +306,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+    public <T extends EventListener> T createListener(Class<T> clazz) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 

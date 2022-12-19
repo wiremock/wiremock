@@ -23,6 +23,5 @@ public class JsonPathPatternJsonSerializer
     extends PathPatternJsonSerializer<MatchesJsonPathPattern> {
   @Override
   protected void serializeAdditionalFields(
-      MatchesJsonPathPattern value, JsonGenerator gen, SerializerProvider serializers)
-      throws IOException {}
+      MatchesJsonPathPattern value, JsonGenerator gen, SerializerProvider serializers) {}
 }

@@ -93,7 +93,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldEqualWhenIdentical() throws Exception {
+  public void shouldEqualWhenIdentical() {
     HttpHeader header1 = new HttpHeader("My-Header", "value1");
     HttpHeader header2 = new HttpHeader("My-Header", "value1");
 
@@ -102,7 +102,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldEqualWhenKeysHaveDifferentCases() throws Exception {
+  public void shouldEqualWhenKeysHaveDifferentCases() {
     HttpHeader header1 = new HttpHeader("MY-HEADER", "value1", "value2");
     HttpHeader header2 = new HttpHeader("my-header", "value1", "value2");
 
@@ -111,7 +111,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldNotEqualWhenContentsAreDifferent() throws Exception {
+  public void shouldNotEqualWhenContentsAreDifferent() {
     HttpHeader header1 = new HttpHeader("My-Header", "value1");
     HttpHeader header2 = new HttpHeader("My-Header", "VALUE1");
 

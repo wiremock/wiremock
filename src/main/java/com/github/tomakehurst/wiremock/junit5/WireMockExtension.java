@@ -202,7 +202,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   @Override
-  public final void beforeAll(ExtensionContext context) throws Exception {
+  public final void beforeAll(ExtensionContext context) {
     startServerIfRequired(context);
     setAdditionalOptions(context);
 
@@ -210,7 +210,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   @Override
-  public final void beforeEach(ExtensionContext context) throws Exception {
+  public final void beforeEach(ExtensionContext context) {
     if (wireMockServer == null) {
       isNonStatic = true;
       startServerIfRequired(context);
@@ -228,14 +228,14 @@ public class WireMockExtension extends DslWrapper
   }
 
   @Override
-  public final void afterAll(ExtensionContext context) throws Exception {
+  public final void afterAll(ExtensionContext context) {
     stopServerIfRunning();
 
     onAfterAll(runtimeInfo);
   }
 
   @Override
-  public final void afterEach(ExtensionContext context) throws Exception {
+  public final void afterEach(ExtensionContext context) {
     if (failOnUnmatchedRequests) {
       wireMockServer.checkForUnmatchedRequests();
     }

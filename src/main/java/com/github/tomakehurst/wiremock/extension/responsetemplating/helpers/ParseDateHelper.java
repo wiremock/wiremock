@@ -27,7 +27,7 @@ import java.util.List;
 public class ParseDateHelper extends HandlebarsHelper<String> {
 
   @Override
-  public Object apply(String dateTimeString, Options options) throws IOException {
+  public Object apply(String dateTimeString, Options options) {
     String format = options.hash("format", null);
 
     return format == null

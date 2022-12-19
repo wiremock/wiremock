@@ -85,8 +85,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithANYMatchTypeWithMultipleHeaderAndBodyMatchers()
-      throws JSONException {
+  public void deserialisesCorrectlyWithANYMatchTypeWithMultipleHeaderAndBodyMatchers() {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
     String serializedPattern =
         "{\n"

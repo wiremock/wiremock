@@ -93,7 +93,7 @@ public class PartParser {
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public InputStream getInputStream() {
       return new ByteArrayInputStream(content);
     }
   }

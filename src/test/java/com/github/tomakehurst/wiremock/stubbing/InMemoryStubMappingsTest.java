@@ -35,12 +35,12 @@ public class InMemoryStubMappingsTest {
   private InMemoryStubMappings inMemoryStubMappings;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     inMemoryStubMappings = new InMemoryStubMappings();
   }
 
   @Test
-  public void testEditMapping() throws Exception {
+  public void testEditMapping() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);
@@ -58,7 +58,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  public void testRemoveMapping() throws Exception {
+  public void testRemoveMapping() {
 
     List<StubMapping> allMappings = inMemoryStubMappings.getAll();
     assertThat(allMappings, hasSize(0));
@@ -80,7 +80,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  public void testEditMappingNotPresent() throws Exception {
+  public void testEditMappingNotPresent() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);

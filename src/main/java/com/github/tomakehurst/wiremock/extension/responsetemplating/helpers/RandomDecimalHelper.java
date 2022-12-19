@@ -24,7 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RandomDecimalHelper extends HandlebarsHelper<Void> {
 
   @Override
-  public Object apply(Void context, Options options) throws IOException {
+  public Object apply(Void context, Options options) {
     double lowerBound = coerceToDouble(options.hash("lower", Double.MIN_VALUE));
     double upperBound = coerceToDouble(options.hash("upper", Double.MAX_VALUE));
 

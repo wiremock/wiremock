@@ -249,7 +249,7 @@ public class ResponseTemplateTransformerTest {
     Helper<String> helper =
         new Helper<String>() {
           @Override
-          public Object apply(String context, Options options) throws IOException {
+          public Object apply(String context, Options options) {
             return context.length();
           }
         };
@@ -346,7 +346,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void transformerParametersAreAppliedToTemplate() throws Exception {
+  public void transformerParametersAreAppliedToTemplate() {
     ResponseDefinition responseDefinition =
         transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
@@ -358,7 +358,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void unknownTransformerParametersAreNotCausingIssues() throws Exception {
+  public void unknownTransformerParametersAreNotCausingIssues() {
     ResponseDefinition responseDefinition =
         transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),

@@ -216,14 +216,13 @@ public class Xml {
         };
 
     @Override
-    public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+    public DocumentBuilder newDocumentBuilder() {
       return DB_CACHE.get();
     }
 
     private static class ResolveToEmptyString implements EntityResolver {
       @Override
-      public InputSource resolveEntity(String publicId, String systemId)
-          throws SAXException, IOException {
+      public InputSource resolveEntity(String publicId, String systemId) {
         return new InputSource(new StringReader(""));
       }
     }

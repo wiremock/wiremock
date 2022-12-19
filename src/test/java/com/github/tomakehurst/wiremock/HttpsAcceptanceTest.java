@@ -88,7 +88,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
+  public void shouldReturnOnlyOnHttpsWhenHttpDisabled() {
     Throwable exception =
         assertThrows(
             IllegalStateException.class,
@@ -119,7 +119,7 @@ public class HttpsAcceptanceTest {
       value = OS.WINDOWS,
       disabledReason =
           "This feature does not work on Windows " + "because of differing native socket behaviour")
-  public void connectionResetByPeerFault() throws IOException {
+  public void connectionResetByPeerFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/connection/reset"))

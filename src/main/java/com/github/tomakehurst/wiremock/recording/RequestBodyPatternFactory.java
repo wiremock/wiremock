@@ -23,8 +23,7 @@ import com.github.tomakehurst.wiremock.matching.ContentPattern;
 /** Factory for the StringValuePattern to use in a recorded stub mapping to match request bodies */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "matcher",
+        property = "matcher",
     defaultImpl = RequestBodyAutomaticPatternFactory.class)
 @JsonSubTypes({
   @JsonSubTypes.Type(value = RequestBodyAutomaticPatternFactory.class, name = "auto"),

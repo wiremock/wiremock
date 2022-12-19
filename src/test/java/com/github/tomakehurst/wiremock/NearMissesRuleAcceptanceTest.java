@@ -77,7 +77,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void logsUnmatchedRequestsAtErrorWithNearMisses() throws Exception {
+    public void logsUnmatchedRequestsAtErrorWithNearMisses() {
       wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
       wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
 

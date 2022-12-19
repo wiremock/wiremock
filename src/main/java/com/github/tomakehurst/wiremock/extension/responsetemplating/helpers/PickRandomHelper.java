@@ -25,7 +25,7 @@ public class PickRandomHelper extends HandlebarsHelper<Object> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Object apply(Object context, Options options) throws IOException {
+  public Object apply(Object context, Options options) {
     if (context == null) {
       return this.handleError(
           "Must specify either a single list argument or a set of single value arguments.");

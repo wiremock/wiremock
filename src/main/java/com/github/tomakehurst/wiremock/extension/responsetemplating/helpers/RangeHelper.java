@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 public class RangeHelper extends HandlebarsHelper<Object> {
 
   @Override
-  public Object apply(Object context, Options options) throws IOException {
+  public Object apply(Object context, Options options) {
     Integer lowerBound = coerceToInt(context);
     Integer upperBound = options.params.length > 0 ? coerceToInt(options.param(0)) : null;
 
