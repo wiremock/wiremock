@@ -115,12 +115,10 @@ public class CustomMatchingAcceptanceTest {
   public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
     assertThrows(
         AdminException.class,
-        () -> {
-          wm.register(
-              get(urlPathMatching("/the/.*/one"))
-                  .andMatching(new MyRequestMatcher())
-                  .willReturn(ok()));
-        });
+        () -> wm.register(
+            get(urlPathMatching("/the/.*/one"))
+                .andMatching(new MyRequestMatcher())
+                .willReturn(ok())));
   }
 
   public static class MyRequestMatcher extends RequestMatcherExtension {

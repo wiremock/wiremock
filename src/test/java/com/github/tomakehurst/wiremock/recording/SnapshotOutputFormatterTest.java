@@ -32,9 +32,7 @@ public class SnapshotOutputFormatterTest {
   public void fromStringWithInvalidFormat() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          SnapshotOutputFormatter.fromString("invalid output format");
-        });
+        () -> SnapshotOutputFormatter.fromString("invalid output format"));
   }
 
   @Test

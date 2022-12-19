@@ -58,9 +58,7 @@ public class CompositeTrustManagerTest {
     CertificateException thrown =
         assertThrows(
             CertificateException.class,
-            () -> {
-              compositeTrustManager.checkServerTrusted(chain, authType);
-            });
+            () -> compositeTrustManager.checkServerTrusted(chain, authType));
     assertEquals(invalidCertForTrustManager1, thrown);
   }
 
@@ -116,9 +114,7 @@ public class CompositeTrustManagerTest {
     CertificateException thrown =
         assertThrows(
             CertificateException.class,
-            () -> {
-              compositeTrustManager.checkServerTrusted(chain, authType);
-            });
+            () -> compositeTrustManager.checkServerTrusted(chain, authType));
 
     assertEquals(invalidCertForTrustManager2, thrown);
   }

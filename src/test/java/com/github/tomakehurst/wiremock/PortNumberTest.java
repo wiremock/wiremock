@@ -77,18 +77,14 @@ public class PortNumberTest {
   public void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          createServer(wireMockConfig().port(Network.findFreePort())).port();
-        });
+        () -> createServer(wireMockConfig().port(Network.findFreePort())).port());
   }
 
   @Test
   public void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort();
-        });
+        () -> createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort());
   }
 
   @Test

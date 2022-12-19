@@ -62,18 +62,14 @@ public class ServletContextFileSourceTest {
   public void throwsUnsupportedExceptionWhenAttemptingToWrite() {
     assertThrows(
         UnsupportedOperationException.class,
-        () -> {
-          fileSource.writeTextFile("filename", "filecontents");
-        });
+        () -> fileSource.writeTextFile("filename", "filecontents"));
   }
 
   @Test
   public void throwsUnsupportedExceptionWhenAttemptingToCreate() {
     assertThrows(
         UnsupportedOperationException.class,
-        () -> {
-          fileSource.createIfNecessary();
-        });
+        () -> fileSource.createIfNecessary());
   }
 
   private static class MockServletContext implements ServletContext {

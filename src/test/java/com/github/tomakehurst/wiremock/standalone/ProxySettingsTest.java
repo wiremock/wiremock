@@ -28,9 +28,7 @@ public class ProxySettingsTest {
   public void throwsExceptionWhenHostPartNotSpecified() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings.fromString(":8090");
-        });
+        () -> ProxySettings.fromString(":8090"));
   }
 
   @Test

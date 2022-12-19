@@ -123,17 +123,13 @@ public class DateTimeOffsetTest {
   public void throwsExceptionWhenUnparseableStringProvided() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          DateTimeOffset.fromString("101");
-        });
+        () -> DateTimeOffset.fromString("101"));
   }
 
   @Test
   public void throwsExceptionWhenUnparseableUnitProvided() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          DateTimeOffset.fromString("101 squillions");
-        });
+        () -> DateTimeOffset.fromString("101 squillions"));
   }
 }

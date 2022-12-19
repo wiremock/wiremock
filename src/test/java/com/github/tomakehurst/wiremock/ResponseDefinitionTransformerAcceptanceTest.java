@@ -134,12 +134,10 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new WireMockServer(
-              wireMockConfig()
-                  .dynamicPort()
-                  .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
-        });
+        () -> new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .extensions(ExampleTransformer.class, AnotherExampleTransformer.class)));
   }
 
   @Test

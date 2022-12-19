@@ -162,9 +162,7 @@ public class Examples extends AcceptanceTestBase {
   public void verifyWithoutHeader() {
     assertThrows(
         VerificationException.class,
-        () -> {
-          verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
-        });
+        () -> verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type")));
   }
 
   @Test

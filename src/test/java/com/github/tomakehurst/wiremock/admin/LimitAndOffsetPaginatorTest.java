@@ -91,17 +91,13 @@ public class LimitAndOffsetPaginatorTest {
   public void rejectsNegativeLimit() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), -1, 3);
-        });
+        () -> new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), -1, 3));
   }
 
   @Test
   public void rejectsNegativeOffset() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), 0, -10);
-        });
+        () -> new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), 0, -10));
   }
 }

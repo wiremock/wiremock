@@ -372,44 +372,34 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
     assertThrows(
         NotRecordingException.class,
-        () -> {
-          stopRecording();
-        });
+        () -> stopRecording());
   }
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
     assertThrows(
         NotRecordingException.class,
-        () -> {
-          adminClient.stopStubRecording();
-        });
+        () -> adminClient.stopStubRecording());
   }
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
     assertThrows(
         NotRecordingException.class,
-        () -> {
-          proxyingService.stopRecording();
-        });
+        () -> proxyingService.stopRecording());
   }
 
   @Test
   public void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
     assertThrows(
         InvalidInputException.class,
-        () -> {
-          startRecording(recordSpec());
-        });
+        () -> startRecording(recordSpec()));
   }
 
   @Test
   public void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
     assertThrows(
         InvalidInputException.class,
-        () -> {
-          proxyingService.startRecording(recordSpec());
-        });
+        () -> proxyingService.startRecording(recordSpec()));
   }
 }

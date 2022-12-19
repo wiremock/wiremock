@@ -162,9 +162,7 @@ public class CommandLineOptionsTest {
   public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
     assertThrows(
         Exception.class,
-        () -> {
-          new CommandLineOptions("--port");
-        });
+        () -> new CommandLineOptions("--port"));
   }
 
   @Test
@@ -192,9 +190,7 @@ public class CommandLineOptionsTest {
   public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
     assertThrows(
         Exception.class,
-        () -> {
-          new CommandLineOptions("--proxy-all");
-        });
+        () -> new CommandLineOptions("--proxy-all"));
   }
 
   @Test
@@ -369,9 +365,7 @@ public class CommandLineOptionsTest {
   public void preventsRecordingWhenRequestJournalDisabled() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new CommandLineOptions("--no-request-journal", "--record-mappings");
-        });
+        () -> new CommandLineOptions("--no-request-journal", "--record-mappings"));
   }
 
   @Test

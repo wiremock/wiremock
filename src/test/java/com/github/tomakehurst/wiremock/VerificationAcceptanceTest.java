@@ -943,18 +943,14 @@ public class VerificationAcceptanceTest {
     public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
       assertThrows(
           RequestJournalDisabledException.class,
-          () -> {
-            verify(getRequestedFor(urlEqualTo("/whatever")));
-          });
+          () -> verify(getRequestedFor(urlEqualTo("/whatever"))));
     }
 
     @Test
     public void findAllThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
       assertThrows(
           RequestJournalDisabledException.class,
-          () -> {
-            findAll(getRequestedFor(urlEqualTo("/whatever")));
-          });
+          () -> findAll(getRequestedFor(urlEqualTo("/whatever"))));
     }
   }
 

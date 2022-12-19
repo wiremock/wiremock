@@ -61,18 +61,14 @@ public class HttpHeaderTest {
   public void throwsExceptionWhenAttemptingToAccessFirstValueWhenAbsent() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          HttpHeader.absent("Something").firstValue();
-        });
+        () -> HttpHeader.absent("Something").firstValue());
   }
 
   @Test
   public void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          HttpHeader.absent("Something").values();
-        });
+        () -> HttpHeader.absent("Something").values());
   }
 
   @Test
