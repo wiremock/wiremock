@@ -111,7 +111,7 @@ public class ClasspathFileSource implements FileSource {
       candidates.append(candidate.getName() + "\n");
     }
     throw new RuntimeException(
-        "Was unable to find entry: \"" + lookFor + "\", found:\n" + candidates.toString());
+        "Was unable to find entry: \"" + lookFor + "\", found:\n" + candidates);
   }
 
   @Override

@@ -135,7 +135,7 @@ public class HttpHeaders {
 
     String outString = "";
     for (CaseInsensitiveKey key : headers.keySet()) {
-      outString += key.toString() + ": " + headers.get(key).toString() + "\n";
+      outString += key.toString() + ": " + headers.get(key) + "\n";
     }
 
     return outString;

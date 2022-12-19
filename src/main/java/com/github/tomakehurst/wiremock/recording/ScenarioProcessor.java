@@ -62,7 +62,7 @@ public class ScenarioProcessor {
     StubMapping firstScenario = stubMappings.get(0);
     String scenarioName =
         "scenario-"
-            + Integer.toString(scenarioIndex)
+            + scenarioIndex
             + "-"
             + Urls.urlToPathParts(URI.create(firstScenario.getRequest().getUrl()));
 

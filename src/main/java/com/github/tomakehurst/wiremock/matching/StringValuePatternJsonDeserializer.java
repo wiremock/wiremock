@@ -121,7 +121,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
     if (!rootNode.has("equalTo")) {
-      throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+      throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
     JsonNode equalToNode = rootNode.findValue("equalTo");
@@ -137,7 +137,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {
     if (!rootNode.has("equalToJson")) {
-      throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+      throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
     JsonNode operand = rootNode.findValue("equalToJson");
@@ -155,7 +155,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   private EqualToXmlPattern deserializeEqualToXml(JsonNode rootNode) throws JsonMappingException {
     if (!rootNode.has("equalToXml")) {
-      throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+      throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
     JsonNode operand = rootNode.findValue("equalToXml");
@@ -179,7 +179,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode)
       throws JsonMappingException {
     if (!rootNode.has("matchesJsonPath")) {
-      throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+      throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
     JsonNode outerPatternNode = rootNode.findValue("matchesJsonPath");
@@ -200,7 +200,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private MatchesXPathPattern deserialiseMatchesXPathPattern(JsonNode rootNode)
       throws JsonMappingException {
     if (!rootNode.has("matchesXPath")) {
-      throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+      throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
 
     JsonNode namespacesNode = rootNode.findValue("xPathNamespaces");
@@ -267,7 +267,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
                 : null);
     }
 
-    throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+    throw new JsonMappingException(rootNode + " is not a valid match operation");
   }
 
   private LogicalAnd deserializeAnd(JsonNode node) throws JsonMappingException {
@@ -379,6 +379,6 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
       }
     }
 
-    throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+    throw new JsonMappingException(rootNode + " is not a valid match operation");
   }
 }
