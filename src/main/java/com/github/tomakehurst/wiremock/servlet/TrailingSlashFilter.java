@@ -87,9 +87,7 @@ public class TrailingSlashFilter implements Filter {
           new URI(URLEncoder.encode(httpServletRequest.getRequestURI(), "utf-8")).getPath();
       String pathWithoutContext = fullPath.substring(httpServletRequest.getContextPath().length());
       return URLDecoder.decode(pathWithoutContext, "utf-8");
-    } catch (URISyntaxException e) {
-      throw new ServletException(e);
-    } catch (UnsupportedEncodingException e) {
+    } catch (URISyntaxException | UnsupportedEncodingException e) {
       throw new ServletException(e);
     }
   }
