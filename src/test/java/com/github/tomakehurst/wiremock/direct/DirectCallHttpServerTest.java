@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.direct;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.github.tomakehurst.wiremock.common.JettySettings;

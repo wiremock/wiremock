@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.servlet;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;

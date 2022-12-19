@@ -26,8 +26,6 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.transform;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.skyscreamer.jsonassert.JSONCompareMode.STRICT_ORDER;
