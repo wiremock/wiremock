@@ -102,8 +102,8 @@ dependencies {
 
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
-  testImplementation 'org.mockito:mockito-core:4.10.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.10.0'
+  testImplementation 'org.mockito:mockito-core:4.11.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
