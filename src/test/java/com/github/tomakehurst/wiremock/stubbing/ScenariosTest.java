@@ -31,7 +31,7 @@ public class ScenariosTest {
 
   @BeforeEach
   public void init() {
-    scenarios = new Scenarios();
+    scenarios = new InMemoryScenarios();
   }
 
   @Test

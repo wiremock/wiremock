@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.RequestListener;
@@ -43,6 +42,7 @@ import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -129,10 +129,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
     wireMockApp.loadMappingsUsing(mappingsLoader);
   }
 
-  public GlobalSettingsHolder getGlobalSettingsHolder() {
-    return wireMockApp.getGlobalSettingsHolder();
-  }
-
   public void addMockServiceRequestListener(RequestListener listener) {
     stubRequestHandler.addRequestListener(listener);
   }
@@ -140,7 +136,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
   public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
     addMockServiceRequestListener(
         new StubMappingJsonRecorder(
-            mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
+            new FileSourceBlobStore(mappingsFileSource),
+            new FileSourceBlobStore(filesFileSource),
+            wireMockApp,
+            options.matchingHeaders()));
     notifier.info("Recording mappings to " + mappingsFileSource.getPath());
   }
 

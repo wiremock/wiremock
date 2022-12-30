@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,36 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
+import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
-  private final FileSource fileSource;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final BlobStore filesBlobStore;
+  private final FileSource filesFileSource;
+  private final SettingsStore settingsStore;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
 
   public StubResponseRenderer(
-      FileSource fileSource,
-      GlobalSettingsHolder globalSettingsHolder,
+      BlobStore filesBlobStore,
+      SettingsStore settingsStore,
       ProxyResponseRenderer proxyResponseRenderer,
       List<ResponseTransformer> responseTransformers) {
-    this.fileSource = fileSource;
-    this.globalSettingsHolder = globalSettingsHolder;
+    this.filesBlobStore = filesBlobStore;
+    this.settingsStore = settingsStore;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
+
+    filesFileSource = new BlobStoreFileSource(filesBlobStore);
   }
 
   @Override
@@ -81,7 +87,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     Response newResponse =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(
-                request, response, fileSource, responseDefinition.getTransformerParameters())
+                request, response, filesFileSource, responseDefinition.getTransformerParameters())
             : response;
 
     return applyTransformations(
@@ -103,6 +109,7 @@ public class StubResponseRenderer implements ResponseRenderer {
       }
     }
 
+    GlobalSettings settings = settingsStore.get();
     Response.Builder responseBuilder =
         response()
             .status(responseDefinition.getStatus())
@@ -110,15 +117,16 @@ public class StubResponseRenderer implements ResponseRenderer {
             .headers(headers)
             .fault(responseDefinition.getFault())
             .configureDelay(
-                globalSettingsHolder.get().getFixedDelay(),
-                globalSettingsHolder.get().getDelayDistribution(),
+                settings.getFixedDelay(),
+                settings.getDelayDistribution(),
                 responseDefinition.getFixedDelayMilliseconds(),
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
     if (responseDefinition.specifiesBodyFile()) {
-      BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-      responseBuilder.body(bodyFile);
+      final InputStreamSource bodyStreamSource =
+          filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
+      responseBuilder.body(bodyStreamSource);
     } else if (responseDefinition.specifiesBodyContent()) {
       if (responseDefinition.specifiesBinaryBodyContent()) {
         responseBuilder.body(responseDefinition.getByteBody());

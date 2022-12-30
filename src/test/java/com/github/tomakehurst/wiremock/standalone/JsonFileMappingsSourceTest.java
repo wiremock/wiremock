@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.NotWritableException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.io.Files;
 import java.io.File;
@@ -42,7 +43,7 @@ public class JsonFileMappingsSourceTest {
 
   @TempDir public File tempDir;
 
-  InMemoryStubMappings stubMappings;
+  StoreBackedStubMappings stubMappings;
   JsonFileMappingsSource source;
   File stubMappingFile;
 
@@ -72,7 +73,7 @@ public class JsonFileMappingsSourceTest {
   public void loadsMappingsViaClasspathFileSource() {
     ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
     JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource);
-    InMemoryStubMappings stubMappings = new InMemoryStubMappings();
+    StoreBackedStubMappings stubMappings = new InMemoryStubMappings();
 
     source.loadMappingsInto(stubMappings);
 

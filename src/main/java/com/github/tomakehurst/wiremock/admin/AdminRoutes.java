@@ -23,6 +23,7 @@ import static com.google.common.collect.Iterables.tryFind;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -34,19 +35,22 @@ public class AdminRoutes {
 
   private final ImmutableBiMap<RequestSpec, AdminTask> routes;
   private final Iterable<AdminApiExtension> apiExtensions;
+  private final Stores stores;
 
-  public static AdminRoutes defaults() {
+  public static AdminRoutes forClient() {
     return new AdminRoutes(
-        Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer());
+        Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer(), null);
   }
 
-  public static AdminRoutes defaultsPlus(
-      Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
-    return new AdminRoutes(apiExtensions, notMatchedTask);
+  public static AdminRoutes forServer(
+      Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask, Stores stores) {
+    return new AdminRoutes(apiExtensions, notMatchedTask, stores);
   }
 
-  protected AdminRoutes(Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
+  protected AdminRoutes(
+      Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask, Stores stores) {
     this.apiExtensions = apiExtensions;
+    this.stores = stores;
     RouteBuilder routeBuilder = new RouteBuilder();
     initDefaultRoutes(routeBuilder);
     initAdditionalRoutes(routeBuilder);
@@ -55,66 +59,66 @@ public class AdminRoutes {
   }
 
   private void initDefaultRoutes(Router router) {
-    router.add(GET, "/", RootTask.class);
-    router.add(GET, "", RootRedirectTask.class);
-    router.add(POST, "/reset", ResetTask.class);
+    router.add(GET, "/", new RootTask());
+    router.add(GET, "", new RootRedirectTask());
+    router.add(POST, "/reset", new ResetTask());
 
-    router.add(GET, "/mappings", GetAllStubMappingsTask.class);
-    router.add(POST, "/mappings", CreateStubMappingTask.class);
-    router.add(DELETE, "/mappings", ResetStubMappingsTask.class);
+    router.add(GET, "/mappings", new GetAllStubMappingsTask());
+    router.add(POST, "/mappings", new CreateStubMappingTask());
+    router.add(DELETE, "/mappings", new ResetStubMappingsTask());
 
-    router.add(POST, "/mappings/new", OldCreateStubMappingTask.class); // Deprecated
-    router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class); // Deprecated
-    router.add(POST, "/mappings/edit", OldEditStubMappingTask.class); // Deprecated
-    router.add(POST, "/mappings/save", SaveMappingsTask.class);
-    router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);
-    router.add(GET, "/mappings/{id}", GetStubMappingTask.class);
-    router.add(PUT, "/mappings/{id}", EditStubMappingTask.class);
-    router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
-    router.add(POST, "/mappings/find-by-metadata", FindStubMappingsByMetadataTask.class);
-    router.add(POST, "/mappings/remove-by-metadata", RemoveStubMappingsByMetadataTask.class);
-    router.add(POST, "/mappings/import", ImportStubMappingsTask.class);
+    router.add(POST, "/mappings/new", new OldCreateStubMappingTask()); // Deprecated
+    router.add(POST, "/mappings/remove", new OldRemoveStubMappingTask()); // Deprecated
+    router.add(POST, "/mappings/edit", new OldEditStubMappingTask()); // Deprecated
+    router.add(POST, "/mappings/save", new SaveMappingsTask());
+    router.add(POST, "/mappings/reset", new ResetToDefaultMappingsTask());
+    router.add(GET, "/mappings/{id}", new GetStubMappingTask());
+    router.add(PUT, "/mappings/{id}", new EditStubMappingTask());
+    router.add(DELETE, "/mappings/{id}", new RemoveStubMappingTask());
+    router.add(POST, "/mappings/find-by-metadata", new FindStubMappingsByMetadataTask());
+    router.add(POST, "/mappings/remove-by-metadata", new RemoveStubMappingsByMetadataTask());
+    router.add(POST, "/mappings/import", new ImportStubMappingsTask());
 
-    router.add(GET, "/files", GetAllStubFilesTask.class);
-    router.add(PUT, "/files/**", EditStubFileTask.class);
-    router.add(DELETE, "/files/**", DeleteStubFileTask.class);
+    router.add(GET, "/files", new GetAllStubFilesTask(stores));
+    router.add(PUT, "/files/**", new EditStubFileTask(stores));
+    router.add(DELETE, "/files/**", new DeleteStubFileTask(stores));
 
-    router.add(GET, "/scenarios", GetAllScenariosTask.class);
-    router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
-    router.add(PUT, "/scenarios/{name}/state", SetScenarioStateTask.class);
+    router.add(GET, "/scenarios", new GetAllScenariosTask());
+    router.add(POST, "/scenarios/reset", new ResetScenariosTask());
+    router.add(PUT, "/scenarios/{name}/state", new SetScenarioStateTask());
 
-    router.add(GET, "/requests", GetAllRequestsTask.class);
-    router.add(DELETE, "/requests", ResetRequestsTask.class);
-    router.add(POST, "/requests/reset", OldResetRequestsTask.class); // Deprecated
-    router.add(POST, "/requests/count", GetRequestCountTask.class);
-    router.add(POST, "/requests/find", FindRequestsTask.class);
-    router.add(GET, "/requests/unmatched", FindUnmatchedRequestsTask.class);
-    router.add(GET, "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
-    router.add(GET, "/requests/{id}", GetServedStubTask.class);
-    router.add(DELETE, "/requests/{id}", RemoveServeEventTask.class);
-    router.add(POST, "/requests/remove", RemoveServeEventsByRequestPatternTask.class);
-    router.add(POST, "/requests/remove-by-metadata", RemoveServeEventsByStubMetadataTask.class);
+    router.add(GET, "/requests", new GetAllRequestsTask());
+    router.add(DELETE, "/requests", new ResetRequestsTask());
+    router.add(POST, "/requests/reset", new OldResetRequestsTask()); // Deprecated
+    router.add(POST, "/requests/count", new GetRequestCountTask());
+    router.add(POST, "/requests/find", new FindRequestsTask());
+    router.add(GET, "/requests/unmatched", new FindUnmatchedRequestsTask());
+    router.add(GET, "/requests/unmatched/near-misses", new FindNearMissesForUnmatchedTask());
+    router.add(GET, "/requests/{id}", new GetServedStubTask());
+    router.add(DELETE, "/requests/{id}", new RemoveServeEventTask());
+    router.add(POST, "/requests/remove", new RemoveServeEventsByRequestPatternTask());
+    router.add(POST, "/requests/remove-by-metadata", new RemoveServeEventsByStubMetadataTask());
 
-    router.add(POST, "/recordings/snapshot", SnapshotTask.class);
-    router.add(POST, "/recordings/start", StartRecordingTask.class);
-    router.add(POST, "/recordings/stop", StopRecordingTask.class);
-    router.add(GET, "/recordings/status", GetRecordingStatusTask.class);
-    router.add(GET, "/recorder", GetRecordingsIndexTask.class);
+    router.add(POST, "/recordings/snapshot", new SnapshotTask());
+    router.add(POST, "/recordings/start", new StartRecordingTask());
+    router.add(POST, "/recordings/stop", new StopRecordingTask());
+    router.add(GET, "/recordings/status", new GetRecordingStatusTask());
+    router.add(GET, "/recorder", new GetRecordingsIndexTask());
 
-    router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
-    router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
+    router.add(POST, "/near-misses/request", new FindNearMissesForRequestTask());
+    router.add(POST, "/near-misses/request-pattern", new FindNearMissesForRequestPatternTask());
 
-    router.add(GET, "/settings", GetGlobalSettingsTask.class);
-    router.add(PUT, "/settings", GlobalSettingsUpdateTask.class);
-    router.add(POST, "/settings", GlobalSettingsUpdateTask.class);
-    router.add(PATCH, "/settings/extended", PatchExtendedSettingsTask.class);
+    router.add(GET, "/settings", new GetGlobalSettingsTask());
+    router.add(PUT, "/settings", new GlobalSettingsUpdateTask());
+    router.add(POST, "/settings", new GlobalSettingsUpdateTask());
+    router.add(PATCH, "/settings/extended", new PatchExtendedSettingsTask());
 
-    router.add(POST, "/shutdown", ShutdownServerTask.class);
+    router.add(POST, "/shutdown", new ShutdownServerTask());
 
-    router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
-    router.add(GET, "/docs", GetDocIndexTask.class);
+    router.add(GET, "/docs/swagger", new GetSwaggerSpecTask());
+    router.add(GET, "/docs", new GetDocIndexTask());
 
-    router.add(GET, "/certs/wiremock-ca.crt", GetCaCertTask.class);
+    router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {

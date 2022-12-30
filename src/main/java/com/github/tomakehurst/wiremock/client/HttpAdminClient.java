@@ -122,7 +122,7 @@ public class HttpAdminClient implements Admin {
     this.hostHeader = hostHeader;
     this.authenticator = authenticator;
 
-    adminRoutes = AdminRoutes.defaults();
+    adminRoutes = AdminRoutes.forClient();
 
     httpClient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
   }
