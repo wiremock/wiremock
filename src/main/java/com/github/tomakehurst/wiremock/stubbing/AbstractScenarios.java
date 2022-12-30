@@ -55,7 +55,7 @@ public abstract class AbstractScenarios implements Scenarios {
   @Override
   public void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
     if (oldMapping.isInScenario()
-        && !newMapping.getScenarioName().equals(oldMapping.getScenarioName())) {
+        && !oldMapping.getScenarioName().equals(newMapping.getScenarioName())) {
       Scenario scenarioForOldMapping =
           store
               .get(oldMapping.getScenarioName())
