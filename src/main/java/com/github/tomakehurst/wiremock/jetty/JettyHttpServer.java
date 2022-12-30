@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -31,14 +31,14 @@ import com.github.tomakehurst.wiremock.servlet.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.servlet.DispatcherType;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
@@ -204,6 +204,7 @@ public class JettyHttpServer implements HttpServer {
     if (stopTimeout.isPresent()) {
       server.setStopTimeout(stopTimeout.get());
     }
+
     return server;
   }
 
@@ -285,7 +286,7 @@ public class JettyHttpServer implements HttpServer {
       NetworkTrafficListener listener) {
 
     // Added to support Android https communication.
-    SslContextFactory sslContextFactory = buildSslContextFactory();
+    SslContextFactory.Server sslContextFactory = buildSslContextFactory();
 
     sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
     sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
@@ -322,8 +323,8 @@ public class JettyHttpServer implements HttpServer {
   }
 
   // Override this for platform-specific impls
-  protected SslContextFactory buildSslContextFactory() {
-    return new SslContextFactory();
+  protected SslContextFactory.Server buildSslContextFactory() {
+    return new SslContextFactory.Server();
   }
 
   protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
@@ -347,7 +348,7 @@ public class JettyHttpServer implements HttpServer {
             jettyServer, null, null, null, acceptors, 2, connectionFactories);
 
     connector.setPort(port);
-    connector.addNetworkTrafficListener(listener);
+    connector.setNetworkTrafficListener(listener);
     setJettySettings(jettySettings, connector);
     connector.setHost(bindAddress);
     return connector;
@@ -361,6 +362,8 @@ public class JettyHttpServer implements HttpServer {
     if (jettySettings.getIdleTimeout().isPresent()) {
       connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
     }
+
+    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(100L));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})

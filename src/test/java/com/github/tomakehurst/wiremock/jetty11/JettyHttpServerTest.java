@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty11;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -29,6 +29,8 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import java.lang.reflect.Field;
@@ -73,7 +75,7 @@ public class JettyHttpServerTest {
 
   @Test
   public void testStopTimeout() {
-    long expectedStopTimeout = 500L;
+    long expectedStopTimeout = 1000L;
     WireMockConfiguration config =
         WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
 

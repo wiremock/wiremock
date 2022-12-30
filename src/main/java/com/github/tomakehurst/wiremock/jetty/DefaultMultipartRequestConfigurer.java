@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2019-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.servlet;
+package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.core.FaultInjector;
+import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
+import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-public class NoFaultInjectorFactory implements FaultInjectorFactory {
+public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
 
   @Override
-  public FaultInjector buildFaultInjector(
-      HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    return new NoFaultInjector(httpServletResponse);
+  public void configure(HttpServletRequest request) {
+    request.setAttribute(
+        org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT,
+        new MultipartConfigElement(
+            System.getProperty("java.io.tmpdir"), Integer.MAX_VALUE, -1L, 0));
   }
 }

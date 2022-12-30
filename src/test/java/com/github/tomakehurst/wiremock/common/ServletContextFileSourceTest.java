@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,13 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import jakarta.servlet.*;
+import jakarta.servlet.ServletRegistration.Dynamic;
+import jakarta.servlet.descriptor.JspConfigDescriptor;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import javax.servlet.*;
-import javax.servlet.descriptor.JspConfigDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -332,8 +333,42 @@ public class ServletContextFileSourceTest {
 
     @Override
     public String getContextPath() {
-      // TODO Auto-generated method stub
-      return null;
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public Dynamic addJspFile(String servletName, String jspFile) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public int getSessionTimeout() {
+      return 0;
+    }
+
+    @Override
+    public void setSessionTimeout(int sessionTimeout) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public String getRequestCharacterEncoding() {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public void setRequestCharacterEncoding(String encoding) {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public String getResponseCharacterEncoding() {
+      throw new UnsupportedOperationException("not yet implemented");
+    }
+
+    @Override
+    public void setResponseCharacterEncoding(String encoding) {
+      throw new UnsupportedOperationException("not yet implemented");
     }
   }
 }
