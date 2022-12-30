@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -100,5 +101,13 @@ public class MathsHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void modsTwoIntegers() throws Exception {
     assertThat(renderHelperValue(helper, 11, "%", 3), is(2));
+  }
+
+  @Test
+  void coercesEpochFormattedRenderableDateParameterCorrectly() throws Exception {
+    Date date = new Date(1663258226792L);
+    assertThat(
+        renderHelperValue(helper, new RenderableDate(date, "epoch", null), "+", 0),
+        is(1663258226792L));
   }
 }

@@ -164,6 +164,26 @@ public class ScenariosTest {
   }
 
   @Test
+  public void stubMappingCanStopBeingInScenario() {
+    StubMapping oldMapping =
+        get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+    scenarios.onStubMappingAdded(oldMapping);
+
+    assertThat(scenarios.getByName("one"), notNullValue());
+
+    StubMapping newMapping = get("/scenarios/1").willReturn(ok()).build();
+
+    scenarios.onStubMappingUpdated(oldMapping, newMapping);
+
+    assertThat(scenarios.getByName("one"), nullValue());
+  }
+
+  @Test
   public void modifiesScenarioStateWhenStubServed() {
     StubMapping mapping1 =
         get("/scenarios/1")

@@ -40,6 +40,7 @@ public class ResponseDefinitionBuilder {
   protected DelayDistribution delayDistribution;
   protected ChunkedDribbleDelay chunkedDribbleDelay;
   protected String proxyBaseUrl;
+  protected String proxyUrlPrefixToRemove;
   protected Fault fault;
   protected List<String> responseTransformerNames;
   protected Map<String, Object> transformerParameters = newHashMap();
@@ -59,6 +60,7 @@ public class ResponseDefinitionBuilder {
     builder.delayDistribution = responseDefinition.getDelayDistribution();
     builder.chunkedDribbleDelay = responseDefinition.getChunkedDribbleDelay();
     builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
+    builder.proxyUrlPrefixToRemove = responseDefinition.getProxyUrlPrefixToRemove();
     builder.fault = responseDefinition.getFault();
     builder.responseTransformerNames = responseDefinition.getTransformers();
     builder.transformerParameters =
@@ -66,6 +68,18 @@ public class ResponseDefinitionBuilder {
             ? Parameters.from(responseDefinition.getTransformerParameters())
             : Parameters.empty();
     builder.wasConfigured = responseDefinition.isFromConfiguredStub();
+
+    if (builder.proxyBaseUrl != null) {
+      ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder = new ProxyResponseDefinitionBuilder(builder);
+      proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove = responseDefinition.getProxyUrlPrefixToRemove();
+      proxyResponseDefinitionBuilder.additionalRequestHeaders =
+              responseDefinition.getAdditionalProxyRequestHeaders() != null
+                      ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
+                      : Lists.<HttpHeader>newArrayList();
+
+      return proxyResponseDefinitionBuilder;
+    }
+
     return builder;
   }
 
@@ -208,7 +222,6 @@ public class ResponseDefinitionBuilder {
   public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
     private List<HttpHeader> additionalRequestHeaders = newArrayList();
-    private String proxyUrlPrefixToRemove;
 
     public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
       this.status = from.status;
@@ -221,6 +234,7 @@ public class ResponseDefinitionBuilder {
       this.delayDistribution = from.delayDistribution;
       this.chunkedDribbleDelay = from.chunkedDribbleDelay;
       this.proxyBaseUrl = from.proxyBaseUrl;
+      this.proxyUrlPrefixToRemove = from.proxyUrlPrefixToRemove;
       this.responseTransformerNames = from.responseTransformerNames;
       this.transformerParameters = from.transformerParameters;
     }

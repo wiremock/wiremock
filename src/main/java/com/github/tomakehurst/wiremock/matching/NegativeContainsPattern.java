@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.direct;
+package com.github.tomakehurst.wiremock.matching;
 
-import java.util.concurrent.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+public class NegativeContainsPattern extends StringValuePattern {
 
-class SleepFacade {
-
-  private final ScheduledExecutorService executorService;
-
-  public SleepFacade() {
-    this.executorService = Executors.newSingleThreadScheduledExecutor();
+  public NegativeContainsPattern(@JsonProperty("doesNotContain") String expectedValue) {
+    super(expectedValue);
   }
 
-  void sleep(long millis) {
-    try {
-      executorService.schedule(() -> {}, millis, MILLISECONDS).get();
-    } catch (Exception e) {
-      Thread.currentThread().interrupt();
-    }
+  public String getDoesNotContain() {
+    return expectedValue;
+  }
+
+  @Override
+  public MatchResult match(String value) {
+    return MatchResult.of(value == null || !value.contains(expectedValue));
   }
 }

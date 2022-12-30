@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
@@ -120,6 +121,10 @@ public class WireMockConfiguration implements Options {
 
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
+
+  private Limit responseBodySizeLimit = UNLIMITED;
+
+  private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -449,6 +454,22 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration disableOptimizeXmlFactoriesLoading(
+      boolean disableOptimizeXmlFactoriesLoading) {
+    this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
+    return this;
+  }
+
+  public WireMockConfiguration maxLoggedResponseSize(int maxSize) {
+    this.responseBodySizeLimit = new Limit(maxSize);
+    return this;
+  }
+
+  public WireMockConfiguration limitProxyTargets(NetworkAddressRules proxyTargetRules) {
+    this.proxyTargetRules = proxyTargetRules;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -633,15 +654,14 @@ public class WireMockConfiguration implements Options {
     return disableOptimizeXmlFactoriesLoading;
   }
 
-  public WireMockConfiguration disableOptimizeXmlFactoriesLoading(
-      boolean disableOptimizeXmlFactoriesLoading) {
-    this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
-    return this;
-  }
-
   @Override
   public boolean getDisableStrictHttpHeaders() {
     return disableStrictHttpHeaders;
+  }
+
+  @Override
+  public DataTruncationSettings getDataTruncationSettings() {
+    return new DataTruncationSettings(responseBodySizeLimit);
   }
 
   public WireMockConfiguration disableStrictHttpHeaders(boolean disableStrictHttpHeaders) {
@@ -664,5 +684,10 @@ public class WireMockConfiguration implements Options {
         .trustedProxyTargets(trustedProxyTargets)
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    return proxyTargetRules;
   }
 }

@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProc
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -32,10 +33,15 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
   protected final ResponseRenderer responseRenderer;
   protected final List<RequestFilter> requestFilters;
 
+  private final DataTruncationSettings dataTruncationSettings;
+
   public AbstractRequestHandler(
-      ResponseRenderer responseRenderer, List<RequestFilter> requestFilters) {
+      ResponseRenderer responseRenderer,
+      List<RequestFilter> requestFilters,
+      DataTruncationSettings dataTruncationSettings) {
     this.responseRenderer = responseRenderer;
     this.requestFilters = requestFilters;
+    this.dataTruncationSettings = dataTruncationSettings;
   }
 
   @Override
@@ -74,7 +80,8 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     Response response = responseRenderer.render(serveEvent);
     response = Response.Builder.like(response).protocol(request.getProtocol()).build();
     ServeEvent completedServeEvent =
-        serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
+        serveEvent.complete(
+            response, (int) stopwatch.elapsed(MILLISECONDS), dataTruncationSettings);
 
     if (logRequests()) {
       notifier()

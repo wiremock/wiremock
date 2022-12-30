@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAs
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -27,8 +28,11 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,6 +66,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final SettingsStore settingsStore;
   private final boolean stubCorsEnabled;
 
+  private final NetworkAddressRules targetAddressRules;
+
   public ProxyResponseRenderer(
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
@@ -70,9 +76,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       SettingsStore settingsStore,
       boolean trustAllProxyTargets,
       List<String> trustedProxyTargets,
-      boolean stubCorsEnabled) {
+      boolean stubCorsEnabled,
+      NetworkAddressRules targetAddressRules) {
     this.settingsStore = settingsStore;
-
     reverseProxyClient =
         HttpClientFactory.createClient(
             1000,
@@ -95,18 +101,28 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     this.preserveHostHeader = preserveHostHeader;
     this.hostHeaderValue = hostHeaderValue;
     this.stubCorsEnabled = stubCorsEnabled;
+    this.targetAddressRules = targetAddressRules;
   }
 
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    if (targetAddressProhibited(responseDefinition.getProxyUrl())) {
+      return response()
+          .status(500)
+          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+          .body("The target proxy address is denied in WireMock's configuration.")
+          .build();
+    }
+
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
 
     GlobalSettings settings = settingsStore.get();
 
     Request originalRequest = responseDefinition.getOriginalRequest();
-    if (originalRequest.getBody() != null && originalRequest.getBody().length > 0) {
+    if ((originalRequest.getBody() != null && originalRequest.getBody().length > 0)
+        || originalRequest.containsHeader(CONTENT_LENGTH)) {
       httpRequest.setEntity(buildEntityFrom(originalRequest));
     }
     CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
@@ -127,6 +143,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       return proxyResponseError("SSL", httpRequest, e);
     } catch (IOException e) {
       return proxyResponseError("Network", httpRequest, e);
+    }
+  }
+
+  private boolean targetAddressProhibited(String proxyUrl) {
+    String host = URI.create(proxyUrl).getHost();
+    try {
+      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
+      return !Arrays.stream(resolvedAddresses)
+          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
+    } catch (UnknownHostException e) {
+      return true;
     }
   }
 
@@ -233,7 +260,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     return applyGzipWrapperIfRequired(
         originalRequest,
-        new ByteArrayEntity(originalRequest.getBody(), ContentType.DEFAULT_BINARY));
+        new ByteArrayEntity(
+            originalRequest.getBody(),
+            originalRequest.contentTypeHeader().isPresent() ? contentType : null));
   }
 
   private static HttpEntity applyGzipWrapperIfRequired(

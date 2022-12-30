@@ -59,4 +59,8 @@ public class StreamSources {
       return bytes == null ? null : new ByteArrayInputStream(bytes);
     }
   }
+
+  public static InputStreamSource empty() {
+    return forBytes(new byte[0]);
+  }
 }

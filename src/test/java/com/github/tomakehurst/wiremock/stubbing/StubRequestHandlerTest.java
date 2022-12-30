@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import static com.github.tomakehurst.wiremock.common.DataTruncationSettings.NO_TRUNCATION;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -67,7 +68,8 @@ public class StubRequestHandlerTest {
             Collections.<String, PostServeAction>emptyMap(),
             requestJournal,
             Collections.<RequestFilter>emptyList(),
-            false);
+            false,
+            NO_TRUNCATION);
   }
 
   @Test
