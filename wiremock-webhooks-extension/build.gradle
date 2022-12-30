@@ -104,3 +104,7 @@ publish.dependsOn shadowJar
 task release {
   dependsOn clean, shadowJar, publishAllPublicationsToMavenRepository
 }
+
+task localRelease {
+  dependsOn clean, assemble, publishToMavenLocal
+}

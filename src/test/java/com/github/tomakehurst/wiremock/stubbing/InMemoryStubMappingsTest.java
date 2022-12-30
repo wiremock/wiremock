@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 
 public class InMemoryStubMappingsTest {
 
-  private InMemoryStubMappings inMemoryStubMappings;
+  private StoreBackedStubMappings inMemoryStubMappings;
 
   @BeforeEach
   public void setUp() throws Exception {

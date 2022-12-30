@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -38,6 +37,8 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
+import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
@@ -55,7 +56,8 @@ public class WireMock {
   private static final String DEFAULT_HOST = "localhost";
 
   private final Admin admin;
-  private final GlobalSettingsHolder globalSettingsHolder = new GlobalSettingsHolder();
+
+  private final SettingsStore settingsStore = new InMemorySettingsStore();
 
   private static InheritableThreadLocal<WireMock> defaultInstance =
       new InheritableThreadLocal<WireMock>() {
@@ -796,7 +798,7 @@ public class WireMock {
   }
 
   public void setGlobalFixedDelayVariable(int milliseconds) {
-    GlobalSettings settings = globalSettingsHolder.get().copy().fixedDelay(milliseconds).build();
+    GlobalSettings settings = settingsStore.get().copy().fixedDelay(milliseconds).build();
     updateGlobalSettings(settings);
   }
 
@@ -805,8 +807,7 @@ public class WireMock {
   }
 
   public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
-    GlobalSettings settings =
-        globalSettingsHolder.get().copy().delayDistribution(distribution).build();
+    GlobalSettings settings = settingsStore.get().copy().delayDistribution(distribution).build();
     updateGlobalSettings(settings);
   }
 
@@ -815,7 +816,7 @@ public class WireMock {
   }
 
   public void updateGlobalSettings(GlobalSettings settings) {
-    globalSettingsHolder.replaceWith(settings);
+    settingsStore.set(settings);
     admin.updateGlobalSettings(settings);
   }
 

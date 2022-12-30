@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class SnapshotStubMappingBodyExtractorTest {
   @BeforeEach
   public void init() {
     filesSource = Mockito.mock(FileSource.class, "filesFileSource");
-    bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);
+    bodyExtractor = new SnapshotStubMappingBodyExtractor(new FileSourceBlobStore(filesSource));
   }
 
   @Test

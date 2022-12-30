@@ -43,6 +43,8 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
@@ -82,6 +84,7 @@ public class WireMockConfiguration implements Options {
 
   private ProxySettings proxySettings = ProxySettings.NO_PROXY;
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
+  private Stores stores;
   private MappingsSource mappingsSource;
 
   private Notifier notifier = new Slf4jNotifier(false);
@@ -282,6 +285,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration proxyVia(ProxySettings proxySettings) {
     this.proxySettings = proxySettings;
+    return this;
+  }
+
+  public WireMockConfiguration withStores(Stores stores) {
+    this.stores = stores;
     return this;
   }
 
@@ -513,6 +521,15 @@ public class WireMockConfiguration implements Options {
   @Override
   public ProxySettings proxyVia() {
     return proxySettings;
+  }
+
+  @Override
+  public Stores getStores() {
+    if (stores == null) {
+      stores = new DefaultStores(filesRoot);
+    }
+
+    return stores;
   }
 
   @Override

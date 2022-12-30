@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.MULTILINE;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
@@ -90,6 +91,28 @@ public class WireMatchers {
       public boolean matchesSafely(String actualJson) {
         try {
           JSONAssert.assertEquals(expectedJson, actualJson, jsonCompareMode);
+          return true;
+        } catch (Throwable e) {
+          return false;
+        }
+      }
+    };
+  }
+
+  public static Matcher<byte[]> equalToBinaryJson(
+      final String expectedJson, final JSONCompareMode jsonCompareMode) {
+    return new TypeSafeMatcher<byte[]>() {
+
+      @Override
+      public void describeTo(Description desc) {
+        desc.appendText("Expected:\n" + expectedJson);
+      }
+
+      @Override
+      public boolean matchesSafely(byte[] actualJson) {
+        try {
+          JSONAssert.assertEquals(
+              expectedJson, Strings.stringFromBytes(actualJson), jsonCompareMode);
           return true;
         } catch (Throwable e) {
           return false;
