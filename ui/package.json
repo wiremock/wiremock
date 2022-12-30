@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "npm-run-all": "^1.7.0",
-    "shx": "0.2.2",
+    "shx": "0.3.4",
     "swagger-cli": "2.3.4",
     "swagger-ui-dist": "4.1.3"
   },
