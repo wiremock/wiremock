@@ -36,6 +36,8 @@ public interface Admin {
 
   void removeStubMapping(StubMapping stubbMapping);
 
+  void removeStubMapping(UUID id);
+
   ListStubMappingsResult listAllStubMappings();
 
   SingleStubMappingResult getStubMapping(UUID id);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.io.BaseEncoding;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Test;
 
 public class ResponseDefinitionBuilderTest {
@@ -59,7 +59,8 @@ public class ResponseDefinitionBuilderTest {
             .withStatus(200)
             .withStatusMessage("OK")
             .withBody("some body")
-            .withBase64Body(Base64.encodeBase64String("some body".getBytes(StandardCharsets.UTF_8)))
+            .withBase64Body(
+                BaseEncoding.base64().encode("some body".getBytes(StandardCharsets.UTF_8)))
             .withBodyFile("some_body.json")
             .withHeader("some header", "some value")
             .withFixedDelay(100)
