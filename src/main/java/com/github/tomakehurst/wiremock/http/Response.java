@@ -121,7 +121,8 @@ public class Response {
   }
 
   public boolean hasInlineBody() {
-    return !BinaryFile.class.isAssignableFrom(bodyStreamSource.getClass());
+    return StreamSources.ByteArrayInputStreamSource.class.isAssignableFrom(
+        bodyStreamSource.getClass());
   }
 
   public HttpHeaders getHeaders() {

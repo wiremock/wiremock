@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
@@ -50,6 +51,10 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
   @Override
   public Iterator<StubMapping> iterator() {
     return mappingSet.iterator();
+  }
+
+  public Stream<StubMapping> stream() {
+    return mappingSet.stream();
   }
 
   public void add(StubMapping mapping) {

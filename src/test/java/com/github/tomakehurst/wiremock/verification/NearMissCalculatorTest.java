@@ -31,10 +31,7 @@ import static org.mockito.Mockito.when;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.Scenarios;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import com.google.common.base.Function;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +49,7 @@ public class NearMissCalculatorTest {
   public void init() {
     stubMappings = mock(StubMappings.class);
     requestJournal = mock(RequestJournal.class);
-    scenarios = new Scenarios();
+    scenarios = new InMemoryScenarios();
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
   }
 
