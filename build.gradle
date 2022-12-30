@@ -157,7 +157,7 @@ allprojects {
     }
     json {
       target 'src/**/*.json'
-      targetExclude '**/tmp*.json', 'src/test/resources/sample.json', 'src/main/resources/swagger/*.json'
+      targetExclude '**/tmp*.json', 'src/test/resources/sample.json', 'src/main/resources/swagger/*.json', 'src/test/resources/filesource/subdir/deepfile.json'
       simple().indentWithSpaces(2)
     }
   }

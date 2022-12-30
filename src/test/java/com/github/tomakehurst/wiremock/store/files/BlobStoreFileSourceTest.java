@@ -64,13 +64,13 @@ public class BlobStoreFileSourceTest {
 
   @Test
   void get_single_file_bytes() {
-    byte[] expected = "{} ".getBytes();
+    byte[] expected = "{}".getBytes();
     assertThat(fileSource.getBinaryFileNamed("subdir/deepfile.json").readContents(), is(expected));
   }
 
   @Test
   void get_single_stream() throws Exception {
-    byte[] expected = "{} ".getBytes();
+    byte[] expected = "{}".getBytes();
     byte[] actual =
         ByteStreams.toByteArray(fileSource.getBinaryFileNamed("subdir/deepfile.json").getStream());
     assertThat(actual, is(expected));
