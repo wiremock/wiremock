@@ -36,10 +36,10 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
+import jakarta.servlet.ServletContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletContext;
 
 public class WarConfiguration implements Options {
 

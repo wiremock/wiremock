@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty;
 
-import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.HttpServletRequest;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.util.thread.ThreadPool;
 
-public class DefaultMultipartRequestConfigurer implements MultipartRequestConfigurer {
+public class QueuedThreadPoolFactory implements ThreadPoolFactory {
 
   @Override
-  public void configure(HttpServletRequest request) {
-    MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String) null);
-    request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
+  public ThreadPool buildThreadPool(Options options) {
+    return new QueuedThreadPool(options.containerThreads());
   }
 }
