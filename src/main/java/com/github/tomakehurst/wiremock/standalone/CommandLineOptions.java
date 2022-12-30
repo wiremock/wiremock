@@ -42,6 +42,8 @@ import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
@@ -120,7 +122,10 @@ public class CommandLineOptions implements Options {
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
 
   private final OptionSet optionSet;
+
+  private final Stores stores;
   private final FileSource fileSource;
+
   private final MappingsSource mappingsSource;
   private final Map<String, Extension> extensions;
 
@@ -364,6 +369,8 @@ public class CommandLineOptions implements Options {
     } else {
       fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
     }
+
+    stores = new DefaultStores(fileSource);
 
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
     extensions = buildExtensions();
@@ -648,6 +655,11 @@ public class CommandLineOptions implements Options {
       return ProxySettings.fromString(proxyVia);
     }
     return NO_PROXY;
+  }
+
+  @Override
+  public Stores getStores() {
+    return stores;
   }
 
   @Override

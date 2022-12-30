@@ -54,7 +54,7 @@ public class JettyHttpServerTest {
 
     adminRequestHandler =
         new AdminRequestHandler(
-            AdminRoutes.defaults(),
+            AdminRoutes.forClient(),
             admin,
             new BasicResponseRenderer(),
             new NoAuthenticator(),

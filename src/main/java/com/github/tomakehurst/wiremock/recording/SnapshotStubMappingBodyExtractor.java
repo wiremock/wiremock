@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public class SnapshotStubMappingBodyExtractor {
-  private final FileSource fileSource;
+  private final BlobStore filesBlobStore;
 
-  public SnapshotStubMappingBodyExtractor(FileSource fileSource) {
-    this.fileSource = fileSource;
+  public SnapshotStubMappingBodyExtractor(BlobStore filesBlobStore) {
+    this.filesBlobStore = filesBlobStore;
   }
 
   /**
@@ -59,6 +60,6 @@ public class SnapshotStubMappingBodyExtractor {
             .withBase64Body(null)
             .build());
 
-    fileSource.writeBinaryFile(bodyFileName, body);
+    filesBlobStore.put(bodyFileName, body);
   }
 }

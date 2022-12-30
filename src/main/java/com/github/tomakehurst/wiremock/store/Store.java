@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.store;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
+import java.util.stream.Stream;
 
-public class GlobalSettingsHolder {
+public interface Store<K, V> {
 
-  private AtomicReference<GlobalSettings> globalSettingsRef =
-      new AtomicReference<>(GlobalSettings.defaults());
+  Stream<K> getAllKeys();
 
-  public void replaceWith(GlobalSettings globalSettings) {
-    globalSettingsRef.set(globalSettings);
-  }
+  Optional<V> get(K key);
 
-  public GlobalSettings get() {
-    return globalSettingsRef.get();
-  }
+  void put(K key, V content);
+
+  void remove(K key);
+
+  void clear();
 }
