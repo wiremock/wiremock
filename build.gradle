@@ -201,10 +201,10 @@ allprojects {
     mavenCentral()
   }
 
-  version = '2.35.0'
+  version = '3.0.0-beta-1'
 
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
+  sourceCompatibility = 1.11
+  targetCompatibility = 1.11
 
   compileJava {
     options.encoding = 'UTF-8'
@@ -262,7 +262,7 @@ task testJar(type: Jar, dependsOn: testClasses) {
 final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
 
 jar {
-  archiveBaseName.set('wiremock-jre8')
+  archiveBaseName.set('wiremock')
   manifest {
     attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
     attributes("Add-Exports": "java.base/sun.security.x509")
@@ -274,7 +274,7 @@ shadowJar {
     project.configurations.runtimeClasspath,
     project.configurations.standaloneOnly
   ]
-  archiveBaseName.set('wiremock-jre8-standalone')
+  archiveBaseName.set('wiremock-standalone')
 
   relocate "org.mortbay", 'wiremock.org.mortbay'
   relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -461,6 +461,13 @@ task 'bump-minor-version' {
       }
     }
   }
+}
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs.addAll([
+    "--add-exports",
+    "java.base/sun.security.x509=ALL-UNNAMED"
+  ])
 }
 
 int getMajorVersion() {
