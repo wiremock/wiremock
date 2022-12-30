@@ -56,6 +56,11 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public void removeStubMapping(UUID id) {
+    admin.removeStubMapping(id);
+  }
+
+  @Override
   public ListStubMappingsResult listAllStubMappings() {
     return admin.listAllStubMappings();
   }

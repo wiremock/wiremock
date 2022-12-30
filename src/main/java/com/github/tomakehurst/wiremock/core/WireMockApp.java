@@ -177,7 +177,8 @@ public class WireMockApp implements StubServer, Admin {
                 globalSettingsHolder,
                 browserProxySettings.trustAllProxyTargets(),
                 browserProxySettings.trustedProxyTargets(),
-                options.getStubCorsEnabled()),
+                options.getStubCorsEnabled(),
+                options.getProxyTargetRules()),
             ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())),
         this,
         postServeActions,
@@ -260,6 +261,14 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     stubMappings.removeMapping(stubMapping);
+  }
+
+  @Override
+  public void removeStubMapping(UUID id) {
+    final Optional<StubMapping> maybeStub = stubMappings.get(id);
+    if (maybeStub.isPresent()) {
+      removeStubMapping(maybeStub.get());
+    }
   }
 
   @Override

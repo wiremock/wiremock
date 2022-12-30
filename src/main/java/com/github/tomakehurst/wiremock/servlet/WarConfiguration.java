@@ -220,6 +220,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    return NetworkAddressRules.ALLOW_ALL;
+  }
+
+  @Override
   public BrowserProxySettings browserProxySettings() {
     return BrowserProxySettings.DISABLED;
   }

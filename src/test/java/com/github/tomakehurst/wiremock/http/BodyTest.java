@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.is;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import org.apache.commons.codec.binary.Base64;
+import com.google.common.io.BaseEncoding;
 import org.junit.jupiter.api.Test;
 
 public class BodyTest {
@@ -58,7 +58,7 @@ public class BodyTest {
 
   @Test
   public void constructsFromBase64() {
-    byte[] base64Encoded = Base64.encodeBase64("this content".getBytes());
+    byte[] base64Encoded = BaseEncoding.base64().encode("this content".getBytes()).getBytes();
     String encodedText = stringFromBytes(base64Encoded);
     Body body = Body.fromOneOf(null, null, null, encodedText);
 
