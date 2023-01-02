@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
+import java.net.*;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +68,15 @@ public class ClasspathFileSourceTest {
     initForJar();
 
     BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("guava/pom.xml");
+
+    assertThat("Expected a non zero length file", binaryFile.readContents().length, greaterThan(0));
+  }
+
+  @Test
+  public void readsBinaryFileFromCustomClassLoader() throws MalformedURLException {
+    initForCustomClassLoader();
+
+    BinaryFile binaryFile = classpathFileSource.child("__files").getBinaryFileNamed("stuff.txt");
 
     assertThat("Expected a non zero length file", binaryFile.readContents().length, greaterThan(0));
   }
@@ -129,11 +140,17 @@ public class ClasspathFileSourceTest {
     classpathFileSource.createIfNecessary();
   }
 
-  void initForJar() {
+  private void initForJar() {
     classpathFileSource = new ClasspathFileSource("META-INF/maven/com.google.guava");
   }
 
   private void initForFileSystem() {
     classpathFileSource = new ClasspathFileSource("filesource");
+  }
+
+  private void initForCustomClassLoader() throws MalformedURLException {
+    URL[] urls = {new File("src/main/resources/classpath-filesource.jar").toURI().toURL()};
+    ClassLoader cl = new URLClassLoader(urls);
+    classpathFileSource = new ClasspathFileSource(cl, "jar-filesource");
   }
 }
