@@ -120,6 +120,7 @@ public class CommandLineOptions implements Options {
   private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
+  private static final String PROXY_TIMEOUT = "proxy-timeout";
 
   private final OptionSet optionSet;
 
@@ -355,6 +356,11 @@ public class CommandLineOptions implements Options {
         .accepts(
             DENY_PROXY_TARGETS,
             "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            PROXY_TIMEOUT,
+            "Timeout in milliseconds for requests to proxy")
         .withRequiredArg();
 
     optionParser.accepts(HELP, "Print this message").forHelp();
@@ -889,6 +895,13 @@ public class CommandLineOptions implements Options {
         .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  @Override
+  public int proxyTimeout() {
+    return optionSet.has(PROXY_TIMEOUT)
+        ? Integer.valueOf((String) optionSet.valueOf(PROXY_TIMEOUT))
+        : DEFAULT_TIMEOUT;
   }
 
   private Long getMaxTemplateCacheEntries() {

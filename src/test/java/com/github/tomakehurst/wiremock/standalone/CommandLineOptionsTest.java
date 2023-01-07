@@ -769,6 +769,24 @@ public class CommandLineOptionsTest {
     assertThat(proxyTargetRules.isAllowed("localhost"), is(false));
   }
 
+  @Test
+  void proxyTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--proxy-timeout", "5000");
+
+    int proxyTimeout = options.proxyTimeout();
+
+    assertThat(proxyTimeout, is(5000));
+  }
+
+  @Test
+  void defaultProxyTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    int proxyTimeout = options.proxyTimeout();
+
+    assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
+  }
+
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
     @Override
     public ResponseDefinition transform(

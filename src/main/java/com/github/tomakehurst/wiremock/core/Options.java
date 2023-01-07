@@ -116,4 +116,6 @@ public interface Options {
   DataTruncationSettings getDataTruncationSettings();
 
   NetworkAddressRules getProxyTargetRules();
+
+  int proxyTimeout();
 }

@@ -126,6 +126,8 @@ public class WireMockConfiguration implements Options {
 
   private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
 
+  private int proxyTimeout = DEFAULT_TIMEOUT;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
@@ -470,6 +472,11 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration proxyTimeout(int proxyTimeout) {
+    this.proxyTimeout = proxyTimeout;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -690,4 +697,10 @@ public class WireMockConfiguration implements Options {
   public NetworkAddressRules getProxyTargetRules() {
     return proxyTargetRules;
   }
+
+  @Override
+  public int proxyTimeout() {
+    return proxyTimeout;
+  }
+
 }

@@ -47,9 +47,6 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
-  private static final int MINUTES = 1000 * 60;
-  private static final int DEFAULT_SO_TIMEOUT = 5 * MINUTES;
-
   private static final String TRANSFER_ENCODING = "transfer-encoding";
   private static final String CONTENT_ENCODING = "content-encoding";
   private static final String CONTENT_LENGTH = "content-length";
@@ -77,12 +74,13 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       boolean trustAllProxyTargets,
       List<String> trustedProxyTargets,
       boolean stubCorsEnabled,
-      NetworkAddressRules targetAddressRules) {
+      NetworkAddressRules targetAddressRules,
+      int proxyTimeout) {
     this.settingsStore = settingsStore;
     reverseProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             true,
@@ -91,7 +89,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     forwardProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             trustAllProxyTargets,
