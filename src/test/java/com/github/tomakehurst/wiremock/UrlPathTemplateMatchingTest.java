@@ -19,28 +19,27 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
 
   @Test
   void matches_path_template_without_bound_variable() {
-    stubFor(get(urlPathTemplateMatching("/v1/contacts/{contactId}")).willReturn(ok()));
+    stubFor(get(urlPathTemplate("/v1/contacts/{contactId}")).willReturn(ok()));
 
     assertThat(testClient.get("/v1/contacts/12345").statusCode(), is(200));
     assertThat(testClient.get("/v1/contacts/23456").statusCode(), is(200));
   }
 
-  @Disabled("WIP")
   @Test
   void matches_path_template_with_single_bound_variable() {
     stubFor(
-        get(urlPathTemplateMatching("/v1/contacts/{contactId}"))
+        get(urlPathTemplate("/v1/contacts/{contactId}/addresses/{addressId}"))
             .withPathParam("contactId", equalTo("12345"))
+            .withPathParam("addressId", equalTo("99876"))
             .willReturn(ok()));
 
-    assertThat(testClient.get("/v1/contacts/12345").statusCode(), is(200));
-    assertThat(testClient.get("/v1/contacts/23456").statusCode(), is(404));
+    assertThat(testClient.get("/v1/contacts/12345/addresses/99876").statusCode(), is(200));
+    assertThat(testClient.get("/v1/contacts/23456/addresses/55555").statusCode(), is(404));
   }
 }

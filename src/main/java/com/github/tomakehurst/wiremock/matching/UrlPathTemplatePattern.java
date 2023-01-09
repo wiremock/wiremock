@@ -15,9 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
+
 public class UrlPathTemplatePattern extends UrlPathPattern {
 
   public UrlPathTemplatePattern(String expectedValue) {
     super(new PathTemplatePattern(expectedValue), false);
+  }
+
+  @Override
+  public PathTemplatePattern getPattern() {
+    return (PathTemplatePattern) super.getPattern();
+  }
+
+  public PathTemplate getPathTemplate() {
+    return getPattern().getPathTemplate();
   }
 }
