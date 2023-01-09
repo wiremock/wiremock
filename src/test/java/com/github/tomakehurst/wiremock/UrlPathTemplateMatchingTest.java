@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import org.junit.jupiter.api.Test;
 
 public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
@@ -46,5 +48,28 @@ public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
     assertThat(testClient.get("/v1/contacts/12345/addresses/55555").statusCode(), is(404));
     assertThat(testClient.get("/v1/contacts/23456/addresses/99876").statusCode(), is(404));
     assertThat(testClient.get("/v1/contacts/23456/addresses/55555").statusCode(), is(404));
+  }
+
+  @Test
+  void static_dsl_throws_error_when_attempting_to_use_path_param_matchers_without_path_template() {
+    assertThrows(
+        InvalidInputException.class,
+        () ->
+            stubFor(
+                get(urlPathEqualTo("/stuff"))
+                    .withPathParam("wrong", containing("things"))
+                    .willReturn(ok())));
+  }
+
+  @Test
+  void
+      instance_dsl_throws_error_when_attempting_to_use_path_param_matchers_without_path_template() {
+    assertThrows(
+        InvalidInputException.class,
+        () ->
+            wm.stubFor(
+                get(urlPathEqualTo("/stuff"))
+                    .withPathParam("wrong", containing("things"))
+                    .willReturn(ok())));
   }
 }

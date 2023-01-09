@@ -21,6 +21,8 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -217,6 +219,12 @@ public class RequestPatternBuilder {
   }
 
   public RequestPattern build() {
+    if (!(url instanceof UrlPathTemplatePattern) && !pathParams.isEmpty()) {
+      throw new InvalidInputException(
+          Errors.single(
+              19, "URL path parameters specified without a path template as the URL matcher"));
+    }
+
     return new RequestPattern(
         scheme,
         hostPattern,
