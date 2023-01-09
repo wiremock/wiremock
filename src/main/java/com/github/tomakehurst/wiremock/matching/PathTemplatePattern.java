@@ -32,6 +32,10 @@ public class PathTemplatePattern extends StringValuePattern {
     return expectedValue;
   }
 
+  public PathTemplate getPathTemplate() {
+    return pathTemplate;
+  }
+
   @Override
   public MatchResult match(String path) {
     return new MatchResult() {

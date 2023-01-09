@@ -456,7 +456,7 @@ public class WireMock {
     return new UrlPathPattern(matching(urlRegex), true);
   }
 
-  public static UrlPathPattern urlPathTemplateMatching(String pathTemplate) {
+  public static UrlPathPattern urlPathTemplate(String pathTemplate) {
     return new UrlPathTemplatePattern(pathTemplate);
   }
 

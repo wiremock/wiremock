@@ -46,7 +46,7 @@ public class UrlPattern implements NamedValueMatcher<String> {
     } else if (urlPathPattern != null) {
       return WireMock.urlPathMatching(urlPathPattern);
     } else if (urlPathTemplate != null) {
-      return WireMock.urlPathTemplateMatching(urlPathTemplate);
+      return WireMock.urlPathTemplate(urlPathTemplate);
     } else {
       return WireMock.anyUrl();
     }

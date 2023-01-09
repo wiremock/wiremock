@@ -19,10 +19,8 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -217,5 +215,15 @@ public class PathTemplateTest {
   void returnsPathTemplateWithVariablesStrippedOut() {
     PathTemplate pathTemplate = new PathTemplate("/one/{first}/two/{second}/three");
     assertThat(pathTemplate.withoutVariables(), is("/one//two//three"));
+  }
+
+  @Test
+  void indicatesWhetherAStringCouldBeAPathTemplate() {
+    assertTrue(PathTemplate.couldBePathTemplate("/things/{id}"));
+    assertTrue(PathTemplate.couldBePathTemplate("/things/**"));
+    assertTrue(PathTemplate.couldBePathTemplate("/things/{id}/stuff"));
+
+    assertFalse(PathTemplate.couldBePathTemplate("/things/in/path"));
+    assertFalse(PathTemplate.couldBePathTemplate("/thing"));
   }
 }

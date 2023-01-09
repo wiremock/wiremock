@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import java.util.ArrayList;
@@ -33,6 +32,10 @@ public class PathTemplate {
   private final String templateString;
   private final Parser parser;
   private final Renderer renderer;
+
+  public static boolean couldBePathTemplate(String value) {
+    return SPECIAL_SYMBOL_REGEX.matcher(value).find();
+  }
 
   public PathTemplate(String templateString) {
     this.templateString = templateString;
@@ -100,11 +103,11 @@ public class PathTemplate {
 
 class Parser {
   private final Pattern templatePattern;
-  private final List<String> templateVariables;
+  private final List<String> templateParameters;
 
-  Parser(Pattern templatePattern, List<String> templateVariables) {
+  Parser(Pattern templatePattern, List<String> templateParameters) {
     this.templatePattern = templatePattern;
-    this.templateVariables = templateVariables;
+    this.templateParameters = templateParameters;
   }
 
   boolean matches(String url) {
@@ -119,8 +122,8 @@ class Parser {
     }
 
     PathParams pathParams = new PathParams();
-    for (int i = 0; i < templateVariables.size(); i++) {
-      pathParams.put(templateVariables.get(i), matcher.group(i + 1));
+    for (int i = 0; i < templateParameters.size(); i++) {
+      pathParams.put(templateParameters.get(i), matcher.group(i + 1));
     }
 
     return pathParams;

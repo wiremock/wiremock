@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.admin;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 

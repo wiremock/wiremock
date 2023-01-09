@@ -23,6 +23,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,6 +31,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -102,6 +105,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                         weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
                         weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+                        weight(allPathParamsMatch(request)),
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
                         weight(allCookiesMatch(request)),
@@ -336,6 +340,22 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                     }
                   })
               .toList());
+    }
+
+    return MatchResult.exactMatch();
+  }
+
+  private MatchResult allPathParamsMatch(final Request request) {
+    if (url.getClass().equals(UrlPathTemplatePattern.class)
+        && pathParams != null
+        && !pathParams.isEmpty()) {
+      final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
+      final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
+      final PathParams requestPathParams = pathTemplate.parse(request.getUrl());
+      return MatchResult.aggregate(
+          pathParams.entrySet().stream()
+              .map(entry -> entry.getValue().match(requestPathParams.get(entry.getKey())))
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
