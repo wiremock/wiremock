@@ -42,7 +42,7 @@ public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     assertThat(testClient.get("/v1/contacts/12345/addresses/99876").statusCode(), is(200));
-    
+
     assertThat(testClient.get("/v1/contacts/12345/addresses/55555").statusCode(), is(404));
     assertThat(testClient.get("/v1/contacts/23456/addresses/99876").statusCode(), is(404));
     assertThat(testClient.get("/v1/contacts/23456/addresses/55555").statusCode(), is(404));

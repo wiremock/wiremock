@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -34,6 +35,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ServeEvent {
+
+  private static final InheritableThreadLocal<ServeEvent> currentEvent =
+      new InheritableThreadLocal<>();
 
   private final UUID id;
   private final LoggedRequest request;
@@ -59,7 +63,7 @@ public class ServeEvent {
     this.timing = new AtomicReference<>(timing);
   }
 
-  public ServeEvent(
+  protected ServeEvent(
       LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
     this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false, null);
   }
@@ -80,6 +84,14 @@ public class ServeEvent {
     return new ServeEvent(request, null, ResponseDefinition.notPermitted(errors));
   }
 
+  public static ServeEvent of(Request request) {
+    return new ServeEvent(LoggedRequest.createFrom(request), null, null);
+  }
+
+  public static ServeEvent of(Request request, StubMapping stubMapping) {
+    return new ServeEvent(LoggedRequest.createFrom(request), stubMapping, null);
+  }
+
   public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
     return new ServeEvent(request, null, responseDefinition);
   }
@@ -87,6 +99,19 @@ public class ServeEvent {
   public static ServeEvent of(
       LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
     return new ServeEvent(request, stubMapping, responseDefinition);
+  }
+
+  public static ServeEvent getCurrent() {
+    return currentEvent.get();
+  }
+
+  public static void setCurrent(ServeEvent serveEvent) {
+    currentEvent.set(serveEvent);
+  }
+
+  public ServeEvent withResponseDefinition(ResponseDefinition responseDefinition) {
+    return new ServeEvent(
+        id, request, stubMapping, responseDefinition, response, false, getTiming());
   }
 
   public ServeEvent complete(
@@ -107,7 +132,7 @@ public class ServeEvent {
 
   @JsonIgnore
   public boolean isNoExactMatch() {
-    return !responseDefinition.wasConfigured();
+    return responseDefinition == null || !responseDefinition.wasConfigured();
   }
 
   public UUID getId() {

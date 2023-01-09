@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
@@ -79,12 +78,17 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     scenarios.onStubServed(matchingMapping);
 
+    ServeEvent serveEvent = ServeEvent.of(request, matchingMapping);
+    ServeEvent.setCurrent(serveEvent);
+
     ResponseDefinition responseDefinition =
         applyTransformations(
             request, matchingMapping.getResponse(), ImmutableList.copyOf(transformers.values()));
 
-    return ServeEvent.of(
-        LoggedRequest.createFrom(request), copyOf(responseDefinition), matchingMapping);
+    serveEvent = serveEvent.withResponseDefinition(copyOf(responseDefinition));
+    ServeEvent.setCurrent(serveEvent);
+
+    return serveEvent;
   }
 
   private ResponseDefinition applyTransformations(
