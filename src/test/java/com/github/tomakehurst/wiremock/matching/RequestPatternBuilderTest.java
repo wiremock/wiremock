@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ public class RequestPatternBuilderTest {
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
             ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            ImmutableMap.of("path_param", WireMock.equalTo("1234")),
             ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
             ImmutableMap.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
@@ -117,6 +118,7 @@ public class RequestPatternBuilderTest {
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
             ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            ImmutableMap.of("path_param", WireMock.equalTo("12345")),
             ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
             ImmutableMap.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),

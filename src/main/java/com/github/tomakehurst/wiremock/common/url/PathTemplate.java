@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AdminUriTemplate {
+public class PathTemplate {
   static final Pattern SPECIAL_SYMBOL_REGEX =
       Pattern.compile("(?:\\{(?<variable>[^}]+)\\})|(?<wildcard>\\*\\*)");
 
@@ -34,7 +34,7 @@ public class AdminUriTemplate {
   private final Parser parser;
   private final Renderer renderer;
 
-  public AdminUriTemplate(String templateString) {
+  public PathTemplate(String templateString) {
     this.templateString = templateString;
 
     Matcher matcher = SPECIAL_SYMBOL_REGEX.matcher(templateString);
@@ -80,11 +80,15 @@ public class AdminUriTemplate {
     return renderer.render(pathParams);
   }
 
+  public String withoutVariables() {
+    return templateString.replaceAll(SPECIAL_SYMBOL_REGEX.pattern(), "");
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    AdminUriTemplate that = (AdminUriTemplate) o;
+    PathTemplate that = (PathTemplate) o;
     return Objects.equal(templateString, that.templateString);
   }
 

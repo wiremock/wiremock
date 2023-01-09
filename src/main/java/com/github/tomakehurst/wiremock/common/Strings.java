@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.google.common.base.Charsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.getLevenshteinDistance;
 
 import java.nio.charset.Charset;
 import org.apache.commons.lang3.text.WordUtils;
@@ -68,5 +69,15 @@ public class Strings {
     }
 
     return longestLength;
+  }
+
+  public static double normalisedLevenshteinDistance(String one, String two) {
+    if (one == null || two == null) {
+      return 1.0;
+    }
+
+    double maxDistance = Math.max(one.length(), two.length());
+    double actualDistance = getLevenshteinDistance(one, two);
+    return (actualDistance / maxDistance);
   }
 }

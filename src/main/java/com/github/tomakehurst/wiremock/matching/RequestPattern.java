@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final UrlPattern url;
   private final RequestMethod method;
   private final Map<String, MultiValuePattern> headers;
+
+  private final Map<String, StringValuePattern> pathParams;
   private final Map<String, MultiValuePattern> queryParams;
   private final Map<String, StringValuePattern> cookies;
   private final BasicCredentials basicAuthCredentials;
@@ -65,6 +67,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final UrlPattern url,
       final RequestMethod method,
       final Map<String, MultiValuePattern> headers,
+      final Map<String, StringValuePattern> pathParams,
       final Map<String, MultiValuePattern> queryParams,
       final Map<String, StringValuePattern> cookies,
       final BasicCredentials basicAuthCredentials,
@@ -78,6 +81,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.url = firstNonNull(url, UrlPattern.ANY);
     this.method = firstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
+    this.pathParams = pathParams;
     this.queryParams = queryParams;
     this.cookies = cookies;
     this.basicAuthCredentials = basicAuthCredentials;
@@ -127,8 +131,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("urlPattern") String urlPattern,
       @JsonProperty("urlPath") String urlPath,
       @JsonProperty("urlPathPattern") String urlPathPattern,
+      @JsonProperty("urlPathTemplate") String urlPathTemplate,
       @JsonProperty("method") RequestMethod method,
       @JsonProperty("headers") Map<String, MultiValuePattern> headers,
+      @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
       @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
       @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
       @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
@@ -140,9 +146,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         scheme,
         host,
         port,
-        UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
+        UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
         method,
         headers,
+        pathParams,
         queryParams,
         cookies,
         basicAuthCredentials,
@@ -166,6 +173,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           null,
           null,
+          null,
           null);
 
   public RequestPattern(ValueMatcher<Request> customMatcher) {
@@ -175,6 +183,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         UrlPattern.ANY,
         RequestMethod.ANY,
+        null,
         null,
         null,
         null,
@@ -192,6 +201,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         UrlPattern.ANY,
         RequestMethod.ANY,
+        null,
         null,
         null,
         null,
@@ -409,6 +419,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return urlPatternOrNull(UrlPathPattern.class, true);
   }
 
+  public String getUrlPathTemplate() {
+    return urlPatternOrNull(UrlPathTemplatePattern.class, false);
+  }
+
   @JsonIgnore
   public UrlPattern getUrlMatcher() {
     return url;
@@ -433,6 +447,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public BasicCredentials getBasicAuthCredentials() {
     return basicAuthCredentials;
+  }
+
+  public Map<String, StringValuePattern> getPathParameters() {
+    return pathParams;
   }
 
   public Map<String, MultiValuePattern> getQueryParameters() {

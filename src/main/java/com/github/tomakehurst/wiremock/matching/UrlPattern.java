@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,11 @@ public class UrlPattern implements NamedValueMatcher<String> {
   }
 
   public static UrlPattern fromOneOf(
-      String url, String urlPattern, String urlPath, String urlPathPattern) {
+      String url,
+      String urlPattern,
+      String urlPath,
+      String urlPathPattern,
+      String urlPathTemplate) {
     if (url != null) {
       return WireMock.urlEqualTo(url);
     } else if (urlPattern != null) {
@@ -41,6 +45,8 @@ public class UrlPattern implements NamedValueMatcher<String> {
       return WireMock.urlPathEqualTo(urlPath);
     } else if (urlPathPattern != null) {
       return WireMock.urlPathMatching(urlPathPattern);
+    } else if (urlPathTemplate != null) {
+      return WireMock.urlPathTemplateMatching(urlPathTemplate);
     } else {
       return WireMock.anyUrl();
     }
