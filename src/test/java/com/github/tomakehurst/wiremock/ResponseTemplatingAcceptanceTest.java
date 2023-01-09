@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -257,6 +257,19 @@ public class ResponseTemplatingAcceptanceTest {
 
       assertThat(client.get("/squares?filter[id]=321").content(), is("ID: 321"));
       assertThat(client.get("/squares?filter%5Bid%5D=321").content(), is("ID: 321"));
+    }
+
+    @Test
+    void canReadPathParametersFromModelWhenStubUsesPathTemplate() {
+      wm.stubFor(
+          get(urlPathTemplate("/v1/contacts/{contactId}/addresses/{addressId}"))
+              .willReturn(
+                  ok(
+                      "contactId: {{request.path.contactId}}, addressId: {{request.path.addressId}}")));
+
+      String content = client.get("/v1/contacts/12345/addresses/67890").content();
+
+      assertThat(content, is("contactId: 12345, addressId: 67890"));
     }
   }
 

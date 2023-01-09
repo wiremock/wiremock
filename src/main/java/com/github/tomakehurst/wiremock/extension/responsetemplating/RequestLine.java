@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.Urls;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -36,22 +37,26 @@ public class RequestLine {
   private final Map<String, ListOrSingle<String>> query;
   private final String url;
 
+  private final PathTemplate pathTemplate;
+
   private RequestLine(
       RequestMethod method,
       String scheme,
       String host,
       int port,
       String url,
-      Map<String, ListOrSingle<String>> query) {
+      Map<String, ListOrSingle<String>> query,
+      PathTemplate pathTemplate) {
     this.method = method;
     this.scheme = scheme;
     this.host = host;
     this.port = port;
     this.url = url;
     this.query = query;
+    this.pathTemplate = pathTemplate;
   }
 
-  public static RequestLine fromRequest(final Request request) {
+  public static RequestLine fromRequest(final Request request, final PathTemplate pathTemplate) {
     URI url = URI.create(request.getUrl());
     Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
     Map<String, ListOrSingle<String>> adaptedQuery =
@@ -62,15 +67,16 @@ public class RequestLine {
         request.getHost(),
         request.getPort(),
         request.getUrl(),
-        adaptedQuery);
+        adaptedQuery,
+        pathTemplate);
   }
 
   public RequestMethod getMethod() {
     return method;
   }
 
-  public UrlPath getPathSegments() {
-    return new UrlPath(url);
+  public Object getPathSegments() {
+    return pathTemplate == null ? new UrlPath(url) : new TemplatedUrlPath(url, pathTemplate);
   }
 
   public String getPath() {

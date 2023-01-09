@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.google.common.base.Objects;
 
 public class UrlPattern implements NamedValueMatcher<String> {
@@ -69,6 +70,10 @@ public class UrlPattern implements NamedValueMatcher<String> {
   @JsonValue
   public StringValuePattern getPattern() {
     return pattern;
+  }
+
+  public PathTemplate getPathTemplate() {
+    return null;
   }
 
   @Override
