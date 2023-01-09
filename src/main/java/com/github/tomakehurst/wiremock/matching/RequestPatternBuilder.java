@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ public class RequestPatternBuilder {
   private RequestMethod method = RequestMethod.ANY;
   private Map<String, MultiValuePattern> headers = newLinkedHashMap();
   private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
+
+  private Map<String, StringValuePattern> pathParams = newLinkedHashMap();
   private List<ContentPattern<?>> bodyPatterns = newArrayList();
   private Map<String, StringValuePattern> cookies = newLinkedHashMap();
   private BasicCredentials basicCredentials;
@@ -98,6 +100,9 @@ public class RequestPatternBuilder {
     if (requestPattern.getHeaders() != null) {
       builder.headers = requestPattern.getHeaders();
     }
+    if (requestPattern.getPathParameters() != null) {
+      builder.pathParams = requestPattern.getPathParameters();
+    }
     if (requestPattern.getQueryParameters() != null) {
       builder.queryParams = requestPattern.getQueryParameters();
     }
@@ -149,6 +154,11 @@ public class RequestPatternBuilder {
 
   public RequestPatternBuilder withoutHeader(String key) {
     headers.put(key, MultiValuePattern.absent());
+    return this;
+  }
+
+  public RequestPatternBuilder withPathParam(String key, StringValuePattern valuePattern) {
+    pathParams.put(key, valuePattern);
     return this;
   }
 
@@ -214,6 +224,7 @@ public class RequestPatternBuilder {
         url,
         method,
         headers.isEmpty() ? null : headers,
+        pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,
         cookies.isEmpty() ? null : cookies,
         basicCredentials,

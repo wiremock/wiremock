@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROO
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -75,7 +75,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     try {
       AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);
 
-      AdminUriTemplate uriTemplate =
+      PathTemplate uriTemplate =
           adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
       PathParams pathParams = uriTemplate.parse(path);
 
