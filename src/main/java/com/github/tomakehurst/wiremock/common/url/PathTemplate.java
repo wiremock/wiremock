@@ -51,8 +51,9 @@ public class PathTemplate {
 
       String variable = matcher.group("variable");
       if (variable != null) {
-        parserBuilder.addVariable(variable);
-        rendererBuilder.addVariable(variable);
+        String variableName = stripFormatCharacters(variable);
+        parserBuilder.addVariable(variableName);
+        rendererBuilder.addVariable(variableName);
       }
 
       String wildcard = matcher.group("wildcard");
@@ -85,6 +86,13 @@ public class PathTemplate {
 
   public String withoutVariables() {
     return templateString.replaceAll(SPECIAL_SYMBOL_REGEX.pattern(), "");
+  }
+
+  private static String stripFormatCharacters(String parameter) {
+    return parameter
+            .replace(".", "")
+            .replace(";", "")
+            .replace("*", "");
   }
 
   @Override

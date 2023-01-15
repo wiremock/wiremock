@@ -226,4 +226,26 @@ public class PathTemplateTest {
     assertFalse(PathTemplate.couldBePathTemplate("/things/in/path"));
     assertFalse(PathTemplate.couldBePathTemplate("/thing"));
   }
+
+  @Test
+  void correctlyStripsFormatCharactersFromKeysWhenParsing() {
+    PathTemplate pathTemplate = new PathTemplate("/one/{.first}/two/{;second*}");
+    PathParams pathParams = pathTemplate.parse("/one/.3,4,5/two/;second=1;second=2");
+
+    assertThat(pathParams.get("first"), is(".3,4,5"));
+    assertThat(pathParams.get("second"), is(";second=1;second=2"));
+  }
+
+  @Test
+  void correctlyStripsFormatCharactersFromKeysWhenRendering() {
+    PathTemplate pathTemplate = new PathTemplate("/one/{.first}/two/{;second*}");
+
+    PathParams pathParams = new PathParams()
+            .add("first", ".3,4,5")
+            .add("second", ";second=1;second=2");
+
+    String renderedUrl = pathTemplate.render(pathParams);
+
+    assertThat(renderedUrl, is("/one/.3,4,5/two/;second=1;second=2"));
+  }
 }
