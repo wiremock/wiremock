@@ -109,6 +109,10 @@ public class ServeEvent {
     currentEvent.set(serveEvent);
   }
 
+  public static void clearCurrent() {
+    currentEvent.remove();
+  }
+
   public ServeEvent withResponseDefinition(ResponseDefinition responseDefinition) {
     return new ServeEvent(
         id, request, stubMapping, responseDefinition, response, false, getTiming());
