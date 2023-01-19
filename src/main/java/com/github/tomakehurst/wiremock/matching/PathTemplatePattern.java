@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
@@ -32,6 +33,7 @@ public class PathTemplatePattern extends StringValuePattern {
     return expectedValue;
   }
 
+  @JsonIgnore
   public PathTemplate getPathTemplate() {
     return pathTemplate;
   }

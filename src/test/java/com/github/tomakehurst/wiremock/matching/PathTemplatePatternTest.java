@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
 public class PathTemplatePatternTest {
@@ -47,5 +48,26 @@ public class PathTemplatePatternTest {
 
     assertThat(matchResult.isExactMatch(), is(false));
     assertThat(matchResult.getDistance(), closeTo(0.9, 0.05));
+  }
+
+  @Test
+  void serialises_correctly() {
+    PathTemplatePattern pattern = new PathTemplatePattern("/one/{first}/two/{second}");
+
+    String json = Json.write(pattern);
+
+    assertThat(json, jsonEquals("{\n" +
+            "  \"matchesPathTemplate\": \"/one/{first}/two/{second}\"\n" +
+            "}"));
+  }
+
+  @Test
+  void deserialises_correcltly() {
+    StringValuePattern pattern = Json.read("{\n" +
+            "  \"matchesPathTemplate\": \"/one/{first}/two/{second}\"\n" +
+            "}", StringValuePattern.class);
+
+    assertThat(pattern, instanceOf(PathTemplatePattern.class));
+    assertThat(((PathTemplatePattern) pattern).getPathTemplate().toString(), is("/one/{first}/two/{second}"));
   }
 }
