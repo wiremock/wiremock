@@ -89,10 +89,7 @@ public class PathTemplate {
   }
 
   private static String stripFormatCharacters(String parameter) {
-    return parameter
-            .replace(".", "")
-            .replace(";", "")
-            .replace("*", "");
+    return parameter.replace(".", "").replace(";", "").replace("*", "");
   }
 
   @Override

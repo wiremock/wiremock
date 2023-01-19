@@ -240,9 +240,8 @@ public class PathTemplateTest {
   void correctlyStripsFormatCharactersFromKeysWhenRendering() {
     PathTemplate pathTemplate = new PathTemplate("/one/{.first}/two/{;second*}");
 
-    PathParams pathParams = new PathParams()
-            .add("first", ".3,4,5")
-            .add("second", ";second=1;second=2");
+    PathParams pathParams =
+        new PathParams().add("first", ".3,4,5").add("second", ";second=1;second=2");
 
     String renderedUrl = pathTemplate.render(pathParams);
 
