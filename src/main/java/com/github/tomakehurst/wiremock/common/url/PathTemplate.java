@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +91,11 @@ public class PathTemplate {
 
   private static String stripFormatCharacters(String parameter) {
     return parameter.replace(".", "").replace(";", "").replace("*", "");
+  }
+
+  @Override
+  public String toString() {
+    return templateString;
   }
 
   @Override
