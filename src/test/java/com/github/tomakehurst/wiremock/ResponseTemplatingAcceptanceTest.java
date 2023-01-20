@@ -271,6 +271,39 @@ public class ResponseTemplatingAcceptanceTest {
 
       assertThat(content, is("contactId: 12345, addressId: 67890"));
     }
+
+    @Test
+    void canReadPathSegmentsByIndexWhenStubUsesPathTemplate() {
+      wm.stubFor(
+          get(urlPathTemplate("/v1/contacts/{contactId}/addresses/{addressId}"))
+              .willReturn(ok("1: {{request.path.1}}, 2: {{request.path.2}}")));
+
+      String content = client.get("/v1/contacts/12345/addresses/67890").content();
+
+      assertThat(content, is("1: contacts, 2: 12345"));
+    }
+
+    @Test
+    void canReadNumericPathVariableValuesWhenUsingPathTemnplate() {
+      wm.stubFor(
+          get(urlPathTemplate("/v1/first/{0}/second/{1}"))
+              .willReturn(ok("1: {{request.path.0}}, 2: {{request.path.1}}")));
+
+      String content = client.get("/v1/first/first1/second/second2").content();
+
+      assertThat(content, is("1: first1, 2: second2"));
+    }
+
+    @Test
+    void canLoopOverPathSegmentsWhenUsingPathTemplate() {
+      wm.stubFor(
+          get(urlPathTemplate("/v1/first/{0}/second/{1}"))
+              .willReturn(ok("{{#each request.path as |segment|}}{{segment}} {{/each}}")));
+
+      String content = client.get("/v1/first/first1/second/second2").content();
+
+      assertThat(content, is(" v1 first first1 second second2 "));
+    }
   }
 
   @Nested
