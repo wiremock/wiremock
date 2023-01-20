@@ -56,18 +56,21 @@ public class PathTemplatePatternTest {
 
     String json = Json.write(pattern);
 
-    assertThat(json, jsonEquals("{\n" +
-            "  \"matchesPathTemplate\": \"/one/{first}/two/{second}\"\n" +
-            "}"));
+    assertThat(
+        json,
+        jsonEquals("{\n" + "  \"matchesPathTemplate\": \"/one/{first}/two/{second}\"\n" + "}"));
   }
 
   @Test
   void deserialises_correcltly() {
-    StringValuePattern pattern = Json.read("{\n" +
-            "  \"matchesPathTemplate\": \"/one/{first}/two/{second}\"\n" +
-            "}", StringValuePattern.class);
+    StringValuePattern pattern =
+        Json.read(
+            "{\n" + "  \"matchesPathTemplate\": \"/one/{first}/two/{second}\"\n" + "}",
+            StringValuePattern.class);
 
     assertThat(pattern, instanceOf(PathTemplatePattern.class));
-    assertThat(((PathTemplatePattern) pattern).getPathTemplate().toString(), is("/one/{first}/two/{second}"));
+    assertThat(
+        ((PathTemplatePattern) pattern).getPathTemplate().toString(),
+        is("/one/{first}/two/{second}"));
   }
 }
