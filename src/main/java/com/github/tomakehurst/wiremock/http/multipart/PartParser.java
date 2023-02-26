@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import static com.github.tomakehurst.wiremock.http.multipart.FileItemPartAdapter
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.collect.Lists;
+import com.github.tomakehurst.wiremock.http.Request.Part;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -37,7 +37,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 public class PartParser {
 
   @SuppressWarnings("unchecked")
-  public static Collection<Request.Part> parseFrom(Request request) {
+  public static Collection<Part> parseFrom(Request request) {
     FileItemFactory fileItemFactory =
         new DiskFileItemFactory(Integer.MAX_VALUE, new File(System.getProperty("java.io.tmpdir")));
 
@@ -52,7 +52,7 @@ public class PartParser {
 
     try {
       List<FileItem> items = upload.parseRequest(uploadContext);
-      return Lists.transform(items, TO_PARTS);
+      return items.stream().map(TO_PARTS).collect(Collectors.toList());
     } catch (FileUploadException e) {
       return throwUnchecked(e, Collection.class);
     }
@@ -96,7 +96,7 @@ public class PartParser {
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public InputStream getInputStream() {
       return new ByteArrayInputStream(content);
     }
   }

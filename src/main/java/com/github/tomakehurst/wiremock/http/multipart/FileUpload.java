@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.apache.commons.fileupload.FileUploadBase.IOFileUploadException;
 import org.apache.commons.fileupload.FileUploadBase.InvalidContentTypeException;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.InvalidFileNameException;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.ParameterParser;
 import org.apache.commons.fileupload.RequestContext;
@@ -52,7 +53,7 @@ import org.apache.commons.io.IOUtils;
 /**
  * The implementation is largely ported from {@link org.apache.commons.fileupload.FileUpload} and
  * {@link org.apache.commons.fileupload.FileUploadBase} to support 'jakarta.servlet' instead of
- * 'javax.servlet'. The standard support of multipart content type by Jetty in limited to
+ * 'javax.servlet'. The standard support of multipart content type by Jetty is limited to
  * 'multipart/form-data', so 'multipart/mixed' and 'multipart/related' are not recognized and parsed
  * properly. To preserve backward compatibility and support wider range of multipart content,
  * re-implementing this part of the upload.
@@ -68,13 +69,13 @@ class FileUpload {
    * The maximum size permitted for the complete request, as opposed to {@link #fileSizeMax}. A
    * value of -1 indicates no maximum.
    */
-  private long sizeMax = -1;
+  private final long sizeMax = -1;
 
   /**
    * The maximum size permitted for a single uploaded file, as opposed to {@link #sizeMax}. A value
    * of -1 indicates no maximum.
    */
-  private long fileSizeMax = -1;
+  private final long fileSizeMax = -1;
 
   /** The content encoding to use when reading part headers. */
   private String headerEncoding;
@@ -103,7 +104,7 @@ class FileUpload {
    * @throws FileUploadException if there are problems reading/parsing the request or storing files.
    */
   public List<FileItem> parseRequest(RequestContext ctx) throws FileUploadException {
-    List<FileItem> items = new ArrayList<FileItem>();
+    List<FileItem> items = new ArrayList<>();
     boolean successful = false;
     try {
       FileItemIterator iter = getItemIterator(ctx);
@@ -394,7 +395,7 @@ class FileUpload {
                 new FileSizeLimitExceededException(
                     format(
                         "The field %s exceeds its maximum permitted size of %s bytes.",
-                        fieldName, Long.valueOf(fileSizeMax)),
+                        fieldName, fileSizeMax),
                     pContentLength,
                     fileSizeMax);
             e.setFileName(pName);
@@ -419,7 +420,7 @@ class FileUpload {
                       new FileSizeLimitExceededException(
                           format(
                               "The field %s exceeds its maximum permitted size of %s bytes.",
-                              fieldName, Long.valueOf(pSizeMax)),
+                              fieldName, pSizeMax),
                           pCount,
                           pSizeMax);
                   e.setFieldName(fieldName);
@@ -456,7 +457,7 @@ class FileUpload {
        *
        * @return File name, if known, or null.
        * @throws InvalidFileNameException The file name contains a NUL character, which might be an
-       *     indicator of a security attack. If you intend to use the file name anyways, catch the
+       *     indicator of a security attack. If you intend to use the file name anyway, catch the
        *     exception and use InvalidFileNameException#getName().
        */
       @Override
@@ -521,7 +522,7 @@ class FileUpload {
       }
     }
 
-    /** The multi part stream to process. */
+    /** The multipart stream to process. */
     private final MultipartStream multi;
 
     /** The boundary, which separates the various parts. */
@@ -579,7 +580,7 @@ class FileUpload {
           throw new SizeLimitExceededException(
               format(
                   "the request was rejected because its size (%s) exceeds the configured maximum (%s)",
-                  Long.valueOf(requestSize), Long.valueOf(sizeMax)),
+                  requestSize, sizeMax),
               requestSize,
               sizeMax);
         }
@@ -592,7 +593,7 @@ class FileUpload {
                     new SizeLimitExceededException(
                         format(
                             "the request was rejected because its size (%s) exceeds the configured maximum (%s)",
-                            Long.valueOf(pCount), Long.valueOf(pSizeMax)),
+                            pCount, pSizeMax),
                         pCount,
                         pSizeMax);
                 throw new FileUploadIOException(ex);
@@ -632,7 +633,7 @@ class FileUpload {
     /**
      * Called for finding the next item, if any.
      *
-     * @return True, if an next item was found, otherwise false.
+     * @return True, if a next item was found, otherwise false.
      * @throws IOException An I/O error occurred.
      */
     private boolean findNextItem() throws IOException {

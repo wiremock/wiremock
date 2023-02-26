@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,16 @@ package com.github.tomakehurst.wiremock.http.multipart;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Function;
+import com.github.tomakehurst.wiremock.http.Request.Part;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.function.Function;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemHeaders;
 
-public class FileItemPartAdapter implements Request.Part {
+public class FileItemPartAdapter implements Part {
 
   private final FileItem fileItem;
 
@@ -49,7 +50,7 @@ public class FileItemPartAdapter implements Request.Part {
   public HttpHeaders getHeaders() {
     FileItemHeaders headers = fileItem.getHeaders();
     Iterator<String> i = headers.getHeaderNames();
-    ImmutableList.Builder<HttpHeader> builder = ImmutableList.builder();
+    Builder<HttpHeader> builder = ImmutableList.builder();
     while (i.hasNext()) {
       String name = i.next();
       builder.add(getHeader(name));
@@ -63,11 +64,5 @@ public class FileItemPartAdapter implements Request.Part {
     return new Body(fileItem.get());
   }
 
-  public static final Function<FileItem, Request.Part> TO_PARTS =
-      new Function<FileItem, Request.Part>() {
-        @Override
-        public Request.Part apply(FileItem fileItem) {
-          return new FileItemPartAdapter(fileItem);
-        }
-      };
+  public static final Function<FileItem, Part> TO_PARTS = FileItemPartAdapter::new;
 }
