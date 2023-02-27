@@ -409,6 +409,34 @@ task localRelease {
   dependsOn clean, assemble, publishToMavenLocal
 }
 
+task 'bump-beta-version' {
+  doLast {
+    def filesWithVersion = [
+        'build.gradle'                                      : { "version = '${it}" },
+        'ui/package.json'                                   : { "version: ${it}" },
+        'ui/package-lock.json'                              : { "version: ${it}" },
+        'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
+        'src/main/resources/swagger/wiremock-admin-api.yaml': {
+          "version: ${it}" }
+    ]
+
+    def currentVersion = project.version
+    def nextVersion = "3.0.0-beta-${betaVersion + 1}"
+
+    filesWithVersion.each { fileName, lineWithVersionTemplates ->
+      def file = file(fileName)
+      def lineWithVersionTemplateList = [lineWithVersionTemplates].flatten()
+
+      lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+        def oldLine = lineWithVersionTemplate.call(currentVersion)
+        def newLine = lineWithVersionTemplate.call(nextVersion)
+        println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+        file.text = file.text.replace(oldLine, newLine)
+      }
+    }
+  }
+}
+
 task 'bump-patch-version' {
   doLast {
     def filesWithVersion = [
@@ -482,6 +510,10 @@ int getMinorVersion() {
 
 int getPatchVersion() {
   Integer.valueOf(project.version.substring(project.version.lastIndexOf('.') + 1))
+}
+
+int getBetaVersion() {
+  Integer.valueOf(project.version.substring(project.version.lastIndexOf('-') + 1))
 }
 
 wrapper {
