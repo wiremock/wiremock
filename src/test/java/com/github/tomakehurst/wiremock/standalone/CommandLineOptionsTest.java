@@ -22,12 +22,30 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMu
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -669,11 +687,11 @@ public class CommandLineOptionsTest {
   public void toStringWithTrustProxyTarget() {
     String options =
         new CommandLineOptions(
-                "--enable-browser-proxying",
-                "--trust-proxy-target",
-                "localhost",
-                "--trust-proxy-target",
-                "example.com")
+            "--enable-browser-proxying",
+            "--trust-proxy-target",
+            "localhost",
+            "--trust-proxy-target",
+            "example.com")
             .toString();
     assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
     assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));
@@ -769,7 +787,26 @@ public class CommandLineOptionsTest {
     assertThat(proxyTargetRules.isAllowed("localhost"), is(false));
   }
 
+  @Test
+  void testProxyPassThroughOptionPassedAsFalse() {
+    CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");
+    assertFalse(options.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
+
+  @Test
+  void testProxyPassThroughOptionPassedAsTrue() {
+    CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "true");
+    assertTrue(options.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
+
+  @Test
+  void testProxyPassThroughOptionDefaultToTrue() {
+    CommandLineOptions options = new CommandLineOptions();
+    assertTrue(options.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
+
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
+
     @Override
     public ResponseDefinition transform(
         Request request,
@@ -786,6 +823,7 @@ public class CommandLineOptionsTest {
   }
 
   public static class ResponseDefinitionTransformerExt2 extends ResponseDefinitionTransformer {
+
     @Override
     public ResponseDefinition transform(
         Request request,

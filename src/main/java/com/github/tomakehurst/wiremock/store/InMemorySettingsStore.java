@@ -20,7 +20,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class InMemorySettingsStore implements SettingsStore {
 
-  private AtomicReference<GlobalSettings> holder = new AtomicReference<>(GlobalSettings.defaults());
+  private final AtomicReference<GlobalSettings> holder;
+
+
+  public InMemorySettingsStore(final Boolean proxyPassThrough) {
+    holder = new AtomicReference<>(
+        GlobalSettings.builder().proxyPassThrough(proxyPassThrough).build());
+  }
+
+  public InMemorySettingsStore() {
+    this(true);
+  }
 
   @Override
   public GlobalSettings get() {

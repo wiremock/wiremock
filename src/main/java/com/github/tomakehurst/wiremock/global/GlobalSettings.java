@@ -32,10 +32,6 @@ public class GlobalSettings {
     return new Builder();
   }
 
-  public static GlobalSettings defaults() {
-    return new Builder().proxyPassThrough(Boolean.TRUE).build();
-  }
-
   public GlobalSettings(
       @JsonProperty("fixedDelay") Integer fixedDelay,
       @JsonProperty("delayDistribution") DelayDistribution delayDistribution,

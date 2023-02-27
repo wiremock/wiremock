@@ -37,6 +37,14 @@ public class DefaultStores implements Stores {
     this.scenariosStore = new InMemoryScenariosStore();
   }
 
+  public DefaultStores(FileSource fileRoot, Boolean proxyPassThrough) {
+    this.fileRoot = fileRoot;
+    this.stubMappingStore = new InMemoryStubMappingStore();
+    this.requestJournalStore = new InMemoryRequestJournalStore();
+    this.settingsStore = new InMemorySettingsStore(proxyPassThrough);
+    this.scenariosStore = new InMemoryScenariosStore();
+  }
+
   @Override
   public StubMappingStore getStubStore() {
     return stubMappingStore;
@@ -68,8 +76,10 @@ public class DefaultStores implements Stores {
   }
 
   @Override
-  public void start() {}
+  public void start() {
+  }
 
   @Override
-  public void stop() {}
+  public void stop() {
+  }
 }
