@@ -25,7 +25,19 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -122,6 +134,8 @@ public class WireMockConfiguration implements Options {
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
 
+  private Boolean proxyPassThrough;
+
   private Limit responseBodySizeLimit = UNLIMITED;
 
   private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
@@ -140,6 +154,11 @@ public class WireMockConfiguration implements Options {
 
   public static WireMockConfiguration options() {
     return wireMockConfig();
+  }
+
+  public WireMockConfiguration proxyPassThrough(Boolean proxyPassThrough) {
+    this.proxyPassThrough = proxyPassThrough;
+    return this;
   }
 
   public WireMockConfiguration timeout(int timeout) {
@@ -526,7 +545,8 @@ public class WireMockConfiguration implements Options {
   @Override
   public Stores getStores() {
     if (stores == null) {
-      stores = new DefaultStores(filesRoot);
+      stores = proxyPassThrough != null
+          ? new DefaultStores(filesRoot, proxyPassThrough) : new DefaultStores(filesRoot);
     }
 
     return stores;

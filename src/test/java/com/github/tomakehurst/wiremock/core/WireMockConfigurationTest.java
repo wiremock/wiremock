@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.common.base.Optional;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -71,5 +72,12 @@ public class WireMockConfigurationTest {
             wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
 
     assertThat(threadPool.getMaxThreads(), is(maxThreads));
+  }
+
+  @Test
+  public void testProxyPassThroughSetAsFalse() {
+    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig()
+        .proxyPassThrough(false);
+    assertFalse(wireMockConfiguration.getStores().getSettingsStore().get().getProxyPassThrough());
   }
 }
