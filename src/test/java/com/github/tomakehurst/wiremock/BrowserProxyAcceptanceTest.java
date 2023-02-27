@@ -15,12 +15,18 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -68,6 +74,46 @@ class BrowserProxyAcceptanceTest {
     assertThat(
         testClient.getViaProxy(target.url("/search?q=things&limit=10"), proxy.port()).statusCode(),
         is(200));
+  }
+
+  @Test
+  public void returnNotConfiguredResponseOnPassThroughDisabled() {
+    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+
+    GlobalSettings newSettings = target.getGlobalSettings().getSettings().copy()
+        .proxyPassThrough(false).build();
+    target.updateGlobalSettings(newSettings);
+
+    assertThat(
+        testClient.getViaProxy(target.url("/something"), proxy.port()).statusCode(),
+        is(404));
+  }
+
+  @Test
+  public void returnStubbedResponseOnPassThroughDisabled() {
+    target.stubFor(
+        get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it").withStatus(200)));
+
+    GlobalSettings newSettings = target.getGlobalSettings().getSettings().copy()
+        .proxyPassThrough(false).build();
+    target.updateGlobalSettings(newSettings);
+
+    WireMockResponse wireMockResponse = testClient.getViaProxy(target.url("/whatever"),
+        proxy.port());
+    assertThat(wireMockResponse.statusCode(), is(200));
+    assertThat(wireMockResponse.content(), is("Got it"));
+  }
+
+  @Test
+  public void returnStubbedResponseOnPassThroughEnabled() {
+    //by default, passProxyThrough is true/enabled
+    target.stubFor(
+        get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it").withStatus(200)));
+
+    WireMockResponse wireMockResponse = testClient.getViaProxy(target.url("/whatever"),
+        proxy.port());
+    assertThat(wireMockResponse.statusCode(), is(200));
+    assertThat(wireMockResponse.content(), is("Got it"));
   }
 
   @Nested
