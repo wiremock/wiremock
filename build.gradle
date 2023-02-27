@@ -15,7 +15,7 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '6.12.0'
+  id 'com.diffplug.spotless' version '6.15.0'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
   id "org.sonarqube" version "3.5.0.2730"
   id 'jacoco'
@@ -31,7 +31,7 @@ project.ext {
     jackson        : '2.14.1',
     xmlUnit        : '2.9.0',
     jsonUnit       : '2.36.0',
-    junitJupiter   : '5.9.1'
+    junitJupiter   : '5.9.2'
   ]
 }
 
@@ -99,12 +99,12 @@ dependencies {
   testImplementation("org.junit.platform:junit-platform-testkit")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
   testImplementation("org.junit.platform:junit-platform-launcher")
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:5.1.1'
 
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
   testImplementation 'org.mockito:mockito-core:5.1.1'
-  testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:5.1.1'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
@@ -126,7 +126,7 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.86.Final"
+  testImplementation "io.netty:netty-all:4.1.89.Final"
 
   constraints {
     implementation "net.minidev:json-smart:2.4.8", {
@@ -200,7 +200,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-2'
+  version = '3.0.0-beta-3'
 
 
   sourceCompatibility = 11
@@ -409,6 +409,34 @@ task localRelease {
   dependsOn clean, assemble, publishToMavenLocal
 }
 
+task 'bump-beta-version' {
+  doLast {
+    def filesWithVersion = [
+      'build.gradle'                                      : { "version = '${it}" },
+      'ui/package.json'                                   : { "version: ${it}" },
+      'ui/package-lock.json'                              : { "version: ${it}" },
+      'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
+      'src/main/resources/swagger/wiremock-admin-api.yaml': {
+        "version: ${it}" }
+    ]
+
+    def currentVersion = project.version
+    def nextVersion = "3.0.0-beta-${betaVersion + 1}"
+
+    filesWithVersion.each { fileName, lineWithVersionTemplates ->
+      def file = file(fileName)
+      def lineWithVersionTemplateList = [lineWithVersionTemplates].flatten()
+
+      lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+        def oldLine = lineWithVersionTemplate.call(currentVersion)
+        def newLine = lineWithVersionTemplate.call(nextVersion)
+        println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+        file.text = file.text.replace(oldLine, newLine)
+      }
+    }
+  }
+}
+
 task 'bump-patch-version' {
   doLast {
     def filesWithVersion = [
@@ -482,6 +510,10 @@ int getMinorVersion() {
 
 int getPatchVersion() {
   Integer.valueOf(project.version.substring(project.version.lastIndexOf('.') + 1))
+}
+
+int getBetaVersion() {
+  Integer.valueOf(project.version.substring(project.version.lastIndexOf('-') + 1))
 }
 
 wrapper {
