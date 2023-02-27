@@ -26,21 +26,25 @@ public class GlobalSettings {
   private final DelayDistribution delayDistribution;
   private final Parameters extended;
 
+  private final Boolean proxyPassThrough;
+
   public static GlobalSettings.Builder builder() {
     return new Builder();
   }
 
   public static GlobalSettings defaults() {
-    return new Builder().build();
+    return new Builder().proxyPassThrough(Boolean.TRUE).build();
   }
 
   public GlobalSettings(
       @JsonProperty("fixedDelay") Integer fixedDelay,
       @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
-      @JsonProperty("extended") Parameters extended) {
+      @JsonProperty("extended") Parameters extended,
+      @JsonProperty("proxyPassThrough") Boolean proxyPassThrough) {
     this.fixedDelay = fixedDelay;
     this.delayDistribution = delayDistribution;
     this.extended = extended;
+    this.proxyPassThrough = proxyPassThrough;
   }
 
   public Integer getFixedDelay() {
@@ -55,6 +59,10 @@ public class GlobalSettings {
     return extended;
   }
 
+  public Boolean getProxyPassThrough() {
+    return proxyPassThrough;
+  }
+
   public GlobalSettings.Builder copy() {
     return new Builder()
         .fixedDelay(fixedDelay)
@@ -64,8 +72,12 @@ public class GlobalSettings {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     GlobalSettings that = (GlobalSettings) o;
     return Objects.equals(getFixedDelay(), that.getFixedDelay())
         && Objects.equals(getDelayDistribution(), that.getDelayDistribution())
@@ -78,9 +90,12 @@ public class GlobalSettings {
   }
 
   public static class Builder {
+
     private Integer fixedDelay;
     private DelayDistribution delayDistribution;
     private Parameters extended;
+
+    private Boolean proxyPassThrough;
 
     public Builder fixedDelay(Integer fixedDelay) {
       this.fixedDelay = fixedDelay;
@@ -97,8 +112,13 @@ public class GlobalSettings {
       return this;
     }
 
+    public Builder proxyPassThrough(Boolean proxyPassThrough) {
+      this.proxyPassThrough = proxyPassThrough;
+      return this;
+    }
+
     public GlobalSettings build() {
-      return new GlobalSettings(fixedDelay, delayDistribution, extended);
+      return new GlobalSettings(fixedDelay, delayDistribution, extended, proxyPassThrough);
     }
   }
 }

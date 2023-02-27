@@ -15,10 +15,14 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -87,5 +91,14 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
     GlobalSettings fetchedSettings = WireMock.getSettings();
 
     assertThat(fetchedSettings.getExtended().getString("mySetting"), is("setting-value"));
+  }
+
+  @Test
+  public void setAndRetrieveProxyPassThroughSettings() {
+    WireMock.updateSettings(GlobalSettings.builder().proxyPassThrough(false).build());
+
+    GlobalSettings fetchedSettings = WireMock.getSettings();
+
+    assertFalse(fetchedSettings.getProxyPassThrough());
   }
 }

@@ -67,7 +67,9 @@ public class StubResponseRenderer implements ResponseRenderer {
 
   private Response buildResponse(ServeEvent serveEvent) {
     if (serveEvent.getResponseDefinition().isProxyResponse()) {
-      return proxyResponseRenderer.render(serveEvent);
+      return settingsStore.get().getProxyPassThrough()
+          ? proxyResponseRenderer.render(serveEvent)
+          : Response.notConfigured();
     } else {
       Response.Builder responseBuilder = renderDirectly(serveEvent);
       return responseBuilder.build();
@@ -87,7 +89,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     Response newResponse =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(
-                request, response, filesFileSource, responseDefinition.getTransformerParameters())
+            request, response, filesFileSource, responseDefinition.getTransformerParameters())
             : response;
 
     return applyTransformations(
