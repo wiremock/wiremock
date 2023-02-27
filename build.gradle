@@ -31,7 +31,7 @@ project.ext {
     jackson        : '2.14.1',
     xmlUnit        : '2.9.0',
     jsonUnit       : '2.36.0',
-    junitJupiter   : '5.9.1'
+    junitJupiter   : '5.9.2'
   ]
 }
 
