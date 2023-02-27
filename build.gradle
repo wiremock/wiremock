@@ -29,7 +29,7 @@ project.ext {
     jetty          : '11.0.12',
     guava          : '31.1-jre',
     jackson        : '2.14.1',
-    xmlUnit        : '2.9.0',
+    xmlUnit        : '2.9.1',
     jsonUnit       : '2.36.0',
     junitJupiter   : '5.9.2'
   ]
