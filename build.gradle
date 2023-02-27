@@ -412,12 +412,12 @@ task localRelease {
 task 'bump-beta-version' {
   doLast {
     def filesWithVersion = [
-        'build.gradle'                                      : { "version = '${it}" },
-        'ui/package.json'                                   : { "version: ${it}" },
-        'ui/package-lock.json'                              : { "version: ${it}" },
-        'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
-        'src/main/resources/swagger/wiremock-admin-api.yaml': {
-          "version: ${it}" }
+      'build.gradle'                                      : { "version = '${it}" },
+      'ui/package.json'                                   : { "version: ${it}" },
+      'ui/package-lock.json'                              : { "version: ${it}" },
+      'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
+      'src/main/resources/swagger/wiremock-admin-api.yaml': {
+        "version: ${it}" }
     ]
 
     def currentVersion = project.version
