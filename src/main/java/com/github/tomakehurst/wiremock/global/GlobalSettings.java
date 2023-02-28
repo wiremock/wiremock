@@ -26,7 +26,7 @@ public class GlobalSettings {
   private final DelayDistribution delayDistribution;
   private final Parameters extended;
 
-  private final Boolean proxyPassThrough;
+  private final boolean proxyPassThrough;
 
   public static GlobalSettings.Builder builder() {
     return new Builder();
@@ -36,7 +36,7 @@ public class GlobalSettings {
       @JsonProperty("fixedDelay") Integer fixedDelay,
       @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
       @JsonProperty("extended") Parameters extended,
-      @JsonProperty("proxyPassThrough") Boolean proxyPassThrough) {
+      @JsonProperty("proxyPassThrough") boolean proxyPassThrough) {
     this.fixedDelay = fixedDelay;
     this.delayDistribution = delayDistribution;
     this.extended = extended;
@@ -108,7 +108,7 @@ public class GlobalSettings {
       return this;
     }
 
-    public Builder proxyPassThrough(Boolean proxyPassThrough) {
+    public Builder proxyPassThrough(boolean proxyPassThrough) {
       this.proxyPassThrough = proxyPassThrough;
       return this;
     }

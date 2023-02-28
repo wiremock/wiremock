@@ -23,7 +23,7 @@ public class InMemorySettingsStore implements SettingsStore {
   private final AtomicReference<GlobalSettings> holder;
 
 
-  public InMemorySettingsStore(final Boolean proxyPassThrough) {
+  public InMemorySettingsStore(final boolean proxyPassThrough) {
     holder = new AtomicReference<>(
         GlobalSettings.builder().proxyPassThrough(proxyPassThrough).build());
   }
