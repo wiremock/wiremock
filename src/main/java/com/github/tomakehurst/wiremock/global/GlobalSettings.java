@@ -91,7 +91,7 @@ public class GlobalSettings {
     private DelayDistribution delayDistribution;
     private Parameters extended;
 
-    private Boolean proxyPassThrough;
+    private boolean proxyPassThrough;
 
     public Builder fixedDelay(Integer fixedDelay) {
       this.fixedDelay = fixedDelay;
