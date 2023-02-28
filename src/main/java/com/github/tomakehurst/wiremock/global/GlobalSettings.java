@@ -55,7 +55,7 @@ public class GlobalSettings {
     return extended;
   }
 
-  public Boolean getProxyPassThrough() {
+  public boolean getProxyPassThrough() {
     return proxyPassThrough;
   }
 
