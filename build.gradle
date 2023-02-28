@@ -75,7 +75,7 @@ dependencies {
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
-  compileOnly("junit:junit:4.13.2") {
+  compileOnly("junit:junit:4.13.2.2") {
     exclude group: "org.hamcrest", module: "hamcrest-core"
   }
   compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
@@ -94,7 +94,7 @@ dependencies {
   }
   api "commons-io:commons-io:2.11.0"
 
-  testImplementation "junit:junit:4.13"
+  testImplementation "junit:junit:4.13.2"
   testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testImplementation("org.junit.platform:junit-platform-testkit")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
