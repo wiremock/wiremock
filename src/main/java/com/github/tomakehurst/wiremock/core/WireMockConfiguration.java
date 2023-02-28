@@ -134,7 +134,7 @@ public class WireMockConfiguration implements Options {
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
 
-  private Boolean proxyPassThrough;
+  private boolean proxyPassThrough = true;
 
   private Limit responseBodySizeLimit = UNLIMITED;
 
@@ -156,7 +156,7 @@ public class WireMockConfiguration implements Options {
     return wireMockConfig();
   }
 
-  public WireMockConfiguration proxyPassThrough(Boolean proxyPassThrough) {
+  public WireMockConfiguration proxyPassThrough(boolean proxyPassThrough) {
     this.proxyPassThrough = proxyPassThrough;
     return this;
   }
@@ -545,8 +545,7 @@ public class WireMockConfiguration implements Options {
   @Override
   public Stores getStores() {
     if (stores == null) {
-      stores = proxyPassThrough != null
-          ? new DefaultStores(filesRoot, proxyPassThrough) : new DefaultStores(filesRoot);
+      stores = new DefaultStores(filesRoot, proxyPassThrough);
     }
 
     return stores;
