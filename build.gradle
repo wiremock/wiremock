@@ -110,7 +110,7 @@ dependencies {
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
   testImplementation 'org.awaitility:awaitility:4.2.0'
   testImplementation "com.googlecode.jarjar:jarjar:1.3"
-  testImplementation "commons-io:commons-io:2.10.0"
+  testImplementation "commons-io:commons-io:2.11.0"
   testImplementation 'org.scala-lang:scala-library:2.13.10'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
