@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty11;
 
+import static com.github.tomakehurst.wiremock.jetty11.Jetty11Utils.createHttpConfig;
 import static com.github.tomakehurst.wiremock.jetty11.SslContexts.buildManInTheMiddleSslContextFactory;
 
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
@@ -22,9 +23,7 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.jetty.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
-import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
@@ -46,20 +45,6 @@ public class Jetty11HttpServer extends JettyHttpServer {
   }
 
   @Override
-  protected MultipartRequestConfigurer buildMultipartRequestConfigurer() {
-    return new DefaultMultipartRequestConfigurer();
-  }
-
-  @Override
-  protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
-    HttpConfiguration httpConfig = super.createHttpConfig(jettySettings);
-    httpConfig.setSendXPoweredBy(false);
-    httpConfig.setSendServerVersion(false);
-    httpConfig.addCustomizer(new SecureRequestCustomizer(false));
-    return httpConfig;
-  }
-
-  @Override
   protected ServerConnector createHttpConnector(
       String bindAddress, int port, JettySettings jettySettings, NetworkTrafficListener listener) {
 
@@ -67,13 +52,18 @@ public class Jetty11HttpServer extends JettyHttpServer {
 
     HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfig);
 
-    return createServerConnector(
-        bindAddress, jettySettings, port, listener, new HttpConnectionFactory(httpConfig), h2c);
+    return Jetty11Utils.createServerConnector(
+        jettyServer,
+        bindAddress,
+        jettySettings,
+        port,
+        listener,
+        new HttpConnectionFactory(httpConfig),
+        h2c);
   }
 
   @Override
   protected ServerConnector createHttpsConnector(
-      Server server,
       String bindAddress,
       HttpsSettings httpsSettings,
       JettySettings jettySettings,
@@ -101,8 +91,13 @@ public class Jetty11HttpServer extends JettyHttpServer {
       connectionFactories = new ConnectionFactory[] {ssl, http};
     }
 
-    return createServerConnector(
-        bindAddress, jettySettings, httpsSettings.port(), listener, connectionFactories);
+    return Jetty11Utils.createServerConnector(
+        jettyServer,
+        bindAddress,
+        jettySettings,
+        httpsSettings.port(),
+        listener,
+        connectionFactories);
   }
 
   @Override
