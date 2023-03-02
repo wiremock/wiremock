@@ -39,6 +39,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
@@ -251,6 +252,7 @@ public class JettyHttpServer implements HttpServer {
 
       jettyServer.stop();
       jettyServer.join();
+    } catch (TimeoutException ignored) {
     } catch (Exception e) {
       throwUnchecked(e);
     }
