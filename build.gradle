@@ -89,7 +89,7 @@ dependencies {
     exclude group: 'org.mozilla', module: 'rhino'
   }
 
-  api 'commons-fileupload:commons-fileupload:1.4',  {
+  api 'commons-fileupload:commons-fileupload:1.5',  {
     exclude group: 'commons-io', module: 'commons-io'
   }
   api "commons-io:commons-io:2.11.0"
