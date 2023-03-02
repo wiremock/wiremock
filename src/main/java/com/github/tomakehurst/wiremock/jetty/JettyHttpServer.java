@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -240,6 +241,14 @@ public class JettyHttpServer implements HttpServer {
         scheduledExecutorService.shutdown();
       }
 
+      if (httpConnector != null) {
+        httpConnector.getConnectedEndPoints().forEach(EndPoint::close);
+      }
+
+      if (httpsConnector != null) {
+        httpsConnector.getConnectedEndPoints().forEach(EndPoint::close);
+      }
+
       jettyServer.stop();
       jettyServer.join();
     } catch (Exception e) {
@@ -363,7 +372,7 @@ public class JettyHttpServer implements HttpServer {
       connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
     }
 
-    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(100L));
+    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(200L));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
