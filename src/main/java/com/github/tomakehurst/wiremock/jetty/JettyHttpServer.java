@@ -45,7 +45,10 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
@@ -54,20 +57,17 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-public class JettyHttpServer implements HttpServer {
+public abstract class JettyHttpServer implements HttpServer {
   private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
   private static final String[] GZIPPABLE_METHODS = new String[] {"POST", "PUT", "PATCH", "DELETE"};
-  private static final int DEFAULT_ACCEPTORS = 3;
-  private static final int DEFAULT_HEADER_SIZE = 8192;
   private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
 
-  private final Server jettyServer;
-  private final ServerConnector httpConnector;
-  private final ServerConnector httpsConnector;
+  protected final Server jettyServer;
+  protected final ServerConnector httpConnector;
+  protected final ServerConnector httpsConnector;
 
-  private ScheduledExecutorService scheduledExecutorService;
+  protected ScheduledExecutorService scheduledExecutorService;
 
   public JettyHttpServer(
       Options options,
@@ -98,7 +98,6 @@ public class JettyHttpServer implements HttpServer {
     if (options.httpsSettings().enabled()) {
       httpsConnector =
           createHttpsConnector(
-              jettyServer,
               options.bindAddress(),
               options.httpsSettings(),
               options.jettySettings(),
@@ -277,107 +276,15 @@ public class JettyHttpServer implements HttpServer {
     return jettyServer.getStopTimeout();
   }
 
-  protected ServerConnector createHttpConnector(
-      String bindAddress, int port, JettySettings jettySettings, NetworkTrafficListener listener) {
+  protected abstract ServerConnector createHttpConnector(
+      String bindAddress, int port, JettySettings jettySettings, NetworkTrafficListener listener);
 
-    HttpConfiguration httpConfig = createHttpConfig(jettySettings);
-
-    ServerConnector connector =
-        createServerConnector(
-            bindAddress, jettySettings, port, listener, new HttpConnectionFactory(httpConfig));
-
-    return connector;
-  }
-
-  protected ServerConnector createHttpsConnector(
-      Server server,
+  protected abstract ServerConnector createHttpsConnector(
       String bindAddress,
       HttpsSettings httpsSettings,
       JettySettings jettySettings,
-      NetworkTrafficListener listener) {
+      NetworkTrafficListener listener);
 
-    // Added to support Android https communication.
-    SslContextFactory.Server sslContextFactory = buildSslContextFactory();
-
-    sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-    sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
-    sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
-    sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
-    if (httpsSettings.hasTrustStore()) {
-      sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
-      sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
-    }
-    sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
-
-    HttpConfiguration httpConfig = createHttpConfig(jettySettings);
-    httpConfig.addCustomizer(new SecureRequestCustomizer());
-
-    final int port = httpsSettings.port();
-
-    HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
-    SslConnectionFactory sslConnectionFactory =
-        new SslConnectionFactory(sslContextFactory, "http/1.1");
-    ConnectionFactory[] connectionFactories =
-        ArrayUtils.addAll(
-            new ConnectionFactory[] {sslConnectionFactory, httpConnectionFactory},
-            buildAdditionalConnectionFactories(
-                httpsSettings, httpConnectionFactory, sslConnectionFactory));
-
-    return createServerConnector(bindAddress, jettySettings, port, listener, connectionFactories);
-  }
-
-  protected ConnectionFactory[] buildAdditionalConnectionFactories(
-      HttpsSettings httpsSettings,
-      HttpConnectionFactory httpConnectionFactory,
-      SslConnectionFactory sslConnectionFactory) {
-    return new ConnectionFactory[] {};
-  }
-
-  // Override this for platform-specific impls
-  protected SslContextFactory.Server buildSslContextFactory() {
-    return new SslContextFactory.Server();
-  }
-
-  protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
-    HttpConfiguration httpConfig = new HttpConfiguration();
-    httpConfig.setRequestHeaderSize(jettySettings.getRequestHeaderSize().or(DEFAULT_HEADER_SIZE));
-    httpConfig.setResponseHeaderSize(jettySettings.getResponseHeaderSize().or(DEFAULT_HEADER_SIZE));
-    httpConfig.setSendDateHeader(false);
-    return httpConfig;
-  }
-
-  protected ServerConnector createServerConnector(
-      String bindAddress,
-      JettySettings jettySettings,
-      int port,
-      NetworkTrafficListener listener,
-      ConnectionFactory... connectionFactories) {
-
-    int acceptors = jettySettings.getAcceptors().or(DEFAULT_ACCEPTORS);
-    NetworkTrafficServerConnector connector =
-        new NetworkTrafficServerConnector(
-            jettyServer, null, null, null, acceptors, 2, connectionFactories);
-
-    connector.setPort(port);
-    connector.setNetworkTrafficListener(listener);
-    setJettySettings(jettySettings, connector);
-    connector.setHost(bindAddress);
-    return connector;
-  }
-
-  private void setJettySettings(JettySettings jettySettings, ServerConnector connector) {
-    if (jettySettings.getAcceptQueueSize().isPresent()) {
-      connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
-    }
-
-    if (jettySettings.getIdleTimeout().isPresent()) {
-      connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
-    }
-
-    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(200L));
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private ServletContextHandler addMockServiceContext(
       StubRequestHandler stubRequestHandler,
       FileSource fileSource,
