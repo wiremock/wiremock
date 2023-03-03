@@ -16,7 +16,7 @@ plugins {
   id 'eclipse'
   id 'project-report'
   id 'com.diffplug.spotless' version '6.16.0'
-  id 'com.github.johnrengelman.shadow' version '6.1.0'
+  id 'com.github.johnrengelman.shadow' version '8.1.0'
   id "org.sonarqube" version "4.0.0.2929"
   id 'jacoco'
 }
@@ -237,7 +237,7 @@ allprojects {
 
   jacocoTestReport {
     reports {
-      xml.enabled true
+      xml.required = true
     }
   }
   test.finalizedBy jacocoTestReport
@@ -272,11 +272,12 @@ jar {
 }
 
 shadowJar {
+  archiveBaseName.set('wiremock-standalone')
+  archiveClassifier.set('')
   configurations = [
     project.configurations.runtimeClasspath,
     project.configurations.standaloneOnly
   ]
-  archiveBaseName.set('wiremock-standalone')
 
   relocate "org.mortbay", 'wiremock.org.mortbay'
   relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -345,6 +346,12 @@ publishing {
     }
   }
 
+  getComponents().withType(AdhocComponentWithVariants).each { c ->
+    c.withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+      skip()
+    }
+  }
+
   publications {
     mavenJava(MavenPublication) { publication ->
       artifactId = "${jar.getArchiveBaseName().get()}"
@@ -365,13 +372,6 @@ publishing {
       artifact javadocJar
       artifact testJar
 
-      publication.artifacts.each {
-        // for the shaded JAR
-        if ('all' == it.classifier) {
-          it.classifier = ''
-        }
-      }
-
       pom.packaging 'jar'
       pom.withXml {
         asNode().appendNode('description', 'A web service test double for all occasions - standalone edition')
@@ -391,6 +391,8 @@ task checkReleasePreconditions {
   }
 }
 publish.dependsOn checkReleasePreconditions
+project.tasks.publishMavenJavaPublicationToMavenLocal.dependsOn 'signStandaloneJarPublication'
+project.tasks.publishStandaloneJarPublicationToMavenLocal.dependsOn 'signMavenJavaPublication'
 
 assemble.dependsOn jar, shadowJar
 
