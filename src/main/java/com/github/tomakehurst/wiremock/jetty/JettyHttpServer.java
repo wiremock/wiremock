@@ -34,7 +34,6 @@ import com.google.common.io.Resources;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -51,7 +50,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -160,35 +159,14 @@ public abstract class JettyHttpServer implements HttpServer {
 
   private void addGZipHandler(
       ServletContextHandler mockServiceContext, HandlerCollection handlers) {
-    Class<?> gzipHandlerClass = null;
-
     try {
-      gzipHandlerClass = Class.forName("org.eclipse.jetty.servlets.gzip.GzipHandler");
-    } catch (ClassNotFoundException e) {
-      try {
-        gzipHandlerClass = Class.forName("org.eclipse.jetty.server.handler.gzip.GzipHandler");
-      } catch (ClassNotFoundException e1) {
-        throwUnchecked(e1);
-      }
-    }
-
-    try {
-      HandlerWrapper gzipWrapper =
-          (HandlerWrapper) gzipHandlerClass.getDeclaredConstructor().newInstance();
-      setGZippableMethods(gzipWrapper, gzipHandlerClass);
-      gzipWrapper.setHandler(mockServiceContext);
-      handlers.addHandler(gzipWrapper);
+      GzipHandler gzipHandler = new GzipHandler();
+      gzipHandler.addIncludedMethods(GZIPPABLE_METHODS);
+      gzipHandler.setHandler(mockServiceContext);
+      gzipHandler.setVary(null);
+      handlers.addHandler(gzipHandler);
     } catch (Exception e) {
       throwUnchecked(e);
-    }
-  }
-
-  private static void setGZippableMethods(HandlerWrapper gzipHandler, Class<?> gzipHandlerClass) {
-    try {
-      Method addIncludedMethods =
-          gzipHandlerClass.getDeclaredMethod("addIncludedMethods", String[].class);
-      addIncludedMethods.invoke(gzipHandler, new Object[] {GZIPPABLE_METHODS});
-    } catch (Exception ignored) {
     }
   }
 
