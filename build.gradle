@@ -393,6 +393,8 @@ task checkReleasePreconditions {
 publish.dependsOn checkReleasePreconditions
 project.tasks.publishMavenJavaPublicationToMavenLocal.dependsOn 'signStandaloneJarPublication'
 project.tasks.publishStandaloneJarPublicationToMavenLocal.dependsOn 'signMavenJavaPublication'
+project.tasks.publishMavenJavaPublicationToMavenRepository.dependsOn 'signStandaloneJarPublication'
+project.tasks.publishStandaloneJarPublicationToMavenRepository.dependsOn 'signMavenJavaPublication'
 
 assemble.dependsOn jar, shadowJar
 
