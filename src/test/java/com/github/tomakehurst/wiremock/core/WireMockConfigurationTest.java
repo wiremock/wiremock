@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ public class WireMockConfigurationTest {
 
   @Test
   public void testProxyPassThroughSetAsFalse() {
-    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig()
-        .proxyPassThrough(false);
+    WireMockConfiguration wireMockConfiguration =
+        WireMockConfiguration.wireMockConfig().proxyPassThrough(false);
     assertFalse(wireMockConfiguration.getStores().getSettingsStore().get().getProxyPassThrough());
   }
 }

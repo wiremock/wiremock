@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2022 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -158,6 +159,9 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration proxyPassThrough(boolean proxyPassThrough) {
     this.proxyPassThrough = proxyPassThrough;
+    GlobalSettings newSettings =
+        getStores().getSettingsStore().get().copy().proxyPassThrough(proxyPassThrough).build();
+    getStores().getSettingsStore().set(newSettings);
     return this;
   }
 
@@ -545,7 +549,7 @@ public class WireMockConfiguration implements Options {
   @Override
   public Stores getStores() {
     if (stores == null) {
-      stores = new DefaultStores(filesRoot, proxyPassThrough);
+      stores = new DefaultStores(filesRoot);
     }
 
     return stores;

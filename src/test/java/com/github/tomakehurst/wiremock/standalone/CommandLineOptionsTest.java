@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -687,11 +687,11 @@ public class CommandLineOptionsTest {
   public void toStringWithTrustProxyTarget() {
     String options =
         new CommandLineOptions(
-            "--enable-browser-proxying",
-            "--trust-proxy-target",
-            "localhost",
-            "--trust-proxy-target",
-            "example.com")
+                "--enable-browser-proxying",
+                "--trust-proxy-target",
+                "localhost",
+                "--trust-proxy-target",
+                "example.com")
             .toString();
     assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
     assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));

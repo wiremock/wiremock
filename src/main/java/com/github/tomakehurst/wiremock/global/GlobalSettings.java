@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ public class GlobalSettings {
 
   public static GlobalSettings.Builder builder() {
     return new Builder();
+  }
+
+  public static GlobalSettings defaults() {
+    return new Builder().build();
   }
 
   public GlobalSettings(
@@ -68,12 +72,8 @@ public class GlobalSettings {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
     GlobalSettings that = (GlobalSettings) o;
     return Objects.equals(getFixedDelay(), that.getFixedDelay())
         && Objects.equals(getDelayDistribution(), that.getDelayDistribution())
@@ -86,12 +86,11 @@ public class GlobalSettings {
   }
 
   public static class Builder {
-
     private Integer fixedDelay;
     private DelayDistribution delayDistribution;
     private Parameters extended;
 
-    private boolean proxyPassThrough;
+    private boolean proxyPassThrough = true;
 
     public Builder fixedDelay(Integer fixedDelay) {
       this.fixedDelay = fixedDelay;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     Response newResponse =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(
-            request, response, filesFileSource, responseDefinition.getTransformerParameters())
+                request, response, filesFileSource, responseDefinition.getTransformerParameters())
             : response;
 
     return applyTransformations(

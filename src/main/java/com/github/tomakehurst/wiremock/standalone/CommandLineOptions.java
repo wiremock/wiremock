@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
-import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
-import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.common.Limit;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
@@ -44,6 +32,7 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -62,21 +51,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Maps;
-import com.google.common.collect.UnmodifiableIterator;
+import com.google.common.collect.*;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -110,8 +90,7 @@ public class CommandLineOptions implements Options {
   private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
   private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
   private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
-  @Deprecated
-  private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
+  @Deprecated private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
   private static final String JETTY_HEADER_REQUEST_SIZE = "jetty-header-request-size";
   private static final String JETTY_HEADER_RESPONSE_SIZE = "jetty-header-response-size";
   private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
@@ -397,11 +376,18 @@ public class CommandLineOptions implements Options {
       fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
     }
 
+    stores = new DefaultStores(fileSource);
+
     if (optionSet.has(PROXY_PASS_THROUGH)) {
-      stores = new DefaultStores(fileSource,
-          Boolean.parseBoolean((String) optionSet.valueOf(PROXY_PASS_THROUGH)));
-    } else {
-      stores = new DefaultStores(fileSource);
+      GlobalSettings newSettings =
+          stores
+              .getSettingsStore()
+              .get()
+              .copy()
+              .proxyPassThrough(
+                  Boolean.parseBoolean((String) optionSet.valueOf(PROXY_PASS_THROUGH)))
+              .build();
+      stores.getSettingsStore().set(newSettings);
     }
 
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
@@ -673,9 +659,7 @@ public class CommandLineOptions implements Options {
     return new PlainTextStubNotMatchedRenderer();
   }
 
-  /**
-   * @deprecated use {@link BrowserProxySettings#enabled()}
-   */
+  /** @deprecated use {@link BrowserProxySettings#enabled()} */
   @Deprecated
   @Override
   public boolean browserProxyingEnabled() {
@@ -846,7 +830,7 @@ public class CommandLineOptions implements Options {
   public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
     return optionSet.has(USE_CHUNKED_ENCODING)
         ? ChunkedEncodingPolicy.valueOf(
-        optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase())
+            optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase())
         : ChunkedEncodingPolicy.ALWAYS;
   }
 
@@ -886,8 +870,8 @@ public class CommandLineOptions implements Options {
   public DataTruncationSettings getDataTruncationSettings() {
     return optionSet.has(LOGGED_RESPONSE_BODY_SIZE_LIMIT)
         ? new DataTruncationSettings(
-        new Limit(
-            Integer.parseInt((String) optionSet.valueOf(LOGGED_RESPONSE_BODY_SIZE_LIMIT))))
+            new Limit(
+                Integer.parseInt((String) optionSet.valueOf(LOGGED_RESPONSE_BODY_SIZE_LIMIT))))
         : DataTruncationSettings.DEFAULTS;
   }
 
