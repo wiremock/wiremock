@@ -36,6 +36,7 @@ public class RequestLine {
   private final int port;
   private final Map<String, ListOrSingle<String>> query;
   private final String url;
+  private final String clientIp;
 
   private final PathTemplate pathTemplate;
 
@@ -45,6 +46,7 @@ public class RequestLine {
       String host,
       int port,
       String url,
+      String clientIp,
       Map<String, ListOrSingle<String>> query,
       PathTemplate pathTemplate) {
     this.method = method;
@@ -52,6 +54,7 @@ public class RequestLine {
     this.host = host;
     this.port = port;
     this.url = url;
+    this.clientIp = clientIp;
     this.query = query;
     this.pathTemplate = pathTemplate;
   }
@@ -67,6 +70,7 @@ public class RequestLine {
         request.getHost(),
         request.getPort(),
         request.getUrl(),
+        request.getClientIp(),
         adaptedQuery,
         pathTemplate);
   }
@@ -107,6 +111,10 @@ public class RequestLine {
     String portPart = isStandardPort(scheme, port) ? "" : ":" + port;
 
     return scheme + "://" + host + portPart;
+  }
+
+  public String getClientIp() {
+    return this.clientIp;
   }
 
   private boolean isStandardPort(String scheme, int port) {
