@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToBinaryJson;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.transform;
 import static org.hamcrest.Matchers.containsString;
@@ -506,25 +506,25 @@ public class StubMappingJsonRecorderTest {
   @Test
   public void multipartRequestProcessingWithNonFileMultipart() {
     when(admin.countRequestsMatching((any(RequestPattern.class))))
-            .thenReturn(VerificationResult.withCount(0));
+        .thenReturn(VerificationResult.withCount(0));
 
     Request request =
-            new MockRequestBuilder()
-                    .withMethod(RequestMethod.POST)
-                    .withHeader("Content-Type", "multipart/form-data; boundary=aBoundary")
-                    .withUrl("/multipart/content")
-                    .withBody("--aBoundary\r\nContent")
-                    .withMultiparts(null) // this is what request.getParts returns when parsing doesn't work
-                    .build();
+        new MockRequestBuilder()
+            .withMethod(RequestMethod.POST)
+            .withHeader("Content-Type", "multipart/form-data; boundary=aBoundary")
+            .withUrl("/multipart/content")
+            .withBody("--aBoundary\r\nContent")
+            .withMultiparts(null) // this is what request.getParts returns when parsing doesn't work
+            .build();
     doReturn(true).when(request).isMultipart();
 
     listener.requestReceived(
-            request, response().status(200).body("anything").fromProxy(true).build());
+        request, response().status(200).body("anything").fromProxy(true).build());
 
-    verify(mappingsFileSource)
-            .writeTextFile(
-                    eq("mapping-multipart-content-1$2!3.json"),
-                    argThat(equalToJson(BAD_MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
+    verify(mappingsBlobStore)
+        .put(
+            eq("mapping-multipart-content-1$2!3.json"),
+            argThat(bytesEqualToJson(BAD_MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
   }
 
   @Test
