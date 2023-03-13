@@ -693,6 +693,58 @@ public class ProxyAcceptanceTest {
         is("The target proxy address is denied in WireMock's configuration."));
   }
 
+  @Test
+  void proxyRequestWillNotTimeoutIfProxyResponseIsFastEnough() {
+    init(
+        wireMockConfig()
+            .proxyTimeout(1000));
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withFixedDelay(500)
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+    WireMockResponse response = testClient.get("/proxied/resource?param=value");
+
+    assertThat(response.content(), is("Proxied content"));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
+  void proxyRequestWillTimeoutIfProxyResponseIsTooSlow() {
+    init(
+        wireMockConfig()
+            .proxyTimeout(1000));
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withFixedDelay(1500)
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+    WireMockResponse response = testClient.get("/proxied/resource?param=value");
+
+    assertThat(response.content(), startsWith("Network failure trying to make a proxied request from WireMock"));
+    assertThat(response.statusCode(), is(500));
+  }
+
   private void register200StubOnProxyAndTarget(String url) {
     target.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
     proxy.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));

@@ -235,4 +235,9 @@ public class WarConfiguration implements Options {
   public BrowserProxySettings browserProxySettings() {
     return BrowserProxySettings.DISABLED;
   }
+
+  @Override
+  public int proxyTimeout() {
+    return DEFAULT_TIMEOUT;
+  }
 }

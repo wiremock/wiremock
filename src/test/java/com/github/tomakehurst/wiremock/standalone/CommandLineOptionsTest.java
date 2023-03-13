@@ -788,6 +788,24 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  void proxyTimeout() {
+    CommandLineOptions options = new CommandLineOptions("--proxy-timeout", "5000");
+
+    int proxyTimeout = options.proxyTimeout();
+
+    assertThat(proxyTimeout, is(5000));
+  }
+
+  @Test
+  void defaultProxyTimeout() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    int proxyTimeout = options.proxyTimeout();
+
+    assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
+  }
+  
+  @Test
   void testProxyPassThroughOptionPassedAsFalse() {
     CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");
     assertFalse(options.getStores().getSettingsStore().get().getProxyPassThrough());

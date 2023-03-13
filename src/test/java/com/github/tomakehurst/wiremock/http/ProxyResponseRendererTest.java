@@ -50,6 +50,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -62,6 +64,8 @@ import org.mockito.Mockito;
     min = JRE.JAVA_17,
     disabledReason = "does not support generating certificates at runtime")
 public class ProxyResponseRendererTest {
+
+  private static final int PROXY_TIMEOUT = 200_000;
 
   @RegisterExtension
   public WireMockExtension origin =
@@ -256,6 +260,33 @@ public class ProxyResponseRendererTest {
         .noneMatch(r -> r.containsHeader("Content-Type"));
   }
 
+  @Test
+  void usesCorrectProxyRequestTimeout() {
+    RequestConfig forwardProxyClientRequestConfig =
+        reflectiveInnerSpyField(RequestConfig.class, "forwardProxyClient", "defaultConfig", proxyResponseRenderer);
+    RequestConfig reverseProxyClientRequestConfig =
+        reflectiveInnerSpyField(RequestConfig.class, "reverseProxyClient", "defaultConfig", proxyResponseRenderer);
+
+    assertThat(forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(), is(Long.valueOf(PROXY_TIMEOUT)));
+    assertThat(reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(), is(Long.valueOf(PROXY_TIMEOUT)));
+  }
+
+  private static <T> T reflectiveInnerSpyField(Class<T> fieldType, String outerFieldName, String innerFieldName,
+                                               Object object) {
+    try {
+      Field outerField = object.getClass().getDeclaredField(outerFieldName);
+      outerField.setAccessible(true);
+      Object outerFieldObject = outerField.get(object);
+      Field innerField = outerFieldObject.getClass().getDeclaredField(innerFieldName);
+      innerField.setAccessible(true);
+      T spy = spy(fieldType.cast(innerField.get(outerFieldObject)));
+      innerField.set(outerFieldObject, spy);
+      return spy;
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private static <T> T reflectiveSpyField(Class<T> fieldType, String fieldName, Object object) {
     try {
       Field field = object.getClass().getDeclaredField(fieldName);
@@ -348,7 +379,8 @@ public class ProxyResponseRendererTest {
         trustAllProxyTargets,
         Collections.<String>emptyList(),
         stubCorsEnabled,
-        ALLOW_ALL);
+        ALLOW_ALL,
+        PROXY_TIMEOUT);
   }
 
   // Just exists to make the compiler happy by having the throws clause
