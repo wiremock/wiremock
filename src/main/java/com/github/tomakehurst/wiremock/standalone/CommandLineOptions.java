@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -120,6 +121,8 @@ public class CommandLineOptions implements Options {
   private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
+
+  private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
 
   private final OptionSet optionSet;
 
@@ -356,6 +359,9 @@ public class CommandLineOptions implements Options {
             DENY_PROXY_TARGETS,
             "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
         .withRequiredArg();
+    optionParser
+        .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
+        .withRequiredArg();
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -371,6 +377,18 @@ public class CommandLineOptions implements Options {
     }
 
     stores = new DefaultStores(fileSource);
+
+    if (optionSet.has(PROXY_PASS_THROUGH)) {
+      GlobalSettings newSettings =
+          stores
+              .getSettingsStore()
+              .get()
+              .copy()
+              .proxyPassThrough(
+                  Boolean.parseBoolean((String) optionSet.valueOf(PROXY_PASS_THROUGH)))
+              .build();
+      stores.getSettingsStore().set(newSettings);
+    }
 
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
     extensions = buildExtensions();
