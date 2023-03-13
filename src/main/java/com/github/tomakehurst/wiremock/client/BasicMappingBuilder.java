@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   @Override
   public BasicMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern) {
     requestPatternBuilder.withQueryParam(key, queryParamPattern);
+    return this;
+  }
+
+  @Override
+  public BasicMappingBuilder withPathParam(String key, StringValuePattern pathParamPattern) {
+    requestPatternBuilder.withPathParam(key, pathParamPattern);
     return this;
   }
 

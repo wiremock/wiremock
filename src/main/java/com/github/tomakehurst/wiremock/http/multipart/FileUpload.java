@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.http.multipart;
 
 import static java.lang.String.format;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -403,11 +403,7 @@ class FileUpload {
           }
         }
         // OK to construct stream now
-        PipedInputStream itemStream = new PipedInputStream();
-        try (final PipedOutputStream out = new PipedOutputStream(itemStream)) {
-          multi.readBodyData(out);
-        }
-
+        final MultipartStream.ItemInputStream itemStream = newInputStream(multi);
         InputStream istream = itemStream;
         if (fileSizeMax != -1) {
           istream =
@@ -429,6 +425,17 @@ class FileUpload {
               };
         }
         stream = istream;
+      }
+
+      private MultipartStream.ItemInputStream newInputStream(MultipartStream multipartStream) {
+        return Exceptions.uncheck(
+            () -> {
+              final Method newInputStreamMethod =
+                  multipartStream.getClass().getDeclaredMethod("newInputStream");
+              newInputStreamMethod.setAccessible(true);
+              return (MultipartStream.ItemInputStream) newInputStreamMethod.invoke(multipartStream);
+            },
+            MultipartStream.ItemInputStream.class);
       }
 
       /**

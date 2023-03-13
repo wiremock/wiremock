@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,38 +34,39 @@ import com.google.common.io.Resources;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-public class JettyHttpServer implements HttpServer {
+public abstract class JettyHttpServer implements HttpServer {
   private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
   private static final String[] GZIPPABLE_METHODS = new String[] {"POST", "PUT", "PATCH", "DELETE"};
-  private static final int DEFAULT_ACCEPTORS = 3;
-  private static final int DEFAULT_HEADER_SIZE = 8192;
   private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
 
-  private final Server jettyServer;
-  private final ServerConnector httpConnector;
-  private final ServerConnector httpsConnector;
+  protected final Server jettyServer;
+  protected final ServerConnector httpConnector;
+  protected final ServerConnector httpsConnector;
 
-  private ScheduledExecutorService scheduledExecutorService;
+  protected ScheduledExecutorService scheduledExecutorService;
 
   public JettyHttpServer(
       Options options,
@@ -96,7 +97,6 @@ public class JettyHttpServer implements HttpServer {
     if (options.httpsSettings().enabled()) {
       httpsConnector =
           createHttpsConnector(
-              jettyServer,
               options.bindAddress(),
               options.httpsSettings(),
               options.jettySettings(),
@@ -159,35 +159,14 @@ public class JettyHttpServer implements HttpServer {
 
   private void addGZipHandler(
       ServletContextHandler mockServiceContext, HandlerCollection handlers) {
-    Class<?> gzipHandlerClass = null;
-
     try {
-      gzipHandlerClass = Class.forName("org.eclipse.jetty.servlets.gzip.GzipHandler");
-    } catch (ClassNotFoundException e) {
-      try {
-        gzipHandlerClass = Class.forName("org.eclipse.jetty.server.handler.gzip.GzipHandler");
-      } catch (ClassNotFoundException e1) {
-        throwUnchecked(e1);
-      }
-    }
-
-    try {
-      HandlerWrapper gzipWrapper =
-          (HandlerWrapper) gzipHandlerClass.getDeclaredConstructor().newInstance();
-      setGZippableMethods(gzipWrapper, gzipHandlerClass);
-      gzipWrapper.setHandler(mockServiceContext);
-      handlers.addHandler(gzipWrapper);
+      GzipHandler gzipHandler = new GzipHandler();
+      gzipHandler.addIncludedMethods(GZIPPABLE_METHODS);
+      gzipHandler.setHandler(mockServiceContext);
+      gzipHandler.setVary(null);
+      handlers.addHandler(gzipHandler);
     } catch (Exception e) {
       throwUnchecked(e);
-    }
-  }
-
-  private static void setGZippableMethods(HandlerWrapper gzipHandler, Class<?> gzipHandlerClass) {
-    try {
-      Method addIncludedMethods =
-          gzipHandlerClass.getDeclaredMethod("addIncludedMethods", String[].class);
-      addIncludedMethods.invoke(gzipHandler, new Object[] {GZIPPABLE_METHODS});
-    } catch (Exception ignored) {
     }
   }
 
@@ -240,8 +219,17 @@ public class JettyHttpServer implements HttpServer {
         scheduledExecutorService.shutdown();
       }
 
+      if (httpConnector != null) {
+        httpConnector.getConnectedEndPoints().forEach(EndPoint::close);
+      }
+
+      if (httpsConnector != null) {
+        httpsConnector.getConnectedEndPoints().forEach(EndPoint::close);
+      }
+
       jettyServer.stop();
       jettyServer.join();
+    } catch (TimeoutException ignored) {
     } catch (Exception e) {
       throwUnchecked(e);
     }
@@ -266,107 +254,15 @@ public class JettyHttpServer implements HttpServer {
     return jettyServer.getStopTimeout();
   }
 
-  protected ServerConnector createHttpConnector(
-      String bindAddress, int port, JettySettings jettySettings, NetworkTrafficListener listener) {
+  protected abstract ServerConnector createHttpConnector(
+      String bindAddress, int port, JettySettings jettySettings, NetworkTrafficListener listener);
 
-    HttpConfiguration httpConfig = createHttpConfig(jettySettings);
-
-    ServerConnector connector =
-        createServerConnector(
-            bindAddress, jettySettings, port, listener, new HttpConnectionFactory(httpConfig));
-
-    return connector;
-  }
-
-  protected ServerConnector createHttpsConnector(
-      Server server,
+  protected abstract ServerConnector createHttpsConnector(
       String bindAddress,
       HttpsSettings httpsSettings,
       JettySettings jettySettings,
-      NetworkTrafficListener listener) {
+      NetworkTrafficListener listener);
 
-    // Added to support Android https communication.
-    SslContextFactory.Server sslContextFactory = buildSslContextFactory();
-
-    sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-    sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
-    sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
-    sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
-    if (httpsSettings.hasTrustStore()) {
-      sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
-      sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
-    }
-    sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
-
-    HttpConfiguration httpConfig = createHttpConfig(jettySettings);
-    httpConfig.addCustomizer(new SecureRequestCustomizer());
-
-    final int port = httpsSettings.port();
-
-    HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
-    SslConnectionFactory sslConnectionFactory =
-        new SslConnectionFactory(sslContextFactory, "http/1.1");
-    ConnectionFactory[] connectionFactories =
-        ArrayUtils.addAll(
-            new ConnectionFactory[] {sslConnectionFactory, httpConnectionFactory},
-            buildAdditionalConnectionFactories(
-                httpsSettings, httpConnectionFactory, sslConnectionFactory));
-
-    return createServerConnector(bindAddress, jettySettings, port, listener, connectionFactories);
-  }
-
-  protected ConnectionFactory[] buildAdditionalConnectionFactories(
-      HttpsSettings httpsSettings,
-      HttpConnectionFactory httpConnectionFactory,
-      SslConnectionFactory sslConnectionFactory) {
-    return new ConnectionFactory[] {};
-  }
-
-  // Override this for platform-specific impls
-  protected SslContextFactory.Server buildSslContextFactory() {
-    return new SslContextFactory.Server();
-  }
-
-  protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
-    HttpConfiguration httpConfig = new HttpConfiguration();
-    httpConfig.setRequestHeaderSize(jettySettings.getRequestHeaderSize().or(DEFAULT_HEADER_SIZE));
-    httpConfig.setResponseHeaderSize(jettySettings.getResponseHeaderSize().or(DEFAULT_HEADER_SIZE));
-    httpConfig.setSendDateHeader(false);
-    return httpConfig;
-  }
-
-  protected ServerConnector createServerConnector(
-      String bindAddress,
-      JettySettings jettySettings,
-      int port,
-      NetworkTrafficListener listener,
-      ConnectionFactory... connectionFactories) {
-
-    int acceptors = jettySettings.getAcceptors().or(DEFAULT_ACCEPTORS);
-    NetworkTrafficServerConnector connector =
-        new NetworkTrafficServerConnector(
-            jettyServer, null, null, null, acceptors, 2, connectionFactories);
-
-    connector.setPort(port);
-    connector.setNetworkTrafficListener(listener);
-    setJettySettings(jettySettings, connector);
-    connector.setHost(bindAddress);
-    return connector;
-  }
-
-  private void setJettySettings(JettySettings jettySettings, ServerConnector connector) {
-    if (jettySettings.getAcceptQueueSize().isPresent()) {
-      connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
-    }
-
-    if (jettySettings.getIdleTimeout().isPresent()) {
-      connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
-    }
-
-    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(100L));
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private ServletContextHandler addMockServiceContext(
       StubRequestHandler stubRequestHandler,
       FileSource fileSource,

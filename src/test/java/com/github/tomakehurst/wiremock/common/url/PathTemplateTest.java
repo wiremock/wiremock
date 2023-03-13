@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
-public class AdminUriTemplateTest {
+public class PathTemplateTest {
 
   @Test
   public void extractsSinglePathParameter() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}");
+    PathTemplate template = new PathTemplate("/things/{id}");
 
     PathParams pathParams = template.parse("/things/11-22-33");
 
@@ -45,35 +43,35 @@ public class AdminUriTemplateTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          AdminUriTemplate template = new AdminUriTemplate("/things/{id}");
+          PathTemplate template = new PathTemplate("/things/{id}");
           template.parse("/things/stuff/11-22-33");
         });
   }
 
   @Test
   public void matchesWhenUrlIsEquivalentToTemplate() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
+    PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
 
     assertThat(template.matches("/things/11-22-33/otherthings/12378"), is(true));
   }
 
   @Test
   public void nonMatchWhenUrlIsShorterThanTemplate() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
+    PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
 
     assertThat(template.matches("/things/11-22-33/otherthings"), is(false));
   }
 
   @Test
   public void nonMatchWhenUrlPartIsMismatch() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
+    PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
 
     assertThat(template.matches("/things/11-22-33/other-stuff/1234"), is(false));
   }
 
   @Test
   public void rendersWithParameters() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
+    PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
     PathParams pathParams = new PathParams().add("id", "123").add("subId", "456");
 
     String path = template.render(pathParams);
@@ -83,7 +81,7 @@ public class AdminUriTemplateTest {
 
   @Test
   public void rendersWithoutParameters() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/stuff");
+    PathTemplate template = new PathTemplate("/things/stuff");
 
     String path = template.render(PathParams.empty());
 
@@ -95,14 +93,14 @@ public class AdminUriTemplateTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          AdminUriTemplate template = new AdminUriTemplate("/things/{id}/otherthings/{subId}");
+          PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
           template.render(new PathParams().add("id", "123"));
         });
   }
 
   @Test
   public void parseWithWildcardAndOneDepthPath() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/**");
+    PathTemplate template = new PathTemplate("/things/**");
 
     PathParams pathParams = template.parse("/things/stuff");
 
@@ -111,7 +109,7 @@ public class AdminUriTemplateTest {
 
   @Test
   public void parseWithWildcardAndTwoDepthPath() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/**");
+    PathTemplate template = new PathTemplate("/things/**");
 
     PathParams pathParams = template.parse("/things/foo/bar");
 
@@ -120,7 +118,7 @@ public class AdminUriTemplateTest {
 
   @Test
   public void parseWithVariableAndWildcardAndTwoDepthPath() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}/**");
+    PathTemplate template = new PathTemplate("/things/{id}/**");
 
     PathParams pathParams = template.parse("/things/foo/bar");
 
@@ -130,7 +128,7 @@ public class AdminUriTemplateTest {
 
   @Test
   public void renderWithWildcardAndOneDepth() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/**");
+    PathTemplate template = new PathTemplate("/things/**");
     PathParams pathParams = new PathParams().add("0", "stuff");
 
     String path = template.render(pathParams);
@@ -140,7 +138,7 @@ public class AdminUriTemplateTest {
 
   @Test
   public void renderWithWildcardAndTwoDepth() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/**");
+    PathTemplate template = new PathTemplate("/things/**");
     PathParams pathParams = new PathParams().add("0", "foo/bar");
 
     String path = template.render(pathParams);
@@ -150,7 +148,7 @@ public class AdminUriTemplateTest {
 
   @Test
   public void renderWithVariableAndWildcardAndTwoDepthPath() {
-    AdminUriTemplate template = new AdminUriTemplate("/things/{id}/**");
+    PathTemplate template = new PathTemplate("/things/{id}/**");
     PathParams pathParams = new PathParams().add("id", "foo").add("0", "bar");
 
     String path = template.render(pathParams);
@@ -163,7 +161,7 @@ public class AdminUriTemplateTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          AdminUriTemplate template = new AdminUriTemplate("/things/{id}/**");
+          PathTemplate template = new PathTemplate("/things/{id}/**");
           template.render(new PathParams().add("id", "123"));
         });
   }
@@ -181,9 +179,9 @@ public class AdminUriTemplateTest {
             "/things/{id}/",
             "/things/{name}/");
 
-    Set<AdminUriTemplate> uriTemplateSet = new LinkedHashSet<>();
+    Set<PathTemplate> uriTemplateSet = new LinkedHashSet<>();
     for (String template : templates) {
-      AdminUriTemplate uriTemplate = new AdminUriTemplate(template);
+      PathTemplate uriTemplate = new PathTemplate(template);
       if (!uriTemplateSet.add(uriTemplate)) {
         fail(format("Can't add '%s' to '%s'", template, uriTemplateSet));
       }
@@ -203,13 +201,50 @@ public class AdminUriTemplateTest {
             "/things/{id}/",
             "/things/{name}/");
 
-    List<AdminUriTemplate> uriTemplates = new ArrayList<>();
+    List<PathTemplate> uriTemplates = new ArrayList<>();
     for (String template : templates) {
-      AdminUriTemplate uriTemplate = new AdminUriTemplate(template);
+      PathTemplate uriTemplate = new PathTemplate(template);
       if (uriTemplates.contains(uriTemplate)) {
         fail(format("Can't add '%s' to '%s'", template, uriTemplates));
       }
       uriTemplates.add(uriTemplate);
     }
+  }
+
+  @Test
+  void returnsPathTemplateWithVariablesStrippedOut() {
+    PathTemplate pathTemplate = new PathTemplate("/one/{first}/two/{second}/three");
+    assertThat(pathTemplate.withoutVariables(), is("/one//two//three"));
+  }
+
+  @Test
+  void indicatesWhetherAStringCouldBeAPathTemplate() {
+    assertTrue(PathTemplate.couldBePathTemplate("/things/{id}"));
+    assertTrue(PathTemplate.couldBePathTemplate("/things/**"));
+    assertTrue(PathTemplate.couldBePathTemplate("/things/{id}/stuff"));
+
+    assertFalse(PathTemplate.couldBePathTemplate("/things/in/path"));
+    assertFalse(PathTemplate.couldBePathTemplate("/thing"));
+  }
+
+  @Test
+  void correctlyStripsFormatCharactersFromKeysWhenParsing() {
+    PathTemplate pathTemplate = new PathTemplate("/one/{.first}/two/{;second*}");
+    PathParams pathParams = pathTemplate.parse("/one/.3,4,5/two/;second=1;second=2");
+
+    assertThat(pathParams.get("first"), is(".3,4,5"));
+    assertThat(pathParams.get("second"), is(";second=1;second=2"));
+  }
+
+  @Test
+  void correctlyStripsFormatCharactersFromKeysWhenRendering() {
+    PathTemplate pathTemplate = new PathTemplate("/one/{.first}/two/{;second*}");
+
+    PathParams pathParams =
+        new PathParams().add("first", ".3,4,5").add("second", ";second=1;second=2");
+
+    String renderedUrl = pathTemplate.render(pathParams);
+
+    assertThat(renderedUrl, is("/one/.3,4,5/two/;second=1;second=2"));
   }
 }

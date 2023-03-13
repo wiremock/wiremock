@@ -310,6 +310,28 @@ public class VerificationAcceptanceTest {
               .withRequestBody(containing("Important value")));
     }
 
+      @Test
+      public void throwsVerificitationExceptionWhenBodyMatches() {
+          testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+          assertThrows(VerificationException.class, ()->verify(
+                  postRequestedFor(urlEqualTo("/body/json"))
+                          .withRequestBody(not(containing("Important value"))))
+          );
+      }
+      @Test
+      public void verifiesWithBodyDoesNotContainValue(){
+          testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+          verify(postRequestedFor(urlEqualTo("/body/json")).withRequestBody(not(containing("stuff"))));
+      }
+
+      @Test
+      public void verifiesWithHeaderDoesNotContainValue(){
+          testClient.get(
+                  "/header/not",
+                  withHeader("X-Thing", "One"));
+          verify(getRequestedFor(urlEqualTo("/header/not")).withHeader("X-Thing", not(containing("Four"))));
+      }
+
     @Test
     public void verifiesWithQueryParam() {
       testClient.get("/query?param=my-value");

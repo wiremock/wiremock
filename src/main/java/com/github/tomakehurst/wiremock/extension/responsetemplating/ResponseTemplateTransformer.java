@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@ import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -91,10 +93,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
     ResponseDefinitionBuilder newResponseDefBuilder =
         ResponseDefinitionBuilder.like(responseDefinition);
 
+    final PathTemplate pathTemplate = getCurrentEventPathTemplate();
+
     final ImmutableMap<String, Object> model =
         ImmutableMap.<String, Object>builder()
             .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
-            .put("request", RequestTemplateModel.from(request))
+            .put("request", RequestTemplateModel.from(request, pathTemplate))
             .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
             .build();
 
@@ -180,6 +184,14 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
     } else {
       return newResponseDefBuilder.build();
     }
+  }
+
+  private static PathTemplate getCurrentEventPathTemplate() {
+    if (ServeEvent.getCurrent() == null) {
+      return null;
+    }
+
+    return ServeEvent.getCurrent().getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
   }
 
   /** Override this to add extra elements to the template model */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.matching;
 
-import java.util.LinkedHashMap;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 
-public class PathParams extends LinkedHashMap<String, String> {
+public class UrlPathTemplatePattern extends UrlPathPattern {
 
-  public static PathParams empty() {
-    return new PathParams();
+  public UrlPathTemplatePattern(String expectedValue) {
+    super(new PathTemplatePattern(expectedValue), false);
   }
 
-  public PathParams add(String key, String value) {
-    put(key, value);
-    return this;
+  @Override
+  public PathTemplatePattern getPattern() {
+    return (PathTemplatePattern) super.getPattern();
   }
 
-  public static PathParams single(String key, Object value) {
-    return new PathParams().add(key, value.toString());
+  public PathTemplate getPathTemplate() {
+    return getPattern().getPathTemplate();
   }
 }

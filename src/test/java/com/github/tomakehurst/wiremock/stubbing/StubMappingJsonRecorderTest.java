@@ -489,6 +489,44 @@ public class StubMappingJsonRecorderTest {
             argThat(equalToBinaryJson(MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
   }
 
+  private static final String BAD_MULTIPART_REQUEST_MAPPING =
+      "{ 													             \n"
+          + "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+          + "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+          + "	\"request\": {									             \n"
+          + "		\"url\": \"/multipart/content\",                         \n"
+          + "		\"method\": \"POST\" 						             \n"
+          + "	},												             \n"
+          + "	\"response\": {									             \n"
+          + "		\"status\": 200, 							             \n"
+          + "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"        \n"
+          + "	}												             \n"
+          + "}";
+
+  @Test
+  public void multipartRequestProcessingWithNonFileMultipart() {
+    when(admin.countRequestsMatching((any(RequestPattern.class))))
+            .thenReturn(VerificationResult.withCount(0));
+
+    Request request =
+            new MockRequestBuilder()
+                    .withMethod(RequestMethod.POST)
+                    .withHeader("Content-Type", "multipart/form-data; boundary=aBoundary")
+                    .withUrl("/multipart/content")
+                    .withBody("--aBoundary\r\nContent")
+                    .withMultiparts(null) // this is what request.getParts returns when parsing doesn't work
+                    .build();
+    doReturn(true).when(request).isMultipart();
+
+    listener.requestReceived(
+            request, response().status(200).body("anything").fromProxy(true).build());
+
+    verify(mappingsFileSource)
+            .writeTextFile(
+                    eq("mapping-multipart-content-1$2!3.json"),
+                    argThat(equalToJson(BAD_MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
+  }
+
   @Test
   public void detectsJsonExtensionFromFileExtension() {
     assertResultingFileExtension("/my/file.json", "json");

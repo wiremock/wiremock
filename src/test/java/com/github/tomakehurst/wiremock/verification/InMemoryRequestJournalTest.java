@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ public class InMemoryRequestJournalTest {
 
   @BeforeEach
   public void createTestRequests() {
-    serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()), null);
-    serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()), null);
-    serveEvent3 = ServeEvent.of(createFrom(aRequest("log3").withUrl("/logging3").build()), null);
+    serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()));
+    serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()));
+    serveEvent3 = ServeEvent.of(createFrom(aRequest("log3").withUrl("/logging3").build()));
   }
 
   @Test
@@ -65,7 +65,7 @@ public class InMemoryRequestJournalTest {
     LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
     RequestJournal journal = new InMemoryRequestJournal(Optional.of(1), NO_CUSTOM_MATCHERS);
-    journal.requestReceived(ServeEvent.of(loggedRequest, null));
+    journal.requestReceived(ServeEvent.of(loggedRequest));
     assertThat(journal.countRequestsMatching(everything()), is(1));
     journal.reset();
     assertThat(journal.countRequestsMatching(everything()), is(0));

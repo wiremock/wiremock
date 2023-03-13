@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.common.base.Optional;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -71,5 +72,12 @@ public class WireMockConfigurationTest {
             wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
 
     assertThat(threadPool.getMaxThreads(), is(maxThreads));
+  }
+
+  @Test
+  public void testProxyPassThroughSetAsFalse() {
+    WireMockConfiguration wireMockConfiguration =
+        WireMockConfiguration.wireMockConfig().proxyPassThrough(false);
+    assertFalse(wireMockConfiguration.getStores().getSettingsStore().get().getProxyPassThrough());
   }
 }
