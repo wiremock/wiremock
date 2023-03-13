@@ -270,6 +270,10 @@ public class WireMock {
     return new NegativeContainsPattern(value);
   }
 
+  public static StringValuePattern not(StringValuePattern unexpectedPattern){
+    return new NotPattern(unexpectedPattern);
+  }
+
   public static StringValuePattern matching(String regex) {
     return new RegexPattern(regex);
   }
