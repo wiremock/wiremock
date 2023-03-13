@@ -124,4 +124,8 @@ public class RequestTemplateModel {
   public String getBody() {
     return body;
   }
+
+  public String getClientIp() {
+    return requestLine.getClientIp();
+  }
 }

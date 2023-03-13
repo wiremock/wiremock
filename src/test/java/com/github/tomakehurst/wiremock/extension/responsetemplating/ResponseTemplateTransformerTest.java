@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,6 +169,16 @@ public class ResponseTemplateTransformerTest {
             aResponse().withBody("URL: {{{request.url}}}"));
 
     assertThat(transformedResponseDef.getBody(), is("URL: /the/entire/path?query1=one&query2=two"));
+  }
+
+  @Test
+  public void clientIp() {
+    ResponseDefinition transformedResponseDef =
+        transform(
+            mockRequest().url("/").clientIp("127.0.0.1"),
+            aResponse().withBody("IP: {{{request.clientIp}}}"));
+
+    assertThat(transformedResponseDef.getBody(), is("IP: 127.0.0.1"));
   }
 
   @Test
