@@ -379,7 +379,6 @@ publishing {
       }
     }
   }
-
 }
 
 task checkReleasePreconditions {
@@ -421,7 +420,8 @@ task 'bump-beta-version' {
       'ui/package-lock.json'                              : { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
-        "version: ${it}" }
+        "version: ${it}"
+      }
     ]
 
     def currentVersion = project.version
@@ -449,7 +449,8 @@ task 'bump-patch-version' {
       'ui/package-lock.json'                              : { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
-        "version: ${it}" }
+        "version: ${it}"
+      }
     ]
 
     def currentVersion = project.version
@@ -477,7 +478,8 @@ task 'bump-minor-version' {
       'ui/package-lock.json'                              : { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
-        "version: ${it}" }
+        "version: ${it}"
+      }
     ]
 
     def currentVersion = project.version
