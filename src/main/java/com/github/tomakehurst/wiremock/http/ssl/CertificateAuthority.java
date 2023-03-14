@@ -52,6 +52,7 @@ public class CertificateAuthority {
           makeX509CertInfo(
               sigAlg,
               "WireMock Local Self Signed Root Certificate",
+              ZonedDateTime.now().minus(Period.ofDays(1)),
               Period.ofYears(10),
               pair.getPublic(),
               certificateAuthorityExtensions(pair.getPublic()));
@@ -125,6 +126,7 @@ public class CertificateAuthority {
           makeX509CertInfo(
               sigAlg,
               hostName.getAsciiName(),
+              ZonedDateTime.now().minus(Period.ofDays(1)),
               Period.ofYears(1),
               pair.getPublic(),
               subjectAlternativeName(hostName));
@@ -168,11 +170,11 @@ public class CertificateAuthority {
   private static X509CertInfo makeX509CertInfo(
       String sigAlg,
       String subjectName,
+      ZonedDateTime start,
       Period validity,
       PublicKey publicKey,
       CertificateExtensions certificateExtensions)
       throws IOException, CertificateException, NoSuchAlgorithmException {
-    ZonedDateTime start = ZonedDateTime.now();
     ZonedDateTime end = start.plus(validity);
 
     X500Name myname = new X500Name("CN=" + subjectName);
