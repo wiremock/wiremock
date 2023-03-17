@@ -1,0 +1,185 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/mark/.nvm/v0.10.48/bin/node',
+1 verbose cli   '/home/mark/.nvm/v0.10.48/bin/npm',
+1 verbose cli   'i',
+1 verbose cli   '-g',
+1 verbose cli   'npm-run-all',
+1 verbose cli   'swagger-cli' ]
+2 info using npm@2.15.1
+3 info using node@v0.10.48
+4 verbose install initial load of /home/mark/.nvm/v0.10.48/lib/package.json
+5 verbose readDependencies loading dependencies from /home/mark/.nvm/v0.10.48/lib/package.json
+6 silly cache add args [ 'npm-run-all', null ]
+7 verbose cache add spec npm-run-all
+8 silly cache add args [ 'swagger-cli', null ]
+9 verbose cache add spec swagger-cli
+10 silly cache add parsed spec { raw: 'npm-run-all',
+10 silly cache add   scope: null,
+10 silly cache add   name: 'npm-run-all',
+10 silly cache add   rawSpec: '',
+10 silly cache add   spec: 'latest',
+10 silly cache add   type: 'tag' }
+11 silly addNamed npm-run-all@latest
+12 verbose addNamed "latest" is being treated as a dist-tag for npm-run-all
+13 info addNameTag [ 'npm-run-all', 'latest' ]
+14 silly mapToRegistry name npm-run-all
+15 silly mapToRegistry using default registry
+16 silly mapToRegistry registry https://registry.npmjs.org/
+17 silly mapToRegistry data { raw: 'npm-run-all',
+17 silly mapToRegistry   scope: null,
+17 silly mapToRegistry   name: 'npm-run-all',
+17 silly mapToRegistry   rawSpec: '',
+17 silly mapToRegistry   spec: 'latest',
+17 silly mapToRegistry   type: 'tag' }
+18 silly mapToRegistry uri https://registry.npmjs.org/npm-run-all
+19 verbose addNameTag registry:https://registry.npmjs.org/npm-run-all not in flight; fetching
+20 silly cache add parsed spec { raw: 'swagger-cli',
+20 silly cache add   scope: null,
+20 silly cache add   name: 'swagger-cli',
+20 silly cache add   rawSpec: '',
+20 silly cache add   spec: 'latest',
+20 silly cache add   type: 'tag' }
+21 silly addNamed swagger-cli@latest
+22 verbose addNamed "latest" is being treated as a dist-tag for swagger-cli
+23 info addNameTag [ 'swagger-cli', 'latest' ]
+24 silly mapToRegistry name swagger-cli
+25 silly mapToRegistry using default registry
+26 silly mapToRegistry registry https://registry.npmjs.org/
+27 silly mapToRegistry data { raw: 'swagger-cli',
+27 silly mapToRegistry   scope: null,
+27 silly mapToRegistry   name: 'swagger-cli',
+27 silly mapToRegistry   rawSpec: '',
+27 silly mapToRegistry   spec: 'latest',
+27 silly mapToRegistry   type: 'tag' }
+28 silly mapToRegistry uri https://registry.npmjs.org/swagger-cli
+29 verbose addNameTag registry:https://registry.npmjs.org/swagger-cli not in flight; fetching
+30 verbose request uri https://registry.npmjs.org/npm-run-all
+31 verbose request no auth needed
+32 info attempt registry request try #1 at 17:20:45
+33 verbose request id 835dad0848c9cc32
+34 http request GET https://registry.npmjs.org/npm-run-all
+35 verbose request uri https://registry.npmjs.org/swagger-cli
+36 verbose request no auth needed
+37 info attempt registry request try #1 at 17:20:45
+38 http request GET https://registry.npmjs.org/swagger-cli
+39 http 200 https://registry.npmjs.org/npm-run-all
+40 verbose headers { date: 'Thu, 16 Mar 2023 17:20:46 GMT',
+40 verbose headers   'content-type': 'application/json',
+40 verbose headers   'transfer-encoding': 'chunked',
+40 verbose headers   connection: 'keep-alive',
+40 verbose headers   'cf-ray': '7a8eab2cee8c23d8-LHR',
+40 verbose headers   'access-control-allow-origin': '*',
+40 verbose headers   'cache-control': 'public, max-age=300',
+40 verbose headers   etag: 'W/"38e3405e11cee6b027e582542949cad6"',
+40 verbose headers   'last-modified': 'Sat, 11 Mar 2023 01:17:56 GMT',
+40 verbose headers   vary: 'accept-encoding, accept',
+40 verbose headers   'cf-cache-status': 'REVALIDATED',
+40 verbose headers   'x-amz-replication-status': 'COMPLETED',
+40 verbose headers   'x-amz-server-side-encryption': 'AES256',
+40 verbose headers   server: 'cloudflare',
+40 verbose headers   'content-encoding': 'gzip' }
+41 silly get cb [ 200,
+41 silly get   { date: 'Thu, 16 Mar 2023 17:20:46 GMT',
+41 silly get     'content-type': 'application/json',
+41 silly get     'transfer-encoding': 'chunked',
+41 silly get     connection: 'keep-alive',
+41 silly get     'cf-ray': '7a8eab2cee8c23d8-LHR',
+41 silly get     'access-control-allow-origin': '*',
+41 silly get     'cache-control': 'public, max-age=300',
+41 silly get     etag: 'W/"38e3405e11cee6b027e582542949cad6"',
+41 silly get     'last-modified': 'Sat, 11 Mar 2023 01:17:56 GMT',
+41 silly get     vary: 'accept-encoding, accept',
+41 silly get     'cf-cache-status': 'REVALIDATED',
+41 silly get     'x-amz-replication-status': 'COMPLETED',
+41 silly get     'x-amz-server-side-encryption': 'AES256',
+41 silly get     server: 'cloudflare',
+41 silly get     'content-encoding': 'gzip' } ]
+42 verbose get saving npm-run-all to /home/mark/.npm/registry.npmjs.org/npm-run-all/.cache.json
+43 verbose correctMkdir /home/mark/.npm correctMkdir not in flight; initializing
+44 silly addNameTag next cb for npm-run-all with tag latest
+45 silly addNamed npm-run-all@4.1.5
+46 verbose addNamed "4.1.5" is a plain semver version for npm-run-all
+47 silly mapToRegistry name npm-run-all
+48 silly mapToRegistry using default registry
+49 silly mapToRegistry registry https://registry.npmjs.org/
+50 silly mapToRegistry data { raw: 'npm-run-all',
+50 silly mapToRegistry   scope: null,
+50 silly mapToRegistry   name: 'npm-run-all',
+50 silly mapToRegistry   rawSpec: '',
+50 silly mapToRegistry   spec: 'latest',
+50 silly mapToRegistry   type: 'tag' }
+51 silly mapToRegistry uri https://registry.npmjs.org/npm-run-all
+52 verbose addRemoteTarball https://registry.npmjs.org/npm-run-all/-/npm-run-all-4.1.5.tgz not in flight; adding
+53 verbose addRemoteTarball [ 'https://registry.npmjs.org/npm-run-all/-/npm-run-all-4.1.5.tgz',
+53 verbose addRemoteTarball   '04476202a15ee0e2e214080861bff12a51d98fba' ]
+54 info retry fetch attempt 1 at 17:20:46
+55 info attempt registry request try #1 at 17:20:46
+56 http fetch GET https://registry.npmjs.org/npm-run-all/-/npm-run-all-4.1.5.tgz
+57 http 200 https://registry.npmjs.org/swagger-cli
+58 verbose headers { date: 'Thu, 16 Mar 2023 17:20:46 GMT',
+58 verbose headers   'content-type': 'application/json',
+58 verbose headers   'transfer-encoding': 'chunked',
+58 verbose headers   connection: 'keep-alive',
+58 verbose headers   'cf-ray': '7a8eab2cf82e76f9-LHR',
+58 verbose headers   'access-control-allow-origin': '*',
+58 verbose headers   'cache-control': 'public, max-age=300',
+58 verbose headers   etag: 'W/"6df8c1cb739bfc22f4e58ca2cfa6389b"',
+58 verbose headers   'last-modified': 'Mon, 28 Nov 2022 22:44:53 GMT',
+58 verbose headers   vary: 'accept-encoding, accept',
+58 verbose headers   'cf-cache-status': 'REVALIDATED',
+58 verbose headers   'x-amz-replication-status': 'COMPLETED',
+58 verbose headers   server: 'cloudflare',
+58 verbose headers   'content-encoding': 'gzip' }
+59 silly get cb [ 200,
+59 silly get   { date: 'Thu, 16 Mar 2023 17:20:46 GMT',
+59 silly get     'content-type': 'application/json',
+59 silly get     'transfer-encoding': 'chunked',
+59 silly get     connection: 'keep-alive',
+59 silly get     'cf-ray': '7a8eab2cf82e76f9-LHR',
+59 silly get     'access-control-allow-origin': '*',
+59 silly get     'cache-control': 'public, max-age=300',
+59 silly get     etag: 'W/"6df8c1cb739bfc22f4e58ca2cfa6389b"',
+59 silly get     'last-modified': 'Mon, 28 Nov 2022 22:44:53 GMT',
+59 silly get     vary: 'accept-encoding, accept',
+59 silly get     'cf-cache-status': 'REVALIDATED',
+59 silly get     'x-amz-replication-status': 'COMPLETED',
+59 silly get     server: 'cloudflare',
+59 silly get     'content-encoding': 'gzip' } ]
+60 verbose get saving swagger-cli to /home/mark/.npm/registry.npmjs.org/swagger-cli/.cache.json
+61 verbose correctMkdir /home/mark/.npm correctMkdir not in flight; initializing
+62 silly addNameTag next cb for swagger-cli with tag latest
+63 http fetch 200 https://registry.npmjs.org/npm-run-all/-/npm-run-all-4.1.5.tgz
+64 silly fetchAndShaCheck shasum 04476202a15ee0e2e214080861bff12a51d98fba
+65 verbose addTmpTarball /tmp/npm-104249-0621228f/registry.npmjs.org/npm-run-all/-/npm-run-all-4.1.5.tgz not in flight; adding
+66 verbose addTmpTarball already have metadata; skipping unpack for npm-run-all@4.1.5
+67 verbose correctMkdir /home/mark/.npm correctMkdir not in flight; initializing
+68 silly cache afterAdd npm-run-all@4.1.5
+69 verbose afterAdd /home/mark/.npm/npm-run-all/4.1.5/package/package.json not in flight; writing
+70 verbose correctMkdir /home/mark/.npm correctMkdir not in flight; initializing
+71 verbose afterAdd /home/mark/.npm/npm-run-all/4.1.5/package/package.json written
+72 verbose stack Error: No compatible version found: swagger-cli@'latest'
+72 verbose stack Valid install targets:
+72 verbose stack ["1.0.0-beta.0","1.0.0-beta.1","1.0.0-beta.2","1.0.0","1.0.1","1.0.2","2.0.0","2.1.0","2.1.1","2.1.2","2.1.3","2.2.0","2.2.1","2.2.2","2.3.0","2.3.1","2.3.2","2.3.3","2.3.4","2.3.5","3.0.0"]
+72 verbose stack
+72 verbose stack     at installTargetsError (/home/mark/.nvm/v0.10.48/lib/node_modules/npm/lib/cache/add-named.js:284:12)
+72 verbose stack     at next (/home/mark/.nvm/v0.10.48/lib/node_modules/npm/lib/cache/add-named.js:94:10)
+72 verbose stack     at RES (/home/mark/.nvm/v0.10.48/lib/node_modules/npm/node_modules/inflight/inflight.js:23:14)
+72 verbose stack     at f (/home/mark/.nvm/v0.10.48/lib/node_modules/npm/node_modules/once/once.js:17:25)
+72 verbose stack     at fixName (/home/mark/.nvm/v0.10.48/lib/node_modules/npm/lib/cache/add-named.js:29:5)
+72 verbose stack     at saved (/home/mark/.nvm/v0.10.48/lib/node_modules/npm/lib/cache/caching-client.js:173:7)
+72 verbose stack     at /home/mark/.nvm/v0.10.48/lib/node_modules/npm/node_modules/graceful-fs/polyfills.js:210:7
+72 verbose stack     at Object.oncomplete (fs.js:108:15)
+73 verbose cwd /home/mark/Projects/wiremock/wiremock.org-sources
+74 error Linux 6.2.0-76060200-generic
+75 error argv "/home/mark/.nvm/v0.10.48/bin/node" "/home/mark/.nvm/v0.10.48/bin/npm" "i" "-g" "npm-run-all" "swagger-cli"
+76 error node v0.10.48
+77 error npm  v2.15.1
+78 error code ETARGET
+79 error notarget No compatible version found: swagger-cli@'latest'
+79 error notarget Valid install targets:
+79 error notarget ["1.0.0-beta.0","1.0.0-beta.1","1.0.0-beta.2","1.0.0","1.0.1","1.0.2","2.0.0","2.1.0","2.1.1","2.1.2","2.1.3","2.2.0","2.2.1","2.2.2","2.3.0","2.3.1","2.3.2","2.3.3","2.3.4","2.3.5","3.0.0"]
+79 error notarget
+79 error notarget This is most likely not a problem with npm itself.
+79 error notarget In most cases you or one of your dependencies are requesting
+79 error notarget a package version that doesn't exist.
+80 verbose exit [ 1, true ]

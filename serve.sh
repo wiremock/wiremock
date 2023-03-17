@@ -2,5 +2,5 @@
 
 set -euo pipefail
 
-npm run serve &
+yarn serve &
 rbenv exec bundle exec jekyll serve

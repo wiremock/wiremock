@@ -60,7 +60,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2023-03-08T13:16:16+00:00">
+  <meta property="article:published_time" content="2023-03-17T17:28:48+00:00">
   
     <link rel="next" href="https://wiremock.org/docs/running-without-http-server/" title="Running without the HTTP Server">
   
@@ -323,6 +323,10 @@
                     
                       <a href="https://join.slack.com/t/wiremock-community/shared_invite/zt-1mkbo0zlx-gxeZdTJ15Kchdt888Fn_1A">
                         Slack
+                      </a>
+                    
+                      <a href="https://community.wiremock.io/">
+                        Slack archive
                       </a>
                     
                       <a href="https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md">
@@ -678,7 +682,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     
     <meta itemprop="description" content="The WireMock server can be run in its own process, and configured viathe Java API, JSON over HTTP or JSON files.">
-    <meta itemprop="datePublished" content="March 08, 2023">
+    <meta itemprop="datePublished" content="March 17, 2023">
     
 
     <div style="background-color: #f2f2f2;border: #c8c8c8 1px solid;padding: 8px;margin-bottom:32px;">
@@ -858,6 +862,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 <p><code class="language-plaintext highlighter-rouge">--allow-proxy-targets</code>: Limit the permitted targets for proxying to and recording from the supplied addressess. This parameter takes a comma-separated list of single IP addresses, IP address ranges and hostname wildcards. See <a href="/docs/configuration/#preventing-proxying-to-and-recording-from-specific-target-addresses">this article</a> for details.</p>
 
 <p><code class="language-plaintext highlighter-rouge">--deny-proxy-targets</code>: Prevent proxying to and recording from the supplied addressess. This parameter takes a comma-separated list of single IP addresses, IP address ranges and hostname wildcards. Note: if both <code class="language-plaintext highlighter-rouge">--allow-proxy-targets</code> and this parameter are set, the allow list will be evaluated first. See <a href="/docs/configuration/#preventing-proxying-to-and-recording-from-specific-target-addresses">this article</a> for details.</p>
+
+<p><code class="language-plaintext highlighter-rouge">--proxy-pass-through</code>: Flag used in browser-caching in order to enable or disable pass through unmatched requests to the target indicated by the original requests. By default, this flag is enabled and let the requests pass through.</p>
 
 <p><code class="language-plaintext highlighter-rouge">--help</code>: Show command line help</p>
 

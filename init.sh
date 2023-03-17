@@ -2,9 +2,8 @@
 
 set -euo pipefail
 
-npm i -g npm-run-all swagger-cli
-npm i
+yarn
 rbenv exec bundle install
 
-npm run build:all
+yarn build:all
 rbenv exec bundle exec jekyll build
