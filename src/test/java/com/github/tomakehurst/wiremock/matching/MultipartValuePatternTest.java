@@ -53,7 +53,7 @@ public class MultipartValuePatternTest {
     MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
 
     StringValuePattern headerPattern =
-        pattern.getHeaders().get("Content-Disposition").getValuePattern();
+            ((SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Disposition")).getValuePattern();
     assertThat(headerPattern, instanceOf(ContainsPattern.class));
     assertThat(headerPattern.getValue(), is("name=\"part1\""));
 
@@ -117,7 +117,7 @@ public class MultipartValuePatternTest {
     assertThat(
         pattern.getBodyPatterns().get(0).getExpected(), WireMatchers.equalToJson(expectedJson));
 
-    MultiValuePattern contentTypeHeaderPattern = pattern.getHeaders().get("Content-Type");
+    SingleMatchMultiValuePattern contentTypeHeaderPattern = (SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Type");
     assertThat(contentTypeHeaderPattern.getValuePattern(), instanceOf(ContainsPattern.class));
     assertThat(contentTypeHeaderPattern.getValuePattern().getExpected(), is("application/json"));
     assertTrue(pattern.isMatchAny());
@@ -157,7 +157,7 @@ public class MultipartValuePatternTest {
     assertThat(pattern.getName(), is("my_part_name"));
     assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedBinary);
     assertThat(
-        pattern.getHeaders().get("Content-Type").getValuePattern().getExpected(),
+            ((SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Type")).getValuePattern().getExpected(),
         is("application/octet-stream"));
     assertTrue(pattern.isMatchAll());
     assertFalse(pattern.isMatchAny());

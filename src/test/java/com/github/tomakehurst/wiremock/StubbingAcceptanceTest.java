@@ -22,6 +22,7 @@ import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MI
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern.havingExactly;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -962,6 +963,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(testClient.get("/or").statusCode(), is(200));
     assertThat(testClient.get("/or?q=thingtofind").statusCode(), is(200));
     assertThat(testClient.get("/or?q=wrong").statusCode(), is(404));
+  }
+
+  @Test
+  public void matchesMultipleQueryParameters() {
+    stubFor(
+        get(urlPathEqualTo("/or"))
+            .withQueryParam("q", havingExactly("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(testClient.get("/or?q=1&q=3&q=2").statusCode(), is(200));
+    assertThat(testClient.get("/or?q=1&q=4&q=5").statusCode(), is(404));
+    assertThat(testClient.get("/or?q=thingtofind").statusCode(), is(404));
+    assertThat(testClient.get("/or?q=wrong").statusCode(), is(404));
+    assertThat(testClient.get("/or?q").statusCode(), is(404));
   }
 
   @Test

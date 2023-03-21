@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ public class Diff {
   private final String scenarioName;
   private final String scenarioState;
   private final String expectedScenarioState;
+
+  private static final List<String> EQUALITY_OPERATORS = Arrays.asList("equalTo", "equalToJson", "equalToXml", "binaryEqualTo");
 
   public Diff(RequestPattern expected, Request actual) {
     this.requestPattern = expected;
@@ -70,7 +73,7 @@ public class Diff {
   }
 
   public List<DiffLine<?>> getLines() {
-    return getLines(Collections.<String, RequestMatcherExtension>emptyMap());
+    return getLines(Collections.emptyMap());
   }
 
   public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
@@ -131,13 +134,13 @@ public class Diff {
         QueryParameter queryParameter =
             firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
-        String operator = generateOperatorString(pattern.getValuePattern(), " = ");
+        String operator = generateOperatorString(pattern.getName(), " = ");
         DiffLine<MultiValue> section =
             new DiffLine<>(
                 "Query",
                 pattern,
                 queryParameter,
-                "Query: " + key + operator + pattern.getValuePattern().getValue());
+                "Query: " + key + operator + pattern.getExpected());
         builder.add(section);
         anyQueryParams = true;
       }
@@ -150,7 +153,7 @@ public class Diff {
     boolean anyCookieSections = false;
     if (requestPattern.getCookies() != null) {
       Map<String, Cookie> cookies =
-          firstNonNull(request.getCookies(), Collections.<String, Cookie>emptyMap());
+          firstNonNull(request.getCookies(), Collections.emptyMap());
       for (Map.Entry<String, StringValuePattern> entry : requestPattern.getCookies().entrySet()) {
         String key = entry.getKey();
         StringValuePattern pattern = entry.getValue();
@@ -251,7 +254,7 @@ public class Diff {
         HttpHeader header = headers.getHeader(key);
         MultiValuePattern headerPattern = headerPatterns.get(header.key());
 
-        String operator = generateOperatorString(headerPattern.getValuePattern(), "");
+        String operator = generateOperatorString(headerPattern.getName(), "");
         String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
 
         DiffLine<MultiValue> section =
@@ -328,6 +331,13 @@ public class Diff {
     return isAnEqualToPattern(pattern) ? defaultValue : " [" + pattern.getName() + "] ";
   }
 
+  private String generateOperatorString(String name, String defaultValue) {
+    return isAnEqualToPattern(name) ? defaultValue : " [" + name + "] ";
+  }
+  private static boolean isAnEqualToPattern(String name) {
+    return EQUALITY_OPERATORS.contains(name);
+  }
+
   public String getStubMappingName() {
     return stubMappingName;
   }
@@ -355,9 +365,5 @@ public class Diff {
         || pattern instanceof EqualToJsonPattern
         || pattern instanceof EqualToXmlPattern
         || pattern instanceof BinaryEqualToPattern;
-  }
-
-  public boolean hasCustomMatcher() {
-    return requestPattern.hasInlineCustomMatcher() || requestPattern.hasNamedCustomMatcher();
   }
 }

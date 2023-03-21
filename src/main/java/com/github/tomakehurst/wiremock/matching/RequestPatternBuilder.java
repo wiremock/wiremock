@@ -154,6 +154,11 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder withHeader(String key, MultiValuePattern multiValuePattern) {
+    headers.put(key, multiValuePattern);
+    return this;
+  }
+
   public RequestPatternBuilder withoutHeader(String key) {
     headers.put(key, MultiValuePattern.absent());
     return this;
@@ -166,6 +171,10 @@ public class RequestPatternBuilder {
 
   public RequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
     queryParams.put(key, MultiValuePattern.of(valuePattern));
+    return this;
+  }
+  public RequestPatternBuilder withQueryParam(String key, MultiValuePattern multiValuePattern) {
+    queryParams.put(key, multiValuePattern);
     return this;
   }
 

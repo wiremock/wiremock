@@ -95,6 +95,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
+  public ScenarioMappingBuilder withHeader(String key, MultiValuePattern headerPattern) {
+    requestPatternBuilder.withHeader(key, headerPattern);
+    return null;
+  }
+
+  @Override
   public BasicMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern) {
     requestPatternBuilder.withCookie(name, cookieValuePattern);
     return this;
@@ -102,6 +108,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   @Override
   public BasicMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern) {
+    requestPatternBuilder.withQueryParam(key, queryParamPattern);
+    return this;
+  }
+
+  @Override
+  public BasicMappingBuilder withQueryParam(String key, MultiValuePattern queryParamPattern) {
     requestPatternBuilder.withQueryParam(key, queryParamPattern);
     return this;
   }
