@@ -49,8 +49,7 @@ public class RequestPatternBuilder {
 
   private CustomMatcherDefinition customMatcherDefinition;
 
-  public RequestPatternBuilder() {
-  }
+  public RequestPatternBuilder() {}
 
   public RequestPatternBuilder(ValueMatcher<Request> customMatcher) {
     this.customMatcher = customMatcher;

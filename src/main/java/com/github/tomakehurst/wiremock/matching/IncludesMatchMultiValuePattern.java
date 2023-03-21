@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @JsonDeserialize(as = IncludesMatchMultiValuePattern.class)
 public class IncludesMatchMultiValuePattern extends MultipleMatchMultiValuePattern {

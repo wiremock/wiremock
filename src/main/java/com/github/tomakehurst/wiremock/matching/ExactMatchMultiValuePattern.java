@@ -42,8 +42,7 @@ public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern 
       return MatchResult.of(false);
     }
     return MatchResult.aggregate(
-        MatchResult.of(stringValuePatterns.size() == value.values().size()),
-        super.match(value));
+        MatchResult.of(stringValuePatterns.size() == value.values().size()), super.match(value));
   }
 
   @Override
