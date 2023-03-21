@@ -1,4 +1,3 @@
-Constructor <com.github.tomakehurst.wiremock.common.ClasspathFileSource.<init>(java.lang.String)> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (ClasspathFileSource.java:73)
 Method <com.github.tomakehurst.wiremock.WireMockServer$1.run()> calls constructor <java.lang.RuntimeException.<init>(java.lang.Throwable)> in (WireMockServer.java:170)
 Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.assertExistsAndIsDirectory()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (AbstractFileSource.java:138)
 Method <com.github.tomakehurst.wiremock.common.AbstractFileSource.assertExistsAndIsDirectory()> calls constructor <java.lang.RuntimeException.<init>(java.lang.String)> in (AbstractFileSource.java:140)

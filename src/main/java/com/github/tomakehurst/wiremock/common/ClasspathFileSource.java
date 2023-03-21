@@ -76,7 +76,7 @@ public class ClasspathFileSource implements FileSource {
       } else if (pathUri.getScheme().equals("file")) {
         rootDirectory = new File(pathUri);
       } else {
-        throw new RuntimeException(
+        throw new IllegalArgumentException(
             "ClasspathFileSource can't handle paths of type " + pathUri.getScheme());
       }
 

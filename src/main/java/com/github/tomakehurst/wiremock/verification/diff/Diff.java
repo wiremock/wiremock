@@ -23,6 +23,8 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.Urls;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
@@ -122,6 +124,32 @@ public class Diff {
 
     addHeaderSection(
         requestPattern.combineBasicAuthAndOtherHeaders(), request.getHeaders(), builder);
+
+    final Map<String, StringValuePattern> pathParameters = requestPattern.getPathParameters();
+    if (urlPattern instanceof UrlPathTemplatePattern
+        && pathParameters != null
+        && !pathParameters.isEmpty()) {
+      final UrlPathTemplatePattern urlPathTemplatePattern =
+          (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
+      final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
+      final PathParams requestPathParameterValues = pathTemplate.parse(request.getUrl());
+
+      for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
+        String parameterName = entry.getKey();
+        final String parameterValue = parameterName + ": " + entry.getValue();
+        final StringValuePattern pattern = pathParameters.get(parameterName);
+        String operator = generateOperatorString(pattern, " = ");
+        DiffLine<String> section =
+            new DiffLine<>(
+                "Path parameter",
+                pattern,
+                parameterValue,
+                "Path parameter: " + parameterName + operator + pattern.getValue());
+        builder.add(section);
+      }
+
+      builder.add(SPACER);
+    }
 
     boolean anyQueryParams = false;
     if (requestPattern.getQueryParameters() != null) {
@@ -316,9 +344,14 @@ public class Diff {
   }
 
   private String generatePrintedUrlPattern(UrlPattern urlPattern) {
-    String matchPart =
-        (urlPattern instanceof UrlPathPattern ? "path" : "")
-            + (urlPattern.isRegex() ? " regex" : "");
+    String matchPart;
+    if (urlPattern instanceof UrlPathTemplatePattern) {
+      matchPart = "path template";
+    } else {
+      matchPart =
+          (urlPattern instanceof UrlPathPattern ? "path" : "")
+              + (urlPattern.isRegex() ? " regex" : "");
+    }
 
     matchPart = matchPart.trim();
 

@@ -351,6 +351,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         && !pathParams.isEmpty()) {
       final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
+      if (!pathTemplate.matches(request.getUrl())) {
+        return MatchResult.noMatch();
+      }
+
       final PathParams requestPathParams = pathTemplate.parse(request.getUrl());
       return MatchResult.aggregate(
           pathParams.entrySet().stream()
