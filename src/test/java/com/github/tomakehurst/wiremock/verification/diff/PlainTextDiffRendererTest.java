@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -327,6 +327,34 @@ public class PlainTextDiffRendererTest {
     System.out.println(output);
 
     assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-pattern.txt")));
+  }
+
+  @Test
+  public void showsUrlTemplateNonMatchMessage() {
+    Diff diff =
+        new Diff(
+            get(urlPathTemplate("/contacts/{contactId}")).build(),
+            mockRequest().method(GET).url("/contracts/12345"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-template.txt")));
+  }
+
+  @Test
+  public void showsUrlPathParametersNonMatchMessage() {
+    Diff diff =
+        new Diff(
+            get(urlPathTemplate("/contacts/{contactId}"))
+                .withPathParam("contactId", equalTo("123"))
+                .build(),
+            mockRequest().method(GET).url("/contacts/345"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-path-parameters.txt")));
   }
 
   @Test
