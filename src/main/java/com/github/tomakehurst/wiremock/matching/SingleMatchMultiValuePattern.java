@@ -52,7 +52,7 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
 
   @Override
   public String getExpected() {
-    return valuePattern.expectedValue;
+    return valuePattern.getExpected();
   }
 
   @Override
