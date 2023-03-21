@@ -49,7 +49,8 @@ public class RequestPatternBuilder {
 
   private CustomMatcherDefinition customMatcherDefinition;
 
-  public RequestPatternBuilder() {}
+  public RequestPatternBuilder() {
+  }
 
   public RequestPatternBuilder(ValueMatcher<Request> customMatcher) {
     this.customMatcher = customMatcher;
@@ -173,6 +174,7 @@ public class RequestPatternBuilder {
     queryParams.put(key, MultiValuePattern.of(valuePattern));
     return this;
   }
+
   public RequestPatternBuilder withQueryParam(String key, MultiValuePattern multiValuePattern) {
     queryParams.put(key, multiValuePattern);
     return this;

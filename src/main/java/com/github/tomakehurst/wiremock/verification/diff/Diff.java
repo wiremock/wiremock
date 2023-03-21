@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@ public class Diff {
   private final String scenarioState;
   private final String expectedScenarioState;
 
-  private static final List<String> EQUALITY_OPERATORS = Arrays.asList("equalTo", "equalToJson", "equalToXml", "binaryEqualTo");
+  private static final List<String> EQUALITY_OPERATORS =
+      Arrays.asList("equalTo", "equalToJson", "equalToXml", "binaryEqualTo");
 
   public Diff(RequestPattern expected, Request actual) {
     this.requestPattern = expected;
@@ -152,8 +153,7 @@ public class Diff {
 
     boolean anyCookieSections = false;
     if (requestPattern.getCookies() != null) {
-      Map<String, Cookie> cookies =
-          firstNonNull(request.getCookies(), Collections.emptyMap());
+      Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.emptyMap());
       for (Map.Entry<String, StringValuePattern> entry : requestPattern.getCookies().entrySet()) {
         String key = entry.getKey();
         StringValuePattern pattern = entry.getValue();
@@ -334,6 +334,7 @@ public class Diff {
   private String generateOperatorString(String name, String defaultValue) {
     return isAnEqualToPattern(name) ? defaultValue : " [" + name + "] ";
   }
+
   private static boolean isAnEqualToPattern(String name) {
     return EQUALITY_OPERATORS.contains(name);
   }

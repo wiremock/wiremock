@@ -20,30 +20,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@JsonDeserialize(as = ExactMatchMultiValuePattern.class)
-public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
+@JsonDeserialize(as = IncludesMatchMultiValuePattern.class)
+public class IncludesMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
-  public static final String JSON_KEY = "hasExactly";
+  public static final String JSON_KEY = "includes";
 
   @JsonProperty(JSON_KEY)
-  private List<StringValuePattern> stringValuePatterns;
+  private final List<StringValuePattern> stringValuePatterns;
 
   @JsonCreator
-  public ExactMatchMultiValuePattern(
-      @JsonProperty(JSON_KEY) final List<StringValuePattern> valuePatterns) {
-    this.stringValuePatterns = valuePatterns;
-  }
-
-  @Override
-  public MatchResult match(MultiValue value) {
-
-    if (!value.isPresent()) {
-      return MatchResult.of(false);
-    }
-    return MatchResult.aggregate(
-        MatchResult.of(stringValuePatterns.size() == value.values().size()),
-        super.match(value));
+  public IncludesMatchMultiValuePattern(
+      @JsonProperty(JSON_KEY) final List<StringValuePattern> stringValuePatterns) {
+    this.stringValuePatterns = stringValuePatterns;
   }
 
   @Override

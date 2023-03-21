@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static java.util.Collections.min;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.MultiValue;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @JsonDeserialize(using = MultiValuePatternDeserializer.class)
 public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue> {
@@ -29,20 +32,45 @@ public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue>
     return new SingleMatchMultiValuePattern(valuePattern);
   }
 
-  public static MultiValuePattern havingExactly(final List<StringValuePattern> valuePatterns) {
-    return new ExactMatchMultiValuePattern(valuePatterns);
+  public static MultiValuePattern havingExactly(final StringValuePattern... valuePatterns) {
+    if (valuePatterns.length == 0) {
+      return absent();
+    }
+    return new ExactMatchMultiValuePattern(Stream.of(valuePatterns).collect(Collectors.toList()));
   }
 
   public static MultiValuePattern havingExactly(String... values) {
     if (values.length == 0) {
-      return MultiValuePattern.absent();
+      return absent();
     }
-    return havingExactly(
-        Arrays.stream(values).map(EqualToPattern::new).collect(Collectors.toList()));
+    return new ExactMatchMultiValuePattern(
+        Stream.of(values).map(EqualToPattern::new).collect(Collectors.toList()));
   }
 
+  public static MultiValuePattern including(final StringValuePattern... valuePatterns) {
+    if (valuePatterns.length == 0) {
+      return absent();
+    }
+    return new IncludesMatchMultiValuePattern(
+        Stream.of(valuePatterns).collect(Collectors.toList()));
+  }
+
+  public static MultiValuePattern including(String... values) {
+    if (values.length == 0) {
+      return absent();
+    }
+    return new IncludesMatchMultiValuePattern(
+        Stream.of(values).map(EqualToPattern::new).collect(Collectors.toList()));
+  }
 
   public static MultiValuePattern absent() {
     return new SingleMatchMultiValuePattern(WireMock.absent());
+  }
+
+  protected static MatchResult getBestMatch(
+      final StringValuePattern valuePattern, List<String> values) {
+    List<MatchResult> allResults =
+        values.stream().map(valuePattern::match).collect(Collectors.toList());
+    return min(allResults, Comparator.comparingDouble(MatchResult::getDistance));
   }
 }
