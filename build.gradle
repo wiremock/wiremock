@@ -129,7 +129,7 @@ dependencies {
   testImplementation "io.netty:netty-all:4.1.90.Final"
 
   constraints {
-    implementation "net.minidev:json-smart:2.4.9", {
+    implementation "net.minidev:json-smart:2.4.10", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
     }
   }
