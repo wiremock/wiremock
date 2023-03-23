@@ -24,6 +24,7 @@ import java.util.List;
 public class IncludesMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
   public static final String JSON_KEY = "includes";
+  public static final String INCLUDING_OPERATOR = " including ";
 
   @JsonProperty(JSON_KEY)
   private final List<StringValuePattern> stringValuePatterns;
@@ -37,5 +38,10 @@ public class IncludesMatchMultiValuePattern extends MultipleMatchMultiValuePatte
   @Override
   public List<StringValuePattern> getValues() {
     return stringValuePatterns;
+  }
+
+  @Override
+  public String getOperator() {
+    return INCLUDING_OPERATOR;
   }
 }

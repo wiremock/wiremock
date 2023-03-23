@@ -26,15 +26,37 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.MultiValue;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipleMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.PathPattern;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 public class Diff {
 
@@ -44,9 +66,6 @@ public class Diff {
   private final String scenarioName;
   private final String scenarioState;
   private final String expectedScenarioState;
-
-  private static final List<String> EQUALITY_OPERATORS =
-      Arrays.asList("equalTo", "equalToJson", "equalToXml", "binaryEqualTo");
 
   public Diff(RequestPattern expected, Request actual) {
     this.requestPattern = expected;
@@ -163,7 +182,7 @@ public class Diff {
         QueryParameter queryParameter =
             firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
-        String operator = generateOperatorString(pattern.getName(), " = ");
+        String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
             new DiffLine<>(
                 "Query",
@@ -282,8 +301,12 @@ public class Diff {
         HttpHeader header = headers.getHeader(key);
         MultiValuePattern headerPattern = headerPatterns.get(header.key());
 
-        String operator = generateOperatorString(headerPattern.getName(), "");
-        String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
+        String operator = generateOperatorStringForMultiValuePattern(headerPattern, "");
+        String expected =
+            StringUtils.isEmpty(headerPattern.getExpected())
+                ? ""
+                : ": " + headerPattern.getExpected();
+        String printedPatternValue = header.key() + operator + expected;
 
         DiffLine<MultiValue> section =
             new DiffLine<>("Header", headerPattern, header, printedPatternValue);
@@ -364,12 +387,18 @@ public class Diff {
     return isAnEqualToPattern(pattern) ? defaultValue : " [" + pattern.getName() + "] ";
   }
 
-  private String generateOperatorString(String name, String defaultValue) {
-    return isAnEqualToPattern(name) ? defaultValue : " [" + name + "] ";
-  }
-
-  private static boolean isAnEqualToPattern(String name) {
-    return EQUALITY_OPERATORS.contains(name);
+  private String generateOperatorStringForMultiValuePattern(
+      final MultiValuePattern valuePattern, final String defaultValue) {
+    if (valuePattern instanceof MultipleMatchMultiValuePattern) {
+      return ((MultipleMatchMultiValuePattern) valuePattern).getOperator()
+          + "["
+          + valuePattern.getName()
+          + "]";
+    } else {
+      return isAnEqualToPattern(((SingleMatchMultiValuePattern) valuePattern).getValuePattern())
+          ? defaultValue
+          : " [" + valuePattern.getName() + "] ";
+    }
   }
 
   public String getStubMappingName() {

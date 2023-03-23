@@ -23,44 +23,12 @@ import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @JsonDeserialize(using = MultiValuePatternDeserializer.class)
 public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
   public static MultiValuePattern of(StringValuePattern valuePattern) {
     return new SingleMatchMultiValuePattern(valuePattern);
-  }
-
-  public static MultiValuePattern havingExactly(final StringValuePattern... valuePatterns) {
-    if (valuePatterns.length == 0) {
-      return absent();
-    }
-    return new ExactMatchMultiValuePattern(Stream.of(valuePatterns).collect(Collectors.toList()));
-  }
-
-  public static MultiValuePattern havingExactly(String... values) {
-    if (values.length == 0) {
-      return absent();
-    }
-    return new ExactMatchMultiValuePattern(
-        Stream.of(values).map(EqualToPattern::new).collect(Collectors.toList()));
-  }
-
-  public static MultiValuePattern including(final StringValuePattern... valuePatterns) {
-    if (valuePatterns.length == 0) {
-      return absent();
-    }
-    return new IncludesMatchMultiValuePattern(
-        Stream.of(valuePatterns).collect(Collectors.toList()));
-  }
-
-  public static MultiValuePattern including(String... values) {
-    if (values.length == 0) {
-      return absent();
-    }
-    return new IncludesMatchMultiValuePattern(
-        Stream.of(values).map(EqualToPattern::new).collect(Collectors.toList()));
   }
 
   public static MultiValuePattern absent() {

@@ -28,6 +28,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getSingleStubMapping;
+import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.including;
 import static com.github.tomakehurst.wiremock.client.WireMock.isNow;
 import static com.github.tomakehurst.wiremock.client.WireMock.jsonResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.listAllStubMappings;
@@ -51,8 +53,6 @@ import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MI
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern.havingExactly;
-import static com.github.tomakehurst.wiremock.matching.MultiValuePattern.including;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -415,7 +415,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void matchingOnRequestBodyWithBinaryEqualTo() {
-    byte[] requestBody = new byte[] {1, 2, 3};
+    byte[] requestBody = new byte[]{1, 2, 3};
 
     stubFor(
         post("/match/binary")
@@ -424,7 +424,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.post(
-            "/match/binary", new ByteArrayEntity(new byte[] {9}, APPLICATION_OCTET_STREAM));
+            "/match/binary", new ByteArrayEntity(new byte[]{9}, APPLICATION_OCTET_STREAM));
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
     response =
@@ -538,7 +538,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void returningBinaryBody() {
-    byte[] bytes = new byte[] {65, 66, 67};
+    byte[] bytes = new byte[]{65, 66, 67};
     stubFor(get(urlEqualTo("/binary/content")).willReturn(aResponse().withBody(bytes)));
 
     assertThat(testClient.get("/binary/content").binaryContent(), is(bytes));
@@ -782,7 +782,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void matchingOnMultipartRequestBodyWithBinaryEqualTo() {
-    byte[] requestBody = new byte[] {1, 2, 3};
+    byte[] requestBody = new byte[]{1, 2, 3};
 
     stubFor(
         post("/match/part/binary")
@@ -792,7 +792,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.postWithMultiparts(
-            "/match/part/binary", singletonList(part("file", new byte[] {9})));
+            "/match/part/binary", singletonList(part("file", new byte[]{9})));
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
     response =
@@ -1016,6 +1016,76 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     assertThat(testClient.get("/match" + queryParams).statusCode(), is(statusCode));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingExactMatch() {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withHeader("q", havingExactly("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get("/match", withHeader("q", "1"), withHeader("q", "2"), withHeader("q", "3"))
+            .statusCode(),
+        is(200));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingIncludesMatch() {
+    stubFor(
+        get(urlPathEqualTo("/match")).withHeader("q", including("1", "2", "3")).willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get(
+                "/match",
+                withHeader("q", "1"),
+                withHeader("q", "2"),
+                withHeader("q", "3"),
+                withHeader("q", "4"),
+                withHeader("q", "5"))
+            .statusCode(),
+        is(200));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingIncludesMatchReturnsNotFound() {
+    stubFor(
+        get(urlPathEqualTo("/match")).withHeader("q", including("1", "8", "3")).willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get(
+                "/match",
+                withHeader("q", "1"),
+                withHeader("q", "2"),
+                withHeader("q", "3"),
+                withHeader("q", "4"),
+                withHeader("q", "5"))
+            .statusCode(),
+        is(404));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingExactMatchReturnsNotFound() {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withHeader("q", havingExactly("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get(
+                "/match",
+                withHeader("q", "1"),
+                withHeader("q", "4"),
+                withHeader("q", "5"),
+                withHeader("q", "6"),
+                withHeader("q", "5"))
+            .statusCode(),
+        is(404));
   }
 
   @ParameterizedTest

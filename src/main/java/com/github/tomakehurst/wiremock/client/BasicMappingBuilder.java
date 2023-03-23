@@ -26,7 +26,14 @@ import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import java.util.Map;
@@ -95,9 +102,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
-  public ScenarioMappingBuilder withHeader(String key, MultiValuePattern headerPattern) {
+  public BasicMappingBuilder withHeader(String key, MultiValuePattern headerPattern) {
     requestPatternBuilder.withHeader(key, headerPattern);
-    return null;
+    return this;
   }
 
   @Override
@@ -126,8 +133,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   @Override
   public BasicMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams) {
-    for (Map.Entry<String, StringValuePattern> queryParam : queryParams.entrySet())
+    for (Map.Entry<String, StringValuePattern> queryParam : queryParams.entrySet()) {
       requestPatternBuilder.withQueryParam(queryParam.getKey(), queryParam.getValue());
+    }
     return this;
   }
 

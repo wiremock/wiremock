@@ -19,10 +19,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
-
-  private static final String COMMA = ",";
 
   private static final String AND = " AND ";
 
@@ -35,11 +34,15 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
         .collect(Collectors.joining(AND));
   }
 
+  /**
+   * since this method will only be used by diff in case of multiple match values, so returning
+   * empty. For other patterns, it should not return empty value
+   *
+   * @return expected value
+   */
   @Override
   public String getExpected() {
-    return getValues().stream()
-        .map(StringValuePattern::getValue)
-        .collect(Collectors.joining(COMMA));
+    return StringUtils.EMPTY;
   }
 
   @Override
@@ -56,4 +59,9 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
 
   @JsonIgnore
   public abstract List<StringValuePattern> getValues();
+
+  @JsonIgnore
+  public String getOperator() {
+    return StringUtils.EMPTY;
+  }
 }

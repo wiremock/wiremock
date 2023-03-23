@@ -25,6 +25,7 @@ import java.util.List;
 public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
   public static final String JSON_KEY = "hasExactly";
+  public static final String HAS_EXACTLY_OPERATOR = " exactly ";
 
   @JsonProperty(JSON_KEY)
   private List<StringValuePattern> stringValuePatterns;
@@ -48,5 +49,10 @@ public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern 
   @Override
   public List<StringValuePattern> getValues() {
     return stringValuePatterns;
+  }
+
+  @Override
+  public String getOperator() {
+    return HAS_EXACTLY_OPERATOR;
   }
 }
