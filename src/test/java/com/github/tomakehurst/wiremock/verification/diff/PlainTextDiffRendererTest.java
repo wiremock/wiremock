@@ -476,6 +476,7 @@ public class PlainTextDiffRendererTest {
             mockRequest().method(GET).url("/thing?q=2&q=3&q=4"));
 
     String output = diffRenderer.render(diff);
+    System.out.println(output);
     assertThat(
         output,
         equalsMultiLine(
@@ -490,6 +491,7 @@ public class PlainTextDiffRendererTest {
             mockRequest().method(GET).url("/thing?q=1&q=2&q=5"));
 
     String output = diffRenderer.render(diff);
+    System.out.println(output);
     assertThat(
         output,
         equalsMultiLine(
@@ -504,6 +506,7 @@ public class PlainTextDiffRendererTest {
             mockRequest().method(GET).url("/thing").header("q", "1"));
 
     String output = diffRenderer.render(diff);
+    System.out.println(output);
     assertThat(
         output,
         equalsMultiLine(file("not-found-diff-sample_exactmatch-for-multiple-values-header.txt")));
@@ -517,6 +520,7 @@ public class PlainTextDiffRendererTest {
             mockRequest().method(GET).url("/thing").header("q", "1"));
 
     String output = diffRenderer.render(diff);
+    System.out.println(output);
     assertThat(
         output,
         equalsMultiLine(file("not-found-diff-sample_includematch-for-multiple-values-header.txt")));
