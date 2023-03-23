@@ -511,11 +511,7 @@ public class WireMock {
   }
 
   public static MultiValuePattern havingExactly(String... values) {
-    if (values.length == 0) {
-      return noValues();
-    }
-    return new ExactMatchMultiValuePattern(
-        Stream.of(values).map(EqualToPattern::new).collect(Collectors.toList()));
+    return havingExactly(Stream.of(values).map(EqualToPattern::new).toArray(EqualToPattern[]::new));
   }
 
   public static MultiValuePattern including(final StringValuePattern... valuePatterns) {
@@ -527,11 +523,7 @@ public class WireMock {
   }
 
   public static MultiValuePattern including(String... values) {
-    if (values.length == 0) {
-      return noValues();
-    }
-    return new IncludesMatchMultiValuePattern(
-        Stream.of(values).map(EqualToPattern::new).collect(Collectors.toList()));
+    return including(Stream.of(values).map(EqualToPattern::new).toArray(EqualToPattern[]::new));
   }
 
   public static MultiValuePattern noValues() {

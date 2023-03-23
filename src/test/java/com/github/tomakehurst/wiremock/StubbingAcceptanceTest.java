@@ -36,6 +36,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.listAllStubMapping
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.noValues;
 import static com.github.tomakehurst.wiremock.client.WireMock.notContaining;
 import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -1086,6 +1087,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 withHeader("q", "5"))
             .statusCode(),
         is(404));
+  }
+
+  @Test
+  public void matchesNoValuesForHeaders() {
+    stubFor(get(urlPathEqualTo("/match")).withHeader("q", noValues()).willReturn(ok()));
+    assertThat(testClient.get("/match").statusCode(), is(200));
   }
 
   @ParameterizedTest
