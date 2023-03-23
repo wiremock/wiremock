@@ -415,7 +415,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void matchingOnRequestBodyWithBinaryEqualTo() {
-    byte[] requestBody = new byte[]{1, 2, 3};
+    byte[] requestBody = new byte[] {1, 2, 3};
 
     stubFor(
         post("/match/binary")
@@ -424,7 +424,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.post(
-            "/match/binary", new ByteArrayEntity(new byte[]{9}, APPLICATION_OCTET_STREAM));
+            "/match/binary", new ByteArrayEntity(new byte[] {9}, APPLICATION_OCTET_STREAM));
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
     response =
@@ -538,7 +538,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void returningBinaryBody() {
-    byte[] bytes = new byte[]{65, 66, 67};
+    byte[] bytes = new byte[] {65, 66, 67};
     stubFor(get(urlEqualTo("/binary/content")).willReturn(aResponse().withBody(bytes)));
 
     assertThat(testClient.get("/binary/content").binaryContent(), is(bytes));
@@ -782,7 +782,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void matchingOnMultipartRequestBodyWithBinaryEqualTo() {
-    byte[] requestBody = new byte[]{1, 2, 3};
+    byte[] requestBody = new byte[] {1, 2, 3};
 
     stubFor(
         post("/match/part/binary")
@@ -792,7 +792,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.postWithMultiparts(
-            "/match/part/binary", singletonList(part("file", new byte[]{9})));
+            "/match/part/binary", singletonList(part("file", new byte[] {9})));
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
     response =

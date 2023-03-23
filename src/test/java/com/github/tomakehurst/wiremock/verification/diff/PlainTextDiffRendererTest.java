@@ -527,12 +527,12 @@ public class PlainTextDiffRendererTest {
     Diff diff =
         new Diff(
             requestMatching(
-                new ValueMatcher<Request>() {
-                  @Override
-                  public MatchResult match(Request value) {
-                    return MatchResult.noMatch();
-                  }
-                })
+                    new ValueMatcher<Request>() {
+                      @Override
+                      public MatchResult match(Request value) {
+                        return MatchResult.noMatch();
+                      }
+                    })
                 .build(),
             mockRequest().method(POST).url("/thing"));
 
