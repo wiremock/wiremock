@@ -17,10 +17,12 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.jupiter.api.Test;
 
 public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
@@ -57,7 +59,9 @@ public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
             .withPathParam("contactId", equalTo("123"))
             .willReturn(ok()));
 
-    assertThat(testClient.get("/things/44").statusCode(), is(404));
+    WireMockResponse response = testClient.get("/contacts/123/addresssssses/1");
+    assertThat(response.content(), containsString("Request was not matched"));
+    assertThat(response.statusCode(), is(404));
   }
 
   @Test
