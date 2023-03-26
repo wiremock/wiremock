@@ -23,8 +23,7 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 public class RequestWrapperTest {
@@ -96,27 +95,15 @@ public class RequestWrapperTest {
             .transformHeader(
                 "One",
                 headerValues ->
-                    FluentIterable.from(headerValues)
-                        .transform(
-                            new Function<String, String>() {
-                              @Override
-                              public String apply(String headerValue) {
-                                return headerValue + "1";
-                              }
-                            })
-                        .toList())
+                    headerValues.stream()
+                        .map(headerValue -> headerValue + "1")
+                        .collect(Collectors.toList()))
             .transformHeader(
                 "two",
                 headerValues ->
-                    FluentIterable.from(headerValues)
-                        .transform(
-                            new Function<String, String>() {
-                              @Override
-                              public String apply(String headerValue) {
-                                return headerValue + "2";
-                              }
-                            })
-                        .toList())
+                    headerValues.stream()
+                        .map(headerValue -> headerValue + "2")
+                        .collect(Collectors.toList()))
             .wrap(request);
 
     assertThat(wrappedRequest.getHeader("One"), is("11"));
