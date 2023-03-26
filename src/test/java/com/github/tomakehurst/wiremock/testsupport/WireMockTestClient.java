@@ -29,7 +29,6 @@ import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -354,7 +353,7 @@ public class WireMockTestClient {
       return SSLContexts.custom()
           .loadTrustMaterial(
               null,
-              ([]chain, authType) -> chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
+              (chain, authType) -> chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
                   || chain[0]
                   .getSubjectDN()
                   .getName()

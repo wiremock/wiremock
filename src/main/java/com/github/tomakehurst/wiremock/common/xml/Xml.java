@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,7 +67,12 @@ public class Xml {
 
   private static String setProperty(final String name, final String value) {
     return AccessController.doPrivileged(
-        () -> System.setProperty(name, value));
+        new PrivilegedAction<String>() {
+          @Override
+          public String run() {
+            return System.setProperty(name, value);
+          }
+        });
   }
 
   public static String prettyPrint(String xml) {
