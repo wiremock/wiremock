@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.*;
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -255,8 +254,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void customHelper() {
-    Helper<String> helper =
-        (context, options) -> context.length();
+    Helper<String> helper = (context, options) -> context.length();
 
     transformer =
         ResponseTemplateTransformer.builder().global(false).helper("string-length", helper).build();

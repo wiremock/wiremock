@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import java.util.List;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -223,8 +222,7 @@ public class NotMatchedPageAcceptanceTest {
                     Request wrappedRequest =
                         RequestWrapper.create()
                             .transformHeader(
-                                "X-My-Header",
-                                source -> singletonList("modified value"))
+                                "X-My-Header", source -> singletonList("modified value"))
                             .wrap(request);
                     return RequestFilterAction.continueWith(wrappedRequest);
                   }

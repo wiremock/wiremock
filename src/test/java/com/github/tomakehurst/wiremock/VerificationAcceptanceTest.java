@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -309,27 +309,30 @@ public class VerificationAcceptanceTest {
               .withRequestBody(containing("Important value")));
     }
 
-      @Test
-      public void throwsVerificitationExceptionWhenBodyMatches() {
-          testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
-          assertThrows(VerificationException.class, ()->verify(
+    @Test
+    public void throwsVerificitationExceptionWhenBodyMatches() {
+      testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+      assertThrows(
+          VerificationException.class,
+          () ->
+              verify(
                   postRequestedFor(urlEqualTo("/body/json"))
-                          .withRequestBody(not(containing("Important value"))))
-          );
-      }
-      @Test
-      public void verifiesWithBodyDoesNotContainValue(){
-          testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
-          verify(postRequestedFor(urlEqualTo("/body/json")).withRequestBody(not(containing("stuff"))));
-      }
+                      .withRequestBody(not(containing("Important value")))));
+    }
 
-      @Test
-      public void verifiesWithHeaderDoesNotContainValue(){
-          testClient.get(
-                  "/header/not",
-                  withHeader("X-Thing", "One"));
-          verify(getRequestedFor(urlEqualTo("/header/not")).withHeader("X-Thing", not(containing("Four"))));
-      }
+    @Test
+    public void verifiesWithBodyDoesNotContainValue() {
+      testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+      verify(postRequestedFor(urlEqualTo("/body/json")).withRequestBody(not(containing("stuff"))));
+    }
+
+    @Test
+    public void verifiesWithHeaderDoesNotContainValue() {
+      testClient.get("/header/not", withHeader("X-Thing", "One"));
+      verify(
+          getRequestedFor(urlEqualTo("/header/not"))
+              .withHeader("X-Thing", not(containing("Four"))));
+    }
 
     @Test
     public void verifiesWithQueryParam() {
@@ -771,8 +774,7 @@ public class VerificationAcceptanceTest {
 
       verify(
           2,
-          requestMadeFor(
-              value -> MatchResult.of(value.getUrl().contains("remote-custom-match"))));
+          requestMadeFor(value -> MatchResult.of(value.getUrl().contains("remote-custom-match"))));
     }
 
     @Test

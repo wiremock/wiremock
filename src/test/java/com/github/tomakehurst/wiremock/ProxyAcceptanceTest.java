@@ -37,7 +37,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
@@ -689,9 +688,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   void proxyRequestWillNotTimeoutIfProxyResponseIsFastEnough() {
-    init(
-        wireMockConfig()
-            .proxyTimeout(1000));
+    init(wireMockConfig().proxyTimeout(1000));
 
     target.register(
         get(urlEqualTo("/proxied/resource?param=value"))
@@ -715,9 +712,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   void proxyRequestWillTimeoutIfProxyResponseIsTooSlow() {
-    init(
-        wireMockConfig()
-            .proxyTimeout(1000));
+    init(wireMockConfig().proxyTimeout(1000));
 
     target.register(
         get(urlEqualTo("/proxied/resource?param=value"))
@@ -735,7 +730,9 @@ public class ProxyAcceptanceTest {
 
     WireMockResponse response = testClient.get("/proxied/resource?param=value");
 
-    assertThat(response.content(), startsWith("Network failure trying to make a proxied request from WireMock"));
+    assertThat(
+        response.content(),
+        startsWith("Network failure trying to make a proxied request from WireMock"));
     assertThat(response.statusCode(), is(500));
   }
 

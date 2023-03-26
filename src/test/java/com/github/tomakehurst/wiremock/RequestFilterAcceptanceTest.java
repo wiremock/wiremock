@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Collections;
-import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -280,8 +279,7 @@ public class RequestFilterAcceptanceTest {
     public RequestFilterAction filter(Request request) {
       Request wrappedRequest =
           RequestWrapper.create()
-              .transformAbsoluteUrl(
-                  url -> url.replace("/subpath", "/prefix/subpath"))
+              .transformAbsoluteUrl(url -> url.replace("/subpath", "/prefix/subpath"))
               .wrap(request);
 
       return RequestFilterAction.continueWith(wrappedRequest);

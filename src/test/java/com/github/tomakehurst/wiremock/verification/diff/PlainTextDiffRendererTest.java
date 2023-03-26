@@ -414,8 +414,7 @@ public class PlainTextDiffRendererTest {
         new Diff(
             post("/thing")
                 .withName("Standard and custom matched stub")
-                .andMatching(
-                    value -> MatchResult.noMatch())
+                .andMatching(value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(POST).url("/thing"));
 
@@ -446,9 +445,7 @@ public class PlainTextDiffRendererTest {
   public void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
     Diff diff =
         new Diff(
-            requestMatching(
-                    value -> MatchResult.noMatch())
-                .build(),
+            requestMatching(value -> MatchResult.noMatch()).build(),
             mockRequest().method(POST).url("/thing"));
 
     String output = diffRenderer.render(diff);

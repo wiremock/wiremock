@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,11 +90,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
-    settingsStore.set(
-        GlobalSettings.builder()
-            .delayDistribution(
-                () -> 123)
-            .build());
+    settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -104,11 +100,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldCombineFixedDelayDistributionDelay() throws Exception {
-    settingsStore.set(
-        GlobalSettings.builder()
-            .delayDistribution(
-                () -> 123)
-            .build());
+    settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
     Response response = stubResponseRenderer.render(createServeEvent(2000));
     assertThat(response.getInitialDelay(), is(2123L));
   }

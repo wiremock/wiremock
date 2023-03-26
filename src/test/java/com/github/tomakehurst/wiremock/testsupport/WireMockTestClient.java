@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -325,9 +325,10 @@ public class WireMockTestClient {
     return executeMethodAndConvertExceptions(httpRequest, headers);
   }
 
-  public WireMockResponse request(final String methodName, String url, String body, TestHttpHeader... headers) {
+  public WireMockResponse request(
+      final String methodName, String url, String body, TestHttpHeader... headers) {
     HttpUriRequest httpRequest =
-            new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
+        new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
     httpRequest.setEntity(new StringEntity(body));
     return executeMethodAndConvertExceptions(httpRequest, headers);
   }
@@ -353,16 +354,17 @@ public class WireMockTestClient {
       return SSLContexts.custom()
           .loadTrustMaterial(
               null,
-              (chain, authType) -> chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
-                  || chain[0]
-                  .getSubjectDN()
-                  .getName()
-                  .equals("CN=WireMock Local Self Signed Root Certificate")
-                  || chain.length == 2
-                  && chain[1]
-                  .getSubjectDN()
-                  .getName()
-                  .equals("CN=WireMock Local Self Signed Root Certificate"))
+              (chain, authType) ->
+                  chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
+                      || chain[0]
+                          .getSubjectDN()
+                          .getName()
+                          .equals("CN=WireMock Local Self Signed Root Certificate")
+                      || chain.length == 2
+                          && chain[1]
+                              .getSubjectDN()
+                              .getName()
+                              .equals("CN=WireMock Local Self Signed Root Certificate"))
           .build();
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);

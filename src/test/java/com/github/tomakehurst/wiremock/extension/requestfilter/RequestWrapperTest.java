@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class RequestWrapperTest {
@@ -46,9 +45,10 @@ public class RequestWrapperTest {
     Request wrappedRequest =
         RequestWrapper.create()
             .transformAbsoluteUrl(
-                existingUrl -> existingUrl
-                    .replace("my.domain", "wiremock.org")
-                    .replace("/original-path", "/new-path"))
+                existingUrl ->
+                    existingUrl
+                        .replace("my.domain", "wiremock.org")
+                        .replace("/original-path", "/new-path"))
             .wrap(request);
 
     assertThat(wrappedRequest.getUrl(), is("/new-path?one=1&two=2"));
@@ -61,8 +61,7 @@ public class RequestWrapperTest {
 
     Request wrappedRequest =
         RequestWrapper.create()
-            .transformAbsoluteUrl(
-                existingUrl -> existingUrl.replace("my.domain", "wiremock.org"))
+            .transformAbsoluteUrl(existingUrl -> existingUrl.replace("my.domain", "wiremock.org"))
             .wrap(request);
 
     assertThat(wrappedRequest.getUrl(), is(""));
@@ -96,26 +95,28 @@ public class RequestWrapperTest {
         RequestWrapper.create()
             .transformHeader(
                 "One",
-                headerValues -> FluentIterable.from(headerValues)
-                    .transform(
-                        new Function<String, String>() {
-                          @Override
-                          public String apply(String headerValue) {
-                            return headerValue + "1";
-                          }
-                        })
-                    .toList())
+                headerValues ->
+                    FluentIterable.from(headerValues)
+                        .transform(
+                            new Function<String, String>() {
+                              @Override
+                              public String apply(String headerValue) {
+                                return headerValue + "1";
+                              }
+                            })
+                        .toList())
             .transformHeader(
                 "two",
-                headerValues -> FluentIterable.from(headerValues)
-                    .transform(
-                        new Function<String, String>() {
-                          @Override
-                          public String apply(String headerValue) {
-                            return headerValue + "2";
-                          }
-                        })
-                    .toList())
+                headerValues ->
+                    FluentIterable.from(headerValues)
+                        .transform(
+                            new Function<String, String>() {
+                              @Override
+                              public String apply(String headerValue) {
+                                return headerValue + "2";
+                              }
+                            })
+                        .toList())
             .wrap(request);
 
     assertThat(wrappedRequest.getHeader("One"), is("11"));
@@ -155,9 +156,7 @@ public class RequestWrapperTest {
 
     Request wrappedRequest =
         RequestWrapper.create()
-            .transformCookie(
-                "One",
-                cookie -> new Cookie(cookie.firstValue() + "1"))
+            .transformCookie("One", cookie -> new Cookie(cookie.firstValue() + "1"))
             .wrap(request);
 
     assertThat(wrappedRequest.getCookies().get("One").firstValue(), is("11"));
@@ -188,10 +187,7 @@ public class RequestWrapperTest {
     MockRequest request = mockRequest().body(initialBytes);
 
     Request wrappedRequest =
-        RequestWrapper.create()
-            .transformBody(
-                existingBody -> new Body(finalBytes))
-            .wrap(request);
+        RequestWrapper.create().transformBody(existingBody -> new Body(finalBytes)).wrap(request);
 
     assertThat(wrappedRequest.getBody(), is(finalBytes));
     assertThat(wrappedRequest.getBodyAsBase64(), is(encodeBase64(finalBytes)));
@@ -205,9 +201,10 @@ public class RequestWrapperTest {
     Request wrappedRequest =
         RequestWrapper.create()
             .transformParts(
-                existingPart -> existingPart.getName().equals("one")
-                    ? mockPart().name("one").body("1111")
-                    : mockPart().name("two").body("2222"))
+                existingPart ->
+                    existingPart.getName().equals("one")
+                        ? mockPart().name("one").body("1111")
+                        : mockPart().name("two").body("2222"))
             .wrap(request);
 
     assertThat(wrappedRequest.getPart("one").getBody().asString(), is("1111"));
