@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
