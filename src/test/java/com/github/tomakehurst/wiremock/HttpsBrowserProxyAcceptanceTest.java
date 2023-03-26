@@ -346,9 +346,9 @@ public class HttpsBrowserProxyAcceptanceTest {
         IOException.class,
         () -> {
           new WireMockServer(
-                  options()
-                      .enableBrowserProxying(true)
-                      .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString()));
+              options()
+                  .enableBrowserProxying(true)
+                  .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString()));
         });
   }
 
