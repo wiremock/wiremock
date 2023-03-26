@@ -168,16 +168,13 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withComparisonListeners(
-                      new ComparisonListener() {
-                        @Override
-                        public void comparisonPerformed(
-                            Comparison comparison, ComparisonResult outcome) {
-                          if (COUNTED_COMPARISONS.contains(comparison.getType())
-                              && comparison.getControlDetails().getValue() != null) {
-                            totalComparisons.incrementAndGet();
-                            if (outcome == ComparisonResult.DIFFERENT) {
-                              differences.incrementAndGet();
-                            }
+                      (
+                          comparison, outcome) -> {
+                        if (COUNTED_COMPARISONS.contains(comparison.getType())
+                            && comparison.getControlDetails().getValue() != null) {
+                          totalComparisons.incrementAndGet();
+                          if (outcome == ComparisonResult.DIFFERENT) {
+                            differences.incrementAndGet();
                           }
                         }
                       })

@@ -69,11 +69,8 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
   public void checkClientTrusted(final X509Certificate[] chain, final String authType)
       throws CertificateException {
     checkAllTrustManagers(
-        new CertificateChecker() {
-          @Override
-          public void check(X509ExtendedTrustManager tm) throws CertificateException {
-            tm.checkClientTrusted(chain, authType);
-          }
+        tm -> {
+          tm.checkClientTrusted(chain, authType);
         });
   }
 
@@ -81,11 +78,8 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
   public void checkServerTrusted(final X509Certificate[] chain, final String authType)
       throws CertificateException {
     checkAllTrustManagers(
-        new CertificateChecker() {
-          @Override
-          public void check(X509ExtendedTrustManager tm) throws CertificateException {
-            tm.checkServerTrusted(chain, authType);
-          }
+        tm -> {
+          tm.checkServerTrusted(chain, authType);
         });
   }
 
@@ -94,11 +88,8 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
       final X509Certificate[] chain, final String authType, final Socket socket)
       throws CertificateException {
     checkAllTrustManagers(
-        new CertificateChecker() {
-          @Override
-          public void check(X509ExtendedTrustManager tm) throws CertificateException {
-            tm.checkClientTrusted(chain, authType, socket);
-          }
+        tm -> {
+          tm.checkClientTrusted(chain, authType, socket);
         });
   }
 
@@ -107,11 +98,8 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
       final X509Certificate[] chain, final String authType, final Socket socket)
       throws CertificateException {
     checkAllTrustManagers(
-        new CertificateChecker() {
-          @Override
-          public void check(X509ExtendedTrustManager tm) throws CertificateException {
-            tm.checkServerTrusted(chain, authType, socket);
-          }
+        tm -> {
+          tm.checkServerTrusted(chain, authType, socket);
         });
   }
 
@@ -120,11 +108,8 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
       final X509Certificate[] chain, final String authType, final SSLEngine engine)
       throws CertificateException {
     checkAllTrustManagers(
-        new CertificateChecker() {
-          @Override
-          public void check(X509ExtendedTrustManager tm) throws CertificateException {
-            tm.checkClientTrusted(chain, authType, engine);
-          }
+        tm -> {
+          tm.checkClientTrusted(chain, authType, engine);
         });
   }
 
@@ -133,11 +118,8 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
       final X509Certificate[] chain, final String authType, final SSLEngine engine)
       throws CertificateException {
     checkAllTrustManagers(
-        new CertificateChecker() {
-          @Override
-          public void check(X509ExtendedTrustManager tm) throws CertificateException {
-            tm.checkServerTrusted(chain, authType, engine);
-          }
+        tm -> {
+          tm.checkServerTrusted(chain, authType, engine);
         });
   }
 

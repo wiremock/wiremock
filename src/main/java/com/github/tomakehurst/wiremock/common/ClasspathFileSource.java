@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -216,12 +215,7 @@ public class ClasspathFileSource implements FileSource {
   public void deleteFile(String name) {}
 
   private static <T> Iterable<T> toIterable(final Enumeration<T> e) {
-    return new Iterable<T>() {
-      @Override
-      public Iterator<T> iterator() {
-        return Iterators.forEnumeration(e);
-      }
-    };
+    return () -> Iterators.forEnumeration(e);
   }
 
   private void assertExistsAndIsDirectory() {

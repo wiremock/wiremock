@@ -53,7 +53,6 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.hc.core5.ssl.TrustStrategy;
 
 public class WireMockTestClient {
 
@@ -355,21 +354,16 @@ public class WireMockTestClient {
       return SSLContexts.custom()
           .loadTrustMaterial(
               null,
-              new TrustStrategy() {
-                @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) {
-                  return chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
-                      || chain[0]
-                          .getSubjectDN()
-                          .getName()
-                          .equals("CN=WireMock Local Self Signed Root Certificate")
-                      || chain.length == 2
-                          && chain[1]
-                              .getSubjectDN()
-                              .getName()
-                              .equals("CN=WireMock Local Self Signed Root Certificate");
-                }
-              })
+              ([]chain, authType) -> chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
+                  || chain[0]
+                  .getSubjectDN()
+                  .getName()
+                  .equals("CN=WireMock Local Self Signed Root Certificate")
+                  || chain.length == 2
+                  && chain[1]
+                  .getSubjectDN()
+                  .getName()
+                  .equals("CN=WireMock Local Self Signed Root Certificate"))
           .build();
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);

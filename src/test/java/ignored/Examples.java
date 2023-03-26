@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
@@ -707,12 +706,7 @@ public class Examples extends AcceptanceTestBase {
       Request wrappedRequest =
           RequestWrapper.create()
               .transformAbsoluteUrl(
-                  new FieldTransformer<String>() {
-                    @Override
-                    public String transform(String url) {
-                      return url + "extraparam=123";
-                    }
-                  })
+                  url -> url + "extraparam=123")
               .addHeader("X-Custom-Header", "headerval")
               .wrap(request);
 

@@ -93,12 +93,7 @@ public class StubResponseRendererTest {
     settingsStore.set(
         GlobalSettings.builder()
             .delayDistribution(
-                new DelayDistribution() {
-                  @Override
-                  public long sampleMillis() {
-                    return 123;
-                  }
-                })
+                () -> 123)
             .build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
@@ -112,12 +107,7 @@ public class StubResponseRendererTest {
     settingsStore.set(
         GlobalSettings.builder()
             .delayDistribution(
-                new DelayDistribution() {
-                  @Override
-                  public long sampleMillis() {
-                    return 123;
-                  }
-                })
+                () -> 123)
             .build());
     Response response = stubResponseRenderer.render(createServeEvent(2000));
     assertThat(response.getInitialDelay(), is(2123L));

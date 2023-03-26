@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import org.junit.jupiter.api.Test;
 
@@ -368,12 +367,7 @@ public class DiffTest {
         new Diff(
             newRequestPattern(GET, urlEqualTo("/thing"))
                 .andMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
+                    value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(GET).url("/thing"));
 

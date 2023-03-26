@@ -31,7 +31,6 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -257,12 +256,7 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void customHelper() {
     Helper<String> helper =
-        new Helper<String>() {
-          @Override
-          public Object apply(String context, Options options) throws IOException {
-            return context.length();
-          }
-        };
+        (context, options) -> context.length();
 
     transformer =
         ResponseTemplateTransformer.builder().global(false).helper("string-length", helper).build();

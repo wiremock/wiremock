@@ -30,7 +30,6 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Collections;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -416,12 +415,7 @@ public class PlainTextDiffRendererTest {
             post("/thing")
                 .withName("Standard and custom matched stub")
                 .andMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
+                    value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(POST).url("/thing"));
 
@@ -453,12 +447,7 @@ public class PlainTextDiffRendererTest {
     Diff diff =
         new Diff(
             requestMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
+                    value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(POST).url("/thing"));
 

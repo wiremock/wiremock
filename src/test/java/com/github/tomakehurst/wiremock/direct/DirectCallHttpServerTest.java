@@ -63,7 +63,7 @@ class DirectCallHttpServerTest {
   class Start {
     @Test
     void doesNothing() {
-      assertDoesNotThrow(() -> server.start());
+      assertDoesNotThrow(server::start);
     }
   }
 
@@ -71,7 +71,7 @@ class DirectCallHttpServerTest {
   class Stop {
     @Test
     void doesNothing() {
-      assertDoesNotThrow(() -> server.start());
+      assertDoesNotThrow(server::start);
     }
   }
 

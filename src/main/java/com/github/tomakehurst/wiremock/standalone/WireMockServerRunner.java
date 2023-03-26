@@ -97,17 +97,14 @@ public class WireMockServerRunner {
 
   private void addProxyMapping(final String baseUrl) {
     wireMockServer.loadMappingsUsing(
-        new MappingsLoader() {
-          @Override
-          public void loadMappingsInto(StubMappings stubMappings) {
-            RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
-            ResponseDefinition responseDef = responseDefinition().proxiedFrom(baseUrl).build();
+        stubMappings -> {
+          RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
+          ResponseDefinition responseDef = responseDefinition().proxiedFrom(baseUrl).build();
 
-            StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
-            proxyBasedMapping.setPriority(
-                10); // Make it low priority so that existing stubs will take precedence
-            stubMappings.addMapping(proxyBasedMapping);
-          }
+          StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
+          proxyBasedMapping.setPriority(
+              10); // Make it low priority so that existing stubs will take precedence
+          stubMappings.addMapping(proxyBasedMapping);
         });
   }
 

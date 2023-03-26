@@ -372,27 +372,21 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
     assertThrows(
         NotRecordingException.class,
-        () -> {
-          stopRecording();
-        });
+        WireMock::stopRecording);
   }
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
     assertThrows(
         NotRecordingException.class,
-        () -> {
-          adminClient.stopStubRecording();
-        });
+        adminClient::stopStubRecording);
   }
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
     assertThrows(
         NotRecordingException.class,
-        () -> {
-          proxyingService.stopRecording();
-        });
+        proxyingService::stopRecording);
   }
 
   @Test

@@ -167,20 +167,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
     final WireMockServer server = this;
     Thread shutdownThread =
         new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                try {
-                  // We have to sleep briefly to finish serving the shutdown request before stopping
-                  // the server, as
-                  // there's no support in Jetty for shutting down after the current request.
-                  // See http://stackoverflow.com/questions/4650713
-                  Thread.sleep(100);
-                } catch (InterruptedException e) {
-                  throw new RuntimeException(e);
-                }
-                server.stop();
+            () -> {
+              try {
+                // We have to sleep briefly to finish serving the shutdown request before stopping
+                // the server, as
+                // there's no support in Jetty for shutting down after the current request.
+                // See http://stackoverflow.com/questions/4650713
+                Thread.sleep(100);
+              } catch (InterruptedException e) {
+                throw new RuntimeException(e);
               }
+              server.stop();
             });
     shutdownThread.start();
   }

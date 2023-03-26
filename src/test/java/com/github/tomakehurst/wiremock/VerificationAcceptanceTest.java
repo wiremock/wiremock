@@ -42,7 +42,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -773,12 +772,7 @@ public class VerificationAcceptanceTest {
       verify(
           2,
           requestMadeFor(
-              new ValueMatcher<Request>() {
-                @Override
-                public MatchResult match(Request value) {
-                  return MatchResult.of(value.getUrl().contains("remote-custom-match"));
-                }
-              }));
+              value -> MatchResult.of(value.getUrl().contains("remote-custom-match"))));
     }
 
     @Test

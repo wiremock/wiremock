@@ -72,9 +72,7 @@ public class ServletContextFileSourceTest {
   public void throwsUnsupportedExceptionWhenAttemptingToCreate() {
     assertThrows(
         UnsupportedOperationException.class,
-        () -> {
-          fileSource.createIfNecessary();
-        });
+        fileSource::createIfNecessary);
   }
 
   private static class MockServletContext implements ServletContext {

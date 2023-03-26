@@ -26,12 +26,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.security.*;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,18 +47,8 @@ public class ClientAuthenticationAcceptanceTest {
   @Test
   public void supportsCustomAuthenticator() {
     initialise(
-        new Authenticator() {
-          @Override
-          public boolean authenticate(Request request) {
-            return request.containsHeader("X-Magic-Header");
-          }
-        },
-        new ClientAuthenticator() {
-          @Override
-          public List<HttpHeader> generateAuthHeaders() {
-            return singletonList(httpHeader("X-Magic-Header", "blah"));
-          }
-        });
+        request -> request.containsHeader("X-Magic-Header"),
+        () -> singletonList(httpHeader("X-Magic-Header", "blah")));
 
     WireMockTestClient noAuthClient = new WireMockTestClient(server.port());
 

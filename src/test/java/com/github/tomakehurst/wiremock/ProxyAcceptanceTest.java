@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
@@ -26,7 +24,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
@@ -40,7 +38,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
@@ -224,24 +221,21 @@ public class ProxyAcceptanceTest {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     server.createContext(
         "/binary",
-        new HttpHandler() {
-          @Override
-          public void handle(HttpExchange exchange) throws IOException {
-            InputStream request = exchange.getRequestBody();
+        exchange -> {
+          InputStream request = exchange.getRequestBody();
 
-            byte[] buffy = new byte[10];
-            request.read(buffy);
+          byte[] buffy = new byte[10];
+          request.read(buffy);
 
-            if (Arrays.equals(buffy, bytes)) {
-              exchange.sendResponseHeaders(200, bytes.length);
+          if (Arrays.equals(buffy, bytes)) {
+            exchange.sendResponseHeaders(200, bytes.length);
 
-              OutputStream out = exchange.getResponseBody();
-              out.write(bytes);
-              out.close();
-            } else {
-              exchange.sendResponseHeaders(500, 0);
-              exchange.close();
-            }
+            OutputStream out = exchange.getResponseBody();
+            out.write(bytes);
+            out.close();
+          } else {
+            exchange.sendResponseHeaders(500, 0);
+            exchange.close();
           }
         });
     server.start();

@@ -92,15 +92,12 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     for (int i = 0; i < requestCount; i++) {
       final Stopwatch stopwatch = Stopwatch.createStarted();
       requests.add(
-          new Callable<TimedHttpResponse>() {
-            @Override
-            public TimedHttpResponse call() throws Exception {
-              CloseableHttpResponse response =
-                  HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
-                      .execute(new HttpGet(wireMockRule.url("/delayed")));
+          () -> {
+            CloseableHttpResponse response =
+                HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
+                    .execute(new HttpGet(wireMockRule.url("/delayed")));
 
-              return new TimedHttpResponse(response, stopwatch.stop().elapsed(MILLISECONDS));
-            }
+            return new TimedHttpResponse(response, stopwatch.stop().elapsed(MILLISECONDS));
           });
     }
     return requests;

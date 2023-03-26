@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
@@ -271,11 +270,8 @@ public class WireMockJUnitRuleTest {
     public void requestReceivedByListener() {
       final List<String> urls = new ArrayList<String>();
       wireMockRule.addMockServiceRequestListener(
-          new RequestListener() {
-            @Override
-            public void requestReceived(Request request, Response response) {
-              urls.add(request.getUrl());
-            }
+          (request, response) -> {
+            urls.add(request.getUrl());
           });
       wireMockRule.stubFor(
           get(urlEqualTo("/test/listener")).willReturn(aResponse().withBody("Listener")));

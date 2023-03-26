@@ -72,11 +72,7 @@ public class Urls {
 
     return Maps.transformEntries(
         builder.build().asMap(),
-        new Maps.EntryTransformer<String, Collection<String>, QueryParameter>() {
-          public QueryParameter transformEntry(String key, Collection<String> values) {
-            return new QueryParameter(key, ImmutableList.copyOf(values));
-          }
-        });
+        (key, values) -> new QueryParameter(key, ImmutableList.copyOf(values)));
   }
 
   public static String getPath(String url) {

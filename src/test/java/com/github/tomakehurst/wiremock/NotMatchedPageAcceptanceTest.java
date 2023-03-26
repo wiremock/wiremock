@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
@@ -225,12 +224,7 @@ public class NotMatchedPageAcceptanceTest {
                         RequestWrapper.create()
                             .transformHeader(
                                 "X-My-Header",
-                                new FieldTransformer<List<String>>() {
-                                  @Override
-                                  public List<String> transform(List<String> source) {
-                                    return singletonList("modified value");
-                                  }
-                                })
+                                source -> singletonList("modified value"))
                             .wrap(request);
                     return RequestFilterAction.continueWith(wrappedRequest);
                   }
