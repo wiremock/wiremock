@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -389,14 +388,15 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
       Class<? extends StringValuePattern> clazz) {
     Optional<Constructor<?>> optionalConstructor =
         tryFind(
-            asList(clazz.getDeclaredConstructors()),
-            new Predicate<Constructor<?>>() {
-              @Override
-              public boolean apply(Constructor<?> input) {
-                return input.getParameterTypes().length == 1
-                    && input.getGenericParameterTypes()[0].equals(String.class);
-              }
-            });
+                asList(clazz.getDeclaredConstructors()),
+                new Predicate<Constructor<?>>() {
+                  @Override
+                  public boolean apply(Constructor<?> input) {
+                    return input.getParameterTypes().length == 1
+                        && input.getGenericParameterTypes()[0].equals(String.class);
+                  }
+                })
+            .toJavaUtil();
 
     if (!optionalConstructor.isPresent()) {
       throw new IllegalStateException(
