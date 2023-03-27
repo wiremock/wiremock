@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
   @Override
   public ResponseDefinition render(Admin admin, Request request) {
     LoggedRequest loggedRequest =
-        LoggedRequest.createFrom(request.getOriginalRequest().or(request));
+        LoggedRequest.createFrom(request.getOriginalRequest().orElse(request));
     List<NearMiss> nearMisses = admin.findTopNearMissesFor(loggedRequest).getNearMisses();
 
     Map<String, RequestMatcherExtension> customMatcherExtensions =

@@ -29,11 +29,11 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class MockRequest implements Request {
@@ -236,7 +236,7 @@ public class MockRequest implements Request {
 
   @Override
   public Optional<Request> getOriginalRequest() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override

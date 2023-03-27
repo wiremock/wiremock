@@ -37,12 +37,12 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.*;
-import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WireMockHttpServletRequestAdapter implements Request {
@@ -323,7 +323,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public Optional<Request> getOriginalRequest() {
     Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
-    return Optional.fromNullable(originalRequest);
+    return Optional.ofNullable(originalRequest);
   }
 
   @Override

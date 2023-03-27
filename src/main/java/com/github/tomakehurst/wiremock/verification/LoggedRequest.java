@@ -30,13 +30,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -261,7 +261,7 @@ public class LoggedRequest implements Request {
   @JsonIgnore
   @Override
   public Optional<Request> getOriginalRequest() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
