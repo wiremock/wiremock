@@ -60,12 +60,12 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class WireMockConfiguration implements Options {
 
@@ -102,7 +102,7 @@ public class WireMockConfiguration implements Options {
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
-  private Optional<Integer> maxRequestJournalEntries = Optional.absent();
+  private Optional<Integer> maxRequestJournalEntries = Optional.empty();
   private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
   private boolean preserveHostHeader;
@@ -725,5 +725,4 @@ public class WireMockConfiguration implements Options {
   public int proxyTimeout() {
     return proxyTimeout;
   }
-
 }

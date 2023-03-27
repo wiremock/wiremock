@@ -49,7 +49,6 @@ import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRendere
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.io.Resources;
@@ -57,6 +56,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
+import java.util.Optional;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -361,11 +361,9 @@ public class CommandLineOptions implements Options {
             "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
         .withRequiredArg();
     optionParser
-        .accepts(
-            PROXY_TIMEOUT,
-            "Timeout in milliseconds for requests to proxy")
+        .accepts(PROXY_TIMEOUT, "Timeout in milliseconds for requests to proxy")
         .withRequiredArg();
-   optionParser
+    optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
 
@@ -724,7 +722,7 @@ public class CommandLineOptions implements Options {
     if (specifiesMaxRequestJournalEntries()) {
       return Optional.of(Integer.parseInt((String) optionSet.valueOf(MAX_ENTRIES_REQUEST_JOURNAL)));
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
