@@ -61,9 +61,9 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class CommandLineOptionsTest {

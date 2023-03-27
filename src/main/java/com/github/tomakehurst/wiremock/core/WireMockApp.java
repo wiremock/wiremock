@@ -40,7 +40,6 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
@@ -94,7 +93,7 @@ public class WireMockApp implements StubServer, Admin {
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
             : new StoreBackedRequestJournal(
-                options.maxRequestJournalEntries(),
+                options.maxRequestJournalEntries().orElse(null),
                 customMatchers,
                 stores.getRequestJournalStore());
 
@@ -121,7 +120,7 @@ public class WireMockApp implements StubServer, Admin {
       MappingsLoader defaultMappingsLoader,
       MappingsSaver mappingsSaver,
       boolean requestJournalDisabled,
-      Optional<Integer> maxRequestJournalEntries,
+      Integer maxRequestJournalEntries,
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, RequestMatcherExtension> requestMatchers,
       FileSource rootFileSource,
