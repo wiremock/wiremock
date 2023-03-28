@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,9 +240,14 @@ public class WireMockApp implements StubServer, Admin {
 
     if (serveEvent.isNoExactMatch()) {
       LoggedRequest loggedRequest = serveEvent.getRequest();
-      if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
-        return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
+
+      if (getGlobalSettings().getSettings().getProxyPassThrough()) {
+        if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
+          return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
+        }
       }
+
+      return ServeEvent.of(loggedRequest, ResponseDefinition.notConfigured());
     }
 
     return serveEvent;

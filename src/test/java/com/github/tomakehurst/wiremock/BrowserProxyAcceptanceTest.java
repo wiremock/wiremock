@@ -74,7 +74,7 @@ class BrowserProxyAcceptanceTest {
 
   @Test
   public void returnNotConfiguredResponseOnPassThroughDisabled() {
-    target.stubFor(get("/whatever").willReturn(aResponse().withBody("Got it")));
+    target.stubFor(get("/whatever").willReturn(ok("Got it")));
 
     GlobalSettings newSettings =
         target.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build();
@@ -86,12 +86,22 @@ class BrowserProxyAcceptanceTest {
 
   @Test
   public void returnStubbedResponseOnPassThroughDisabled() {
-    target.stubFor(
-        get("/whatever").willReturn(ok("Got it")));
+    proxy.updateGlobalSettings(
+        proxy.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build());
 
-    GlobalSettings newSettings =
-        target.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build();
-    target.updateGlobalSettings(newSettings);
+    proxy.stubFor(get("/whatever").willReturn(ok("Default response")));
+
+    WireMockResponse wireMockResponse =
+        testClient.getViaProxy(target.url("/whatever"), proxy.port());
+
+    assertThat(wireMockResponse.statusCode(), is(200));
+    assertThat(wireMockResponse.content(), is("Default response"));
+  }
+
+  @Test
+  public void returnStubbedResponseOnPassThroughEnabled() {
+    // by default, passProxyThrough is true/enabled
+    target.stubFor(get("/whatever").willReturn(ok("Got it")));
 
     WireMockResponse wireMockResponse =
         testClient.getViaProxy(target.url("/whatever"), proxy.port());
@@ -100,15 +110,17 @@ class BrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void returnStubbedResponseOnPassThroughEnabled() {
-    // by default, passProxyThrough is true/enabled
-    target.stubFor(
-        get("/whatever").willReturn(ok("Got it")));
+  void disablingPassThroughDoesNotAffectReverseProxying() {
+    proxy.updateGlobalSettings(
+        proxy.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build());
 
-    WireMockResponse wireMockResponse =
-        testClient.getViaProxy(target.url("/whatever"), proxy.port());
-    assertThat(wireMockResponse.statusCode(), is(200));
-    assertThat(wireMockResponse.content(), is("Got it"));
+    proxy.stubFor(proxyAllTo(target.baseUrl()));
+
+    target.stubFor(get("/whatever").willReturn(ok("Got it")));
+
+    WireMockTestClient testClient = new WireMockTestClient(proxy.port());
+
+    assertThat(testClient.get("/whatever").content(), is("Got it"));
   }
 
   @Nested
