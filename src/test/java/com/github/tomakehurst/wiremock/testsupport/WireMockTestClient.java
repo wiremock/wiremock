@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -53,7 +52,6 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.hc.core5.ssl.TrustStrategy;
 
 public class WireMockTestClient {
 
@@ -327,9 +325,10 @@ public class WireMockTestClient {
     return executeMethodAndConvertExceptions(httpRequest, headers);
   }
 
-  public WireMockResponse request(final String methodName, String url, String body, TestHttpHeader... headers) {
+  public WireMockResponse request(
+      final String methodName, String url, String body, TestHttpHeader... headers) {
     HttpUriRequest httpRequest =
-            new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
+        new HttpUriRequestBase(methodName, URI.create(mockServiceUrlFor(url)));
     httpRequest.setEntity(new StringEntity(body));
     return executeMethodAndConvertExceptions(httpRequest, headers);
   }
@@ -355,10 +354,8 @@ public class WireMockTestClient {
       return SSLContexts.custom()
           .loadTrustMaterial(
               null,
-              new TrustStrategy() {
-                @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) {
-                  return chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
+              (chain, authType) ->
+                  chain[0].getSubjectDN().getName().startsWith("CN=Tom Akehurst")
                       || chain[0]
                           .getSubjectDN()
                           .getName()
@@ -367,9 +364,7 @@ public class WireMockTestClient {
                           && chain[1]
                               .getSubjectDN()
                               .getName()
-                              .equals("CN=WireMock Local Self Signed Root Certificate");
-                }
-              })
+                              .equals("CN=WireMock Local Self Signed Root Certificate"))
           .build();
     } catch (Exception e) {
       return throwUnchecked(e, SSLContext.class);

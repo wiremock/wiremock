@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,7 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 public class RequestWrapperTest {
@@ -46,14 +44,10 @@ public class RequestWrapperTest {
     Request wrappedRequest =
         RequestWrapper.create()
             .transformAbsoluteUrl(
-                new FieldTransformer<String>() {
-                  @Override
-                  public String transform(String existingUrl) {
-                    return existingUrl
+                existingUrl ->
+                    existingUrl
                         .replace("my.domain", "wiremock.org")
-                        .replace("/original-path", "/new-path");
-                  }
-                })
+                        .replace("/original-path", "/new-path"))
             .wrap(request);
 
     assertThat(wrappedRequest.getUrl(), is("/new-path?one=1&two=2"));
@@ -66,13 +60,7 @@ public class RequestWrapperTest {
 
     Request wrappedRequest =
         RequestWrapper.create()
-            .transformAbsoluteUrl(
-                new FieldTransformer<String>() {
-                  @Override
-                  public String transform(String existingUrl) {
-                    return existingUrl.replace("my.domain", "wiremock.org");
-                  }
-                })
+            .transformAbsoluteUrl(existingUrl -> existingUrl.replace("my.domain", "wiremock.org"))
             .wrap(request);
 
     assertThat(wrappedRequest.getUrl(), is(""));
@@ -106,36 +94,16 @@ public class RequestWrapperTest {
         RequestWrapper.create()
             .transformHeader(
                 "One",
-                new FieldTransformer<List<String>>() {
-                  @Override
-                  public List<String> transform(List<String> headerValues) {
-                    return FluentIterable.from(headerValues)
-                        .transform(
-                            new Function<String, String>() {
-                              @Override
-                              public String apply(String headerValue) {
-                                return headerValue + "1";
-                              }
-                            })
-                        .toList();
-                  }
-                })
+                headerValues ->
+                    headerValues.stream()
+                        .map(headerValue -> headerValue + "1")
+                        .collect(Collectors.toList()))
             .transformHeader(
                 "two",
-                new FieldTransformer<List<String>>() {
-                  @Override
-                  public List<String> transform(List<String> headerValues) {
-                    return FluentIterable.from(headerValues)
-                        .transform(
-                            new Function<String, String>() {
-                              @Override
-                              public String apply(String headerValue) {
-                                return headerValue + "2";
-                              }
-                            })
-                        .toList();
-                  }
-                })
+                headerValues ->
+                    headerValues.stream()
+                        .map(headerValue -> headerValue + "2")
+                        .collect(Collectors.toList()))
             .wrap(request);
 
     assertThat(wrappedRequest.getHeader("One"), is("11"));
@@ -175,14 +143,7 @@ public class RequestWrapperTest {
 
     Request wrappedRequest =
         RequestWrapper.create()
-            .transformCookie(
-                "One",
-                new FieldTransformer<Cookie>() {
-                  @Override
-                  public Cookie transform(Cookie cookie) {
-                    return new Cookie(cookie.firstValue() + "1");
-                  }
-                })
+            .transformCookie("One", cookie -> new Cookie(cookie.firstValue() + "1"))
             .wrap(request);
 
     assertThat(wrappedRequest.getCookies().get("One").firstValue(), is("11"));
@@ -195,12 +156,9 @@ public class RequestWrapperTest {
     Request wrappedRequest =
         RequestWrapper.create()
             .transformBody(
-                new FieldTransformer<Body>() {
-                  @Override
-                  public Body transform(Body existingBody) {
-                    String newValue = existingBody.asString().replace("One", "Two");
-                    return new Body(newValue);
-                  }
+                existingBody -> {
+                  String newValue = existingBody.asString().replace("One", "Two");
+                  return new Body(newValue);
                 })
             .wrap(request);
 
@@ -216,15 +174,7 @@ public class RequestWrapperTest {
     MockRequest request = mockRequest().body(initialBytes);
 
     Request wrappedRequest =
-        RequestWrapper.create()
-            .transformBody(
-                new FieldTransformer<Body>() {
-                  @Override
-                  public Body transform(Body existingBody) {
-                    return new Body(finalBytes);
-                  }
-                })
-            .wrap(request);
+        RequestWrapper.create().transformBody(existingBody -> new Body(finalBytes)).wrap(request);
 
     assertThat(wrappedRequest.getBody(), is(finalBytes));
     assertThat(wrappedRequest.getBodyAsBase64(), is(encodeBase64(finalBytes)));
@@ -238,14 +188,10 @@ public class RequestWrapperTest {
     Request wrappedRequest =
         RequestWrapper.create()
             .transformParts(
-                new FieldTransformer<Request.Part>() {
-                  @Override
-                  public Request.Part transform(Request.Part existingPart) {
-                    return existingPart.getName().equals("one")
+                existingPart ->
+                    existingPart.getName().equals("one")
                         ? mockPart().name("one").body("1111")
-                        : mockPart().name("two").body("2222");
-                  }
-                })
+                        : mockPart().name("two").body("2222"))
             .wrap(request);
 
     assertThat(wrappedRequest.getPart("one").getBody().asString(), is("1111"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
@@ -706,13 +705,7 @@ public class Examples extends AcceptanceTestBase {
     public RequestFilterAction filter(Request request) {
       Request wrappedRequest =
           RequestWrapper.create()
-              .transformAbsoluteUrl(
-                  new FieldTransformer<String>() {
-                    @Override
-                    public String transform(String url) {
-                      return url + "extraparam=123";
-                    }
-                  })
+              .transformAbsoluteUrl(url -> url + "extraparam=123")
               .addHeader("X-Custom-Header", "headerval")
               .wrap(request);
 

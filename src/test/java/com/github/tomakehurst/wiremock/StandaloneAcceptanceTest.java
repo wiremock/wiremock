@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -459,7 +459,7 @@ public class StandaloneAcceptanceTest {
   public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
     writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-    MappingFileException exception = assertThrows(MappingFileException.class, () -> startRunner());
+    MappingFileException exception = assertThrows(MappingFileException.class, this::startRunner);
     assertThat(
         exception.getMessage(),
         allOf(
@@ -486,12 +486,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private FilenameFilter namedLike(final String namePart) {
-    return new FilenameFilter() {
-      @Override
-      public boolean accept(File file, String name) {
-        return name.contains(namePart);
-      }
-    };
+    return (file, name) -> name.contains(namePart);
   }
 
   private WireMock startOtherServerAndClient() {
