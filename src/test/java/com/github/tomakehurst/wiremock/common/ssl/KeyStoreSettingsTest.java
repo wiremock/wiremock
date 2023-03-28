@@ -34,6 +34,15 @@ public class KeyStoreSettingsTest {
   }
 
   @Test
+  public void loadsTrustStoreOfTypeJCEKS() {
+    KeyStoreSettings trustStoreSettings =
+        new KeyStoreSettings(JCEKS_TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jceks");
+
+    KeyStore keyStore = trustStoreSettings.loadStore();
+    assertNotNull(keyStore);
+  }
+
+  @Test
   public void loadsTrustStoreFromFilesystem() {
     KeyStoreSettings trustStoreSettings =
         new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD, "jks");
