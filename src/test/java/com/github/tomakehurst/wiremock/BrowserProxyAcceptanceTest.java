@@ -15,11 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -60,7 +56,7 @@ class BrowserProxyAcceptanceTest {
 
   @Test
   public void canProxyHttp() {
-    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+    target.stubFor(get("/whatever").willReturn(aResponse().withBody("Got it")));
 
     assertThat(
         testClient.getViaProxy(target.url("/whatever"), proxy.port()).content(), is("Got it"));
@@ -78,7 +74,7 @@ class BrowserProxyAcceptanceTest {
 
   @Test
   public void returnNotConfiguredResponseOnPassThroughDisabled() {
-    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+    target.stubFor(get("/whatever").willReturn(aResponse().withBody("Got it")));
 
     GlobalSettings newSettings =
         target.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build();
@@ -91,7 +87,7 @@ class BrowserProxyAcceptanceTest {
   @Test
   public void returnStubbedResponseOnPassThroughDisabled() {
     target.stubFor(
-        get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it").withStatus(200)));
+        get("/whatever").willReturn(ok("Got it")));
 
     GlobalSettings newSettings =
         target.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build();
@@ -107,7 +103,7 @@ class BrowserProxyAcceptanceTest {
   public void returnStubbedResponseOnPassThroughEnabled() {
     // by default, passProxyThrough is true/enabled
     target.stubFor(
-        get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it").withStatus(200)));
+        get("/whatever").willReturn(ok("Got it")));
 
     WireMockResponse wireMockResponse =
         testClient.getViaProxy(target.url("/whatever"), proxy.port());
