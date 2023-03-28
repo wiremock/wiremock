@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,15 +92,12 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     for (int i = 0; i < requestCount; i++) {
       final Stopwatch stopwatch = Stopwatch.createStarted();
       requests.add(
-          new Callable<TimedHttpResponse>() {
-            @Override
-            public TimedHttpResponse call() throws Exception {
-              CloseableHttpResponse response =
-                  HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
-                      .execute(new HttpGet(wireMockRule.url("/delayed")));
+          () -> {
+            CloseableHttpResponse response =
+                HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS)
+                    .execute(new HttpGet(wireMockRule.url("/delayed")));
 
-              return new TimedHttpResponse(response, stopwatch.stop().elapsed(MILLISECONDS));
-            }
+            return new TimedHttpResponse(response, stopwatch.stop().elapsed(MILLISECONDS));
           });
     }
     return requests;

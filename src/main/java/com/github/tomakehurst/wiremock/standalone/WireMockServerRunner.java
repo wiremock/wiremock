@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public class WireMockServerRunner {
 
@@ -97,17 +96,14 @@ public class WireMockServerRunner {
 
   private void addProxyMapping(final String baseUrl) {
     wireMockServer.loadMappingsUsing(
-        new MappingsLoader() {
-          @Override
-          public void loadMappingsInto(StubMappings stubMappings) {
-            RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
-            ResponseDefinition responseDef = responseDefinition().proxiedFrom(baseUrl).build();
+        stubMappings -> {
+          RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
+          ResponseDefinition responseDef = responseDefinition().proxiedFrom(baseUrl).build();
 
-            StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
-            proxyBasedMapping.setPriority(
-                10); // Make it low priority so that existing stubs will take precedence
-            stubMappings.addMapping(proxyBasedMapping);
-          }
+          StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
+          proxyBasedMapping.setPriority(
+              10); // Make it low priority so that existing stubs will take precedence
+          stubMappings.addMapping(proxyBasedMapping);
         });
   }
 

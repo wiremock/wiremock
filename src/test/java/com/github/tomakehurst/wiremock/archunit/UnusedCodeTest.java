@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.archunit;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo;
 import static com.tngtech.archunit.core.domain.JavaMember.Predicates.declaredIn;
 import static com.tngtech.archunit.core.domain.properties.HasName.Utils.namesOf;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -74,6 +75,10 @@ class UnusedCodeTest {
               describe(
                   "do not implement interface", clazz -> clazz.getAllRawInterfaces().isEmpty()))
           .and(describe("do not extend class", clazz -> 1 == clazz.getAllRawSuperclasses().size()))
+          .and(
+              not(
+                  assignableTo(
+                      com.github.tomakehurst.wiremock.standalone.WireMockServerRunner.class)))
           .should(beReferencedClass)
           .as("should use all classes")
           .because("unused classes should be removed");

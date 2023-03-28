@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,10 +61,6 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
   }
 
   public static <T> Iterable<T> all(final Iterator<T> underlyingIterator) {
-    return new Iterable<T>() {
-      public Iterator<T> iterator() {
-        return underlyingIterator;
-      }
-    };
+    return () -> underlyingIterator;
   }
 }

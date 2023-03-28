@@ -36,9 +36,13 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
-import com.google.common.base.*;
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -67,14 +71,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
 
-    cachedQueryParams =
-        Suppliers.memoize(
-            new Supplier<Map<String, QueryParameter>>() {
-              @Override
-              public Map<String, QueryParameter> get() {
-                return splitQuery(request.getQueryString());
-              }
-            });
+    cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
 
     if (multipartRequestConfigurer != null) {
       this.multipartRequestConfigurer.configure(request);

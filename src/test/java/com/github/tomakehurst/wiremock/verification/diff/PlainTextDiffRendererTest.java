@@ -45,7 +45,6 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Collections;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -435,13 +434,7 @@ public class PlainTextDiffRendererTest {
         new Diff(
             post("/thing")
                 .withName("Standard and custom matched stub")
-                .andMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
+                .andMatching(value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(POST).url("/thing"));
 
@@ -526,14 +519,7 @@ public class PlainTextDiffRendererTest {
   public void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
     Diff diff =
         new Diff(
-            requestMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
-                .build(),
+            requestMatching(value -> MatchResult.noMatch()).build(),
             mockRequest().method(POST).url("/thing"));
 
     String output = diffRenderer.render(diff);
