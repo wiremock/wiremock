@@ -15,7 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.including;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -35,7 +50,12 @@ import java.util.Collections;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 
 public class PlainTextDiffRendererTest {
 
@@ -446,6 +466,60 @@ public class PlainTextDiffRendererTest {
 
     assertThat(
         output, equalsMultiLine(file("not-found-diff-sample_mixed-matchers-named-custom.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenExactMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withQueryParam("q", havingExactly("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing?q=2"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(
+            file("not-found-diff-sample_exactmatch-for-multiple-values-query-param.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenIncludesMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withQueryParam("q", including("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing?q=1"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(
+            file("not-found-diff-sample_includematch-for-multiple-values-query-param.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenExactMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withHeader("q", havingExactly("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing").header("q", "1"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(file("not-found-diff-sample_exactmatch-for-multiple-values-header.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenIncludesMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withHeader("q", including("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing").header("q", "1"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(file("not-found-diff-sample_includematch-for-multiple-values-header.txt")));
   }
 
   @Test
