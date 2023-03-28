@@ -116,7 +116,7 @@ dependencies {
 
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
-  testRuntimeOnly "org.slf4j:log4j-over-slf4j:2.0.6"
+  testRuntimeOnly "org.slf4j:log4j-over-slf4j:2.0.7"
   testRuntimeOnly "ch.qos.logback:logback-classic:1.4.0"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
@@ -126,10 +126,10 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.89.Final"
+  testImplementation "io.netty:netty-all:4.1.90.Final"
 
   constraints {
-    implementation "net.minidev:json-smart:2.4.9", {
+    implementation "net.minidev:json-smart:2.4.10", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
     }
   }
@@ -200,7 +200,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-4'
+  version = '3.0.0-beta-5'
 
 
   sourceCompatibility = 11

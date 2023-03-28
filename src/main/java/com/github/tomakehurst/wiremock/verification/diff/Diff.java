@@ -147,7 +147,8 @@ public class Diff {
     final Map<String, StringValuePattern> pathParameters = requestPattern.getPathParameters();
     if (urlPattern instanceof UrlPathTemplatePattern
         && pathParameters != null
-        && !pathParameters.isEmpty()) {
+        && !pathParameters.isEmpty()
+        && !urlSection.isForNonMatch()) {
       final UrlPathTemplatePattern urlPathTemplatePattern =
           (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
