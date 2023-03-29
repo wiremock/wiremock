@@ -46,6 +46,10 @@ shadowJar {
   archiveClassifier.set('')
 
   relocate "org.apache", 'wiremock.webhooks.org.apache'
+
+  dependencies {
+    exclude(dependency('org.slf4j:slf4j-api'))
+  }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
