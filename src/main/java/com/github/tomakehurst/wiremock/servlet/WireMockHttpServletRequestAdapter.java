@@ -47,6 +47,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WireMockHttpServletRequestAdapter implements Request {
