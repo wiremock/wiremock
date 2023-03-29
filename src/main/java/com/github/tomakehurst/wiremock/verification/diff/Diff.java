@@ -26,14 +26,37 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.http.Body;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.MultiValue;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipleMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.PathPattern;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 public class Diff {
 
@@ -72,7 +95,7 @@ public class Diff {
   }
 
   public List<DiffLine<?>> getLines() {
-    return getLines(Collections.<String, RequestMatcherExtension>emptyMap());
+    return getLines(Collections.emptyMap());
   }
 
   public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
@@ -160,13 +183,13 @@ public class Diff {
         QueryParameter queryParameter =
             firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
-        String operator = generateOperatorString(pattern.getValuePattern(), " = ");
+        String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
             new DiffLine<>(
                 "Query",
                 pattern,
                 queryParameter,
-                "Query: " + key + operator + pattern.getValuePattern().getValue());
+                "Query: " + key + operator + pattern.getExpected());
         builder.add(section);
         anyQueryParams = true;
       }
@@ -178,8 +201,7 @@ public class Diff {
 
     boolean anyCookieSections = false;
     if (requestPattern.getCookies() != null) {
-      Map<String, Cookie> cookies =
-          firstNonNull(request.getCookies(), Collections.<String, Cookie>emptyMap());
+      Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.emptyMap());
       for (Map.Entry<String, StringValuePattern> entry : requestPattern.getCookies().entrySet()) {
         String key = entry.getKey();
         StringValuePattern pattern = entry.getValue();
@@ -280,8 +302,12 @@ public class Diff {
         HttpHeader header = headers.getHeader(key);
         MultiValuePattern headerPattern = headerPatterns.get(header.key());
 
-        String operator = generateOperatorString(headerPattern.getValuePattern(), "");
-        String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
+        String operator = generateOperatorStringForMultiValuePattern(headerPattern, "");
+        String expected =
+            StringUtils.isEmpty(headerPattern.getExpected())
+                ? ""
+                : ": " + headerPattern.getExpected();
+        String printedPatternValue = header.key() + operator + expected;
 
         DiffLine<MultiValue> section =
             new DiffLine<>("Header", headerPattern, header, printedPatternValue);
@@ -362,6 +388,20 @@ public class Diff {
     return isAnEqualToPattern(pattern) ? defaultValue : " [" + pattern.getName() + "] ";
   }
 
+  private String generateOperatorStringForMultiValuePattern(
+      final MultiValuePattern valuePattern, final String defaultValue) {
+    if (valuePattern instanceof MultipleMatchMultiValuePattern) {
+      return ((MultipleMatchMultiValuePattern) valuePattern).getOperator()
+          + "["
+          + valuePattern.getName()
+          + "]";
+    } else {
+      return isAnEqualToPattern(((SingleMatchMultiValuePattern) valuePattern).getValuePattern())
+          ? defaultValue
+          : " [" + valuePattern.getName() + "] ";
+    }
+  }
+
   public String getStubMappingName() {
     return stubMappingName;
   }
@@ -389,9 +429,5 @@ public class Diff {
         || pattern instanceof EqualToJsonPattern
         || pattern instanceof EqualToXmlPattern
         || pattern instanceof BinaryEqualToPattern;
-  }
-
-  public boolean hasCustomMatcher() {
-    return requestPattern.hasInlineCustomMatcher() || requestPattern.hasNamedCustomMatcher();
   }
 }

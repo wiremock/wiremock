@@ -67,9 +67,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 
   private Response buildResponse(ServeEvent serveEvent) {
     if (serveEvent.getResponseDefinition().isProxyResponse()) {
-      return settingsStore.get().getProxyPassThrough()
-          ? proxyResponseRenderer.render(serveEvent)
-          : Response.notConfigured();
+      return proxyResponseRenderer.render(serveEvent);
     } else {
       Response.Builder responseBuilder = renderDirectly(serveEvent);
       return responseBuilder.build();

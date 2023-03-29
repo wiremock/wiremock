@@ -30,7 +30,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -72,11 +71,7 @@ public class Urls {
 
     return Maps.transformEntries(
         builder.build().asMap(),
-        new Maps.EntryTransformer<String, Collection<String>, QueryParameter>() {
-          public QueryParameter transformEntry(String key, Collection<String> values) {
-            return new QueryParameter(key, ImmutableList.copyOf(values));
-          }
-        });
+        (key, values) -> new QueryParameter(key, ImmutableList.copyOf(values)));
   }
 
   public static String getPath(String url) {

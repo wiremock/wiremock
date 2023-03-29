@@ -28,6 +28,7 @@ public class TestFiles {
 
   public static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
   public static final String TRUST_STORE_NAME = getTrustStoreRelativeName();
+  public static final String JCEKS_TRUST_STORE_NAME = "test-truststore.jceks";
   public static final String TRUST_STORE_PATH = filePath(TRUST_STORE_NAME);
   public static final String KEY_STORE_PATH = filePath("test-keystore");
   public static final String KEY_STORE_WITH_CA_PATH = filePath("test-keystore-with-ca");

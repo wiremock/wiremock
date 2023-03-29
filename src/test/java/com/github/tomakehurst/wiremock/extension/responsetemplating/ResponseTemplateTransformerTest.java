@@ -25,13 +25,11 @@ import static org.hamcrest.Matchers.*;
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -256,13 +254,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void customHelper() {
-    Helper<String> helper =
-        new Helper<String>() {
-          @Override
-          public Object apply(String context, Options options) throws IOException {
-            return context.length();
-          }
-        };
+    Helper<String> helper = (context, options) -> context.length();
 
     transformer =
         ResponseTemplateTransformer.builder().global(false).helper("string-length", helper).build();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,14 +196,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     private void respondAsync(final Request request, final Response response) {
       final AsyncContext asyncContext = httpServletRequest.startAsync();
       scheduledExecutorService.schedule(
-          new Runnable() {
-            @Override
-            public void run() {
-              try {
-                respondTo(request, response);
-              } finally {
-                asyncContext.complete();
-              }
+          () -> {
+            try {
+              respondTo(request, response);
+            } finally {
+              asyncContext.complete();
             }
           },
           response.getInitialDelay(),

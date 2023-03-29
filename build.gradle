@@ -30,7 +30,7 @@ project.ext {
     guava          : '31.1-jre',
     jackson        : '2.14.2',
     xmlUnit        : '2.9.1',
-    jsonUnit       : '2.36.1',
+    jsonUnit       : '2.37.0',
     junitJupiter   : '5.9.2'
   ]
 }
@@ -65,10 +65,10 @@ dependencies {
   }
   api "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
   api "net.javacrumbs.json-unit:json-unit-core:$versions.jsonUnit"
-  api "com.jayway.jsonpath:json-path:2.7.0", {
+  api "com.jayway.jsonpath:json-path:2.8.0", {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
-  api "org.ow2.asm:asm:9.4"
+  api "org.ow2.asm:asm:9.5"
 
   implementation "org.slf4j:slf4j-api:1.7.36"
   standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
@@ -200,7 +200,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-5'
+  version = '3.0.0-beta-6'
 
 
   sourceCompatibility = 11
