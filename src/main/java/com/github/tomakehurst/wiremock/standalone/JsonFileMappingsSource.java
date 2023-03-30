@@ -17,13 +17,11 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
-import static com.google.common.collect.Iterables.any;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.google.common.base.Predicate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,14 +91,7 @@ public class JsonFileMappingsSource implements MappingsSource {
   }
 
   private boolean anyFilesAreMultiMapping() {
-    return any(
-        fileNameMap.values(),
-        new Predicate<StubMappingFileMetadata>() {
-          @Override
-          public boolean apply(StubMappingFileMetadata input) {
-            return input.multi;
-          }
-        });
+    return fileNameMap.values().stream().anyMatch(input -> input.multi);
   }
 
   @Override
@@ -108,9 +99,6 @@ public class JsonFileMappingsSource implements MappingsSource {
     if (!mappingsFileSource.exists()) {
       return;
     }
-
-    //    Iterable<TextFile> mappingFiles =
-    //        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
     List<TextFile> mappingFiles =
         mappingsFileSource.listFilesRecursively().stream()
             .filter(byFileExtension("json"))
