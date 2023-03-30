@@ -99,6 +99,7 @@ public class JsonFileMappingsSource implements MappingsSource {
     if (!mappingsFileSource.exists()) {
       return;
     }
+
     List<TextFile> mappingFiles =
         mappingsFileSource.listFilesRecursively().stream()
             .filter(byFileExtension("json"))
