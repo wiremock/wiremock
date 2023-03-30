@@ -362,11 +362,10 @@ public class WireMockApp implements StubServer, Admin {
   @Override
   public FindRequestsResult findUnmatchedRequests() {
     try {
-      List<LoggedRequest> requests =
-          requestJournal.getAllServeEvents().stream()
-              .filter(NOT_MATCHED)
-              .map(TO_LOGGED_REQUEST)
-              .collect(Collectors.toList());
+      List<LoggedRequest> requests = requestJournal.getAllServeEvents().stream()
+          .filter(NOT_MATCHED)
+          .map(TO_LOGGED_REQUEST)
+          .collect(Collectors.toList());
       return FindRequestsResult.withRequests(requests);
     } catch (RequestJournalDisabledException e) {
       return FindRequestsResult.withRequestJournalDisabled();
