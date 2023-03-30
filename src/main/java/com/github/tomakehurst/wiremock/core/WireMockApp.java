@@ -24,33 +24,72 @@ import static com.google.common.collect.Iterables.transform;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
-import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
+import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
+import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.recording.*;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.Recorder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
+import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.github.tomakehurst.wiremock.stubbing.*;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.stubbing.InMemoryScenarios;
+import com.github.tomakehurst.wiremock.stubbing.Scenarios;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.StubImport.Options.DuplicatePolicy;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
+import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
+import com.github.tomakehurst.wiremock.verification.StoreBackedRequestJournal;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class WireMockApp implements StubServer, Admin {
@@ -203,19 +242,13 @@ public class WireMockApp implements StubServer, Admin {
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
-    return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
-        .filter(
-            new Predicate<RequestFilter>() {
-              @Override
-              public boolean apply(RequestFilter filter) {
-                return filter.applyToAdmin();
-              }
-            })
-        .toList();
+    return options.extensionsOfType(RequestFilter.class).values().stream()
+        .filter(filter -> filter.applyToAdmin())
+        .collect(Collectors.toList());
   }
 
   private List<RequestFilter> getStubRequestFilters() {
-    return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+    return from(options.extensionsOfType(RequestFilter.class).values())
         .filter(
             new Predicate<RequestFilter>() {
               @Override
@@ -379,10 +412,10 @@ public class WireMockApp implements StubServer, Admin {
   public FindRequestsResult findUnmatchedRequests() {
     try {
       List<LoggedRequest> requests =
-          from(requestJournal.getAllServeEvents())
+          requestJournal.getAllServeEvents().stream()
               .filter(NOT_MATCHED)
-              .transform(TO_LOGGED_REQUEST)
-              .toList();
+              .map(TO_LOGGED_REQUEST)
+              .collect(Collectors.toList());
       return FindRequestsResult.withRequests(requests);
     } catch (RequestJournalDisabledException e) {
       return FindRequestsResult.withRequestJournalDisabled();
@@ -408,7 +441,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public FindNearMissesResult findNearMissesForUnmatchedRequests() {
-    ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
+    Builder<NearMiss> listBuilder = ImmutableList.builder();
     Iterable<ServeEvent> unmatchedServeEvents =
         from(requestJournal.getAllServeEvents())
             .filter(
@@ -547,7 +580,7 @@ public class WireMockApp implements StubServer, Admin {
     for (int i = mappings.size() - 1; i >= 0; i--) {
       StubMapping mapping = mappings.get(i);
       if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
-        if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
+        if (importOptions.getDuplicatePolicy() == DuplicatePolicy.OVERWRITE) {
           editStubMapping(mapping);
         }
       } else {
