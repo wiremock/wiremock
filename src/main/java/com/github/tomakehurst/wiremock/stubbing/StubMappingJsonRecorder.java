@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,41 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.google.common.collect.Iterables.filter;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ContentTypes;
+import com.github.tomakehurst.wiremock.common.Gzip;
+import com.github.tomakehurst.wiremock.common.IdGenerator;
+import com.github.tomakehurst.wiremock.common.Strings;
+import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
+import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class StubMappingJsonRecorder implements RequestListener {
 
@@ -172,13 +190,11 @@ public class StubMappingJsonRecorder implements RequestListener {
 
   private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
     return new HttpHeaders(
-        filter(
-            httpHeaders.all(),
-            new Predicate<HttpHeader>() {
-              public boolean apply(HttpHeader header) {
-                return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
-              }
-            }));
+        httpHeaders.all().stream()
+            .filter(
+                header ->
+                    !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length"))
+            .collect(Collectors.toList()));
   }
 
   private byte[] bodyDecompressedIfRequired(Response response) {

@@ -17,13 +17,9 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterators;
 import com.google.common.io.Resources;
@@ -31,8 +27,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -148,25 +146,15 @@ public class ClasspathFileSource implements FileSource {
   public List<TextFile> listFilesRecursively() {
     if (isFileSystem()) {
       assertExistsAndIsDirectory();
-      List<File> fileList = newArrayList();
+      List<File> fileList = new ArrayList<>();
       recursivelyAddFilesToList(rootDirectory, fileList);
       return toTextFileList(fileList);
     }
 
-    return FluentIterable.from(toIterable(zipFile.entries()))
-        .filter(
-            new Predicate<ZipEntry>() {
-              public boolean apply(ZipEntry jarEntry) {
-                return !jarEntry.isDirectory() && jarEntry.getName().startsWith(path);
-              }
-            })
-        .transform(
-            new Function<ZipEntry, TextFile>() {
-              public TextFile apply(ZipEntry jarEntry) {
-                return new TextFile(getUriFor(jarEntry));
-              }
-            })
-        .toList();
+    return FluentIterable.from(toIterable(zipFile.entries())).stream()
+        .filter(jarEntry -> !jarEntry.isDirectory() && jarEntry.getName().startsWith(path))
+        .map(jarEntry -> new TextFile(getUriFor(jarEntry)))
+        .collect(Collectors.toList());
   }
 
   private URI getUriFor(ZipEntry jarEntry) {
@@ -189,14 +177,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private List<TextFile> toTextFileList(List<File> fileList) {
-    return newArrayList(
-        transform(
-            fileList,
-            new Function<File, TextFile>() {
-              public TextFile apply(File input) {
-                return new TextFile(input.toURI());
-              }
-            }));
+    return fileList.stream().map(input -> new TextFile(input.toURI())).collect(Collectors.toList());
   }
 
   @Override
