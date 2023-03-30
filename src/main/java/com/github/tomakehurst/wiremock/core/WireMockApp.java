@@ -239,15 +239,11 @@ public class WireMockApp implements StubServer, Admin {
     ServeEvent serveEvent = stubMappings.serveFor(request);
 
     if (serveEvent.isNoExactMatch()) {
-      LoggedRequest loggedRequest = serveEvent.getRequest();
-
-      if (getGlobalSettings().getSettings().getProxyPassThrough()) {
-        if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
-          return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
-        }
+      if (browserProxyingEnabled
+          && request.isBrowserProxyRequest()
+          && getGlobalSettings().getSettings().getProxyPassThrough()) {
+        return ServeEvent.of(serveEvent.getRequest(), ResponseDefinition.browserProxy(request));
       }
-
-      return ServeEvent.of(loggedRequest, ResponseDefinition.notConfigured());
     }
 
     return serveEvent;

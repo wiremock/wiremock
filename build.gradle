@@ -200,7 +200,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-6'
+  version = '3.0.0-beta-7'
 
 
   sourceCompatibility = 11
@@ -416,9 +416,9 @@ task 'bump-beta-version' {
   doLast {
     def filesWithVersion = [
       'build.gradle'                                      : { "version = '${it}" },
-      'ui/package.json'                                   : { "version: ${it}" },
-      'ui/package-lock.json'                              : { "version: ${it}" },
-      'src/main/resources/swagger/wiremock-admin-api.json': { "version: ${it}" },
+      'ui/package.json'                                   : { "\"version\": \"${it}\"" },
+      'ui/package-lock.json'                              : { "\"version\": \"${it}\"" },
+      'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
         "version: ${it}"
       }
