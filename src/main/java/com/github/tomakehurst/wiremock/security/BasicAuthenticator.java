@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@ import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BasicAuthenticator implements Authenticator {
 
@@ -43,15 +42,9 @@ public class BasicAuthenticator implements Authenticator {
   @Override
   public boolean authenticate(Request request) {
     List<String> headerValues =
-        FluentIterable.from(credentials)
-            .transform(
-                new Function<BasicCredentials, String>() {
-                  @Override
-                  public String apply(BasicCredentials input) {
-                    return input.asAuthorizationHeaderValue();
-                  }
-                })
-            .toList();
+        credentials.stream()
+            .map(BasicCredentials::asAuthorizationHeaderValue)
+            .collect(Collectors.toList());
     return request.containsHeader(AUTHORIZATION)
         && headerValues.contains(request.header(AUTHORIZATION).firstValue());
   }

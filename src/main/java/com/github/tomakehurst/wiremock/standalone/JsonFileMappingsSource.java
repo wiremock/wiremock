@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.standalone;
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.filter;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -29,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
@@ -109,8 +109,12 @@ public class JsonFileMappingsSource implements MappingsSource {
       return;
     }
 
-    Iterable<TextFile> mappingFiles =
-        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+    //    Iterable<TextFile> mappingFiles =
+    //        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+    List<TextFile> mappingFiles =
+        mappingsFileSource.listFilesRecursively().stream()
+            .filter(byFileExtension("json"))
+            .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingCollection stubCollection =

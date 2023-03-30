@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,9 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.google.common.base.Function;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -169,16 +171,21 @@ public class NearMissCalculatorTest {
 
   private void givenRequests(final Request... requests) {
     final List<ServeEvent> serveEvents =
-        from(requests)
-            .transform(
-                new Function<Request, ServeEvent>() {
-                  @Override
-                  public ServeEvent apply(Request request) {
-                    return ServeEvent.of(
-                        LoggedRequest.createFrom(request), new ResponseDefinition());
-                  }
-                })
-            .toList();
+        Arrays.stream(requests)
+            .map(
+                request ->
+                    ServeEvent.of(LoggedRequest.createFrom(request), new ResponseDefinition()))
+            .collect(Collectors.toList());
+    //        from(requests)
+    //            .transform(
+    //                new Function<Request, ServeEvent>() {
+    //                  @Override
+    //                  public ServeEvent apply(Request request) {
+    //                    return ServeEvent.of(
+    //                        LoggedRequest.createFrom(request), new ResponseDefinition());
+    //                  }
+    //                })
+    //            .toList();
 
     when(requestJournal.getAllServeEvents()).thenReturn(serveEvents);
   }
