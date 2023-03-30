@@ -171,7 +171,7 @@ public abstract class JettyHttpServer implements HttpServer {
   }
 
   protected void finalizeSetup(Options options) {
-    if (!options.jettySettings().getStopTimeout().isPresent()) {
+    if (options.jettySettings().getStopTimeout().isEmpty()) {
       jettyServer.setStopTimeout(1000);
     }
   }
@@ -180,9 +180,7 @@ public abstract class JettyHttpServer implements HttpServer {
     final Server server = new Server(options.threadPoolFactory().buildThreadPool(options));
     final JettySettings jettySettings = options.jettySettings();
     final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
-    if (stopTimeout.isPresent()) {
-      server.setStopTimeout(stopTimeout.get());
-    }
+    stopTimeout.ifPresent(server::setStopTimeout);
 
     return server;
   }
