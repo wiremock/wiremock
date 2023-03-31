@@ -20,7 +20,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterators;
 import com.google.common.io.Resources;
 import java.io.File;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -151,7 +151,7 @@ public class ClasspathFileSource implements FileSource {
       return toTextFileList(fileList);
     }
 
-    return FluentIterable.from(toIterable(zipFile.entries())).stream()
+    return StreamSupport.stream(toIterable(zipFile.entries()).spliterator(), false)
         .filter(jarEntry -> !jarEntry.isDirectory() && jarEntry.getName().startsWith(path))
         .map(jarEntry -> new TextFile(getUriFor(jarEntry)))
         .collect(Collectors.toList());
