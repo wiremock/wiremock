@@ -42,16 +42,17 @@ public class WireMockExtension extends DslWrapper
   private final boolean configureStaticDsl;
   private final boolean failOnUnmatchedRequests;
 
+  private final boolean isDeclarative;
   private Options options;
   private WireMockServer wireMockServer;
   private WireMockRuntimeInfo runtimeInfo;
   private boolean isNonStatic = false;
-
   private Boolean proxyMode;
 
-  public WireMockExtension() {
+  WireMockExtension() {
     configureStaticDsl = true;
     failOnUnmatchedRequests = false;
+    isDeclarative = true;
   }
 
   /**
@@ -67,6 +68,7 @@ public class WireMockExtension extends DslWrapper
     this.configureStaticDsl = builder.configureStaticDsl;
     this.failOnUnmatchedRequests = builder.failOnUnmatchedRequests;
     this.proxyMode = builder.proxyMode;
+    this.isDeclarative = false;
   }
 
   private WireMockExtension(
@@ -78,6 +80,7 @@ public class WireMockExtension extends DslWrapper
     this.configureStaticDsl = configureStaticDsl;
     this.failOnUnmatchedRequests = failOnUnmatchedRequests;
     this.proxyMode = proxyMode;
+    this.isDeclarative = false;
   }
 
   /**
@@ -173,7 +176,10 @@ public class WireMockExtension extends DslWrapper
         .getElement()
         .flatMap(
             annotatedElement ->
-                AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
+                this.isDeclarative
+                    ? AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class)
+                    : Optional.empty()
+        )
         .<Options>map(this::buildOptionsFromWireMockTestAnnotation)
         .orElse(Optional.ofNullable(this.options).orElse(DEFAULT_OPTIONS));
   }
@@ -198,7 +204,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   private boolean parameterIsWireMockRuntimeInfo(ParameterContext parameterContext) {
-    return parameterContext.getParameter().getType().equals(WireMockRuntimeInfo.class);
+    return parameterContext.getParameter().getType().equals(WireMockRuntimeInfo.class) && this.isDeclarative;
   }
 
   @Override
