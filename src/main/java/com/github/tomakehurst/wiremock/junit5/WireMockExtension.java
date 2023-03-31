@@ -43,6 +43,7 @@ public class WireMockExtension extends DslWrapper
   private final boolean failOnUnmatchedRequests;
 
   private final boolean isDeclarative;
+
   private Options options;
   private WireMockServer wireMockServer;
   private WireMockRuntimeInfo runtimeInfo;
