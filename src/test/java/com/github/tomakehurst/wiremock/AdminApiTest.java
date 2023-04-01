@@ -487,7 +487,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(body, jsonPartEquals("scenarios[0].id", "my-scenario"));
     assertThat(body, jsonPartEquals("scenarios[0].name", "my-scenario"));
     assertThat(body, jsonPartEquals("scenarios[0].state", "\"2\""));
-    assertThat(body, jsonPartEquals("scenarios[0].possibleStates", asList("2", "3", "Started")));
+    assertThat(body, jsonPartEquals("scenarios[0].possibleStates", asList("Started", "2", "3")));
     assertThat(body, jsonPartEquals("scenarios[0].mappings[0].request.url", "/one"));
   }
 
