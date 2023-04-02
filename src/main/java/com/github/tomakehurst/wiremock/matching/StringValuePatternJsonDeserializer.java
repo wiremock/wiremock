@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Iterators.find;
-import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -387,16 +385,12 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static Constructor<? extends StringValuePattern> findConstructor(
       Class<? extends StringValuePattern> clazz) {
     Optional<Constructor<?>> optionalConstructor =
-        tryFind(
-                asList(clazz.getDeclaredConstructors()),
-                new Predicate<Constructor<?>>() {
-                  @Override
-                  public boolean apply(Constructor<?> input) {
-                    return input.getParameterTypes().length == 1
-                        && input.getGenericParameterTypes()[0].equals(String.class);
-                  }
-                })
-            .toJavaUtil();
+        Arrays.stream(clazz.getDeclaredConstructors())
+            .filter(
+                input ->
+                    input.getParameterTypes().length == 1
+                        && input.getGenericParameterTypes()[0].equals(String.class))
+            .findFirst();
 
     if (!optionalConstructor.isPresent()) {
       throw new IllegalStateException(

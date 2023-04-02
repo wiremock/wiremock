@@ -17,12 +17,7 @@ package com.github.tomakehurst.wiremock.jetty11;
 
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import org.eclipse.jetty.io.NetworkTrafficListener;
-import org.eclipse.jetty.server.ConnectionFactory;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.NetworkTrafficServerConnector;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.*;
 
 public class Jetty11Utils {
 
