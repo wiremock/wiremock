@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.function.Function;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemHeaders;
 
@@ -62,6 +63,5 @@ public class FileItemPartAdapter implements Request.Part {
     return new Body(fileItem.get());
   }
 
-  public static final java.util.function.Function<FileItem, Request.Part> TO_PARTS =
-      FileItemPartAdapter::new;
+  public static final Function<FileItem, Request.Part> TO_PARTS = FileItemPartAdapter::new;
 }

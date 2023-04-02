@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.common.base.Joiner;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
@@ -60,10 +61,7 @@ public class JsonException extends InvalidInputException {
     return e;
   }
 
-  private static final java.util.function.Function<JsonMappingException.Reference, String>
-      TO_NODE_NAMES =
-          input ->
-              input.getFieldName() != null
-                  ? input.getFieldName()
-                  : String.valueOf(input.getIndex());
+  private static final Function<JsonMappingException.Reference, String> TO_NODE_NAMES =
+      input ->
+          input.getFieldName() != null ? input.getFieldName() : String.valueOf(input.getIndex());
 }
