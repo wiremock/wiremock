@@ -1,6 +1,6 @@
 # Issue guidelines
 
-If you're asking a question, rather than reporting a bug or requesting a feature, **please post your question on the [mailing list](https://groups.google.com/forum/#!forum/wiremock-user), and do not open an issue**.
+If you're asking a question, rather than reporting a bug or requesting a feature, **please post your question on [our Slack](https://join.slack.com/t/wiremock-community/shared_invite/zt-1mkbo0zlx-gxeZdTJ15Kchdt888Fn_1A) the [mailing list](https://groups.google.com/forum/#!forum/wiremock-user), and do not open an issue**.
 
 Please do not log bugs regarding classpath issues (typically manifesting as 'NoClassDefFoundException' or 'ClassNotFoundException').
 These are not WireMock bugs, and need to be diagnosed for your project using your build tool. Plenty has already been written in WireMock's issues and mailing list about how to resolve these issues
