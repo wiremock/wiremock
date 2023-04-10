@@ -2,6 +2,9 @@ WireMock - a web service test double for all occasions
 ======================================================
 
 [![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
+[![Docs](https://img.shields.io/static/v1?label=Documentation&message=public&color=green)](https://wiremock.org/docs/)
+[![a](https://img.shields.io/badge/slack-Join%20us-brightgreen?style=flat&logo=slack)](https://join.slack.com/t/wiremock-community/shared_invite/zt-1mkbo0zlx-gxeZdTJ15Kchdt888Fn_1A)
+[![Participate](https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange)](https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
 !!! Log4j notice !!!
