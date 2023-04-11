@@ -161,7 +161,10 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                                     .collect(toList())))
                     .collect(toList()));
 
-    if (webhookDefinition.getBody() != null) {
+    if (webhookDefinition.specifiesBodyFile()) { 
+      renderedWebhookDefinition =
+          webhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBodyFileName()));
+    } else if (webhookDefinition.getBody() != null) {
       renderedWebhookDefinition =
           webhookDefinition.withBody(renderTemplate(model, webhookDefinition.getBody()));
     }
