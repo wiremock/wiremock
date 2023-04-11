@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.extension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
@@ -28,31 +30,36 @@ public class ParametersTest {
   @Test
   public void convertsParametersToAnObject() {
     MyData myData =
-        Parameters.from(ImmutableMap.<String, Object>of("name", "Tom", "num", 27)).as(MyData.class);
+        Parameters.from(ImmutableMap.of("name", "Tom", "num", 27, "date", "2023-01-01")).as(MyData.class);
 
     assertThat(myData.getName(), is("Tom"));
     assertThat(myData.getNum(), is(27));
+    assertThat(myData.getDate(), is(LocalDate.of(2023, 1, 1)));
   }
 
   @Test
   public void convertsToParametersFromAnObject() {
-    MyData myData = new MyData("Mark", 12);
+    MyData myData = new MyData("Mark", 12, LocalDate.of(2023, 1, 1));
 
     Parameters parameters = Parameters.of(myData);
 
     assertThat(parameters.getString("name"), is("Mark"));
     assertThat(parameters.getInt("num"), is(12));
+    assertThat(parameters.getString("date"), is("2023-01-01"));
   }
 
   public static class MyData {
 
     private final String name;
     private final Integer num;
+    private final LocalDate date;
 
     @JsonCreator
-    public MyData(@JsonProperty("name") String name, @JsonProperty("num") Integer num) {
+    public MyData(@JsonProperty("name") String name, @JsonProperty("num") Integer num,
+        @JsonProperty("date") LocalDate date) {
       this.name = name;
       this.num = num;
+      this.date = date;
     }
 
     public String getName() {
@@ -61,6 +68,10 @@ public class ParametersTest {
 
     public Integer getNum() {
       return num;
+    }
+
+    public LocalDate getDate() {
+      return date;
     }
   }
 }
