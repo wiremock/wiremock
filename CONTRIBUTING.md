@@ -8,7 +8,7 @@ to it evoltion.
 You can help make WireMock a better tool in a number of ways:
 
 * Write or improve [documentation](#writing-documentation).
-* Join the [community Slack channel](https://join.slack.com/t/wiremock-community/shared_invite/zt-1mkbo0zlx-gxeZdTJ15Kchdt888Fn_1A), help other WireMock users and share tips. 
+* Join the [community Slack channel](http://slack.wiremock.org/), help other WireMock users and share tips. 
 * Raise an issue if you discover a bug.
 * Contribute bug fixes, new features or enhancements.
 
