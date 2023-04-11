@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@ package com.github.tomakehurst.wiremock.extension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.time.LocalDate;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 public class ParametersTest {
@@ -30,7 +29,8 @@ public class ParametersTest {
   @Test
   public void convertsParametersToAnObject() {
     MyData myData =
-        Parameters.from(ImmutableMap.of("name", "Tom", "num", 27, "date", "2023-01-01")).as(MyData.class);
+        Parameters.from(ImmutableMap.of("name", "Tom", "num", 27, "date", "2023-01-01"))
+            .as(MyData.class);
 
     assertThat(myData.getName(), is("Tom"));
     assertThat(myData.getNum(), is(27));
@@ -55,7 +55,9 @@ public class ParametersTest {
     private final LocalDate date;
 
     @JsonCreator
-    public MyData(@JsonProperty("name") String name, @JsonProperty("num") Integer num,
+    public MyData(
+        @JsonProperty("name") String name,
+        @JsonProperty("num") Integer num,
         @JsonProperty("date") LocalDate date) {
       this.name = name;
       this.num = num;
