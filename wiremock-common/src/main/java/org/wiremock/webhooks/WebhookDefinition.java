@@ -209,6 +209,11 @@ public class WebhookDefinition {
     return this;
   }
 
+  public WebhookDefinition withBodyFileName(String bodyFileName) {
+    this.bodyFileName = bodyFileName;
+    return this;
+  }
+
   public WebhookDefinition withFixedDelay(int delayMilliseconds) {
     this.delay = new FixedDelayDistribution(delayMilliseconds);
     return this;
