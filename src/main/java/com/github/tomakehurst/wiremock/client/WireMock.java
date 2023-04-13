@@ -33,34 +33,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.AbsentPattern;
-import com.github.tomakehurst.wiremock.matching.AfterDateTimePattern;
-import com.github.tomakehurst.wiremock.matching.BeforeDateTimePattern;
-import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
-import com.github.tomakehurst.wiremock.matching.ContainsPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
-import com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.IncludesMatchMultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.LogicalAnd;
-import com.github.tomakehurst.wiremock.matching.LogicalOr;
-import com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern;
-import com.github.tomakehurst.wiremock.matching.MatchesXPathPattern;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
-import com.github.tomakehurst.wiremock.matching.NegativeContainsPattern;
-import com.github.tomakehurst.wiremock.matching.NegativeRegexPattern;
-import com.github.tomakehurst.wiremock.matching.NotPattern;
-import com.github.tomakehurst.wiremock.matching.RegexPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
-import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
@@ -79,6 +52,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
+import com.networknt.schema.SpecVersion;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -260,6 +234,15 @@ public class WireMock {
 
   public static StringValuePattern matchingJsonPath(String value, StringValuePattern valuePattern) {
     return new MatchesJsonPathPattern(value, valuePattern);
+  }
+
+  public static StringValuePattern matchingJsonSchema(String schema) {
+    return new MatchesJsonSchemaPattern(schema);
+  }
+
+  public static StringValuePattern matchingJsonSchema(
+      String schema, JsonSchemaVersion jsonSchemaVersion) {
+    return new MatchesJsonSchemaPattern(schema, jsonSchemaVersion);
   }
 
   public static EqualToXmlPattern equalToXml(String value) {
@@ -1046,5 +1029,32 @@ public class WireMock {
 
   public static GlobalSettings getSettings() {
     return defaultInstance.get().getGlobalSettings();
+  }
+
+  public enum JsonSchemaVersion {
+    V4,
+    V6,
+    V7,
+    V201909,
+    V202012;
+
+    public static final JsonSchemaVersion DEFAULT = V202012;
+
+    public SpecVersion.VersionFlag toVersionFlag() {
+      switch (this) {
+        case V4:
+          return SpecVersion.VersionFlag.V4;
+        case V6:
+          return SpecVersion.VersionFlag.V6;
+        case V7:
+          return SpecVersion.VersionFlag.V7;
+        case V201909:
+          return SpecVersion.VersionFlag.V201909;
+        case V202012:
+          return SpecVersion.VersionFlag.V202012;
+        default:
+          throw new IllegalArgumentException("Unknown schema version: " + this);
+      }
+    }
   }
 }

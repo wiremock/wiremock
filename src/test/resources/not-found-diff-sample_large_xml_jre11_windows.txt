@@ -12,7 +12,8 @@ and let us see exactly how that looks when it is done      |
 POST                                                       | POST
 /thing                                                     | /thing
                                                            |
-<deep-things>                                              | <deep-things>                                       <<<<< Body does not match
+[equalToXml]                                               |                                                     <<<<< Body does not match
+<deep-things>                                              | <deep-things>
   <thing id="1">                                           |   <thing id="1">
 <thing id="2">                                             | <thing id="2">
       <thing id="3">                                       |       <thing id="3">

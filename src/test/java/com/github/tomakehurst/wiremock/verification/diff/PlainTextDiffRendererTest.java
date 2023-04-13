@@ -15,22 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
-import static com.github.tomakehurst.wiremock.client.WireMock.including;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -537,6 +522,24 @@ public class PlainTextDiffRendererTest {
 
     String output = diffRenderer.render(diff);
     System.out.println(output);
+  }
+
+  @Test
+  void showsErrorInDiffWhenBodyDoesNotMatchJsonSchema() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withName("JSON schema stub")
+                .withRequestBody(matchingJsonSchema(file("schema-validation/new-pet.schema.json")))
+                .build(),
+            mockRequest()
+                .url("/thing")
+                .method(POST)
+                .body(file("schema-validation/new-pet.invalid.json")));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_json-schema.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {
