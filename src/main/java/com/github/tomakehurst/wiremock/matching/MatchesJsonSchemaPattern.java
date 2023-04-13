@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationMessage;
 import java.util.Set;
 
@@ -40,9 +41,13 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
       @JsonProperty("schemaVersion") WireMock.JsonSchemaVersion schemaVersion) {
     super(schemaJson);
 
+    SchemaValidatorsConfig config = new SchemaValidatorsConfig();
+    config.setTypeLoose(false);
+    config.setHandleNullableField(true);
+
     final JsonSchemaFactory schemaFactory =
         JsonSchemaFactory.getInstance(schemaVersion.toVersionFlag());
-    schema = schemaFactory.getSchema(schemaJson);
+    schema = schemaFactory.getSchema(schemaJson, config);
     this.schemaVersion = schemaVersion;
 
     schemaPropertyCount = Json.schemaPropertyCount(Json.read(schemaJson, JsonNode.class));
