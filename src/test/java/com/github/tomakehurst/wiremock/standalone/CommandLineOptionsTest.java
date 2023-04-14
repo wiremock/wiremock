@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -540,6 +541,18 @@ public class CommandLineOptionsTest {
         new CommandLineOptions(
             "--global-response-templating", "--permitted-system-keys", "java*,path*");
     assertThat(options.getPermittedSystemKeys(), hasItems("java*", "path*"));
+  }
+
+  @Test
+  public void configureFileTemplatesWithRightFormat() {
+    CommandLineOptions options =  new CommandLineOptions(
+            "--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
+    assertNotNull(options.getFilenameTemplate());
+  }
+
+  @Test
+  public void configureFileTemplatesWithWrongFormat() {
+    assertThrows(Exception.class, () -> new CommandLineOptions("--filename-template={{{method}}}.json"));
   }
 
   @Test

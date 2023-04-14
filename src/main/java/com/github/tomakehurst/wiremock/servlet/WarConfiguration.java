@@ -19,9 +19,11 @@ import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -128,6 +130,11 @@ public class WarConfiguration implements Options {
 
   @Override
   public String bindAddress() {
+    return null;
+  }
+
+  @Override
+  public FilenameMaker getFilenameTemplate() {
     return null;
   }
 

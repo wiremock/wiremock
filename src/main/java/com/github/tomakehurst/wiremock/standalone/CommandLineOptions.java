@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAss
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
@@ -32,6 +33,7 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -98,6 +100,7 @@ public class CommandLineOptions implements Options {
   private static final String ROOT_DIR = "root-dir";
   private static final String CONTAINER_THREADS = "container-threads";
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
+  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
   private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
   private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
@@ -132,6 +135,7 @@ public class CommandLineOptions implements Options {
 
   private final MappingsSource mappingsSource;
   private final Map<String, Extension> extensions;
+  private final FilenameMaker filenameMaker;
 
   private String helpText;
   private Integer actualHttpPort;
@@ -266,6 +270,8 @@ public class CommandLineOptions implements Options {
         "Print all raw incoming and outgoing network traffic to console");
     optionParser.accepts(
         GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
+    optionParser.accepts(FILENAME_TEMPLATE, "Add filename template")
+            .withRequiredArg();;
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
     optionParser
@@ -396,6 +402,8 @@ public class CommandLineOptions implements Options {
       stores.getSettingsStore().set(newSettings);
     }
 
+    TemplateEngine templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    filenameMaker = new FilenameMaker(templateEngine, getFilenameTemplateOption());
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
     extensions = buildExtensions();
 
@@ -416,6 +424,23 @@ public class CommandLineOptions implements Options {
     }
 
     return builder.build();
+  }
+
+  private String getFilenameTemplateOption() {
+    if (optionSet.has(FILENAME_TEMPLATE)) {
+       String filenameTemplate = (String) optionSet.valueOf(FILENAME_TEMPLATE);
+       validateFilenameTemplate(filenameTemplate);
+       return filenameTemplate;
+    }
+    return null;
+  }
+
+  private void validateFilenameTemplate(String filenameTemplate) {
+    String[] templateParts = filenameTemplate.split("-");
+    if (templateParts.length != 3) {
+      throw new IllegalArgumentException(
+              "Format for filename template should be {{{method}}}-{{{path}}}-{{{id}}}.format");
+    }
   }
 
   private void contributeResponseTemplateTransformer(
@@ -525,6 +550,11 @@ public class CommandLineOptions implements Options {
     }
 
     return DEFAULT_BIND_ADDRESS;
+  }
+
+  @Override
+  public FilenameMaker getFilenameTemplate() {
+    return filenameMaker;
   }
 
   @Override

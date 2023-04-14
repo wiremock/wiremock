@@ -38,10 +38,12 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -64,6 +66,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -99,6 +102,8 @@ public class WireMockConfiguration implements Options {
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
   private Stores stores;
   private MappingsSource mappingsSource;
+  private FilenameMaker filenameMaker;
+  private TemplateEngine templateEngine;
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
@@ -595,6 +600,13 @@ public class WireMockConfiguration implements Options {
   @Override
   public String bindAddress() {
     return bindAddress;
+  }
+
+  @Override
+  public FilenameMaker getFilenameTemplate() {
+    templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    filenameMaker = new FilenameMaker(templateEngine);
+    return filenameMaker;
   }
 
   @Override

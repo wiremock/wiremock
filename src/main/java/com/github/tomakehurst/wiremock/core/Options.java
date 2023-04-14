@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -76,6 +77,8 @@ public interface Options {
   Optional<Integer> maxRequestJournalEntries();
 
   String bindAddress();
+
+  FilenameMaker getFilenameTemplate();
 
   List<CaseInsensitiveKey> matchingHeaders();
 
