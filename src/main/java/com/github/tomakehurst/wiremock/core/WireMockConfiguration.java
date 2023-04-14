@@ -737,5 +737,4 @@ public class WireMockConfiguration implements Options {
   public int proxyTimeout() {
     return proxyTimeout;
   }
-
 }

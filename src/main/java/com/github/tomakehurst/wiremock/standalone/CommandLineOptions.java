@@ -270,8 +270,8 @@ public class CommandLineOptions implements Options {
         "Print all raw incoming and outgoing network traffic to console");
     optionParser.accepts(
         GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
-    optionParser.accepts(FILENAME_TEMPLATE, "Add filename template")
-            .withRequiredArg();;
+    optionParser.accepts(FILENAME_TEMPLATE, "Add filename template").withRequiredArg();
+    ;
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
     optionParser
@@ -367,11 +367,9 @@ public class CommandLineOptions implements Options {
             "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
         .withRequiredArg();
     optionParser
-        .accepts(
-            PROXY_TIMEOUT,
-            "Timeout in milliseconds for requests to proxy")
+        .accepts(PROXY_TIMEOUT, "Timeout in milliseconds for requests to proxy")
         .withRequiredArg();
-   optionParser
+    optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
 
@@ -402,7 +400,8 @@ public class CommandLineOptions implements Options {
       stores.getSettingsStore().set(newSettings);
     }
 
-    TemplateEngine templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    TemplateEngine templateEngine =
+        new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
     filenameMaker = new FilenameMaker(templateEngine, getFilenameTemplateOption());
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
     extensions = buildExtensions();
@@ -428,9 +427,9 @@ public class CommandLineOptions implements Options {
 
   private String getFilenameTemplateOption() {
     if (optionSet.has(FILENAME_TEMPLATE)) {
-       String filenameTemplate = (String) optionSet.valueOf(FILENAME_TEMPLATE);
-       validateFilenameTemplate(filenameTemplate);
-       return filenameTemplate;
+      String filenameTemplate = (String) optionSet.valueOf(FILENAME_TEMPLATE);
+      validateFilenameTemplate(filenameTemplate);
+      return filenameTemplate;
     }
     return null;
   }
@@ -439,7 +438,7 @@ public class CommandLineOptions implements Options {
     String[] templateParts = filenameTemplate.split("-");
     if (templateParts.length != 3) {
       throw new IllegalArgumentException(
-              "Format for filename template should be {{{method}}}-{{{path}}}-{{{id}}}.format");
+          "Format for filename template should be {{{method}}}-{{{path}}}-{{{id}}}.format");
     }
   }
 

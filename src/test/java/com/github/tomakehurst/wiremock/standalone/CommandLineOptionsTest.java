@@ -545,14 +545,15 @@ public class CommandLineOptionsTest {
 
   @Test
   public void configureFileTemplatesWithRightFormat() {
-    CommandLineOptions options =  new CommandLineOptions(
-            "--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
+    CommandLineOptions options =
+        new CommandLineOptions("--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
     assertNotNull(options.getFilenameTemplate());
   }
 
   @Test
   public void configureFileTemplatesWithWrongFormat() {
-    assertThrows(Exception.class, () -> new CommandLineOptions("--filename-template={{{method}}}.json"));
+    assertThrows(
+        Exception.class, () -> new CommandLineOptions("--filename-template={{{method}}}.json"));
   }
 
   @Test
@@ -817,7 +818,7 @@ public class CommandLineOptionsTest {
 
     assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
   }
-  
+
   @Test
   void testProxyPassThroughOptionPassedAsFalse() {
     CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");
