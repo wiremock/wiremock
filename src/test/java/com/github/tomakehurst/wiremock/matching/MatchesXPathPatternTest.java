@@ -307,8 +307,12 @@ public class MatchesXPathPatternTest {
     MatchesXPathPattern c = new MatchesXPathPattern("/other");
 
     assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
     assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
     assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

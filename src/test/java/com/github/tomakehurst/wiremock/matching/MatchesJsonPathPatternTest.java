@@ -432,9 +432,13 @@ public class MatchesJsonPathPatternTest {
         new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '1234')].date");
 
     assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
     assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
     assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 
   private static Notifier setMockNotifier() {

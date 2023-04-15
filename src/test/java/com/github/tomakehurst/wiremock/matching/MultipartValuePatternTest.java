@@ -209,6 +209,7 @@ public class MultipartValuePatternTest {
             .build();
 
     assertThat(pattern.equals(pattern), is(true));
+    assertEquals(pattern.hashCode(), pattern.hashCode());
   }
 
   @Test
@@ -230,6 +231,7 @@ public class MultipartValuePatternTest {
             .build();
 
     assertThat(patternA.equals(patternB), is(true));
+    assertEquals(patternA.hashCode(), patternB.hashCode());
   }
 
   @Test
@@ -250,6 +252,7 @@ public class MultipartValuePatternTest {
             .build();
 
     assertThat(patternA.equals(patternB), is(false));
+    assertNotEquals(patternA.hashCode(), patternB.hashCode());
   }
 
   @Test
@@ -278,8 +281,12 @@ public class MultipartValuePatternTest {
             .build();
 
     assertEquals(patternA, patternB);
+    assertEquals(patternA.hashCode(), patternB.hashCode());
     assertEquals(patternB, patternA);
+    assertEquals(patternB.hashCode(), patternA.hashCode());
     assertNotEquals(patternA, patternC);
+    assertNotEquals(patternA.hashCode(), patternC.hashCode());
     assertNotEquals(patternB, patternC);
+    assertNotEquals(patternB.hashCode(), patternC.hashCode());
   }
 }

@@ -176,8 +176,12 @@ public class EqualToDateTimePatternTest {
     EqualToDateTimePattern c = WireMock.equalToDateTime(LocalDateTime.parse("2022-01-10T10:10:10"));
 
     assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
     assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
     assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

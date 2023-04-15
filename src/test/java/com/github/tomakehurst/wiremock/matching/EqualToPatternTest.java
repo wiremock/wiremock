@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class EqualToPatternTest {
@@ -113,9 +115,13 @@ public class EqualToPatternTest {
     EqualToPattern b = new EqualToPattern("someString");
     EqualToPattern c = new EqualToPattern("someOtherString");
 
-    assertThat(a, equalTo(b));
-    assertThat(b, equalTo(a));
-    assertThat(a, not(equalTo(c)));
-    assertThat(b, not(equalTo(c)));
+    Assertions.assertEquals(a, b);
+    Assertions.assertEquals(a.hashCode(), b.hashCode());
+    Assertions.assertEquals(b, a);
+    Assertions.assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

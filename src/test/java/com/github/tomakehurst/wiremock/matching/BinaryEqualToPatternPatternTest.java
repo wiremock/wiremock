@@ -76,15 +76,6 @@ public class BinaryEqualToPatternPatternTest {
   }
 
   @Test
-  public void sameByteArrayShouldReturnTrueOnEqual() {
-    BinaryEqualToPattern a = new BinaryEqualToPattern(new byte[] {1, 2, 3, 4, 5, 6});
-    BinaryEqualToPattern b = new BinaryEqualToPattern(new byte[] {1, 2, 3, 4, 5, 6});
-
-    Assertions.assertEquals(a, b);
-    Assertions.assertEquals(b, a);
-  }
-
-  @Test
   @SuppressWarnings("unchecked")
   public void deserializesCorrectly() {
     String base64Expected = BaseEncoding.base64().encode(new byte[] {1, 2, 3});
@@ -109,8 +100,12 @@ public class BinaryEqualToPatternPatternTest {
     BinaryEqualToPattern c = new BinaryEqualToPattern(new byte[] {0, 8, 15});
 
     Assertions.assertEquals(a, b);
+    Assertions.assertEquals(a.hashCode(), b.hashCode());
     Assertions.assertEquals(b, a);
+    Assertions.assertEquals(b.hashCode(), a.hashCode());
     assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

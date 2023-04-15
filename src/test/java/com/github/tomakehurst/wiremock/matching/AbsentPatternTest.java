@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
@@ -40,9 +42,13 @@ public class AbsentPatternTest {
     AbsentPattern b = new AbsentPattern("someString");
     AbsentPattern c = new AbsentPattern("someOtherString");
 
-    assertThat(a, equalTo(b));
-    assertThat(b, equalTo(a));
-    assertThat(a, not(equalTo(c)));
-    assertThat(b, not(equalTo(c)));
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

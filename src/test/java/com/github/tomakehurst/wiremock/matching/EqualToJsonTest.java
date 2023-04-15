@@ -600,9 +600,13 @@ public class EqualToJsonTest {
         new EqualToJsonPattern(
             "{\n" + "  \"id\": \"123\",\n" + "  \"name\": \"Eric\"\n" + "}", false, false);
 
-    assertThat(a, equalTo(b));
-    assertThat(b, equalTo(a));
-    assertThat(a, not(equalTo(c)));
-    assertThat(b, not(equalTo(c)));
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

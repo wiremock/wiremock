@@ -336,8 +336,12 @@ public class BeforeDateTimePatternTest {
     BeforeDateTimePattern c = WireMock.before(LocalDateTime.parse("2022-01-01T10:10:10"));
 
     assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
     assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
     assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

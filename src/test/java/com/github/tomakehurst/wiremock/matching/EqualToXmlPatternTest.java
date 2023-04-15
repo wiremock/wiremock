@@ -504,8 +504,12 @@ public class EqualToXmlPatternTest {
                 + "        tion/\"/>");
 
     assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
     assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
     assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }
