@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.google.common.base.Optional;
 import java.util.List;
@@ -59,6 +60,8 @@ public interface Options {
   BrowserProxySettings browserProxySettings();
 
   ProxySettings proxyVia();
+
+  Stores getStores();
 
   FileSource filesRoot();
 
@@ -113,4 +116,6 @@ public interface Options {
   DataTruncationSettings getDataTruncationSettings();
 
   NetworkAddressRules getProxyTargetRules();
+
+  int proxyTimeout();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,22 +24,60 @@ import static com.google.common.net.HttpHeaders.LOCATION;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.AbsentPattern;
+import com.github.tomakehurst.wiremock.matching.AfterDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.BeforeDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
+import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToDateTimePattern;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.ExactMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.IncludesMatchMultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.LogicalAnd;
+import com.github.tomakehurst.wiremock.matching.LogicalOr;
+import com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern;
+import com.github.tomakehurst.wiremock.matching.MatchesXPathPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
+import com.github.tomakehurst.wiremock.matching.NegativeContainsPattern;
+import com.github.tomakehurst.wiremock.matching.NegativeRegexPattern;
+import com.github.tomakehurst.wiremock.matching.NotPattern;
+import com.github.tomakehurst.wiremock.matching.RegexPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.*;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.StubImportBuilder;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import java.io.File;
 import java.time.LocalDateTime;
@@ -48,6 +86,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WireMock {
 
@@ -55,7 +95,8 @@ public class WireMock {
   private static final String DEFAULT_HOST = "localhost";
 
   private final Admin admin;
-  private final GlobalSettingsHolder globalSettingsHolder = new GlobalSettingsHolder();
+
+  private final SettingsStore settingsStore = new InMemorySettingsStore();
 
   private static InheritableThreadLocal<WireMock> defaultInstance =
       new InheritableThreadLocal<WireMock>() {
@@ -268,6 +309,10 @@ public class WireMock {
     return new NegativeContainsPattern(value);
   }
 
+  public static StringValuePattern not(StringValuePattern unexpectedPattern) {
+    return new NotPattern(unexpectedPattern);
+  }
+
   public static StringValuePattern matching(String regex) {
     return new RegexPattern(regex);
   }
@@ -452,6 +497,37 @@ public class WireMock {
 
   public static UrlPathPattern urlPathMatching(String urlRegex) {
     return new UrlPathPattern(matching(urlRegex), true);
+  }
+
+  public static UrlPathPattern urlPathTemplate(String pathTemplate) {
+    return new UrlPathTemplatePattern(pathTemplate);
+  }
+
+  public static MultiValuePattern havingExactly(final StringValuePattern... valuePatterns) {
+    if (valuePatterns.length == 0) {
+      return noValues();
+    }
+    return new ExactMatchMultiValuePattern(Stream.of(valuePatterns).collect(Collectors.toList()));
+  }
+
+  public static MultiValuePattern havingExactly(String... values) {
+    return havingExactly(Stream.of(values).map(EqualToPattern::new).toArray(EqualToPattern[]::new));
+  }
+
+  public static MultiValuePattern including(final StringValuePattern... valuePatterns) {
+    if (valuePatterns.length == 0) {
+      return noValues();
+    }
+    return new IncludesMatchMultiValuePattern(
+        Stream.of(valuePatterns).collect(Collectors.toList()));
+  }
+
+  public static MultiValuePattern including(String... values) {
+    return including(Stream.of(values).map(EqualToPattern::new).toArray(EqualToPattern[]::new));
+  }
+
+  public static MultiValuePattern noValues() {
+    return MultiValuePattern.of(absent());
   }
 
   public static UrlPattern anyUrl() {
@@ -796,7 +872,7 @@ public class WireMock {
   }
 
   public void setGlobalFixedDelayVariable(int milliseconds) {
-    GlobalSettings settings = globalSettingsHolder.get().copy().fixedDelay(milliseconds).build();
+    GlobalSettings settings = settingsStore.get().copy().fixedDelay(milliseconds).build();
     updateGlobalSettings(settings);
   }
 
@@ -805,8 +881,7 @@ public class WireMock {
   }
 
   public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
-    GlobalSettings settings =
-        globalSettingsHolder.get().copy().delayDistribution(distribution).build();
+    GlobalSettings settings = settingsStore.get().copy().delayDistribution(distribution).build();
     updateGlobalSettings(settings);
   }
 
@@ -815,7 +890,7 @@ public class WireMock {
   }
 
   public void updateGlobalSettings(GlobalSettings settings) {
-    globalSettingsHolder.replaceWith(settings);
+    settingsStore.set(settings);
     admin.updateGlobalSettings(settings);
   }
 

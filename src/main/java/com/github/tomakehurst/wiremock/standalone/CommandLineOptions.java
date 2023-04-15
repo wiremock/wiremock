@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,19 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
@@ -118,9 +121,15 @@ public class CommandLineOptions implements Options {
   private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
+  private static final String PROXY_TIMEOUT = "proxy-timeout";
+
+  private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
 
   private final OptionSet optionSet;
+
+  private final Stores stores;
   private final FileSource fileSource;
+
   private final MappingsSource mappingsSource;
   private final Map<String, Extension> extensions;
 
@@ -351,6 +360,14 @@ public class CommandLineOptions implements Options {
             DENY_PROXY_TARGETS,
             "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
         .withRequiredArg();
+    optionParser
+        .accepts(
+            PROXY_TIMEOUT,
+            "Timeout in milliseconds for requests to proxy")
+        .withRequiredArg();
+   optionParser
+        .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
+        .withRequiredArg();
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -363,6 +380,20 @@ public class CommandLineOptions implements Options {
           new ClasspathFileSource((String) optionSet.valueOf(LOAD_RESOURCES_FROM_CLASSPATH));
     } else {
       fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+    }
+
+    stores = new DefaultStores(fileSource);
+
+    if (optionSet.has(PROXY_PASS_THROUGH)) {
+      GlobalSettings newSettings =
+          stores
+              .getSettingsStore()
+              .get()
+              .copy()
+              .proxyPassThrough(
+                  Boolean.parseBoolean((String) optionSet.valueOf(PROXY_PASS_THROUGH)))
+              .build();
+      stores.getSettingsStore().set(newSettings);
     }
 
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
@@ -449,7 +480,7 @@ public class CommandLineOptions implements Options {
     try {
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       Class<?> cls =
-          loader.loadClass("com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory");
+          loader.loadClass("com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory");
       return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
     } catch (Exception e) {
       return throwUnchecked(e, null);
@@ -648,6 +679,11 @@ public class CommandLineOptions implements Options {
       return ProxySettings.fromString(proxyVia);
     }
     return NO_PROXY;
+  }
+
+  @Override
+  public Stores getStores() {
+    return stores;
   }
 
   @Override
@@ -877,6 +913,13 @@ public class CommandLineOptions implements Options {
         .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  @Override
+  public int proxyTimeout() {
+    return optionSet.has(PROXY_TIMEOUT)
+        ? Integer.valueOf((String) optionSet.valueOf(PROXY_TIMEOUT))
+        : DEFAULT_TIMEOUT;
   }
 
   private Long getMaxTemplateCacheEntries() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,20 @@ package com.github.tomakehurst.wiremock.admin;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 public class RequestSpec {
 
   private final RequestMethod method;
-  private final AdminUriTemplate uriTemplate;
+  private final PathTemplate uriTemplate;
 
   public RequestSpec(RequestMethod method, String uriTemplate) {
     checkNotNull(method);
     checkNotNull(uriTemplate);
     this.method = method;
-    this.uriTemplate = new AdminUriTemplate(uriTemplate);
+    this.uriTemplate = new PathTemplate(uriTemplate);
   }
 
   public static RequestSpec requestSpec(RequestMethod method, String path) {
@@ -41,7 +42,7 @@ public class RequestSpec {
     return method;
   }
 
-  public AdminUriTemplate getUriTemplate() {
+  public PathTemplate getUriTemplate() {
     return uriTemplate;
   }
 

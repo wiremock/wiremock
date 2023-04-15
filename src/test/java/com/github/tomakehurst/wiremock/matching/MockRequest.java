@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.common.Urls;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty9.MultipartParser;
+import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -43,6 +44,8 @@ public class MockRequest implements Request {
   private String url = "/";
   private RequestMethod method = RequestMethod.ANY;
   private HttpHeaders headers = new HttpHeaders();
+
+  private PathParams pathParams = new PathParams();
   private Map<String, Cookie> cookies = newHashMap();
   private byte[] body;
   private String clientIp = "1.1.1.1";

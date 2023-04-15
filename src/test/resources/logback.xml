@@ -1,0 +1,17 @@
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="WARN">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+  <logger name="org.apache.hc.client5.http.wire" level="DEBUG" />
+  <logger name="org.eclipse.jetty.util.thread" level="WARN" />
+  <logger name="org.eclipse.jetty.util.component" level="WARN" />
+</configuration>
+

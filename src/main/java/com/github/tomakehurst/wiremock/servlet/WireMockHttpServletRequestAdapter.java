@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,15 +35,19 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
-import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
-import com.google.common.base.*;
+import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
@@ -67,14 +71,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
 
-    cachedQueryParams =
-        Suppliers.memoize(
-            new Supplier<Map<String, QueryParameter>>() {
-              @Override
-              public Map<String, QueryParameter> get() {
-                return splitQuery(request.getQueryString());
-              }
-            });
+    cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
+
+    if (multipartRequestConfigurer != null) {
+      this.multipartRequestConfigurer.configure(request);
+    }
   }
 
   @Override
@@ -245,9 +246,9 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public Map<String, Cookie> getCookies() {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
-    javax.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
-    for (javax.servlet.http.Cookie cookie : cookies) {
+    jakarta.servlet.http.Cookie[] cookies =
+        firstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+    for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
 

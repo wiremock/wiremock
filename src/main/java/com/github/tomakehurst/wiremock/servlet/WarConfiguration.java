@@ -31,13 +31,15 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
+import jakarta.servlet.ServletContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletContext;
 
 public class WarConfiguration implements Options {
 
@@ -82,6 +84,11 @@ public class WarConfiguration implements Options {
   @Override
   public ProxySettings proxyVia() {
     return ProxySettings.NO_PROXY;
+  }
+
+  @Override
+  public Stores getStores() {
+    return new DefaultStores(filesRoot());
   }
 
   @Override
@@ -227,5 +234,10 @@ public class WarConfiguration implements Options {
   @Override
   public BrowserProxySettings browserProxySettings() {
     return BrowserProxySettings.DISABLED;
+  }
+
+  @Override
+  public int proxyTimeout() {
+    return DEFAULT_TIMEOUT;
   }
 }

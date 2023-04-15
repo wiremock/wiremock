@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class DirectCallHttpServerTest {
   class Start {
     @Test
     void doesNothing() {
-      assertDoesNotThrow(() -> server.start());
+      assertDoesNotThrow(server::start);
     }
   }
 
@@ -71,7 +71,7 @@ class DirectCallHttpServerTest {
   class Stop {
     @Test
     void doesNothing() {
-      assertDoesNotThrow(() -> server.start());
+      assertDoesNotThrow(server::start);
     }
   }
 

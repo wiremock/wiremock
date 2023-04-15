@@ -57,7 +57,7 @@ public class AdminRequestHandlerTest {
 
     handler =
         new AdminRequestHandler(
-            AdminRoutes.defaults(),
+            AdminRoutes.forClient(),
             admin,
             new BasicResponseRenderer(),
             new NoAuthenticator(),

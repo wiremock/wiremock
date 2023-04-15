@@ -22,7 +22,8 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
@@ -46,9 +47,6 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
-  private static final int MINUTES = 1000 * 60;
-  private static final int DEFAULT_SO_TIMEOUT = 5 * MINUTES;
-
   private static final String TRANSFER_ENCODING = "transfer-encoding";
   private static final String CONTENT_ENCODING = "content-encoding";
   private static final String CONTENT_LENGTH = "content-length";
@@ -62,7 +60,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final CloseableHttpClient forwardProxyClient;
   private final boolean preserveHostHeader;
   private final String hostHeaderValue;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final SettingsStore settingsStore;
   private final boolean stubCorsEnabled;
 
   private final NetworkAddressRules targetAddressRules;
@@ -72,16 +70,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       KeyStoreSettings trustStoreSettings,
       boolean preserveHostHeader,
       String hostHeaderValue,
-      GlobalSettingsHolder globalSettingsHolder,
+      SettingsStore settingsStore,
       boolean trustAllProxyTargets,
       List<String> trustedProxyTargets,
       boolean stubCorsEnabled,
-      NetworkAddressRules targetAddressRules) {
-    this.globalSettingsHolder = globalSettingsHolder;
+      NetworkAddressRules targetAddressRules,
+      int proxyTimeout) {
+    this.settingsStore = settingsStore;
     reverseProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             true,
@@ -90,7 +89,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     forwardProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             trustAllProxyTargets,
@@ -117,6 +116,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
 
+    GlobalSettings settings = settingsStore.get();
+
     Request originalRequest = responseDefinition.getOriginalRequest();
     if ((originalRequest.getBody() != null && originalRequest.getBody().length > 0)
         || originalRequest.containsHeader(CONTENT_LENGTH)) {
@@ -130,8 +131,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
           .body(getEntityAsByteArrayAndCloseStream(httpResponse))
           .fromProxy(true)
           .configureDelay(
-              globalSettingsHolder.get().getFixedDelay(),
-              globalSettingsHolder.get().getDelayDistribution(),
+              settings.getFixedDelay(),
+              settings.getDelayDistribution(),
               responseDefinition.getFixedDelayMilliseconds(),
               responseDefinition.getDelayDistribution())
           .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
@@ -169,7 +170,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private static String extractUri(HttpUriRequest request) {
     try {
       return request.getUri().toString();
-    } catch (URISyntaxException e1) {
+    } catch (URISyntaxException ignored) {
     }
     return request.getRequestUri();
   }

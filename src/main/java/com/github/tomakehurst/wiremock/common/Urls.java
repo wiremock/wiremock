@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class Urls {
@@ -71,15 +71,15 @@ public class Urls {
 
     return Maps.transformEntries(
         builder.build().asMap(),
-        new Maps.EntryTransformer<String, Collection<String>, QueryParameter>() {
-          public QueryParameter transformEntry(String key, Collection<String> values) {
-            return new QueryParameter(key, ImmutableList.copyOf(values));
-          }
-        });
+        (key, values) -> new QueryParameter(key, ImmutableList.copyOf(values)));
   }
 
   public static String getPath(String url) {
     return url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
+  }
+
+  public static List<String> getPathSegments(String path) {
+    return ImmutableList.copyOf(path.split("/"));
   }
 
   public static String urlToPathParts(URI uri) {

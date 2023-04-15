@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
+import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -122,7 +124,7 @@ public class HttpAdminClient implements Admin {
     this.hostHeader = hostHeader;
     this.authenticator = authenticator;
 
-    adminRoutes = AdminRoutes.defaults();
+    adminRoutes = AdminRoutes.forClient();
 
     httpClient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
   }

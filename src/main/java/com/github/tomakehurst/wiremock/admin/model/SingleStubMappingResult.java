@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class SingleStubMappingResult extends SingleItemResult<StubMapping> {
 
@@ -27,6 +27,6 @@ public class SingleStubMappingResult extends SingleItemResult<StubMapping> {
   }
 
   public static SingleStubMappingResult fromOptional(Optional<StubMapping> optional) {
-    return new SingleStubMappingResult(optional.orNull());
+    return new SingleStubMappingResult(optional.orElse(null));
   }
 }

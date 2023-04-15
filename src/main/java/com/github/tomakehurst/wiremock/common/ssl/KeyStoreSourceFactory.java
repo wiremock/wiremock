@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ public class KeyStoreSourceFactory {
       final Class<? extends KeyStoreSource> theClass =
           (Class<? extends KeyStoreSource>)
               Class.forName(
-                  "com.github.tomakehurst.wiremock.jetty94.WritableFileOrClasspathKeyStoreSource");
+                  "com.github.tomakehurst.wiremock.jetty11.WritableFileOrClasspathKeyStoreSource");
       return safelyGetConstructor(theClass, String.class, String.class, char[].class)
           .newInstance(path, keyStoreType, keyStorePassword);
     } catch (ClassNotFoundException
