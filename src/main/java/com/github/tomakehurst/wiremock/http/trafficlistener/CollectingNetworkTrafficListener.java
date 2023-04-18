@@ -22,12 +22,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
 public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficListener {
   private final StringBuilder requestBuilder = new StringBuilder();
   private final StringBuilder responseBuilder = new StringBuilder();
 
-  private final Charset charset = Charset.forName("UTF-8");
+  private final Charset charset = StandardCharsets.UTF_8;
   private final CharsetDecoder decoder = charset.newDecoder();
 
   @Override
