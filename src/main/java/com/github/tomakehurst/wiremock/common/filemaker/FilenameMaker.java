@@ -18,14 +18,14 @@ package com.github.tomakehurst.wiremock.common.filemaker;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.HandlebarsOptimizedTemplate;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-
 import java.util.Collections;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class FilenameMaker {
   private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^\\w-.]");
-  private static final String DEFAULT_FILENAME_TEMPLATE = "{{{request.method}}}-{{{request.url}}}-{{{id}}}.json";
+  private static final String DEFAULT_FILENAME_TEMPLATE =
+      "{{{request.method}}}-{{{request.url}}}-{{{id}}}.json";
 
   private final TemplateEngine templateEngine;
   private final String filenameTemplate;
@@ -36,7 +36,8 @@ public class FilenameMaker {
   }
 
   public FilenameMaker() {
-    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());;
+    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    ;
     this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE;
   }
 
