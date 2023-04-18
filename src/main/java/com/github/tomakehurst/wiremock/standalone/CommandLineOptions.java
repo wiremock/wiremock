@@ -270,7 +270,6 @@ public class CommandLineOptions implements Options {
     optionParser.accepts(
         GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
     optionParser.accepts(FILENAME_TEMPLATE, "Add filename template").withRequiredArg();
-    ;
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
     optionParser

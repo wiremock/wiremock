@@ -601,7 +601,6 @@ public class WireMockConfiguration implements Options {
 
   @Override
   public FilenameMaker getFilenameMaker() {
-    ;
     filenameMaker = new FilenameMaker();
     return filenameMaker;
   }
