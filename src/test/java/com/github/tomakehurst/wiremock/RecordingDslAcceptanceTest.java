@@ -148,7 +148,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     client.get("/do-not-record-this/3");
 
     assertThat(returnedMappings.size(), is(0));
-    assertThat(proxyingService.getStubMappings(), Matchers.<StubMapping>empty());
+    assertThat(proxyingService.getStubMappings(), Matchers.empty());
   }
 
   @Test
@@ -157,7 +157,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 
     assertThat(returnedMappings.size(), is(0));
-    assertThat(proxyingService.getStubMappings(), Matchers.<StubMapping>empty());
+    assertThat(proxyingService.getStubMappings(), Matchers.empty());
   }
 
   @Test
