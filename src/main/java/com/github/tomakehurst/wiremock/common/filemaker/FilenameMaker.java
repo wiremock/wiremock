@@ -37,7 +37,6 @@ public class FilenameMaker {
 
   public FilenameMaker() {
     this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
-    ;
     this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE;
   }
 
