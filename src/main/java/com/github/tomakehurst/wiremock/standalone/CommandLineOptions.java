@@ -399,7 +399,7 @@ public class CommandLineOptions implements Options {
     }
 
     filenameMaker = new FilenameMaker(getFilenameTemplateOption());
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
     extensions = buildExtensions();
 
     actualHttpPort = null;
@@ -432,9 +432,12 @@ public class CommandLineOptions implements Options {
 
   private void validateFilenameTemplate(String filenameTemplate) {
     String[] templateParts = filenameTemplate.split("-");
-    if (templateParts.length != 3) {
+    boolean handlebarIdentifierMissed =
+        Arrays.stream(templateParts)
+            .anyMatch(part -> !part.contains("{{{") || !part.contains("}}}"));
+    if (handlebarIdentifierMissed) {
       throw new IllegalArgumentException(
-          "Format for filename template should be {{{method}}}-{{{path}}}-{{{id}}}.format");
+          "Format for filename template should be contain handlebar value. Please check format one more time");
     }
   }
 

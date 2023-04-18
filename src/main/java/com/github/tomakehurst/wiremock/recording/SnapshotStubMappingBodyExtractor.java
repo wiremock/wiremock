@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -46,7 +47,8 @@ public class SnapshotStubMappingBodyExtractor {
                 : ContentTypeHeader.absent(),
             body);
 
-    String bodyFileName = SafeNames.makeSafeFileName(stubMapping, extension);
+    FilenameMaker filenameMaker = new FilenameMaker("default", extension);
+    String bodyFileName = filenameMaker.filenameFor(stubMapping);
 
     // used to prevent ambiguous method call error for withBody()
     String noStringBody = null;

@@ -18,32 +18,55 @@ package com.github.tomakehurst.wiremock.common.filemaker;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.HandlebarsOptimizedTemplate;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.text.Normalizer;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 public class FilenameMaker {
   private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^\\w-.]");
+  private static final String DEFAULT_EXTENSION = ".json";
   private static final String DEFAULT_FILENAME_TEMPLATE =
-      "{{{request.method}}}-{{{request.url}}}-{{{id}}}.json";
+      "{{{request.method}}}-{{{request.url}}}-{{{id}}}";
+  private static final String POINT = ".";
+  private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
   private final TemplateEngine templateEngine;
   private final String filenameTemplate;
+
+  public FilenameMaker() {
+    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
+  }
 
   public FilenameMaker(String filenameTemplate) {
     this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
     this.filenameTemplate = filenameTemplate;
   }
 
-  public FilenameMaker() {
+  public FilenameMaker(String filenameTemplate, String extension) {
     this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
-    this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE;
+    if (filenameTemplate.equals("default")) {
+      this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE + POINT + extension;
+    } else {
+      this.filenameTemplate = filenameTemplate + POINT + extension;
+    }
   }
 
   public String filenameFor(StubMapping stubMapping) {
     HandlebarsOptimizedTemplate template = templateEngine.getUncachedTemplate(filenameTemplate);
     String parsedFilename = template.apply(stubMapping);
     return sanitise(parsedFilename);
+  }
+
+  public String sanitizeUrl(String url) {
+    String startingPath = url.replace("/", "_");
+    String pathWithoutWhitespace = WHITESPACE.matcher(startingPath).replaceAll("-");
+    String normalizedPath = Normalizer.normalize(pathWithoutWhitespace, Normalizer.Form.NFD);
+    String slug = sanitise(normalizedPath).replaceAll("^[_]*", "").replaceAll("[_]*$", "");
+    slug = StringUtils.truncate(slug, 200);
+    return slug;
   }
 
   private String sanitise(String s) {

@@ -147,7 +147,8 @@ public class WireMockConfiguration implements Options {
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
-      mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+      mappingsSource =
+          new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT), getFilenameMaker());
     }
 
     return mappingsSource;
@@ -176,6 +177,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration port(int portNumber) {
     this.portNumber = portNumber;
+    return this;
+  }
+
+  public WireMockConfiguration filenameTemplate(String filenameTemplate) {
+    this.filenameMaker = new FilenameMaker(filenameTemplate);
     return this;
   }
 
@@ -601,7 +607,6 @@ public class WireMockConfiguration implements Options {
 
   @Override
   public FilenameMaker getFilenameMaker() {
-    filenameMaker = new FilenameMaker();
     return filenameMaker;
   }
 

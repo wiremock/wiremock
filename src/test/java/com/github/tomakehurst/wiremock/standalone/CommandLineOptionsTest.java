@@ -553,7 +553,7 @@ public class CommandLineOptionsTest {
   @Test
   public void configureFileTemplatesWithWrongFormat() {
     assertThrows(
-        Exception.class, () -> new CommandLineOptions("--filename-template={{{method}}}.json"));
+        Exception.class, () -> new CommandLineOptions("--filename-template={{method}}}.json"));
   }
 
   @Test
