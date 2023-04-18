@@ -400,9 +400,7 @@ public class CommandLineOptions implements Options {
       stores.getSettingsStore().set(newSettings);
     }
 
-    TemplateEngine templateEngine =
-        new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
-    filenameMaker = new FilenameMaker(templateEngine, getFilenameTemplateOption());
+    filenameMaker = new FilenameMaker(getFilenameTemplateOption());
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
     extensions = buildExtensions();
 
@@ -552,7 +550,7 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
-  public FilenameMaker getFilenameTemplate() {
+  public FilenameMaker getFilenameMaker() {
     return filenameMaker;
   }
 

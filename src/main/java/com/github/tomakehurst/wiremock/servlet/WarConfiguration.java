@@ -133,7 +133,7 @@ public class WarConfiguration implements Options {
   }
 
   @Override
-  public FilenameMaker getFilenameTemplate() {
+  public FilenameMaker getFilenameMaker() {
     return null;
   }
 

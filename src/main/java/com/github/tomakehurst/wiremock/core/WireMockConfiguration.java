@@ -103,7 +103,6 @@ public class WireMockConfiguration implements Options {
   private Stores stores;
   private MappingsSource mappingsSource;
   private FilenameMaker filenameMaker;
-  private TemplateEngine templateEngine;
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
@@ -603,9 +602,8 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public FilenameMaker getFilenameTemplate() {
-    templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
-    filenameMaker = new FilenameMaker(templateEngine);
+  public FilenameMaker getFilenameMaker() {;
+    filenameMaker = new FilenameMaker();
     return filenameMaker;
   }
 

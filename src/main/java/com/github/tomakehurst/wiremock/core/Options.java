@@ -78,7 +78,7 @@ public interface Options {
 
   String bindAddress();
 
-  FilenameMaker getFilenameTemplate();
+  FilenameMaker getFilenameMaker();
 
   List<CaseInsensitiveKey> matchingHeaders();
 

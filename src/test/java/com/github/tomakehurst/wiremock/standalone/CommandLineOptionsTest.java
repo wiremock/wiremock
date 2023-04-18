@@ -547,7 +547,7 @@ public class CommandLineOptionsTest {
   public void configureFileTemplatesWithRightFormat() {
     CommandLineOptions options =
         new CommandLineOptions("--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
-    assertNotNull(options.getFilenameTemplate());
+    assertNotNull(options.getFilenameMaker());
   }
 
   @Test
