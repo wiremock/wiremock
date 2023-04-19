@@ -18,16 +18,17 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Performs stateful post-processing tasks on stub mappings generated from ServeEvents: 1. Detect
- * duplicate requests and either discard them or turn them into scenarios 2. Extract response bodies
- * to a separate file, if applicable 3. Run any applicable StubMappingTransformers against the stub
- * mappings
+ * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
+ * <ol>
+ *     <li>Run any applicable StubMappingTransformers against the stub mappings.</li>
+ *     <li>Detect duplicate requests and either discard them or turn them into scenarios.</li>
+ *     <li>Extract response bodies to a separate file, if applicable.</li>
+ * </ol>
  */
 public class SnapshotStubMappingPostProcessor {
   private final boolean shouldRecordRepeatsAsScenarios;
@@ -47,30 +48,45 @@ public class SnapshotStubMappingPostProcessor {
   }
 
   public List<StubMapping> process(Iterable<StubMapping> stubMappings) {
-    final Multiset<RequestPattern> requestCounts = HashMultiset.create();
-    final List<StubMapping> processedStubMappings = new ArrayList<>();
-
+    // 1. Run any applicable StubMappingTransformers against the stub mappings.
+    ArrayList<StubMapping> transformedStubMappings = new ArrayList<>();
     for (StubMapping stubMapping : stubMappings) {
-      requestCounts.add(stubMapping.getRequest());
+      transformedStubMappings.add(transformerRunner.apply(stubMapping));
+    }
+    
+    // 2. Detect duplicate requests and either discard them or turn them into scenarios.
+    Multiset<RequestPattern> requestCounts = HashMultiset.create();
+    List<StubMapping> processedStubMappings = new ArrayList<>();
+    for (StubMapping transformedStubMapping : transformedStubMappings) {
+      requestCounts.add(transformedStubMapping.getRequest());
 
       // Skip duplicate requests if shouldRecordRepeatsAsScenarios is not enabled
-      if (requestCounts.count(stubMapping.getRequest()) > 1 && !shouldRecordRepeatsAsScenarios) {
+      if (requestCounts.count(transformedStubMapping.getRequest()) > 1 && !shouldRecordRepeatsAsScenarios) {
         continue;
       }
 
-      if (bodyExtractMatcher != null
-          && bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
-        bodyExtractor.extractInPlace(stubMapping);
-      }
-
-      processedStubMappings.add(stubMapping);
+      processedStubMappings.add(transformedStubMapping);
     }
 
     if (shouldRecordRepeatsAsScenarios) {
       new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
     }
 
-    // Run any stub mapping transformer extensions
-    return Lists.transform(processedStubMappings, transformerRunner);
+    // 3. Extract response bodies to a separate file, if applicable.
+    extractStubMappingBodies(processedStubMappings);
+
+    return processedStubMappings;
+  }
+  
+  private void extractStubMappingBodies(List<StubMapping> stubMappings) {
+    if (bodyExtractMatcher == null) {
+      return;
+    }
+    
+    for (StubMapping stubMapping : stubMappings) {
+      if (bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
+        bodyExtractor.extractInPlace(stubMapping);
+      }
+    }
   }
 }
