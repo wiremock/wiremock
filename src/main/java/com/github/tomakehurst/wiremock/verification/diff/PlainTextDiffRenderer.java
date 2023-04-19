@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
 import static java.lang.System.lineSeparator;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.repeat;
@@ -95,8 +96,8 @@ public class PlainTextDiffRenderer {
   }
 
   private void writeLine(StringBuilder sb, String left, String right, String message) {
-    String[] leftLines = wrap(left).split(SEPARATOR);
-    String[] rightLines = wrap(right).split(SEPARATOR);
+    String[] leftLines = wrap(normaliseLineBreaks(left)).split(SEPARATOR);
+    String[] rightLines = wrap(normaliseLineBreaks(right)).split(SEPARATOR);
 
     int maxLines = Math.max(leftLines.length, rightLines.length);
 

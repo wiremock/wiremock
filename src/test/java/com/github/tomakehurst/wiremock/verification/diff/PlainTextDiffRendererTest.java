@@ -15,23 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.havingExactly;
-import static com.github.tomakehurst.wiremock.client.WireMock.including;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
+import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
@@ -187,14 +173,17 @@ public class PlainTextDiffRendererTest {
                             + "}")));
 
     String output = diffRenderer.render(diff);
-    System.out.println(output);
 
     // Ugh. The joys of Microsoft's line ending innovations.
     String expected =
         SystemUtils.IS_OS_WINDOWS
             ? file("not-found-diff-sample_large_json_windows.txt")
             : file("not-found-diff-sample_large_json.txt");
-    assertThat(output, equalsMultiLine(expected));
+
+    System.out.println("expected:\n" + expected);
+    System.out.println("actual:\n" + output);
+
+    assertThat(normaliseLineBreaks(output), equalsMultiLine(expected));
   }
 
   @Test
@@ -217,7 +206,11 @@ public class PlainTextDiffRendererTest {
   @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   public void wrapsLargeXmlBodiesAppropriatelyJre11Windows() {
     String output = wrapsLargeXmlBodiesAppropriately();
-    assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11_windows.txt")));
+
+    String expected = file("not-found-diff-sample_large_xml_jre11_windows.txt");
+    System.out.println("expected:\n" + expected);
+    System.out.println("output:\n" + output);
+    assertThat(output, equalsMultiLine(expected));
   }
 
   private String wrapsLargeXmlBodiesAppropriately() {
@@ -537,6 +530,26 @@ public class PlainTextDiffRendererTest {
 
     String output = diffRenderer.render(diff);
     System.out.println(output);
+  }
+
+  @Test
+  void showsErrorInDiffWhenBodyDoesNotMatchJsonSchema() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withName("JSON schema stub")
+                .withRequestBody(matchingJsonSchema(file("schema-validation/new-pet.schema.json")))
+                .build(),
+            mockRequest()
+                .url("/thing")
+                .method(POST)
+                .body(file("schema-validation/new-pet.invalid.json")));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        normaliseLineBreaks(output),
+        equalsMultiLine(file("not-found-diff-sample_json-schema.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {
