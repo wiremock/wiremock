@@ -34,7 +34,6 @@ import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Predicate;
 import java.util.UUID;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -253,14 +252,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
   }
 
   private ServeEvent findServeEventWithRequestUrl(final String url) {
-    return find(
-        proxyingService.getAllServeEvents(),
-        new Predicate<ServeEvent>() {
-          @Override
-          public boolean apply(ServeEvent input) {
-            return url.equals(input.getRequest().getUrl());
-          }
-        });
+    return find(proxyingService.getAllServeEvents(), input -> url.equals(input.getRequest().getUrl()));
   }
 
   private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =

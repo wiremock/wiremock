@@ -189,14 +189,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private List<TextFile> toTextFileList(List<File> fileList) {
-    return newArrayList(
-        transform(
-            fileList,
-            new Function<File, TextFile>() {
-              public TextFile apply(File input) {
-                return new TextFile(input.toURI());
-              }
-            }));
+    return newArrayList(transform(fileList, input -> new TextFile(input.toURI())));
   }
 
   @Override

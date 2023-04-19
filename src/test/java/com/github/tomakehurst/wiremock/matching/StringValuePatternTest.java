@@ -19,7 +19,6 @@ import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
@@ -38,34 +37,18 @@ public class StringValuePatternTest {
 
     FluentIterable<Class<?>> classes =
         from(allClasses)
-            .filter(
-                new Predicate<ClassPath.ClassInfo>() {
-                  @Override
-                  public boolean apply(ClassPath.ClassInfo input) {
-                    return input
-                        .getPackageName()
-                        .startsWith("com.github.tomakehurst.wiremock.matching");
-                  }
-                })
-            .transform(
-                new Function<ClassPath.ClassInfo, Class<?>>() {
-                  @Override
-                  public Class<?> apply(ClassPath.ClassInfo input) {
-                    try {
-                      return input.load();
-                    } catch (Throwable e) {
-                      return Object.class;
-                    }
-                  }
-                })
+            .filter(input -> input
+                .getPackageName()
+                .startsWith("com.github.tomakehurst.wiremock.matching"))
+            .transform(input -> {
+              try {
+                return input.load();
+              } catch (Throwable e) {
+                return Object.class;
+              }
+            })
             .filter(assignableFrom(StringValuePattern.class))
-            .filter(
-                new Predicate<Class<?>>() {
-                  @Override
-                  public boolean apply(Class<?> input) {
-                    return !Modifier.isAbstract(input.getModifiers());
-                  }
-                });
+            .filter(input -> !Modifier.isAbstract(input.getModifiers()));
 
     for (Class<?> clazz : classes) {
       findConstructorWithStringParamInFirstPosition(clazz);
@@ -74,28 +57,18 @@ public class StringValuePatternTest {
 
   private Constructor<?> findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
     return Iterables.find(
-        asList(clazz.getConstructors()),
-        new Predicate<Constructor<?>>() {
-          @Override
-          public boolean apply(Constructor<?> input) {
-            return input.getParameterTypes().length > 0
+        asList(clazz.getConstructors()), 
+            input -> input.getParameterTypes().length > 0
                 && input.getParameterTypes()[0].equals(String.class)
                 && input.getParameterAnnotations().length > 0
                 && input.getParameterAnnotations()[0].length > 0
                 && input
                     .getParameterAnnotations()[0][0]
                     .annotationType()
-                    .equals(JsonProperty.class);
-          }
-        });
+                    .equals(JsonProperty.class));
   }
 
   private static Predicate<Class<?>> assignableFrom(final Class<?> clazz) {
-    return new Predicate<Class<?>>() {
-      @Override
-      public boolean apply(Class<?> aClass) {
-        return aClass.isAssignableFrom(clazz);
-      }
-    };
+    return aClass -> aClass.isAssignableFrom(clazz);
   }
 }

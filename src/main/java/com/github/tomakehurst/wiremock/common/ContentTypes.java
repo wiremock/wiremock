@@ -24,7 +24,6 @@ import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import java.net.URI;
 import java.util.List;
@@ -120,14 +119,7 @@ public class ContentTypes {
   }
 
   public static boolean determineIsTextFromMimeType(final String mimeType) {
-    return any(
-        TEXT_MIME_TYPE_PATTERNS,
-        new Predicate<String>() {
-          @Override
-          public boolean apply(String pattern) {
-            return mimeType != null && mimeType.matches(pattern);
-          }
-        });
+    return any(TEXT_MIME_TYPE_PATTERNS, pattern -> mimeType != null && mimeType.matches(pattern));
   }
 
   public static boolean determineIsText(String extension, String mimeType) {

@@ -63,11 +63,5 @@ public class FileItemPartAdapter implements Request.Part {
     return new Body(fileItem.get());
   }
 
-  public static final Function<FileItem, Request.Part> TO_PARTS =
-      new Function<FileItem, Request.Part>() {
-        @Override
-        public Request.Part apply(FileItem fileItem) {
-          return new FileItemPartAdapter(fileItem);
-        }
-      };
+  public static final Function<FileItem, Request.Part> TO_PARTS = fileItem -> new FileItemPartAdapter(fileItem);
 }

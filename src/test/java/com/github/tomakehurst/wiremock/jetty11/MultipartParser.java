@@ -34,13 +34,7 @@ public class MultipartParser {
         new MultiPartInputStreamParser(new ByteArrayInputStream(body), contentType, null, null);
     try {
       return from(parser.getParts())
-          .transform(
-              new Function<Part, Request.Part>() {
-                @Override
-                public Request.Part apply(Part input) {
-                  return WireMockHttpServletMultipartAdapter.from(input);
-                }
-              })
+          .transform((Function<Part, Request.Part>) input -> WireMockHttpServletMultipartAdapter.from(input))
           .toList();
     } catch (Exception e) {
       return throwUnchecked(e, Collection.class);

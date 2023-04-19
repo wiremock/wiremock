@@ -66,10 +66,5 @@ public class CaseInsensitiveKey {
     return key;
   }
 
-  public static final Function<String, CaseInsensitiveKey> TO_CASE_INSENSITIVE_KEYS =
-      new Function<String, CaseInsensitiveKey>() {
-        public CaseInsensitiveKey apply(String input) {
-          return from(input);
-        }
-      };
+  public static final Function<String, CaseInsensitiveKey> TO_CASE_INSENSITIVE_KEYS = CaseInsensitiveKey::from;
 }

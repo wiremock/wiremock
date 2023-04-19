@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.*;
-import com.google.common.base.Function;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -155,29 +154,15 @@ public class NearMissCalculatorTest {
 
   private void givenStubMappings(final MappingBuilder... mappingBuilders) {
     final List<StubMapping> mappings =
-        from(mappingBuilders)
-            .transform(
-                new Function<MappingBuilder, StubMapping>() {
-                  @Override
-                  public StubMapping apply(MappingBuilder input) {
-                    return input.build();
-                  }
-                })
-            .toList();
+        from(mappingBuilders).transform(input -> input.build()).toList();
     when(stubMappings.getAll()).thenReturn(mappings);
   }
 
   private void givenRequests(final Request... requests) {
     final List<ServeEvent> serveEvents =
         from(requests)
-            .transform(
-                new Function<Request, ServeEvent>() {
-                  @Override
-                  public ServeEvent apply(Request request) {
-                    return ServeEvent.of(
-                        LoggedRequest.createFrom(request), new ResponseDefinition());
-                  }
-                })
+            .transform(request -> ServeEvent.of(
+                LoggedRequest.createFrom(request), new ResponseDefinition()))
             .toList();
 
     when(requestJournal.getAllServeEvents()).thenReturn(serveEvents);

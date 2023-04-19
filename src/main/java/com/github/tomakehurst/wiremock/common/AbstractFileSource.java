@@ -20,7 +20,6 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 import java.io.File;
@@ -92,14 +91,7 @@ public abstract class AbstractFileSource implements FileSource {
   }
 
   private List<TextFile> toTextFileList(List<File> fileList) {
-    return newArrayList(
-        transform(
-            fileList,
-            new Function<File, TextFile>() {
-              public TextFile apply(File input) {
-                return new TextFile(input.toURI());
-              }
-            }));
+    return newArrayList(transform(fileList, input -> new TextFile(input.toURI())));
   }
 
   @Override
@@ -195,10 +187,6 @@ public abstract class AbstractFileSource implements FileSource {
   }
 
   public static Predicate<BinaryFile> byFileExtension(final String extension) {
-    return new Predicate<BinaryFile>() {
-      public boolean apply(BinaryFile input) {
-        return input.name().endsWith("." + extension);
-      }
-    };
+    return input -> input.name().endsWith("." + extension);
   }
 }

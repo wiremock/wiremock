@@ -42,9 +42,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
@@ -204,25 +202,13 @@ public class WireMockApp implements StubServer, Admin {
 
   private List<RequestFilter> getAdminRequestFilters() {
     return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
-        .filter(
-            new Predicate<RequestFilter>() {
-              @Override
-              public boolean apply(RequestFilter filter) {
-                return filter.applyToAdmin();
-              }
-            })
+        .filter(filter -> filter.applyToAdmin())
         .toList();
   }
 
   private List<RequestFilter> getStubRequestFilters() {
     return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
-        .filter(
-            new Predicate<RequestFilter>() {
-              @Override
-              public boolean apply(RequestFilter filter) {
-                return filter.applyToStubs();
-              }
-            })
+        .filter(filter -> filter.applyToStubs())
         .toList();
   }
 
@@ -410,14 +396,7 @@ public class WireMockApp implements StubServer, Admin {
   public FindNearMissesResult findNearMissesForUnmatchedRequests() {
     ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
     Iterable<ServeEvent> unmatchedServeEvents =
-        from(requestJournal.getAllServeEvents())
-            .filter(
-                new Predicate<ServeEvent>() {
-                  @Override
-                  public boolean apply(ServeEvent input) {
-                    return input.isNoExactMatch();
-                  }
-                });
+        from(requestJournal.getAllServeEvents()).filter(input -> input.isNoExactMatch());
 
     for (ServeEvent serveEvent : unmatchedServeEvents) {
       listBuilder.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
@@ -556,15 +535,7 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     if (importOptions.getDeleteAllNotInImport()) {
-      Iterable<UUID> ids =
-          transform(
-              mappings,
-              new Function<StubMapping, UUID>() {
-                @Override
-                public UUID apply(StubMapping input) {
-                  return input.getId();
-                }
-              });
+      Iterable<UUID> ids = transform(mappings, StubMapping::getId);
       for (StubMapping mapping : listAllStubMappings().getMappings()) {
         if (!contains(ids, mapping.getId())) {
           removeStubMapping(mapping);

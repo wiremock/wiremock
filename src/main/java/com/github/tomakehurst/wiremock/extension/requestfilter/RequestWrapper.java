@@ -250,13 +250,7 @@ public class RequestWrapper implements Request {
     }
 
     return from(delegate.getParts())
-        .transform(
-            new Function<Part, Part>() {
-              @Override
-              public Part apply(Part part) {
-                return multipartTransformer.transform(part);
-              }
-            })
+        .transform(part -> multipartTransformer.transform(part))
         .toList();
   }
 

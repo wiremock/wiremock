@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import java.net.URI;
 import java.util.Collection;
@@ -31,24 +29,11 @@ public class ScenarioProcessor {
 
   public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
     ImmutableListMultimap<RequestPattern, StubMapping> stubsGroupedByRequest =
-        Multimaps.index(
-            stubMappings,
-            new Function<StubMapping, RequestPattern>() {
-              @Override
-              public RequestPattern apply(StubMapping mapping) {
-                return mapping.getRequest();
-              }
-            });
+        Multimaps.index(stubMappings, StubMapping::getRequest);
 
     Map<RequestPattern, Collection<StubMapping>> groupsWithMoreThanOneStub =
         Maps.filterEntries(
-            stubsGroupedByRequest.asMap(),
-            new Predicate<Map.Entry<RequestPattern, Collection<StubMapping>>>() {
-              @Override
-              public boolean apply(Map.Entry<RequestPattern, Collection<StubMapping>> input) {
-                return input.getValue().size() > 1;
-              }
-            });
+            stubsGroupedByRequest.asMap(), input -> input.getValue().size() > 1);
 
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :

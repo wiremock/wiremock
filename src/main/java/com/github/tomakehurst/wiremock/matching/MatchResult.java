@@ -21,10 +21,9 @@ import static java.util.Arrays.asList;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class MatchResult implements Comparable<MatchResult> {
 
@@ -50,15 +49,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
   }
 
   public static MatchResult aggregate(final List<MatchResult> matchResults) {
-    return aggregateWeighted(
-        Lists.transform(
-            matchResults,
-            new Function<MatchResult, WeightedMatchResult>() {
-              @Override
-              public WeightedMatchResult apply(MatchResult matchResult) {
-                return new WeightedMatchResult(matchResult);
-              }
-            }));
+    return aggregateWeighted(matchResults.stream().map(WeightedMatchResult::new).collect(Collectors.toList()));
   }
 
   public static MatchResult aggregateWeighted(WeightedMatchResult... matchResults) {
@@ -96,11 +87,5 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return Double.compare(other.getDistance(), getDistance());
   }
 
-  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
-      new Predicate<WeightedMatchResult>() {
-        @Override
-        public boolean apply(WeightedMatchResult matchResult) {
-          return matchResult.isExactMatch();
-        }
-      };
+  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH = WeightedMatchResult::isExactMatch;
 }

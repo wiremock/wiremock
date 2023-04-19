@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
 
@@ -44,13 +43,7 @@ public class BasicAuthenticator implements Authenticator {
   public boolean authenticate(Request request) {
     List<String> headerValues =
         FluentIterable.from(credentials)
-            .transform(
-                new Function<BasicCredentials, String>() {
-                  @Override
-                  public String apply(BasicCredentials input) {
-                    return input.asAuthorizationHeaderValue();
-                  }
-                })
+            .transform(BasicCredentials::asAuthorizationHeaderValue)
             .toList();
     return request.containsHeader(AUTHORIZATION)
         && headerValues.contains(request.header(AUTHORIZATION).firstValue());

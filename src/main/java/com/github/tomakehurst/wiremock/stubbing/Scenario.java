@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
@@ -72,24 +71,10 @@ public class Scenario {
   }
 
   public Set<String> getPossibleStates() {
-    FluentIterable<String> requiredStates =
-        from(stubMappings)
-            .transform(
-                new Function<StubMapping, String>() {
-                  @Override
-                  public String apply(StubMapping mapping) {
-                    return mapping.getRequiredScenarioState();
-                  }
-                });
+    FluentIterable<String> requiredStates = from(stubMappings).transform(mapping -> mapping.getRequiredScenarioState());
 
     return from(stubMappings)
-        .transform(
-            new Function<StubMapping, String>() {
-              @Override
-              public String apply(StubMapping mapping) {
-                return mapping.getNewScenarioState();
-              }
-            })
+        .transform(mapping -> mapping.getNewScenarioState())
         .append(requiredStates)
         .filter(Predicates.notNull())
         .toSet();
@@ -147,12 +132,7 @@ public class Scenario {
     return Objects.hash(getId(), getState(), getMappings());
   }
 
-  public static final Predicate<Scenario> withName(final String name) {
-    return new Predicate<Scenario>() {
-      @Override
-      public boolean apply(Scenario input) {
-        return input.getId().equals(name);
-      }
-    };
+  public static Predicate<Scenario> withName(final String name) {
+    return input -> input.getId().equals(name);
   }
 }

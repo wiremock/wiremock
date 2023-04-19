@@ -20,9 +20,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.any;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import java.util.List;
 
 public class MultiValue {
@@ -70,26 +68,12 @@ public class MultiValue {
   }
 
   private boolean anyValueMatches(final StringValuePattern valuePattern) {
-    return any(
-        values,
-        new Predicate<String>() {
-          public boolean apply(String headerValue) {
-            return valuePattern.match(headerValue).isExactMatch();
-          }
-        });
+    return any(values, headerValue -> valuePattern.match(headerValue).isExactMatch());
   }
 
   @Override
   public String toString() {
     return Joiner.on("\n")
-        .join(
-            from(values)
-                .transform(
-                    new Function<String, String>() {
-                      @Override
-                      public String apply(String value) {
-                        return key + ": " + value;
-                      }
-                    }));
+        .join(from(values).transform(value -> key + ": " + value));
   }
 }

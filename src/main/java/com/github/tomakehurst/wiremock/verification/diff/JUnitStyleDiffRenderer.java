@@ -36,19 +36,8 @@ public class JUnitStyleDiffRenderer {
     return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
   }
 
-  private static Function<DiffLine<?>, Object> EXPECTED =
-      new Function<DiffLine<?>, Object>() {
-        @Override
-        public Object apply(DiffLine<?> line) {
-          return line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
-        }
-      };
+  private static Function<DiffLine<?>, Object> EXPECTED
+          = line -> line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
 
-  private static Function<DiffLine<?>, Object> ACTUAL =
-      new Function<DiffLine<?>, Object>() {
-        @Override
-        public Object apply(DiffLine<?> input) {
-          return input.getActual();
-        }
-      };
+  private static Function<DiffLine<?>, Object> ACTUAL = DiffLine::getActual;
 }
