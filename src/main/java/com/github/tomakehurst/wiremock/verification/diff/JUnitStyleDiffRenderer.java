@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import static com.google.common.collect.FluentIterable.from;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import java.util.List;
@@ -33,7 +34,10 @@ public class JUnitStyleDiffRenderer {
   }
 
   public static String junitStyleDiffMessage(Object expected, Object actual) {
-    return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
+    return String.format(
+        " expected:<\n%s> but was:<\n%s>",
+        Strings.normaliseLineBreaks(expected.toString()),
+        Strings.normaliseLineBreaks(actual.toString()));
   }
 
   private static Function<DiffLine<?>, Object> EXPECTED =

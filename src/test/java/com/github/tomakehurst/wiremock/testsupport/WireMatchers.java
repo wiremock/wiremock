@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.testsupport;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.*;
-import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.MULTILINE;
@@ -368,17 +367,13 @@ public class WireMatchers {
   }
 
   public static Matcher<String> equalsMultiLine(final String expected) {
-    String normalisedExpected = normaliseLineBreaks(expected);
+    String normalisedExpected = Strings.normaliseLineBreaks(expected);
     return new IsEqual<String>(normalisedExpected) {
       @Override
       public boolean matches(Object actualValue) {
         return super.matches(actualValue.toString());
       }
     };
-  }
-
-  private static String normaliseLineBreaks(String s) {
-    return s.replace("\n", lineSeparator());
   }
 
   private static String fileContents(File input) {
