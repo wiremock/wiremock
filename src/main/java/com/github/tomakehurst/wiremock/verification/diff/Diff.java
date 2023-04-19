@@ -355,8 +355,10 @@ public class Diff {
           }
         } else if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
           StringValuePattern stringValuePattern = (StringValuePattern) pattern;
+          String printedPatternValue = "[" + pattern.getName() + "]\n" + pattern.getExpected();
           builder.add(
-              new DiffLine<>("Body", stringValuePattern, formattedBody, pattern.getExpected()));
+              new DiffLine<>(
+                  "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue));
         } else {
           BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
           builder.add(

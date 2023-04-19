@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,5 +149,20 @@ public final class Json {
   public static <T> Map<String, Object> objectToMap(T theObject) {
     ObjectMapper mapper = getObjectMapper();
     return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
+  }
+
+  public static int schemaPropertyCount(JsonNode schema) {
+    int count = 0;
+    final JsonNode propertiesNode = schema.get("properties");
+    if (propertiesNode != null && !propertiesNode.isEmpty()) {
+      for (JsonNode property : propertiesNode) {
+        count++;
+        if (property.has("properties")) {
+          count += schemaPropertyCount(property);
+        }
+      }
+    }
+
+    return count;
   }
 }
