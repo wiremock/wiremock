@@ -78,7 +78,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  void handlesStubNameWithAwkwardCharacters() {
+  void includesStubNameWhenPresent() {
     StubMapping stub = Json.read("{\n" +
             "    \"name\": \"This is a NAMED stub\",\n" +
             "    \"persistent\": true,\n" +
