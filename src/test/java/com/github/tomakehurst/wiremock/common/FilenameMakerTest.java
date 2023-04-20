@@ -76,4 +76,24 @@ public class FilenameMakerTest {
             "/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/andverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuff/¿?");
     assertThat(output.length(), is(200));
   }
+
+  @Test
+  void handlesStubNameWithAwkwardCharacters() {
+    StubMapping stub = Json.read("{\n" +
+            "    \"name\": \"This is a NAMED stub\",\n" +
+            "    \"persistent\": true,\n" +
+            "    \"request\": {\n" +
+            "        \"urlPath\": \"/one/two/three\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "    },\n" +
+            "\n" +
+            "    \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "    }\n" +
+            "}\n", StubMapping.class);
+
+    String filename = filenameMaker.filenameFor(stub);
+
+    assertThat(filename, is("this-is-a-named-stub-" + stub.getId() + ".json"));
+  }
 }

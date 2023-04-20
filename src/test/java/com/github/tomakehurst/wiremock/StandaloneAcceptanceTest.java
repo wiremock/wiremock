@@ -470,6 +470,19 @@ public class StandaloneAcceptanceTest {
             containsString("not marked as ignorable")));
   }
 
+  @Test
+  void savesMappingFileOnCreationOfPersistentStub() {
+    startRunner();
+
+    stubFor(get(urlPathEqualTo("/one/two/three"))
+            .withName("Named stuff here __$$ things!")
+            .persistent()
+            .willReturn(ok())
+    );
+
+    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("Named-stuff-here"));
+  }
+
   private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
     return FileUtils.readFileToString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
   }
