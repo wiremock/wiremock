@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,7 +172,9 @@ public class StubMappingJsonRecorder implements RequestListener {
   private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
     return new HttpHeaders(
         filter(
-            httpHeaders.all(), header -> !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length")));
+            httpHeaders.all(),
+            header ->
+                !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length")));
   }
 
   private byte[] bodyDecompressedIfRequired(Response response) {

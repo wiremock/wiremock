@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ public abstract class MatchResult implements Comparable<MatchResult> {
   }
 
   public static MatchResult aggregate(final List<MatchResult> matchResults) {
-    return aggregateWeighted(matchResults.stream().map(WeightedMatchResult::new).collect(Collectors.toList()));
+    return aggregateWeighted(
+        matchResults.stream().map(WeightedMatchResult::new).collect(Collectors.toList()));
   }
 
   public static MatchResult aggregateWeighted(WeightedMatchResult... matchResults) {
@@ -87,5 +88,6 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return Double.compare(other.getDistance(), getDistance());
   }
 
-  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH = WeightedMatchResult::isExactMatch;
+  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
+      WeightedMatchResult::isExactMatch;
 }

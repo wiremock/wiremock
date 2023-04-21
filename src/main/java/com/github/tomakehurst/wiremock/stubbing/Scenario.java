@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,8 @@ public class Scenario {
   }
 
   public Set<String> getPossibleStates() {
-    FluentIterable<String> requiredStates = from(stubMappings).transform(mapping -> mapping.getRequiredScenarioState());
+    FluentIterable<String> requiredStates =
+        from(stubMappings).transform(mapping -> mapping.getRequiredScenarioState());
 
     return from(stubMappings)
         .transform(mapping -> mapping.getNewScenarioState())

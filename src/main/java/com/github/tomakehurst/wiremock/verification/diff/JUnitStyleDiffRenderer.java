@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ public class JUnitStyleDiffRenderer {
     return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
   }
 
-  private static Function<DiffLine<?>, Object> EXPECTED
-          = line -> line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
+  private static Function<DiffLine<?>, Object> EXPECTED =
+      line -> line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
 
   private static Function<DiffLine<?>, Object> ACTUAL = DiffLine::getActual;
 }

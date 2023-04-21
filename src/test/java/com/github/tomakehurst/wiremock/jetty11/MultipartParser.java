@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,9 @@ public class MultipartParser {
         new MultiPartInputStreamParser(new ByteArrayInputStream(body), contentType, null, null);
     try {
       return from(parser.getParts())
-          .transform((Function<Part, Request.Part>) input -> WireMockHttpServletMultipartAdapter.from(input))
+          .transform(
+              (Function<Part, Request.Part>)
+                  input -> WireMockHttpServletMultipartAdapter.from(input))
           .toList();
     } catch (Exception e) {
       return throwUnchecked(e, Collection.class);

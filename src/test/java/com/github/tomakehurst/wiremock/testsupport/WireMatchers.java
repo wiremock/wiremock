@@ -318,7 +318,8 @@ public class WireMatchers {
         List<File> files = asList(path.toFile().listFiles());
         boolean matched =
             any(
-                files, file -> {
+                files,
+                file -> {
                   final String fileContents = fileContents(file);
                   return all(asList(contents), input -> fileContents.contains(input));
                 });

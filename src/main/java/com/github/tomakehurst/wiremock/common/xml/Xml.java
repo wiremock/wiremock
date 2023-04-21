@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,19 +176,21 @@ public class Xml {
 
   private static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
 
-    private static final ThreadLocal<DocumentBuilderFactory> DBF_CACHE = ThreadLocal.withInitial(() -> {
-      try {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setFeature("http://xml.org/sax/features/validation", false);
-        dbf.setFeature(
-            "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-        dbf.setFeature(
-            "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        return dbf;
-      } catch (ParserConfigurationException e) {
-        return throwUnchecked(e, DocumentBuilderFactory.class);
-      }
-    });
+    private static final ThreadLocal<DocumentBuilderFactory> DBF_CACHE =
+        ThreadLocal.withInitial(
+            () -> {
+              try {
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setFeature("http://xml.org/sax/features/validation", false);
+                dbf.setFeature(
+                    "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                dbf.setFeature(
+                    "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                return dbf;
+              } catch (ParserConfigurationException e) {
+                return throwUnchecked(e, DocumentBuilderFactory.class);
+              }
+            });
     private static final ThreadLocal<DocumentBuilder> DB_CACHE =
         new ThreadLocal<DocumentBuilder>() {
           @Override

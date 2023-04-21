@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,5 +63,6 @@ public class FileItemPartAdapter implements Request.Part {
     return new Body(fileItem.get());
   }
 
-  public static final Function<FileItem, Request.Part> TO_PARTS = fileItem -> new FileItemPartAdapter(fileItem);
+  public static final Function<FileItem, Request.Part> TO_PARTS =
+      fileItem -> new FileItemPartAdapter(fileItem);
 }

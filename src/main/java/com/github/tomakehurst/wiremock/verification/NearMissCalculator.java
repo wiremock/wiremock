@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,12 +48,13 @@ public class NearMissCalculator {
 
     return sortAndTruncate(
         from(allMappings)
-            .transform(stubMapping -> {
-              MatchResult matchResult =
-                  new MemoizingMatchResult(stubMapping.getRequest().match(request));
-              String actualScenarioState = getScenarioStateOrNull(stubMapping);
-              return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
-            }),
+            .transform(
+                stubMapping -> {
+                  MatchResult matchResult =
+                      new MemoizingMatchResult(stubMapping.getRequest().match(request));
+                  String actualScenarioState = getScenarioStateOrNull(stubMapping);
+                  return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
+                }),
         allMappings.size());
   }
 
@@ -70,11 +71,12 @@ public class NearMissCalculator {
     List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
     return sortAndTruncate(
         from(serveEvents)
-            .transform(serveEvent -> {
-              MatchResult matchResult =
-                  new MemoizingMatchResult(requestPattern.match(serveEvent.getRequest()));
-              return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
-            }),
+            .transform(
+                serveEvent -> {
+                  MatchResult matchResult =
+                      new MemoizingMatchResult(requestPattern.match(serveEvent.getRequest()));
+                  return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
+                }),
         serveEvents.size());
   }
 

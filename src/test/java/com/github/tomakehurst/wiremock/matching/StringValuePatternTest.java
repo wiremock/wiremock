@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,17 @@ public class StringValuePatternTest {
 
     FluentIterable<Class<?>> classes =
         from(allClasses)
-            .filter(input -> input
-                .getPackageName()
-                .startsWith("com.github.tomakehurst.wiremock.matching"))
-            .transform(input -> {
-              try {
-                return input.load();
-              } catch (Throwable e) {
-                return Object.class;
-              }
-            })
+            .filter(
+                input ->
+                    input.getPackageName().startsWith("com.github.tomakehurst.wiremock.matching"))
+            .transform(
+                input -> {
+                  try {
+                    return input.load();
+                  } catch (Throwable e) {
+                    return Object.class;
+                  }
+                })
             .filter(assignableFrom(StringValuePattern.class))
             .filter(input -> !Modifier.isAbstract(input.getModifiers()));
 
@@ -57,8 +58,9 @@ public class StringValuePatternTest {
 
   private Constructor<?> findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
     return Iterables.find(
-        asList(clazz.getConstructors()), 
-            input -> input.getParameterTypes().length > 0
+        asList(clazz.getConstructors()),
+        input ->
+            input.getParameterTypes().length > 0
                 && input.getParameterTypes()[0].equals(String.class)
                 && input.getParameterAnnotations().length > 0
                 && input.getParameterAnnotations()[0].length > 0
