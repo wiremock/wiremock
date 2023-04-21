@@ -101,7 +101,7 @@ public class PlainTextDiffRenderer {
 
     int maxLines = Math.max(leftLines.length, rightLines.length);
 
-    writeSingleLine(sb, leftLines[0], rightLines[0], message);
+    writeSingleLine(sb, firstOrEmpty(leftLines), firstOrEmpty(rightLines), message);
 
     if (maxLines > 1) {
       for (int i = 1; i < maxLines; i++) {
@@ -110,6 +110,10 @@ public class PlainTextDiffRenderer {
         writeSingleLine(sb, leftPart, rightPart, null);
       }
     }
+  }
+
+  private static String firstOrEmpty(String[] lines) {
+    return lines.length > 0 ? lines[0] : "";
   }
 
   private void writeBlankLine(StringBuilder sb) {
