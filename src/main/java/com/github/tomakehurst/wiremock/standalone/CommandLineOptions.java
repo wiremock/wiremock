@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker.DEFAULT_FILENAME_TEMPLATE;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
@@ -427,7 +428,7 @@ public class CommandLineOptions implements Options {
       validateFilenameTemplate(filenameTemplate);
       return filenameTemplate;
     }
-    return null;
+    return DEFAULT_FILENAME_TEMPLATE;
   }
 
   private void validateFilenameTemplate(String filenameTemplate) {

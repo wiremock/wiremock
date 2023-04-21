@@ -25,10 +25,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 public class FilenameMaker {
+  public static final String DEFAULT_FILENAME_TEMPLATE =
+      "{{{request.method}}}-{{{request.url}}}-{{{id}}}";
+  private static final String NAME_TEMPLATE = "{{{name}}}-";
   private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^\\w-.]");
   private static final String DEFAULT_EXTENSION = ".json";
-  private static final String DEFAULT_FILENAME_TEMPLATE =
-      "{{{request.method}}}-{{{request.url}}}-{{{id}}}";
   private static final String POINT = ".";
   private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
@@ -55,9 +56,34 @@ public class FilenameMaker {
   }
 
   public String filenameFor(StubMapping stubMapping) {
-    HandlebarsOptimizedTemplate template = templateEngine.getUncachedTemplate(filenameTemplate);
+    String finalFilenameTemplate =
+        applyChangesForFilenameTemplateBasedOnStub(filenameTemplate, stubMapping);
+    HandlebarsOptimizedTemplate template =
+        templateEngine.getUncachedTemplate(finalFilenameTemplate);
     String parsedFilename = template.apply(stubMapping);
     return sanitise(parsedFilename);
+  }
+
+  private String applyChangesForFilenameTemplateBasedOnStub(
+      String filenameTemplate, StubMapping stubMapping) {
+    String filenameTemplateWithName = addNameTemplateIfPresent(filenameTemplate, stubMapping);
+    return replaceUrlWithUrlPath(filenameTemplateWithName, stubMapping);
+  }
+
+  private String addNameTemplateIfPresent(String filenameTemplate, StubMapping stubMapping) {
+    if (stubMapping.getName() != null
+        && (!stubMapping.getName().equals(stubMapping.getRequest().getUrl())
+            || !stubMapping.getName().equals(stubMapping.getRequest().getUrlPath()))) {
+      return NAME_TEMPLATE + filenameTemplate;
+    }
+    return filenameTemplate;
+  }
+
+  private String replaceUrlWithUrlPath(String filenameTemplate, StubMapping stubMapping) {
+    if (stubMapping.getRequest().getUrlPath() != null) {
+      return filenameTemplate.replace("url", "urlPath");
+    }
+    return filenameTemplate;
   }
 
   public String sanitizeUrl(String url) {
@@ -70,6 +96,7 @@ public class FilenameMaker {
   }
 
   private String sanitise(String s) {
-    return NON_ALPHANUMERIC.matcher(s).replaceAll("").toLowerCase(Locale.ROOT);
+    String decoratedString = String.join("-", s.split(" "));
+    return NON_ALPHANUMERIC.matcher(decoratedString).replaceAll("").toLowerCase(Locale.ROOT);
   }
 }

@@ -193,7 +193,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsBodyExtractCriteria() throws Exception {
+  public void supportsBodyExtractCriteria() {
     targetService.stubFor(
         get("/small/text")
             .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("123")));
@@ -230,13 +230,13 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(),
-        startsWith("get-largetext"));
+        startsWith("large_text-get-largetext"));
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(),
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(),
-        startsWith("get-largebinary"));
+        startsWith("large_binary-get-largebinary"));
   }
 
   @Test

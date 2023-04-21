@@ -474,13 +474,13 @@ public class StandaloneAcceptanceTest {
   void savesMappingFileOnCreationOfPersistentStub() {
     startRunner();
 
-    stubFor(get(urlPathEqualTo("/one/two/three"))
+    stubFor(
+        get(urlPathEqualTo("/one/two/three"))
             .withName("Named stuff here __$$ things!")
             .persistent()
-            .willReturn(ok())
-    );
+            .willReturn(ok()));
 
-    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("Named-stuff-here"));
+    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("named-stuff-here"));
   }
 
   private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
