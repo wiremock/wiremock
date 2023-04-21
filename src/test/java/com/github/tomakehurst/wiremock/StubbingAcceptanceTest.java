@@ -76,6 +76,7 @@ import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -640,6 +641,38 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  public void matchesFormParamUnencoded() {
+    stubFor(
+        put(urlPathEqualTo("/form"))
+            .withFormParam("key-one", equalTo("one two three ?"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/form",
+            "key-one=one%20two%20three%20%3F",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  public void matchesFormParamWithKeyInArrayStyle() {
+    stubFor(
+        put(urlPathEqualTo("/form"))
+            .withFormParam("key[one]", equalTo("firstValue"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/form",
+            "key[one]=firstValue",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
     assertThat(response.statusCode(), is(200));
   }
 

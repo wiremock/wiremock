@@ -18,7 +18,8 @@ package com.github.tomakehurst.wiremock.verification;
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.*;
+import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
+import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -29,13 +30,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,6 +61,7 @@ public class LoggedRequest implements Request {
   private final HttpHeaders headers;
   private final Map<String, Cookie> cookies;
   private final Map<String, QueryParameter> queryParams;
+  private final Map<String, FormParameter> formParameters;
   private final byte[] body;
   private final boolean isBrowserProxyRequest;
   private final Date loggedDate;
@@ -70,7 +80,8 @@ public class LoggedRequest implements Request {
         new Date(),
         request.getBody(),
         request.getParts(),
-        request.getProtocol());
+        request.getProtocol(),
+        request.formParameters());
   }
 
   @JsonCreator
@@ -113,6 +124,34 @@ public class LoggedRequest implements Request {
       byte[] body,
       Collection<Part> multiparts,
       String protocol) {
+    this(
+        url,
+        absoluteUrl,
+        method,
+        clientIp,
+        headers,
+        cookies,
+        isBrowserProxyRequest,
+        loggedDate,
+        body,
+        multiparts,
+        protocol,
+        new HashMap<>());
+  }
+
+  public LoggedRequest(
+      String url,
+      String absoluteUrl,
+      RequestMethod method,
+      String clientIp,
+      HttpHeaders headers,
+      Map<String, Cookie> cookies,
+      boolean isBrowserProxyRequest,
+      Date loggedDate,
+      byte[] body,
+      Collection<Part> multiparts,
+      String protocol,
+      Map<String, FormParameter> formParameters) {
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
@@ -133,6 +172,7 @@ public class LoggedRequest implements Request {
     this.headers = headers;
     this.cookies = cookies;
     this.queryParams = splitQueryFromUrl(url);
+    this.formParameters = formParameters;
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
     this.multiparts = multiparts;
@@ -242,6 +282,21 @@ public class LoggedRequest implements Request {
   @Override
   public QueryParameter queryParameter(String key) {
     return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
+  }
+
+  @Override
+  public FormParameter formParameter(String key) {
+    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return formParameters;
+  }
+
+  @JsonProperty("formParams")
+  public Map<String, FormParameter> getFormParameters() {
+    return formParameters;
   }
 
   @JsonProperty("queryParams")

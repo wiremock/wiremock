@@ -41,6 +41,10 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
 
   ScenarioMappingBuilder withQueryParam(String key, MultiValuePattern queryParamPattern);
 
+  ScenarioMappingBuilder withFormParam(String key, StringValuePattern formParamPattern);
+
+  ScenarioMappingBuilder withFormParam(String key, MultiValuePattern formParamPattern);
+
   ScenarioMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
 
   ScenarioMappingBuilder withRequestBody(ContentPattern<?> bodyPattern);

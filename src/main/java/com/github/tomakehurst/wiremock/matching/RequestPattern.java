@@ -54,6 +54,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   private final Map<String, StringValuePattern> pathParams;
   private final Map<String, MultiValuePattern> queryParams;
+  private final Map<String, MultiValuePattern> formParams;
   private final Map<String, StringValuePattern> cookies;
   private final BasicCredentials basicAuthCredentials;
   private final List<ContentPattern<?>> bodyPatterns;
@@ -72,6 +73,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final Map<String, MultiValuePattern> headers,
       final Map<String, StringValuePattern> pathParams,
       final Map<String, MultiValuePattern> queryParams,
+      final Map<String, MultiValuePattern> formParams,
       final Map<String, StringValuePattern> cookies,
       final BasicCredentials basicAuthCredentials,
       final List<ContentPattern<?>> bodyPatterns,
@@ -85,6 +87,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.method = firstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
     this.pathParams = pathParams;
+    this.formParams = formParams;
     this.queryParams = queryParams;
     this.cookies = cookies;
     this.basicAuthCredentials = basicAuthCredentials;
@@ -108,6 +111,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                         weight(allPathParamsMatch(request)),
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
+                        weight(allFormParamsMatch(request)),
                         weight(allCookiesMatch(request)),
                         weight(allBodyPatternsMatch(request)),
                         weight(allMultipartPatternsMatch(request))));
@@ -140,6 +144,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("headers") Map<String, MultiValuePattern> headers,
       @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
       @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+      @JsonProperty("formParameters") Map<String, MultiValuePattern> formParams,
       @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
       @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
       @JsonProperty("bodyPatterns") List<ContentPattern<?>> bodyPatterns,
@@ -155,6 +160,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         headers,
         pathParams,
         queryParams,
+        formParams,
         cookies,
         basicAuthCredentials,
         bodyPatterns,
@@ -170,6 +176,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           WireMock.anyUrl(),
           RequestMethod.ANY,
+          null,
           null,
           null,
           null,
@@ -194,6 +201,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         null,
+        null,
         customMatcher,
         null);
   }
@@ -205,6 +213,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         UrlPattern.ANY,
         RequestMethod.ANY,
+        null,
         null,
         null,
         null,
@@ -337,6 +346,25 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                       return queryParamPattern
                           .getValue()
                           .match(request.queryParameter(queryParamPattern.getKey()));
+                    }
+                  })
+              .toList());
+    }
+
+    return MatchResult.exactMatch();
+  }
+
+  private MatchResult allFormParamsMatch(final Request request) {
+    if (formParams != null && !formParams.isEmpty()) {
+      return MatchResult.aggregate(
+          from(formParams.entrySet())
+              .transform(
+                  new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                    public MatchResult apply(
+                        Map.Entry<String, MultiValuePattern> formParamPattern) {
+                      return formParamPattern
+                          .getValue()
+                          .match(request.formParameter(formParamPattern.getKey()));
                     }
                   })
               .toList());
@@ -479,6 +507,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public Map<String, MultiValuePattern> getQueryParameters() {
     return queryParams;
+  }
+
+  public Map<String, MultiValuePattern> getFormParameters() {
+    return formParams;
   }
 
   public Map<String, StringValuePattern> getCookies() {

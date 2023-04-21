@@ -39,6 +39,7 @@ public class RequestPatternBuilder {
   private Map<String, MultiValuePattern> headers = newLinkedHashMap();
   private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
 
+  private Map<String, MultiValuePattern> formParams = newLinkedHashMap();
   private Map<String, StringValuePattern> pathParams = newLinkedHashMap();
   private List<ContentPattern<?>> bodyPatterns = newArrayList();
   private Map<String, StringValuePattern> cookies = newLinkedHashMap();
@@ -107,6 +108,9 @@ public class RequestPatternBuilder {
     }
     if (requestPattern.getQueryParameters() != null) {
       builder.queryParams = requestPattern.getQueryParameters();
+    }
+    if (requestPattern.getFormParameters() != null) {
+      builder.formParams = requestPattern.getFormParameters();
     }
     if (requestPattern.getCookies() != null) {
       builder.cookies = requestPattern.getCookies();
@@ -179,6 +183,16 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder withFormParam(String key, StringValuePattern valuePattern) {
+    formParams.put(key, MultiValuePattern.of(valuePattern));
+    return this;
+  }
+
+  public RequestPatternBuilder withFormParam(String key, MultiValuePattern multiValuePattern) {
+    formParams.put(key, multiValuePattern);
+    return this;
+  }
+
   public RequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
     cookies.put(key, valuePattern);
     return this;
@@ -244,6 +258,7 @@ public class RequestPatternBuilder {
         headers.isEmpty() ? null : headers,
         pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,
+        formParams.isEmpty() ? null : formParams,
         cookies.isEmpty() ? null : cookies,
         basicCredentials,
         bodyPatterns.isEmpty() ? null : bodyPatterns,
