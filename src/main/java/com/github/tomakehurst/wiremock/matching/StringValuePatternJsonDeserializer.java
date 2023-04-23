@@ -392,7 +392,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
                         && input.getGenericParameterTypes()[0].equals(String.class))
             .findFirst();
 
-    if (!optionalConstructor.isPresent()) {
+    if (optionalConstructor.isEmpty()) {
       throw new IllegalStateException(
           "Constructor for "
               + clazz.getSimpleName()
