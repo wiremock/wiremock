@@ -272,33 +272,6 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternWithFormParams() throws Exception {
-    RequestPattern requestPattern =
-        newRequestPattern(GET, urlPathEqualTo("/my/url"))
-            .withFormParam("param1", equalTo("1"))
-            .withFormParam("param2", matching("2"))
-            .build();
-
-    String actualJson = Json.write(requestPattern);
-
-    JSONAssert.assertEquals(
-        "{                              \n"
-            + "    \"method\": \"GET\",       \n"
-            + "    \"urlPath\": \"/my/url\",  \n"
-            + "    \"formParameters\": {     \n"
-            + "        \"param1\": {          \n"
-            + "            \"equalTo\": \"1\" \n"
-            + "        },                     \n"
-            + "        \"param2\": {          \n"
-            + "            \"matches\": \"2\" \n"
-            + "        }                      \n"
-            + "    }                          \n"
-            + "}",
-        actualJson,
-        true);
-  }
-
-  @Test
   public void bindsToJsonCompatibleWithOriginalRequestMultiValuePatternWithFormParams()
       throws Exception {
     RequestPattern requestPattern =

@@ -60,9 +60,13 @@ public interface Request {
 
   QueryParameter queryParameter(String key);
 
-  FormParameter formParameter(String key);
+  default FormParameter formParameter(String key) {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
 
-  Map<String, FormParameter> formParameters();
+  default Map<String, FormParameter> formParameters() {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
 
   Map<String, Cookie> getCookies();
 
