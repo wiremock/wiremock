@@ -18,7 +18,8 @@ X-My-Header [contains] : correct  | X-My-Header: wrong value   <<<<< Header does
 value                             |
 Accept [matches] : text/plain.*   | Accept: text/plain
                                   |
-{                                 | {                          <<<<< Body does not match
+[equalToJson]                     |                            <<<<< Body does not match
+{                                 | {
   "thing" : {                     |   "thing" : {
     "stuff" : [ 1, 2, 3 ]         |     "nothing" : { }
   }                               |   }
