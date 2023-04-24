@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.common.SafeNames;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -54,7 +54,8 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
     StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
 
     URI uri = URI.create(event.getRequest().getUrl());
-    stubMapping.setName(SafeNames.makeSafeNameFromUrl(uri.getPath()));
+    FilenameMaker filenameMaker = new FilenameMaker();
+    stubMapping.setName(filenameMaker.sanitizeUrl(uri.getPath()));
 
     return stubMapping;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2022 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -76,6 +77,8 @@ public interface Options {
   Optional<Integer> maxRequestJournalEntries();
 
   String bindAddress();
+
+  FilenameMaker getFilenameMaker();
 
   List<CaseInsensitiveKey> matchingHeaders();
 

@@ -125,6 +125,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
     this(wireMockConfig());
   }
 
+  public WireMockServer(String filenameTemplate) {
+    this(wireMockConfig().filenameTemplate(filenameTemplate));
+  }
+
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
     wireMockApp.loadMappingsUsing(mappingsLoader);
   }

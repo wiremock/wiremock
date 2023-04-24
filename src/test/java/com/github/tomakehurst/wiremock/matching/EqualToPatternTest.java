@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class EqualToPatternTest {
@@ -105,5 +107,21 @@ public class EqualToPatternTest {
   @Test
   public void noMatchOnNullValue() {
     assertThat(WireMock.equalTo("this_thing").match(null).isExactMatch(), is(false));
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    EqualToPattern a = new EqualToPattern("someString");
+    EqualToPattern b = new EqualToPattern("someString");
+    EqualToPattern c = new EqualToPattern("someOtherString");
+
+    Assertions.assertEquals(a, b);
+    Assertions.assertEquals(a.hashCode(), b.hashCode());
+    Assertions.assertEquals(b, a);
+    Assertions.assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

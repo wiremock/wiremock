@@ -19,11 +19,13 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker.DEFAULT_FILENAME_TEMPLATE;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
@@ -98,6 +100,7 @@ public class CommandLineOptions implements Options {
   private static final String ROOT_DIR = "root-dir";
   private static final String CONTAINER_THREADS = "container-threads";
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
+  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
   private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
   private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
@@ -132,6 +135,7 @@ public class CommandLineOptions implements Options {
 
   private final MappingsSource mappingsSource;
   private final Map<String, Extension> extensions;
+  private final FilenameMaker filenameMaker;
 
   private String helpText;
   private Integer actualHttpPort;
@@ -266,6 +270,7 @@ public class CommandLineOptions implements Options {
         "Print all raw incoming and outgoing network traffic to console");
     optionParser.accepts(
         GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
+    optionParser.accepts(FILENAME_TEMPLATE, "Add filename template").withRequiredArg();
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
     optionParser
@@ -361,11 +366,9 @@ public class CommandLineOptions implements Options {
             "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
         .withRequiredArg();
     optionParser
-        .accepts(
-            PROXY_TIMEOUT,
-            "Timeout in milliseconds for requests to proxy")
+        .accepts(PROXY_TIMEOUT, "Timeout in milliseconds for requests to proxy")
         .withRequiredArg();
-   optionParser
+    optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
 
@@ -396,7 +399,8 @@ public class CommandLineOptions implements Options {
       stores.getSettingsStore().set(newSettings);
     }
 
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+    filenameMaker = new FilenameMaker(getFilenameTemplateOption());
+    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
     extensions = buildExtensions();
 
     actualHttpPort = null;
@@ -416,6 +420,26 @@ public class CommandLineOptions implements Options {
     }
 
     return builder.build();
+  }
+
+  private String getFilenameTemplateOption() {
+    if (optionSet.has(FILENAME_TEMPLATE)) {
+      String filenameTemplate = (String) optionSet.valueOf(FILENAME_TEMPLATE);
+      validateFilenameTemplate(filenameTemplate);
+      return filenameTemplate;
+    }
+    return DEFAULT_FILENAME_TEMPLATE;
+  }
+
+  private void validateFilenameTemplate(String filenameTemplate) {
+    String[] templateParts = filenameTemplate.split("-");
+    boolean handlebarIdentifierMissed =
+        Arrays.stream(templateParts)
+            .anyMatch(part -> !part.contains("{{{") || !part.contains("}}}"));
+    if (handlebarIdentifierMissed) {
+      throw new IllegalArgumentException(
+          "Format for filename template should be contain handlebar value. Please check format one more time");
+    }
   }
 
   private void contributeResponseTemplateTransformer(
@@ -525,6 +549,11 @@ public class CommandLineOptions implements Options {
     }
 
     return DEFAULT_BIND_ADDRESS;
+  }
+
+  @Override
+  public FilenameMaker getFilenameMaker() {
+    return filenameMaker;
   }
 
   @Override
