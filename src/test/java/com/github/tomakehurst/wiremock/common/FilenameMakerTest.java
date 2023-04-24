@@ -132,4 +132,13 @@ public class FilenameMakerTest {
 
     assertThat(filename, is("this-is-a-named-stub-" + stub.getId() + ".json"));
   }
+
+  @Test
+  void handlesAnAllDefaultsStub() {
+    StubMapping stubMapping = Json.read("{}", StubMapping.class);
+
+    String filename = filenameMaker.filenameFor(stubMapping);
+
+    assertThat(filename, startsWith("any-always-"));
+  }
 }
