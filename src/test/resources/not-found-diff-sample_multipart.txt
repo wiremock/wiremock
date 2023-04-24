@@ -17,7 +17,8 @@ POST                                                       | POST
 Content-Disposition [contains] : name="part_one"           |                                                     <<<<< Header is not present
 X-My-Stuff [contains] : stuff_parts                        | X-My-Stuff: wrong value                             <<<<< Header does not match
                                                            |
-Some expected text.*                                       | Wrong body                                          <<<<< Body does not match
+[matches]                                                  |                                                     <<<<< Body does not match
+Some expected text.*                                       | Wrong body
                                                            |
 [/Multipart]                                               | [/part_one]
                                                            |
@@ -27,7 +28,8 @@ Some expected text.*                                       | Wrong body         
 Content-Disposition [contains] : name="part_one"           |                                                     <<<<< Header is not present
 X-My-Stuff [contains] : stuff_parts                        |                                                     <<<<< Header is not present
                                                            |
-Some expected text.*                                       | Correct body                                        <<<<< Body does not match
+[matches]                                                  |                                                     <<<<< Body does not match
+Some expected text.*                                       | Correct body
                                                            |
 [/Multipart]                                               | [/part_two]
                                                            |
@@ -36,7 +38,8 @@ Some expected text.*                                       | Correct body       
                                                            |
 X-More [contains] : stuff_parts                            |                                                     <<<<< Header is not present
                                                            |
-Correct body                                               | Wrong body                                          <<<<< Body does not match
+[equalTo]                                                  |                                                     <<<<< Body does not match
+Correct body                                               | Wrong body
                                                            |
 [/Multipart]                                               | [/part_one]
                                                            |
@@ -45,6 +48,8 @@ Correct body                                               | Wrong body         
                                                            |
 X-More [contains] : stuff_parts                            |                                                     <<<<< Header is not present
                                                            |
+[equalTo]                                                  |                                                     <<<<< Body does not match
+Correct body                                               | Correct body
                                                            |
 [/Multipart]                                               | [/part_two]
                                                            |
