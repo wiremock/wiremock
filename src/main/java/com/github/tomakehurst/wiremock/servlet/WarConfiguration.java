@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -99,7 +100,7 @@ public class WarConfiguration implements Options {
 
   @Override
   public MappingsLoader mappingsLoader() {
-    return new JsonFileMappingsSource(filesRoot().child("mappings"));
+    return new JsonFileMappingsSource(filesRoot().child("mappings"), new FilenameMaker());
   }
 
   @Override
@@ -128,6 +129,11 @@ public class WarConfiguration implements Options {
 
   @Override
   public String bindAddress() {
+    return null;
+  }
+
+  @Override
+  public FilenameMaker getFilenameMaker() {
     return null;
   }
 

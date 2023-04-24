@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -590,5 +586,27 @@ public class EqualToJsonTest {
     String actualNonMatching = "{\n" + "  \"id\": \"123\",\n" + "  \"name\": \"Tom\"\n" + "}";
     MatchResult nonMatch = new EqualToJsonPattern(expected, false, false).match(actualNonMatching);
     assertThat(nonMatch.isExactMatch(), is(false));
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    EqualToJsonPattern a =
+        new EqualToJsonPattern(
+            "{\n" + "  \"id\": \"abc\",\n" + "  \"name\": \"Tom\"\n" + "}", false, false);
+    EqualToJsonPattern b =
+        new EqualToJsonPattern(
+            "{\n" + "  \"id\": \"abc\",\n" + "  \"name\": \"Tom\"\n" + "}", false, false);
+    EqualToJsonPattern c =
+        new EqualToJsonPattern(
+            "{\n" + "  \"id\": \"123\",\n" + "  \"name\": \"Eric\"\n" + "}", false, false);
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

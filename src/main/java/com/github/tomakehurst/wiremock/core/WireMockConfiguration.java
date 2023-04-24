@@ -38,6 +38,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -99,6 +100,7 @@ public class WireMockConfiguration implements Options {
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
   private Stores stores;
   private MappingsSource mappingsSource;
+  private FilenameMaker filenameMaker;
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
@@ -145,7 +147,8 @@ public class WireMockConfiguration implements Options {
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
-      mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+      mappingsSource =
+          new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT), getFilenameMaker());
     }
 
     return mappingsSource;
@@ -174,6 +177,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration port(int portNumber) {
     this.portNumber = portNumber;
+    return this;
+  }
+
+  public WireMockConfiguration filenameTemplate(String filenameTemplate) {
+    this.filenameMaker = new FilenameMaker(filenameTemplate);
     return this;
   }
 
@@ -595,6 +603,11 @@ public class WireMockConfiguration implements Options {
   @Override
   public String bindAddress() {
     return bindAddress;
+  }
+
+  @Override
+  public FilenameMaker getFilenameMaker() {
+    return filenameMaker;
   }
 
   @Override

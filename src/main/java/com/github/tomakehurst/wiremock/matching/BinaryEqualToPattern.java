@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.io.BaseEncoding;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class BinaryEqualToPattern extends ContentPattern<byte[]> {
 
@@ -56,5 +57,20 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
   @Override
   public String toString() {
     return getName() + " " + getExpected();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    BinaryEqualToPattern that = (BinaryEqualToPattern) o;
+
+    return Objects.equals(getExpected(), that.getExpected());
+  }
+
+  @Override
+  public int hashCode() {
+    return getExpected() != null ? getExpected().hashCode() : 0;
   }
 }
