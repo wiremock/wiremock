@@ -230,13 +230,13 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(),
-        startsWith("large_text-get-largetext"));
+        startsWith("large_text"));
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(),
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(),
-        startsWith("large_binary-get-largebinary"));
+        startsWith("large_binary"));
   }
 
   @Test

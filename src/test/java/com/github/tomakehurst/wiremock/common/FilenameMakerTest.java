@@ -15,11 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
@@ -43,13 +42,38 @@ public class FilenameMakerTest {
 
     assertThat(
         filenameMaker.filenameFor(mapping),
-        is("this-is-a-named-stub-get-named-" + mapping.getId() + ".json"));
+        is("this-is-a-named-stub-" + mapping.getId() + ".json"));
   }
 
   @Test
   public void generatesNameFromStubUrlWhenNameNotPresent() {
-    FilenameMaker makerWithOwnFormat =
-        new FilenameMaker("{{{request.method}}}-{{{request.urlPattern}}}.json");
+    FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
+    StubMapping mapping = WireMock.get(urlEqualTo("/named/123/things")).willReturn(ok()).build();
+
+    assertThat(makerWithOwnFormat.filenameFor(mapping), is("get-named123things.json"));
+  }
+
+  @Test
+  public void generatesNameFromStubUrlPathWhenNameNotPresent() {
+    FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
+    StubMapping mapping =
+        WireMock.get(urlPathEqualTo("/named/123/things")).willReturn(ok()).build();
+
+    assertThat(makerWithOwnFormat.filenameFor(mapping), is("get-named123things.json"));
+  }
+
+  @Test
+  public void generatesNameFromStubUrlPathTemplateWhenNameNotPresent() {
+    FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
+    StubMapping mapping =
+        WireMock.get(urlPathTemplate("/named/{id}/things")).willReturn(ok()).build();
+
+    assertThat(makerWithOwnFormat.filenameFor(mapping), is("get-namedidthings.json"));
+  }
+
+  @Test
+  public void generatesNameFromStubUrlPatternWhenNameNotPresent() {
+    FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlMatching("/named/([0-9]*)/things")).willReturn(ok()).build();
 
@@ -66,9 +90,17 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromUrlPathWithCharactersSafeForFilenames() {
+  public void sanitizesUrlWithCharactersSafeForFilenames() {
     String output = filenameMaker.sanitizeUrl("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?");
     assertThat(output, is("hello_1_2_3___ace--ace___and"));
+  }
+
+  @Test
+  void generatesSanitizedFilename() {
+    String filename =
+        filenameMaker.filenameFor(
+            get("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?").willReturn(ok()).build());
+    assertThat(filename, startsWith("get-hello123__--aceand-"));
   }
 
   @Test
@@ -98,6 +130,6 @@ public class FilenameMakerTest {
             StubMapping.class);
     String filename = filenameMaker.filenameFor(stub);
 
-    assertThat(filename, is("this-is-a-named-stub-get-onetwothree-" + stub.getId() + ".json"));
+    assertThat(filename, is("this-is-a-named-stub-" + stub.getId() + ".json"));
   }
 }

@@ -26,8 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FilenameMaker {
   public static final String DEFAULT_FILENAME_TEMPLATE =
-      "{{{request.method}}}-{{{request.url}}}-{{{id}}}";
-  private static final String NAME_TEMPLATE = "{{{name}}}-";
+      "{{#if name}}{{{name}}}{{else}}{{{method}}}-{{{url}}}{{/if}}-{{{id}}}";
   private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^\\w-.]");
   private static final String DEFAULT_EXTENSION = ".json";
   private static final String POINT = ".";
@@ -56,34 +55,11 @@ public class FilenameMaker {
   }
 
   public String filenameFor(StubMapping stubMapping) {
-    String finalFilenameTemplate =
-        applyChangesForFilenameTemplateBasedOnStub(filenameTemplate, stubMapping);
-    HandlebarsOptimizedTemplate template =
-        templateEngine.getUncachedTemplate(finalFilenameTemplate);
-    String parsedFilename = template.apply(stubMapping);
+    HandlebarsOptimizedTemplate template = templateEngine.getUncachedTemplate(filenameTemplate);
+
+    final FilenameTemplateModel templateModel = new FilenameTemplateModel(stubMapping);
+    String parsedFilename = template.apply(templateModel);
     return sanitise(parsedFilename);
-  }
-
-  private String applyChangesForFilenameTemplateBasedOnStub(
-      String filenameTemplate, StubMapping stubMapping) {
-    String filenameTemplateWithName = addNameTemplateIfPresent(filenameTemplate, stubMapping);
-    return replaceUrlWithUrlPath(filenameTemplateWithName, stubMapping);
-  }
-
-  private String addNameTemplateIfPresent(String filenameTemplate, StubMapping stubMapping) {
-    if (stubMapping.getName() != null
-        && (!stubMapping.getName().equals(stubMapping.getRequest().getUrl())
-            || !stubMapping.getName().equals(stubMapping.getRequest().getUrlPath()))) {
-      return NAME_TEMPLATE + filenameTemplate;
-    }
-    return filenameTemplate;
-  }
-
-  private String replaceUrlWithUrlPath(String filenameTemplate, StubMapping stubMapping) {
-    if (stubMapping.getRequest().getUrlPath() != null) {
-      return filenameTemplate.replace("url", "urlPath");
-    }
-    return filenameTemplate;
   }
 
   public String sanitizeUrl(String url) {

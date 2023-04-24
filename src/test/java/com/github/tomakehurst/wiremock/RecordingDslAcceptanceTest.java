@@ -322,7 +322,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     StubMapping mapping = mappings.get(0);
     String bodyFileName = mapping.getResponse().getBodyFileName();
 
-    assertThat(bodyFileName, is("myimage.png-get-myimage.png-" + mapping.getId() + ".png"));
+    assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
     assertThat(bodyFile.exists(), is(true));
   }
@@ -344,7 +344,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     StubMapping mapping = mappings.get(0);
     String bodyFileName = mapping.getResponse().getBodyFileName();
 
-    assertThat(bodyFileName, is("large.txt-get-large.txt-" + mapping.getId() + ".txt"));
+    assertThat(bodyFileName, is("large.txt-" + mapping.getId() + ".txt"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
     assertThat(bodyFile.exists(), is(true));
   }

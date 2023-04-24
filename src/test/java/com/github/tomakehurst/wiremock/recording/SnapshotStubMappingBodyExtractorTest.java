@@ -79,7 +79,7 @@ public class SnapshotStubMappingBodyExtractorTest {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(okJson("{}")).build();
     stubMapping.setName("TEST NAME!");
     bodyExtractor.extractInPlace(stubMapping);
-    verifyWriteBinaryFile("test-name-get-foo-" + stubMapping.getId() + ".json", "{}");
+    verifyWriteBinaryFile("test-name-" + stubMapping.getId() + ".json", "{}");
   }
 
   private void verifyWriteBinaryFile(final String filename, final String body) {
