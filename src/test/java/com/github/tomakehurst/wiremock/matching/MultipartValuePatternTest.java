@@ -213,6 +213,7 @@ public class MultipartValuePatternTest {
             .build();
 
     assertThat(pattern.equals(pattern), is(true));
+    assertEquals(pattern.hashCode(), pattern.hashCode());
   }
 
   @Test
@@ -234,6 +235,7 @@ public class MultipartValuePatternTest {
             .build();
 
     assertThat(patternA.equals(patternB), is(true));
+    assertEquals(patternA.hashCode(), patternB.hashCode());
   }
 
   @Test
@@ -254,5 +256,41 @@ public class MultipartValuePatternTest {
             .build();
 
     assertThat(patternA.equals(patternB), is(false));
+    assertNotEquals(patternA.hashCode(), patternB.hashCode());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    MultipartValuePattern patternA =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(binaryEqualTo("RG9jdW1lbnQgYm9keSBjb250ZW50cw=="))
+            .build();
+
+    MultipartValuePattern patternB =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(binaryEqualTo("RG9jdW1lbnQgYm9keSBjb250ZW50cw=="))
+            .build();
+
+    MultipartValuePattern patternC =
+        aMultipart()
+            .withName("Description")
+            .withHeader("X-First-Header", equalTo("Second"))
+            .withBody(binaryEqualTo("SGVsbG9Xb3JsZA=="))
+            .build();
+
+    assertEquals(patternA, patternB);
+    assertEquals(patternA.hashCode(), patternB.hashCode());
+    assertEquals(patternB, patternA);
+    assertEquals(patternB.hashCode(), patternA.hashCode());
+    assertNotEquals(patternA, patternC);
+    assertNotEquals(patternA.hashCode(), patternC.hashCode());
+    assertNotEquals(patternB, patternC);
+    assertNotEquals(patternB.hashCode(), patternC.hashCode());
   }
 }

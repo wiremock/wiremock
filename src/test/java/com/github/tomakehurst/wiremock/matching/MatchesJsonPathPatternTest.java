@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -420,6 +420,25 @@ public class MatchesJsonPathPatternTest {
             .match(json);
 
     assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    MatchesJsonPathPattern a =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
+    MatchesJsonPathPattern b =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
+    MatchesJsonPathPattern c =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '1234')].date");
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 
   private static Notifier setMockNotifier() {

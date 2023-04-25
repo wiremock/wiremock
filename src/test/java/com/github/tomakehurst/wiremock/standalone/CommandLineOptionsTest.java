@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -543,6 +544,19 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void configureFileTemplatesWithRightFormat() {
+    CommandLineOptions options =
+        new CommandLineOptions("--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
+    assertNotNull(options.getFilenameMaker());
+  }
+
+  @Test
+  public void configureFileTemplatesWithWrongFormat() {
+    assertThrows(
+        Exception.class, () -> new CommandLineOptions("--filename-template={{method}}}.json"));
+  }
+
+  @Test
   public void returnsEmptyPermittedKeysIfNotSpecified() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
     assertThat(options.getPermittedSystemKeys(), emptyCollectionOf(String.class));
@@ -804,7 +818,7 @@ public class CommandLineOptionsTest {
 
     assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
   }
-  
+
   @Test
   void testProxyPassThroughOptionPassedAsFalse() {
     CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");

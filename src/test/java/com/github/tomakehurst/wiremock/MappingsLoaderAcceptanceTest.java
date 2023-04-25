@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
@@ -60,7 +61,8 @@ public class MappingsLoaderAcceptanceTest {
   public void mappingsLoadedFromJsonFiles() {
     buildWireMock(configuration);
     wireMockServer.loadMappingsUsing(
-        new JsonFileMappingsSource(new SingleRootFileSource(filePath("test-requests"))));
+        new JsonFileMappingsSource(
+            new SingleRootFileSource(filePath("test-requests")), new FilenameMaker()));
 
     WireMockResponse response = testClient.get("/canned/resource/1");
     assertThat(response.statusCode(), is(200));
@@ -80,7 +82,8 @@ public class MappingsLoaderAcceptanceTest {
     buildWireMock(configuration);
     wireMockServer.resetMappings();
     wireMockServer.loadMappingsUsing(
-        new JsonFileMappingsSource(new SingleRootFileSource(filePath("multi-stub"))));
+        new JsonFileMappingsSource(
+            new SingleRootFileSource(filePath("multi-stub")), new FilenameMaker()));
 
     List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
 
