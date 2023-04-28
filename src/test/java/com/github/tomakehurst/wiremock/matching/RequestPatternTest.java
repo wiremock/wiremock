@@ -305,7 +305,7 @@ public class RequestPatternTest {
 
     JSONAssert.assertEquals(
         "{                              \n"
-            + "    \"method\": \"GET\",       \n"
+            + "    \"method\": \"POST\",       \n"
             + "    \"urlPath\": \"/my/url\",  \n"
             + "    \"formParameters\": {     \n"
             + "        \"key1\": {          \n"
