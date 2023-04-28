@@ -26,7 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -245,6 +249,70 @@ public class RequestPatternTest {
             + "        },                     \n"
             + "        \"param2\": {          \n"
             + "            \"matches\": \"2\" \n"
+            + "        }                      \n"
+            + "    }                          \n"
+            + "}",
+        actualJson,
+        true);
+  }
+
+  @Test
+  public void matchesExactlyWith0DistanceWhenAllRequiredFormParametersMatch() {
+    RequestPattern requestPattern =
+        newRequestPattern(PUT, urlPathEqualTo("/my/url"))
+            .withFormParam("key1", equalTo("value1"))
+            .withFormParam("key2", equalTo("value2"))
+            .build();
+
+    Map<String, FormParameter> formParameters = new HashMap<>();
+    formParameters.put("key1", new FormParameter("key1", List.of("value1")));
+    formParameters.put("key2", new FormParameter("key1", List.of("value2")));
+    MatchResult matchResult =
+        requestPattern.match(
+            mockRequest().method(PUT).url("/my/url").formParameters(formParameters));
+    assertThat(matchResult.getDistance(), is(0.0));
+    assertTrue(matchResult.isExactMatch());
+  }
+
+  @Test
+  public void returnsNon0DistanceWhenRequiredFormParameterMatchDoesNotMatch() {
+    RequestPattern requestPattern =
+        newRequestPattern(PUT, urlPathEqualTo("/my/url"))
+            .withFormParam("key1", equalTo("value1"))
+            .withFormParam("key2", equalTo("value2"))
+            .build();
+
+    Map<String, FormParameter> formParameters = new HashMap<>();
+    formParameters.put("key1", new FormParameter("key1", List.of("value555")));
+    formParameters.put("key2", new FormParameter("key1", List.of("value78")));
+
+    MatchResult matchResult =
+        requestPattern.match(
+            mockRequest().method(PUT).url("/my/url").formParameters(formParameters));
+    assertThat(matchResult.getDistance(), greaterThan(0.0));
+    assertFalse(matchResult.isExactMatch());
+  }
+
+  @Test
+  public void bindsToJsonCompatibleWithOriginalRequestPatternWithFormParams() throws Exception {
+    RequestPattern requestPattern =
+        newRequestPattern(POST, urlPathEqualTo("/my/url"))
+            .withFormParam("key1", equalTo("value1"))
+            .withFormParam("key2", matching("value2"))
+            .build();
+
+    String actualJson = Json.write(requestPattern);
+
+    JSONAssert.assertEquals(
+        "{                              \n"
+            + "    \"method\": \"GET\",       \n"
+            + "    \"urlPath\": \"/my/url\",  \n"
+            + "    \"formParameters\": {     \n"
+            + "        \"key1\": {          \n"
+            + "            \"equalTo\": \"value1\" \n"
+            + "        },                     \n"
+            + "        \"key2\": {          \n"
+            + "            \"matches\": \"value2\" \n"
             + "        }                      \n"
             + "    }                          \n"
             + "}",
