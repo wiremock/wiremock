@@ -47,6 +47,10 @@ public interface MappingBuilder {
 
   MappingBuilder withQueryParam(String key, MultiValuePattern multiValueQueryParamPattern);
 
+  MappingBuilder withFormParam(String key, StringValuePattern formParamPattern);
+
+  MappingBuilder withFormParam(String key, MultiValuePattern multiValueFormParamPattern);
+
   MappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
 
   MappingBuilder withRequestBody(ContentPattern<?> bodyPattern);

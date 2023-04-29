@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.MultiValue;
@@ -196,6 +197,33 @@ public class Diff {
     }
 
     if (anyQueryParams) {
+      builder.add(SPACER);
+    }
+
+    boolean anyFormParams = false;
+    if (requestPattern.getFormParameters() != null) {
+      Map<String, FormParameter> requestFormParameters = request.formParameters();
+
+      for (Map.Entry<String, MultiValuePattern> entry :
+          requestPattern.getFormParameters().entrySet()) {
+        String key = entry.getKey();
+        MultiValuePattern pattern = entry.getValue();
+        FormParameter formParameter =
+            firstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
+
+        String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
+        DiffLine<MultiValue> section =
+            new DiffLine<>(
+                "Form data",
+                pattern,
+                formParameter,
+                "Form: " + key + operator + pattern.getExpected());
+        builder.add(section);
+        anyFormParams = true;
+      }
+    }
+
+    if (anyFormParams) {
       builder.add(SPACER);
     }
 
