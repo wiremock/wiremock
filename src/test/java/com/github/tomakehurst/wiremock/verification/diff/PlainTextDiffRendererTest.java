@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -28,10 +29,13 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMul
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,6 +130,36 @@ public class PlainTextDiffRendererTest {
     System.out.println(output);
 
     assertThat(output, equalsMultiLine(file("not-found-diff-sample_query.txt")));
+  }
+
+  @Test
+  public void rendersWithDifferingFormParameters() {
+    Diff diff =
+        new Diff(
+            put(urlPathEqualTo("/thing"))
+                .withName("Query params diff")
+                .withFormParam("one", equalTo("1"))
+                .withFormParam("two", containing("two things"))
+                .withFormParam("three", matching("[a-z]{5}"))
+                .build(),
+            mockRequest()
+                .method(PUT)
+                .url("/thing")
+                .formParameters(getFormParameters())
+                .header("Content-Type", "application/x-www-form-urlencoded"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_form.txt")));
+  }
+
+  private Map<String, FormParameter> getFormParameters() {
+    Map<String, FormParameter> formParameters = new HashMap<>();
+    formParameters.put("one", FormParameter.formParam("one", new String[] {"2"}));
+    formParameters.put("two", FormParameter.formParam("two", new String[] {"wrong things"}));
+    formParameters.put("three", FormParameter.formParam("three", new String[] {"abcde"}));
+    return formParameters;
   }
 
   @Test
