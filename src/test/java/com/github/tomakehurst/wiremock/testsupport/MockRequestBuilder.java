@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,8 @@ public class MockRequestBuilder {
   private List<HttpHeader> individualHeaders = newArrayList();
   private Map<String, Cookie> cookies = newHashMap();
   private List<QueryParameter> queryParameters = newArrayList();
+
+  private List<FormParameter> formParameters = newArrayList();
   private String body = "";
   private String bodyAsBase64 = "";
   private Collection<Request.Part> multiparts = newArrayList();
@@ -66,6 +68,11 @@ public class MockRequestBuilder {
 
   public MockRequestBuilder withQueryParameter(String key, String... values) {
     queryParameters.add(new QueryParameter(key, Arrays.asList(values)));
+    return this;
+  }
+
+  public MockRequestBuilder withFormParameter(String key, String... values) {
+    formParameters.add(new FormParameter(key, Arrays.asList(values)));
     return this;
   }
 
@@ -136,6 +143,10 @@ public class MockRequestBuilder {
 
     for (QueryParameter queryParameter : queryParameters) {
       when(request.queryParameter(queryParameter.key())).thenReturn(queryParameter);
+    }
+
+    for (FormParameter formParameter : formParameters) {
+      when(request.formParameter(formParameter.key())).thenReturn(formParameter);
     }
 
     when(request.header(Mockito.any(String.class))).thenReturn(httpHeader("key", "value"));
