@@ -37,7 +37,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -53,6 +52,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -342,7 +342,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public Optional<Request> getOriginalRequest() {
     Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
-    return Optional.fromNullable(originalRequest);
+    return Optional.ofNullable(originalRequest);
   }
 
   @Override
