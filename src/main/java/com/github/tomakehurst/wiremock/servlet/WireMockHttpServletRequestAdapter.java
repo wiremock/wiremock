@@ -29,6 +29,7 @@ import static java.util.Collections.list;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
@@ -36,6 +37,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -45,8 +47,13 @@ import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class WireMockHttpServletRequestAdapter implements Request {
@@ -57,6 +64,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final MultipartRequestConfigurer multipartRequestConfigurer;
   private byte[] cachedBody;
   private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
+
+  private final Supplier<Map<String, FormParameter>> cachedFormParameters;
   private final boolean browserProxyingEnabled;
   private final String urlPrefixToRemove;
   private Collection<Part> cachedMultiparts;
@@ -72,6 +81,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
     this.browserProxyingEnabled = browserProxyingEnabled;
 
     cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
+
+    this.cachedFormParameters = Suppliers.memoize(() -> getFormParameters(request));
 
     if (multipartRequestConfigurer != null) {
       this.multipartRequestConfigurer.configure(request);
@@ -263,6 +274,17 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
+  public FormParameter formParameter(String key) {
+    Map<String, FormParameter> formParameters = cachedFormParameters.get();
+    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return cachedFormParameters.get();
+  }
+
+  @Override
   public boolean isBrowserProxyRequest() {
     // Avoid the performance hit if browser proxying is disabled
     if (!browserProxyingEnabled || !JettyUtils.isJetty()) {
@@ -320,7 +342,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public Optional<Request> getOriginalRequest() {
     Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
-    return Optional.ofNullable(originalRequest);
+    return Optional.fromNullable(originalRequest);
   }
 
   @Override
@@ -331,5 +353,15 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public String getProtocol() {
     return request.getProtocol();
+  }
+
+  private Map<String, FormParameter> getFormParameters(HttpServletRequest request) {
+
+    Map<String, QueryParameter> queryParameters = cachedQueryParams.get();
+    return request.getParameterMap().entrySet().stream()
+        .filter(entry -> queryParameters == null || !queryParameters.containsKey(entry.getKey()))
+        .collect(
+            Collectors.toMap(
+                Entry::getKey, entry -> FormParameter.formParam(entry.getKey(), entry.getValue())));
   }
 }

@@ -60,6 +60,10 @@ public interface Request {
 
   QueryParameter queryParameter(String key);
 
+  FormParameter formParameter(String key);
+
+  Map<String, FormParameter> formParameters();
+
   Map<String, Cookie> getCookies();
 
   byte[] getBody();

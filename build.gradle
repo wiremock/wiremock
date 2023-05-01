@@ -31,7 +31,7 @@ project.ext {
     jackson        : '2.15.0',
     xmlUnit        : '2.9.1',
     jsonUnit       : '2.37.0',
-    junitJupiter   : '5.9.2'
+    junitJupiter   : '5.9.3'
   ]
 }
 
@@ -128,7 +128,7 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.91.Final"
+  testImplementation "io.netty:netty-all:4.1.92.Final"
 
   constraints {
     implementation "net.minidev:json-smart:2.4.10", {

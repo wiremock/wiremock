@@ -215,6 +215,16 @@ public class RequestWrapper implements Request {
   }
 
   @Override
+  public FormParameter formParameter(String key) {
+    return delegate.formParameter(key);
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return delegate.formParameters();
+  }
+
+  @Override
   public byte[] getBody() {
     if (bodyTransformer != null) {
       return bodyTransformer.transform(new Body(delegate.getBody())).asBytes();

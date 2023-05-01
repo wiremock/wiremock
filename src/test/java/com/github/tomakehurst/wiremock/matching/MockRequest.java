@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
@@ -32,6 +33,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Predicate;
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -50,6 +52,8 @@ public class MockRequest implements Request {
   private byte[] body;
   private String clientIp = "1.1.1.1";
   private Collection<Part> multiparts = null;
+
+  private Map<String, FormParameter> formParameters = new HashMap<>();
   private boolean isBrowserProxyRequest = false;
   private String protocol = "HTTP/1.1";
 
@@ -118,6 +122,13 @@ public class MockRequest implements Request {
     }
 
     multiparts.add(part);
+    return this;
+  }
+
+  public MockRequest formParameters(Map<String, FormParameter> formParameters) {
+    if (formParameters != null) {
+      this.formParameters = formParameters;
+    }
     return this;
   }
 
@@ -212,6 +223,16 @@ public class MockRequest implements Request {
   public QueryParameter queryParameter(String key) {
     Map<String, QueryParameter> queryParams = Urls.splitQuery(URI.create(url));
     return queryParams.get(key);
+  }
+
+  @Override
+  public FormParameter formParameter(String key) {
+    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return formParameters;
   }
 
   @Override

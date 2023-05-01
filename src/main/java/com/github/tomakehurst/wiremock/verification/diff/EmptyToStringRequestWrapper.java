@@ -105,6 +105,16 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
+  public FormParameter formParameter(String key) {
+    return target.formParameter(key);
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return target.formParameters();
+  }
+
+  @Override
   public byte[] getBody() {
     return target.getBody();
   }
