@@ -26,7 +26,7 @@ group = 'com.github.tomakehurst'
 project.ext {
   versions = [
     handlebars     : '4.3.1',
-    jetty          : '11.0.12',
+    jetty          : '10.0.13',
     guava          : '31.1-jre',
     jackson        : '2.15.0',
     xmlUnit        : '2.9.1',
@@ -202,7 +202,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-8'
+  version = '3.0.0-beta-8.jetty10'
 
 
   sourceCompatibility = 11
@@ -300,7 +300,7 @@ shadowJar {
   relocate "net.sf", "wiremock.net.sf"
   relocate "com.github.jknack", "wiremock.com.github.jknack"
   relocate "org.antlr", "wiremock.org.antlr"
-  relocate "jakarta.servlet", "wiremock.jakarta.servlet"
+  relocate "javax.servlet", "wiremock.javax.servlet"
   relocate "org.checkerframework", "wiremock.org.checkerframework"
   relocate "org.hamcrest", "wiremock.org.hamcrest"
   relocate "org.slf4j", "wiremock.org.slf4j"

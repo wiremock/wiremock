@@ -89,7 +89,7 @@
                 </ul-->
 
                 <h1><a name="top">JDepend Analysis</a></h1>
-                <p align="right">Designed for use with <a href="http://www.clarkware.com/software/JDepend.html">JDepend</a> and <a href="http://jakarta.apache.org">Ant</a>.</p>
+                <p align="right">Designed for use with <a href="http://www.clarkware.com/software/JDepend.html">JDepend</a> and <a href="http://javax.apache.org">Ant</a>.</p>
                 <hr size="2" />
 
                 <table width="100%"><tr><td>

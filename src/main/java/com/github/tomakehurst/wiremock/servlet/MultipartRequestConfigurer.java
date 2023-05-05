@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 public interface MultipartRequestConfigurer {
 

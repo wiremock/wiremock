@@ -51,7 +51,7 @@ import org.apache.commons.io.IOUtils;
 
 /**
  * The implementation is largely ported from {@link org.apache.commons.fileupload.FileUpload} and
- * {@link org.apache.commons.fileupload.FileUploadBase} to support 'jakarta.servlet' instead of
+ * {@link org.apache.commons.fileupload.FileUploadBase} to support 'javax.servlet' instead of
  * 'javax.servlet'. The standard support of multipart content type by Jetty in limited to
  * 'multipart/form-data', so 'multipart/mixed' and 'multipart/related' are not recognized and parsed
  * properly. To preserve backward compatibility and support wider range of multipart content,

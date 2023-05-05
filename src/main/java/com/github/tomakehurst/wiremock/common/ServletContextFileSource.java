@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import jakarta.servlet.ServletContext;
+import javax.servlet.ServletContext;
 import java.io.File;
 
 public class ServletContextFileSource extends AbstractFileSource {

@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.jetty11;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-import jakarta.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;

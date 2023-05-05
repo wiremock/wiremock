@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;

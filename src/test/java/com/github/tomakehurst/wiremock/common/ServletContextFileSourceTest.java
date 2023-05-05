@@ -21,9 +21,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactl
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import jakarta.servlet.*;
-import jakarta.servlet.ServletRegistration.Dynamic;
-import jakarta.servlet.descriptor.JspConfigDescriptor;
+import javax.servlet.*;
+import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.descriptor.JspConfigDescriptor;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;

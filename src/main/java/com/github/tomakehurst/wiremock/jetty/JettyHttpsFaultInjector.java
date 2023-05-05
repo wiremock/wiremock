@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.google.common.base.Charsets;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.Socket;
 import org.eclipse.jetty.server.Response;
