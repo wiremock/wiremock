@@ -15,11 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.DataType;
+
 import java.io.IOException;
+import java.util.Arrays;
 
 public class HandlebarsOptimizedTemplate {
 
@@ -62,9 +68,19 @@ public class HandlebarsOptimizedTemplate {
   public String apply(Object contextData) {
     final RenderCache renderCache = new RenderCache();
     Context context = Context.newBuilder(contextData).combine("renderCache", renderCache).build();
-
-    return startContent
-        + Exceptions.uncheck(() -> template.apply(context), String.class)
-        + endContent;
+    String result = startContent
+            + Exceptions.uncheck(() -> template.apply(context), String.class)
+            + endContent;
+    String finalResult = result;
+    boolean isDataTypeHandlingNeeded = Arrays.stream(DataType.values())
+            .anyMatch(dataType -> finalResult.contains(dataType.toString()));
+    if (isDataTypeHandlingNeeded) {
+      try {
+        JsonNode json = Json.node(result);
+        DataType.handle(json);
+        result = json.toString();
+      } catch (JsonException ignore) {}
+    }
+    return result;
   }
 }
