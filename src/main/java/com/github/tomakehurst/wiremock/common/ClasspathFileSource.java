@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -40,17 +39,25 @@ import java.util.zip.ZipFile;
 public class ClasspathFileSource implements FileSource {
 
   private final String path;
+  private final ClassLoader classLoader;
   private URI pathUri;
   private ZipFile zipFile;
   private File rootDirectory;
 
   public ClasspathFileSource(String path) {
+    this((ClassLoader) null, path);
+  }
+
+  public ClasspathFileSource(Class<?> classpath, String path) {
+    this(classpath.getClassLoader(), path);
+  }
+
+  public ClasspathFileSource(ClassLoader classLoader, String path) {
     this.path = path;
+    this.classLoader = classLoader;
 
     try {
-      URL resource =
-          firstNonNull(currentThread().getContextClassLoader(), Resources.class.getClassLoader())
-              .getResource(path);
+      URL resource = getClassLoader().getResource(path);
 
       if (resource == null) {
         rootDirectory = new File(path);
@@ -68,13 +75,18 @@ public class ClasspathFileSource implements FileSource {
       } else if (pathUri.getScheme().equals("file")) {
         rootDirectory = new File(pathUri);
       } else {
-        throw new RuntimeException(
+        throw new IllegalArgumentException(
             "ClasspathFileSource can't handle paths of type " + pathUri.getScheme());
       }
 
     } catch (Exception e) {
       throwUnchecked(e);
     }
+  }
+
+  private ClassLoader getClassLoader() {
+    if (classLoader != null) return classLoader;
+    return firstNonNull(currentThread().getContextClassLoader(), Resources.class.getClassLoader());
   }
 
   private boolean isFileSystem() {
@@ -119,7 +131,7 @@ public class ClasspathFileSource implements FileSource {
 
   @Override
   public FileSource child(String subDirectoryName) {
-    return new ClasspathFileSource(path + "/" + subDirectoryName);
+    return new ClasspathFileSource(classLoader, path + "/" + subDirectoryName);
   }
 
   @Override
@@ -203,12 +215,7 @@ public class ClasspathFileSource implements FileSource {
   public void deleteFile(String name) {}
 
   private static <T> Iterable<T> toIterable(final Enumeration<T> e) {
-    return new Iterable<T>() {
-      @Override
-      public Iterator<T> iterator() {
-        return Iterators.forEnumeration(e);
-      }
-    };
+    return () -> Iterators.forEnumeration(e);
   }
 
   private void assertExistsAndIsDirectory() {

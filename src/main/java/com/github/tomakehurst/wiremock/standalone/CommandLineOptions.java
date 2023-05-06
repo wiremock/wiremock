@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker.DEFAULT_FILENAME_TEMPLATE;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
@@ -32,16 +34,19 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
@@ -53,10 +58,7 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -98,6 +100,7 @@ public class CommandLineOptions implements Options {
   private static final String ROOT_DIR = "root-dir";
   private static final String CONTAINER_THREADS = "container-threads";
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
+  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
   private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
   private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
@@ -119,11 +122,20 @@ public class CommandLineOptions implements Options {
   private static final String DISABLE_STRICT_HTTP_HEADERS = "disable-strict-http-headers";
   private static final String LOAD_RESOURCES_FROM_CLASSPATH = "load-resources-from-classpath";
   private static final String LOGGED_RESPONSE_BODY_SIZE_LIMIT = "logged-response-body-size-limit";
+  private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
+  private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
+  private static final String PROXY_TIMEOUT = "proxy-timeout";
+
+  private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
 
   private final OptionSet optionSet;
+
+  private final Stores stores;
   private final FileSource fileSource;
+
   private final MappingsSource mappingsSource;
   private final Map<String, Extension> extensions;
+  private final FilenameMaker filenameMaker;
 
   private String helpText;
   private Integer actualHttpPort;
@@ -258,6 +270,7 @@ public class CommandLineOptions implements Options {
         "Print all raw incoming and outgoing network traffic to console");
     optionParser.accepts(
         GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
+    optionParser.accepts(FILENAME_TEMPLATE, "Add filename template").withRequiredArg();
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
     optionParser
@@ -342,6 +355,22 @@ public class CommandLineOptions implements Options {
             LOGGED_RESPONSE_BODY_SIZE_LIMIT,
             "Maximum size for response bodies stored in the request journal beyond which truncation will be applied")
         .withRequiredArg();
+    optionParser
+        .accepts(
+            ALLOW_PROXY_TARGETS,
+            "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that can be proxied to/recorded from. Is evaluated before the list of denied addresses.")
+        .withRequiredArg();
+    optionParser
+        .accepts(
+            DENY_PROXY_TARGETS,
+            "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
+        .withRequiredArg();
+    optionParser
+        .accepts(PROXY_TIMEOUT, "Timeout in milliseconds for requests to proxy")
+        .withRequiredArg();
+    optionParser
+        .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
+        .withRequiredArg();
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -356,7 +385,22 @@ public class CommandLineOptions implements Options {
       fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
     }
 
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+    stores = new DefaultStores(fileSource);
+
+    if (optionSet.has(PROXY_PASS_THROUGH)) {
+      GlobalSettings newSettings =
+          stores
+              .getSettingsStore()
+              .get()
+              .copy()
+              .proxyPassThrough(
+                  Boolean.parseBoolean((String) optionSet.valueOf(PROXY_PASS_THROUGH)))
+              .build();
+      stores.getSettingsStore().set(newSettings);
+    }
+
+    filenameMaker = new FilenameMaker(getFilenameTemplateOption());
+    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
     extensions = buildExtensions();
 
     actualHttpPort = null;
@@ -376,6 +420,26 @@ public class CommandLineOptions implements Options {
     }
 
     return builder.build();
+  }
+
+  private String getFilenameTemplateOption() {
+    if (optionSet.has(FILENAME_TEMPLATE)) {
+      String filenameTemplate = (String) optionSet.valueOf(FILENAME_TEMPLATE);
+      validateFilenameTemplate(filenameTemplate);
+      return filenameTemplate;
+    }
+    return DEFAULT_FILENAME_TEMPLATE;
+  }
+
+  private void validateFilenameTemplate(String filenameTemplate) {
+    String[] templateParts = filenameTemplate.split("-");
+    boolean handlebarIdentifierMissed =
+        Arrays.stream(templateParts)
+            .anyMatch(part -> !part.contains("{{{") || !part.contains("}}}"));
+    if (handlebarIdentifierMissed) {
+      throw new IllegalArgumentException(
+          "Format for filename template should be contain handlebar value. Please check format one more time");
+    }
   }
 
   private void contributeResponseTemplateTransformer(
@@ -440,7 +504,7 @@ public class CommandLineOptions implements Options {
     try {
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       Class<?> cls =
-          loader.loadClass("com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory");
+          loader.loadClass("com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory");
       return (HttpServerFactory) cls.getDeclaredConstructor().newInstance();
     } catch (Exception e) {
       return throwUnchecked(e, null);
@@ -485,6 +549,11 @@ public class CommandLineOptions implements Options {
     }
 
     return DEFAULT_BIND_ADDRESS;
+  }
+
+  @Override
+  public FilenameMaker getFilenameMaker() {
+    return filenameMaker;
   }
 
   @Override
@@ -639,6 +708,11 @@ public class CommandLineOptions implements Options {
       return ProxySettings.fromString(proxyVia);
     }
     return NO_PROXY;
+  }
+
+  @Override
+  public Stores getStores() {
+    return stores;
   }
 
   @Override
@@ -836,6 +910,22 @@ public class CommandLineOptions implements Options {
         : DataTruncationSettings.DEFAULTS;
   }
 
+  @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    NetworkAddressRules.Builder builder = NetworkAddressRules.builder();
+    if (optionSet.has(ALLOW_PROXY_TARGETS)) {
+      Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
+          .forEach(builder::allow);
+    }
+
+    if (optionSet.has(DENY_PROXY_TARGETS)) {
+      Arrays.stream(((String) optionSet.valueOf(DENY_PROXY_TARGETS)).split(","))
+          .forEach(builder::deny);
+    }
+
+    return builder.build();
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public BrowserProxySettings browserProxySettings() {
@@ -852,6 +942,13 @@ public class CommandLineOptions implements Options {
         .trustedProxyTargets((List<String>) optionSet.valuesOf(TRUST_PROXY_TARGET))
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  @Override
+  public int proxyTimeout() {
+    return optionSet.has(PROXY_TIMEOUT)
+        ? Integer.valueOf((String) optionSet.valueOf(PROXY_TIMEOUT))
+        : DEFAULT_TIMEOUT;
   }
 
   private Long getMaxTemplateCacheEntries() {

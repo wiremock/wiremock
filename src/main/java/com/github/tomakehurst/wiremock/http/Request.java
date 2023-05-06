@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,9 +58,13 @@ public interface Request {
 
   Set<String> getAllHeaderKeys();
 
-  Map<String, Cookie> getCookies();
-
   QueryParameter queryParameter(String key);
+
+  FormParameter formParameter(String key);
+
+  Map<String, FormParameter> formParameters();
+
+  Map<String, Cookie> getCookies();
 
   byte[] getBody();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,25 @@ public class SnapshotStubMappingGeneratorTest {
     assertThat(actual, is(expected));
   }
 
+  @Test
+  public void applyWithStrangePathAndCheckSanitizedState() {
+    final RequestPatternBuilder requestPatternBuilder =
+        newRequestPattern().withUrl("hello_1_2_3___ace--ace___and");
+    final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+
+    SnapshotStubMappingGenerator stubMappingTransformer =
+        new SnapshotStubMappingGenerator(
+            requestPatternTransformer(requestPatternBuilder),
+            responseDefinitionTransformer(responseDefinition));
+
+    StubMapping actual =
+        stubMappingTransformer.apply(serveEventWithPath("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?"));
+    StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
+    expected.setId(actual.getId());
+
+    assertThat(actual, is(expected));
+  }
+
   private static RequestPatternTransformer requestPatternTransformer(
       final RequestPatternBuilder requestPatternBuilder) {
     return new RequestPatternTransformer(null, null) {
@@ -68,6 +87,10 @@ public class SnapshotStubMappingGeneratorTest {
         return responseDefinition;
       }
     };
+  }
+
+  private static ServeEvent serveEventWithPath(String path) {
+    return ServeEvent.of(LoggedRequest.createFrom(aRequest().withUrl(path).build()));
   }
 
   private static ServeEvent serveEvent() {

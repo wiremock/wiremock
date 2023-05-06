@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import com.google.common.base.Optional;
 
 /**
  * Exposed Jetty tuning options. See:
- * http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/server/AbstractConnector.html
+ * https://www.eclipse.org/jetty/javadoc/jetty-11/org/eclipse/jetty/server/AbstractConnector.html
  */
 public class JettySettings {
   private final Optional<Integer> acceptors;
@@ -28,6 +28,7 @@ public class JettySettings {
   private final Optional<Integer> responseHeaderSize;
   private final Optional<Long> stopTimeout;
   private final Optional<Long> idleTimeout;
+  private final Optional<Long> shutdownIdleTimeout;
 
   private JettySettings(
       Optional<Integer> acceptors,
@@ -35,13 +36,15 @@ public class JettySettings {
       Optional<Integer> requestHeaderSize,
       Optional<Integer> responseHeaderSize,
       Optional<Long> stopTimeout,
-      Optional<Long> idleTimeout) {
+      Optional<Long> idleTimeout,
+      Optional<Long> shutdownIdleTimeout) {
     this.acceptors = acceptors;
     this.acceptQueueSize = acceptQueueSize;
     this.requestHeaderSize = requestHeaderSize;
     this.responseHeaderSize = responseHeaderSize;
     this.stopTimeout = stopTimeout;
     this.idleTimeout = idleTimeout;
+    this.shutdownIdleTimeout = shutdownIdleTimeout;
   }
 
   public Optional<Integer> getAcceptors() {
@@ -68,6 +71,10 @@ public class JettySettings {
     return idleTimeout;
   }
 
+  public Optional<Long> getShutdownIdleTimeout() {
+    return shutdownIdleTimeout;
+  }
+
   @Override
   public String toString() {
     return "JettySettings{"
@@ -89,6 +96,7 @@ public class JettySettings {
     private Integer responseHeaderSize;
     private Long stopTimeout;
     private Long idleTimeout;
+    private Long shutdownIdleTimeout;
 
     private Builder() {}
 
@@ -126,6 +134,11 @@ public class JettySettings {
       return this;
     }
 
+    public Builder withShutodwnIdleTimeout(Long shutdownIdleTimeout) {
+      this.shutdownIdleTimeout = shutdownIdleTimeout;
+      return this;
+    }
+
     public JettySettings build() {
       return new JettySettings(
           Optional.fromNullable(acceptors),
@@ -133,7 +146,8 @@ public class JettySettings {
           Optional.fromNullable(requestHeaderSize),
           Optional.fromNullable(responseHeaderSize),
           Optional.fromNullable(stopTimeout),
-          Optional.fromNullable(idleTimeout));
+          Optional.fromNullable(idleTimeout),
+          Optional.fromNullable(shutdownIdleTimeout));
     }
   }
 }

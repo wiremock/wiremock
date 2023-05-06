@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,17 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Predicate;
@@ -38,14 +38,16 @@ import java.util.UUID;
 public class Recorder {
 
   private final Admin admin;
-  private State state;
 
-  public Recorder(Admin admin) {
+  private final RecorderStateStore stateStore;
+
+  public Recorder(Admin admin, RecorderStateStore stateStore) {
     this.admin = admin;
-    state = State.initial();
+    this.stateStore = stateStore;
   }
 
   public synchronized void startRecording(RecordSpec spec) {
+    RecorderState state = stateStore.get();
     if (state.getStatus() == RecordingStatus.Recording) {
       return;
     }
@@ -61,11 +63,13 @@ public class Recorder {
     List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
     UUID initialId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
     state = state.start(initialId, proxyMapping, spec);
+    stateStore.set(state);
 
     notifier().info("Started recording with record spec:\n" + Json.write(spec));
   }
 
   public synchronized SnapshotRecordResult stopRecording() {
+    RecorderState state = stateStore.get();
     if (state.getStatus() != RecordingStatus.Recording) {
       throw new NotRecordingException();
     }
@@ -74,6 +78,7 @@ public class Recorder {
 
     UUID lastId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
     state = state.stop(lastId);
+    stateStore.set(state);
     admin.removeStubMapping(state.getProxyMapping());
 
     if (serveEvents.isEmpty()) {
@@ -134,77 +139,22 @@ public class Recorder {
 
   public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(
       Options options, RecordSpec recordSpec) {
-    FileSource filesRoot = options.filesRoot().child(FILES_ROOT);
+    final BlobStore filesBlobStore = options.getStores().getFilesBlobStore();
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
             options.extensionsOfType(StubMappingTransformer.class).values(),
             recordSpec.getTransformers(),
             recordSpec.getTransformerParameters(),
-            filesRoot);
+            filesBlobStore);
 
     return new SnapshotStubMappingPostProcessor(
         recordSpec.shouldRecordRepeatsAsScenarios(),
         transformerRunner,
         recordSpec.getExtractBodyCriteria(),
-        new SnapshotStubMappingBodyExtractor(filesRoot));
+        new SnapshotStubMappingBodyExtractor(filesBlobStore));
   }
 
   public RecordingStatus getStatus() {
-    return state.getStatus();
-  }
-
-  private static class State {
-
-    private final RecordingStatus status;
-    private final StubMapping proxyMapping;
-    private final RecordSpec spec;
-    private final UUID startingServeEventId;
-    private final UUID finishingServeEventId;
-
-    public State(
-        RecordingStatus status,
-        StubMapping proxyMapping,
-        RecordSpec spec,
-        UUID startingServeEventId,
-        UUID finishingServeEventId) {
-      this.status = status;
-      this.proxyMapping = proxyMapping;
-      this.spec = spec;
-      this.startingServeEventId = startingServeEventId;
-      this.finishingServeEventId = finishingServeEventId;
-    }
-
-    public static State initial() {
-      return new State(RecordingStatus.NeverStarted, null, null, null, null);
-    }
-
-    public State start(UUID startingServeEventId, StubMapping proxyMapping, RecordSpec spec) {
-      return new State(RecordingStatus.Recording, proxyMapping, spec, startingServeEventId, null);
-    }
-
-    public State stop(UUID finishingServeEventId) {
-      return new State(
-          RecordingStatus.Stopped, proxyMapping, spec, startingServeEventId, finishingServeEventId);
-    }
-
-    public RecordingStatus getStatus() {
-      return status;
-    }
-
-    public StubMapping getProxyMapping() {
-      return proxyMapping;
-    }
-
-    public RecordSpec getSpec() {
-      return spec;
-    }
-
-    public UUID getStartingServeEventId() {
-      return startingServeEventId;
-    }
-
-    public UUID getFinishingServeEventId() {
-      return finishingServeEventId;
-    }
+    return stateStore.get().getStatus();
   }
 }

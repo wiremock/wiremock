@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1278,6 +1278,17 @@ public class AdminApiTest extends AcceptanceTestBase {
         response.content(),
         jsonPartEquals(
             "errors[0].title", "Query parameter matchingStub value '' is not a valid UUID"));
+  }
+
+  @Test
+  void returnsDefaultStubMappingInServeEventWhenRequestNotMatched() {
+    testClient.get("/wrong-request/1");
+
+    WireMockResponse serveEventsResponse = testClient.get("/__admin/requests");
+
+    String data = serveEventsResponse.content();
+    assertThat(data, jsonPartEquals("requests[0].stubMapping.id", "\"${json-unit.any-string}\""));
+    assertThat(data, jsonPartEquals("requests[0].stubMapping.response.status", 404));
   }
 
   public static class TestExtendedSettingsData {

@@ -19,15 +19,20 @@ import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAs
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,9 +47,6 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
-  private static final int MINUTES = 1000 * 60;
-  private static final int DEFAULT_SO_TIMEOUT = 5 * MINUTES;
-
   private static final String TRANSFER_ENCODING = "transfer-encoding";
   private static final String CONTENT_ENCODING = "content-encoding";
   private static final String CONTENT_LENGTH = "content-length";
@@ -58,23 +60,27 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final CloseableHttpClient forwardProxyClient;
   private final boolean preserveHostHeader;
   private final String hostHeaderValue;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final SettingsStore settingsStore;
   private final boolean stubCorsEnabled;
+
+  private final NetworkAddressRules targetAddressRules;
 
   public ProxyResponseRenderer(
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
       boolean preserveHostHeader,
       String hostHeaderValue,
-      GlobalSettingsHolder globalSettingsHolder,
+      SettingsStore settingsStore,
       boolean trustAllProxyTargets,
       List<String> trustedProxyTargets,
-      boolean stubCorsEnabled) {
-    this.globalSettingsHolder = globalSettingsHolder;
+      boolean stubCorsEnabled,
+      NetworkAddressRules targetAddressRules,
+      int proxyTimeout) {
+    this.settingsStore = settingsStore;
     reverseProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             true,
@@ -83,7 +89,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     forwardProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             trustAllProxyTargets,
@@ -93,13 +99,24 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     this.preserveHostHeader = preserveHostHeader;
     this.hostHeaderValue = hostHeaderValue;
     this.stubCorsEnabled = stubCorsEnabled;
+    this.targetAddressRules = targetAddressRules;
   }
 
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    if (targetAddressProhibited(responseDefinition.getProxyUrl())) {
+      return response()
+          .status(500)
+          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+          .body("The target proxy address is denied in WireMock's configuration.")
+          .build();
+    }
+
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
+
+    GlobalSettings settings = settingsStore.get();
 
     Request originalRequest = responseDefinition.getOriginalRequest();
     if ((originalRequest.getBody() != null && originalRequest.getBody().length > 0)
@@ -114,8 +131,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
           .body(getEntityAsByteArrayAndCloseStream(httpResponse))
           .fromProxy(true)
           .configureDelay(
-              globalSettingsHolder.get().getFixedDelay(),
-              globalSettingsHolder.get().getDelayDistribution(),
+              settings.getFixedDelay(),
+              settings.getDelayDistribution(),
               responseDefinition.getFixedDelayMilliseconds(),
               responseDefinition.getDelayDistribution())
           .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
@@ -124,6 +141,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       return proxyResponseError("SSL", httpRequest, e);
     } catch (IOException e) {
       return proxyResponseError("Network", httpRequest, e);
+    }
+  }
+
+  private boolean targetAddressProhibited(String proxyUrl) {
+    String host = URI.create(proxyUrl).getHost();
+    try {
+      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
+      return !Arrays.stream(resolvedAddresses)
+          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
+    } catch (UnknownHostException e) {
+      return true;
     }
   }
 
@@ -142,7 +170,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private static String extractUri(HttpUriRequest request) {
     try {
       return request.getUri().toString();
-    } catch (URISyntaxException e1) {
+    } catch (URISyntaxException ignored) {
     }
     return request.getRequestUri();
   }

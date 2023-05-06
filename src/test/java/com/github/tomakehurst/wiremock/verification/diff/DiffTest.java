@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,7 @@ import static java.lang.System.lineSeparator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import org.junit.jupiter.api.Test;
 
@@ -161,6 +159,8 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + "[equalToJson]"
+                    + lineSeparator()
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : {"
@@ -177,6 +177,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + lineSeparator()
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : { }"
@@ -200,6 +201,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + "[equalToJson]\n"
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : {"
@@ -216,6 +218,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + lineSeparator()
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : { }"
@@ -286,6 +289,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + "[equalToXml]\n"
                     + "<my-elements>"
                     + lineSeparator()
                     + "  <one attr-one=\"1111\"/>"
@@ -298,7 +302,7 @@ public class DiffTest {
                     + lineSeparator(),
                 "ANY\n"
                     + "/thing\n"
-                    + "\n"
+                    + "\n\n"
                     + "<my-elements>"
                     + lineSeparator()
                     + "  <one attr-one=\"2222\"/>"
@@ -367,13 +371,7 @@ public class DiffTest {
     Diff diff =
         new Diff(
             newRequestPattern(GET, urlEqualTo("/thing"))
-                .andMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
+                .andMatching(value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(GET).url("/thing"));
 
@@ -410,7 +408,8 @@ public class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "POST\n" + "/thing\n\n" + "(absent)", "POST\n" + "/thing\n\n" + "not absent")));
+                "POST\n" + "/thing\n\n[absent]\n" + "(absent)",
+                "POST\n" + "/thing\n\n" + "\nnot absent")));
   }
 
   @Test

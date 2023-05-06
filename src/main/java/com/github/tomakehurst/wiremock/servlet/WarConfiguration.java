@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -31,13 +32,15 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
+import jakarta.servlet.ServletContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletContext;
 
 public class WarConfiguration implements Options {
 
@@ -85,6 +88,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public Stores getStores() {
+    return new DefaultStores(filesRoot());
+  }
+
+  @Override
   public FileSource filesRoot() {
     String fileSourceRoot = servletContext.getInitParameter(FILE_SOURCE_ROOT_KEY);
     return new ServletContextFileSource(servletContext, fileSourceRoot);
@@ -92,7 +100,7 @@ public class WarConfiguration implements Options {
 
   @Override
   public MappingsLoader mappingsLoader() {
-    return new JsonFileMappingsSource(filesRoot().child("mappings"));
+    return new JsonFileMappingsSource(filesRoot().child("mappings"), new FilenameMaker());
   }
 
   @Override
@@ -121,6 +129,11 @@ public class WarConfiguration implements Options {
 
   @Override
   public String bindAddress() {
+    return null;
+  }
+
+  @Override
+  public FilenameMaker getFilenameMaker() {
     return null;
   }
 
@@ -220,7 +233,17 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    return NetworkAddressRules.ALLOW_ALL;
+  }
+
+  @Override
   public BrowserProxySettings browserProxySettings() {
     return BrowserProxySettings.DISABLED;
+  }
+
+  @Override
+  public int proxyTimeout() {
+    return DEFAULT_TIMEOUT;
   }
 }

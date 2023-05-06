@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,15 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.NotWritableException;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.io.Files;
 import java.io.File;
@@ -42,7 +45,7 @@ public class JsonFileMappingsSourceTest {
 
   @TempDir public File tempDir;
 
-  InMemoryStubMappings stubMappings;
+  StoreBackedStubMappings stubMappings;
   JsonFileMappingsSource source;
   File stubMappingFile;
 
@@ -64,15 +67,15 @@ public class JsonFileMappingsSourceTest {
   }
 
   private void load() {
-    source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir));
+    source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir), new FilenameMaker());
     source.loadMappingsInto(stubMappings);
   }
 
   @Test
   public void loadsMappingsViaClasspathFileSource() {
     ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
-    JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource);
-    InMemoryStubMappings stubMappings = new InMemoryStubMappings();
+    JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource, new FilenameMaker());
+    StoreBackedStubMappings stubMappings = new InMemoryStubMappings();
 
     source.loadMappingsInto(stubMappings);
 
@@ -86,7 +89,8 @@ public class JsonFileMappingsSourceTest {
 
   @Test
   public void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
-    JsonFileMappingsSource source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir));
+    JsonFileMappingsSource source =
+        new JsonFileMappingsSource(new SingleRootFileSource(tempDir), new FilenameMaker());
 
     StubMapping stub = get("/saveable").willReturn(ok()).build();
     source.save(stub);
@@ -95,6 +99,21 @@ public class JsonFileMappingsSourceTest {
     String savedStub = FileUtils.readFileToString(savedFile, UTF_8);
 
     assertThat(savedStub, containsString("\"insertionIndex\" : 0"));
+  }
+
+  @Test
+  public void stubMappingFilesWithOwnFileTemplateFormat() {
+    JsonFileMappingsSource source =
+        new JsonFileMappingsSource(
+            new SingleRootFileSource(tempDir),
+            new FilenameMaker("{{{request.method}}}-{{{request.url}}}.json"));
+
+    StubMapping stub = get("/saveable").willReturn(ok()).build();
+    source.save(stub);
+
+    File savedFile = tempDir.listFiles()[0];
+
+    assertEquals(savedFile.getName(), "get-saveable.json");
   }
 
   @Test

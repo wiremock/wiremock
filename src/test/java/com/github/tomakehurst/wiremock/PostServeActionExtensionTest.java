@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.Router;
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -243,21 +239,11 @@ public class PostServeActionExtensionTest {
   }
 
   private Callable<Integer> getValue(final AtomicInteger value) {
-    return new Callable<Integer>() {
-      @Override
-      public Integer call() throws Exception {
-        return value.get();
-      }
-    };
+    return value::get;
   }
 
   private Callable<String> getContent(final String url) {
-    return new Callable<String>() {
-      @Override
-      public String call() throws Exception {
-        return client.get(url).content();
-      }
-    };
+    return () -> client.get(url).content();
   }
 
   public static class NamedCounterAction extends PostServeAction implements AdminApiExtension {
@@ -274,13 +260,10 @@ public class PostServeActionExtensionTest {
       router.add(
           GET,
           "/named-counter/{name}",
-          new AdminTask() {
-            @Override
-            public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-              String name = pathParams.get("name");
-              Integer count = firstNonNull(counters.get(name), 0);
-              return responseDefinition().withStatus(200).withBody(String.valueOf(count)).build();
-            }
+          (admin, request, pathParams) -> {
+            String name = pathParams.get("name");
+            Integer count = firstNonNull(counters.get(name), 0);
+            return responseDefinition().withStatus(200).withBody(String.valueOf(count)).build();
           });
     }
 

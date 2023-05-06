@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Optional;
@@ -46,9 +47,11 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
           .put("equalTo", EqualToPattern.class)
           .put("equalToJson", EqualToJsonPattern.class)
           .put("matchesJsonPath", MatchesJsonPathPattern.class)
+          .put("matchesJsonSchema", MatchesJsonSchemaPattern.class)
           .put("equalToXml", EqualToXmlPattern.class)
           .put("matchesXPath", MatchesXPathPattern.class)
           .put("contains", ContainsPattern.class)
+          .put("not", NotPattern.class)
           .put("doesNotContain", NegativeContainsPattern.class)
           .put("matches", RegexPattern.class)
           .put("doesNotMatch", NegativeRegexPattern.class)
@@ -59,6 +62,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
           .put("absent", AbsentPattern.class)
           .put("and", LogicalAnd.class)
           .put("or", LogicalOr.class)
+          .put("matchesPathTemplate", PathTemplatePattern.class)
           .build();
 
   @Override
@@ -76,6 +80,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
     if (patternClass.equals(EqualToJsonPattern.class)) {
       return deserializeEqualToJson(rootNode);
+    } else if (patternClass.equals(MatchesJsonSchemaPattern.class)) {
+      return deserializeMatchesJsonSchema(rootNode);
     } else if (patternClass.equals(EqualToXmlPattern.class)) {
       return deserializeEqualToXml(rootNode);
     } else if (patternClass.equals(MatchesJsonPathPattern.class)) {
@@ -92,6 +98,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
       return deserializeAnd(rootNode);
     } else if (patternClass.equals(LogicalOr.class)) {
       return deserializeOr(rootNode);
+    } else if (patternClass.equals(NotPattern.class)) {
+      return deserializeNot(rootNode);
     }
 
     final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
@@ -151,6 +159,29 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     } else {
       return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
     }
+  }
+
+  private MatchesJsonSchemaPattern deserializeMatchesJsonSchema(JsonNode rootNode)
+      throws JsonMappingException {
+    if (!rootNode.has("matchesJsonSchema")) {
+      throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+    }
+
+    JsonNode operand = rootNode.findValue("matchesJsonSchema");
+
+    JsonSchemaVersion schemaVersion;
+    try {
+      String schemaVersionString = fromNullableTextNode(rootNode.findValue("schemaVersion"));
+      schemaVersion =
+          schemaVersionString != null
+              ? JsonSchemaVersion.valueOf(schemaVersionString)
+              : JsonSchemaVersion.DEFAULT;
+    } catch (Exception e) {
+      throw new JsonMappingException(
+          "schemaVersion must be one of " + Json.write(JsonSchemaVersion.values()));
+    }
+
+    return new MatchesJsonSchemaPattern(operand.textValue(), schemaVersion);
   }
 
   private EqualToXmlPattern deserializeEqualToXml(JsonNode rootNode) throws JsonMappingException {
@@ -301,6 +332,23 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
       return new LogicalOr(operands);
     } catch (IOException e) {
       return throwUnchecked(e, LogicalOr.class);
+    }
+  }
+
+  private StringValuePattern deserializeNot(JsonNode rootNode) throws JsonMappingException {
+    if (!rootNode.has("not")) {
+      throw new JsonMappingException(rootNode.toString() + " is not a valid not operation");
+    }
+
+    JsonNode notNode = rootNode.findValue("not");
+    JsonParser parser = Json.getObjectMapper().treeAsTokens(notNode);
+
+    try {
+      StringValuePattern unexpectedPattern =
+          parser.readValueAs(new TypeReference<StringValuePattern>() {});
+      return new NotPattern(unexpectedPattern);
+    } catch (IOException e) {
+      return throwUnchecked(e, NotPattern.class);
     }
   }
 

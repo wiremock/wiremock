@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,7 +197,7 @@ public class StandaloneAcceptanceTest {
     WireMockResponse response = testClient.get("/json/34567/");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("<blob>BLAB</blob>"));
-    assertThat(response.firstHeader("Content-Type"), is("application/xml"));
+    assertThat(response.firstHeader("Content-Type"), is("application/xml;charset=utf-8"));
   }
 
   @Test
@@ -459,7 +459,7 @@ public class StandaloneAcceptanceTest {
   public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
     writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-    MappingFileException exception = assertThrows(MappingFileException.class, () -> startRunner());
+    MappingFileException exception = assertThrows(MappingFileException.class, this::startRunner);
     assertThat(
         exception.getMessage(),
         allOf(
@@ -468,6 +468,19 @@ public class StandaloneAcceptanceTest {
             containsString("Unrecognized field \"requesttttt\""),
             containsString("class com.github.tomakehurst.wiremock.stubbing.StubMapping"),
             containsString("not marked as ignorable")));
+  }
+
+  @Test
+  void savesMappingFileOnCreationOfPersistentStub() {
+    startRunner();
+
+    stubFor(
+        get(urlPathEqualTo("/one/two/three"))
+            .withName("Named stuff here __$$ things!")
+            .persistent()
+            .willReturn(ok()));
+
+    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("named-stuff-here"));
   }
 
   private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
@@ -486,12 +499,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private FilenameFilter namedLike(final String namePart) {
-    return new FilenameFilter() {
-      @Override
-      public boolean accept(File file, String name) {
-        return name.contains(namePart);
-      }
-    };
+    return (file, name) -> name.contains(namePart);
   }
 
   private WireMock startOtherServerAndClient() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,11 @@ import static org.hamcrest.Matchers.*;
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import java.io.IOException;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -172,6 +170,16 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  public void clientIp() {
+    ResponseDefinition transformedResponseDef =
+        transform(
+            mockRequest().url("/").clientIp("127.0.0.1"),
+            aResponse().withBody("IP: {{{request.clientIp}}}"));
+
+    assertThat(transformedResponseDef.getBody(), is("IP: 127.0.0.1"));
+  }
+
+  @Test
   public void templatizeBodyFile() {
     ResponseDefinition transformedResponseDef =
         transformFromResponseFile(
@@ -246,13 +254,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void customHelper() {
-    Helper<String> helper =
-        new Helper<String>() {
-          @Override
-          public Object apply(String context, Options options) throws IOException {
-            return context.length();
-          }
-        };
+    Helper<String> helper = (context, options) -> context.length();
 
     transformer =
         ResponseTemplateTransformer.builder().global(false).helper("string-length", helper).build();

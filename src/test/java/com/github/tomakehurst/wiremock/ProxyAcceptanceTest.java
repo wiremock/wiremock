@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,11 @@ import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -38,8 +37,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
@@ -223,24 +220,21 @@ public class ProxyAcceptanceTest {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     server.createContext(
         "/binary",
-        new HttpHandler() {
-          @Override
-          public void handle(HttpExchange exchange) throws IOException {
-            InputStream request = exchange.getRequestBody();
+        exchange -> {
+          InputStream request = exchange.getRequestBody();
 
-            byte[] buffy = new byte[10];
-            request.read(buffy);
+          byte[] buffy = new byte[10];
+          request.read(buffy);
 
-            if (Arrays.equals(buffy, bytes)) {
-              exchange.sendResponseHeaders(200, bytes.length);
+          if (Arrays.equals(buffy, bytes)) {
+            exchange.sendResponseHeaders(200, bytes.length);
 
-              OutputStream out = exchange.getResponseBody();
-              out.write(bytes);
-              out.close();
-            } else {
-              exchange.sendResponseHeaders(500, 0);
-              exchange.close();
-            }
+            OutputStream out = exchange.getResponseBody();
+            out.write(bytes);
+            out.close();
+          } else {
+            exchange.sendResponseHeaders(500, 0);
+            exchange.close();
           }
         });
     server.start();
@@ -606,11 +600,11 @@ public class ProxyAcceptanceTest {
     init(wireMockConfig().extensions(new ResponseTemplateTransformer(true)));
 
     proxy.register(
-            get("/other/service/doc/123")
-                    .willReturn(
-                            aResponse()
-                                    .proxiedFrom(targetServiceBaseUrl + "/approot")
-                                    .withProxyUrlPrefixToRemove("/other/service")));
+        get("/other/service/doc/123")
+            .willReturn(
+                aResponse()
+                    .proxiedFrom(targetServiceBaseUrl + "/approot")
+                    .withProxyUrlPrefixToRemove("/other/service")));
 
     target.register(get("/approot/doc/123").willReturn(ok()));
 
@@ -634,6 +628,112 @@ public class ProxyAcceptanceTest {
     assertThat(requests.size(), is(1));
     assertThat(requests.get(0).getMethod().getName(), is(method));
     assertThat(requests.get(0).getBodyAsString(), is("Proxied content"));
+  }
+
+  @Test
+  void preventsProxyingToExcludedIpAddress() {
+    init(
+        wireMockConfig()
+            .limitProxyTargets(
+                NetworkAddressRules.builder()
+                    .deny("10.1.2.3")
+                    .deny("192.168.10.1-192.168.11.254")
+                    .build()));
+
+    proxy.register(proxyAllTo("https://10.1.2.3"));
+    WireMockResponse response = testClient.get("/");
+    assertThat(response.statusCode(), is(500));
+    assertThat(
+        response.content(), is("The target proxy address is denied in WireMock's configuration."));
+
+    proxy.register(proxyAllTo("https://192.168.10.255"));
+    assertThat(testClient.get("/").statusCode(), is(500));
+  }
+
+  @Test
+  void preventsProxyingToExcludedHostnames() {
+    init(
+        wireMockConfig()
+            .limitProxyTargets(NetworkAddressRules.builder().deny("*.wiremock.org").build()));
+
+    proxy.register(proxyAllTo("http://noway.wiremock.org"));
+    assertThat(
+        testClient.get("/").content(),
+        is("The target proxy address is denied in WireMock's configuration."));
+  }
+
+  @Test
+  void preventsProxyingToNonIncludedHostnames() {
+    init(
+        wireMockConfig()
+            .limitProxyTargets(NetworkAddressRules.builder().allow("wiremock.org").build()));
+
+    proxy.register(proxyAllTo("http://wiremock.io"));
+    assertThat(
+        testClient.get("/").content(),
+        is("The target proxy address is denied in WireMock's configuration."));
+  }
+
+  @Test
+  void preventsProxyingToIpResolvedFromHostname() {
+    init(
+        wireMockConfig()
+            .limitProxyTargets(NetworkAddressRules.builder().deny("127.0.0.1").build()));
+
+    proxy.register(proxyAllTo("http://localhost"));
+    assertThat(
+        testClient.get("/").content(),
+        is("The target proxy address is denied in WireMock's configuration."));
+  }
+
+  @Test
+  void proxyRequestWillNotTimeoutIfProxyResponseIsFastEnough() {
+    init(wireMockConfig().proxyTimeout(1000));
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withFixedDelay(500)
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+    WireMockResponse response = testClient.get("/proxied/resource?param=value");
+
+    assertThat(response.content(), is("Proxied content"));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+  }
+
+  @Test
+  void proxyRequestWillTimeoutIfProxyResponseIsTooSlow() {
+    init(wireMockConfig().proxyTimeout(1000));
+
+    target.register(
+        get(urlEqualTo("/proxied/resource?param=value"))
+            .willReturn(
+                aResponse()
+                    .withFixedDelay(1500)
+                    .withStatus(200)
+                    .withHeader("Content-Type", "text/plain")
+                    .withBody("Proxied content")));
+
+    proxy.register(
+        any(urlEqualTo("/proxied/resource?param=value"))
+            .atPriority(10)
+            .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+    WireMockResponse response = testClient.get("/proxied/resource?param=value");
+
+    assertThat(
+        response.content(),
+        startsWith("Network failure trying to make a proxied request from WireMock"));
+    assertThat(response.statusCode(), is(500));
   }
 
   private void register200StubOnProxyAndTarget(String url) {

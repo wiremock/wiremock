@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -36,6 +38,9 @@ public class RequestPatternBuilder {
   private RequestMethod method = RequestMethod.ANY;
   private Map<String, MultiValuePattern> headers = newLinkedHashMap();
   private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
+
+  private Map<String, MultiValuePattern> formParams = newLinkedHashMap();
+  private Map<String, StringValuePattern> pathParams = newLinkedHashMap();
   private List<ContentPattern<?>> bodyPatterns = newArrayList();
   private Map<String, StringValuePattern> cookies = newLinkedHashMap();
   private BasicCredentials basicCredentials;
@@ -98,8 +103,14 @@ public class RequestPatternBuilder {
     if (requestPattern.getHeaders() != null) {
       builder.headers = requestPattern.getHeaders();
     }
+    if (requestPattern.getPathParameters() != null) {
+      builder.pathParams = requestPattern.getPathParameters();
+    }
     if (requestPattern.getQueryParameters() != null) {
       builder.queryParams = requestPattern.getQueryParameters();
+    }
+    if (requestPattern.getFormParameters() != null) {
+      builder.formParams = requestPattern.getFormParameters();
     }
     if (requestPattern.getCookies() != null) {
       builder.cookies = requestPattern.getCookies();
@@ -147,13 +158,38 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder withHeader(String key, MultiValuePattern multiValuePattern) {
+    headers.put(key, multiValuePattern);
+    return this;
+  }
+
   public RequestPatternBuilder withoutHeader(String key) {
     headers.put(key, MultiValuePattern.absent());
     return this;
   }
 
+  public RequestPatternBuilder withPathParam(String key, StringValuePattern valuePattern) {
+    pathParams.put(key, valuePattern);
+    return this;
+  }
+
   public RequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
     queryParams.put(key, MultiValuePattern.of(valuePattern));
+    return this;
+  }
+
+  public RequestPatternBuilder withQueryParam(String key, MultiValuePattern multiValuePattern) {
+    queryParams.put(key, multiValuePattern);
+    return this;
+  }
+
+  public RequestPatternBuilder withFormParam(String key, StringValuePattern valuePattern) {
+    formParams.put(key, MultiValuePattern.of(valuePattern));
+    return this;
+  }
+
+  public RequestPatternBuilder withFormParam(String key, MultiValuePattern multiValuePattern) {
+    formParams.put(key, multiValuePattern);
     return this;
   }
 
@@ -207,6 +243,12 @@ public class RequestPatternBuilder {
   }
 
   public RequestPattern build() {
+    if (!(url instanceof UrlPathTemplatePattern) && !pathParams.isEmpty()) {
+      throw new InvalidInputException(
+          Errors.single(
+              19, "URL path parameters specified without a path template as the URL matcher"));
+    }
+
     return new RequestPattern(
         scheme,
         hostPattern,
@@ -214,7 +256,9 @@ public class RequestPatternBuilder {
         url,
         method,
         headers.isEmpty() ? null : headers,
+        pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,
+        formParams.isEmpty() ? null : formParams,
         cookies.isEmpty() ? null : cookies,
         basicCredentials,
         bodyPatterns.isEmpty() ? null : bodyPatterns,

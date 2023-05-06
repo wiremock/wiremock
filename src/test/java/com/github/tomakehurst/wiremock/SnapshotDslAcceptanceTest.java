@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,19 +179,21 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         snapshotRecord(recordSpec().captureHeader("Yes").captureHeader("Also-Yes", true));
 
     StringValuePattern yesValuePattern =
-        mappings.get(0).getRequest().getHeaders().get("Yes").getValuePattern();
+        ((SingleMatchMultiValuePattern) mappings.get(0).getRequest().getHeaders().get("Yes"))
+            .getValuePattern();
     assertThat(yesValuePattern, instanceOf(EqualToPattern.class));
     assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), nullValue());
     assertFalse(mappings.get(0).getRequest().getHeaders().containsKey("No"));
 
     StringValuePattern alsoYesValuePattern =
-        mappings.get(1).getRequest().getHeaders().get("Also-Yes").getValuePattern();
+        ((SingleMatchMultiValuePattern) mappings.get(1).getRequest().getHeaders().get("Also-Yes"))
+            .getValuePattern();
     assertThat(alsoYesValuePattern, instanceOf(EqualToPattern.class));
     assertThat(((EqualToPattern) alsoYesValuePattern).getCaseInsensitive(), is(true));
   }
 
   @Test
-  public void supportsBodyExtractCriteria() throws Exception {
+  public void supportsBodyExtractCriteria() {
     targetService.stubFor(
         get("/small/text")
             .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("123")));
@@ -228,13 +230,13 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(),
-        containsString("large_text"));
+        startsWith("large_text"));
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(),
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(),
-        containsString("large_binary"));
+        startsWith("large_binary"));
   }
 
   @Test

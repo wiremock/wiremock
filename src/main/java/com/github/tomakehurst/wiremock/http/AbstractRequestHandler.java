@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,53 +59,59 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
     ServeEvent serveEvent;
     Request processedRequest = request;
-    if (!requestFilters.isEmpty()) {
-      RequestFilterAction requestFilterAction =
-          processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
-      if (requestFilterAction instanceof ContinueAction) {
-        processedRequest = ((ContinueAction) requestFilterAction).getRequest();
-        serveEvent = handleRequest(processedRequest);
+
+    try {
+      if (!requestFilters.isEmpty()) {
+        RequestFilterAction requestFilterAction =
+            processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
+        if (requestFilterAction instanceof ContinueAction) {
+          processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+          serveEvent = handleRequest(processedRequest);
+        } else {
+          serveEvent =
+              ServeEvent.of(
+                  LoggedRequest.createFrom(request),
+                  ((StopAction) requestFilterAction).getResponseDefinition());
+        }
       } else {
-        serveEvent =
-            ServeEvent.of(
-                LoggedRequest.createFrom(request),
-                ((StopAction) requestFilterAction).getResponseDefinition());
+        serveEvent = handleRequest(request);
       }
-    } else {
-      serveEvent = handleRequest(request);
+
+      ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+      responseDefinition.setOriginalRequest(processedRequest);
+      Response response = responseRenderer.render(serveEvent);
+      response = Response.Builder.like(response).protocol(request.getProtocol()).build();
+      ServeEvent completedServeEvent =
+          serveEvent.complete(
+              response, (int) stopwatch.elapsed(MILLISECONDS), dataTruncationSettings);
+
+      if (logRequests()) {
+        notifier()
+            .info(
+                "Request received:\n"
+                    + formatRequest(processedRequest)
+                    + "\n\nMatched response definition:\n"
+                    + responseDefinition
+                    + "\n\nResponse:\n"
+                    + response);
+      }
+
+      for (RequestListener listener : listeners) {
+        listener.requestReceived(processedRequest, response);
+      }
+
+      beforeResponseSent(completedServeEvent, response);
+
+      stopwatch.reset();
+      stopwatch.start();
+      httpResponder.respond(processedRequest, response);
+
+      completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
+      afterResponseSent(completedServeEvent, response);
+    } finally {
+      ServeEvent.clearCurrent();
     }
 
-    ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    responseDefinition.setOriginalRequest(processedRequest);
-    Response response = responseRenderer.render(serveEvent);
-    response = Response.Builder.like(response).protocol(request.getProtocol()).build();
-    ServeEvent completedServeEvent =
-        serveEvent.complete(
-            response, (int) stopwatch.elapsed(MILLISECONDS), dataTruncationSettings);
-
-    if (logRequests()) {
-      notifier()
-          .info(
-              "Request received:\n"
-                  + formatRequest(processedRequest)
-                  + "\n\nMatched response definition:\n"
-                  + responseDefinition
-                  + "\n\nResponse:\n"
-                  + response);
-    }
-
-    for (RequestListener listener : listeners) {
-      listener.requestReceived(processedRequest, response);
-    }
-
-    beforeResponseSent(completedServeEvent, response);
-
-    stopwatch.reset();
-    stopwatch.start();
-    httpResponder.respond(processedRequest, response);
-
-    completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
-    afterResponseSent(completedServeEvent, response);
     stopwatch.stop();
   }
 

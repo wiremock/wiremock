@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,16 @@ public class EmptyToStringRequestWrapper implements Request {
   @Override
   public QueryParameter queryParameter(String key) {
     return target.queryParameter(key);
+  }
+
+  @Override
+  public FormParameter formParameter(String key) {
+    return target.formParameter(key);
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return target.formParameters();
   }
 
   @Override

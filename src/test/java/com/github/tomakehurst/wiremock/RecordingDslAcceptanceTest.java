@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     client.get("/do-not-record-this/3");
 
     assertThat(returnedMappings.size(), is(0));
-    assertThat(proxyingService.getStubMappings(), Matchers.<StubMapping>empty());
+    assertThat(proxyingService.getStubMappings(), Matchers.empty());
   }
 
   @Test
@@ -157,7 +157,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 
     assertThat(returnedMappings.size(), is(0));
-    assertThat(proxyingService.getStubMappings(), Matchers.<StubMapping>empty());
+    assertThat(proxyingService.getStubMappings(), Matchers.empty());
   }
 
   @Test
@@ -322,7 +322,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     StubMapping mapping = mappings.get(0);
     String bodyFileName = mapping.getResponse().getBodyFileName();
 
-    assertThat(bodyFileName, is("myimagepng-" + mapping.getId() + ".png"));
+    assertThat(bodyFileName, is("myimage.png-" + mapping.getId() + ".png"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
     assertThat(bodyFile.exists(), is(true));
   }
@@ -344,7 +344,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     StubMapping mapping = mappings.get(0);
     String bodyFileName = mapping.getResponse().getBodyFileName();
 
-    assertThat(bodyFileName, is("largetxt-" + mapping.getId() + ".txt"));
+    assertThat(bodyFileName, is("large.txt-" + mapping.getId() + ".txt"));
     File bodyFile = new File(fileRoot, "__files/" + bodyFileName);
     assertThat(bodyFile.exists(), is(true));
   }
@@ -370,29 +370,17 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
-    assertThrows(
-        NotRecordingException.class,
-        () -> {
-          stopRecording();
-        });
+    assertThrows(NotRecordingException.class, WireMock::stopRecording);
   }
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
-    assertThrows(
-        NotRecordingException.class,
-        () -> {
-          adminClient.stopStubRecording();
-        });
+    assertThrows(NotRecordingException.class, adminClient::stopStubRecording);
   }
 
   @Test
   public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
-    assertThrows(
-        NotRecordingException.class,
-        () -> {
-          proxyingService.stopRecording();
-        });
+    assertThrows(NotRecordingException.class, proxyingService::stopRecording);
   }
 
   @Test

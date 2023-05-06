@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,16 +168,12 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withComparisonListeners(
-                      new ComparisonListener() {
-                        @Override
-                        public void comparisonPerformed(
-                            Comparison comparison, ComparisonResult outcome) {
-                          if (COUNTED_COMPARISONS.contains(comparison.getType())
-                              && comparison.getControlDetails().getValue() != null) {
-                            totalComparisons.incrementAndGet();
-                            if (outcome == ComparisonResult.DIFFERENT) {
-                              differences.incrementAndGet();
-                            }
+                      (comparison, outcome) -> {
+                        if (COUNTED_COMPARISONS.contains(comparison.getType())
+                            && comparison.getControlDetails().getValue() != null) {
+                          totalComparisons.incrementAndGet();
+                          if (outcome == ComparisonResult.DIFFERENT) {
+                            differences.incrementAndGet();
                           }
                         }
                       })

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class SnapshotStubMappingBodyExtractorTest {
   @BeforeEach
   public void init() {
     filesSource = Mockito.mock(FileSource.class, "filesFileSource");
-    bodyExtractor = new SnapshotStubMappingBodyExtractor(filesSource);
+    bodyExtractor = new SnapshotStubMappingBodyExtractor(new FileSourceBlobStore(filesSource));
   }
 
   @Test
@@ -45,7 +46,7 @@ public class SnapshotStubMappingBodyExtractorTest {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(ok("")).build();
     bodyExtractor.extractInPlace(stubMapping);
     assertThat(
-        stubMapping.getResponse().getBodyFileName(), is("foo-" + stubMapping.getId() + ".txt"));
+        stubMapping.getResponse().getBodyFileName(), is("get-foo-" + stubMapping.getId() + ".txt"));
     assertThat(stubMapping.getResponse().specifiesBodyFile(), is(true));
     assertThat(stubMapping.getResponse().specifiesBodyContent(), is(false));
     // ignore arguments because this test is only for checking stub mapping changes
@@ -56,21 +57,21 @@ public class SnapshotStubMappingBodyExtractorTest {
   public void determinesFileNameProperlyFromUrlWithJson() {
     StubMapping stubMapping = WireMock.get("/foo/bar.json").willReturn(ok("{}")).build();
     bodyExtractor.extractInPlace(stubMapping);
-    verifyWriteBinaryFile("foobarjson-" + stubMapping.getId() + ".json", "{}");
+    verifyWriteBinaryFile("get-foobar.json-" + stubMapping.getId() + ".json", "{}");
   }
 
   @Test
   public void determinesFileNameProperlyFromUrlWithText() {
     StubMapping stubMapping = WireMock.get("/foo/bar.txt").willReturn(ok("")).build();
     bodyExtractor.extractInPlace(stubMapping);
-    verifyWriteBinaryFile("foobartxt-" + stubMapping.getId() + ".txt", "");
+    verifyWriteBinaryFile("get-foobar.txt-" + stubMapping.getId() + ".txt", "");
   }
 
   @Test
   public void determinesFileNameProperlyFromMimeTypeWithJson() {
     StubMapping stubMapping = WireMock.get("/foo/bar.txt").willReturn(okJson("{}")).build();
     bodyExtractor.extractInPlace(stubMapping);
-    verifyWriteBinaryFile("foobartxt-" + stubMapping.getId() + ".json", "{}");
+    verifyWriteBinaryFile("get-foobar.txt-" + stubMapping.getId() + ".json", "{}");
   }
 
   @Test

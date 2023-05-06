@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,40 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
+import static com.github.tomakehurst.wiremock.client.WireMock.absent;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.not;
+import static com.github.tomakehurst.wiremock.client.WireMock.notContaining;
+import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -253,6 +275,89 @@ public class RequestPatternTest {
   }
 
   @Test
+  public void matchesExactlyWith0DistanceWhenAllRequiredFormParametersMatch() {
+    RequestPattern requestPattern =
+        newRequestPattern(PUT, urlPathEqualTo("/my/url"))
+            .withFormParam("key1", equalTo("value1"))
+            .withFormParam("key2", equalTo("value2"))
+            .build();
+
+    Map<String, FormParameter> formParameters = new HashMap<>();
+    formParameters.put("key1", new FormParameter("key1", List.of("value1")));
+    formParameters.put("key2", new FormParameter("key1", List.of("value2")));
+    MatchResult matchResult =
+        requestPattern.match(
+            mockRequest().method(PUT).url("/my/url").formParameters(formParameters));
+    assertThat(matchResult.getDistance(), is(0.0));
+    assertTrue(matchResult.isExactMatch());
+  }
+
+  @Test
+  public void returnsNon0DistanceWhenRequiredFormParameterMatchDoesNotMatch() {
+    RequestPattern requestPattern =
+        newRequestPattern(PUT, urlPathEqualTo("/my/url"))
+            .withFormParam("key1", equalTo("value1"))
+            .withFormParam("key2", equalTo("value2"))
+            .build();
+
+    Map<String, FormParameter> formParameters = new HashMap<>();
+    formParameters.put("key1", new FormParameter("key1", List.of("value555")));
+    formParameters.put("key2", new FormParameter("key1", List.of("value78")));
+
+    MatchResult matchResult =
+        requestPattern.match(
+            mockRequest().method(PUT).url("/my/url").formParameters(formParameters));
+    assertThat(matchResult.getDistance(), greaterThan(0.0));
+    assertFalse(matchResult.isExactMatch());
+  }
+
+  @Test
+  public void bindsToJsonCompatibleWithOriginalRequestPatternWithFormParams() throws Exception {
+    RequestPattern requestPattern =
+        newRequestPattern(POST, urlPathEqualTo("/my/url"))
+            .withFormParam("key1", equalTo("value1"))
+            .withFormParam("key2", matching("value2"))
+            .build();
+
+    String actualJson = Json.write(requestPattern);
+
+    JSONAssert.assertEquals(getFormParameterRequestPatternJson(), actualJson, true);
+  }
+
+  @Test
+  public void correctlyDeserializesFormParams() {
+    RequestPattern requestPattern =
+        Json.read(getFormParameterRequestPatternJson(), RequestPattern.class);
+    assertTrue(
+        requestPattern.getFormParameters().get("key1") instanceof SingleMatchMultiValuePattern);
+    assertTrue(
+        requestPattern.getFormParameters().get("key2") instanceof SingleMatchMultiValuePattern);
+    assertThat(
+        ((SingleMatchMultiValuePattern) requestPattern.getFormParameters().get("key1"))
+            .getValuePattern(),
+        valuePattern(EqualToPattern.class, "value1"));
+    assertThat(
+        ((SingleMatchMultiValuePattern) requestPattern.getFormParameters().get("key2"))
+            .getValuePattern(),
+        valuePattern(RegexPattern.class, "value2"));
+  }
+
+  private String getFormParameterRequestPatternJson() {
+    return "{                              \n"
+        + "    \"method\": \"POST\",       \n"
+        + "    \"urlPath\": \"/my/url\",  \n"
+        + "    \"formParameters\": {     \n"
+        + "        \"key1\": {          \n"
+        + "            \"equalTo\": \"value1\" \n"
+        + "        },                     \n"
+        + "        \"key2\": {          \n"
+        + "            \"matches\": \"value2\" \n"
+        + "        }                      \n"
+        + "    }                          \n"
+        + "}";
+  }
+
+  @Test
   public void matchesExactlyWith0DistanceWhenBodyPatternsAllMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
@@ -459,6 +564,7 @@ public class RequestPatternTest {
           + "        { \"matchesXPath\": \"//thing\" },             \n"
           + "        { \"contains\": \"thin\" },                    \n"
           + "        { \"doesNotContain\": \"stuff\" },            \n"
+          + "        { \"not\": { \"contains\": \"thing\" } },     \n"
           + "        { \"matches\": \".*thing.*\" },                \n"
           + "        { \"doesNotMatch\": \"^stuff.+\" }             \n"
           + "    ]                                                  \n"
@@ -478,6 +584,7 @@ public class RequestPatternTest {
             valuePattern(MatchesXPathPattern.class, "//thing"),
             valuePattern(ContainsPattern.class, "thin"),
             valuePattern(NegativeContainsPattern.class, "stuff"),
+            valuePattern(NotPattern.class, containing("thing").expectedValue),
             valuePattern(RegexPattern.class, ".*thing.*"),
             valuePattern(NegativeRegexPattern.class, "^stuff.+")));
   }
@@ -493,12 +600,12 @@ public class RequestPatternTest {
             .withRequestBody(matchingXPath("//thing"))
             .withRequestBody(containing("thin"))
             .withRequestBody(notContaining("stuff"))
+            .withRequestBody(not(containing("thing")))
             .withRequestBody(matching(".*thing.*"))
             .withRequestBody(notMatching("^stuff.+"))
             .build();
 
     String json = Json.write(requestPattern);
-    System.out.println(json);
     JSONAssert.assertEquals(ALL_BODY_PATTERNS_EXAMPLE, json, true);
   }
 
@@ -517,6 +624,27 @@ public class RequestPatternTest {
                 + patternClass.getSimpleName()
                 + " with expected value "
                 + expectedValue);
+      }
+    };
+  }
+
+  static Matcher<ContentPattern<?>> notValuePattern(
+      final Class<? extends StringValuePattern> patternClass,
+      final StringValuePattern unexpectedPattern) {
+    return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
+      @Override
+      protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
+        return item.getClass().equals(patternClass)
+            && item.getValue().equals(unexpectedPattern.expectedValue);
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(
+            "a value pattern of type "
+                + patternClass.getSimpleName()
+                + " with expected value "
+                + unexpectedPattern.expectedValue);
       }
     };
   }

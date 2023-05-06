@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,6 +31,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -48,7 +51,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final UrlPattern url;
   private final RequestMethod method;
   private final Map<String, MultiValuePattern> headers;
+
+  private final Map<String, StringValuePattern> pathParams;
   private final Map<String, MultiValuePattern> queryParams;
+  private final Map<String, MultiValuePattern> formParams;
   private final Map<String, StringValuePattern> cookies;
   private final BasicCredentials basicAuthCredentials;
   private final List<ContentPattern<?>> bodyPatterns;
@@ -65,7 +71,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final UrlPattern url,
       final RequestMethod method,
       final Map<String, MultiValuePattern> headers,
+      final Map<String, StringValuePattern> pathParams,
       final Map<String, MultiValuePattern> queryParams,
+      final Map<String, MultiValuePattern> formParams,
       final Map<String, StringValuePattern> cookies,
       final BasicCredentials basicAuthCredentials,
       final List<ContentPattern<?>> bodyPatterns,
@@ -78,6 +86,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.url = firstNonNull(url, UrlPattern.ANY);
     this.method = firstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
+    this.pathParams = pathParams;
+    this.formParams = formParams;
     this.queryParams = queryParams;
     this.cookies = cookies;
     this.basicAuthCredentials = basicAuthCredentials;
@@ -98,8 +108,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                         weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
                         weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+                        weight(allPathParamsMatch(request)),
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
+                        weight(allFormParamsMatch(request)),
                         weight(allCookiesMatch(request)),
                         weight(allBodyPatternsMatch(request)),
                         weight(allMultipartPatternsMatch(request))));
@@ -127,9 +139,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("urlPattern") String urlPattern,
       @JsonProperty("urlPath") String urlPath,
       @JsonProperty("urlPathPattern") String urlPathPattern,
+      @JsonProperty("urlPathTemplate") String urlPathTemplate,
       @JsonProperty("method") RequestMethod method,
       @JsonProperty("headers") Map<String, MultiValuePattern> headers,
+      @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
       @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+      @JsonProperty("formParameters") Map<String, MultiValuePattern> formParams,
       @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
       @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
       @JsonProperty("bodyPatterns") List<ContentPattern<?>> bodyPatterns,
@@ -140,10 +155,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         scheme,
         host,
         port,
-        UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
+        UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
         method,
         headers,
+        pathParams,
         queryParams,
+        formParams,
         cookies,
         basicAuthCredentials,
         bodyPatterns,
@@ -166,6 +183,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           null,
           null,
+          null,
+          null,
           null);
 
   public RequestPattern(ValueMatcher<Request> customMatcher) {
@@ -175,6 +194,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         UrlPattern.ANY,
         RequestMethod.ANY,
+        null,
+        null,
         null,
         null,
         null,
@@ -192,6 +213,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         UrlPattern.ANY,
         RequestMethod.ANY,
+        null,
+        null,
         null,
         null,
         null,
@@ -331,6 +354,45 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return MatchResult.exactMatch();
   }
 
+  private MatchResult allFormParamsMatch(final Request request) {
+    if (formParams != null && !formParams.isEmpty()) {
+      return MatchResult.aggregate(
+          from(formParams.entrySet())
+              .transform(
+                  new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                    public MatchResult apply(
+                        Map.Entry<String, MultiValuePattern> formParamPattern) {
+                      return formParamPattern
+                          .getValue()
+                          .match(request.formParameter(formParamPattern.getKey()));
+                    }
+                  })
+              .toList());
+    }
+
+    return MatchResult.exactMatch();
+  }
+
+  private MatchResult allPathParamsMatch(final Request request) {
+    if (url.getClass().equals(UrlPathTemplatePattern.class)
+        && pathParams != null
+        && !pathParams.isEmpty()) {
+      final UrlPathTemplatePattern urlPathTemplatePattern = (UrlPathTemplatePattern) url;
+      final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
+      if (!pathTemplate.matches(request.getUrl())) {
+        return MatchResult.noMatch();
+      }
+
+      final PathParams requestPathParams = pathTemplate.parse(request.getUrl());
+      return MatchResult.aggregate(
+          pathParams.entrySet().stream()
+              .map(entry -> entry.getValue().match(requestPathParams.get(entry.getKey())))
+              .collect(toList()));
+    }
+
+    return MatchResult.exactMatch();
+  }
+
   @SuppressWarnings("unchecked")
   private MatchResult allBodyPatternsMatch(final Request request) {
     if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
@@ -409,6 +471,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return urlPatternOrNull(UrlPathPattern.class, true);
   }
 
+  public String getUrlPathTemplate() {
+    return urlPatternOrNull(UrlPathTemplatePattern.class, false);
+  }
+
   @JsonIgnore
   public UrlPattern getUrlMatcher() {
     return url;
@@ -435,8 +501,16 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return basicAuthCredentials;
   }
 
+  public Map<String, StringValuePattern> getPathParameters() {
+    return pathParams;
+  }
+
   public Map<String, MultiValuePattern> getQueryParameters() {
     return queryParams;
+  }
+
+  public Map<String, MultiValuePattern> getFormParameters() {
+    return formParams;
   }
 
   public Map<String, StringValuePattern> getCookies() {

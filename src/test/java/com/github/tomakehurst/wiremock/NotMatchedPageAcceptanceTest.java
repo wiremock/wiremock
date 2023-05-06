@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
@@ -42,7 +41,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import java.util.List;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -225,13 +223,7 @@ public class NotMatchedPageAcceptanceTest {
                     Request wrappedRequest =
                         RequestWrapper.create()
                             .transformHeader(
-                                "X-My-Header",
-                                new FieldTransformer<List<String>>() {
-                                  @Override
-                                  public List<String> transform(List<String> source) {
-                                    return singletonList("modified value");
-                                  }
-                                })
+                                "X-My-Header", source -> singletonList("modified value"))
                             .wrap(request);
                     return RequestFilterAction.continueWith(wrappedRequest);
                   }

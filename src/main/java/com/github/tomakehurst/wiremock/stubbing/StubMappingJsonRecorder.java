@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.Collection;
 import java.util.List;
@@ -34,19 +35,19 @@ import java.util.UUID;
 
 public class StubMappingJsonRecorder implements RequestListener {
 
-  private final FileSource mappingsFileSource;
-  private final FileSource filesFileSource;
+  private final BlobStore mappingsBlobStore;
+  private final BlobStore filesBlobStore;
   private final Admin admin;
   private final List<CaseInsensitiveKey> headersToMatch;
   private IdGenerator idGenerator;
 
   public StubMappingJsonRecorder(
-      FileSource mappingsFileSource,
-      FileSource filesFileSource,
+      BlobStore mappingsBlobStore,
+      BlobStore filesBlobStore,
       Admin admin,
       List<CaseInsensitiveKey> headersToMatch) {
-    this.mappingsFileSource = mappingsFileSource;
-    this.filesFileSource = filesFileSource;
+    this.mappingsBlobStore = mappingsBlobStore;
+    this.filesBlobStore = filesBlobStore;
     this.admin = admin;
     this.headersToMatch = headersToMatch;
     idGenerator = new VeryShortIdGenerator();
@@ -80,7 +81,7 @@ public class StubMappingJsonRecorder implements RequestListener {
       }
     }
 
-    if (request.isMultipart()) {
+    if (request.isMultipart() && request.getParts() != null) {
       for (Request.Part part : request.getParts()) {
         builder.withRequestBodyPart(valuePatternForPart(part));
       }
@@ -167,8 +168,8 @@ public class StubMappingJsonRecorder implements RequestListener {
     StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
     mapping.setUuid(UUID.nameUUIDFromBytes(fileId.getBytes()));
 
-    filesFileSource.writeBinaryFile(bodyFileName, body);
-    mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+    filesBlobStore.put(bodyFileName, body);
+    mappingsBlobStore.put(mappingFileName, Strings.bytesFromString(write(mapping)));
   }
 
   private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {

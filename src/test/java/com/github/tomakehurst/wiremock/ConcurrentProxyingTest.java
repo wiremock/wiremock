@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,15 +61,12 @@ public class ConcurrentProxyingTest {
     for (int i = 0; i < 100; i++) {
       results.add(
           executor.submit(
-              new Runnable() {
-                @Override
-                public void run() {
-                  assertThat(client.get("/plain-example1.txt").content(), is("Example 1"));
-                  assertThat(client.get("/plain-example2.txt").content(), is("Example 2"));
-                  assertThat(client.get("/plain-example3.txt").content(), is("Example 3"));
-                  assertThat(client.get("/plain-example4.txt").content(), is("Example 4"));
-                  assertThat(client.get("/plain-example5.txt").content(), is("Example 5"));
-                }
+              () -> {
+                assertThat(client.get("/plain-example1.txt").content(), is("Example 1"));
+                assertThat(client.get("/plain-example2.txt").content(), is("Example 2"));
+                assertThat(client.get("/plain-example3.txt").content(), is("Example 3"));
+                assertThat(client.get("/plain-example4.txt").content(), is("Example 4"));
+                assertThat(client.get("/plain-example5.txt").content(), is("Example 5"));
               }));
     }
 

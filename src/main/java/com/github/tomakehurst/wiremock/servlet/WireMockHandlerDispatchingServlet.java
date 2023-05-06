@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,13 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.io.ByteStreams;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.servlet.*;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
@@ -133,6 +133,12 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       throws ServletException, IOException {
     LocalNotifier.set(notifier);
 
+    // TODO: The HTTP/1.x CONNECT is also forwarded to the servlet now. To keep backward
+    // compatible behavior (with proxy involved), skipping the CONNECT handling altogether.
+    if (httpServletRequest.getMethod() == "CONNECT") {
+      return;
+    }
+
     Request request =
         new WireMockHttpServletRequestAdapter(
             httpServletRequest, multipartRequestConfigurer, mappedUnder, browserProxyingEnabled);
@@ -190,14 +196,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     private void respondAsync(final Request request, final Response response) {
       final AsyncContext asyncContext = httpServletRequest.startAsync();
       scheduledExecutorService.schedule(
-          new Runnable() {
-            @Override
-            public void run() {
-              try {
-                respondTo(request, response);
-              } finally {
-                asyncContext.complete();
-              }
+          () -> {
+            try {
+              respondTo(request, response);
+            } finally {
+              asyncContext.complete();
             }
           },
           response.getInitialDelay(),
@@ -234,7 +237,17 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     if (response.getStatusMessage() == null) {
       httpServletResponse.setStatus(response.getStatus());
     } else {
-      httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+      // The Jetty 11 does not implement HttpServletResponse::setStatus and always sets the
+      // reason as `null`, the workaround using
+      // org.eclipse.jetty.server.Response::setStatusWithReason
+      // still works.
+      if (httpServletResponse instanceof org.eclipse.jetty.server.Response) {
+        final org.eclipse.jetty.server.Response jettyResponse =
+            (org.eclipse.jetty.server.Response) httpServletResponse;
+        jettyResponse.setStatusWithReason(response.getStatus(), response.getStatusMessage());
+      } else {
+        httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+      }
     }
 
     for (HttpHeader header : response.getHeaders().all()) {
