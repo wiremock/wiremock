@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,8 @@ import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.github.tomakehurst.wiremock.common.Compression;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.jupiter.api.Test;
-
-import java.nio.charset.StandardCharsets;
 
 public class LoggedResponseDefinitionTransformerTest {
   private LoggedResponseDefinitionTransformer aTransformer() {
@@ -83,11 +80,12 @@ public class LoggedResponseDefinitionTransformerTest {
                 .headers(
                     new HttpHeaders(
                         httpHeader("Content-Encoding", DEFLATE.contentEncodingValue), // Excluded
-                        httpHeader("content-LENGTH", Integer.toString(compressedData.length)), // Excluded
+                        httpHeader(
+                            "content-LENGTH", Integer.toString(compressedData.length)), // Excluded
                         httpHeader("transfer-encoding", "chunked"), // Excluded
                         httpHeader("Accept", "application/json"),
                         httpHeader("X-foo", "Bar")))
-                    .body(compressedData)
+                .body(compressedData)
                 .build(),
             UNLIMITED);
     final ResponseDefinition expected =

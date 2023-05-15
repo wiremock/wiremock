@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
 /**
  * JUnit Jupiter extension that manages a WireMock server instance's lifecycle and configuration.
  *
- * See http://wiremock.org/docs/junit-jupiter/ for full documentation.
+ * <p>See http://wiremock.org/docs/junit-jupiter/ for full documentation.
  */
 public class WireMockExtension extends DslWrapper
     implements ParameterResolver,
@@ -57,10 +57,11 @@ public class WireMockExtension extends DslWrapper
   /**
    * Constructor intended for subclasses.
    *
-   * The parameter is a builder so that we can avoid a constructor explosion or
+   * <p>The parameter is a builder so that we can avoid a constructor explosion or
    * backwards-incompatible changes when new options are added.
    *
-   * @param builder a {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder} instance holding the initialisation parameters for the extension.
+   * @param builder a {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder}
+   *     instance holding the initialisation parameters for the extension.
    */
   protected WireMockExtension(Builder builder) {
     this.options = builder.options;
@@ -81,8 +82,11 @@ public class WireMockExtension extends DslWrapper
   }
 
   /**
-   * Alias for {@link #newInstance()} for use with custom subclasses, with a more relevant name for that use.
-   * @return a new {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder} instance.
+   * Alias for {@link #newInstance()} for use with custom subclasses, with a more relevant name for
+   * that use.
+   *
+   * @return a new {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder}
+   *     instance.
    */
   public static Builder extensionOptions() {
     return newInstance();
@@ -90,7 +94,9 @@ public class WireMockExtension extends DslWrapper
 
   /**
    * Create a new builder for the extension.
-   * @return a new {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder} instance.
+   *
+   * @return a new {@link com.github.tomakehurst.wiremock.junit5.WireMockExtension.Builder}
+   *     instance.
    */
   public static Builder newInstance() {
     return new Builder();
@@ -98,25 +104,35 @@ public class WireMockExtension extends DslWrapper
 
   /**
    * To be overridden in subclasses in order to run code immediately after per-class WireMock setup.
-   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   *
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
    */
   protected void onBeforeAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
   /**
    * To be overridden in subclasses in order to run code immediately after per-test WireMock setup.
-   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   *
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
    */
   protected void onBeforeEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
   /**
-   * To be overridden in subclasses in order to run code immediately after per-test cleanup of WireMock and its associated resources.
-   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   * To be overridden in subclasses in order to run code immediately after per-test cleanup of
+   * WireMock and its associated resources.
+   *
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
    */
   protected void onAfterEach(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 
   /**
-   * To be overridden in subclasses in order to run code immediately after per-class cleanup of WireMock.
-   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock instance/
+   * To be overridden in subclasses in order to run code immediately after per-class cleanup of
+   * WireMock.
+   *
+   * @param wireMockRuntimeInfo port numbers, base URLs and HTTPS info for the running WireMock
+   *     instance/
    */
   protected void onAfterAll(WireMockRuntimeInfo wireMockRuntimeInfo) {}
 

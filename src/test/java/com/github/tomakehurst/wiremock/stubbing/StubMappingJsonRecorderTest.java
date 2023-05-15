@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-
 import static com.github.tomakehurst.wiremock.common.Compression.GZIP;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
