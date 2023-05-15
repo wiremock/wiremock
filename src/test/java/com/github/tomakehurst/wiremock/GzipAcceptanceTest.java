@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
-import static com.github.tomakehurst.wiremock.common.Gzip.unGzipToString;
+import static com.github.tomakehurst.wiremock.common.Compression.GZIP;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,7 +57,7 @@ public class GzipAcceptanceTest {
 
       byte[] gzippedContent = response.binaryContent();
 
-      String plainText = unGzipToString(gzippedContent);
+      String plainText = GZIP.decompressToString(gzippedContent);
       assertThat(plainText, is("body text"));
     }
 
@@ -75,7 +74,7 @@ public class GzipAcceptanceTest {
 
       byte[] gzippedContent = response.binaryContent();
 
-      String plainText = unGzipToString(gzippedContent);
+      String plainText = GZIP.decompressToString(gzippedContent);
       assertThat(plainText, is("body text"));
     }
 
@@ -126,11 +125,13 @@ public class GzipAcceptanceTest {
           testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
       assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
       assertThat(response.headers().containsKey("Transfer-Encoding"), is(false));
-      assertThat(response.firstHeader("Content-Length"), is(String.valueOf(gzip(bodyText).length)));
+      assertThat(
+          response.firstHeader("Content-Length"),
+          is(String.valueOf(GZIP.compress(bodyText).length)));
 
       byte[] gzippedContent = response.binaryContent();
 
-      String plainText = unGzipToString(gzippedContent);
+      String plainText = GZIP.decompressToString(gzippedContent);
       assertThat(plainText, is(bodyText));
     }
 

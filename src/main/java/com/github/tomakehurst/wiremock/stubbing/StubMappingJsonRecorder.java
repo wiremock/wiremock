@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -143,7 +142,8 @@ public class StubMappingJsonRecorder implements RequestListener {
   private void writeToMappingAndBodyFile(
       Request request, Response response, RequestPattern requestPattern) {
     String fileId = idGenerator.generate();
-    byte[] body = bodyDecompressedIfRequired(response);
+    BodyDecompressor decompressor = new BodyDecompressor(response);
+    byte[] body = decompressor.getBytes();
 
     String mappingFileName = UniqueFilenameGenerator.generate(request.getUrl(), "mapping", fileId);
     String bodyFileName =
@@ -156,9 +156,11 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     ResponseDefinitionBuilder responseDefinitionBuilder =
         responseDefinition().withStatus(response.getStatus()).withBodyFile(bodyFileName);
-    if (response.getHeaders().size() > 0) {
-      responseDefinitionBuilder.withHeaders(
-          withoutContentEncodingAndContentLength(response.getHeaders()));
+
+    if (response.getHeaders() != null) {
+      HttpHeaders headers =
+          new HttpHeaders(filter(response.getHeaders().all(), decompressor::shouldRetain));
+      responseDefinitionBuilder.withHeaders(headers);
     }
 
     ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
@@ -168,25 +170,6 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     filesBlobStore.put(bodyFileName, body);
     mappingsBlobStore.put(mappingFileName, Strings.bytesFromString(write(mapping)));
-  }
-
-  private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
-    return new HttpHeaders(
-        filter(
-            httpHeaders.all(),
-            new Predicate<HttpHeader>() {
-              public boolean apply(HttpHeader header) {
-                return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
-              }
-            }));
-  }
-
-  private byte[] bodyDecompressedIfRequired(Response response) {
-    if (response.getHeaders().getHeader("Content-Encoding").containsValue("gzip")) {
-      return Gzip.unGzip(response.getBody());
-    }
-
-    return response.getBody();
   }
 
   private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {

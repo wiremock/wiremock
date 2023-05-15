@@ -26,7 +26,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
-import com.github.tomakehurst.wiremock.common.Gzip;
+import com.github.tomakehurst.wiremock.common.Compression;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.FormParameter;
@@ -148,15 +148,30 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public byte[] getBody() {
     if (cachedBody == null) {
       try {
-        byte[] body = toByteArray(request.getInputStream());
-        boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
-        cachedBody = isGzipped ? Gzip.unGzip(body) : body;
+        cachedBody = decodeBody();
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
     }
-
     return cachedBody;
+  }
+
+  private byte[] decodeBody() throws IOException {
+    byte[] body = toByteArray(request.getInputStream());
+    String encodingHeader = request.getHeader("Content-Encoding");
+    if (encodingHeader != null) {
+      for (Compression compression : Compression.values()) {
+        if (encodingHeader.contains(compression.contentEncodingValue)) {
+          return compression.decompress(body);
+        }
+      }
+    }
+    for (Compression compression : Compression.values()) {
+      if (compression.matches(body)) {
+        return compression.decompress(body);
+      }
+    }
+    return body;
   }
 
   private Charset encodingFromContentTypeHeaderOrUtf8() {
@@ -165,11 +180,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
       return contentTypeHeader.charset();
     }
     return UTF_8;
-  }
-
-  private boolean hasGzipEncoding() {
-    String encodingHeader = request.getHeader("Content-Encoding");
-    return encodingHeader != null && encodingHeader.contains("gzip");
   }
 
   @Override
