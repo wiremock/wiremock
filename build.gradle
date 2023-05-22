@@ -94,7 +94,7 @@ dependencies {
   }
   api "commons-io:commons-io:2.11.0"
 
-  api 'com.networknt:json-schema-validator:1.0.80'
+  api 'com.networknt:json-schema-validator:1.0.82'
 
   testImplementation "junit:junit:4.13"
   testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
