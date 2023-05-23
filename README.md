@@ -4,16 +4,10 @@ WireMock - a web service test double for all occasions
 [![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
 [![Docs](https://img.shields.io/static/v1?label=Documentation&message=public&color=green)](https://wiremock.org/docs/)
 [![a](https://img.shields.io/badge/slack-Join%20us-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
-[![Participate](https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange)](https://github.com/wiremock/wiremock/blob/master/CONTRIBUTING.md)
+[![Participate](https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange)](./CONTRIBUTING.md)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
-!!! Log4j notice !!!
---------------------
-WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
-you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability. 
-
-Key Features
-------------
+## Key Features
 	
 -	HTTP response stubbing, matchable on URL, header and body content patterns
 -	Request verification
@@ -27,44 +21,24 @@ Key Features
 -	Configurable response delays
  
 
-Full documentation can be found at [wiremock.org](http://wiremock.org/ "wiremock.org")
+Full documentation can be found at [wiremock.org/docs](https://wiremock.org/docs).
 
-Questions and Issues
---------------------
-If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the 
-[WireMock mailing list](https://groups.google.com/forum/#!forum/wiremock-user).
+## Questions and Issues
+
+If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the
+[WireMock Community Slack](https://slack.wiremock.org) in the `#help` channel.
 
 On the other hand if you're pretty certain you've found a bug please open an issue.
 
-Contributing
-------------
-We welcome bug fixes and new features in the form of pull requests. If you'd like to contribute, please be mindful of the
-following guidelines:
-* All changes should include suitable tests, whether to demonstrate the bug or exercise and document the new feature.
-* Please make one change per pull request.
-* If the new feature is significantly large/complex/breaks existing behaviour, please first post a summary of your idea
-on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
-* Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
-more difficult.
-* Abide by [the Architecture Rules](https://github.com/wiremock/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock/archunit) enforced by ArchUnit.
+## Log4j Notice
 
-Building WireMock locally
--------------------------
-To run all of WireMock's tests:
-```bash
-./gradlew clean test
-```
+WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
+you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability.
 
-To build both JARs (thin and standalone):
-```bash
-./gradlew jar shadowJar 
-```
+## Contributing
 
-The built JAR will be placed under ``build/libs``.
+WireMock exists and continues to thrive due to the efforts of contributors.
+Regardless of your expertise and time you could dedicate,
+there're opportunities to participate and help the project!
 
-To publish both JARs to your local Maven repository:
-
-```bash
-./gradlew publishToMavenLocal
-```
-
+See the [Contributing Guide](./CONTRIBUTING.md) for more information.

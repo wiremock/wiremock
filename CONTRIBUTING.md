@@ -27,7 +27,40 @@ If you want to contribute to WireMock Java codebase, do the following:
 * Read the guidelines below
 * Start contributing by creating issues, submitting patches via pull requests, and helping others!
 
-## Before opening a PR
+## Building WireMock locally
+
+To run all of WireMock's tests:
+
+```bash
+./gradlew clean test
+```
+
+To build both JARs (thin and standalone), the JARs will be placed under ``build/libs``.:
+
+```bash
+./gradlew jar shadowJar 
+```
+
+To publish both JARs to your local Maven repository:
+
+```bash
+./gradlew publishToMavenLocal
+```
+
+## Contributing Code
+
+Please be mindful of the
+following guidelines:
+
+* All changes should include suitable tests, whether to demonstrate the bug or exercise and document the new feature.
+* Please make one change per pull request.
+* If the new feature is significantly large/complex/breaks existing behaviour, please first post a summary of your idea
+on the GitHub Issue to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
+* Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
+more difficult.
+* Abide by [the Architecture Rules](https://github.com/wiremock/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock/archunit) enforced by ArchUnit.
+
+### Before opening a PR
 
 When proposing new features or enhancements, we strongly recommend opening an issue first so that the problem being solved
 and the implementation design can be discussed. This helps to avoid time being invested in code that is never eventually
@@ -36,7 +69,7 @@ merged, and also promotes better designs by involving the community more widely.
 For straightforward bug fixes where the issue is clear and can be illustrated via a failing unit or acceptance test, please
 just open a PR.
 
-## Code style
+### Code style
 
 WireMock uses the [Google Java style guide](https://google.github.io/styleguide/javaguide.html) and this is enforced in
 the build via the Gradle [Spotless plugin](https://github.com/diffplug/spotless).
