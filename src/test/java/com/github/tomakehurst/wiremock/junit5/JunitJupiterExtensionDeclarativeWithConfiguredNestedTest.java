@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,15 @@ class JunitJupiterExtensionDeclarativeWithConfiguredNestedTest {
     @Test
     void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
       assertThat(wmRuntimeInfo.getHttpPort(), is(8767));
+    }
+
+    @Nested
+    @WireMockTest(httpPort = 8768)
+    class RunsOn8768 {
+      @Test
+      void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {
+        assertThat(wmRuntimeInfo.getHttpPort(), is(8768));
+      }
     }
   }
 
