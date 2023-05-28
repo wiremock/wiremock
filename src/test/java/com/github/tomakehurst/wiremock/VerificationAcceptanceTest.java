@@ -48,6 +48,9 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import java.util.List;
 import java.util.UUID;
+
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -930,6 +933,42 @@ public class VerificationAcceptanceTest {
           requestMadeFor(
               "path-contains-param", Parameters.one("path", "remote-request-matcher-ext")));
     }
+
+    @Test
+    public void verifiesFormParamAbsent() {
+        String testUrl = "/without/formParam";
+        String testFormParam = "test-form-param";
+        String testFormValue = "test-form-value";
+        HttpEntity requestEntity = MultipartEntityBuilder.create()
+                                                         .addTextBody(testFormParam, testFormValue)
+                                                         .build();
+        stubFor(post(testUrl).withFormParam(testFormParam, equalTo(testFormValue)));
+        testClient.post(testUrl, requestEntity);
+        verify(
+                postRequestedFor(urlEqualTo(testUrl))
+                        .withFormParam(testFormParam, equalTo(testFormValue))
+                        .withoutFormParam("absent-form-param")
+        );
+    }
+
+      @Test
+      public void failsVerificationWhenAbsentFormParamPresent() {
+          String testUrl = "/without/formParam";
+          String testFormParam = "test-form-param";
+          String testFormValue = "test-form-value";
+          HttpEntity requestEntity = MultipartEntityBuilder.create()
+                                                           .addTextBody(testFormParam, testFormValue)
+                                                           .build();
+          stubFor(post(testUrl).withFormParam(testFormParam, equalTo(testFormValue)));
+          testClient.post(testUrl, requestEntity);
+          assertThrows(
+                  VerificationException.class,
+                  () -> verify(
+                          postRequestedFor(urlEqualTo(testUrl))
+                                  .withoutFormParam(testFormParam)
+                  )
+          );
+      }
   }
 
   public static class PathContainsParamRequestMatcher extends RequestMatcherExtension {
