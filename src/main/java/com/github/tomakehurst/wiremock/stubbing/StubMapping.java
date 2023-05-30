@@ -54,6 +54,7 @@ public class StubMapping {
 
   private long insertionIndex;
   private boolean isDirty = true;
+  private List<StubMapping> mappings;
 
   public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
     setRequest(requestPattern);
@@ -246,6 +247,14 @@ public class StubMapping {
     this.metadata = metadata;
   }
 
+  public List<StubMapping> getMappings() {
+    return mappings;
+  }
+
+  public void setMappings(List<StubMapping> mappings) {
+    this.mappings = mappings;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -260,7 +269,8 @@ public class StubMapping {
         && Objects.equals(requiredScenarioState, that.requiredScenarioState)
         && Objects.equals(newScenarioState, that.newScenarioState)
         && Objects.equals(postServeActions, that.postServeActions)
-        && Objects.equals(metadata, that.metadata);
+        && Objects.equals(metadata, that.metadata)
+        && Objects.equals(mappings, that.mappings);
   }
 
   @Override
@@ -275,6 +285,7 @@ public class StubMapping {
         newScenarioState,
         postServeActions,
         metadata,
-        isDirty);
+        isDirty,
+        mappings);
   }
 }

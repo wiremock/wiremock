@@ -48,6 +48,13 @@ public class RemoteMappingsLoader {
         filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
     for (TextFile mappingFile : mappingFiles) {
       StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
+      if (mapping.getMappings() != null) {
+        mapping.getMappings().forEach(stubMapping -> {
+          convertBodyFromFileIfNecessary(stubMapping);
+          wireMock.register(stubMapping);
+        });
+        continue;
+      }
       convertBodyFromFileIfNecessary(mapping);
       wireMock.register(mapping);
     }
