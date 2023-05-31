@@ -46,14 +46,7 @@ import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WireMockHttpServletRequestAdapter implements Request {
@@ -362,6 +355,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
         .filter(entry -> queryParameters == null || !queryParameters.containsKey(entry.getKey()))
         .collect(
             Collectors.toMap(
-                Entry::getKey, entry -> FormParameter.formParam(entry.getKey(), entry.getValue())));
+                Map.Entry::getKey,
+                entry -> FormParameter.formParam(entry.getKey(), entry.getValue())));
   }
 }

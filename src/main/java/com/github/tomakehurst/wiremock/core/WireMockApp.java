@@ -44,7 +44,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -94,7 +93,7 @@ public class WireMockApp implements StubServer, Admin {
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
             : new StoreBackedRequestJournal(
-                options.maxRequestJournalEntries(),
+                options.maxRequestJournalEntries().orElse(null),
                 customMatchers,
                 stores.getRequestJournalStore());
 
@@ -121,7 +120,7 @@ public class WireMockApp implements StubServer, Admin {
       MappingsLoader defaultMappingsLoader,
       MappingsSaver mappingsSaver,
       boolean requestJournalDisabled,
-      Optional<Integer> maxRequestJournalEntries,
+      Integer maxRequestJournalEntries,
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, RequestMatcherExtension> requestMatchers,
       FileSource rootFileSource,
