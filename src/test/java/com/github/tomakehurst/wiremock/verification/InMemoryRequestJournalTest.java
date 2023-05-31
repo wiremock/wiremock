@@ -26,10 +26,10 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +48,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
-    RequestJournal journal = new InMemoryRequestJournal(Optional.absent(), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(Optional.empty(), NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent1);
@@ -91,7 +91,7 @@ public class InMemoryRequestJournalTest {
   @Test
   public void matchesRequestWithCustomMatcherDefinition() throws Exception {
     RequestJournal journal =
-        new InMemoryRequestJournal(Optional.absent(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));
+        new InMemoryRequestJournal(Optional.empty(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);
