@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.collect.Lists.transform;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 public class JsonException extends InvalidInputException {
 
@@ -46,7 +45,8 @@ public class JsonException extends InvalidInputException {
     String pointer = null;
     if (processingException instanceof JsonMappingException) {
       List<String> nodes =
-          transform(((JsonMappingException) processingException).getPath(), TO_NODE_NAMES);
+          ((JsonMappingException) processingException)
+              .getPath().stream().map(TO_NODE_NAMES).collect(Collectors.toList());
       pointer = '/' + Joiner.on('/').join(nodes);
     }
 
@@ -62,14 +62,6 @@ public class JsonException extends InvalidInputException {
   }
 
   private static final Function<JsonMappingException.Reference, String> TO_NODE_NAMES =
-      new Function<JsonMappingException.Reference, String>() {
-        @Override
-        public String apply(JsonMappingException.Reference input) {
-          if (input.getFieldName() != null) {
-            return input.getFieldName();
-          }
-
-          return String.valueOf(input.getIndex());
-        }
-      };
+      input ->
+          input.getFieldName() != null ? input.getFieldName() : String.valueOf(input.getIndex());
 }

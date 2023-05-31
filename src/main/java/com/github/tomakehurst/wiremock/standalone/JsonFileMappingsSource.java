@@ -17,8 +17,6 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
-import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.filter;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
@@ -30,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
@@ -96,7 +95,7 @@ public class JsonFileMappingsSource implements MappingsSource {
   }
 
   private boolean anyFilesAreMultiMapping() {
-    return any(fileNameMap.values(), input -> input.multi);
+    return fileNameMap.values().stream().anyMatch(input -> input.multi);
   }
 
   @Override
@@ -105,8 +104,10 @@ public class JsonFileMappingsSource implements MappingsSource {
       return;
     }
 
-    Iterable<TextFile> mappingFiles =
-        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+    List<TextFile> mappingFiles =
+        mappingsFileSource.listFilesRecursively().stream()
+            .filter(byFileExtension("json"))
+            .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingCollection stubCollection =

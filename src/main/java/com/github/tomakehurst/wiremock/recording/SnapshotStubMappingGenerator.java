@@ -20,9 +20,9 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Function;
 import java.net.URI;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Transforms ServeEvents to StubMappings using RequestPatternTransformer and
