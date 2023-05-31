@@ -25,10 +25,13 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,9 +53,16 @@ public class RemoteMappingsLoader {
             .filter(byFileExtension("json"))
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
-      StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
-      convertBodyFromFileIfNecessary(mapping);
-      wireMock.register(mapping);
+      try {
+        StubMappingCollection stubCollection =
+            Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+        for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
+          convertBodyFromFileIfNecessary(mapping);
+          wireMock.register(mapping);
+        }
+      } catch (JsonException e) {
+        throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
+      }
     }
   }
 
