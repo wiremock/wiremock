@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.google.common.base.Joiner;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class Cookie extends MultiValue {
   }
 
   public static Cookie absent() {
-    return new Cookie(null, Collections.<String>emptyList());
+    return new Cookie(null, Collections.emptyList());
   }
 
   public Cookie(String value) {
@@ -64,7 +63,7 @@ public class Cookie extends MultiValue {
 
   @JsonValue
   public ListOrSingle<String> getValues() {
-    return new ListOrSingle<>(isPresent() ? values() : Collections.<String>emptyList());
+    return new ListOrSingle<>(isPresent() ? values() : Collections.emptyList());
   }
 
   @JsonIgnore
@@ -74,6 +73,6 @@ public class Cookie extends MultiValue {
 
   @Override
   public String toString() {
-    return isAbsent() ? "(absent)" : Joiner.on("; ").join(getValues());
+    return isAbsent() ? "(absent)" : String.join("; ", getValues());
   }
 }
