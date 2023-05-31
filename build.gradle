@@ -30,7 +30,7 @@ project.ext {
     guava          : '32.0.0-jre',
     jackson        : '2.15.2',
     xmlUnit        : '2.9.1',
-    jsonUnit       : '2.37.0',
+    jsonUnit       : '2.38.0',
     junitJupiter   : '5.9.3'
   ]
 }
