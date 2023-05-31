@@ -18,12 +18,11 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.RequestJournalStore;
 import java.util.Map;
-import java.util.Optional;
 
 public class StoreBackedRequestJournal extends AbstractRequestJournal {
 
   public StoreBackedRequestJournal(
-      Optional<Integer> maxEntries,
+      Integer maxEntries,
       Map<String, RequestMatcherExtension> customMatchers,
       RequestJournalStore store) {
     super(maxEntries, customMatchers, store);

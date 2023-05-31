@@ -18,12 +18,11 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.InMemoryRequestJournalStore;
 import java.util.Map;
-import java.util.Optional;
 
 public class InMemoryRequestJournal extends StoreBackedRequestJournal {
 
   public InMemoryRequestJournal(
-      Optional<Integer> maxEntries, Map<String, RequestMatcherExtension> customMatchers) {
+      Integer maxEntries, Map<String, RequestMatcherExtension> customMatchers) {
     super(maxEntries, customMatchers, new InMemoryRequestJournalStore());
   }
 }

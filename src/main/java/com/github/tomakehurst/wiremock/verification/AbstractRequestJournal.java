@@ -35,15 +35,15 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   protected final RequestJournalStore store;
 
-  private final Optional<Integer> maxEntries;
+  private final Integer maxEntries;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
   public AbstractRequestJournal(
-      Optional<Integer> maxEntries,
+      Integer maxEntries,
       Map<String, RequestMatcherExtension> customMatchers,
       RequestJournalStore store) {
 
-    if (maxEntries.isPresent() && maxEntries.get() < 0) {
+    if (maxEntries != null && maxEntries < 0) {
       throw new IllegalArgumentException(
           "Maximum number of entries of journal must be greater than zero");
     }
@@ -114,8 +114,8 @@ public abstract class AbstractRequestJournal implements RequestJournal {
   }
 
   private void removeOldEntries() {
-    if (maxEntries.isPresent()) {
-      while (store.getAllKeys().count() > maxEntries.get()) {
+    if (maxEntries != null) {
+      while (store.getAllKeys().count() > maxEntries) {
         store.removeLast();
       }
     }
