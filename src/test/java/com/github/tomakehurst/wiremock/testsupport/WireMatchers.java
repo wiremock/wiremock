@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Iterables.size;
 import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.MULTILINE;
@@ -28,20 +28,22 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -231,7 +233,9 @@ public class WireMatchers {
         }
 
         for (final Matcher<T> matcher : items) {
-          if (find(actual, isMatchFor(matcher), null) == null) {
+          if (StreamSupport.stream(actual.spliterator(), false)
+              .filter(isMatchFor(matcher))
+              .findAny().orElse(null) == null) {
             return false;
           }
         }
@@ -242,11 +246,7 @@ public class WireMatchers {
   }
 
   private static <T> Predicate<T> isMatchFor(final Matcher<T> matcher) {
-    return new Predicate<T>() {
-      public boolean apply(T input) {
-        return matcher.matches(input);
-      }
-    };
+    return matcher::matches;
   }
 
   public static Matcher<TextFile> fileNamed(final String name) {
@@ -318,24 +318,13 @@ public class WireMatchers {
     return new TypeSafeDiagnosingMatcher<Path>() {
       @Override
       protected boolean matchesSafely(Path path, Description mismatchDescription) {
-        List<File> files = asList(path.toFile().listFiles());
-        boolean matched =
-            any(
-                files,
-                new Predicate<File>() {
-                  @Override
-                  public boolean apply(File file) {
-                    final String fileContents = fileContents(file);
-                    return all(
-                        asList(contents),
-                        new Predicate<String>() {
-                          @Override
-                          public boolean apply(String input) {
-                            return fileContents.contains(input);
-                          }
-                        });
-                  }
-                });
+        List<File> files = asList(Objects.requireNonNull(path.toFile().listFiles()));
+        boolean matched = files.stream().anyMatch(file -> {
+          final String fileContents = fileContents(file);
+
+          return Arrays.stream(contents)
+              .allMatch(fileContents::contains);
+        });
 
         if (files.size() == 0) {
           mismatchDescription.appendText("there were no files in " + path);
@@ -343,16 +332,10 @@ public class WireMatchers {
 
         if (!matched) {
           String allFileContents =
-              Joiner.on("\n\n")
-                  .join(
-                      transform(
-                          files,
-                          new Function<File, String>() {
-                            @Override
-                            public String apply(File input) {
-                              return fileContents(input);
-                            }
-                          }));
+              files.stream()
+                  .map(WireMatchers::fileContents)
+                  .collect(Collectors.joining("\n\n"));
+
           mismatchDescription.appendText(allFileContents);
         }
 
@@ -361,7 +344,8 @@ public class WireMatchers {
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("a file containing all of: " + Joiner.on(", ").join(contents));
+        description.appendText("a file containing all of: " +
+            String.join(", ", contents));
       }
     };
   }
@@ -385,12 +369,7 @@ public class WireMatchers {
   }
 
   public static Predicate<StubMapping> withUrl(final String url) {
-    return new Predicate<StubMapping>() {
-      @Override
-      public boolean apply(StubMapping input) {
-        return url.equals(input.getRequest().getUrl());
-      }
-    };
+    return input -> url.equals(input.getRequest().getUrl());
   }
 
   public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final String url) {
@@ -413,23 +392,24 @@ public class WireMatchers {
   }
 
   public static ServeEvent findServeEventWithUrl(List<ServeEvent> serveEvents, final String url) {
-    return find(
-        serveEvents,
-        new Predicate<ServeEvent>() {
-          @Override
-          public boolean apply(ServeEvent input) {
-            return url.equals(input.getRequest().getUrl());
-          }
-        });
+    return serveEvents.stream()
+        .filter(input -> url.equals(input.getRequest().getUrl()))
+        .findAny()
+        .orElseThrow(NoSuchElementException::new);
   }
 
   public static StubMapping findMappingWithUrl(List<StubMapping> stubMappings, final String url) {
-    return find(stubMappings, withUrl(url));
+    return stubMappings.stream()
+        .filter(withUrl(url))
+        .findAny()
+        .orElseThrow(NoSuchElementException::new);
   }
 
   public static List<StubMapping> findMappingsWithUrl(
       List<StubMapping> stubMappings, final String url) {
-    return ImmutableList.copyOf(filter(stubMappings, withUrl(url)));
+    return stubMappings.stream()
+        .filter(withUrl(url))
+        .collect(Collectors.toUnmodifiableList());
   }
 
   public static TypeSafeDiagnosingMatcher<StubMapping> isInAScenario() {
