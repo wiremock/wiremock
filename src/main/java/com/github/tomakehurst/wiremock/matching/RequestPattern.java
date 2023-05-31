@@ -252,37 +252,23 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private MatchResult allCookiesMatch(final Request request) {
     if (cookies != null && !cookies.isEmpty()) {
       return MatchResult.aggregate(
-          from(cookies.entrySet())
-              .transform(
-                  new Function<Map.Entry<String, StringValuePattern>, MatchResult>() {
-                    public MatchResult apply(
-                        final Map.Entry<String, StringValuePattern> cookiePattern) {
-                      Cookie cookie = request.getCookies().get(cookiePattern.getKey());
-                      if (cookie == null) {
-                        return cookiePattern.getValue().nullSafeIsAbsent()
-                            ? MatchResult.exactMatch()
-                            : MatchResult.noMatch();
-                      }
-
-                      return from(cookie.getValues())
-                          .transform(
-                              new Function<String, MatchResult>() {
-                                @Override
-                                public MatchResult apply(String cookieValue) {
-                                  return cookiePattern.getValue().match(cookieValue);
-                                }
-                              })
-                          .toSortedList(
-                              new Comparator<MatchResult>() {
-                                @Override
-                                public int compare(MatchResult o1, MatchResult o2) {
-                                  return o2.compareTo(o1);
-                                }
-                              })
-                          .get(0);
+          cookies.entrySet().stream()
+              .map(
+                  entry -> {
+                    final StringValuePattern cookiePattern = entry.getValue();
+                    Cookie cookie = request.getCookies().get(entry.getKey());
+                    if (cookie == null) {
+                      return cookiePattern.nullSafeIsAbsent()
+                          ? MatchResult.exactMatch()
+                          : MatchResult.noMatch();
                     }
+
+                    return cookie.getValues().stream()
+                        .map(cookiePattern::match)
+                        .max(Comparator.naturalOrder())
+                        .orElse(MatchResult.noMatch());
                   })
-              .toList());
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
