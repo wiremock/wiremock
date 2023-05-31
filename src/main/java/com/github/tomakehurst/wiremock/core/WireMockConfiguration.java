@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.google.common.collect.Lists.transform;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class WireMockConfiguration implements Options {
 
@@ -379,7 +380,9 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
+    this.matchingHeaders = headers.stream()
+        .map(TO_CASE_INSENSITIVE_KEYS)
+        .collect(Collectors.toUnmodifiableList());
     return this;
   }
 

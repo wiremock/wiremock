@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 public class CaseInsensitiveKey {
 
@@ -67,9 +67,5 @@ public class CaseInsensitiveKey {
   }
 
   public static final Function<String, CaseInsensitiveKey> TO_CASE_INSENSITIVE_KEYS =
-      new Function<String, CaseInsensitiveKey>() {
-        public CaseInsensitiveKey apply(String input) {
-          return from(input);
-        }
-      };
+      CaseInsensitiveKey::from;
 }
