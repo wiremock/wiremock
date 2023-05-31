@@ -380,9 +380,8 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    this.matchingHeaders = headers.stream()
-        .map(TO_CASE_INSENSITIVE_KEYS)
-        .collect(Collectors.toUnmodifiableList());
+    this.matchingHeaders =
+        headers.stream().map(TO_CASE_INSENSITIVE_KEYS).collect(Collectors.toUnmodifiableList());
     return this;
   }
 

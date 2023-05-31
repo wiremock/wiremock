@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,10 @@ public class ScenarioProcessor {
 
   public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
     ImmutableListMultimap<RequestPattern, StubMapping> stubsGroupedByRequest =
-        Multimaps.index(
-            stubMappings,
-            StubMapping::getRequest);
+        Multimaps.index(stubMappings, StubMapping::getRequest);
 
     Map<RequestPattern, Collection<StubMapping>> groupsWithMoreThanOneStub =
-        Maps.filterEntries(
-            stubsGroupedByRequest.asMap(),
-            input -> input.getValue().size() > 1);
+        Maps.filterEntries(stubsGroupedByRequest.asMap(), input -> input.getValue().size() > 1);
 
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :

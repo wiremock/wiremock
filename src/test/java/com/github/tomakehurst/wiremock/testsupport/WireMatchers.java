@@ -234,8 +234,10 @@ public class WireMatchers {
 
         for (final Matcher<T> matcher : items) {
           if (StreamSupport.stream(actual.spliterator(), false)
-              .filter(isMatchFor(matcher))
-              .findAny().orElse(null) == null) {
+                  .filter(isMatchFor(matcher))
+                  .findAny()
+                  .orElse(null)
+              == null) {
             return false;
           }
         }
@@ -319,12 +321,14 @@ public class WireMatchers {
       @Override
       protected boolean matchesSafely(Path path, Description mismatchDescription) {
         List<File> files = asList(Objects.requireNonNull(path.toFile().listFiles()));
-        boolean matched = files.stream().anyMatch(file -> {
-          final String fileContents = fileContents(file);
+        boolean matched =
+            files.stream()
+                .anyMatch(
+                    file -> {
+                      final String fileContents = fileContents(file);
 
-          return Arrays.stream(contents)
-              .allMatch(fileContents::contains);
-        });
+                      return Arrays.stream(contents).allMatch(fileContents::contains);
+                    });
 
         if (files.size() == 0) {
           mismatchDescription.appendText("there were no files in " + path);
@@ -332,9 +336,7 @@ public class WireMatchers {
 
         if (!matched) {
           String allFileContents =
-              files.stream()
-                  .map(WireMatchers::fileContents)
-                  .collect(Collectors.joining("\n\n"));
+              files.stream().map(WireMatchers::fileContents).collect(Collectors.joining("\n\n"));
 
           mismatchDescription.appendText(allFileContents);
         }
@@ -344,8 +346,7 @@ public class WireMatchers {
 
       @Override
       public void describeTo(Description description) {
-        description.appendText("a file containing all of: " +
-            String.join(", ", contents));
+        description.appendText("a file containing all of: " + String.join(", ", contents));
       }
     };
   }
@@ -407,9 +408,7 @@ public class WireMatchers {
 
   public static List<StubMapping> findMappingsWithUrl(
       List<StubMapping> stubMappings, final String url) {
-    return stubMappings.stream()
-        .filter(withUrl(url))
-        .collect(Collectors.toUnmodifiableList());
+    return stubMappings.stream().filter(withUrl(url)).collect(Collectors.toUnmodifiableList());
   }
 
   public static TypeSafeDiagnosingMatcher<StubMapping> isInAScenario() {
