@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -73,5 +74,16 @@ public class BodyTest {
     Body body = Body.fromOneOf(null, null, jsonContent, "lskdjflsjdflks");
 
     assertThat(body.asJson(), is(jsonContent));
+  }
+
+  @Test
+  public void hashCorrectly() {
+    byte[] primes = {2, 3, 5, 7};
+    byte[] primes2 = {2, 3, 5, 7};
+
+    Body body = new Body(primes);
+    Body body2 = new Body(primes2);
+
+    assertEquals(body.hashCode(), body2.hashCode());
   }
 }
