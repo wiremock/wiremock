@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.servlet.*;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import jakarta.servlet.DispatcherType;
@@ -37,6 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -171,7 +171,7 @@ public abstract class JettyHttpServer implements HttpServer {
   }
 
   protected void finalizeSetup(Options options) {
-    if (!options.jettySettings().getStopTimeout().isPresent()) {
+    if (options.jettySettings().getStopTimeout().isEmpty()) {
       jettyServer.setStopTimeout(1000);
     }
   }
@@ -180,9 +180,7 @@ public abstract class JettyHttpServer implements HttpServer {
     final Server server = new Server(options.threadPoolFactory().buildThreadPool(options));
     final JettySettings jettySettings = options.jettySettings();
     final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
-    if (stopTimeout.isPresent()) {
-      server.setStopTimeout(stopTimeout.get());
-    }
+    stopTimeout.ifPresent(server::setStopTimeout);
 
     return server;
   }

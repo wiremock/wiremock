@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -31,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
@@ -91,7 +89,7 @@ public class HttpHeaders {
   }
 
   public Set<String> keys() {
-    return newHashSet(transform(headers.keySet(), toStringFunction()));
+    return headers.keySet().stream().map(CaseInsensitiveKey::toString).collect(Collectors.toSet());
   }
 
   public static HttpHeaders copyOf(HttpHeaders source) {

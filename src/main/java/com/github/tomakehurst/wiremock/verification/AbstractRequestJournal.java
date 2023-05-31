@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.RequestJournalStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.*;
 import java.util.function.Predicate;
@@ -36,15 +35,15 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   protected final RequestJournalStore store;
 
-  private final Optional<Integer> maxEntries;
+  private final Integer maxEntries;
   private final Map<String, RequestMatcherExtension> customMatchers;
 
   public AbstractRequestJournal(
-      Optional<Integer> maxEntries,
+      Integer maxEntries,
       Map<String, RequestMatcherExtension> customMatchers,
       RequestJournalStore store) {
 
-    if (maxEntries.isPresent() && maxEntries.get() < 0) {
+    if (maxEntries != null && maxEntries < 0) {
       throw new IllegalArgumentException(
           "Maximum number of entries of journal must be greater than zero");
     }
@@ -102,7 +101,7 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public Optional<ServeEvent> getServeEvent(final UUID id) {
-    return Optional.fromJavaUtil(store.get(id));
+    return store.get(id);
   }
 
   @Override
@@ -115,8 +114,8 @@ public abstract class AbstractRequestJournal implements RequestJournal {
   }
 
   private void removeOldEntries() {
-    if (maxEntries.isPresent()) {
-      while (store.getAllKeys().count() > maxEntries.get()) {
+    if (maxEntries != null) {
+      while (store.getAllKeys().count() > maxEntries) {
         store.removeLast();
       }
     }

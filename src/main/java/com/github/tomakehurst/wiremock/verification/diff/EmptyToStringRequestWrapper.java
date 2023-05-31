@@ -16,9 +16,9 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class EmptyToStringRequestWrapper implements Request {

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "required": [ "things" ],
+  "properties": {
+    "things": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/single" }
+    }
+  },
+  "definitions": {
+    "single": {
+      "type": "integer"
+    }
+  }
+}

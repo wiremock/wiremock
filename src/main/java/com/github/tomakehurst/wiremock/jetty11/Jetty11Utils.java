@@ -32,7 +32,8 @@ public class Jetty11Utils {
       NetworkTrafficListener listener,
       ConnectionFactory... connectionFactories) {
 
-    int acceptors = jettySettings.getAcceptors().or(DEFAULT_ACCEPTORS);
+    int acceptors = jettySettings.getAcceptors().orElse(DEFAULT_ACCEPTORS);
+
     NetworkTrafficServerConnector connector =
         new NetworkTrafficServerConnector(
             jettyServer, null, null, null, acceptors, 2, connectionFactories);
@@ -53,13 +54,15 @@ public class Jetty11Utils {
       connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
     }
 
-    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().or(200L));
+    connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().orElse(200L));
   }
 
   public static HttpConfiguration createHttpConfig(JettySettings jettySettings) {
     HttpConfiguration httpConfig = new HttpConfiguration();
-    httpConfig.setRequestHeaderSize(jettySettings.getRequestHeaderSize().or(DEFAULT_HEADER_SIZE));
-    httpConfig.setResponseHeaderSize(jettySettings.getResponseHeaderSize().or(DEFAULT_HEADER_SIZE));
+    httpConfig.setRequestHeaderSize(
+        jettySettings.getRequestHeaderSize().orElse(DEFAULT_HEADER_SIZE));
+    httpConfig.setResponseHeaderSize(
+        jettySettings.getResponseHeaderSize().orElse(DEFAULT_HEADER_SIZE));
     httpConfig.setSendDateHeader(false);
     httpConfig.setSendXPoweredBy(false);
     httpConfig.setSendServerVersion(false);

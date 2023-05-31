@@ -26,9 +26,9 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Options {
 
