@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class RemoteMappingsLoader {
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingCollection stubCollection =
-                Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+            Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
           convertBodyFromFileIfNecessary(mapping);
           wireMock.register(mapping);
