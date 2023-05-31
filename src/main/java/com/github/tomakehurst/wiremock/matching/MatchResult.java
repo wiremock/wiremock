@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.google.common.collect.Iterables.all;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class MatchResult implements Comparable<MatchResult> {
 
@@ -51,14 +48,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   public static MatchResult aggregate(final List<MatchResult> matchResults) {
     return aggregateWeighted(
-        Lists.transform(
-            matchResults,
-            new Function<MatchResult, WeightedMatchResult>() {
-              @Override
-              public WeightedMatchResult apply(MatchResult matchResult) {
-                return new WeightedMatchResult(matchResult);
-              }
-            }));
+        matchResults.stream().map(WeightedMatchResult::new).collect(Collectors.toList()));
   }
 
   public static MatchResult aggregateWeighted(WeightedMatchResult... matchResults) {
@@ -69,7 +59,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return new MatchResult() {
       @Override
       public boolean isExactMatch() {
-        return all(matchResults, ARE_EXACT_MATCH);
+        return matchResults.stream().allMatch(ARE_EXACT_MATCH);
       }
 
       @Override
@@ -96,11 +86,6 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return Double.compare(other.getDistance(), getDistance());
   }
 
-  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
-      new Predicate<WeightedMatchResult>() {
-        @Override
-        public boolean apply(WeightedMatchResult matchResult) {
-          return matchResult.isExactMatch();
-        }
-      };
+  public static final java.util.function.Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
+      WeightedMatchResult::isExactMatch;
 }

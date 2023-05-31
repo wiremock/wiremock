@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
@@ -51,22 +50,18 @@ public abstract class StringValuePattern extends ContentPattern<String> {
 
   public final String getName() {
     Constructor<?> constructor =
-        FluentIterable.from(this.getClass().getDeclaredConstructors())
-            .firstMatch(
-                new Predicate<Constructor<?>>() {
-                  @Override
-                  public boolean apply(Constructor<?> input) {
-                    return (input.getParameterAnnotations().length > 0
+        Arrays.stream(this.getClass().getDeclaredConstructors())
+            .filter(
+                input ->
+                    input.getParameterAnnotations().length > 0
                         && input.getParameterAnnotations()[0].length > 0
-                        && input.getParameterAnnotations()[0][0] instanceof JsonProperty);
-                  }
-                })
-            .orNull();
+                        && input.getParameterAnnotations()[0][0] instanceof JsonProperty)
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Constructor must have a first parameter annotated with JsonProperty(\"<operator name>\")"));
 
-    if (constructor == null) {
-      throw new IllegalStateException(
-          "Constructor must have a first parameter annotated with JsonProperty(\"<operator name>\")");
-    }
     JsonProperty jsonPropertyAnnotation =
         (JsonProperty) constructor.getParameterAnnotations()[0][0];
     return jsonPropertyAnnotation.value();

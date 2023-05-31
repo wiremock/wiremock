@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.standalone;
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.google.common.collect.Iterables.filter;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -33,6 +32,8 @@ import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RemoteMappingsLoader {
 
@@ -47,8 +48,10 @@ public class RemoteMappingsLoader {
   }
 
   public void load() {
-    Iterable<TextFile> mappingFiles =
-        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+    List<TextFile> mappingFiles =
+        mappingsFileSource.listFilesRecursively().stream()
+            .filter(byFileExtension("json"))
+            .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingCollection stubCollection =
