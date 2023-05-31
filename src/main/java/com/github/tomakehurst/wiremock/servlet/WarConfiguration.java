@@ -36,11 +36,11 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import com.google.common.base.Optional;
 import jakarta.servlet.ServletContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class WarConfiguration implements Options {
 
@@ -122,7 +122,7 @@ public class WarConfiguration implements Options {
   public Optional<Integer> maxRequestJournalEntries() {
     String str = servletContext.getInitParameter("maxRequestJournalEntries");
     if (str == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
     return Optional.of(Integer.parseInt(str));
   }

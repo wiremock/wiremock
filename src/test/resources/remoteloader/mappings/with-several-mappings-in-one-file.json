@@ -1,0 +1,37 @@
+{"mappings": [
+  {
+    "request": {
+      "method": "GET",
+      "url": "/todo/items"
+    },
+    "response": {
+      "body": "<items><item>Buy milk<\/item><\/items>",
+      "status": 200
+    },
+    "requiredScenarioState": "Started",
+    "scenarioName": "To do list"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "bodyPatterns": [{"contains": "Cancel newspaper subscription"}],
+      "url": "/todo/items"
+    },
+    "newScenarioState": "Cancel newspaper item added",
+    "response": {"status": 201},
+    "requiredScenarioState": "Started",
+    "scenarioName": "To do list"
+  },
+  {
+    "request": {
+      "method": "GET",
+      "url": "/todo/items"
+    },
+    "response": {
+      "bodyFileName": "body.xml",
+      "status": 200
+    },
+    "requiredScenarioState": "Cancel newspaper item added",
+    "scenarioName": "To do list"
+  }
+]}

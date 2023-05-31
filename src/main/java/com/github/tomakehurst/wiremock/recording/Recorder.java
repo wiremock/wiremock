@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Errors;
@@ -34,6 +33,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Recorder {
 
@@ -131,8 +131,11 @@ public class Recorder {
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
       SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
-    final Iterable<StubMapping> stubMappings =
-        from(serveEventsResult).filter(serveEventFilters).transform(stubMappingGenerator);
+    final List<StubMapping> stubMappings =
+        serveEventsResult.stream()
+            .filter(serveEventFilters)
+            .map(stubMappingGenerator)
+            .collect(Collectors.toList());
 
     return stubMappingPostProcessor.process(stubMappings);
   }

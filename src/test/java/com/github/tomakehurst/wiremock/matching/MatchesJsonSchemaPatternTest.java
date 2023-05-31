@@ -23,9 +23,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.jayway.jsonpath.JsonPath;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class MatchesJsonSchemaPatternTest {
 
@@ -58,7 +64,8 @@ public class MatchesJsonSchemaPatternTest {
   @Test
   void serialisesToJsonCorrectlyWithProvidedSchemaVersion() {
     String schema = file("schema-validation/shop-order.schema.json");
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, V4);
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
 
     String json = Json.write(pattern);
     String schemaString = JsonPath.read(json, "$.matchesJsonSchema");
@@ -115,6 +122,94 @@ public class MatchesJsonSchemaPatternTest {
     MatchesJsonSchemaPattern pattern = Json.read(matcherJson, MatchesJsonSchemaPattern.class);
 
     assertThat(pattern.getSchemaVersion(), is(V6));
+  }
+
+  @ParameterizedTest
+  @MethodSource("simpleRefSchemaMatchingExamples")
+  void simpleRefMatches(String input) {
+    String schema = file("schema-validation/has-ref.schema.json");
+
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
+
+    MatchResult match = pattern.match(input);
+
+    assertThat(match.isExactMatch(), is(true));
+  }
+
+  private static Stream<Arguments> simpleRefSchemaMatchingExamples() {
+    return Stream.of(
+        Arguments.of("{ \"things\": [] }"),
+        Arguments.of("{ \"things\": [ 1 ] }"),
+        Arguments.of("{ \"things\": [ 1, 2 ] }"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("simpleRefSchemaNonMatchingExamples")
+  void simpleRefRejectsNonMatches(String input) {
+    String schema = file("schema-validation/has-ref.schema.json");
+
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
+
+    MatchResult match = pattern.match(input);
+
+    assertThat(match.isExactMatch(), is(false));
+  }
+
+  private static Stream<Arguments> simpleRefSchemaNonMatchingExamples() {
+    return Stream.of(
+        Arguments.of("{}"),
+        Arguments.of("{ \"not_things\": null }"),
+        Arguments.of("{ \"not_things\": [] }"),
+        Arguments.of("{ \"things\": null }"),
+        Arguments.of("{ \"things\": {} }"),
+        Arguments.of("{ \"things\": 1 }"),
+        Arguments.of("{ \"things\": [ \"1\" ] }"));
+  }
+
+  @ParameterizedTest
+  @Disabled
+  @MethodSource("recursiveSchemaMatchingExamples")
+  void recursiveRefExactMatchesCorrectlyMatched(String input) {
+    String schema = file("schema-validation/recursive.schema.json");
+
+    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, V4);
+
+    MatchResult match = pattern.match(input);
+
+    assertThat(match.isExactMatch(), is(true));
+  }
+
+  private static Stream<Arguments> recursiveSchemaMatchingExamples() {
+    return Stream.of(
+        Arguments.of("{ \"name\": \"no_children\" }"),
+        Arguments.of("{ \"name\": \"no_children\", \"children\": null }"),
+        Arguments.of("{ \"name\": \"no_children\", \"children\": [] }"),
+        Arguments.of(
+            "{ \"name\": \"no_grandchildren\", \"children\": [{ \"name\": \"no_children\", \"children\": [] }] }"));
+  }
+
+  @ParameterizedTest
+  @Disabled
+  @MethodSource("recursiveSchemaNonMatchingExamples")
+  void recursiveRefNonMatchesCorrectlyMatched(String input) {
+    String schema = file("schema-validation/recursive.schema.json");
+
+    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, V4);
+
+    MatchResult match = pattern.match(input);
+
+    assertThat(match.isExactMatch(), is(false));
+  }
+
+  private static Stream<Arguments> recursiveSchemaNonMatchingExamples() {
+    return Stream.of(
+        Arguments.of("{}"),
+        Arguments.of("{ \"not_a_name\": null }"),
+        Arguments.of("{ \"name\": \"invalid_child\", \"children\": [{}] }"),
+        Arguments.of(
+            "{ \"name\": \"invalid_grandchild\", \"children\": [{ \"name\": \"invalid_child\", \"children\": [{}] }] }"));
   }
 
   private static String stringify(String json) {

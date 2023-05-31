@@ -15,20 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import static com.google.common.collect.FluentIterable.from;
-
 import com.github.tomakehurst.wiremock.common.Strings;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class JUnitStyleDiffRenderer {
 
   public String render(Diff diff) {
     List<DiffLine<?>> lines = diff.getLines();
 
-    String expected = Joiner.on("\n").join(from(lines).transform(EXPECTED));
-    String actual = Joiner.on("\n").join(from(lines).transform(ACTUAL));
+    String expected =
+        Joiner.on("\n").join(lines.stream().map(EXPECTED).collect(Collectors.toList()));
+    String actual = Joiner.on("\n").join(lines.stream().map(ACTUAL).collect(Collectors.toList()));
 
     return lines.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
   }
@@ -41,18 +41,7 @@ public class JUnitStyleDiffRenderer {
   }
 
   private static Function<DiffLine<?>, Object> EXPECTED =
-      new Function<DiffLine<?>, Object>() {
-        @Override
-        public Object apply(DiffLine<?> line) {
-          return line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
-        }
-      };
+      line -> line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
 
-  private static Function<DiffLine<?>, Object> ACTUAL =
-      new Function<DiffLine<?>, Object>() {
-        @Override
-        public Object apply(DiffLine<?> input) {
-          return input.getActual();
-        }
-      };
+  private static Function<DiffLine<?>, Object> ACTUAL = DiffLine::getActual;
 }

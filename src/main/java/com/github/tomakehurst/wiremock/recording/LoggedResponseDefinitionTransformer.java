@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,16 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTextFromMimeType;
-import static com.google.common.collect.Iterables.filter;
 import static com.google.common.net.HttpHeaders.*;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Transforms a LoggedResponse into a ResponseDefinition, which will be used to construct a
@@ -37,7 +35,7 @@ public class LoggedResponseDefinitionTransformer
     implements Function<LoggedResponse, ResponseDefinition> {
 
   private static final List<CaseInsensitiveKey> EXCLUDED_HEADERS =
-      ImmutableList.of(
+      List.of(
           CaseInsensitiveKey.from(CONTENT_ENCODING),
           CaseInsensitiveKey.from(CONTENT_LENGTH),
           CaseInsensitiveKey.from(TRANSFER_ENCODING));
@@ -76,12 +74,8 @@ public class LoggedResponseDefinitionTransformer
 
   private HttpHeaders withoutContentEncodingAndContentLength(LoggedResponse response) {
     return new HttpHeaders(
-        filter(
-            response.getHeaders().all(),
-            new Predicate<HttpHeader>() {
-              public boolean apply(HttpHeader header) {
-                return !EXCLUDED_HEADERS.contains(header.caseInsensitiveKey());
-              }
-            }));
+        response.getHeaders().all().stream()
+            .filter(header -> !EXCLUDED_HEADERS.contains(header.caseInsensitiveKey()))
+            .collect(Collectors.toList()));
   }
 }

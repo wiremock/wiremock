@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents: 1. Detect
@@ -71,6 +71,6 @@ public class SnapshotStubMappingPostProcessor {
     }
 
     // Run any stub mapping transformer extensions
-    return Lists.transform(processedStubMappings, transformerRunner);
+    return processedStubMappings.stream().map(transformerRunner).collect(Collectors.toList());
   }
 }
