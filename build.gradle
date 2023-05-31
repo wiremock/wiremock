@@ -17,7 +17,7 @@ plugins {
   id 'project-report'
   id 'com.diffplug.spotless' version '6.17.0'
   id 'com.github.johnrengelman.shadow' version '8.1.0'
-  id "org.sonarqube" version "4.0.0.2929"
+  id "org.sonarqube" version "4.1.0.3113"
   id 'jacoco'
 }
 
@@ -27,10 +27,10 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.12',
-    guava          : '31.1-jre',
-    jackson        : '2.15.0',
+    guava          : '32.0.0-jre',
+    jackson        : '2.15.2',
     xmlUnit        : '2.9.1',
-    jsonUnit       : '2.37.0',
+    jsonUnit       : '2.38.0',
     junitJupiter   : '5.9.3'
   ]
 }
@@ -94,13 +94,14 @@ dependencies {
   }
   api "commons-io:commons-io:2.11.0"
 
-  api 'com.networknt:json-schema-validator:1.0.80'
+  api 'com.networknt:json-schema-validator:1.0.83'
 
   testImplementation "junit:junit:4.13"
   testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testImplementation("org.junit.platform:junit-platform-testkit")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
   testImplementation("org.junit.platform:junit-platform-launcher")
+  testImplementation("org.junit.jupiter:junit-jupiter-params")
   testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
 
   testImplementation "org.hamcrest:hamcrest-core:2.2"
@@ -128,7 +129,7 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.92.Final"
+  testImplementation "io.netty:netty-all:4.1.93.Final"
 
   constraints {
     implementation "net.minidev:json-smart:2.4.10", {
