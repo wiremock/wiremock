@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.google.common.collect.FluentIterable.from;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
@@ -79,14 +76,8 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
   }
 
   private MatchResult matchAllMultiparts(final Request request) {
-    return from(request.getParts())
-            .allMatch(
-                new Predicate<Request.Part>() {
-                  @Override
-                  public boolean apply(Request.Part input) {
-                    return MultipartValuePattern.this.match(input).isExactMatch();
-                  }
-                })
+    return request.getParts().stream()
+            .allMatch(input -> MultipartValuePattern.this.match(input).isExactMatch())
         ? MatchResult.exactMatch()
         : MatchResult.noMatch();
   }
@@ -97,14 +88,7 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
       return MatchResult.noMatch();
     }
 
-    return from(parts)
-            .anyMatch(
-                new Predicate<Request.Part>() {
-                  @Override
-                  public boolean apply(Request.Part input) {
-                    return MultipartValuePattern.this.match(input).isExactMatch();
-                  }
-                })
+    return parts.stream().anyMatch(input -> MultipartValuePattern.this.match(input).isExactMatch())
         ? MatchResult.exactMatch()
         : MatchResult.noMatch();
   }
@@ -128,14 +112,11 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
   private MatchResult matchHeaderPatterns(final Request.Part part) {
     if (headers != null && !headers.isEmpty()) {
       return MatchResult.aggregate(
-          from(headers.entrySet())
-              .transform(
-                  new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
-                    public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
-                      return headerPattern.getValue().match(part.getHeader(headerPattern.getKey()));
-                    }
-                  })
-              .toList());
+          headers.entrySet().stream()
+              .map(
+                  headerPattern ->
+                      headerPattern.getValue().match(part.getHeader(headerPattern.getKey())))
+              .collect(Collectors.toList()));
     }
 
     return MatchResult.exactMatch();
@@ -143,15 +124,9 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
   private MatchResult matchBodyPatterns(final Request.Part value) {
     return MatchResult.aggregate(
-        from(bodyPatterns)
-            .transform(
-                new Function<ContentPattern, MatchResult>() {
-                  @Override
-                  public MatchResult apply(ContentPattern bodyPattern) {
-                    return matchBody(value, bodyPattern);
-                  }
-                })
-            .toList());
+        bodyPatterns.stream()
+            .map(bodyPattern -> matchBody(value, bodyPattern))
+            .collect(Collectors.toList()));
   }
 
   private static MatchResult matchBody(Request.Part part, ContentPattern<?> bodyPattern) {

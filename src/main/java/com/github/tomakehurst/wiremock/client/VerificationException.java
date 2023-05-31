@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.google.common.base.Functions.toStringFunction;
-import static com.google.common.collect.FluentIterable.from;
-
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -25,6 +22,7 @@ import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.google.common.base.Joiner;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VerificationException extends AssertionError {
 
@@ -56,7 +54,7 @@ public class VerificationException extends AssertionError {
   }
 
   private static String renderList(List<?> list) {
-    return Joiner.on("\n\n").join(from(list).transform(toStringFunction()));
+    return Joiner.on("\n\n").join(list.stream().map(Object::toString).collect(Collectors.toList()));
   }
 
   private VerificationException(String messageStart, Diff diff) {
