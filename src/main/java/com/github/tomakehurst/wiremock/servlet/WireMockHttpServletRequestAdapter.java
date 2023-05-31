@@ -321,15 +321,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
         return null;
       }
     }
-    return from(cachedMultiparts)
-        .firstMatch(
-            new Predicate<Part>() {
-              @Override
-              public boolean apply(Part input) {
-                return name.equals(input.getName());
-              }
-            })
-        .get();
+
+    return cachedMultiparts.stream()
+        .filter(part -> name.equals(part.getName()))
+        .findFirst()
+        .orElse(null);
   }
 
   @Override
