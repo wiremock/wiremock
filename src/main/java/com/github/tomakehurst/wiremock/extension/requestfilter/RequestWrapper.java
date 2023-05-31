@@ -23,8 +23,6 @@ import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.ordinalIndexOf;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
