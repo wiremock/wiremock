@@ -266,7 +266,7 @@ public class WireMock {
   }
 
   public static MatchesXPathPattern matchingXPath(String value) {
-    return new MatchesXPathPattern(value, Collections.emptyMap());
+    return new MatchesXPathPattern(value, Collections.<String, String>emptyMap());
   }
 
   public static StringValuePattern matchingXPath(String value, Map<String, String> namespaces) {
