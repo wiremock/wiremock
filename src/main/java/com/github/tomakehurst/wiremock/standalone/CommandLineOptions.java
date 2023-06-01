@@ -50,7 +50,6 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.io.Resources;
@@ -802,7 +801,7 @@ public class CommandLineOptions implements Options {
       builder.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
       List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
       if (!trustedProxyTargets.isEmpty()) {
-        builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
+        builder.put(TRUST_PROXY_TARGET, String.join(", ", trustedProxyTargets));
       }
       builder.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
       builder.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());
