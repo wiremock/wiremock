@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Predicate;
 import java.util.UUID;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
@@ -137,15 +136,12 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
   }
 
   private Predicate<StubMapping> withAnyOf(final String... urls) {
-    return new Predicate<StubMapping>() {
-      public boolean apply(StubMapping mapping) {
-        return mapping.getRequest().getUrl() != null
+    return mapping ->
+        mapping.getRequest().getUrl() != null
             && asList(urls).contains(mapping.getRequest().getUrl());
-      }
-    };
   }
 
   private synchronized int getMatchingStubCount(String url1, String url2) {
-    return from(listAllStubMappings().getMappings()).filter(withAnyOf(url1, url2)).size();
+    return (int) listAllStubMappings().getMappings().stream().filter(withAnyOf(url1, url2)).count();
   }
 }

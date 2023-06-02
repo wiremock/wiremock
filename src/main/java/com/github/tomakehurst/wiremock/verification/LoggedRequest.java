@@ -22,13 +22,11 @@ import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
 
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Predicate;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
@@ -331,7 +329,7 @@ public class LoggedRequest implements Request {
   @JsonIgnore
   @Override
   public boolean isMultipart() {
-    return (multiparts != null && multiparts.size() > 0);
+    return (multiparts != null && !multiparts.isEmpty());
   }
 
   @JsonIgnore
@@ -344,15 +342,10 @@ public class LoggedRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (multiparts != null && name != null)
-        ? from(multiparts)
-            .firstMatch(
-                new Predicate<Part>() {
-                  @Override
-                  public boolean apply(Part input) {
-                    return (name.equals(input.getName()));
-                  }
-                })
-            .get()
+        ? multiparts.stream()
+            .filter(input -> (name.equals(input.getName())))
+            .findFirst()
+            .orElse(null)
         : null;
   }
 }
