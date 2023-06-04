@@ -29,10 +29,10 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Recorder {
@@ -88,8 +88,8 @@ public class Recorder {
     int startIndex =
         state.getStartingServeEventId() == null
             ? serveEvents.size()
-            : indexOf(serveEvents, withId(state.getStartingServeEventId()));
-    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId()));
+            : indexOf(serveEvents, withId(state.getStartingServeEventId())::test);
+    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId())::test);
     List<ServeEvent> eventsToSnapshot = serveEvents.subList(endIndex, startIndex);
 
     SnapshotRecordResult result = takeSnapshot(eventsToSnapshot, state.getSpec());
@@ -99,12 +99,7 @@ public class Recorder {
   }
 
   private static Predicate<ServeEvent> withId(final UUID id) {
-    return new Predicate<ServeEvent>() {
-      @Override
-      public boolean apply(ServeEvent input) {
-        return input.getId().equals(id);
-      }
-    };
+    return input -> input.getId().equals(id);
   }
 
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {

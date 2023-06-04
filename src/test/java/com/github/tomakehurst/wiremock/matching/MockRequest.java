@@ -19,8 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
@@ -30,7 +28,6 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Predicate;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
@@ -184,14 +181,10 @@ public class MockRequest implements Request {
 
   @Override
   public HttpHeader header(final String key) {
-    return tryFind(
-            headers.all(),
-            new Predicate<HttpHeader>() {
-              public boolean apply(HttpHeader input) {
-                return input.keyEquals(key);
-              }
-            })
-        .or(HttpHeader.absent(key));
+    return headers.all().stream()
+        .filter(input -> input.keyEquals(key))
+        .findFirst()
+        .orElseGet(() -> HttpHeader.absent(key));
   }
 
   @Override
@@ -282,18 +275,7 @@ public class MockRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (getParts() != null && name != null)
-        ? from(multiparts)
-            .firstMatch(
-                new Predicate<Part>() {
-                  @Override
-                  public boolean apply(Part input) {
-                    if (name.equals(input.getName())) {
-                      return true;
-                    }
-                    return false;
-                  }
-                })
-            .get()
+        ? multiparts.stream().filter(input -> name.equals(input.getName())).findFirst().orElse(null)
         : null;
   }
 
