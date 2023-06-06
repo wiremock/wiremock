@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,18 +41,18 @@ public class ProxiedServeEventFiltersTest {
     ServeEvent serveEvent = proxiedServeEvent(mockRequest());
     ProxiedServeEventFilters filters =
         new ProxiedServeEventFilters(RequestPattern.ANYTHING, null, false);
-    assertTrue(filters.apply(serveEvent));
+    assertTrue(filters.test(serveEvent));
 
     // Should default to RequestPattern.ANYTHING when passing null for filters
     filters = new ProxiedServeEventFilters(null, null, false);
-    assertTrue(filters.apply(serveEvent));
+    assertTrue(filters.test(serveEvent));
   }
 
   @Test
   public void applyWithUnproxiedServeEvent() {
     ServeEvent serveEvent = toServeEvent(null, null, ResponseDefinition.ok());
     ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, null, false);
-    assertFalse(filters.apply(serveEvent));
+    assertFalse(filters.test(serveEvent));
   }
 
   @Test
@@ -61,9 +61,9 @@ public class ProxiedServeEventFiltersTest {
         new ProxiedServeEventFilters(newRequestPattern(GET, anyUrl()).build(), null, false);
     MockRequest request = mockRequest().method(GET).url("/foo");
 
-    assertTrue(filters.apply(proxiedServeEvent(request)));
-    assertTrue(filters.apply(proxiedServeEvent(request.url("/bar"))));
-    assertFalse(filters.apply(proxiedServeEvent(request.method(POST))));
+    assertTrue(filters.test(proxiedServeEvent(request)));
+    assertTrue(filters.test(proxiedServeEvent(request.url("/bar"))));
+    assertFalse(filters.test(proxiedServeEvent(request.method(POST))));
   }
 
   @Test
@@ -74,10 +74,10 @@ public class ProxiedServeEventFiltersTest {
             UUID.fromString("00000000-0000-0000-0000-000000000001"));
     ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, ids, false);
 
-    assertTrue(filters.apply(proxiedServeEvent(ids.get(0))));
-    assertTrue(filters.apply(proxiedServeEvent(ids.get(1))));
+    assertTrue(filters.test(proxiedServeEvent(ids.get(0))));
+    assertTrue(filters.test(proxiedServeEvent(ids.get(1))));
     assertFalse(
-        filters.apply(proxiedServeEvent(UUID.fromString("00000000-0000-0000-0000-000000000002"))));
+        filters.test(proxiedServeEvent(UUID.fromString("00000000-0000-0000-0000-000000000002"))));
   }
 
   @Test
@@ -87,9 +87,9 @@ public class ProxiedServeEventFiltersTest {
             newRequestPattern(GET, urlEqualTo("/foo")).build(), null, false);
     MockRequest request = mockRequest().method(GET).url("/foo");
 
-    assertTrue(filters.apply(proxiedServeEvent(request)));
-    assertFalse(filters.apply(proxiedServeEvent(request.url("/bar"))));
-    assertFalse(filters.apply(proxiedServeEvent(request.method(POST))));
+    assertTrue(filters.test(proxiedServeEvent(request)));
+    assertFalse(filters.test(proxiedServeEvent(request.url("/bar"))));
+    assertFalse(filters.test(proxiedServeEvent(request.method(POST))));
   }
 
   @Test
@@ -102,11 +102,11 @@ public class ProxiedServeEventFiltersTest {
     ProxiedServeEventFilters filters =
         new ProxiedServeEventFilters(newRequestPattern(GET, anyUrl()).build(), ids, false);
 
-    assertTrue(filters.apply(proxiedServeEvent(ids.get(0), request)));
+    assertTrue(filters.test(proxiedServeEvent(ids.get(0), request)));
     assertFalse(
-        filters.apply(
+        filters.test(
             proxiedServeEvent(UUID.fromString("00000000-0000-0000-0000-000000000002"), request)));
-    assertFalse(filters.apply(proxiedServeEvent(ids.get(0), request.method(POST))));
+    assertFalse(filters.test(proxiedServeEvent(ids.get(0), request.method(POST))));
   }
 
   private ServeEvent toServeEvent(

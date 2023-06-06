@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
-import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,7 @@ public class VerificationException extends AssertionError {
   }
 
   private static String renderList(List<?> list) {
-    return Joiner.on("\n\n").join(list.stream().map(Object::toString).collect(Collectors.toList()));
+    return list.stream().map(Object::toString).collect(Collectors.joining("\n\n"));
   }
 
   private VerificationException(String messageStart, Diff diff) {

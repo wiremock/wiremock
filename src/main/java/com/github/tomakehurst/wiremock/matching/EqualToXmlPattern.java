@@ -21,12 +21,11 @@ import static org.xmlunit.diff.ComparisonType.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
@@ -37,8 +36,8 @@ import org.xmlunit.placeholder.PlaceholderDifferenceEvaluator;
 
 public class EqualToXmlPattern extends StringValuePattern {
 
-  private static Set<ComparisonType> COUNTED_COMPARISONS =
-      ImmutableSet.of(
+  private static final Set<ComparisonType> COUNTED_COMPARISONS =
+      Set.of(
           ELEMENT_TAG_NAME,
           SCHEMA_LOCATION,
           NO_NAMESPACE_SCHEMA_LOCATION,
@@ -191,7 +190,11 @@ public class EqualToXmlPattern extends StringValuePattern {
           return 1.0;
         }
 
-        notifier().info(Joiner.on("\n").join(diff.getDifferences()));
+        notifier()
+            .info(
+                StreamSupport.stream(diff.getDifferences().spliterator(), false)
+                    .map(Object::toString)
+                    .collect(Collectors.joining("\n")));
 
         return differences.doubleValue() / totalComparisons.doubleValue();
       }
@@ -238,15 +241,11 @@ public class EqualToXmlPattern extends StringValuePattern {
     }
 
     private static Iterable<Node> sort(Iterable<Node> nodes) {
-      return FluentIterable.from(nodes).toSortedList(COMPARATOR);
+      return StreamSupport.stream(nodes.spliterator(), false)
+          .sorted(COMPARATOR)
+          .collect(Collectors.toList());
     }
 
-    private static final Comparator<Node> COMPARATOR =
-        new Comparator<Node>() {
-          @Override
-          public int compare(Node node1, Node node2) {
-            return node1.getLocalName().compareTo(node2.getLocalName());
-          }
-        };
+    private static final Comparator<Node> COMPARATOR = Comparator.comparing(Node::getLocalName);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import static org.hamcrest.Matchers.*;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -102,20 +102,12 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   private static Matcher<File> containsFileWithNameContaining(final String namePart) {
-    return new TypeSafeDiagnosingMatcher<File>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       protected boolean matchesSafely(File directory, Description mismatchDescription) {
         boolean found =
-            FluentIterable.from(directory.list())
-                .filter(
-                    new Predicate<String>() {
-                      @Override
-                      public boolean apply(String filename) {
-                        return filename.contains(namePart);
-                      }
-                    })
-                .first()
-                .isPresent();
+            Arrays.stream(Objects.requireNonNull(directory.list()))
+                .anyMatch(filename -> filename.contains(namePart));
 
         if (!found) {
           mismatchDescription.appendText("file with name containing " + namePart + " not found");
@@ -167,7 +159,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =
-      new TypeSafeDiagnosingMatcher<StubMapping>() {
+      new TypeSafeDiagnosingMatcher<>() {
         @Override
         public void describeTo(Description description) {
           description.appendText("a stub mapping marked as persistent");

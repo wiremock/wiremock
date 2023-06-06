@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
@@ -47,17 +46,10 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
   @Override
   public List<ServeEvent> select() {
-    FluentIterable<ServeEvent> chain = FluentIterable.from(source);
-    return chain
-        .filter(
-            new Predicate<ServeEvent>() {
-              @Override
-              public boolean apply(ServeEvent input) {
-                return since == null || input.getRequest().getLoggedDate().after(since);
-              }
-            })
+    return source.stream()
+        .filter(input -> since == null || input.getRequest().getLoggedDate().after(since))
         .limit(firstNonNull(limit, source.size()))
-        .toList();
+        .collect(Collectors.toList());
   }
 
   @Override
