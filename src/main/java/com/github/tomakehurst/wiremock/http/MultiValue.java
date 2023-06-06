@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.http;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ public class MultiValue {
   }
 
   public boolean isPresent() {
-    return values.size() > 0;
+    return !values.isEmpty();
   }
 
   public String key() {
@@ -72,7 +71,6 @@ public class MultiValue {
 
   @Override
   public String toString() {
-    return Joiner.on("\n")
-        .join(values.stream().map(value -> key + ": " + value).collect(Collectors.toList()));
+    return values.stream().map(value -> key + ": " + value).collect(Collectors.joining("\n"));
   }
 }

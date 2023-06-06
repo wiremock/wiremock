@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -114,14 +113,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
-    return find(
-        rootNode.fields(),
-        new Predicate<Map.Entry<String, JsonNode>>() {
-          @Override
-          public boolean apply(Map.Entry<String, JsonNode> input) {
-            return PATTERNS.keySet().contains(input.getKey());
-          }
-        });
+    return find(rootNode.fields(), input -> PATTERNS.containsKey(input.getKey()));
   }
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {

@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
-import static com.github.tomakehurst.wiremock.matching.RequestPattern.withRequstMatching;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.withRequestMatching;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.common.Json;
@@ -75,7 +75,7 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
-    return removeServeEvents(withRequstMatching(requestPattern)::apply);
+    return removeServeEvents(withRequestMatching(requestPattern));
   }
 
   @Override

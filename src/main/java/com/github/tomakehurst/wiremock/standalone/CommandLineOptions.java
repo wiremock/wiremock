@@ -50,7 +50,6 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.io.Resources;
@@ -59,6 +58,8 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -492,8 +493,10 @@ public class CommandLineOptions implements Options {
   public List<CaseInsensitiveKey> matchingHeaders() {
     if (optionSet.hasArgument(MATCH_HEADERS)) {
       String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
-      UnmodifiableIterator<String> headerKeys = Iterators.forArray(headerSpec.split(","));
-      return ImmutableList.copyOf(Iterators.transform(headerKeys, TO_CASE_INSENSITIVE_KEYS));
+
+      return Arrays.stream(headerSpec.split(","))
+          .map(TO_CASE_INSENSITIVE_KEYS)
+          .collect(Collectors.toUnmodifiableList());
     }
 
     return Collections.emptyList();
@@ -657,7 +660,8 @@ public class CommandLineOptions implements Options {
   @Override
   @SuppressWarnings("unchecked")
   public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-    return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
+    return (Map<String, T>)
+        Maps.filterEntries(extensions, valueAssignableFrom(extensionType)::test);
   }
 
   @Override
@@ -798,7 +802,7 @@ public class CommandLineOptions implements Options {
       builder.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
       List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
       if (!trustedProxyTargets.isEmpty()) {
-        builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
+        builder.put(TRUST_PROXY_TARGET, String.join(", ", trustedProxyTargets));
       }
       builder.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
       builder.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());

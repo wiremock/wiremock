@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Strings;
-import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,8 +26,9 @@ public class JUnitStyleDiffRenderer {
     List<DiffLine<?>> lines = diff.getLines();
 
     String expected =
-        Joiner.on("\n").join(lines.stream().map(EXPECTED).collect(Collectors.toList()));
-    String actual = Joiner.on("\n").join(lines.stream().map(ACTUAL).collect(Collectors.toList()));
+        lines.stream().map(EXPECTED).map(Object::toString).collect(Collectors.joining("\n"));
+    String actual =
+        lines.stream().map(ACTUAL).map(Object::toString).collect(Collectors.joining("\n"));
 
     return lines.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
   }
@@ -40,8 +40,8 @@ public class JUnitStyleDiffRenderer {
         Strings.normaliseLineBreaks(actual.toString()));
   }
 
-  private static Function<DiffLine<?>, Object> EXPECTED =
+  private static final Function<DiffLine<?>, Object> EXPECTED =
       line -> line.isForNonMatch() ? line.getPrintedPatternValue() : line.getActual();
 
-  private static Function<DiffLine<?>, Object> ACTUAL = DiffLine::getActual;
+  private static final Function<DiffLine<?>, Object> ACTUAL = DiffLine::getActual;
 }

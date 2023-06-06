@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.google.common.collect.FluentIterable.from;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Predicate;
 import java.util.UUID;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
@@ -42,18 +41,16 @@ public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
     assertThat(testClient.get("/edit-this").content(), is("Modified"));
 
     int editThisStubCount =
-        from(wireMockServer.listAllStubMappings().getMappings())
-            .filter(withUrl("/edit-this"))
-            .size();
+        (int)
+            wireMockServer.listAllStubMappings().getMappings().stream()
+                .filter(withUrl("/edit-this"))
+                .count();
 
     assertThat(editThisStubCount, is(1));
   }
 
   private Predicate<StubMapping> withUrl(final String url) {
-    return new Predicate<StubMapping>() {
-      public boolean apply(StubMapping mapping) {
-        return (mapping.getRequest().getUrl() != null && mapping.getRequest().getUrl().equals(url));
-      }
-    };
+    return mapping ->
+        (mapping.getRequest().getUrl() != null && mapping.getRequest().getUrl().equals(url));
   }
 }

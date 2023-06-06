@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.find;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +33,6 @@ import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Predicate;
 import java.util.UUID;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -253,14 +251,10 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
   }
 
   private ServeEvent findServeEventWithRequestUrl(final String url) {
-    return find(
-        proxyingService.getAllServeEvents(),
-        new Predicate<ServeEvent>() {
-          @Override
-          public boolean apply(ServeEvent input) {
-            return url.equals(input.getRequest().getUrl());
-          }
-        });
+    return proxyingService.getAllServeEvents().stream()
+        .filter(input -> url.equals(input.getRequest().getUrl()))
+        .findFirst()
+        .orElse(null);
   }
 
   private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =

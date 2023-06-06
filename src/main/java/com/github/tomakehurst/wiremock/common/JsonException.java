@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.google.common.base.Joiner;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
@@ -47,7 +46,7 @@ public class JsonException extends InvalidInputException {
       List<String> nodes =
           ((JsonMappingException) processingException)
               .getPath().stream().map(TO_NODE_NAMES).collect(Collectors.toList());
-      pointer = '/' + Joiner.on('/').join(nodes);
+      pointer = "/" + String.join("/", nodes);
     }
 
     return new JsonException(Errors.single(10, pointer, "Error parsing JSON", message));

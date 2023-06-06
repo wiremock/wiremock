@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static com.google.common.net.HttpHeaders.LOCATION;
 
@@ -267,7 +266,7 @@ public class WireMock {
   }
 
   public static MatchesXPathPattern matchingXPath(String value) {
-    return new MatchesXPathPattern(value, Collections.<String, String>emptyMap());
+    return new MatchesXPathPattern(value, Collections.emptyMap());
   }
 
   public static StringValuePattern matchingXPath(String value, Map<String, String> namespaces) {
@@ -717,7 +716,7 @@ public class WireMock {
     if (requestPattern.hasInlineCustomMatcher()) {
       List<LoggedRequest> requests =
           admin.findRequestsMatching(RequestPattern.everything()).getRequests();
-      actualCount = from(requests).filter(thatMatch(requestPattern)).size();
+      actualCount = (int) requests.stream().filter(thatMatch(requestPattern)).count();
     } else {
       VerificationResult result = admin.countRequestsMatching(requestPattern);
       result.assertRequestJournalEnabled();
@@ -734,7 +733,7 @@ public class WireMock {
   private VerificationException verificationExceptionForNearMisses(
       RequestPatternBuilder requestPatternBuilder, RequestPattern requestPattern) {
     List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
-    if (nearMisses.size() > 0) {
+    if (!nearMisses.isEmpty()) {
       Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
       return VerificationException.forUnmatchedRequestPattern(diff);
     }

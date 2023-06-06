@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock.recording;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Predicate;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /** A predicate to filter proxied ServeEvents against RequestPattern filters and IDs */
 public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
@@ -69,7 +69,7 @@ public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
   }
 
   @Override
-  public boolean apply(ServeEvent serveEvent) {
+  public boolean test(ServeEvent serveEvent) {
     if (!serveEvent.getResponseDefinition().isProxyResponse() && !allowNonProxied) {
       return false;
     }
@@ -78,10 +78,6 @@ public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
       return false;
     }
 
-    if (ids != null && !ids.contains(serveEvent.getId())) {
-      return false;
-    }
-
-    return true;
+    return ids == null || ids.contains(serveEvent.getId());
   }
 }

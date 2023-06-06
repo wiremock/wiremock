@@ -16,23 +16,23 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.FluentIterable.from;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableListMultimap.Builder;
 import com.google.common.collect.Maps;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Urls {
 
@@ -57,7 +57,7 @@ public class Urls {
     }
 
     Iterable<String> pairs = Splitter.on('&').split(query);
-    ImmutableListMultimap.Builder<String, String> builder = ImmutableListMultimap.builder();
+    Builder<String, String> builder = ImmutableListMultimap.builder();
     for (String queryElement : pairs) {
       int firstEqualsIndex = queryElement.indexOf('=');
       if (firstEqualsIndex == -1) {
@@ -83,10 +83,13 @@ public class Urls {
   }
 
   public static String urlToPathParts(URI uri) {
-    Iterable<String> uriPathNodes = Splitter.on("/").omitEmptyStrings().split(uri.getPath());
-    int nodeCount = Iterables.size(uriPathNodes);
+    List<String> uriPathNodes =
+        Arrays.stream(uri.getPath().split("/"))
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toUnmodifiableList());
+    int nodeCount = uriPathNodes.size();
 
-    return nodeCount > 0 ? Joiner.on("-").join(from(uriPathNodes)) : "";
+    return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
   }
 
   public static String decode(String encoded) {
