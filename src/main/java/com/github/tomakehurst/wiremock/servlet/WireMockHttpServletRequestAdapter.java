@@ -21,7 +21,6 @@ import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
@@ -36,7 +35,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -45,6 +43,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class WireMockHttpServletRequestAdapter implements Request {
@@ -224,7 +223,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   private HttpHeaders getHeadersQuadratic() {
-    List<HttpHeader> headerList = newArrayList();
+    List<HttpHeader> headerList = new ArrayList<>();
     for (String key : getAllHeaderKeys()) {
       headerList.add(header(key));
     }

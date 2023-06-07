@@ -16,7 +16,6 @@
 package org.wiremock.webhooks;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 
 import com.fasterxml.jackson.annotation.*;
@@ -175,7 +174,7 @@ public class WebhookDefinition {
 
   public WebhookDefinition withHeader(String key, String... values) {
     if (headers == null) {
-      headers = newArrayList();
+      headers = new ArrayList<>();
     }
 
     headers.add(new HttpHeader(key, values));

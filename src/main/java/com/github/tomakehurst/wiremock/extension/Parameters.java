@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
-import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class Parameters extends Metadata {
   }
 
   public static Parameters one(String name, Object value) {
-    return from(ImmutableMap.of(name, value));
+    return from(Map.of(name, value));
   }
 
   public static <T> Parameters of(T myData) {

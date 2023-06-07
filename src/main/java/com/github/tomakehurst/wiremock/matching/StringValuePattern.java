@@ -85,11 +85,11 @@ public abstract class StringValuePattern extends ContentPattern<String> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     StringValuePattern that = (StringValuePattern) o;
-    return Objects.equal(expectedValue, that.expectedValue);
+    return Objects.equals(expectedValue, that.expectedValue);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(expectedValue);
+    return Objects.hash(expectedValue);
   }
 }

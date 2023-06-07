@@ -29,7 +29,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -53,7 +53,7 @@ public class ResponseDefinitionTest {
             "http://base.com",
             null,
             Fault.EMPTY_RESPONSE,
-            ImmutableList.of("transformer-1"),
+            List.of("transformer-1"),
             Parameters.one("name", "Jeff"),
             true);
 

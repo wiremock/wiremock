@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import java.util.function.Supplier;
 
 public class MemoizingMatchResult extends MatchResult {
 

@@ -102,12 +102,12 @@ public class PathTemplate {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     PathTemplate that = (PathTemplate) o;
-    return Objects.equal(templateString, that.templateString);
+    return Objects.equals(templateString, that.templateString);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(templateString);
+    return Objects.hash(templateString);
   }
 }
 

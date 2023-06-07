@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -24,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class ListOrStringDeserialiser<T> extends JsonDeserializer<ListOrSingle<T
     JsonNode rootNode = parser.readValueAsTree();
     if (rootNode.isArray()) {
       ArrayNode arrayNode = (ArrayNode) rootNode;
-      List<T> items = newArrayList();
+      List<T> items = new ArrayList<>();
       for (Iterator<JsonNode> i = arrayNode.elements(); i.hasNext(); ) {
         JsonNode node = i.next();
         Object value = getValue(node);

@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class MockMultipart implements Request.Part {
 
   private String name;
-  private List<HttpHeader> headers = newArrayList();
+  private List<HttpHeader> headers = new ArrayList<>();
   private Body body;
 
   public static MockMultipart mockPart() {

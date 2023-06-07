@@ -56,7 +56,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
   }
 
   public ResponseTemplateTransformer(boolean global, String helperName, Helper<?> helper) {
-    this(global, ImmutableMap.of(helperName, helper));
+    this(global, Map.of(helperName, helper));
   }
 
   public ResponseTemplateTransformer(boolean global, Map<String, Helper<?>> helpers) {

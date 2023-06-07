@@ -27,7 +27,7 @@ public class SystemKeyAuthoriser {
 
   public SystemKeyAuthoriser(Set<String> patterns) {
     if (patterns == null || patterns.isEmpty()) {
-      patterns = ImmutableSet.of("wiremock.*");
+      patterns = Set.of("wiremock.*");
     }
 
     ImmutableSet.Builder<Pattern> builder = ImmutableSet.builder();

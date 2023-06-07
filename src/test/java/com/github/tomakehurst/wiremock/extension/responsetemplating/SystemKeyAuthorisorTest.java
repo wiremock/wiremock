@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class SystemKeyAuthorisorTest {
@@ -26,7 +26,7 @@ public class SystemKeyAuthorisorTest {
   @Test
   public void permitsAllowedKeys() {
     SystemKeyAuthoriser authoriser =
-        new SystemKeyAuthoriser(ImmutableSet.of("allowed_.*", "permitted_.*"));
+        new SystemKeyAuthoriser(Set.of("allowed_.*", "permitted_.*"));
 
     assertTrue(authoriser.isPermitted("allowed_key_1"));
     assertTrue(authoriser.isPermitted("ALLOWED_KEY_2"));
@@ -36,7 +36,7 @@ public class SystemKeyAuthorisorTest {
   @Test
   public void forbidsNonAllowedKeys() {
     SystemKeyAuthoriser authoriser =
-        new SystemKeyAuthoriser(ImmutableSet.of("allowed_.*", "permitted_.*"));
+        new SystemKeyAuthoriser(Set.of("allowed_.*", "permitted_.*"));
 
     assertFalse(authoriser.isPermitted("forbidden_key_1"));
     assertFalse(authoriser.isPermitted("notallowed_key_2"));

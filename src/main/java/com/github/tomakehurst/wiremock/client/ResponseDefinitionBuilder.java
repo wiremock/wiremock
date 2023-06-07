@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
@@ -25,7 +24,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class ResponseDefinitionBuilder {
   protected String statusMessage;
   protected Body body = Body.none();
   protected String bodyFileName;
-  protected List<HttpHeader> headers = newArrayList();
+  protected List<HttpHeader> headers = new ArrayList<>();
   protected Integer fixedDelayMilliseconds;
   protected DelayDistribution delayDistribution;
   protected ChunkedDribbleDelay chunkedDribbleDelay;
@@ -52,8 +51,8 @@ public class ResponseDefinitionBuilder {
     builder.statusMessage = responseDefinition.getStatusMessage();
     builder.headers =
         responseDefinition.getHeaders() != null
-            ? newArrayList(responseDefinition.getHeaders().all())
-            : Lists.<HttpHeader>newArrayList();
+            ? new ArrayList<>(responseDefinition.getHeaders().all())
+            : new ArrayList<>();
     builder.body = responseDefinition.getReponseBody();
     builder.bodyFileName = responseDefinition.getBodyFileName();
     builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
@@ -75,7 +74,7 @@ public class ResponseDefinitionBuilder {
       proxyResponseDefinitionBuilder.additionalRequestHeaders =
               responseDefinition.getAdditionalProxyRequestHeaders() != null
                       ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
-                      : Lists.<HttpHeader>newArrayList();
+                      : new ArrayList<>();
 
       return proxyResponseDefinitionBuilder;
     }
@@ -221,7 +220,7 @@ public class ResponseDefinitionBuilder {
 
   public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
-    private List<HttpHeader> additionalRequestHeaders = newArrayList();
+    private List<HttpHeader> additionalRequestHeaders = new ArrayList<>();
 
     public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
       this.status = from.status;

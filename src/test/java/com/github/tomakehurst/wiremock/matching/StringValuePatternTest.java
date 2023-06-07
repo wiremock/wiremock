@@ -19,14 +19,14 @@ import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.ClassPath;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 public class StringValuePatternTest {

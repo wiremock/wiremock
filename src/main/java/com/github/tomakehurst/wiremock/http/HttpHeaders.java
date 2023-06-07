@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -24,10 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
@@ -80,7 +76,7 @@ public class HttpHeaders {
   }
 
   public Collection<HttpHeader> all() {
-    List<HttpHeader> httpHeaderList = newArrayList();
+    List<HttpHeader> httpHeaderList = new ArrayList<>();
     for (CaseInsensitiveKey key : headers.keySet()) {
       httpHeaderList.add(new HttpHeader(key.value(), headers.get(key)));
     }

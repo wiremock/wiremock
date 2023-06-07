@@ -91,12 +91,12 @@ public class UrlPattern implements NamedValueMatcher<String> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     UrlPattern that = (UrlPattern) o;
-    return regex == that.regex && Objects.equal(pattern, that.pattern);
+    return regex == that.regex && Objects.equals(pattern, that.pattern);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(pattern, regex);
+    return Objects.hash(pattern, regex);
   }
 
   public boolean isSpecified() {

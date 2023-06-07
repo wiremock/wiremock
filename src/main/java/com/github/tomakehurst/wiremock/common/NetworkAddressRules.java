@@ -31,7 +31,7 @@ public class NetworkAddressRules {
   private final Set<NetworkAddressRange> denied;
 
   public static NetworkAddressRules ALLOW_ALL =
-      new NetworkAddressRules(ImmutableSet.of(ALL), emptySet());
+      new NetworkAddressRules(Set.of(ALL), emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
     this.allowed = allowed;
@@ -60,7 +60,7 @@ public class NetworkAddressRules {
     public NetworkAddressRules build() {
       Set<NetworkAddressRange> allowedRanges = allowed.build();
       if (allowedRanges.isEmpty()) {
-        allowedRanges = ImmutableSet.of(ALL);
+        allowedRanges = Set.of(ALL);
       }
       return new NetworkAddressRules(allowedRanges, denied.build());
     }

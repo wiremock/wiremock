@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +44,7 @@ public class HostnameHelperTest {
 
   @Test
   public void generatesHostname() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
+    ImmutableMap<String, Object> optionsHash = Map.of();
 
     String output = render(optionsHash);
     assertThat(output, equalToCompressingWhiteSpace(hostname));

@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.Map;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -95,7 +95,7 @@ public class MatchesXPathPatternTest {
     StringValuePattern pattern =
         WireMock.matchingXPath(
             "//sub:subThing[.='The stuff']",
-            ImmutableMap.of("sub", "http://subthings", "t", "http://things"));
+            Map.of("sub", "http://subthings", "t", "http://things"));
 
     MatchResult match = pattern.match(xml);
     assertTrue(match.isExactMatch());
@@ -255,9 +255,7 @@ public class MatchesXPathPatternTest {
     MatchesXPathPattern pattern =
         new MatchesXPathPattern(
             "//*",
-            ImmutableMap.of(
-                "one", "http://one.com/",
-                "two", "http://two.com/"));
+            Map.of("one", "http://one.com/", "two", "http://two.com/"));
 
     String json = Json.write(pattern);
 

@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +53,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowDateTime() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
+    ImmutableMap<String, Object> optionsHash = Map.of();
 
     Object output = render(optionsHash);
 
@@ -63,7 +64,7 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void rendersNowDateTimeWithCustomFormat() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("format", "yyyy/mm/dd");
+        Map.of("format", "yyyy/mm/dd");
 
     Object output = render(optionsHash);
 
@@ -76,7 +77,7 @@ public class HandlebarsCurrentDateHelperTest {
     String format = "yyyy-MM-dd";
     SimpleDateFormat df = new SimpleDateFormat(format);
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("format", format, "offset", "5 days");
+        Map.of("format", format, "offset", "5 days");
 
     Object output = render(df.parse("2018-04-16"), optionsHash);
 
@@ -86,7 +87,7 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void rendersNowWithDayOffset() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("offset", "6 months");
+        Map.of("offset", "6 months");
 
     Object output = render(optionsHash);
 
@@ -95,7 +96,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowAsUnixEpochInMilliseconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("format", "epoch");
+    ImmutableMap<String, Object> optionsHash = Map.of("format", "epoch");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -105,7 +106,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowAsUnixEpochInSeconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("format", "unix");
+    ImmutableMap<String, Object> optionsHash = Map.of("format", "unix");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -116,9 +117,7 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney");
+        Map.of("offset", "3 days", "timezone", "Australia/Sydney");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
@@ -129,10 +128,7 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney",
-            "format", "yyyy-MM-dd HH:mm:ssZ");
+        Map.of("offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);

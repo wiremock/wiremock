@@ -35,7 +35,6 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Set;
 import org.hamcrest.Matchers;
@@ -402,7 +401,7 @@ public class EqualToXmlPatternTest {
     assertThat(
         equalToXmlPattern.getExemptedComparisons(),
         Matchers.<Set<ComparisonType>>is(
-            ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
+            Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
   }
 
   @Test
@@ -418,7 +417,7 @@ public class EqualToXmlPatternTest {
             enablePlaceholders,
             placeholderOpeningDelimiterRegex,
             placeholderClosingDelimiterRegex,
-            ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE));
+            Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE));
 
     String json = Json.write(pattern);
 

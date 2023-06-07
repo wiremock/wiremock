@@ -37,8 +37,8 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -282,9 +282,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 .transformers("test-transformer")
                 .transformerParameters(
                     Parameters.from(
-                        ImmutableMap.<String, Object>of(
-                            "headerKey", "X-Key",
-                            "headerValue", "My value"))));
+                        Map.of("headerKey", "X-Key", "headerValue", "My value"))));
 
     assertThat(
         mappings.get(0).getResponse().getHeaders().getHeader("X-Key").firstValue(), is("My value"));

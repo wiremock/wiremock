@@ -20,8 +20,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
 import java.time.LocalDate;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class ParametersTest {
@@ -29,7 +29,7 @@ public class ParametersTest {
   @Test
   public void convertsParametersToAnObject() {
     MyData myData =
-        Parameters.from(ImmutableMap.of("name", "Tom", "num", 27, "date", "2023-01-01"))
+        Parameters.from(Map.of("name", "Tom", "num", 27, "date", "2023-01-01"))
             .as(MyData.class);
 
     assertThat(myData.getName(), is("Tom"));
