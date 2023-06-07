@@ -18,11 +18,10 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
-import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
 public class StringValuePatternTest {
 
@@ -32,33 +31,38 @@ public class StringValuePatternTest {
         ClassPath.from(Thread.currentThread().getContextClassLoader()).getAllClasses();
 
     allClasses.stream()
-            .filter(classInfo ->
-                classInfo
-                    .getPackageName()
-                    .startsWith("com.github.tomakehurst.wiremock.matching"))
-            .map(input -> {
-                try {
-                    return input.load();
-                } catch (Throwable e) {
-                    return Object.class;
-                }
+        .filter(
+            classInfo ->
+                classInfo.getPackageName().startsWith("com.github.tomakehurst.wiremock.matching"))
+        .map(
+            input -> {
+              try {
+                return input.load();
+              } catch (Throwable e) {
+                return Object.class;
+              }
             })
-            .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
-            .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-            .forEach(this::findConstructorWithStringParamInFirstPosition);
+        .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
+        .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+        .forEach(this::findConstructorWithStringParamInFirstPosition);
   }
 
   private Constructor<?> findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
-      return Arrays.stream(clazz.getConstructors())
-              .filter(constructor -> constructor.getParameterTypes().length > 0
-                      && constructor.getParameterTypes()[0].equals(String.class)
-                      && constructor.getParameterAnnotations().length > 0
-                      && constructor.getParameterAnnotations()[0].length > 0
-                      && constructor
-                      .getParameterAnnotations()[0][0]
-                      .annotationType()
-                      .equals(JsonProperty.class))
-              .findFirst()
-              .orElseThrow(() -> new AssertionError("No constructor found with @JsonProperty annotated name parameter"));
+    return Arrays.stream(clazz.getConstructors())
+        .filter(
+            constructor ->
+                constructor.getParameterTypes().length > 0
+                    && constructor.getParameterTypes()[0].equals(String.class)
+                    && constructor.getParameterAnnotations().length > 0
+                    && constructor.getParameterAnnotations()[0].length > 0
+                    && constructor
+                        .getParameterAnnotations()[0][0]
+                        .annotationType()
+                        .equals(JsonProperty.class))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new AssertionError(
+                    "No constructor found with @JsonProperty annotated name parameter"));
   }
 }
