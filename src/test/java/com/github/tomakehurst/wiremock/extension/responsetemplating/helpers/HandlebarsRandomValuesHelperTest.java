@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,8 +59,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   public void generatesUppercaseRandomAlphaNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("length", 36, "uppercase", true);
+    ImmutableMap<String, Object> optionsHash = Map.of("length", 36, "uppercase", true);
 
     String output = render(optionsHash);
 
@@ -81,8 +80,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   public void generatesRandomNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("length", 55, "type", "NUMERIC");
+    ImmutableMap<String, Object> optionsHash = Map.of("length", 55, "type", "NUMERIC");
 
     String output = render(optionsHash);
 
@@ -103,8 +101,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   public void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("length", 64, "type", "HEXADECIMAL");
+    ImmutableMap<String, Object> optionsHash = Map.of("length", 64, "type", "HEXADECIMAL");
 
     String output = render(optionsHash);
 

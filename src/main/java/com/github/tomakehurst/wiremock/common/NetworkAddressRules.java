@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ public class NetworkAddressRules {
   private final Set<NetworkAddressRange> allowed;
   private final Set<NetworkAddressRange> denied;
 
-  public static NetworkAddressRules ALLOW_ALL =
-      new NetworkAddressRules(Set.of(ALL), emptySet());
+  public static NetworkAddressRules ALLOW_ALL = new NetworkAddressRules(Set.of(ALL), emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
     this.allowed = allowed;

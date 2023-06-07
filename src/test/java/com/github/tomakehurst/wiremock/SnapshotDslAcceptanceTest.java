@@ -281,8 +281,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
             recordSpec()
                 .transformers("test-transformer")
                 .transformerParameters(
-                    Parameters.from(
-                        Map.of("headerKey", "X-Key", "headerValue", "My value"))));
+                    Parameters.from(Map.of("headerKey", "X-Key", "headerValue", "My value"))));
 
     assertThat(
         mappings.get(0).getResponse().getHeaders().getHeader("X-Key").firstValue(), is("My value"));

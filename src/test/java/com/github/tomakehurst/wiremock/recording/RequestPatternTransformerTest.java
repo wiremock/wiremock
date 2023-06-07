@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,11 @@ public class RequestPatternTransformerTest {
             .withHeader("X-CaseInsensitive", equalToIgnoreCase("Baz"));
 
     Map<String, CaptureHeadersSpec> headers =
-        Map.of("X-CaseSensitive", new CaptureHeadersSpec(false), "X-CaseInsensitive", new CaptureHeadersSpec(true));
+        Map.of(
+            "X-CaseSensitive",
+            new CaptureHeadersSpec(false),
+            "X-CaseInsensitive",
+            new CaptureHeadersSpec(true));
 
     assertEquals(
         expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());

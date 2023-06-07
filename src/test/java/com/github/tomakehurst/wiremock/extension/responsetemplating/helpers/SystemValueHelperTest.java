@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,7 @@ public class SystemValueHelperTest {
 
   @Test
   public void getExistingEnvironmentVariableShouldNotNull() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("key", "PATH", "type", "ENVIRONMENT");
+    ImmutableMap<String, Object> optionsHash = Map.of("key", "PATH", "type", "ENVIRONMENT");
 
     String output = render(optionsHash);
     assertNotNull(output);
@@ -61,16 +60,14 @@ public class SystemValueHelperTest {
   public void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(Set.of("JAVA*")));
 
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("key", "TEST_VAR", "type", "ENVIRONMENT");
+    ImmutableMap<String, Object> optionsHash = Map.of("key", "TEST_VAR", "type", "ENVIRONMENT");
     String value = render(optionsHash);
     assertEquals("[ERROR: Access to TEST_VAR is denied]", value);
   }
 
   @Test
   public void getEmptyKeyShouldReturnError() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("key", "", "type", "PROPERTY");
+    ImmutableMap<String, Object> optionsHash = Map.of("key", "", "type", "PROPERTY");
     String value = render(optionsHash);
     assertEquals("[ERROR: The key cannot be empty]", value);
   }
@@ -80,8 +77,7 @@ public class SystemValueHelperTest {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(Set.of("test.*")));
     System.setProperty("test.key", "aaa");
     assertEquals("aaa", System.getProperty("test.key"));
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("key", "test.key", "type", "PROPERTY");
+    ImmutableMap<String, Object> optionsHash = Map.of("key", "test.key", "type", "PROPERTY");
     String value = render(optionsHash);
     assertEquals("aaa", value);
   }
@@ -90,8 +86,7 @@ public class SystemValueHelperTest {
   public void getForbiddenPropertyShouldReturnError() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(Set.of("JAVA.*")));
     System.setProperty("test.key", "aaa");
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("key", "test.key", "type", "PROPERTY");
+    ImmutableMap<String, Object> optionsHash = Map.of("key", "test.key", "type", "PROPERTY");
     String value = render(optionsHash);
     assertEquals("[ERROR: Access to test.key is denied]", value);
   }

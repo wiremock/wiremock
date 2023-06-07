@@ -88,8 +88,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void matchesRequestWithCustomMatcherDefinition() throws Exception {
-    RequestJournal journal =
-        new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
+    RequestJournal journal = new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);

@@ -400,8 +400,7 @@ public class EqualToXmlPatternTest {
         placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
     assertThat(
         equalToXmlPattern.getExemptedComparisons(),
-        Matchers.<Set<ComparisonType>>is(
-            Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
+        Matchers.<Set<ComparisonType>>is(Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
   }
 
   @Test

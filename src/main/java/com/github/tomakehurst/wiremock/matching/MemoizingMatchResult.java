@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.google.common.base.Suppliers;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 
 public class MemoizingMatchResult extends MatchResult {
 

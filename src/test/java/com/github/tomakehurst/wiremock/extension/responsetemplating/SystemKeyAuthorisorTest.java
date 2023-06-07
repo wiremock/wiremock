@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,7 @@ public class SystemKeyAuthorisorTest {
 
   @Test
   public void permitsAllowedKeys() {
-    SystemKeyAuthoriser authoriser =
-        new SystemKeyAuthoriser(Set.of("allowed_.*", "permitted_.*"));
+    SystemKeyAuthoriser authoriser = new SystemKeyAuthoriser(Set.of("allowed_.*", "permitted_.*"));
 
     assertTrue(authoriser.isPermitted("allowed_key_1"));
     assertTrue(authoriser.isPermitted("ALLOWED_KEY_2"));
@@ -35,8 +34,7 @@ public class SystemKeyAuthorisorTest {
 
   @Test
   public void forbidsNonAllowedKeys() {
-    SystemKeyAuthoriser authoriser =
-        new SystemKeyAuthoriser(Set.of("allowed_.*", "permitted_.*"));
+    SystemKeyAuthoriser authoriser = new SystemKeyAuthoriser(Set.of("allowed_.*", "permitted_.*"));
 
     assertFalse(authoriser.isPermitted("forbidden_key_1"));
     assertFalse(authoriser.isPermitted("notallowed_key_2"));

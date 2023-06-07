@@ -379,7 +379,15 @@ public abstract class JettyHttpServer implements HttpServer {
   private FilterHolder buildCorsFilter() {
     FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
     filterHolder.setInitParameters(
-        Map.of("chainPreflight", "false", "allowedOrigins", "*", "allowedHeaders", "*", "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
+        Map.of(
+            "chainPreflight",
+            "false",
+            "allowedOrigins",
+            "*",
+            "allowedHeaders",
+            "*",
+            "allowedMethods",
+            "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
     return filterHolder;
   }
 

@@ -933,7 +933,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         get("/with-metadata")
             .withId(id)
             .withMetadata(
-            Map.of("one", 1, "two", "2", "three", true, "four", Map.of("five", "55555"))));
+                Map.of("one", 1, "two", "2", "three", true, "four", Map.of("five", "55555"))));
 
     WireMockResponse response = testClient.get("/__admin/mappings/" + id);
 

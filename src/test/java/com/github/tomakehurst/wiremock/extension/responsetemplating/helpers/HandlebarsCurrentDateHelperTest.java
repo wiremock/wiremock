@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowDateTimeWithCustomFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("format", "yyyy/mm/dd");
+    ImmutableMap<String, Object> optionsHash = Map.of("format", "yyyy/mm/dd");
 
     Object output = render(optionsHash);
 
@@ -76,8 +75,7 @@ public class HandlebarsCurrentDateHelperTest {
   public void rendersPassedDateTimeWithDayOffset() throws Exception {
     String format = "yyyy-MM-dd";
     SimpleDateFormat df = new SimpleDateFormat(format);
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("format", format, "offset", "5 days");
+    ImmutableMap<String, Object> optionsHash = Map.of("format", format, "offset", "5 days");
 
     Object output = render(df.parse("2018-04-16"), optionsHash);
 
@@ -86,8 +84,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowWithDayOffset() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("offset", "6 months");
+    ImmutableMap<String, Object> optionsHash = Map.of("offset", "6 months");
 
     Object output = render(optionsHash);
 
@@ -128,7 +125,8 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        Map.of("offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
+        Map.of(
+            "offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);

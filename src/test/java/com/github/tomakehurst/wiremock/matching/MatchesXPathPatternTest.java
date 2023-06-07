@@ -253,9 +253,7 @@ public class MatchesXPathPatternTest {
   @Test
   public void serialisesCorrectlyWithNamspaces() throws JSONException {
     MatchesXPathPattern pattern =
-        new MatchesXPathPattern(
-            "//*",
-            Map.of("one", "http://one.com/", "two", "http://two.com/"));
+        new MatchesXPathPattern("//*", Map.of("one", "http://one.com/", "two", "http://two.com/"));
 
     String json = Json.write(pattern);
 

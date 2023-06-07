@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import org.junit.jupiter.api.Test;
 
 public class SnapshotStubMappingPostProcessorTest {
   private static final List<StubMapping> TEST_STUB_MAPPINGS =
-      List.of(WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
+      List.of(
+          WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
 
   @Test
   public void processFiltersRepeatedRequestsWhenNotRecordingScenarios() {

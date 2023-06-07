@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,8 +68,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesDateWithSuppliedFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("format", "dd/MM/yyyy");
+    ImmutableMap<String, Object> optionsHash = Map.of("format", "dd/MM/yyyy");
 
     String inputDate = "01/02/2003";
     Object output = render(inputDate, optionsHash);
@@ -81,8 +80,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesLocalDateTimeWithSuppliedFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("format", "dd/MM/yyyy HH:mm:ss");
+    ImmutableMap<String, Object> optionsHash = Map.of("format", "dd/MM/yyyy HH:mm:ss");
 
     String inputDate = "01/02/2003 05:06:07";
     Object output = render(inputDate, optionsHash);

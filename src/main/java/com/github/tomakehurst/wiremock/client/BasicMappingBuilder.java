@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;

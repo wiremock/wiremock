@@ -29,8 +29,7 @@ public class ParametersTest {
   @Test
   public void convertsParametersToAnObject() {
     MyData myData =
-        Parameters.from(Map.of("name", "Tom", "num", 27, "date", "2023-01-01"))
-            .as(MyData.class);
+        Parameters.from(Map.of("name", "Tom", "num", 27, "date", "2023-01-01")).as(MyData.class);
 
     assertThat(myData.getName(), is("Tom"));
     assertThat(myData.getNum(), is(27));
