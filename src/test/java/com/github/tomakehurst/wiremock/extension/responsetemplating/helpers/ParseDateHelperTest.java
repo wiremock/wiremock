@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.*;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.jknack.handlebars.Options;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.time.Instant;
@@ -43,7 +42,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesAnISO8601DateWhenNoFormatSpecified() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of();
+    Map<String, Object> optionsHash = Map.of();
 
     String inputDate = "2018-05-01T01:02:03Z";
     Object output = render(inputDate, optionsHash);
@@ -55,7 +54,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesAnRFC1123DateWhenNoFormatSpecified() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of();
+    Map<String, Object> optionsHash = Map.of();
 
     String inputDate = "Tue, 01 Jun 2021 15:16:17 GMT";
     Object output = render(inputDate, optionsHash);
@@ -68,7 +67,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesDateWithSuppliedFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("format", "dd/MM/yyyy");
+    Map<String, Object> optionsHash = Map.of("format", "dd/MM/yyyy");
 
     String inputDate = "01/02/2003";
     Object output = render(inputDate, optionsHash);
@@ -80,7 +79,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesLocalDateTimeWithSuppliedFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("format", "dd/MM/yyyy HH:mm:ss");
+    Map<String, Object> optionsHash = Map.of("format", "dd/MM/yyyy HH:mm:ss");
 
     String inputDate = "01/02/2003 05:06:07";
     Object output = render(inputDate, optionsHash);
@@ -92,7 +91,7 @@ public class ParseDateHelperTest {
 
   @Test
   public void parsesDateTimeWithEpochFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("format", "epoch");
+    Map<String, Object> optionsHash = Map.of("format", "epoch");
 
     String inputDate = "1577964091000";
     Object output = render(inputDate, optionsHash);
@@ -102,8 +101,7 @@ public class ParseDateHelperTest {
     assertThat(((Date) output), is((expectedDate)));
   }
 
-  private Object render(String context, ImmutableMap<String, Object> optionsHash)
-      throws IOException {
+  private Object render(String context, Map<String, Object> optionsHash) throws IOException {
     return helper.apply(
         context, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
   }

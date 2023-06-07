@@ -30,7 +30,6 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,7 +52,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowDateTime() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of();
+    Map<String, Object> optionsHash = Map.of();
 
     Object output = render(optionsHash);
 
@@ -63,7 +62,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowDateTimeWithCustomFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("format", "yyyy/mm/dd");
+    Map<String, Object> optionsHash = Map.of("format", "yyyy/mm/dd");
 
     Object output = render(optionsHash);
 
@@ -75,7 +74,7 @@ public class HandlebarsCurrentDateHelperTest {
   public void rendersPassedDateTimeWithDayOffset() throws Exception {
     String format = "yyyy-MM-dd";
     SimpleDateFormat df = new SimpleDateFormat(format);
-    ImmutableMap<String, Object> optionsHash = Map.of("format", format, "offset", "5 days");
+    Map<String, Object> optionsHash = Map.of("format", format, "offset", "5 days");
 
     Object output = render(df.parse("2018-04-16"), optionsHash);
 
@@ -84,7 +83,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowWithDayOffset() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("offset", "6 months");
+    Map<String, Object> optionsHash = Map.of("offset", "6 months");
 
     Object output = render(optionsHash);
 
@@ -93,7 +92,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowAsUnixEpochInMilliseconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("format", "epoch");
+    Map<String, Object> optionsHash = Map.of("format", "epoch");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -103,7 +102,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowAsUnixEpochInSeconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = Map.of("format", "unix");
+    Map<String, Object> optionsHash = Map.of("format", "unix");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -113,8 +112,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        Map.of("offset", "3 days", "timezone", "Australia/Sydney");
+    Map<String, Object> optionsHash = Map.of("offset", "3 days", "timezone", "Australia/Sydney");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
@@ -124,7 +122,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
+    Map<String, Object> optionsHash =
         Map.of(
             "offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
 
@@ -175,11 +173,11 @@ public class HandlebarsCurrentDateHelperTest {
     assertThat(body, is("2018-05-04T10:11:12Z"));
   }
 
-  private Object render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private Object render(Map<String, Object> optionsHash) throws IOException {
     return render(null, optionsHash);
   }
 
-  private Object render(Date context, ImmutableMap<String, Object> optionsHash) throws IOException {
+  private Object render(Date context, Map<String, Object> optionsHash) throws IOException {
     return helper.apply(
         context, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
   }
