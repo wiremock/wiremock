@@ -43,6 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.xmlunit.diff.ComparisonType;
 
 public class EqualToXmlPatternTest {
@@ -428,8 +429,9 @@ public class EqualToXmlPatternTest {
                 + "  \"enablePlaceholders\": true,\n"
                 + "  \"placeholderOpeningDelimiterRegex\": \"[\",\n"
                 + "  \"placeholderClosingDelimiterRegex\": \"]\",\n"
-                + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"NAMESPACE_URI\", \"ATTR_VALUE\"]\n"
-                + "}"));
+                + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"ATTR_VALUE\", \"NAMESPACE_URI\"]\n"
+                + "}",
+            JSONCompareMode.NON_EXTENSIBLE));
   }
 
   @Test
