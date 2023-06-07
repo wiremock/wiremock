@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
-import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

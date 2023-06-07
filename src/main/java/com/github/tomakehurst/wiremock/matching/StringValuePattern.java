@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Objects;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Objects;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
