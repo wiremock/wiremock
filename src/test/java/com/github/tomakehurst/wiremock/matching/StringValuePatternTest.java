@@ -31,7 +31,6 @@ public class StringValuePatternTest {
     ImmutableSet<ClassPath.ClassInfo> allClasses =
         ClassPath.from(Thread.currentThread().getContextClassLoader()).getAllClasses();
 
-
     allClasses.stream()
             .filter(classInfo ->
                 classInfo
