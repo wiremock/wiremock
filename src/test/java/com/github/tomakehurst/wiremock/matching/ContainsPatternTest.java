@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
 
-public class ContainsPatternTest {
+class ContainsPatternTest {
 
   @Test
   void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {

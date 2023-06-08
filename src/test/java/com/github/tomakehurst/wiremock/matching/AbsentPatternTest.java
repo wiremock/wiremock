@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class AbsentPatternTest {
+class AbsentPatternTest {
 
   @Test
   void correctlyDeserializesFromJson() {

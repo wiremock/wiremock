@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
-public class MatchResultTest {
+class MatchResultTest {
 
   @Test
   void aggregatesLazily() {

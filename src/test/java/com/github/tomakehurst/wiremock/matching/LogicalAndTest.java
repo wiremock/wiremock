@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class LogicalAndTest {
+class LogicalAndTest {
 
   @Test
   void matchesWhenAllContainedMatchersMatch() {

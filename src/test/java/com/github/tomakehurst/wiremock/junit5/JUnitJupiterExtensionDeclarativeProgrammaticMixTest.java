@@ -70,7 +70,7 @@ public class JUnitJupiterExtensionDeclarativeProgrammaticMixTest {
   }
 
   @WireMockTest
-  public static class TestSaneInstanceDefaults {
+  static class TestSaneInstanceDefaults {
     @RegisterExtension
     public WireMockExtension wmi =
         WireMockExtension.newInstance().options(wireMockConfig().port(44349)).build();
@@ -98,7 +98,7 @@ public class JUnitJupiterExtensionDeclarativeProgrammaticMixTest {
   }
 
   @WireMockTest(httpPort = 44778)
-  public static class TestNoInstanceOverride {
+  static class TestNoInstanceOverride {
     @RegisterExtension
     public WireMockExtension wmi =
         WireMockExtension.newInstance().options(wireMockConfig().port(44351)).build();

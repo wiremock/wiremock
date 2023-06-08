@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class MultipartValuePatternBuilderTest {
+class MultipartValuePatternBuilderTest {
 
   @Test
   void testBuilderDefaultType() {
@@ -78,7 +78,7 @@ public class MultipartValuePatternBuilderTest {
     //        assertThat(headerPatterns.entrySet(),
     // everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
 
-    List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
+    List<ContentPattern<?>> bodyPatterns = Arrays.asList(equalToXml("<xml />"));
     assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
   }
 
@@ -103,7 +103,7 @@ public class MultipartValuePatternBuilderTest {
     //        assertThat(headerPatterns.entrySet(),
     // everyItem(isIn(pattern.getHeaders().entrySet())));
 
-    List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
+    List<ContentPattern<?>> bodyPatterns = Arrays.asList(equalToXml("<xml />"));
     assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
   }
 

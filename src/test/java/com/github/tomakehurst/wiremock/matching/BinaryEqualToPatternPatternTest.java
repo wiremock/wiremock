@@ -27,7 +27,7 @@ import com.google.common.io.BaseEncoding;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class BinaryEqualToPatternPatternTest {
+class BinaryEqualToPatternPatternTest {
 
   @Test
   void returns1ForNonMatch() {
@@ -77,7 +77,7 @@ public class BinaryEqualToPatternPatternTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void deserializesCorrectly() {
+  void deserializesCorrectly() {
     String base64Expected = BaseEncoding.base64().encode(new byte[] {1, 2, 3});
 
     ContentPattern<byte[]> pattern =

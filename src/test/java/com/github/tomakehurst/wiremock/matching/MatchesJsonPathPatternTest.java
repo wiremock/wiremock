@@ -35,7 +35,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class MatchesJsonPathPatternTest {
+class MatchesJsonPathPatternTest {
 
   @Test
   void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {

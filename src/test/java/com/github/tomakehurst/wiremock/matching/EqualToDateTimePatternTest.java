@@ -32,7 +32,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
-public class EqualToDateTimePatternTest {
+class EqualToDateTimePatternTest {
 
   @Test
   void matchesZonedToZoned() {

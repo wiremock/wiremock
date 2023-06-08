@@ -27,7 +27,7 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class EqualToPatternTest {
+class EqualToPatternTest {
 
   @Test
   void returnsANonZeroScoreForPartialMatchOnEquals() {

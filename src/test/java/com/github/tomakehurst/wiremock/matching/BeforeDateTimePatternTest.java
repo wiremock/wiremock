@@ -32,7 +32,7 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import org.junit.jupiter.api.Test;
 
-public class BeforeDateTimePatternTest {
+class BeforeDateTimePatternTest {
 
   @Test
   void matchesZonedISO8601BeforeZonedLiteralDateTime() {

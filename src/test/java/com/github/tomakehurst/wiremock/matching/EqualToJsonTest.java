@@ -25,7 +25,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class EqualToJsonTest {
+class EqualToJsonTest {
 
   @Test
   void returns0DistanceForExactMatchForSingleLevelObject() {

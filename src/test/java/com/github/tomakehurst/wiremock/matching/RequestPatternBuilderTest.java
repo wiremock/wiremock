@@ -36,7 +36,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
-public class RequestPatternBuilderTest {
+class RequestPatternBuilderTest {
   @Test
   void likeRequestPatternWithDifferentUrl() {
     RequestPattern requestPattern = RequestPattern.everything();
@@ -65,7 +65,7 @@ public class RequestPatternBuilderTest {
             ImmutableMap.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
             ImmutableMap.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
-            ImmutableList.<ContentPattern<?>>of(WireMock.equalTo("BODY")),
+            ImmutableList.of(WireMock.equalTo("BODY")),
             null,
             null,
             null);
@@ -125,7 +125,7 @@ public class RequestPatternBuilderTest {
             ImmutableMap.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
             ImmutableMap.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
-            ImmutableList.<ContentPattern<?>>of(WireMock.equalTo("BODY")),
+            ImmutableList.of(WireMock.equalTo("BODY")),
             null,
             null,
             asList(multipartPattern));

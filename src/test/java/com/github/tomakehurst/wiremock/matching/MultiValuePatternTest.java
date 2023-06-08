@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class MultiValuePatternTest {
+class MultiValuePatternTest {
 
   @Test
   void returnsExactMatchForAbsentHeaderWhenRequiredAbsent() {

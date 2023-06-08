@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 @WireMockTest(httpsEnabled = true, httpsPort = 8766)
-public class JUnitJupiterExtensionDeclarativeWithFixedHttpsPortParameterTest {
+class JUnitJupiterExtensionDeclarativeWithFixedHttpsPortParameterTest {
 
   @Test
   void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {

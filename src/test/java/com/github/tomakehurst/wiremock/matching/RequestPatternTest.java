@@ -55,7 +55,7 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class RequestPatternTest {
+class RequestPatternTest {
 
   @Test
   void matchesExactlyWith0DistanceWhenUrlAndMethodAreExactMatch() {
@@ -569,7 +569,6 @@ public class RequestPatternTest {
           + "    ]                                                  \n"
           + "}";
 
-  @SuppressWarnings("unchecked")
   @Test
   void correctlyDeserialisesBodyPatterns() {
     RequestPattern pattern = Json.read(ALL_BODY_PATTERNS_EXAMPLE, RequestPattern.class);
@@ -610,7 +609,7 @@ public class RequestPatternTest {
 
   static Matcher<ContentPattern<?>> valuePattern(
       final Class<? extends StringValuePattern> patternClass, final String expectedValue) {
-    return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
         return item.getClass().equals(patternClass) && item.getValue().equals(expectedValue);
@@ -630,7 +629,7 @@ public class RequestPatternTest {
   static Matcher<ContentPattern<?>> notValuePattern(
       final Class<? extends StringValuePattern> patternClass,
       final StringValuePattern unexpectedPattern) {
-    return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
         return item.getClass().equals(patternClass)

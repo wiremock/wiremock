@@ -23,7 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
-public class StringValuePatternTest {
+class StringValuePatternTest {
 
   @Test
   void allSubclassesHaveWorkingToString() throws Exception {

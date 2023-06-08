@@ -40,13 +40,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class JettyHttpServerTest {
+class JettyHttpServerTest {
 
   static final DataTruncationSettings NO_TRUNCATION = new DataTruncationSettings(Limit.UNLIMITED);
 
   private AdminRequestHandler adminRequestHandler;
   private StubRequestHandler stubRequestHandler;
-  private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
+  private final JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
   @BeforeEach
   public void init() {

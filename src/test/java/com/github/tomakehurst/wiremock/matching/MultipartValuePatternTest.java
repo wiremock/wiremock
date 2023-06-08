@@ -27,7 +27,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class MultipartValuePatternTest {
+class MultipartValuePatternTest {
 
   @Test
   void deserialisesCorrectlyWhenNoBodyOrHeaderMatchersPresent() {
@@ -86,8 +86,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  void deserialisesCorrectlyWithANYMatchTypeWithMultipleHeaderAndBodyMatchers()
-      throws JSONException {
+  void deserialisesCorrectlyWithANYMatchTypeWithMultipleHeaderAndBodyMatchers() {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
     String serializedPattern =
         "{\n"

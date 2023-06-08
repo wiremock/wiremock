@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.Test;
 
 @WireMockTest(httpPort = 8765)
-public class JUnitJupiterExtensionDeclarativeWithHttpPortParameterTest {
+class JUnitJupiterExtensionDeclarativeWithHttpPortParameterTest {
 
   @Test
   void runs_on_the_supplied_port(WireMockRuntimeInfo wmRuntimeInfo) {

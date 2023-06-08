@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class PathTemplatePatternTest {
+class PathTemplatePatternTest {
 
   @Test
   void returns_exact_match_when_path_matches_template() {

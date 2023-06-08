@@ -37,16 +37,14 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
-import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
-import org.xmlunit.diff.ComparisonType;
 
-public class EqualToXmlPatternTest {
+class EqualToXmlPatternTest {
 
   @RegisterExtension public WireMockExtension wm = WireMockExtension.newInstance().build();
 
@@ -289,7 +287,7 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  void returnsNoMatchWhenTagNamesDifferAndContentIsSame() throws Exception {
+  void returnsNoMatchWhenTagNamesDifferAndContentIsSame() {
     final EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
     final MatchResult matchResult = pattern.match("<two>Hello</two>");
 
@@ -306,7 +304,7 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() throws Exception {
+  void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() {
     String xmlWithDtdThatCannotBeFetched =
         "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
     EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);
@@ -401,8 +399,7 @@ public class EqualToXmlPatternTest {
         placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
     assertThat(
         equalToXmlPattern.getExemptedComparisons(),
-        Matchers.<Set<ComparisonType>>is(
-            ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
+        Matchers.is(ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
   }
 
   @Test

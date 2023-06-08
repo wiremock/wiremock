@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.Mockito;
 
-public class JUnitJupiterExtensionFailOnUnmatchedTest {
+class JUnitJupiterExtensionFailOnUnmatchedTest {
 
   CloseableHttpClient client;
   ExtensionContext extensionContext;

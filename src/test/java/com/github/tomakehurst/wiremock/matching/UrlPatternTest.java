@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
 
-public class UrlPatternTest {
+class UrlPatternTest {
 
   @Test
   void matchesExactUrlWithQuery() {

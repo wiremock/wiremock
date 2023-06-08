@@ -29,7 +29,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class MatchesXPathPatternTest {
+class MatchesXPathPatternTest {
 
   @Test
   void returnsExactMatchWhenXPathMatches() {

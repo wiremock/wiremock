@@ -26,7 +26,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class RegexValuePatternTest {
+class RegexValuePatternTest {
 
   @Test
   void correctlySerialisesMatchesAsJson() throws Exception {
