@@ -27,7 +27,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
+class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void matchesOnWellFormedCookie() {

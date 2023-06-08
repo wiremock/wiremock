@@ -35,7 +35,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class TransferEncodingAcceptanceTest {
+class TransferEncodingAcceptanceTest {
 
   WireMockServer wm;
   WireMockTestClient testClient;

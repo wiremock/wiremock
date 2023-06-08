@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
  * Tests that check if init parameters for servlets and the context of wiremock are passed on
  * correctly
  */
-public class WarDeploymentParameterAcceptanceTest {
+class WarDeploymentParameterAcceptanceTest {
   private Server jetty;
   private WireMockTestClient testClient;
 

@@ -25,9 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.jupiter.api.Test;
 
-public class LoggedResponseTest {
+class LoggedResponseTest {
   private static String ISO_8859_1_RESPONSE_BODY = "köttfärssås";
-  private static String UTF8_RESPONSE_BODY = "Foo © bar 𝌆 baz ☃ qux";
+  private static final String UTF8_RESPONSE_BODY = "Foo © bar 𝌆 baz ☃ qux";
 
   @Test
   void returnsEmptyStringForBodyWhenNotConfigured() {

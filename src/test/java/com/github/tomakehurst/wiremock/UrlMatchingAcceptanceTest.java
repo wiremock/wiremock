@@ -21,7 +21,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.jupiter.api.Test;
 
-public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
+class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void mappingMatchedWithRegexUrl() {

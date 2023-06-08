@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.jupiter.api.Test;
 
-public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
+class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void mappingWithExactUrlMethodAndHeaderMatchingIsCreatedAndReturned() {

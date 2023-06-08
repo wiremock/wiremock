@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.jupiter.api.Test;
 
-public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
+class BasicAuthAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void matchesPreemptiveBasicAuthWhenCredentialAreCorrect() {

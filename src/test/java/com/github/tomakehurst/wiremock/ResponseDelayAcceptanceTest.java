@@ -42,7 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ResponseDelayAcceptanceTest {
+class ResponseDelayAcceptanceTest {
 
   private static final int SOCKET_TIMEOUT_MILLISECONDS = 1000;
   private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 2;
@@ -161,7 +161,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void requestTimesOutWhenDelayIsLongerThanSocketTimeout() throws Exception {
+  void requestTimesOutWhenDelayIsLongerThanSocketTimeout() {
     assertThrows(
         SocketTimeoutException.class,
         () -> {

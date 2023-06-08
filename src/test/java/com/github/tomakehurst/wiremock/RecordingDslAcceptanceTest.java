@@ -48,7 +48,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
+class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
   private WireMockServer targetService;
   private WireMockServer proxyingService;
@@ -383,19 +383,11 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
-    assertThrows(
-        InvalidInputException.class,
-        () -> {
-          startRecording(recordSpec());
-        });
+    assertThrows(InvalidInputException.class, () -> startRecording(recordSpec()));
   }
 
   @Test
   void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
-    assertThrows(
-        InvalidInputException.class,
-        () -> {
-          proxyingService.startRecording(recordSpec());
-        });
+    assertThrows(InvalidInputException.class, () -> proxyingService.startRecording(recordSpec()));
   }
 }

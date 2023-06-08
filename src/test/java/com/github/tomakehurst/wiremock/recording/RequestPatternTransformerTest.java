@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class RequestPatternTransformerTest {
+class RequestPatternTransformerTest {
   @Test
   void applyIncludesMethodAndUrlMatchers() {
     Request request =

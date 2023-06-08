@@ -31,7 +31,7 @@ import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.Test;
 
-public class ResponseTransformerAcceptanceTest {
+class ResponseTransformerAcceptanceTest {
 
   WireMockServer wm;
   WireMockTestClient client;

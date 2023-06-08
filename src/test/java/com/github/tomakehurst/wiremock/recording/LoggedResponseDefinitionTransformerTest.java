@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.jupiter.api.Test;
 
-public class LoggedResponseDefinitionTransformerTest {
+class LoggedResponseDefinitionTransformerTest {
   private LoggedResponseDefinitionTransformer aTransformer() {
     return new LoggedResponseDefinitionTransformer();
   }

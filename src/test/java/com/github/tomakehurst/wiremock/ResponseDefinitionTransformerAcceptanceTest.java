@@ -35,7 +35,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class ResponseDefinitionTransformerAcceptanceTest {
+class ResponseDefinitionTransformerAcceptanceTest {
 
   WireMockServer wm;
   WireMockTestClient client;
@@ -134,12 +134,11 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new WireMockServer(
-              wireMockConfig()
-                  .dynamicPort()
-                  .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
-        });
+        () ->
+            new WireMockServer(
+                wireMockConfig()
+                    .dynamicPort()
+                    .extensions(ExampleTransformer.class, AnotherExampleTransformer.class)));
   }
 
   @Test

@@ -18,13 +18,13 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.io.Files.asCharSink;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -42,8 +42,6 @@ import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,7 +102,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void acceptsMappingRequestOnDefaultPort() throws Exception {
+  void acceptsMappingRequestOnDefaultPort() {
     startRunner();
     givenThat(
         get(urlEqualTo("/standalone/test/resource"))
@@ -255,9 +253,9 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void startsOnPortSpecifiedOnCommandLine() throws Exception {
+  void startsOnPortSpecifiedOnCommandLine() {
     int port = findFreePort();
-    startRunner("--port", "" + port);
+    startRunner("--port", String.valueOf(port));
     WireMock client = WireMock.create().host("localhost").port(port).build();
     client.verifyThat(
         0,
@@ -266,7 +264,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void proxiesToHostSpecifiedOnCommandLine() throws Exception {
+  void proxiesToHostSpecifiedOnCommandLine() {
     WireMock otherServerClient = startOtherServerAndClient();
     otherServerClient.register(
         get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
@@ -277,7 +275,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void respondsWithPreExistingRecordingInProxyMode() throws Exception {
+  void respondsWithPreExistingRecordingInProxyMode() {
     writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
     writeFileToFilesDir("body-test.xml", "Existing recorded body");
 
@@ -329,7 +327,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void recordsGzippedResponseBodiesDecompressed() throws Exception {
+  void recordsGzippedResponseBodiesDecompressed() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -362,7 +360,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  void performsBrowserProxyingWhenEnabled() throws Exception {
+  void performsBrowserProxyingWhenEnabled() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--enable-browser-proxying");
     otherServerClient.register(
@@ -484,11 +482,12 @@ public class StandaloneAcceptanceTest {
   }
 
   private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
-    return FileUtils.readFileToString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
+    return FileUtils.readFileToString(
+        Objects.requireNonNull(firstFileWithNameLike(mappingsDirectory, namePart)), UTF_8);
   }
 
   private File firstFileWithNameLike(File directory, String namePart) {
-    for (File file : directory.listFiles(namedLike(namePart))) {
+    for (File file : Objects.requireNonNull(directory.listFiles(namedLike(namePart)))) {
       return file;
     }
 
@@ -531,7 +530,7 @@ public class StandaloneAcceptanceTest {
     try {
       File file = new File(absolutePath);
       createParentDirs(file);
-      asCharSink(file, StandardCharsets.UTF_8).write(contents);
+      asCharSink(file, UTF_8).write(contents);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -559,7 +558,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private String[] argsWithRecordingsPath(String[] args) {
-    List<String> argsAsList = new ArrayList<String>(asList(args));
+    List<String> argsAsList = new ArrayList<>(asList(args));
     if (!argsAsList.contains("--root-dir")) {
       argsAsList.addAll(asList("--root-dir", FILE_SOURCE_ROOT.getPath()));
     }
@@ -567,7 +566,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private String[] argsWithPort(String[] args) {
-    List<String> argsAsList = new ArrayList<String>(asList(args));
+    List<String> argsAsList = new ArrayList<>(asList(args));
     if (!argsAsList.contains("--port")) {
       argsAsList.addAll(asList("--port", "" + Options.DYNAMIC_PORT));
     }
@@ -583,15 +582,15 @@ public class StandaloneAcceptanceTest {
   }
 
   private String systemOutText() {
-    return new String(out.toByteArray());
+    return out.toString();
   }
 
   private String systemErrText() {
-    return new String(err.toByteArray());
+    return err.toString();
   }
 
   private Matcher<File> containsAFileContaining(final String expectedContents) {
-    return new TypeSafeMatcher<File>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -600,10 +599,9 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        for (File file : dir.listFiles()) {
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
           try {
-            if (FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                .contains(expectedContents)) {
+            if (FileUtils.readFileToString(file, UTF_8).contains(expectedContents)) {
               return true;
             }
           } catch (IOException e) {
@@ -617,7 +615,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private Matcher<File> doesNotContainAFileWithNameContaining(final String namePart) {
-    return new TypeSafeMatcher<File>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -626,13 +624,13 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        return !any(asList(dir.list()), contains(namePart)::test);
+        return !any(asList(Objects.requireNonNull(dir.list())), contains(namePart)::test);
       }
     };
   }
 
   private Matcher<File> containsExactlyOneFileWithNameContaining(final String namePart) {
-    return new TypeSafeMatcher<File>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -666,12 +664,12 @@ public class StandaloneAcceptanceTest {
 
       byte[] buf = new byte[8192];
 
-      int read = -1;
+      int read;
       while ((read = gin.read(buf)) != -1) {
         baos.write(buf, 0, read);
       }
 
-      return new String(baos.toByteArray(), Charset.forName(UTF_8.name()));
+      return baos.toString(UTF_8);
 
     } catch (IOException e) {
       return null;
@@ -679,8 +677,7 @@ public class StandaloneAcceptanceTest {
       if (gin != null)
         try {
           gin.close();
-        } catch (IOException e) {
-
+        } catch (IOException ignored) {
         }
     }
   }

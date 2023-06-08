@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.recording;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
@@ -26,14 +25,13 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
-public class SnapshotStubMappingTransformerRunnerTest {
+class SnapshotStubMappingTransformerRunnerTest {
   private final StubMapping stubMapping = WireMock.get("/").build();
 
   @Test
   void applyWithNoTransformers() {
     StubMapping result =
-        new SnapshotStubMappingTransformerRunner(new ArrayList<StubMappingTransformer>())
-            .apply(stubMapping);
+        new SnapshotStubMappingTransformerRunner(new ArrayList<>()).apply(stubMapping);
 
     assertEquals(stubMapping, result);
   }
@@ -43,7 +41,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
     // Should not apply the transformer as it isn't registered
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(
-                Lists.<StubMappingTransformer>newArrayList(new NonGlobalStubMappingTransformer()))
+                Lists.newArrayList(new NonGlobalStubMappingTransformer()))
             .apply(stubMapping);
 
     assertEquals(stubMapping, result);
@@ -53,7 +51,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   void applyWithRegisteredNonGlobalTransformer() {
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(
-                Lists.<StubMappingTransformer>newArrayList(new NonGlobalStubMappingTransformer()),
+                Lists.newArrayList(new NonGlobalStubMappingTransformer()),
                 Lists.newArrayList("nonglobal-transformer"),
                 null,
                 null)
@@ -66,7 +64,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   void applyWithGlobalTransformer() {
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(
-                Lists.<StubMappingTransformer>newArrayList(new GlobalStubMappingTransformer()))
+                Lists.newArrayList(new GlobalStubMappingTransformer()))
             .apply(stubMapping);
 
     assertEquals("/?transformed=global", result.getRequest().getUrl());

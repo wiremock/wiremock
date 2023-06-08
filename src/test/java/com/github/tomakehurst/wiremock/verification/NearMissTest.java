@@ -32,7 +32,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import org.junit.jupiter.api.Test;
 
-public class NearMissTest {
+class NearMissTest {
 
   static final String STUB_MAPPING_EXAMPLE =
       "{\n"

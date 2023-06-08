@@ -32,7 +32,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class VeryLongAsynchronousDelayAcceptanceTest {
+class VeryLongAsynchronousDelayAcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension wireMockRule =

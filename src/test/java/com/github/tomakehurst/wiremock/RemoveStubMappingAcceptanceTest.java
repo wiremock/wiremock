@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
-public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
+class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void removeStubThatExistsUsingUUID() {

@@ -27,7 +27,7 @@ import com.github.tomakehurst.wiremock.verification.NearMiss;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class NearMissesAcceptanceTest extends AcceptanceTestBase {
+class NearMissesAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void nearMisses() {

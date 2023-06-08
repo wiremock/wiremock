@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import org.junit.jupiter.api.Test;
 
-public class RequestBodyPatternFactoryJsonDeserializerTest {
+class RequestBodyPatternFactoryJsonDeserializerTest {
   @Test
   void correctlyDeserializesWithEmptyObject() {
     RequestBodyPatternFactory bodyPatternFactory = deserializeJson("{}");

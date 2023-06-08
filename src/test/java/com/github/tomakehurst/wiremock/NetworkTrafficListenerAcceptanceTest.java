@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
-  private static CollectingNetworkTrafficListener networkTrafficListener =
+  private static final CollectingNetworkTrafficListener networkTrafficListener =
       new CollectingNetworkTrafficListener();
 
   @BeforeAll

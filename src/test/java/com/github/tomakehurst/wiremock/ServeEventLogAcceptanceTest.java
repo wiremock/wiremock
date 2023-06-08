@@ -34,7 +34,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.apache.hc.core5.http.ContentType;
@@ -44,12 +43,12 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
-public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
+class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
   static Stubbing dsl = wireMockServer;
 
   @Test
-  void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
+  void returnsRecordedRequestsMatchingOnMethodAndExactUrl() {
     testClient.get("/return/this");
     testClient.get("/but/not/this");
     testClient.get("/return/this");
@@ -67,8 +66,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
-  public void returnsRecordedRequestsMatchingOnMethodAndUrlRegex() {
+  void returnsRecordedRequestsMatchingOnMethodAndUrlRegex() {
     testClient.put("/should/return/this/request");
     testClient.get("/donot/return/this/request"); // Wrong method
     testClient.put("/also/return/this");
@@ -208,7 +206,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   private Matcher<LoggedRequest> withUrl(final String url) {
-    return new TypeSafeMatcher<LoggedRequest>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public boolean matchesSafely(LoggedRequest loggedRequest) {
         return loggedRequest.getUrl().equals(url);
@@ -221,7 +219,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
     };
   }
 
-  private static Date parse(String dateString) throws ParseException {
+  private static Date parse(String dateString) {
     return Dates.parse(dateString);
   }
 }

@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class JvmProxyConfigAcceptanceTest {
+class JvmProxyConfigAcceptanceTest {
 
   WireMockServer wireMockServer;
 

@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.jupiter.api.Test;
 
-public class JsonSchemaMatchingAcceptanceTest extends AcceptanceTestBase {
+class JsonSchemaMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void matchesStubWhenRequestBodyJsonValidatesAgainstSchema() {

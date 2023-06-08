@@ -66,7 +66,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-public class CommandLineOptionsTest {
+class CommandLineOptionsTest {
 
   @Test
   void returnsVerboseTrueWhenOptionPresent() {
@@ -179,11 +179,7 @@ public class CommandLineOptionsTest {
 
   @Test
   void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
-    assertThrows(
-        Exception.class,
-        () -> {
-          new CommandLineOptions("--port");
-        });
+    assertThrows(Exception.class, () -> new CommandLineOptions("--port"));
   }
 
   @Test
@@ -209,11 +205,7 @@ public class CommandLineOptionsTest {
 
   @Test
   void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
-    assertThrows(
-        Exception.class,
-        () -> {
-          new CommandLineOptions("--proxy-all");
-        });
+    assertThrows(Exception.class, () -> new CommandLineOptions("--proxy-all"));
   }
 
   @Test
@@ -247,7 +239,6 @@ public class CommandLineOptionsTest {
     assertThat(options.proxyUrl(), is("http://somewhere.com"));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   void returnsHelpText() {
     CommandLineOptions options = new CommandLineOptions("--help");
@@ -388,9 +379,7 @@ public class CommandLineOptionsTest {
   void preventsRecordingWhenRequestJournalDisabled() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new CommandLineOptions("--no-request-journal", "--record-mappings");
-        });
+        () -> new CommandLineOptions("--no-request-journal", "--record-mappings"));
   }
 
   @Test

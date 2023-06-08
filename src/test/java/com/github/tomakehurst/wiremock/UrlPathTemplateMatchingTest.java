@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.jupiter.api.Test;
 
-public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
+class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
 
   @Test
   void matches_path_template_without_bound_variable() {

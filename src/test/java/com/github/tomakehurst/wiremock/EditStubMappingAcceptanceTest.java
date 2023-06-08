@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
-public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
+class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void canEditAnExistingStubMapping() {

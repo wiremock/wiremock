@@ -62,7 +62,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     resetFileSourceRoot();
     reset();
   }
@@ -137,7 +137,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     saveAllMappings();
 
     // Check only one file has been written
-    assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
+    assertThat(Objects.requireNonNull(MAPPINGS_DIRECTORY.listFiles()).length, is(1));
   }
 
   @Test
@@ -155,7 +155,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     saveAllMappings();
 
     // Check only one file has been written
-    assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
+    assertThat(Objects.requireNonNull(MAPPINGS_DIRECTORY.listFiles()).length, is(1));
   }
 
   static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =

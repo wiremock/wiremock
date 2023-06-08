@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import org.junit.jupiter.api.Test;
 
-public class RequestBodyEqualToJsonPatternFactoryTest {
+class RequestBodyEqualToJsonPatternFactoryTest {
 
   @Test
   void withIgnoreArrayOrder() {

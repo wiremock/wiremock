@@ -32,7 +32,7 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class Http2AcceptanceTest {
+class Http2AcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension wm =

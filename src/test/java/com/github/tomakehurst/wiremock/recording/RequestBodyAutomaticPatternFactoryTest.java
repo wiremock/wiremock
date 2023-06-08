@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 import org.junit.jupiter.api.Test;
 
-public class RequestBodyAutomaticPatternFactoryTest {
+class RequestBodyAutomaticPatternFactoryTest {
   private static final String JSON_TEST_STRING = "{ \"foo\": 1 }";
   private static final String XML_TEST_STRING = "<foo/>";
   private static final String MULTIPART_TEST_STRING =

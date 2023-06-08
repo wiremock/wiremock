@@ -130,7 +130,7 @@ public class LoggedRequestTest {
   }
 
   @Test
-  void bodyEncodedAsUTF8() throws Exception {
+  void bodyEncodedAsUTF8() {
     LoggedRequest loggedRequest =
         new LoggedRequest(
             "/my/url",
@@ -171,6 +171,7 @@ public class LoggedRequestTest {
           + "}";
 
   @Test
+  @SuppressWarnings("rawtypes")
   void queryParametersAreSerialized() {
     LoggedRequest req =
         new LoggedRequest(

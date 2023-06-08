@@ -32,7 +32,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.Test;
 
-public class SnapshotStubMappingGeneratorTest {
+class SnapshotStubMappingGeneratorTest {
   @Test
   void apply() {
     final RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("/foo");

@@ -30,7 +30,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.LogNormal;
 import org.junit.jupiter.api.Test;
 
-public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
+class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void settingGlobalFixedResponseDelay() {

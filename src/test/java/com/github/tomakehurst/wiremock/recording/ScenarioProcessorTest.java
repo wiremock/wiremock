@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.Test;
 
-public class ScenarioProcessorTest {
+class ScenarioProcessorTest {
 
   private final ScenarioProcessor processor = new ScenarioProcessor();
 

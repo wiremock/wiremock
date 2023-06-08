@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.not;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class StubMappingTest {
+class StubMappingTest {
 
   @Test
   void excludesInsertionIndexFromPublicView() {

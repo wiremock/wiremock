@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
+class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void returnsMatchedStubIdHeaderWhenStubMatched() {

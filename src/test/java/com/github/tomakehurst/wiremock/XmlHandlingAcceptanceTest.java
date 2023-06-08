@@ -28,7 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class XmlHandlingAcceptanceTest {
+class XmlHandlingAcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension wm =

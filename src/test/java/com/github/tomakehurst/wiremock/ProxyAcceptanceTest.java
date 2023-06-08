@@ -58,7 +58,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class ProxyAcceptanceTest {
+class ProxyAcceptanceTest {
 
   private String targetServiceBaseUrl;
 
@@ -515,9 +515,8 @@ public class ProxyAcceptanceTest {
   }
 
   /**
-   * NOTE: {@link org.apache.hc.core5.http.client.HttpClient} always has a / when the context path
-   * is empty. This is also the behaviour of curl (see e.g. <a
-   * href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
+   * NOTE: HttpClient always has a / when the context path is empty. This is also the behaviour of
+   * curl (see e.g. <a href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
    */
   @Test
   void clientLibrariesTendToAddTheTrailingSlashWhenTheContextPathIsEmpty() {

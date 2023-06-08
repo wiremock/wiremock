@@ -46,7 +46,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-public class StubMappingJsonRecorderTest {
+class StubMappingJsonRecorderTest {
 
   private StubMappingJsonRecorder listener;
 

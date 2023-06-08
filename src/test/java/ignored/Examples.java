@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class Examples extends AcceptanceTestBase {
+class Examples extends AcceptanceTestBase {
 
   @Test
   void exactUrlOnly() {

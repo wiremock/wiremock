@@ -45,7 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
+class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
   private WireMockServer targetService;
   private WireMockServer proxyingService;
@@ -79,6 +79,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  @SuppressWarnings("rawtypes")
   void snapshotRecordsAllLoggedRequestsWhenNoParametersPassed() throws Exception {
     targetService.stubFor(
         get("/one")
@@ -119,7 +120,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void supportsFilteringByCriteria() throws Exception {
+  void supportsFilteringByCriteria() {
     client.get("/things/1");
     client.get("/things/2");
     client.get("/stuff/1");
@@ -139,7 +140,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void supportsFilteringByServeEventId() throws Exception {
+  void supportsFilteringByServeEventId() {
     client.get("/1");
     client.get("/2");
     client.get("/3");
@@ -155,7 +156,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void willAllowNonProxiedEventsIfSpecified() throws Exception {
+  void willAllowNonProxiedEventsIfSpecified() {
     proxyingService.removeStub(proxyStub);
 
     client.postJson("/record-this-anyway", "{ \"things\": 123 }");
@@ -282,7 +283,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 .transformers("test-transformer")
                 .transformerParameters(
                     Parameters.from(
-                        ImmutableMap.<String, Object>of(
+                        ImmutableMap.of(
                             "headerKey", "X-Key",
                             "headerValue", "My value"))));
 

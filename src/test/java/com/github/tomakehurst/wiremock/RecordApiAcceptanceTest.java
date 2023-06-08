@@ -40,7 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-public class RecordApiAcceptanceTest extends AcceptanceTestBase {
+class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
   private WireMockServer proxyingService;
   private WireMockTestClient proxyingTestClient;
@@ -98,7 +98,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  void returnsRequestsWithDefaultOptions() throws Exception {
+  void returnsRequestsWithDefaultOptions() {
     proxyServerStart(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
     proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
@@ -148,7 +148,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
+  void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() {
     proxyServerStartWithEmptyFileRoot();
 
     // Matches both

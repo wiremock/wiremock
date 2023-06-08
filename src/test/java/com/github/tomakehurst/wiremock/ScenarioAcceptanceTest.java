@@ -108,9 +108,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   void settingScenarioNameToNullCausesException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          get(urlEqualTo("/some/resource")).willReturn(aResponse()).inScenario(null);
-        });
+        () -> get(urlEqualTo("/some/resource")).willReturn(aResponse()).inScenario(null));
   }
 
   @Test

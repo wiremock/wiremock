@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class StubMetadataAcceptanceTest extends AcceptanceTestBase {
+class StubMetadataAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void createAndRetrieveStubMetadata() {

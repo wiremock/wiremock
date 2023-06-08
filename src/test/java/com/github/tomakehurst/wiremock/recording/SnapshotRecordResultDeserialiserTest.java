@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.Test;
 
-public class SnapshotRecordResultDeserialiserTest {
+class SnapshotRecordResultDeserialiserTest {
 
   @Test
   void supportsFullResponse() {

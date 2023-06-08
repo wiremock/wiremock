@@ -46,7 +46,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
-public class PlainTextDiffRendererTest {
+class PlainTextDiffRendererTest {
 
   PlainTextDiffRenderer diffRenderer;
 

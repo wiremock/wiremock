@@ -31,7 +31,7 @@ import java.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ConcurrentProxyingTest {
+class ConcurrentProxyingTest {
 
   @RegisterExtension
   public WireMockExtension wm =

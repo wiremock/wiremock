@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-public class DateHeaderAcceptanceTest extends AcceptanceTestBase {
+class DateHeaderAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   void returnsOnlyStubbedDateHeader() {
@@ -46,6 +46,6 @@ public class DateHeaderAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response = testClient.get("/nodateheader");
 
-    assertThat(response.headers().get("Date"), is(Matchers.<String>empty()));
+    assertThat(response.headers().get("Date"), is(Matchers.empty()));
   }
 }

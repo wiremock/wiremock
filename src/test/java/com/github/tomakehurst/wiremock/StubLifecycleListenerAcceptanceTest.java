@@ -107,7 +107,7 @@ public class StubLifecycleListenerAcceptanceTest {
       wm.stubFor(get("/test").withName("Created").willReturn(ok()));
       fail("Expected an exception to be thrown");
     } catch (Exception e) {
-      assertThat(e, Matchers.<Exception>instanceOf(NotPermittedException.class));
+      assertThat(e, Matchers.instanceOf(NotPermittedException.class));
     }
 
     assertTrue(wm.listAllStubMappings().getMappings().isEmpty());
@@ -122,7 +122,7 @@ public class StubLifecycleListenerAcceptanceTest {
       wmRemote.register(get("/test").withName("Created").willReturn(ok()));
       fail("Expected an exception to be thrown");
     } catch (Exception e) {
-      assertThat(e, Matchers.<Exception>instanceOf(NotPermittedException.class));
+      assertThat(e, Matchers.instanceOf(NotPermittedException.class));
       assertThat(((NotPermittedException) e).getErrors().first().getTitle(), is("quota exhausted"));
     }
   }

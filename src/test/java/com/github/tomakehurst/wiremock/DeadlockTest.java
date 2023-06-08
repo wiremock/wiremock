@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public class DeadlockTest {
 
   @Test
   @Order(1)
-  public void test1Timeout() throws IOException {
+  void test1Timeout() throws IOException {
     System.out.println("test timeout start");
 
     wireMockServer.stubFor(
@@ -75,7 +75,7 @@ public class DeadlockTest {
   // This will fail with a timeout if acceptor count is < 3 and/or threads < 13
   @Test
   @Order(2)
-  public void test2GetContent() throws IOException {
+  void test2GetContent() throws IOException {
     System.out.println("test content start");
 
     wireMockServer.stubFor(get(urlEqualTo("/content")).willReturn(aResponse().withBody("body2")));

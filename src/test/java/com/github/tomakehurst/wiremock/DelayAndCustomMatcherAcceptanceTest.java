@@ -35,7 +35,7 @@ import com.google.common.base.Stopwatch;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class DelayAndCustomMatcherAcceptanceTest {
+class DelayAndCustomMatcherAcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension wireMockRule =

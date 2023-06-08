@@ -35,13 +35,14 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.io.Files;
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class JsonFileMappingsSourceTest {
+class JsonFileMappingsSourceTest {
 
   @TempDir public File tempDir;
 
@@ -95,7 +96,7 @@ public class JsonFileMappingsSourceTest {
     StubMapping stub = get("/saveable").willReturn(ok()).build();
     source.save(stub);
 
-    File savedFile = tempDir.listFiles()[0];
+    File savedFile = Objects.requireNonNull(tempDir.listFiles())[0];
     String savedStub = FileUtils.readFileToString(savedFile, UTF_8);
 
     assertThat(savedStub, containsString("\"insertionIndex\" : 0"));
@@ -111,7 +112,7 @@ public class JsonFileMappingsSourceTest {
     StubMapping stub = get("/saveable").willReturn(ok()).build();
     source.save(stub);
 
-    File savedFile = tempDir.listFiles()[0];
+    File savedFile = Objects.requireNonNull(tempDir.listFiles())[0];
 
     assertEquals(savedFile.getName(), "get-saveable.json");
   }

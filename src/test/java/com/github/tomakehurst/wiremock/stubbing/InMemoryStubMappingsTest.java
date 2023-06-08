@@ -30,17 +30,17 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class InMemoryStubMappingsTest {
+class InMemoryStubMappingsTest {
 
   private StoreBackedStubMappings inMemoryStubMappings;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     inMemoryStubMappings = new InMemoryStubMappings();
   }
 
   @Test
-  void testEditMapping() throws Exception {
+  void testEditMapping() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);
@@ -58,7 +58,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  void testRemoveMapping() throws Exception {
+  void testRemoveMapping() {
 
     List<StubMapping> allMappings = inMemoryStubMappings.getAll();
     assertThat(allMappings, hasSize(0));
@@ -80,7 +80,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  void testEditMappingNotPresent() throws Exception {
+  void testEditMappingNotPresent() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);

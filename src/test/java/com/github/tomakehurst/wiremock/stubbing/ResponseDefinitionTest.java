@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -33,7 +34,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class ResponseDefinitionTest {
+class ResponseDefinitionTest {
 
   @Test
   void copyProducesEqualObject() {
@@ -59,7 +60,7 @@ public class ResponseDefinitionTest {
 
     ResponseDefinition copiedResponse = copyOf(response);
 
-    assertTrue(response.equals(copiedResponse));
+    assertEquals(response, copiedResponse);
   }
 
   @Test

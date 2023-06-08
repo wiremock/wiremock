@@ -32,13 +32,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PortNumberTest {
+class PortNumberTest {
 
   private List<WireMockServer> createdServers;
 
   @BeforeEach
   public void setup() {
-    createdServers = new ArrayList<WireMockServer>();
+    createdServers = new ArrayList<>();
   }
 
   @AfterEach
@@ -77,18 +77,14 @@ public class PortNumberTest {
   void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          createServer(wireMockConfig().port(Network.findFreePort())).port();
-        });
+        () -> createServer(wireMockConfig().port(Network.findFreePort())).port());
   }
 
   @Test
   void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort();
-        });
+        () -> createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort());
   }
 
   @Test

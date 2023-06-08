@@ -32,7 +32,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class InMemoryRequestJournalTest {
+class InMemoryRequestJournalTest {
 
   static final Map<String, RequestMatcherExtension> NO_CUSTOM_MATCHERS = Collections.emptyMap();
 
@@ -60,7 +60,7 @@ public class InMemoryRequestJournalTest {
   }
 
   @Test
-  void resettingTheJournalClearsAllEntries() throws Exception {
+  void resettingTheJournalClearsAllEntries() {
     LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
     RequestJournal journal = new InMemoryRequestJournal(1, NO_CUSTOM_MATCHERS);
@@ -71,7 +71,7 @@ public class InMemoryRequestJournalTest {
   }
 
   @Test
-  void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
+  void discardsOldRequestsWhenJournalSizeIsLimited() {
     RequestJournal journal = new InMemoryRequestJournal(2, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
@@ -88,7 +88,7 @@ public class InMemoryRequestJournalTest {
   }
 
   @Test
-  void matchesRequestWithCustomMatcherDefinition() throws Exception {
+  void matchesRequestWithCustomMatcherDefinition() {
     RequestJournal journal =
         new InMemoryRequestJournal(null, ImmutableMap.of(ALWAYS.getName(), ALWAYS));
 

@@ -35,7 +35,6 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -61,7 +60,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class AdminApiTest extends AcceptanceTestBase {
+class AdminApiTest extends AcceptanceTestBase {
 
   static Stubbing dsl = wireMockServer;
 
@@ -114,7 +113,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getAllStubMappingsWithLimitedResults() throws Exception {
+  void getAllStubMappingsWithLimitedResults() {
     for (int i = 1; i <= 20; i++) {
       dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
@@ -127,7 +126,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getAllStubMappingsWithLimitedAndOffsetResults() throws Exception {
+  void getAllStubMappingsWithLimitedAndOffsetResults() {
     for (int i = 1; i <= 20; i++) {
       dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
@@ -203,7 +202,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequests() throws Exception {
+  void getLoggedRequests() {
     dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
 
     for (int i = 1; i <= 5; i++) {
@@ -227,7 +226,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequestsWithLimit() throws Exception {
+  void getLoggedRequestsWithLimit() {
     dsl.stubFor(
         get(urlPathEqualTo("/received-request/7"))
             .willReturn(aResponse().withStatus(200).withBody("This was matched")));
@@ -256,7 +255,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
+  void getLoggedRequestsWithLimitAndSinceDate() {
     for (int i = 1; i <= 5; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -287,7 +286,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+  void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() {
     WireMockResponse response = testClient.get("/__admin/requests?since=foo");
 
     assertThat(response.statusCode(), is(400));
@@ -300,7 +299,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
+  void getLoggedRequestsWithLimitLargerThanResults() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -313,7 +312,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequestById() throws Exception {
+  void getLoggedRequestById() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -332,7 +331,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void deleteStubMappingById() throws Exception {
+  void deleteStubMappingById() {
     StubMapping stubMapping =
         dsl.stubFor(get(urlPathEqualTo("/delete/this")).willReturn(aResponse().withStatus(200)));
 
@@ -846,7 +845,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void deleteStubFile() throws Exception {
+  void deleteStubFile() {
     String fileName = "bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -861,7 +860,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void deleteStubFileInTree() throws Exception {
+  void deleteStubFileInTree() {
     String fileName = "foo/bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -876,7 +875,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void editStubFileContent() throws Exception {
+  void editStubFileContent() {
     String fileName = "bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -893,7 +892,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void createStubFileContentInTree() throws Exception {
+  void createStubFileContentInTree() {
     String fileName = "foo/bar.txt";
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
@@ -909,7 +908,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void listStubFiles() throws Exception {
+  void listStubFiles() {
     FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
     fileSource.createIfNecessary();
     fileSource.writeTextFile("bar.txt", "contents");
@@ -1084,8 +1083,8 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(stubs, everyItem(hasIdAndUuid()));
   }
 
-  private static final Matcher<StubMapping> hasIdAndUuid() {
-    return new TypeSafeMatcher<StubMapping>() {
+  private static Matcher<StubMapping> hasIdAndUuid() {
+    return new TypeSafeMatcher<>() {
       @Override
       protected boolean matchesSafely(StubMapping stub) {
         return stub.getId() != null && stub.getUuid() != null;
@@ -1138,9 +1137,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
 
     GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
-    assertThat(
-        settings.getDelayDistribution(),
-        Matchers.<DelayDistribution>instanceOf(UniformDistribution.class));
+    assertThat(settings.getDelayDistribution(), Matchers.instanceOf(UniformDistribution.class));
     assertThat(settings.getExtended().getInt("one"), is(1));
     assertThat(
         settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name,

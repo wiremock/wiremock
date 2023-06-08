@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class SnapshotOutputFormatterTest {
+class SnapshotOutputFormatterTest {
   @Test
   void fromStringDefault() {
     assertEquals(FULL, SnapshotOutputFormatter.fromString(null));
@@ -32,9 +32,7 @@ public class SnapshotOutputFormatterTest {
   void fromStringWithInvalidFormat() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          SnapshotOutputFormatter.fromString("invalid output format");
-        });
+        () -> SnapshotOutputFormatter.fromString("invalid output format"));
   }
 
   @Test

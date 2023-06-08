@@ -31,7 +31,7 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SortedConcurrentMappingSetTest {
+class SortedConcurrentMappingSetTest {
 
   private SortedConcurrentMappingSet mappingSet;
 
@@ -87,7 +87,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  void testRemove() throws Exception {
+  void testRemove() {
 
     StubMapping stubMapping = aMapping(1, "/priority1/1");
 
@@ -99,7 +99,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  void testReplace() throws Exception {
+  void testReplace() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);
@@ -118,7 +118,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  void testReplaceNotExists() throws Exception {
+  void testReplaceNotExists() {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);
@@ -142,7 +142,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
-    return new TypeSafeMatcher<StubMapping>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {}

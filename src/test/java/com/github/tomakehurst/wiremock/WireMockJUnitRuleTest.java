@@ -266,11 +266,8 @@ public class WireMockJUnitRuleTest {
 
     @Test
     public void requestReceivedByListener() {
-      final List<String> urls = new ArrayList<String>();
-      wireMockRule.addMockServiceRequestListener(
-          (request, response) -> {
-            urls.add(request.getUrl());
-          });
+      final List<String> urls = new ArrayList<>();
+      wireMockRule.addMockServiceRequestListener((request, response) -> urls.add(request.getUrl()));
       wireMockRule.stubFor(
           get(urlEqualTo("/test/listener")).willReturn(aResponse().withBody("Listener")));
 

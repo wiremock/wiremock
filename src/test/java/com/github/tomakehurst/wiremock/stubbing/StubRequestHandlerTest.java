@@ -31,8 +31,6 @@ import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
@@ -42,7 +40,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StubRequestHandlerTest {
+class StubRequestHandlerTest {
 
   private StubServer stubServer;
   private ResponseRenderer responseRenderer;
@@ -65,9 +63,9 @@ public class StubRequestHandlerTest {
             stubServer,
             responseRenderer,
             admin,
-            Collections.<String, PostServeAction>emptyMap(),
+            Collections.emptyMap(),
             requestJournal,
-            Collections.<RequestFilter>emptyList(),
+            Collections.emptyList(),
             false,
             NO_TRUNCATION);
   }

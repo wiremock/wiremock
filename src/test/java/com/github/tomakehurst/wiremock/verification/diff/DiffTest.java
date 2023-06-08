@@ -30,7 +30,7 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import org.junit.jupiter.api.Test;
 
-public class DiffTest {
+class DiffTest {
 
   @Test
   void correctlyRendersJUnitStyleDiffMessage() {

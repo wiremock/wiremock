@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CustomMatchingAcceptanceTest {
+class CustomMatchingAcceptanceTest {
 
   @SuppressWarnings("unchecked")
   @RegisterExtension
@@ -115,12 +115,11 @@ public class CustomMatchingAcceptanceTest {
   void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
     assertThrows(
         AdminException.class,
-        () -> {
-          wm.register(
-              get(urlPathMatching("/the/.*/one"))
-                  .andMatching(new MyRequestMatcher())
-                  .willReturn(ok()));
-        });
+        () ->
+            wm.register(
+                get(urlPathMatching("/the/.*/one"))
+                    .andMatching(new MyRequestMatcher())
+                    .willReturn(ok())));
   }
 
   public static class MyRequestMatcher extends RequestMatcherExtension {

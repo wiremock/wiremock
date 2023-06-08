@@ -45,8 +45,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class AdminRequestHandlerTest {
-  private Admin admin = mock(Admin.class);
+class AdminRequestHandlerTest {
+  private final Admin admin = mock(Admin.class);
   private MockHttpResponder httpResponder;
 
   private AdminRequestHandler handler;

@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.jupiter.api.Test;
 
-public class ResponseDefinitionBodyMatcherTest {
+class ResponseDefinitionBodyMatcherTest {
   @Test
   void noThresholds() {
     ResponseDefinitionBodyMatcher matcher = new ResponseDefinitionBodyMatcher(0, 0);

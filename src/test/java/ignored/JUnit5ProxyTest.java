@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class JUnit5ProxyTest {
+class JUnit5ProxyTest {
 
   @RegisterExtension
   public WireMockExtension wm =

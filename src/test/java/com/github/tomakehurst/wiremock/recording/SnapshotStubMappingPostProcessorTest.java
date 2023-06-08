@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class SnapshotStubMappingPostProcessorTest {
+class SnapshotStubMappingPostProcessorTest {
   private static final List<StubMapping> TEST_STUB_MAPPINGS =
       ImmutableList.of(
           WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());

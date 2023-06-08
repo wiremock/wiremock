@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.google.common.base.Stopwatch;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -38,12 +37,12 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ResponseDelayAsynchronousAcceptanceTest {
+class ResponseDelayAsynchronousAcceptanceTest {
 
   private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
   private static final int SHORTER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS / 2;
 
-  private ExecutorService httpClientExecutor = Executors.newCachedThreadPool();
+  private final ExecutorService httpClientExecutor = Executors.newCachedThreadPool();
 
   @RegisterExtension
   public WireMockExtension wireMockRule =
@@ -86,8 +85,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     }
   }
 
-  private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount)
-      throws IOException {
+  private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount) {
     List<Callable<TimedHttpResponse>> requests = new ArrayList<>();
     for (int i = 0; i < requestCount; i++) {
       final Stopwatch stopwatch = Stopwatch.createStarted();

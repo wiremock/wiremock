@@ -22,15 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.junit.jupiter.api.Test;
 
-public class ProxySettingsTest {
+class ProxySettingsTest {
 
   @Test
   void throwsExceptionWhenHostPartNotSpecified() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings.fromString(":8090");
-        });
+    assertThrows(IllegalArgumentException.class, () -> ProxySettings.fromString(":8090"));
   }
 
   @Test

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class WireMockRuleFailThenPass {
+class WireMockRuleFailThenPass {
 
   // Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions
   // on subsequent (otherwise passing) tests

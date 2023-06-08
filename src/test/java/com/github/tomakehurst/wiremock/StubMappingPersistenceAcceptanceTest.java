@@ -36,11 +36,12 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StubMappingPersistenceAcceptanceTest {
+class StubMappingPersistenceAcceptanceTest {
 
   Path rootDir;
   Path mappingsDir;
@@ -223,6 +224,6 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   private void assertMappingsDirSize(int size) {
-    assertThat(mappingsDir.toFile().list().length, is(size));
+    assertThat(Objects.requireNonNull(mappingsDir.toFile().list()).length, is(size));
   }
 }

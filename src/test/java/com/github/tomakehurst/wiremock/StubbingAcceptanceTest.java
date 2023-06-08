@@ -917,7 +917,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void matchesExactContentTypeEncodingSpecified() throws Exception {
+  void matchesExactContentTypeEncodingSpecified() {
     String contentType = "application/json; charset=UTF-8";
     String url = "/request-content-type-case";
 
@@ -1259,7 +1259,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   private Matcher<StubMapping> named(final String name) {
-    return new TypeSafeMatcher<StubMapping>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public void describeTo(Description description) {
         description.appendText("named " + name);

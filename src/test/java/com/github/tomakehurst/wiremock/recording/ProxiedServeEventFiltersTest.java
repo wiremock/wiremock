@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class ProxiedServeEventFiltersTest {
+class ProxiedServeEventFiltersTest {
   @Test
   void applyWithUniversalRequestPattern() {
     ServeEvent serveEvent = proxiedServeEvent(mockRequest());

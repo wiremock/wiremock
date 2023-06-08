@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class ResponseDefinitionBodyMatcherDeserializerTest {
+class ResponseDefinitionBodyMatcherDeserializerTest {
   @Test
   void correctlyParsesFileSize() {
     final Map<String, Long> testCases =

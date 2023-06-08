@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class JsonTest {
+class JsonTest {
 
   private static final String TEST_VALUE = "test-value";
   private static final String JSON_WITH_NO_COMMENTS =

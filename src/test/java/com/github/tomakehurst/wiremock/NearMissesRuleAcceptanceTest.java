@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class NearMissesRuleAcceptanceTest {
   @Nested
   class NearMissesRuleTest {
 
-    private TestNotifier testNotifier = new TestNotifier();
+    private final TestNotifier testNotifier = new TestNotifier();
 
     @RegisterExtension
     public WireMockExtension wm =
@@ -77,7 +77,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void logsUnmatchedRequestsAtErrorWithNearMisses() throws Exception {
+    public void logsUnmatchedRequestsAtErrorWithNearMisses() {
       wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
       wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
 

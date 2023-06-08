@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class PostServeActionExtensionTest {
+class PostServeActionExtensionTest {
 
   WireMockServer wm;
   WireMockTestClient client;
@@ -64,7 +64,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  void triggersActionWhenAppliedToAStubMapping() throws Exception {
+  void triggersActionWhenAppliedToAStubMapping() {
     initWithOptions(options().dynamicPort().extensions(new NamedCounterAction()));
 
     StubMapping stubMapping =
@@ -108,7 +108,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
+  void providesServeEventWithResponseFieldPopulated() {
     final AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()

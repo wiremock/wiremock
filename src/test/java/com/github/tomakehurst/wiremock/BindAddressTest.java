@@ -41,9 +41,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BindAddressTest {
+class BindAddressTest {
 
-  private String localhost = "127.0.0.1";
+  private final String localhost = "127.0.0.1";
   private String nonBindAddress;
   private WireMockServer wireMockServer;
 
@@ -76,12 +76,12 @@ public class BindAddressTest {
   }
 
   @Test
-  void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
+  void shouldRespondInTheBindAddressOnlyOnHttp() {
     executeGetIn(localhost);
     try {
       executeGetIn(nonBindAddress);
       fail("Should not accept HTTP connection to [" + nonBindAddress + "]");
-    } catch (Exception ex) {
+    } catch (Exception ignored) {
     }
   }
 
@@ -93,7 +93,7 @@ public class BindAddressTest {
     try {
       getStatusViaHttps(nonBindAddress);
       fail("Should not accept HTTPS connection to [" + nonBindAddress + "]");
-    } catch (Exception e) {
+    } catch (Exception ignored) {
     }
   }
 
