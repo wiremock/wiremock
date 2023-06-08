@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
 
-public class StubResponseRendererTest {
+class StubResponseRendererTest {
   private static final int TEST_TIMEOUT = 500;
 
   private BlobStore filesBlobStore;
@@ -52,7 +52,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
+  public void endpointFixedDelayShouldOverrideGlobalDelay() {
     settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(100));
@@ -62,7 +62,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
+  public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() {
     settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
@@ -72,7 +72,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
+  public void shouldSetGlobalFixedDelayOnResponse() {
     settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
@@ -81,7 +81,7 @@ public class StubResponseRendererTest {
   }
 
   @Test
-  void shouldSetEndpointFixedDelayOnResponse() throws Exception {
+  void shouldSetEndpointFixedDelayOnResponse() {
     Response response = stubResponseRenderer.render(createServeEvent(2000));
 
     assertThat(response.getInitialDelay(), is(2000L));
@@ -89,7 +89,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
+  public void shouldSetEndpointDistributionDelayOnResponse() {
     settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
@@ -99,7 +99,7 @@ public class StubResponseRendererTest {
 
   @Test
   @Timeout(TEST_TIMEOUT)
-  public void shouldCombineFixedDelayDistributionDelay() throws Exception {
+  public void shouldCombineFixedDelayDistributionDelay() {
     settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
     Response response = stubResponseRenderer.render(createServeEvent(2000));
     assertThat(response.getInitialDelay(), is(2123L));

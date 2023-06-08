@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
+class RegexExtractHelperTest extends HandlebarsHelperTestBase {
 
   private RegexExtractHelper helper;
 

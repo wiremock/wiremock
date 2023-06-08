@@ -23,7 +23,7 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MathsHelperTest extends HandlebarsHelperTestBase {
+class MathsHelperTest extends HandlebarsHelperTestBase {
 
   MathsHelper helper;
 

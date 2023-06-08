@@ -26,7 +26,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.io.BaseEncoding;
 import org.junit.jupiter.api.Test;
 
-public class BodyTest {
+class BodyTest {
 
   @Test
   void constructsFromBytes() {

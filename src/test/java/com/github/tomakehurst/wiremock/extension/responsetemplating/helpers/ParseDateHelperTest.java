@@ -29,7 +29,7 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ParseDateHelperTest {
+class ParseDateHelperTest {
 
   private static final DateFormat df = new ISO8601DateFormat();
 
@@ -67,8 +67,7 @@ public class ParseDateHelperTest {
 
   @Test
   void parsesDateWithSuppliedFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("format", "dd/MM/yyyy");
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("format", "dd/MM/yyyy");
 
     String inputDate = "01/02/2003";
     Object output = render(inputDate, optionsHash);
@@ -80,8 +79,7 @@ public class ParseDateHelperTest {
 
   @Test
   void parsesLocalDateTimeWithSuppliedFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("format", "dd/MM/yyyy HH:mm:ss");
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("format", "dd/MM/yyyy HH:mm:ss");
 
     String inputDate = "01/02/2003 05:06:07";
     Object output = render(inputDate, optionsHash);
@@ -93,7 +91,7 @@ public class ParseDateHelperTest {
 
   @Test
   void parsesDateTimeWithEpochFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("format", "epoch");
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("format", "epoch");
 
     String inputDate = "1577964091000";
     Object output = render(inputDate, optionsHash);

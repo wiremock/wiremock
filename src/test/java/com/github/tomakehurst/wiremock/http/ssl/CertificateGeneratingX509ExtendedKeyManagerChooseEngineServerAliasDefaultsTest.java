@@ -33,7 +33,7 @@ import javax.net.ssl.*;
 import javax.security.auth.x500.X500Principal;
 import org.junit.jupiter.api.Test;
 
-public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest {
+class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest {
 
   private final X509ExtendedKeyManager keyManagerMock = mock(X509ExtendedKeyManager.class);
   private final SSLEngine sslEngineMock = mock(SSLEngine.class);
@@ -128,8 +128,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
 
   @Test
   void returnsDefaultIfThereAreNoSNIServerNames() {
-    given(extendedSslSessionMock.getRequestedServerNames())
-        .willReturn(Collections.<SNIServerName>emptyList());
+    given(extendedSslSessionMock.getRequestedServerNames()).willReturn(Collections.emptyList());
 
     String alias =
         certificateGeneratingKeyManager.chooseEngineServerAlias(
@@ -176,6 +175,5 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
     return certificate;
   }
 
-  public CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest()
-      throws Exception {}
+  public CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasDefaultsTest() {}
 }

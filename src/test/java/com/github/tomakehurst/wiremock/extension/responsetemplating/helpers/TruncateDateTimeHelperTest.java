@@ -26,7 +26,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TruncateDateTimeHelperTest extends HandlebarsHelperTestBase {
+class TruncateDateTimeHelperTest extends HandlebarsHelperTestBase {
 
   private TruncateDateTimeHelper helper;
 

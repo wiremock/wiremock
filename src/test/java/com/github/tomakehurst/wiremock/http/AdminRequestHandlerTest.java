@@ -24,21 +24,20 @@ import static org.mockito.Mockito.verify;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import java.io.UnsupportedEncodingException;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class AdminRequestHandlerTest {
+class AdminRequestHandlerTest {
 
-  private Notifier notifier = mock(Notifier.class);
+  private final Notifier notifier = mock(Notifier.class);
 
   @RegisterExtension
-  private WireMockExtension wm =
+  public final WireMockExtension wm =
       WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
 
   @Test
-  void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
+  void shouldLogInfoOnRequest() {
     WireMockTestClient client = new WireMockTestClient(wm.getPort());
 
     String postHeaderABCName = "ABC";

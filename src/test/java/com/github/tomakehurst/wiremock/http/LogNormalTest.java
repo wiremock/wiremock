@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class LogNormalTest {
+class LogNormalTest {
 
   // To test properly we would need something like a normality test.
   // For our purposes, a simple verification is sufficient.

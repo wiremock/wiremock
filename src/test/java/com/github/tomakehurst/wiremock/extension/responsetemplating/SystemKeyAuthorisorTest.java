@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
 
-public class SystemKeyAuthorisorTest {
+class SystemKeyAuthorisorTest {
 
   @Test
   void permitsAllowedKeys() {

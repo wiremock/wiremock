@@ -35,13 +35,14 @@ import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ResponseTemplateTransformerTest {
+class ResponseTemplateTransformerTest {
 
   private ResponseTemplateTransformer transformer;
 
@@ -348,7 +349,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  void transformerParametersAreAppliedToTemplate() throws Exception {
+  void transformerParametersAreAppliedToTemplate() {
     ResponseDefinition responseDefinition =
         transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
@@ -360,7 +361,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  void unknownTransformerParametersAreNotCausingIssues() throws Exception {
+  void unknownTransformerParametersAreNotCausingIssues() {
     ResponseDefinition responseDefinition =
         transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
@@ -1038,7 +1039,8 @@ public class ResponseTemplateTransformerTest {
         request,
         responseDefinitionBuilder.build(),
         new ClasspathFileSource(
-            this.getClass().getClassLoader().getResource("templates").getPath()),
+            Objects.requireNonNull(this.getClass().getClassLoader().getResource("templates"))
+                .getPath()),
         Parameters.empty());
   }
 }

@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import org.junit.jupiter.api.Test;
 
-public class ResponseDefinitionTest {
+class ResponseDefinitionTest {
 
   @Test
   void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {

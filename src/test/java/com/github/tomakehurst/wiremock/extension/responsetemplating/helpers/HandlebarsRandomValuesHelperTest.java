@@ -33,7 +33,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HandlebarsRandomValuesHelperTest {
+class HandlebarsRandomValuesHelperTest {
 
   private HandlebarsRandomValuesHelper helper;
   private ResponseTemplateTransformer transformer;
@@ -48,7 +48,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   void generatesRandomAlphaNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("length", 36);
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 36);
 
     String output = render(optionsHash);
 
@@ -58,8 +58,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   void generatesUppercaseRandomAlphaNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("length", 36, "uppercase", true);
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 36, "uppercase", true);
 
     String output = render(optionsHash);
 
@@ -70,7 +69,7 @@ public class HandlebarsRandomValuesHelperTest {
   @Test
   void generatesRandomAlphabeticOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("length", 43, "type", "ALPHABETIC", "uppercase", true);
+        ImmutableMap.of("length", 43, "type", "ALPHABETIC", "uppercase", true);
 
     String output = render(optionsHash);
 
@@ -80,8 +79,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   void generatesRandomNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("length", 55, "type", "NUMERIC");
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 55, "type", "NUMERIC");
 
     String output = render(optionsHash);
 
@@ -92,7 +90,7 @@ public class HandlebarsRandomValuesHelperTest {
   @Test
   void generatesRandomStringOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("length", 67, "type", "ALPHANUMERIC_AND_SYMBOLS");
+        ImmutableMap.of("length", 67, "type", "ALPHANUMERIC_AND_SYMBOLS");
 
     String output = render(optionsHash);
 
@@ -102,8 +100,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("length", 64, "type", "HEXADECIMAL");
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 64, "type", "HEXADECIMAL");
 
     String output = render(optionsHash);
 
@@ -132,7 +129,7 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   void generatesRandomUUID() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("type", "UUID");
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("type", "UUID");
 
     String output = render(optionsHash);
 

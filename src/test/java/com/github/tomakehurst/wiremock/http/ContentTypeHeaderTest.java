@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
-public class ContentTypeHeaderTest {
+class ContentTypeHeaderTest {
   @Test
   void returnsMimeTypeAndCharsetWhenBothPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=utf-8");
@@ -76,9 +76,7 @@ public class ContentTypeHeaderTest {
   void throwsExceptionOnAttemptToSetNullHeaderValue() {
     assertThrows(
         NullPointerException.class,
-        () -> {
-          new MockRequestBuilder().withHeader("Content-Type", null).build();
-        });
+        () -> new MockRequestBuilder().withHeader("Content-Type", null).build());
   }
 
   @Test

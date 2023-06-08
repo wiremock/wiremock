@@ -28,7 +28,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.X509ExtendedTrustManager;
 import org.junit.jupiter.api.Test;
 
-public class CompositeTrustManagerTest {
+class CompositeTrustManagerTest {
 
   private final X509ExtendedTrustManager trustManager1 = mockX509ExtendedTrustManager();
   private final X509ExtendedTrustManager trustManager2 = mockX509ExtendedTrustManager();
@@ -58,9 +58,7 @@ public class CompositeTrustManagerTest {
     CertificateException thrown =
         assertThrows(
             CertificateException.class,
-            () -> {
-              compositeTrustManager.checkServerTrusted(chain, authType);
-            });
+            () -> compositeTrustManager.checkServerTrusted(chain, authType));
     assertEquals(invalidCertForTrustManager1, thrown);
   }
 
@@ -116,9 +114,7 @@ public class CompositeTrustManagerTest {
     CertificateException thrown =
         assertThrows(
             CertificateException.class,
-            () -> {
-              compositeTrustManager.checkServerTrusted(chain, authType);
-            });
+            () -> compositeTrustManager.checkServerTrusted(chain, authType));
 
     assertEquals(invalidCertForTrustManager2, thrown);
   }

@@ -21,7 +21,7 @@ import static org.hamcrest.core.Is.is;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
-public class UniformDistributionTest {
+class UniformDistributionTest {
 
   @Test
   void shouldReturnAllValuesInTheRange() {

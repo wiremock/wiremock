@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class HttpHeadersTest {
+class HttpHeadersTest {
 
   @Test
   void returnsAbsentHttpHeaderWhenHeaderNotPresent() {
@@ -43,7 +43,6 @@ public class HttpHeadersTest {
     assertThat(header.containsValue("value2"), is(true));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   void createsCopy() {
     HttpHeaders httpHeaders =
@@ -145,7 +144,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  void shouldEqualWhenIdentical() throws Exception {
+  void shouldEqualWhenIdentical() {
     HttpHeaders httpHeaders =
         new HttpHeaders(
             httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));

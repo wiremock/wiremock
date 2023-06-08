@@ -28,7 +28,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
+class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   private ParseJsonHelper helper;
 
   @BeforeEach
@@ -37,6 +37,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesASimpleJsonObject() throws Exception {
     String inputJson = "{\"testKey1\": \"val1\", \"testKey2\": \"val2\"}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
@@ -49,6 +50,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesAJsonObjectContainingArray() throws Exception {
     String inputJson = "{\"arr\": [\"one\", \"two\", \"three\"]}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
@@ -58,10 +60,11 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
     assertThat(result, aMapWithSize(1));
     assertThat(result, hasKey("arr"));
     assertThat(result.get("arr"), instanceOf(List.class));
-    assertThat(result, hasEntry("arr", Arrays.asList(new String[] {"one", "two", "three"})));
+    assertThat(result, hasEntry("arr", Arrays.asList("one", "two", "three")));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parseANestedJsonObject() throws Exception {
     String inputJson = "{\"parent\": {\"child\": \"val\"}}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
@@ -78,6 +81,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesJsonWithTopLevelArray() throws Exception {
     String inputJson = "[{\"key\": \"val\"}]";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
@@ -93,6 +97,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesNullJsonIfSection() throws Exception {
     String inputJson = null;
     Object output = render(inputJson, new Object[] {}, TagType.SECTION);
@@ -104,6 +109,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesNullJsonIfNotSection() throws Exception {
     String inputJson = null;
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
@@ -115,6 +121,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesEmptyJsonIfSection() throws Exception {
     String inputJson = "{}";
     Object output = render(inputJson, new Object[] {}, TagType.SECTION);
@@ -126,6 +133,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void parsesEmptyJsonIfNotSection() throws Exception {
     String inputJson = "{}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);

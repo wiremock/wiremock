@@ -22,13 +22,12 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HostnameHelperTest {
+class HostnameHelperTest {
 
   private HostnameHelper helper;
   private String hostname;
@@ -42,14 +41,14 @@ public class HostnameHelperTest {
   }
 
   @Test
-  void generatesHostname() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
+  void generatesHostname() {
+    ImmutableMap<String, Object> optionsHash = ImmutableMap.of();
 
     String output = render(optionsHash);
     assertThat(output, equalToCompressingWhiteSpace(hostname));
   }
 
-  private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private String render(ImmutableMap<String, Object> optionsHash) {
     return helper
         .apply(null, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build())
         .toString();

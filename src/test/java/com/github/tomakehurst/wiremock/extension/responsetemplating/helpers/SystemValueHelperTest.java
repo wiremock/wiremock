@@ -23,11 +23,10 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SystemValueHelperTest {
+class SystemValueHelperTest {
 
   private SystemValueHelper helper;
 
@@ -38,9 +37,9 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getExistingEnvironmentVariableShouldNotNull() throws Exception {
+  void getExistingEnvironmentVariableShouldNotNull() {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "PATH",
             "type", "ENVIRONMENT");
 
@@ -50,9 +49,9 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getNonExistingEnvironmentVariableShouldNull() throws Exception {
+  void getNonExistingEnvironmentVariableShouldNull() {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "NON_EXISTING_VAR",
             "type", "ENVIRONMENT");
 
@@ -61,11 +60,11 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
+  void getForbiddenEnvironmentVariableShouldReturnError() {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("JAVA*")));
 
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "TEST_VAR",
             "type", "ENVIRONMENT");
     String value = render(optionsHash);
@@ -73,9 +72,9 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getEmptyKeyShouldReturnError() throws Exception {
+  void getEmptyKeyShouldReturnError() {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "",
             "type", "PROPERTY");
     String value = render(optionsHash);
@@ -83,12 +82,12 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getAllowedPropertyShouldSuccess() throws Exception {
+  void getAllowedPropertyShouldSuccess() {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("test.*")));
     System.setProperty("test.key", "aaa");
     assertEquals("aaa", System.getProperty("test.key"));
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "test.key",
             "type", "PROPERTY");
     String value = render(optionsHash);
@@ -96,11 +95,11 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getForbiddenPropertyShouldReturnError() throws Exception {
+  void getForbiddenPropertyShouldReturnError() {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("JAVA.*")));
     System.setProperty("test.key", "aaa");
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "test.key",
             "type", "PROPERTY");
     String value = render(optionsHash);
@@ -108,16 +107,16 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  void getNonExistingSystemPropertyShouldNull() throws Exception {
+  void getNonExistingSystemPropertyShouldNull() {
     ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
+        ImmutableMap.of(
             "key", "not.existing.prop",
             "type", "PROPERTY");
     String output = render(optionsHash);
     assertNull(output);
   }
 
-  private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private String render(ImmutableMap<String, Object> optionsHash) {
     return helper.apply(
         null, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
   }

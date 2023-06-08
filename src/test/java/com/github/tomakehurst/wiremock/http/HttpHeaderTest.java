@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
 
-public class HttpHeaderTest {
+class HttpHeaderTest {
 
   @Test
   void returnsIsPresentFalseWhenNoValuesPresent() {
@@ -59,20 +59,12 @@ public class HttpHeaderTest {
 
   @Test
   void throwsExceptionWhenAttemptingToAccessFirstValueWhenAbsent() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          HttpHeader.absent("Something").firstValue();
-        });
+    assertThrows(IllegalStateException.class, () -> HttpHeader.absent("Something").firstValue());
   }
 
   @Test
   void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          HttpHeader.absent("Something").values();
-        });
+    assertThrows(IllegalStateException.class, () -> HttpHeader.absent("Something").values());
   }
 
   @Test
@@ -93,7 +85,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  void shouldEqualWhenIdentical() throws Exception {
+  void shouldEqualWhenIdentical() {
     HttpHeader header1 = new HttpHeader("My-Header", "value1");
     HttpHeader header2 = new HttpHeader("My-Header", "value1");
 
@@ -102,7 +94,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  void shouldEqualWhenKeysHaveDifferentCases() throws Exception {
+  void shouldEqualWhenKeysHaveDifferentCases() {
     HttpHeader header1 = new HttpHeader("MY-HEADER", "value1", "value2");
     HttpHeader header2 = new HttpHeader("my-header", "value1", "value2");
 
@@ -111,7 +103,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  void shouldNotEqualWhenContentsAreDifferent() throws Exception {
+  void shouldNotEqualWhenContentsAreDifferent() {
     HttpHeader header1 = new HttpHeader("My-Header", "value1");
     HttpHeader header2 = new HttpHeader("My-Header", "VALUE1");
 

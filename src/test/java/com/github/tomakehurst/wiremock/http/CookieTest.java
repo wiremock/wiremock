@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.jupiter.api.Test;
 
-public class CookieTest {
+class CookieTest {
 
   @Test
   void serialisesCorrectlyWithSingleValue() {

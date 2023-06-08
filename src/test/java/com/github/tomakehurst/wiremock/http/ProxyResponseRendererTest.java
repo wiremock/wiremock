@@ -62,7 +62,7 @@ import org.mockito.Mockito;
 @DisabledForJreRange(
     min = JRE.JAVA_17,
     disabledReason = "does not support generating certificates at runtime")
-public class ProxyResponseRendererTest {
+class ProxyResponseRendererTest {
 
   private static final int PROXY_TIMEOUT = 200_000;
 
@@ -270,10 +270,10 @@ public class ProxyResponseRendererTest {
 
     assertThat(
         forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
-        is(Long.valueOf(PROXY_TIMEOUT)));
+        is((long) PROXY_TIMEOUT));
     assertThat(
         reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
-        is(Long.valueOf(PROXY_TIMEOUT)));
+        is((long) PROXY_TIMEOUT));
   }
 
   private static <T> T reflectiveInnerSpyField(
@@ -329,7 +329,7 @@ public class ProxyResponseRendererTest {
             /* method = */ method,
             /* clientIp = */ "127.0.0.1",
             /* headers = */ headers,
-            /* cookies = */ new HashMap<String, Cookie>(),
+            /* cookies = */ new HashMap<>(),
             /* isBrowserProxyRequest = */ isBrowserProxyRequest,
             /* loggedDate = */ new Date(),
             /* body = */ body,
@@ -382,7 +382,7 @@ public class ProxyResponseRendererTest {
         /* hostHeaderValue = */ null,
         new InMemorySettingsStore(),
         trustAllProxyTargets,
-        Collections.<String>emptyList(),
+        Collections.emptyList(),
         stubCorsEnabled,
         ALLOW_ALL,
         PROXY_TIMEOUT);
