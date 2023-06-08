@@ -50,7 +50,7 @@ public class ConcurrentProxyingTest {
   private WireMockTestClient client;
 
   @Test
-  public void concurrent() throws Exception {
+  void concurrent() throws Exception {
     client = new WireMockTestClient(wm.getPort());
 
     wm.stubFor(any(anyUrl()).atPriority(10).willReturn(aResponse().proxiedFrom(target.baseUrl())));

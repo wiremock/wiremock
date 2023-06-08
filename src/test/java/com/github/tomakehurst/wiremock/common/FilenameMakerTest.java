@@ -26,7 +26,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FilenameMakerTest {
+class FilenameMakerTest {
 
   private FilenameMaker filenameMaker;
 
@@ -36,7 +36,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubNameWhenPresent() {
+  void generatesNameFromStubNameWhenPresent() {
     StubMapping mapping =
         WireMock.get("/named").withName("This is a NAMED stub").willReturn(ok()).build();
 
@@ -46,7 +46,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlWhenNameNotPresent() {
+  void generatesNameFromStubUrlWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping = WireMock.get(urlEqualTo("/named/123/things")).willReturn(ok()).build();
 
@@ -54,7 +54,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlPathWhenNameNotPresent() {
+  void generatesNameFromStubUrlPathWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlPathEqualTo("/named/123/things")).willReturn(ok()).build();
@@ -63,7 +63,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlPathTemplateWhenNameNotPresent() {
+  void generatesNameFromStubUrlPathTemplateWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlPathTemplate("/named/{id}/things")).willReturn(ok()).build();
@@ -72,7 +72,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameFromStubUrlPatternWhenNameNotPresent() {
+  void generatesNameFromStubUrlPatternWhenNameNotPresent() {
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{method}}}-{{{url}}}.json");
     StubMapping mapping =
         WireMock.get(urlMatching("/named/([0-9]*)/things")).willReturn(ok()).build();
@@ -81,7 +81,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void generatesNameWhenStubUrlIsAnyAndNameNotPresent() {
+  void generatesNameWhenStubUrlIsAnyAndNameNotPresent() {
     StubMapping mapping = WireMock.get(anyUrl()).willReturn(ok()).build();
 
     FilenameMaker makerWithOwnFormat = new FilenameMaker("{{{id}}}.json");
@@ -90,7 +90,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void sanitizesUrlWithCharactersSafeForFilenames() {
+  void sanitizesUrlWithCharactersSafeForFilenames() {
     String output = filenameMaker.sanitizeUrl("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?");
     assertThat(output, is("hello_1_2_3___ace--ace___and"));
   }
@@ -104,7 +104,7 @@ public class FilenameMakerTest {
   }
 
   @Test
-  public void truncatesWhenResultingNameOver200Chars() {
+  void truncatesWhenResultingNameOver200Chars() {
     String output =
         filenameMaker.sanitizeUrl(
             "/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/andverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuffandverylongstuff/¿?");

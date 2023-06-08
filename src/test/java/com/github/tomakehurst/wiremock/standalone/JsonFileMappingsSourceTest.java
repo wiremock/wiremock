@@ -72,7 +72,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void loadsMappingsViaClasspathFileSource() {
+  void loadsMappingsViaClasspathFileSource() {
     ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
     JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource, new FilenameMaker());
     StoreBackedStubMappings stubMappings = new InMemoryStubMappings();
@@ -88,7 +88,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
+  void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
     JsonFileMappingsSource source =
         new JsonFileMappingsSource(new SingleRootFileSource(tempDir), new FilenameMaker());
 
@@ -102,7 +102,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void stubMappingFilesWithOwnFileTemplateFormat() {
+  void stubMappingFilesWithOwnFileTemplateFormat() {
     JsonFileMappingsSource source =
         new JsonFileMappingsSource(
             new SingleRootFileSource(tempDir),
@@ -117,7 +117,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void refusesToRemoveStubMappingContainedInMultiFile() throws Exception {
+  void refusesToRemoveStubMappingContainedInMultiFile() throws Exception {
     configureWithMultipleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
@@ -137,7 +137,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void refusesToRemoveAllWhenMultiMappingFilesArePresent() throws Exception {
+  void refusesToRemoveAllWhenMultiMappingFilesArePresent() throws Exception {
     configureWithMultipleMappingFile();
 
     try {
@@ -155,7 +155,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void refusesToSaveStubMappingOriginallyLoadedFromMultiMappingFile() throws Exception {
+  void refusesToSaveStubMappingOriginallyLoadedFromMultiMappingFile() throws Exception {
     configureWithMultipleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
@@ -174,7 +174,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
+  void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
     configureWithSingleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
@@ -185,7 +185,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void removesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
+  void removesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
     configureWithSingleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasT
   }
 
   @Test
-  public void returnsSameGeneratedPrivateKeyOnSubsequentCalls() throws Exception {
+  void returnsSameGeneratedPrivateKeyOnSubsequentCalls() throws Exception {
 
     KeyStore keyStore = readKeyStore(KEY_STORE_WITH_CA_PATH, "password");
     String hostname = "example.com";

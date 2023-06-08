@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,28 +50,28 @@ public class JsonTest {
           + "//this is the last comment";
 
   @Test
-  public void testReadNoComments() {
+  void testReadNoComments() {
     TestPojo pojo = Json.read(JSON_WITH_NO_COMMENTS, TestPojo.class);
     assertNotNull(pojo);
     assertThat(TEST_VALUE, is(pojo.property));
   }
 
   @Test
-  public void testReadWithComments() {
+  void testReadWithComments() {
     TestPojo pojo = Json.read(JSON_WITH_COMMENTS, TestPojo.class);
     assertNotNull(pojo);
     assertThat(TEST_VALUE, is(pojo.property));
   }
 
   @Test
-  public void testReadWithSingleQuotes() {
+  void testReadWithSingleQuotes() {
     TestPojo pojo = Json.read(JSON_WITH_SINGLE_QUOTES, TestPojo.class);
     assertNotNull(pojo);
     assertThat(TEST_VALUE, is(pojo.property));
   }
 
   @Test
-  public void countsAllNodesInADocument() {
+  void countsAllNodesInADocument() {
     int count =
         Json.deepSize(
             Json.node(
@@ -97,14 +97,14 @@ public class JsonTest {
   }
 
   @Test
-  public void counts1ForEmptyArray() {
+  void counts1ForEmptyArray() {
     int count = Json.deepSize(Json.node("[]"));
 
     assertThat(count, is(1));
   }
 
   @Test
-  public void counts1ForEmptyObject() {
+  void counts1ForEmptyObject() {
     int count = Json.deepSize(Json.node("{}"));
 
     assertThat(count, is(1));

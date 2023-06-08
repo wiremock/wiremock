@@ -25,24 +25,24 @@ import org.junit.jupiter.api.Test;
 public class NegativeContainsPatternTest {
 
   @Test
-  public void returnsExactMatchWhenExpectedValueNotContainedInTestValue() {
+  void returnsExactMatchWhenExpectedValueNotContainedInTestValue() {
     assertTrue(WireMock.notContaining("thing").match("otherstuff").isExactMatch());
   }
 
   @Test
-  public void returnsExactMatchWhenTestValueIsNull() {
+  void returnsExactMatchWhenTestValueIsNull() {
     assertTrue(WireMock.notContaining("thing").match(null).isExactMatch());
   }
 
   @Test
-  public void returnsNoMatchWhenWhenExpectedValueWhollyContainedInTestValue() {
+  void returnsNoMatchWhenWhenExpectedValueWhollyContainedInTestValue() {
     MatchResult matchResult = WireMock.notContaining("thing").match("mythings");
     assertFalse(matchResult.isExactMatch());
     assertThat(matchResult.getDistance(), is(1.0));
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     NegativeContainsPattern a = new NegativeContainsPattern("doNotContain");
     NegativeContainsPattern b = new NegativeContainsPattern("doNotContain");
     NegativeContainsPattern c = new NegativeContainsPattern("somethingElse");

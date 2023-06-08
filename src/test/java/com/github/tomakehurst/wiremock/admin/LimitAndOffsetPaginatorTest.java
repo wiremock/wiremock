@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class LimitAndOffsetPaginatorTest {
+class LimitAndOffsetPaginatorTest {
 
   @Test
-  public void returnsWholeListWhenBothParametersAreNull() {
+  void returnsWholeListWhenBothParametersAreNull() {
     List<Integer> source = asList(1, 2, 3, 4, 5);
     LimitAndOffsetPaginator<Integer> paginator = new LimitAndOffsetPaginator<>(source, null, null);
 
@@ -38,17 +38,17 @@ public class LimitAndOffsetPaginatorTest {
   }
 
   @Test
-  public void returnsEmptyListWhenSourceIsEmpty() {
+  void returnsEmptyListWhenSourceIsEmpty() {
     List<Integer> source = emptyList();
     LimitAndOffsetPaginator<Integer> paginator = new LimitAndOffsetPaginator<>(source, null, null);
 
     List<Integer> result = paginator.select();
 
-    assertThat(result, is(Collections.<Integer>emptyList()));
+    assertThat(result, is(Collections.emptyList()));
   }
 
   @Test
-  public void returnsTruncatedListFromStartWhenOnlyLimitIsSpecified() {
+  void returnsTruncatedListFromStartWhenOnlyLimitIsSpecified() {
     List<Integer> source = asList(1, 2, 3, 4, 5);
     LimitAndOffsetPaginator<Integer> paginator = new LimitAndOffsetPaginator<>(source, 3, null);
 
@@ -58,7 +58,7 @@ public class LimitAndOffsetPaginatorTest {
   }
 
   @Test
-  public void returnsFromOffSetToTheEndWhenOnlyOffsetIsSpecified() {
+  void returnsFromOffSetToTheEndWhenOnlyOffsetIsSpecified() {
     List<Integer> source = asList(1, 2, 3, 4, 5);
     LimitAndOffsetPaginator<Integer> paginator = new LimitAndOffsetPaginator<>(source, null, 2);
 
@@ -68,7 +68,7 @@ public class LimitAndOffsetPaginatorTest {
   }
 
   @Test
-  public void returnsRangeWhenBothAreSpecified() {
+  void returnsRangeWhenBothAreSpecified() {
     List<Integer> source = asList(1, 2, 3, 4, 5);
     LimitAndOffsetPaginator<Integer> paginator = new LimitAndOffsetPaginator<>(source, 3, 1);
 
@@ -78,7 +78,7 @@ public class LimitAndOffsetPaginatorTest {
   }
 
   @Test
-  public void returnsToEndOfListWhenTopBoundIsGreaterThanListSize() {
+  void returnsToEndOfListWhenTopBoundIsGreaterThanListSize() {
     List<Integer> source = asList(1, 2, 3, 4, 5);
     LimitAndOffsetPaginator<Integer> paginator = new LimitAndOffsetPaginator<>(source, 7, 3);
 
@@ -88,20 +88,16 @@ public class LimitAndOffsetPaginatorTest {
   }
 
   @Test
-  public void rejectsNegativeLimit() {
+  void rejectsNegativeLimit() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), -1, 3);
-        });
+        () -> new LimitAndOffsetPaginator<>(Collections.emptyList(), -1, 3));
   }
 
   @Test
-  public void rejectsNegativeOffset() {
+  void rejectsNegativeOffset() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new LimitAndOffsetPaginator<>(Collections.<Void>emptyList(), 0, -10);
-        });
+        () -> new LimitAndOffsetPaginator<>(Collections.emptyList(), 0, -10));
   }
 }

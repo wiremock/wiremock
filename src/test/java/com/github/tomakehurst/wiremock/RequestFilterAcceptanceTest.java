@@ -40,7 +40,7 @@ public class RequestFilterAcceptanceTest {
   private String url;
 
   @Test
-  public void filterCanContinueWithModifiedRequest() {
+  void filterCanContinueWithModifiedRequest() {
     initialise(new RequestHeaderModifyingFilter());
 
     wm.stubFor(get(url).withHeader("X-Modify-Me", equalTo("modified")).willReturn(ok()));
@@ -50,7 +50,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   @Test
-  public void filterCanStopWithResponse() {
+  void filterCanStopWithResponse() {
     initialise(new StubAuthenticatingFilter());
 
     wm.stubFor(get(url).willReturn(ok()));
@@ -63,7 +63,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   @Test
-  public void filtersAreChained() {
+  void filtersAreChained() {
     initialise(
         new RequestHeaderAppendingFilter("A"),
         new RequestHeaderAppendingFilter("B"),
@@ -76,7 +76,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   @Test
-  public void filterCanBeAppliedToAdmin() {
+  void filterCanBeAppliedToAdmin() {
     initialise(new AdminAuthenticatingFilter());
 
     wm.stubFor(get(url).willReturn(ok()));
@@ -94,7 +94,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   @Test
-  public void filterCanBeAppliedToStubs() {
+  void filterCanBeAppliedToStubs() {
     initialise(new StubAuthenticatingFilter());
 
     wm.stubFor(get(url).willReturn(ok()));
@@ -112,7 +112,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   @Test
-  public void filterCanBeAppliedToStubsAndAdmin() {
+  void filterCanBeAppliedToStubsAndAdmin() {
     initialise(new BothAuthenticatingFilter());
 
     wm.stubFor(get(url).willReturn(ok()));
@@ -127,7 +127,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   @Test
-  public void wrappedRequestsAreUsedWhenProxying() {
+  void wrappedRequestsAreUsedWhenProxying() {
     WireMockServer proxyTarget = new WireMockServer(wireMockConfig().dynamicPort());
     proxyTarget.start();
     initialise(new PathModifyingStubFilter());

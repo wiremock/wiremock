@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,38 +27,38 @@ import org.junit.jupiter.api.Test;
 public class HttpHeaderTest {
 
   @Test
-  public void returnsIsPresentFalseWhenNoValuesPresent() {
+  void returnsIsPresentFalseWhenNoValuesPresent() {
     HttpHeader header = HttpHeader.absent("Test-Header");
     assertThat(header.isPresent(), is(false));
   }
 
   @Test
-  public void returnsIsPresentTrueWhenOneValuePresent() {
+  void returnsIsPresentTrueWhenOneValuePresent() {
     HttpHeader header = new HttpHeader("Test-Header", "value");
     assertThat(header.isPresent(), is(true));
   }
 
   @Test
-  public void returnsFirstValueWhenOneSpecified() {
+  void returnsFirstValueWhenOneSpecified() {
     HttpHeader header = new HttpHeader("Test-Header", "value");
     assertThat(header.firstValue(), is("value"));
   }
 
   @Test
-  public void returnsAllValuesWhenManySpecified() {
+  void returnsAllValuesWhenManySpecified() {
     HttpHeader header = new HttpHeader("Test-Header", "value1", "value2", "value3");
     assertThat(header.values(), hasItems("value1", "value2", "value3"));
   }
 
   @Test
-  public void correctlyIndicatesWhenHeaderContainsValue() {
+  void correctlyIndicatesWhenHeaderContainsValue() {
     HttpHeader header = new HttpHeader("Test-Header", "value1", "value2", "value3");
     assertThat(header.containsValue("value2"), is(true));
     assertThat(header.containsValue("value72727"), is(false));
   }
 
   @Test
-  public void throwsExceptionWhenAttemptingToAccessFirstValueWhenAbsent() {
+  void throwsExceptionWhenAttemptingToAccessFirstValueWhenAbsent() {
     assertThrows(
         IllegalStateException.class,
         () -> {
@@ -67,7 +67,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
+  void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
     assertThrows(
         IllegalStateException.class,
         () -> {
@@ -76,7 +76,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldMatchSingleValueToValuePattern() {
+  void shouldMatchSingleValueToValuePattern() {
     HttpHeader header = new HttpHeader("My-Header", "my-value");
 
     assertThat(header.hasValueMatching(WireMock.equalTo("my-value")), is(true));
@@ -84,7 +84,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldMatchMultiValueToValuePattern() {
+  void shouldMatchMultiValueToValuePattern() {
     HttpHeader header = new HttpHeader("My-Header", "value1", "value2", "value3");
 
     assertThat(header.hasValueMatching(WireMock.matching("value.*")), is(true));
@@ -93,7 +93,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldEqualWhenIdentical() throws Exception {
+  void shouldEqualWhenIdentical() throws Exception {
     HttpHeader header1 = new HttpHeader("My-Header", "value1");
     HttpHeader header2 = new HttpHeader("My-Header", "value1");
 
@@ -102,7 +102,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldEqualWhenKeysHaveDifferentCases() throws Exception {
+  void shouldEqualWhenKeysHaveDifferentCases() throws Exception {
     HttpHeader header1 = new HttpHeader("MY-HEADER", "value1", "value2");
     HttpHeader header2 = new HttpHeader("my-header", "value1", "value2");
 
@@ -111,7 +111,7 @@ public class HttpHeaderTest {
   }
 
   @Test
-  public void shouldNotEqualWhenContentsAreDifferent() throws Exception {
+  void shouldNotEqualWhenContentsAreDifferent() throws Exception {
     HttpHeader header1 = new HttpHeader("My-Header", "value1");
     HttpHeader header2 = new HttpHeader("My-Header", "VALUE1");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class TruncateDateTimeHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void truncatesDateObject() throws IOException {
+  void truncatesDateObject() throws IOException {
     Date date = Date.from(ZonedDateTime.parse("2020-03-27T11:22:33Z").toInstant());
 
     Object output = renderHelperValue(helper, date, "last day of month");

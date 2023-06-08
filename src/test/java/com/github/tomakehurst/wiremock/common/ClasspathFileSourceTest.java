@@ -31,13 +31,12 @@ import java.net.*;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class ClasspathFileSourceTest {
+class ClasspathFileSourceTest {
 
   ClasspathFileSource classpathFileSource;
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void listsFilesRecursivelyFromJar() {
+  void listsFilesRecursivelyFromJar() {
     initForJar();
 
     List<TextFile> files = classpathFileSource.listFilesRecursively();
@@ -45,9 +44,8 @@ public class ClasspathFileSourceTest {
     assertThat(files, hasItems(fileNamed("pom.properties"), fileNamed("pom.xml")));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void listsFilesRecursivelyFromFileSystem() {
+  void listsFilesRecursivelyFromFileSystem() {
     initForFileSystem();
 
     List<TextFile> files = classpathFileSource.listFilesRecursively();
@@ -64,7 +62,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void readsBinaryFileFromJar() {
+  void readsBinaryFileFromJar() {
     initForJar();
 
     BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("guava/pom.xml");
@@ -73,7 +71,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void readsBinaryFileFromCustomClassLoader() throws MalformedURLException {
+  void readsBinaryFileFromCustomClassLoader() throws MalformedURLException {
     initForCustomClassLoader();
 
     BinaryFile binaryFile = classpathFileSource.child("__files").getBinaryFileNamed("stuff.txt");
@@ -82,7 +80,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void readsBinaryFileFromZip() {
+  void readsBinaryFileFromZip() {
     classpathFileSource = new ClasspathFileSource("zippeddir");
 
     BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("zippedfile.txt");
@@ -92,7 +90,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void readsBinaryFileFromZipWithoutMatch() {
+  void readsBinaryFileFromZipWithoutMatch() {
     classpathFileSource = new ClasspathFileSource("zippeddir");
     try {
       classpathFileSource.getBinaryFileNamed("thisWillNotBeFound.txt");
@@ -106,7 +104,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void readsBinaryFileFromFileSystem() {
+  void readsBinaryFileFromFileSystem() {
     initForFileSystem();
 
     BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("subdir/deepfile.json");
@@ -115,7 +113,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void createsChildSource() {
+  void createsChildSource() {
     initForFileSystem();
 
     FileSource child = classpathFileSource.child("subdir");
@@ -124,7 +122,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void correctlyReportsExistence() {
+  void correctlyReportsExistence() {
     assertTrue(new ClasspathFileSource("filesource/subdir").exists(), "Expected to exist");
     assertTrue(
         new ClasspathFileSource("META-INF/maven/com.google.guava").exists(), "Expected to exist");
@@ -132,7 +130,7 @@ public class ClasspathFileSourceTest {
   }
 
   @Test
-  public void failsSilentlyOnWrites() {
+  void failsSilentlyOnWrites() {
     initForFileSystem();
     classpathFileSource.deleteFile("one");
     classpathFileSource.writeBinaryFile("any-bytes", new byte[] {});

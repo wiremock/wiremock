@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import java.security.Key;
 import java.security.KeyStore;
 import org.junit.jupiter.api.Test;
 
-public class KeyStoreSourceTest {
+class KeyStoreSourceTest {
 
   @Test
-  public void loadsAPasswordProtectedJksKeyStore() throws Exception {
+  void loadsAPasswordProtectedJksKeyStore() throws Exception {
     KeyStoreSource keyStoreSource =
         new ReadOnlyFileOrClasspathKeyStoreSource(
             "test-keystore-pwd", "jks", "nondefaultpass".toCharArray());

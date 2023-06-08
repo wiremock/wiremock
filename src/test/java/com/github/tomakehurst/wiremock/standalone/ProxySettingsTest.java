@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class ProxySettingsTest {
 
   @Test
-  public void throwsExceptionWhenHostPartNotSpecified() {
+  void throwsExceptionWhenHostPartNotSpecified() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -34,12 +34,12 @@ public class ProxySettingsTest {
   }
 
   @Test
-  public void defaultsToPort80() {
+  void defaultsToPort80() {
     assertThat(ProxySettings.fromString("myhost.com").port(), is(80));
   }
 
   @Test
-  public void parsesHostAndPortCorrectly() {
+  void parsesHostAndPortCorrectly() {
     ProxySettings settings = ProxySettings.fromString("some.host.org:8888");
     assertThat(settings.host(), is("some.host.org"));
     assertThat(settings.port(), is(8888));

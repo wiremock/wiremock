@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class Http2AcceptanceTest {
           .build();
 
   @Test
-  public void supportsHttp2Connections() throws Exception {
+  void supportsHttp2Connections() throws Exception {
     HttpClient client = Http2ClientFactory.create();
 
     wm.stubFor(get("/thing").willReturn(ok("HTTP/2 response")));
@@ -51,7 +51,7 @@ public class Http2AcceptanceTest {
   }
 
   @Test
-  public void supportsHttp2PlaintextConnections() throws Exception {
+  void supportsHttp2PlaintextConnections() throws Exception {
     HttpClient client = Http2ClientFactory.create();
 
     wm.stubFor(get("/thing").willReturn(ok("HTTP/2 response")));
@@ -62,7 +62,7 @@ public class Http2AcceptanceTest {
   }
 
   @Test
-  public void supportsHttp1_1Connections() throws Exception {
+  void supportsHttp1_1Connections() throws Exception {
     CloseableHttpClient client = HttpClientFactory.createClient();
 
     wm.stubFor(get("/thing").willReturn(ok("HTTP/1.1 response")));

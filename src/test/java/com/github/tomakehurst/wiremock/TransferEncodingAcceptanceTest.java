@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class TransferEncodingAcceptanceTest {
   WireMockTestClient testClient;
 
   @Test
-  public void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNever() {
+  void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNever() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
 
     final String url = "/content-length-encoding";
@@ -58,7 +58,7 @@ public class TransferEncodingAcceptanceTest {
   }
 
   @Test
-  public void sendsTransferEncodingChunkedWhenPolicyIsAlways() {
+  void sendsTransferEncodingChunkedWhenPolicyIsAlways() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
 
     final String url = "/chunked-encoding-always";
@@ -74,7 +74,7 @@ public class TransferEncodingAcceptanceTest {
   }
 
   @Test
-  public void sendsTransferEncodingChunkedWhenPolicyIsBodyFileAndBodyFileIsUsed() {
+  void sendsTransferEncodingChunkedWhenPolicyIsBodyFileAndBodyFileIsUsed() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.BODY_FILE);
 
     final String fileUrl = "/chunked-encoding-body";
@@ -95,7 +95,7 @@ public class TransferEncodingAcceptanceTest {
   }
 
   @Test
-  public void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNeverAndDribbleDelayIsApplied() {
+  void sendsContentLengthWhenTransferEncodingChunkedPolicyIsNeverAndDribbleDelayIsApplied() {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
 
     final String url = "/content-length-encoding";
@@ -112,7 +112,7 @@ public class TransferEncodingAcceptanceTest {
   }
 
   @Test
-  public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingEnabled() throws Exception {
+  void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingEnabled() throws Exception {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.ALWAYS);
 
     String path = "/length";
@@ -128,7 +128,7 @@ public class TransferEncodingAcceptanceTest {
   }
 
   @Test
-  public void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingDisabled() throws Exception {
+  void sendsSpecifiedContentLengthInResponseWhenChunkedEncodingDisabled() throws Exception {
     startWithChunkedEncodingPolicy(Options.ChunkedEncodingPolicy.NEVER);
 
     String path = "/length";

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class ProxySettingsTest {
+class ProxySettingsTest {
 
   public static final String PROXYVIA_URL = "a.proxyvia.url";
   public static final int PROXYVIA_PORT = 8080;
@@ -32,37 +32,34 @@ public class ProxySettingsTest {
   public static final String PASSWORD = "pass";
 
   @Test
-  public void shouldRetrieveProxySettingsFromString() {
+  void shouldRetrieveProxySettingsFromString() {
     ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL_WITH_PORT);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
     assertThat(proxySettings.port(), is(PROXYVIA_PORT));
   }
 
   @Test
-  public void shouldUse80AsDefaultPort() {
+  void shouldUse80AsDefaultPort() {
     ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
     assertThat(proxySettings.port(), is(DEFAULT_PORT));
   }
 
   @Test
-  public void shouldRecognizeUrlWithTrailingSlashIsPresent() {
+  void shouldRecognizeUrlWithTrailingSlashIsPresent() {
     ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL_WITH_PORT + "/");
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
     assertThat(proxySettings.port(), is(PROXYVIA_PORT));
   }
 
   @Test
-  public void shouldThrowExceptionIfPortIsNotRecognized() {
+  void shouldThrowExceptionIfPortIsNotRecognized() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString(PROXYVIA_URL + ":80a");
-        });
+        IllegalArgumentException.class, () -> ProxySettings.fromString(PROXYVIA_URL + ":80a"));
   }
 
   @Test
-  public void shouldRetrieveProxyCredsFromUrl() {
+  void shouldRetrieveProxyCredsFromUrl() {
     ProxySettings proxySettings =
         ProxySettings.fromString(USER + ":" + PASSWORD + "@" + PROXYVIA_URL);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
@@ -72,7 +69,7 @@ public class ProxySettingsTest {
   }
 
   @Test
-  public void shouldRetrieveProxyCredsAndPortFromUrl() {
+  void shouldRetrieveProxyCredsAndPortFromUrl() {
     ProxySettings proxySettings =
         ProxySettings.fromString(USER + ":" + PASSWORD + "@" + PROXYVIA_URL_WITH_PORT);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
@@ -82,7 +79,7 @@ public class ProxySettingsTest {
   }
 
   @Test
-  public void shouldRetrieveProxyCredsWithOnlyUserFromUrl() {
+  void shouldRetrieveProxyCredsWithOnlyUserFromUrl() {
     ProxySettings proxySettings = ProxySettings.fromString(USER + "@" + PROXYVIA_URL);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
     assertThat(proxySettings.port(), is(DEFAULT_PORT));
@@ -91,28 +88,21 @@ public class ProxySettingsTest {
   }
 
   @Test
-  public void shouldAllowProtocol() {
+  void shouldAllowProtocol() {
     ProxySettings proxySettings = ProxySettings.fromString("http://" + PROXYVIA_URL_WITH_PORT);
     assertThat(proxySettings.host(), is(PROXYVIA_URL));
     assertThat(proxySettings.port(), is(PROXYVIA_PORT));
   }
 
   @Test
-  public void shouldNotAllowHttpsProtocol() {
+  void shouldNotAllowHttpsProtocol() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings =
-              ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT);
-        });
+        () -> ProxySettings.fromString("https://" + PROXYVIA_URL_WITH_PORT));
   }
 
   @Test
-  public void shouldThrowExceptionIfUrlIsInvalid() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ProxySettings proxySettings = ProxySettings.fromString("ul:invalid:80");
-        });
+  void shouldThrowExceptionIfUrlIsInvalid() {
+    assertThrows(IllegalArgumentException.class, () -> ProxySettings.fromString("ul:invalid:80"));
   }
 }

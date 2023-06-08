@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class JettyHttpServerTest {
   }
 
   @Test
-  public void testStopTimeout() {
+  void testStopTimeout() {
     long expectedStopTimeout = 1000L;
     WireMockConfiguration config =
         WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
@@ -87,7 +87,7 @@ public class JettyHttpServerTest {
   }
 
   @Test
-  public void testStopTimeoutNotSet() {
+  void testStopTimeoutNotSet() {
     long expectedStopTimeout = 1000L;
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
@@ -99,7 +99,7 @@ public class JettyHttpServerTest {
   }
 
   @Test
-  public void testHttpConnectorIsNullWhenHttpDisabled()
+  void testHttpConnectorIsNullWhenHttpDisabled()
       throws NoSuchFieldException, IllegalAccessException {
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig().httpDisabled(true);
 

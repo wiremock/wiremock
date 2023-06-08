@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void returnsMatchedStubIdHeaderWhenStubMatched() {
+  void returnsMatchedStubIdHeaderWhenStubMatched() {
     UUID stubId = UUID.randomUUID();
     wireMockServer.stubFor(get("/the-match").withId(stubId).willReturn(ok()));
 
@@ -39,7 +39,7 @@ public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsMatchedStubNameHeaderWhenNamedStubMatched() {
+  void returnsMatchedStubNameHeaderWhenNamedStubMatched() {
     UUID stubId = UUID.randomUUID();
     String name = "My Stub";
 
@@ -52,7 +52,7 @@ public class DebugHeadersAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotReturnEitherHeaderIfNoStubMatched() {
+  void doesNotReturnEitherHeaderIfNoStubMatched() {
     WireMockResponse response = testClient.get("/the-non-match");
 
     assertThat(response.firstHeader("Matched-Stub-Id"), nullValue());

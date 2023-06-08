@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 public class ResponseDefinitionBodyMatcherTest {
   @Test
-  public void noThresholds() {
+  void noThresholds() {
     ResponseDefinitionBodyMatcher matcher = new ResponseDefinitionBodyMatcher(0, 0);
     assertFalse(matcher.match(new ResponseDefinition()).isExactMatch());
     assertTrue(matcher.match(textResponseDefinition("a")).isExactMatch());
@@ -32,7 +32,7 @@ public class ResponseDefinitionBodyMatcherTest {
   }
 
   @Test
-  public void textBodyMatchingWithThreshold() {
+  void textBodyMatchingWithThreshold() {
     ResponseDefinitionBodyMatcher matcher = new ResponseDefinitionBodyMatcher(2, 0);
     assertFalse(matcher.match(textResponseDefinition("f")).isExactMatch());
     assertFalse(matcher.match(textResponseDefinition("fo")).isExactMatch());
@@ -40,7 +40,7 @@ public class ResponseDefinitionBodyMatcherTest {
   }
 
   @Test
-  public void binaryBodyMatchingWithThreshold() {
+  void binaryBodyMatchingWithThreshold() {
     ResponseDefinitionBodyMatcher matcher = new ResponseDefinitionBodyMatcher(0, 2);
     assertFalse(matcher.match(binaryResponseDefinition(new byte[] {0x1})).isExactMatch());
     assertFalse(matcher.match(binaryResponseDefinition(new byte[] {0x1, 0xc})).isExactMatch());

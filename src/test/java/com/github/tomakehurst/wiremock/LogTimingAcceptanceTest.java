@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void serveEventIncludesTotalAndServeDuration() {
+  void serveEventIncludesTotalAndServeDuration() {
     stubFor(get("/time-me").willReturn(ok()));
 
     // Create some work
@@ -53,7 +53,7 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void includesAddedDelayInTotalWhenAsync() {
+  void includesAddedDelayInTotalWhenAsync() {
     final int DELAY = 500;
 
     stubFor(

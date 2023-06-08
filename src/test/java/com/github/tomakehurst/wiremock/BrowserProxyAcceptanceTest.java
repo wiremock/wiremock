@@ -55,7 +55,7 @@ class BrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canProxyHttp() {
+  void canProxyHttp() {
     target.stubFor(get("/whatever").willReturn(aResponse().withBody("Got it")));
 
     assertThat(
@@ -63,7 +63,7 @@ class BrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void passesQueryParameters() {
+  void passesQueryParameters() {
     target.stubFor(
         get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
 
@@ -73,7 +73,7 @@ class BrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void returnNotConfiguredResponseOnPassThroughDisabled() {
+  void returnNotConfiguredResponseOnPassThroughDisabled() {
     target.stubFor(get("/whatever").willReturn(ok("Got it")));
 
     GlobalSettings newSettings =
@@ -85,7 +85,7 @@ class BrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void returnStubbedResponseOnPassThroughDisabled() {
+  void returnStubbedResponseOnPassThroughDisabled() {
     proxy.updateGlobalSettings(
         proxy.getGlobalSettings().getSettings().copy().proxyPassThrough(false).build());
 
@@ -99,7 +99,7 @@ class BrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void returnStubbedResponseOnPassThroughEnabled() {
+  void returnStubbedResponseOnPassThroughEnabled() {
     // by default, passProxyThrough is true/enabled
     target.stubFor(get("/whatever").willReturn(ok("Got it")));
 

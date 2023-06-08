@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class HttpHeadersTest {
 
   @Test
-  public void returnsAbsentHttpHeaderWhenHeaderNotPresent() {
+  void returnsAbsentHttpHeaderWhenHeaderNotPresent() {
     HttpHeaders httpHeaders = new HttpHeaders();
     HttpHeader header = httpHeaders.getHeader("Test-Header");
 
@@ -34,7 +34,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void returnsHeaderWhenPresent() {
+  void returnsHeaderWhenPresent() {
     HttpHeaders httpHeaders = new HttpHeaders(httpHeader("Test-Header", "value1", "value2"));
     HttpHeader header = httpHeaders.getHeader("Test-Header");
 
@@ -45,7 +45,7 @@ public class HttpHeadersTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void createsCopy() {
+  void createsCopy() {
     HttpHeaders httpHeaders =
         new HttpHeaders(
             httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));
@@ -67,7 +67,7 @@ public class HttpHeadersTest {
           + "}                                               ";
 
   @Test
-  public void correctlyDeserializesWithSingleValueHeader() {
+  void correctlyDeserializesWithSingleValueHeader() {
     HttpHeaders headers = Json.read(SINGLE_VALUE_HEADER, HttpHeaders.class);
     HttpHeader header = headers.getHeader("Header-1");
 
@@ -77,7 +77,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void correctlySerializesSingleValueHeader() {
+  void correctlySerializesSingleValueHeader() {
     HttpHeaders headers = new HttpHeaders(new HttpHeader("Header-1", "only-value"));
 
     String json = Json.write(headers);
@@ -98,7 +98,7 @@ public class HttpHeadersTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void correctlyDeserializesWithMultiValueHeader() {
+  void correctlyDeserializesWithMultiValueHeader() {
     HttpHeaders headers = Json.read(MULTI_VALUE_HEADER, HttpHeaders.class);
 
     HttpHeader header = headers.getHeader("Header-1");
@@ -115,7 +115,7 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void correctlySerializesMultiValueHeader() {
+  void correctlySerializesMultiValueHeader() {
     HttpHeaders headers =
         new HttpHeaders(
             new HttpHeader("Header-1", "value-1", "value-2"),
@@ -126,26 +126,26 @@ public class HttpHeadersTest {
   }
 
   @Test
-  public void keyMatchingIsCaseInsensitive() {
+  void keyMatchingIsCaseInsensitive() {
     HttpHeaders headers = new HttpHeaders(new HttpHeader("Header-One", "value 1"));
 
     assertThat(headers.getHeader("header-one").firstValue(), is("value 1"));
   }
 
   @Test
-  public void toStringWhenHeadersPresent() {
+  void toStringWhenHeadersPresent() {
     HttpHeaders httpHeaders = new HttpHeaders(httpHeader("Test-Header", "value1", "value2"));
     assertThat(httpHeaders.toString().contains("Test-Header"), is(true));
   }
 
   @Test
-  public void toStringWhenHeadersEmpty() {
+  void toStringWhenHeadersEmpty() {
     HttpHeaders httpHeaders = new HttpHeaders();
     assertThat(httpHeaders.toString().equals("(no headers)\n"), is(true));
   }
 
   @Test
-  public void shouldEqualWhenIdentical() throws Exception {
+  void shouldEqualWhenIdentical() throws Exception {
     HttpHeaders httpHeaders =
         new HttpHeaders(
             httpHeader("Header-1", "h1v1", "h1v2"), httpHeader("Header-2", "h2v1", "h2v2"));

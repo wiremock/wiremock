@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void matchesOnHostname() throws Exception {
+  void matchesOnHostname() throws Exception {
     stubFor(
         get(urlPathEqualTo("/mypath"))
             .withHost(equalTo("righthost.internal"))
@@ -81,7 +81,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void doesNotMatchOnHostnameWhenIncorrect() throws Exception {
+  void doesNotMatchOnHostnameWhenIncorrect() throws Exception {
     stubFor(
         get(urlPathEqualTo("/mypath"))
             .withHost(equalTo("righthost.internal"))
@@ -93,7 +93,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void matchesAnyHostnameWhenNotSpecified() throws Exception {
+  void matchesAnyHostnameWhenNotSpecified() throws Exception {
     stubFor(get(urlPathEqualTo("/mypath")).willReturn(ok(EXPECTED_RESPONSE_BODY)));
 
     ClassicHttpRequest request =
@@ -102,7 +102,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void matchesPortNumber() throws Exception {
+  void matchesPortNumber() throws Exception {
     stubFor(get(urlPathEqualTo("/mypath")).withPort(1234).willReturn(ok(EXPECTED_RESPONSE_BODY)));
 
     ClassicHttpRequest request = ClassicRequestBuilder.get("http://localhost:1234/mypath").build();
@@ -110,7 +110,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void doesNotMatchOnPortNumberWhenIncorrect() throws Exception {
+  void doesNotMatchOnPortNumberWhenIncorrect() throws Exception {
     stubFor(get(urlPathEqualTo("/mypath")).withPort(1234).willReturn(ok(EXPECTED_RESPONSE_BODY)));
 
     ClassicHttpRequest request = ClassicRequestBuilder.get("http://localhost:4321/mypath").build();
@@ -118,7 +118,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void matchesOnScheme() throws Exception {
+  void matchesOnScheme() throws Exception {
     stubFor(
         get(urlPathEqualTo("/mypath")).withScheme("http").willReturn(ok(EXPECTED_RESPONSE_BODY)));
 
@@ -127,7 +127,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void doesNotMatchWhenSchemeIncorrect() throws Exception {
+  void doesNotMatchWhenSchemeIncorrect() throws Exception {
     stubFor(
         get(urlPathEqualTo("/mypath")).withScheme("https").willReturn(ok(EXPECTED_RESPONSE_BODY)));
 

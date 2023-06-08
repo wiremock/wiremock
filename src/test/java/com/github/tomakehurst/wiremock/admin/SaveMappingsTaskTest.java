@@ -28,22 +28,22 @@ import java.net.HttpURLConnection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class SaveMappingsTaskTest {
+class SaveMappingsTaskTest {
 
-  private Admin mockAdmin = Mockito.mock(Admin.class);
-  private Request mockRequest = Mockito.mock(Request.class);
+  private final Admin mockAdmin = Mockito.mock(Admin.class);
+  private final Request mockRequest = Mockito.mock(Request.class);
 
-  private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
+  private final SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
   @Test
-  public void delegatesSavingMappingsToAdmin() {
+  void delegatesSavingMappingsToAdmin() {
     saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
     verify(mockAdmin).saveMappings();
   }
 
   @Test
-  public void returnsOkResponse() {
+  void returnsOkResponse() {
     ResponseDefinition response =
         saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
+class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   private HandlebarsJsonPathHelper helper;
 
@@ -49,7 +49,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void mergesASimpleValueFromRequestIntoResponseBody() {
+  void mergesASimpleValueFromRequestIntoResponseBody() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
@@ -61,7 +61,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
+  void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
@@ -74,7 +74,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void listResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
+  void listResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -104,7 +104,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void mapResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
+  void mapResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -129,7 +129,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void singleValueResultFromJsonPathQueryCanBeUsedByHandlebarsIfHelper() {
+  void singleValueResultFromJsonPathQueryCanBeUsedByHandlebarsIfHelper() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -156,22 +156,22 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void extractsASingleStringValueFromTheInputJson() throws IOException {
+  void extractsASingleStringValueFromTheInputJson() throws IOException {
     testHelper(helper, "{\"test\":\"success\"}", "$.test", "success");
   }
 
   @Test
-  public void extractsASingleNumberValueFromTheInputJson() throws IOException {
+  void extractsASingleNumberValueFromTheInputJson() throws IOException {
     testHelper(helper, "{\"test\": 1.2}", "$.test", "1.2");
   }
 
   @Test
-  public void extractsASingleBooleanValueFromTheInputJson() throws IOException {
+  void extractsASingleBooleanValueFromTheInputJson() throws IOException {
     testHelper(helper, "{\"test\": false}", "$.test", "false");
   }
 
   @Test
-  public void extractsAJsonObjectFromTheInputJson() throws IOException {
+  void extractsAJsonObjectFromTheInputJson() throws IOException {
     testHelper(
         helper,
         "{                          \n"
@@ -185,13 +185,13 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void extractsAJsonArrayFromTheInputJson() throws IOException {
+  void extractsAJsonArrayFromTheInputJson() throws IOException {
     testHelper(
         helper, "{\n" + "    \"things\": [1, 2, 3]\n" + "}", "$.things", equalToJson("[1, 2, 3]"));
   }
 
   @Test
-  public void rendersAMeaningfulErrorWhenInputJsonIsInvalid() {
+  void rendersAMeaningfulErrorWhenInputJsonIsInvalid() {
     testHelperError(
         helper,
         "{\"test\":\"success}",
@@ -200,7 +200,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersAMeaningfulErrorWhenJsonPathIsInvalid() {
+  void rendersAMeaningfulErrorWhenJsonPathIsInvalid() {
     testHelperError(
         helper,
         "{\"test\":\"success\"}",
@@ -209,48 +209,48 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersAnEmptyStringWhenJsonValueUndefined() {
+  void rendersAnEmptyStringWhenJsonValueUndefined() {
     testHelperError(helper, "{\"test\":\"success\"}", "$.test2", is(""));
   }
 
   @Test
-  public void rendersAnEmptyStringWhenJsonValueUndefinedAndOptionsEmpty() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of();
+  void rendersAnEmptyStringWhenJsonValueUndefinedAndOptionsEmpty() throws Exception {
+    Map<String, Object> options = ImmutableMap.of();
     String output = render("{\"test\":\"success\"}", "$.test2", options);
     assertThat(output, is(""));
   }
 
   @Test
-  public void rendersDefaultValueWhenShallowJsonValueUndefined() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+  void rendersDefaultValueWhenShallowJsonValueUndefined() throws Exception {
+    Map<String, Object> options = ImmutableMap.of("default", "0");
     String output = render("{}", "$.test", options);
     assertThat(output, is("0"));
   }
 
   @Test
-  public void rendersDefaultValueWhenDeepJsonValueUndefined() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+  void rendersDefaultValueWhenDeepJsonValueUndefined() throws Exception {
+    Map<String, Object> options = ImmutableMap.of("default", "0");
     String output = render("{}", "$.outer.inner[0]", options);
     assertThat(output, is("0"));
   }
 
   @Test
-  public void rendersDefaultValueWhenJsonValueNull() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+  void rendersDefaultValueWhenJsonValueNull() throws Exception {
+    Map<String, Object> options = ImmutableMap.of("default", "0");
     String output = render("{\"test\":null}", "$.test", options);
     assertThat(output, is("0"));
   }
 
   @Test
-  public void ignoresDefaultWhenJsonValueEmpty() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+  void ignoresDefaultWhenJsonValueEmpty() throws Exception {
+    Map<String, Object> options = ImmutableMap.of("default", "0");
     String output = render("{\"test\":\"\"}", "$.test", options);
     assertThat(output, is(""));
   }
 
   @Test
-  public void ignoresDefaultWhenJsonValueZero() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "1");
+  void ignoresDefaultWhenJsonValueZero() throws Exception {
+    Map<String, Object> options = ImmutableMap.of("default", "1");
     String output = render("{\"test\":0}", "$.test", options);
     assertThat(output, is("0"));
   }
@@ -268,18 +268,18 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersAnEmptyStringWhenJsonIsNull() {
+  void rendersAnEmptyStringWhenJsonIsNull() {
     testHelperError(helper, null, "$.test", is(""));
   }
 
   @Test
-  public void rendersAMeaningfulErrorWhenJsonPathIsNull() {
+  void rendersAMeaningfulErrorWhenJsonPathIsNull() {
     testHelperError(
         helper, "{\"test\":\"success}", null, is("[ERROR: The JSONPath cannot be empty]"));
   }
 
   @Test
-  public void extractsValueFromAMap() {
+  void extractsValueFromAMap() {
     ResponseTemplateTransformer transformer =
         new ResponseTemplateTransformer(true) {
           @Override
@@ -288,7 +288,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
               ResponseDefinition responseDefinition,
               FileSource files,
               Parameters parameters) {
-            return ImmutableMap.<String, Object>of("mapData", ImmutableMap.of("things", "abc"));
+            return ImmutableMap.of("mapData", ImmutableMap.of("things", "abc"));
           }
         };
 
@@ -303,8 +303,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments()
-      throws Exception {
+  void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments() throws Exception {
     String one = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
     String two = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
 
@@ -313,8 +312,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments()
-      throws Exception {
+  void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments() throws Exception {
     String one = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
     String two = renderHelperValue(helper, "{\"test\": \"two\"}", "$.test");
 
@@ -323,7 +321,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+  void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
     int one =
         renderHelperValue(
             helper,
@@ -340,7 +338,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void helperCanBeCalledDirectlyWithoutSupplyingRenderCache() throws Exception {
+  void helperCanBeCalledDirectlyWithoutSupplyingRenderCache() throws Exception {
     Context context = Context.newBuilder(null).build();
     Options options =
         new Options(
@@ -352,7 +350,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             null,
             new Object[] {"$.stuff"},
             null,
-            new ArrayList<String>(0));
+            new ArrayList<>(0));
 
     Object result = helper.apply("{\"stuff\":1}", options);
 

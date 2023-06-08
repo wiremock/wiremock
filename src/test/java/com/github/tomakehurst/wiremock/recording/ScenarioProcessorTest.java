@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class ScenarioProcessorTest {
   private final ScenarioProcessor processor = new ScenarioProcessor();
 
   @Test
-  public void placesStubMappingsIntoScenariosWhenRepetitionsArePresent() {
+  void placesStubMappingsIntoScenariosWhenRepetitionsArePresent() {
     StubMapping foobar1 = WireMock.get("/foo/bar").build();
     StubMapping other1 = WireMock.get("/other").build();
     StubMapping foobar2 = WireMock.get("/foo/bar").build();
@@ -60,7 +60,7 @@ public class ScenarioProcessorTest {
   }
 
   @Test
-  public void doesNothingWhenNoRepeatedRequests() {
+  void doesNothingWhenNoRepeatedRequests() {
     StubMapping one = WireMock.get("/one").build();
     StubMapping two = WireMock.get("/two").build();
     StubMapping three = WireMock.get("/three").build();

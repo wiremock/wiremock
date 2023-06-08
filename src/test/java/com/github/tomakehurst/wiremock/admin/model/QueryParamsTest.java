@@ -23,27 +23,27 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.common.url.QueryParams;
 import org.junit.jupiter.api.Test;
 
-public class QueryParamsTest {
+class QueryParamsTest {
 
   @Test
-  public void returnsEmptyStringWhenNoParametersPresent() {
+  void returnsEmptyStringWhenNoParametersPresent() {
     assertThat(QueryParams.EMPTY.toString(), is(""));
   }
 
   @Test
-  public void correctlyRendersASingleQueryParamWithSingleValueAsString() {
+  void correctlyRendersASingleQueryParamWithSingleValueAsString() {
     assertThat(QueryParams.single("param", "123").toString(), is("?param=123"));
   }
 
   @Test
-  public void correctlyRendersASingleQueryParamWithMultipleValuesAsString() {
+  void correctlyRendersASingleQueryParamWithMultipleValuesAsString() {
     assertThat(
         QueryParams.single("param", "123", "blah", "456").toString(),
         is("?param=123&param=blah&param=456"));
   }
 
   @Test
-  public void correctlyRendersMultipleQueryParamsWithMixedSingleAndMultipleValuesAsString() {
+  void correctlyRendersMultipleQueryParamsWithMixedSingleAndMultipleValuesAsString() {
     QueryParams queryParams = new QueryParams();
     queryParams.put("one", singletonList("1"));
     queryParams.put("two", asList("2", "three"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,25 @@ import org.junit.jupiter.api.Test;
 public class CookieTest {
 
   @Test
-  public void serialisesCorrectlyWithSingleValue() {
+  void serialisesCorrectlyWithSingleValue() {
     Cookie cookie = new Cookie("my_cookie", "one");
     assertThat(Json.write(cookie), is("\"one\""));
   }
 
   @Test
-  public void serialisesCorrectlyWithManyValues() {
+  void serialisesCorrectlyWithManyValues() {
     Cookie cookie = new Cookie("my_cookie", "one", "two", "three");
     assertThat(Json.write(cookie), equalToJson("[\"one\", \"two\", \"three\"]"));
   }
 
   @Test
-  public void serialisesCorrectlyWithNoValues() {
+  void serialisesCorrectlyWithNoValues() {
     Cookie cookie = new Cookie("my_cookie", new String[] {});
     assertThat(Json.write(cookie), equalToJson("[]"));
   }
 
   @Test
-  public void deserialisesCorrectlyWithSingleValue() {
+  void deserialisesCorrectlyWithSingleValue() {
     String json = "\"one\"";
 
     Cookie cookie = Json.read(json, Cookie.class);
@@ -54,7 +54,7 @@ public class CookieTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithManyValues() {
+  void deserialisesCorrectlyWithManyValues() {
     String json = "[\"one\", \"two\", \"three\"]";
 
     Cookie cookie = Json.read(json, Cookie.class);
@@ -64,7 +64,7 @@ public class CookieTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithNoValues() {
+  void deserialisesCorrectlyWithNoValues() {
     String json = "[]";
 
     Cookie cookie = Json.read(json, Cookie.class);

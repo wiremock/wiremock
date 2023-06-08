@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public class PortNumberTest {
   }
 
   @Test
-  public void canRunOnAnotherPortThan8080() {
+  void canRunOnAnotherPortThan8080() {
     int port = Network.findFreePort();
     WireMockServer wireMockServer = createServer(wireMockConfig().port(port));
     wireMockServer.start();
@@ -63,7 +63,7 @@ public class PortNumberTest {
   }
 
   @Test
-  public void configuredPortIsReportedListeningPort() {
+  void configuredPortIsReportedListeningPort() {
     int port = Network.findFreePort();
     int httpsPort = Network.findFreePort();
     WireMockServer wireMockServer = createServer(wireMockConfig().port(port).httpsPort(httpsPort));
@@ -74,7 +74,7 @@ public class PortNumberTest {
   }
 
   @Test
-  public void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
+  void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
     assertThrows(
         IllegalStateException.class,
         () -> {
@@ -83,7 +83,7 @@ public class PortNumberTest {
   }
 
   @Test
-  public void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
+  void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
     assertThrows(
         IllegalStateException.class,
         () -> {
@@ -92,7 +92,7 @@ public class PortNumberTest {
   }
 
   @Test
-  public void serverWithoutHttpsThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
+  void serverWithoutHttpsThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
     assertThrows(
         IllegalStateException.class,
         () -> {
@@ -104,7 +104,7 @@ public class PortNumberTest {
   }
 
   @Test
-  public void configuringPortZeroPicksArbitraryPort() {
+  void configuringPortZeroPicksArbitraryPort() {
     WireMockServer wireMockServer = createServer(wireMockConfig().port(0).httpsPort(0));
     wireMockServer.start();
     assertThat(wireMockServer.port(), greaterThan(0));

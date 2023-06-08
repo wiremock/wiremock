@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public abstract class HandlebarsHelperTestBase {
   protected <T> void testHelperError(
       Helper<T> helper, T content, String pathExpression, Matcher<String> expectation) {
     try {
-      assertThat((String) renderHelperValue(helper, content, pathExpression), expectation);
+      assertThat(renderHelperValue(helper, content, pathExpression), expectation);
     } catch (final IOException e) {
       Assertions.fail(FAIL_GRACEFULLY_MSG);
     }
@@ -84,7 +84,7 @@ public abstract class HandlebarsHelperTestBase {
     Context context = createContext(renderCache);
 
     return new Options(
-        null, null, null, context, null, null, optionParams, hash, new ArrayList<String>(0));
+        null, null, null, context, null, null, optionParams, hash, new ArrayList<>(0));
   }
 
   protected Context createContext() {

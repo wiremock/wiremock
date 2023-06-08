@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ public class UrlsTest {
   private Map<String, QueryParameter> params;
 
   @Test
-  public void copesWithEqualsInParamValues() {
+  void copesWithEqualsInParamValues() {
     params = Urls.splitQuery(URI.create("/thing?param1=one&param2=one==two=three"));
     assertThat(params.get("param1").firstValue(), is("one"));
     assertThat(params.get("param2").firstValue(), is("one==two=three"));
   }
 
   @Test
-  public void returnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
+  void returnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
     params = Urls.splitQuery(URI.create("/thing?param1&param2&param3"));
     assertThat(params.get("param1").firstValue(), is(""));
     assertThat(params.get("param2").firstValue(), is(""));
@@ -44,7 +44,7 @@ public class UrlsTest {
   }
 
   @Test
-  public void supportsMultiValuedParameters() {
+  void supportsMultiValuedParameters() {
     params = Urls.splitQuery(URI.create("/thing?param1=1&param2=two&param1=2&param1=3"));
     assertThat(params.size(), is(2));
     assertThat(params.get("param1").isSingleValued(), is(false));
@@ -52,38 +52,38 @@ public class UrlsTest {
   }
 
   @Test
-  public void doesNotAttemptToDoubleDecodeSplitQueryString() {
+  void doesNotAttemptToDoubleDecodeSplitQueryString() {
     URI url = URI.create("/thing?q=a%25b");
     Map<String, QueryParameter> query = Urls.splitQuery(url);
     assertThat(query.get("q").firstValue(), is("a%b"));
   }
 
   @Test
-  public void returnsEmptyStringForEmptyUrlPathParts() {
+  void returnsEmptyStringForEmptyUrlPathParts() {
     assertThat(Urls.urlToPathParts(URI.create("/")), is(""));
     assertThat(Urls.urlToPathParts(URI.create("http://www.wiremock.org/")), is(""));
   }
 
   @Test
-  public void returnsNonDelimitedStringForUrlWithOnePathPart() {
+  void returnsNonDelimitedStringForUrlWithOnePathPart() {
     String pathParts = Urls.urlToPathParts(URI.create("/foo?param=value"));
     assertThat(pathParts, is("foo"));
   }
 
   @Test
-  public void returnsDelimitedStringForUrlWithTwoPathParts() {
+  void returnsDelimitedStringForUrlWithTwoPathParts() {
     String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/?param=value"));
     assertThat(pathParts, is("foo-bar"));
   }
 
   @Test
-  public void returnsNonDelimitedStringForUrlWithMoreThanTwoPathParts() {
+  void returnsNonDelimitedStringForUrlWithMoreThanTwoPathParts() {
     String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/zoo/wire/mock?param=value"));
     assertThat(pathParts, is("foo-bar-zoo-wire-mock"));
   }
 
   @Test
-  public void splitsQueryFromUrl() {
+  void splitsQueryFromUrl() {
     Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b?one=1&one=11&two=2");
 
     List<String> oneValues = query.get("one").values();
@@ -93,7 +93,7 @@ public class UrlsTest {
   }
 
   @Test
-  public void splitsQueryFromUrlWithTrailingSlash() {
+  void splitsQueryFromUrlWithTrailingSlash() {
     Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/?one=1&one=11&two=2");
 
     List<String> oneValues = query.get("one").values();
@@ -103,45 +103,45 @@ public class UrlsTest {
   }
 
   @Test
-  public void splitQueryFromUrlHandlesUrlThatEndsWithQuestionMark() {
+  void splitQueryFromUrlHandlesUrlThatEndsWithQuestionMark() {
     Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/?");
     assertThat(query.isEmpty(), is(true));
   }
 
   @Test
-  public void splitQueryFromUrlReturnsEmptyWhenNoQuery() {
+  void splitQueryFromUrlReturnsEmptyWhenNoQuery() {
     Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b");
     assertThat(query.isEmpty(), is(true));
   }
 
   @Test
-  public void splitQueryFromUrlReturnsEmptyWhenTrailingSlashAndNoQuery() {
+  void splitQueryFromUrlReturnsEmptyWhenTrailingSlashAndNoQuery() {
     Map<String, QueryParameter> query = Urls.splitQueryFromUrl("/a/b/");
     assertThat(query.isEmpty(), is(true));
   }
 
   @Test
-  public void getsThePathFromAUrlWithAQueryString() {
+  void getsThePathFromAUrlWithAQueryString() {
     assertThat(Urls.getPath("/one/two/3?q=a"), is("/one/two/3"));
   }
 
   @Test
-  public void getsThePathFromAUrlWithoutAQueryString() {
+  void getsThePathFromAUrlWithoutAQueryString() {
     assertThat(Urls.getPath("/one/two/3"), is("/one/two/3"));
   }
 
   @Test
-  public void getsThePathFromAUrlWithATrailingSlashAndQueryString() {
+  void getsThePathFromAUrlWithATrailingSlashAndQueryString() {
     assertThat(Urls.getPath("/one/two/3/?q=a"), is("/one/two/3/"));
   }
 
   @Test
-  public void getsThePathFromAUrlWithRootPathAndQuery() {
+  void getsThePathFromAUrlWithRootPathAndQuery() {
     assertThat(Urls.getPath("/?q=a"), is("/"));
   }
 
   @Test
-  public void getsThePathFromAUrlWithJustAQuery() {
+  void getsThePathFromAUrlWithJustAQuery() {
     assertThat(Urls.getPath("?q=a"), is(""));
   }
 }

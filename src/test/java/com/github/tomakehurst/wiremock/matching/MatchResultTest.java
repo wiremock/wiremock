@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class MatchResultTest {
 
   @Test
-  public void aggregatesLazily() {
+  void aggregatesLazily() {
     final MatchResult result1 = new ExceptionThrowingMatchResult();
     final MatchResult result2 = new ExceptionThrowingMatchResult();
     final MatchResult result3 = new ExceptionThrowingMatchResult();
@@ -34,7 +34,7 @@ public class MatchResultTest {
   }
 
   @Test
-  public void aggregatesDistanceCorrectly() {
+  void aggregatesDistanceCorrectly() {
     MatchResult matchResult =
         MatchResult.aggregate(
             MatchResult.partialMatch(0.5),
@@ -45,7 +45,7 @@ public class MatchResultTest {
   }
 
   @Test
-  public void aggregatesExactMatchCorrectly() {
+  void aggregatesExactMatchCorrectly() {
     MatchResult matchResult =
         MatchResult.aggregate(
             MatchResult.exactMatch(),
@@ -57,7 +57,7 @@ public class MatchResultTest {
   }
 
   @Test
-  public void aggregatesNonExactMatchCorrectly() {
+  void aggregatesNonExactMatchCorrectly() {
     MatchResult matchResult =
         MatchResult.aggregate(
             MatchResult.exactMatch(),

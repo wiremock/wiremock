@@ -109,7 +109,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingWithExactUrlAndMethodMatch() {
+  void mappingWithExactUrlAndMethodMatch() {
     stubFor(
         get(urlEqualTo("/a/registered/resource"))
             .willReturn(
@@ -126,7 +126,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingWithUrlContainingQueryParameters() {
+  void mappingWithUrlContainingQueryParameters() {
     stubFor(
         get(urlEqualTo("/search?name=John&postcode=N44LL"))
             .willReturn(aResponse().withHeader("Location", "/nowhere").withStatus(302)));
@@ -137,7 +137,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingWithHeaderMatchers() {
+  void mappingWithHeaderMatchers() {
     stubFor(
         put(urlEqualTo("/some/url"))
             .withHeader("One", equalTo("abcd1234"))
@@ -156,7 +156,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingWithCaseInsensitiveHeaderMatchers() {
+  void mappingWithCaseInsensitiveHeaderMatchers() {
     stubFor(
         put(urlEqualTo("/case/insensitive"))
             .withHeader("ONE", equalTo("abcd1234"))
@@ -175,7 +175,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchOnAbsentHeader() {
+  void doesNotMatchOnAbsentHeader() {
     stubFor(
         post(urlEqualTo("/some/url"))
             .withRequestBody(containing("BODY"))
@@ -187,7 +187,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesIfRequestContainsHeaderNotSpecified() {
+  void matchesIfRequestContainsHeaderNotSpecified() {
     stubFor(
         get(urlEqualTo("/some/extra/header"))
             .withHeader("ExpectedHeader", equalTo("expected-value"))
@@ -203,7 +203,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnUrlPathAndQueryParameters() {
+  void matchesOnUrlPathAndQueryParameters() {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", containing("WireMock"))
@@ -218,7 +218,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnUrlPathAndMultipleQueryParameters() {
+  void matchesOnUrlPathAndMultipleQueryParameters() {
     Map<String, StringValuePattern> queryParameters = new HashMap<>();
     queryParameters.put("search", containing("WireMock"));
     queryParameters.put("since", equalTo("2018-03-02"));
@@ -236,21 +236,21 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
+  void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
     stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
   }
 
   @Test
-  public void doesNotMatchOnUrlPathWhenPathShorter() {
+  void doesNotMatchOnUrlPathWhenPathShorter() {
     stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/matching").statusCode(), is(404));
   }
 
   @Test
-  public void matchesOnUrlPathPatternAndQueryParameters() {
+  void matchesOnUrlPathPatternAndQueryParameters() {
     stubFor(
         get(urlPathMatching("/path(.*)/match"))
             .withQueryParam("search", containing("WireMock"))
@@ -265,7 +265,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnUrlPathPatternAndMultipleQueryParameters() {
+  void matchesOnUrlPathPatternAndMultipleQueryParameters() {
     Map<String, StringValuePattern> queryParameters = new HashMap<>();
     queryParameters.put("search", containing("WireMock"));
     queryParameters.put("since", equalTo("2018-03-02"));
@@ -283,21 +283,21 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchOnUrlPathPatternWhenPathShorter() {
+  void doesNotMatchOnUrlPathPatternWhenPathShorter() {
     stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/matching").statusCode(), is(404));
   }
 
   @Test
-  public void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
+  void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
     stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
 
     assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
   }
 
   @Test
-  public void doesNotMatchIfSpecifiedQueryParameterNotInRequest() {
+  void doesNotMatchIfSpecifiedQueryParameterNotInRequest() {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", containing("WireMock"))
@@ -307,7 +307,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchIfSpecifiedAbsentQueryParameterIsPresentInRequest() {
+  void doesNotMatchIfSpecifiedAbsentQueryParameterIsPresentInRequest() {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", absent())
@@ -317,7 +317,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesIfSpecifiedAbsentQueryParameterIsAbsentFromRequest() {
+  void matchesIfSpecifiedAbsentQueryParameterIsAbsentFromRequest() {
     stubFor(
         get(urlPathEqualTo("/path-and-query/match"))
             .withQueryParam("search", absent())
@@ -327,7 +327,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnQueryParametersNotContaining() {
+  void matchesOnQueryParametersNotContaining() {
     stubFor(
         get(urlPathEqualTo("/query/match"))
             .withQueryParam("search", notContaining("WireMock"))
@@ -340,7 +340,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void responseBodyLoadedFromFile() {
+  void responseBodyLoadedFromFile() {
     stubFor(
         get(urlEqualTo("/my/file"))
             .willReturn(aResponse().withStatus(200).withBodyFile("plain-example.txt")));
@@ -351,7 +351,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithTwoRegexes() {
+  void matchingOnRequestBodyWithTwoRegexes() {
     stubFor(
         put(urlEqualTo("/match/this/body"))
             .withRequestBody(matching(".*Blah.*"))
@@ -370,7 +370,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
+  void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
     stubFor(
         put(urlEqualTo("/match/this/body/too"))
             .withRequestBody(containing("Blah"))
@@ -386,7 +386,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithNotContaining() {
+  void matchingOnRequestBodyWithNotContaining() {
     stubFor(
         put(urlEqualTo("/match/this/body/too"))
             .withRequestBody(notContaining("OtherBody"))
@@ -401,7 +401,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithEqualTo() {
+  void matchingOnRequestBodyWithEqualTo() {
     stubFor(
         put(urlEqualTo("/match/this/body/too"))
             .withRequestBody(equalTo("BlahBlahBlah"))
@@ -416,7 +416,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithBinaryEqualTo() {
+  void matchingOnRequestBodyWithBinaryEqualTo() {
     byte[] requestBody = new byte[] {1, 2, 3};
 
     stubFor(
@@ -436,7 +436,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithAdvancedJsonPath() {
+  void matchingOnRequestBodyWithAdvancedJsonPath() {
     stubFor(
         post("/jsonpath/advanced")
             .withRequestBody(matchingJsonPath("$.counter", equalTo("123")))
@@ -451,7 +451,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnRequestBodyWithAdvancedXPath() {
+  void matchingOnRequestBodyWithAdvancedXPath() {
     stubFor(
         post("/xpath/advanced")
             .withRequestBody(matchingXPath("//counter/text()", equalTo("123")))
@@ -465,7 +465,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void highPriorityMappingMatchedFirst() {
+  void highPriorityMappingMatchedFirst() {
     stubFor(
         get(urlMatching("/priority/.*")).atPriority(10).willReturn(aResponse().withStatus(500)));
     stubFor(
@@ -477,7 +477,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void connectionResetByPeerFault() {
+  void connectionResetByPeerFault() {
     stubFor(
         get(urlEqualTo("/connection/reset"))
             .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
@@ -488,7 +488,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void emptyResponseFault() {
+  void emptyResponseFault() {
     stubFor(
         get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
 
@@ -496,7 +496,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void malformedResponseChunkFault() {
+  void malformedResponseChunkFault() {
     stubFor(
         get(urlEqualTo("/malformed/response"))
             .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
@@ -506,7 +506,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void randomDataOnSocketFault() {
+  void randomDataOnSocketFault() {
     stubFor(
         get(urlEqualTo("/random/data"))
             .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
@@ -515,7 +515,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingUrlsWithEscapeCharacters() {
+  void matchingUrlsWithEscapeCharacters() {
     stubFor(
         get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
             .willReturn(aResponse().withStatus(HTTP_OK)));
@@ -524,7 +524,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingUrlPathsWithEscapeCharacters() {
+  void matchingUrlPathsWithEscapeCharacters() {
     stubFor(
         get(urlPathEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
             .willReturn(aResponse().withStatus(HTTP_OK)));
@@ -533,13 +533,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void default200ResponseWhenStatusCodeNotSpecified() {
+  void default200ResponseWhenStatusCodeNotSpecified() {
     stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
     assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
   }
 
   @Test
-  public void returningBinaryBody() {
+  void returningBinaryBody() {
     byte[] bytes = new byte[] {65, 66, 67};
     stubFor(get(urlEqualTo("/binary/content")).willReturn(aResponse().withBody(bytes)));
 
@@ -547,7 +547,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void listingAllStubMappings() {
+  void listingAllStubMappings() {
     stubFor(get(urlEqualTo("/stub/one")).willReturn(aResponse().withBody("One")));
     stubFor(post(urlEqualTo("/stub/two")).willReturn(aResponse().withBody("Two").withStatus(201)));
 
@@ -565,7 +565,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void stubbingPatch() {
+  void stubbingPatch() {
     stubFor(
         patch(urlEqualTo("/a/registered/resource"))
             .withRequestBody(equalTo("some body"))
@@ -578,7 +578,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void stubbingArbitraryMethod() {
+  void stubbingArbitraryMethod() {
     stubFor(request("KILL", urlEqualTo("/some/url")).willReturn(aResponse().withStatus(204)));
 
     WireMockResponse response = testClient.request("KILL", "/some/url");
@@ -587,7 +587,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void settingStatusMessage() {
+  void settingStatusMessage() {
     stubFor(
         get(urlEqualTo("/status-message"))
             .willReturn(
@@ -598,7 +598,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotAttemptToMatchXmlBodyWhenStubMappingDoesNotHaveOne() {
+  void doesNotAttemptToMatchXmlBodyWhenStubMappingDoesNotHaveOne() {
     stubFor(options(urlEqualTo("/no-body")).willReturn(aResponse().withStatus(200)));
     stubFor(
         post(urlEqualTo("/no-body"))
@@ -610,7 +610,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchXmlBodyWhenTextNodeIsIgnored() {
+  void matchXmlBodyWhenTextNodeIsIgnored() {
     String url = "/ignore/my/xml";
 
     stubFor(
@@ -622,7 +622,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotIgnoreXmlWhenPlaceholderMatchingIsFalse() {
+  void doesNotIgnoreXmlWhenPlaceholderMatchingIsFalse() {
     String url = "/do-not-ignore/my/xml";
 
     stubFor(
@@ -634,7 +634,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesQueryParamsUnencoded() {
+  void matchesQueryParamsUnencoded() {
     stubFor(
         get(urlPathEqualTo("/query"))
             .withQueryParam("param-one", equalTo("one two three ?"))
@@ -645,7 +645,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesFormParamUnencoded() {
+  void matchesFormParamUnencoded() {
     stubFor(
         put(urlPathEqualTo("/form"))
             .withFormParam("key-one", equalTo("one two three ?"))
@@ -661,7 +661,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesFormParamWithKeyInArrayStyle() {
+  void matchesFormParamWithKeyInArrayStyle() {
     stubFor(
         put(urlPathEqualTo("/form"))
             .withFormParam("key[one]", equalTo("firstValue"))
@@ -677,7 +677,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
+  void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
     stubFor(
         get(urlPathEqualTo("/empty-header"))
             .withHeader("X-My-Header", equalTo(""))
@@ -689,7 +689,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
+  void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
     StubMapping stubMapping = stubFor(get(anyUrl()).willReturn(aResponse()));
     assertThat(stubMapping.getId(), notNullValue());
 
@@ -698,7 +698,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getsASingleStubMappingById() {
+  void getsASingleStubMappingById() {
     UUID id = UUID.randomUUID();
     stubFor(get(anyUrl()).withId(id).willReturn(aResponse().withBody("identified!")));
 
@@ -708,14 +708,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void defaultsResponseWhenUnspecifiied() {
+  void defaultsResponseWhenUnspecifiied() {
     stubFor(any(anyUrl()));
 
     assertThat(testClient.get("/anything-is-matched").statusCode(), is(200));
   }
 
   @Test
-  public void stubMappingsCanOptionallyBeNamed() {
+  void stubMappingsCanOptionallyBeNamed() {
     stubFor(
         any(urlPathEqualTo("/things"))
             .withName("Get all the things")
@@ -725,7 +725,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithTwoRegexes() {
+  void matchingOnMultipartRequestBodyWithTwoRegexes() {
     stubFor(
         post(urlEqualTo("/match/this/part"))
             .withMultipartRequestBody(aMultipart().withBody(matching(".*Blah.*")))
@@ -751,7 +751,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithAContainsAndANegativeRegex() {
+  void matchingOnMultipartRequestBodyWithAContainsAndANegativeRegex() {
     stubFor(
         post(urlEqualTo("/match/this/part/too"))
             .withMultipartRequestBody(
@@ -773,7 +773,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithNotContaining() {
+  void matchingOnMultipartRequestBodyWithNotContaining() {
     stubFor(
         post(urlEqualTo("/match/this/part/too"))
             .withMultipartRequestBody(
@@ -794,7 +794,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithEqualTo() {
+  void matchingOnMultipartRequestBodyWithEqualTo() {
     stubFor(
         post(urlEqualTo("/match/this/part/too"))
             .withMultipartRequestBody(
@@ -815,7 +815,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithBinaryEqualTo() {
+  void matchingOnMultipartRequestBodyWithBinaryEqualTo() {
     byte[] requestBody = new byte[] {1, 2, 3};
 
     stubFor(
@@ -836,7 +836,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithAdvancedJsonPath() {
+  void matchingOnMultipartRequestBodyWithAdvancedJsonPath() {
     stubFor(
         post("/jsonpath/advanced/part")
             .withMultipartRequestBody(
@@ -860,7 +860,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchingOnMultipartRequestBodyWithAdvancedXPath() {
+  void matchingOnMultipartRequestBodyWithAdvancedXPath() {
     stubFor(
         post("/xpath/advanced/part")
             .withMultipartRequestBody(
@@ -884,7 +884,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnWholeUrlRegex()
+  void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnWholeUrlRegex()
       throws Exception {
     stubFor(get(urlMatching("/dodgy-chars.*")).willReturn(ok()));
 
@@ -896,7 +896,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnExactUrlPath()
+  void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnExactUrlPath()
       throws Exception {
     stubFor(get(urlPathEqualTo("/dodgy-chars")).willReturn(ok()));
 
@@ -908,7 +908,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesQueryCharactersThatStriclyShouldBeEscapedInEitherForm() {
+  void matchesQueryCharactersThatStriclyShouldBeEscapedInEitherForm() {
     stubFor(
         get(urlPathEqualTo("/test")).withQueryParam("filter[id]", equalTo("1")).willReturn(ok()));
 
@@ -917,7 +917,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesExactContentTypeEncodingSpecified() throws Exception {
+  void matchesExactContentTypeEncodingSpecified() throws Exception {
     String contentType = "application/json; charset=UTF-8";
     String url = "/request-content-type-case";
 
@@ -929,7 +929,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsContentTypeHeaderEncodingInCorrectCase() {
+  void returnsContentTypeHeaderEncodingInCorrectCase() {
     String contentType = "application/json; charset=UTF-8";
     String url = "/response-content-type-case";
 
@@ -939,7 +939,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesInRequestBodyOnLiteralZonedDate() {
+  void matchesInRequestBodyOnLiteralZonedDate() {
     stubFor(
         post("/date")
             .withRequestBody(matchingJsonPath("$.date", before("2021-10-11T00:00:00Z")))
@@ -959,7 +959,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesQueryParameterOnLiteralZonedDate() {
+  void matchesQueryParameterOnLiteralZonedDate() {
     stubFor(
         get(urlPathEqualTo("/match-query-parameter"))
             .withQueryParam("date", before("2021-10-11T00:00:00Z"))
@@ -977,7 +977,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnNowOffsetDate() {
+  void matchesOnNowOffsetDate() {
     stubFor(
         post("/offset-date")
             .withRequestBody(
@@ -1007,7 +1007,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesWithLogicalAnd() {
+  void matchesWithLogicalAnd() {
     stubFor(
         post("/date")
             .withRequestBody(
@@ -1029,7 +1029,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesQueryParametersWithLogicalOr() {
+  void matchesQueryParametersWithLogicalOr() {
     stubFor(
         get(urlPathEqualTo("/or"))
             .withQueryParam("q", equalTo("thingtofind").or(absent()))
@@ -1053,7 +1053,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesMultipleValuesForHeaderUsingExactMatch() {
+  void matchesMultipleValuesForHeaderUsingExactMatch() {
     stubFor(
         get(urlPathEqualTo("/match"))
             .withHeader("q", havingExactly("1", "2", "3"))
@@ -1067,7 +1067,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesMultipleValuesForHeaderUsingIncludesMatch() {
+  void matchesMultipleValuesForHeaderUsingIncludesMatch() {
     stubFor(
         get(urlPathEqualTo("/match")).withHeader("q", including("1", "2", "3")).willReturn(ok()));
 
@@ -1085,7 +1085,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesMultipleValuesForHeaderUsingIncludesMatchReturnsNotFound() {
+  void matchesMultipleValuesForHeaderUsingIncludesMatchReturnsNotFound() {
     stubFor(
         get(urlPathEqualTo("/match")).withHeader("q", including("1", "8", "3")).willReturn(ok()));
 
@@ -1103,7 +1103,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesMultipleValuesForHeaderUsingExactMatchReturnsNotFound() {
+  void matchesMultipleValuesForHeaderUsingExactMatchReturnsNotFound() {
     stubFor(
         get(urlPathEqualTo("/match"))
             .withHeader("q", havingExactly("1", "2", "3"))
@@ -1123,7 +1123,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesNoValuesForHeaders() {
+  void matchesNoValuesForHeaders() {
     stubFor(get(urlPathEqualTo("/match")).withHeader("q", noValues()).willReturn(ok()));
     assertThat(testClient.get("/match").statusCode(), is(200));
   }
@@ -1187,7 +1187,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesHeadersWithLogicalOr() {
+  void matchesHeadersWithLogicalOr() {
     stubFor(
         get(urlPathEqualTo("/or"))
             .withHeader(
@@ -1203,7 +1203,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void jsonResponseWithStringValue() {
+  void jsonResponseWithStringValue() {
     stubFor(
         get("/json-from-string")
             .willReturn(jsonResponse("{ \"message\": \"Json From String\" }", 200)));
@@ -1215,7 +1215,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void jsonResponseWithObjectValue() {
+  void jsonResponseWithObjectValue() {
     stubFor(
         get("/json-from-object")
             .willReturn(jsonResponse(new MockResponse("Json From Object"), 200)));
@@ -1227,7 +1227,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void removesASingleStubMapping() {
+  void removesASingleStubMapping() {
     final UUID id = UUID.randomUUID();
     stubFor(get("/stub-to-remove").withId(id).willReturn(aResponse()));
 
@@ -1239,7 +1239,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void removesASingleStubMappingById() {
+  void removesASingleStubMappingById() {
     final UUID id = UUID.randomUUID();
     stubFor(get("/stub-to-remove-by-id").withId(id).willReturn(aResponse()));
 

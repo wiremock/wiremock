@@ -42,7 +42,7 @@ public class SnapshotStubMappingBodyExtractorTest {
   }
 
   @Test
-  public void updatesStubMapping() {
+  void updatesStubMapping() {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(ok("")).build();
     bodyExtractor.extractInPlace(stubMapping);
     assertThat(
@@ -54,28 +54,28 @@ public class SnapshotStubMappingBodyExtractorTest {
   }
 
   @Test
-  public void determinesFileNameProperlyFromUrlWithJson() {
+  void determinesFileNameProperlyFromUrlWithJson() {
     StubMapping stubMapping = WireMock.get("/foo/bar.json").willReturn(ok("{}")).build();
     bodyExtractor.extractInPlace(stubMapping);
     verifyWriteBinaryFile("get-foobar.json-" + stubMapping.getId() + ".json", "{}");
   }
 
   @Test
-  public void determinesFileNameProperlyFromUrlWithText() {
+  void determinesFileNameProperlyFromUrlWithText() {
     StubMapping stubMapping = WireMock.get("/foo/bar.txt").willReturn(ok("")).build();
     bodyExtractor.extractInPlace(stubMapping);
     verifyWriteBinaryFile("get-foobar.txt-" + stubMapping.getId() + ".txt", "");
   }
 
   @Test
-  public void determinesFileNameProperlyFromMimeTypeWithJson() {
+  void determinesFileNameProperlyFromMimeTypeWithJson() {
     StubMapping stubMapping = WireMock.get("/foo/bar.txt").willReturn(okJson("{}")).build();
     bodyExtractor.extractInPlace(stubMapping);
     verifyWriteBinaryFile("get-foobar.txt-" + stubMapping.getId() + ".json", "{}");
   }
 
   @Test
-  public void determinesFileNameProperlyWithNamedStubMapping() {
+  void determinesFileNameProperlyWithNamedStubMapping() {
     StubMapping stubMapping = WireMock.get("/foo").willReturn(okJson("{}")).build();
     stubMapping.setName("TEST NAME!");
     bodyExtractor.extractInPlace(stubMapping);

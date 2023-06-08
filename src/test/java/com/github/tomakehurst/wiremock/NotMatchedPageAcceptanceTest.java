@@ -56,7 +56,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void rendersAPlainTextDiffWhenStubNotMatchedAndANearMissIsAvailable() {
+  void rendersAPlainTextDiffWhenStubNotMatchedAndANearMissIsAvailable() {
     configure();
 
     stubFor(
@@ -89,7 +89,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void adjustsWidthWhenConsoleWidthHeaderSpecified() {
+  void adjustsWidthWhenConsoleWidthHeaderSpecified() {
     configure();
 
     stubFor(
@@ -124,7 +124,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void rendersAPlainTextDiffWhenRequestIsOnlyUrlAndMethod() {
+  void rendersAPlainTextDiffWhenRequestIsOnlyUrlAndMethod() {
     configure();
 
     stubFor(get("/another-url").withRequestBody(absent()).willReturn(ok()));
@@ -135,7 +135,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void showsADefaultMessageWhenNoStubsWerePresent() {
+  void showsADefaultMessageWhenNoStubsWerePresent() {
     configure();
 
     WireMockResponse response = testClient.get("/no-stubs-to-match");
@@ -148,7 +148,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void supportsCustomNoMatchRenderer() {
+  void supportsCustomNoMatchRenderer() {
     configure(
         wireMockConfig()
             .notMatchedRenderer(
@@ -169,7 +169,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void returns404AndDiffReportWhenPlusSymbolInQuery() {
+  void returns404AndDiffReportWhenPlusSymbolInQuery() {
     configure();
 
     WireMockResponse response =
@@ -181,7 +181,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void indicatesWhenWrongScenarioStateIsTheReasonForNonMatch() {
+  void indicatesWhenWrongScenarioStateIsTheReasonForNonMatch() {
     configure();
 
     stubFor(
@@ -197,7 +197,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void showsDescriptiveDiffLineForLogicalOrWithAbsent() {
+  void showsDescriptiveDiffLineForLogicalOrWithAbsent() {
     configure();
 
     stubFor(
@@ -212,7 +212,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void requestValuesTransformedByRequestFilterAreShownInDiff() {
+  void requestValuesTransformedByRequestFilterAreShownInDiff() {
     configure(
         wireMockConfig()
             .extensions(
@@ -243,7 +243,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void showsNotFoundDiffMessageForNonStandardHttpMethods() {
+  void showsNotFoundDiffMessageForNonStandardHttpMethods() {
     configure();
     stubFor(request("PAAARP", urlPathEqualTo("/pip")).willReturn(ok()));
 
@@ -254,7 +254,7 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   @Test
-  public void showsNotFoundDiffMessageWhenRequestBodyIsGZipped() {
+  void showsNotFoundDiffMessageWhenRequestBodyIsGZipped() {
     configure();
     stubFor(
         post(urlPathEqualTo("/gzip"))

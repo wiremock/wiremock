@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class ResponseTransformerAcceptanceTest {
   WireMockTestClient client;
 
   @Test
-  public void transformsStubResponse() {
+  void transformsStubResponse() {
     startWithExtensions(StubResponseTransformer.class);
 
     wm.stubFor(
@@ -47,7 +47,7 @@ public class ResponseTransformerAcceptanceTest {
   }
 
   @Test
-  public void acceptsTransformerParameters() {
+  void acceptsTransformerParameters() {
     startWithExtensions(StubResponseTransformerWithParams.class);
 
     wm.stubFor(
@@ -63,7 +63,7 @@ public class ResponseTransformerAcceptanceTest {
   }
 
   @Test
-  public void globalTransformAppliedWithLocalParameters() {
+  void globalTransformAppliedWithLocalParameters() {
     startWithExtensions(GlobalResponseTransformer.class);
 
     wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aResponse()));
@@ -72,7 +72,7 @@ public class ResponseTransformerAcceptanceTest {
   }
 
   @Test
-  public void filesRootIsCorrectlyPassedToTransformer() {
+  void filesRootIsCorrectlyPassedToTransformer() {
     startWithExtensions(FilesUsingResponseTransformer.class);
 
     wm.stubFor(get(urlEqualTo("/response-transform-with-files")).willReturn(ok()));

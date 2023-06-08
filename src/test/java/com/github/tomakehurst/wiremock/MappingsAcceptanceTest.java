@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void basicMappingCheckNonUtf8() {
+  void basicMappingCheckNonUtf8() {
     testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "GB2312");
 
     WireMockResponse response = testClient.get("/test/nonutf8/");
@@ -47,7 +47,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void basicMappingCheckCharsetMismatch() {
+  void basicMappingCheckCharsetMismatch() {
     testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "ISO-8859-8");
 
     WireMockResponse response = testClient.get("/test/nonutf8/");
@@ -57,7 +57,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
+  void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
     testClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
 
     WireMockResponse response = testClient.get("/a/registered/resource");
@@ -68,7 +68,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
+  void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
     testClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
 
     WireMockResponse response = testClient.put("/status/only");
@@ -78,13 +78,13 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void notFoundResponseIsReturnedForUnregisteredUrl() {
+  void notFoundResponseIsReturnedForUnregisteredUrl() {
     WireMockResponse response = testClient.get("/non-existent/resource");
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
   }
 
   @Test
-  public void multipleMappingsSupported() {
+  void multipleMappingsSupported() {
     add200ResponseFor("/resource/1");
     add200ResponseFor("/resource/2");
     add200ResponseFor("/resource/3");
@@ -95,7 +95,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void multipleInvocationsSupported() {
+  void multipleInvocationsSupported() {
     add200ResponseFor("/resource/100");
     getResponseAndAssert200Status("/resource/100");
     getResponseAndAssert200Status("/resource/100");
@@ -103,12 +103,12 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void loadsDefaultMappingsOnStart() {
+  void loadsDefaultMappingsOnStart() {
     getResponseAndAssert200Status("/testmapping");
   }
 
   @Test
-  public void resetToDefaultRemovesAllButDefault() {
+  void resetToDefaultRemovesAllButDefault() {
     add200ResponseFor("/resource/11");
 
     testClient.resetDefaultMappings();
@@ -118,7 +118,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void resetToDefaultRestoresOldMeaningOfDefault() {
+  void resetToDefaultRestoresOldMeaningOfDefault() {
     add200ResponseFor("/testmapping");
     WireMockResponse response1 = testClient.get("/testmapping");
     assertThat(response1.content(), is(""));
@@ -130,13 +130,13 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void readsMapppingForByteBody() {
+  void readsMapppingForByteBody() {
     testClient.addResponse(MAPPING_REQUEST_FOR_BYTE_BODY);
     assertThat(testClient.get("/byte/resource/from/file").content(), is("ABC"));
   }
 
   @Test
-  public void readsMapppingForByteBodyReturnsByteArray() {
+  void readsMapppingForByteBodyReturnsByteArray() {
     testClient.addResponse(MAPPING_REQUEST_FOR_BINARY_BYTE_BODY);
     assertThat(
         testClient.get("/bytecompressed/resource/from/file").binaryContent(),
@@ -144,7 +144,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void readsJsonMapping() {
+  void readsJsonMapping() {
     WireMockResponse response = testClient.get("/testjsonmapping");
     assertThat(response.statusCode(), is(200));
     assertThat(
@@ -153,8 +153,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void appendsTransferEncodingHeaderIfNoContentLengthHeaderIsPresentInMapping()
-      throws Exception {
+  void appendsTransferEncodingHeaderIfNoContentLengthHeaderIsPresentInMapping() throws Exception {
     testClient.addResponse(
         "{ 													\n"
             + "	\"request\": {									\n"
@@ -173,7 +172,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping()
+  void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping()
       throws Exception {
     testClient.addResponse(
         "{ 													\n"

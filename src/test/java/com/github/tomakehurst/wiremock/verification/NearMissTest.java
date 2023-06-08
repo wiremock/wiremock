@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class NearMissTest {
           + "}";
 
   @Test
-  public void correctlySerialisesToJsonWithStubMapping() {
+  void correctlySerialisesToJsonWithStubMapping() {
     String json =
         Json.write(
             new NearMiss(
@@ -83,7 +83,7 @@ public class NearMissTest {
   }
 
   @Test
-  public void correctlySerialisesToJsonWithRequestPattern() {
+  void correctlySerialisesToJsonWithRequestPattern() {
     String json =
         Json.write(
             new NearMiss(
@@ -95,7 +95,7 @@ public class NearMissTest {
   }
 
   @Test
-  public void correctlyDeserialisesFromJsonWithStubMapping() {
+  void correctlyDeserialisesFromJsonWithStubMapping() {
     NearMiss nearMiss = Json.read(STUB_MAPPING_EXAMPLE, NearMiss.class);
 
     assertThat(nearMiss.getRequest().getUrl(), is("/nearly-missed-me"));
@@ -108,7 +108,7 @@ public class NearMissTest {
   }
 
   @Test
-  public void correctlyDeserialisesFromJsonWithRequestPattern() {
+  void correctlyDeserialisesFromJsonWithRequestPattern() {
     NearMiss nearMiss = Json.read(REQUEST_PATTERN_EXAMPLE, NearMiss.class);
 
     assertThat(nearMiss.getRequest().getUrl(), is("/nearly-missed-me"));

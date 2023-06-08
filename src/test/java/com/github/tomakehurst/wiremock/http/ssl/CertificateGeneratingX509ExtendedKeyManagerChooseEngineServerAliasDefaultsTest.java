@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsNullIfDefaultAliasReturnsNull() {
+  void returnsNullIfDefaultAliasReturnsNull() {
     given(keyManagerMock.chooseEngineServerAlias("RSA", nullPrincipals, sslEngineMock))
         .willReturn(null);
 
@@ -69,7 +69,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfEngineIsNull() {
+  void returnsDefaultIfEngineIsNull() {
     given(keyManagerMock.chooseEngineServerAlias("RSA", nullPrincipals, nullSslEngine))
         .willReturn("default_alias");
 
@@ -81,7 +81,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfHandshakeSessionIsNotSupported() {
+  void returnsDefaultIfHandshakeSessionIsNotSupported() {
     given(sslEngineMock.getHandshakeSession()).willThrow(new UnsupportedOperationException());
 
     String alias =
@@ -98,7 +98,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfHandshakeSessionIsNotAnAnExtendedSSLSession() {
+  void returnsDefaultIfHandshakeSessionIsNotAnAnExtendedSSLSession() {
     given(sslEngineMock.getHandshakeSession()).willReturn(nonExtendedSslSessionMock);
 
     String alias =
@@ -109,7 +109,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfGetRequestedServerNamesIsNotSupported() {
+  void returnsDefaultIfGetRequestedServerNamesIsNotSupported() {
     given(extendedSslSessionMock.getRequestedServerNames())
         .willThrow(new UnsupportedOperationException());
 
@@ -127,7 +127,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfThereAreNoSNIServerNames() {
+  void returnsDefaultIfThereAreNoSNIServerNames() {
     given(extendedSslSessionMock.getRequestedServerNames())
         .willReturn(Collections.<SNIServerName>emptyList());
 
@@ -139,7 +139,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfThereAreNoSNIHostNames() {
+  void returnsDefaultIfThereAreNoSNIHostNames() {
     SNIServerName notAnSIHostName = new SNIServerName(1, new byte[0]) {};
     given(extendedSslSessionMock.getRequestedServerNames())
         .willReturn(Collections.singletonList(notAnSIHostName));
@@ -152,7 +152,7 @@ public class CertificateGeneratingX509ExtendedKeyManagerChooseEngineServerAliasD
   }
 
   @Test
-  public void returnsDefaultIfAnSNIHostNameMatchesTheDefaultCertificate() {
+  void returnsDefaultIfAnSNIHostNameMatchesTheDefaultCertificate() {
     SNIServerName hostName1 = new SNIHostName("example.com");
     SNIServerName hostName2 = new SNIHostName("wiremock.org");
     SNIServerName hostName3 = new SNIHostName("example.org");

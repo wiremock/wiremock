@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class XmlHandlingAcceptanceTest {
   }
 
   @Test
-  public void doesNotDownloadExternalDtdDocumentsWhenMatchingOnEqualToXml() {
+  void doesNotDownloadExternalDtdDocumentsWhenMatchingOnEqualToXml() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<!DOCTYPE things [\n"
@@ -76,7 +76,7 @@ public class XmlHandlingAcceptanceTest {
   }
 
   @Test
-  public void doesNotDownloadExternalDtdDocumentsWhenMatchingXPath() {
+  void doesNotDownloadExternalDtdDocumentsWhenMatchingXPath() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<!DOCTYPE things [\n"
@@ -97,7 +97,7 @@ public class XmlHandlingAcceptanceTest {
   }
 
   @Test
-  public void doesNotDownloadExternalDtdDocumentsWhenEvaluatingXPathInTemplate() {
+  void doesNotDownloadExternalDtdDocumentsWhenEvaluatingXPathInTemplate() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<!DOCTYPE things [\n"
@@ -121,7 +121,7 @@ public class XmlHandlingAcceptanceTest {
   }
 
   @Test
-  public void doesNotAttemptToValidateXmlAgainstDtdWhenMatchingOnEqualToXml() {
+  void doesNotAttemptToValidateXmlAgainstDtdWhenMatchingOnEqualToXml() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<!DOCTYPE things [\n"
@@ -139,7 +139,7 @@ public class XmlHandlingAcceptanceTest {
   }
 
   @Test
-  public void doesNotAttemptToValidateXmlAgainstDtdWhenMatchingOnXPath() {
+  void doesNotAttemptToValidateXmlAgainstDtdWhenMatchingOnXPath() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<!DOCTYPE things [\n"

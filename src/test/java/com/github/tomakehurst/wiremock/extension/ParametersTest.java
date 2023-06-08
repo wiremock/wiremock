@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class ParametersTest {
 
   @Test
-  public void convertsParametersToAnObject() {
+  void convertsParametersToAnObject() {
     MyData myData =
         Parameters.from(ImmutableMap.of("name", "Tom", "num", 27, "date", "2023-01-01"))
             .as(MyData.class);
@@ -38,7 +38,7 @@ public class ParametersTest {
   }
 
   @Test
-  public void convertsToParametersFromAnObject() {
+  void convertsToParametersFromAnObject() {
     MyData myData = new MyData("Mark", 12, LocalDate.of(2023, 1, 1));
 
     Parameters parameters = Parameters.of(myData);

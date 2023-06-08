@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@ public class LoggedResponseTest {
   private static String UTF8_RESPONSE_BODY = "Foo © bar 𝌆 baz ☃ qux";
 
   @Test
-  public void returnsEmptyStringForBodyWhenNotConfigured() {
+  void returnsEmptyStringForBodyWhenNotConfigured() {
     LoggedResponse loggedResponse = LoggedResponse.from(Response.notConfigured(), UNLIMITED);
     assertEquals(loggedResponse.getBodyAsString(), "");
   }
 
   @Test
-  public void returnsEncodedStringForBodyWhenContentTypeHeaderGiven() {
+  void returnsEncodedStringForBodyWhenContentTypeHeaderGiven() {
     LoggedResponse loggedResponse =
         LoggedResponse.from(
             Response.response()
@@ -49,7 +49,7 @@ public class LoggedResponseTest {
   }
 
   @Test
-  public void returnsUtf8StringForBodyWhenContentTypeHeaderAbsent() {
+  void returnsUtf8StringForBodyWhenContentTypeHeaderAbsent() {
     LoggedResponse loggedResponse =
         LoggedResponse.from(Response.response().body(UTF8_RESPONSE_BODY).build(), UNLIMITED);
     assertThat(UTF8_RESPONSE_BODY, is(equalTo(loggedResponse.getBodyAsString())));

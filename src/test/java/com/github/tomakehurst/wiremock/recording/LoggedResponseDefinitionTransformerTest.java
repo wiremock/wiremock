@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ public class LoggedResponseDefinitionTransformerTest {
   }
 
   @Test
-  public void applyWithEmptyHeadersAndBody() {
+  void applyWithEmptyHeadersAndBody() {
     final LoggedResponse response =
         LoggedResponse.from(Response.response().status(401).build(), UNLIMITED);
     assertEquals(responseDefinition().withStatus(401).build(), aTransformer().apply(response));
   }
 
   @Test
-  public void applyWithTextBody() {
+  void applyWithTextBody() {
     final LoggedResponse response =
         LoggedResponse.from(
             Response.response()
@@ -50,7 +50,7 @@ public class LoggedResponseDefinitionTransformerTest {
   }
 
   @Test
-  public void applyWithBinaryBody() {
+  void applyWithBinaryBody() {
     final byte[] body = new byte[] {0x1, 0xc, 0x3, 0xb, 0x1};
     final LoggedResponse response =
         LoggedResponse.from(
@@ -68,7 +68,7 @@ public class LoggedResponseDefinitionTransformerTest {
   }
 
   @Test
-  public void preservesHeadersExceptThoseSpecificallyExcluded() {
+  void preservesHeadersExceptThoseSpecificallyExcluded() {
     final LoggedResponse response =
         LoggedResponse.from(
             Response.response()
@@ -90,7 +90,7 @@ public class LoggedResponseDefinitionTransformerTest {
   }
 
   @Test
-  public void transformsWhenNoHeadersArePresent() {
+  void transformsWhenNoHeadersArePresent() {
     final byte[] body = new byte[] {0x1, 0xc, 0x3, 0xb, 0x1};
     final LoggedResponse response =
         LoggedResponse.from(

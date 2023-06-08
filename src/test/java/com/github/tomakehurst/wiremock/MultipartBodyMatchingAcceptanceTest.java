@@ -42,7 +42,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
   @Test
-  public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
+  void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
@@ -65,7 +65,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void handlesAbsenceOfPartsInAMultipartRequest() throws Exception {
+  void handlesAbsenceOfPartsInAMultipartRequest() throws Exception {
     stubFor(
         post("/empty-multipart")
             .withMultipartRequestBody(aMultipart().withName("bits").withBody(matching(".*")))
@@ -86,7 +86,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   /** @see <a href="https://github.com/tomakehurst/wiremock/issues/1047">#1047</a> */
   @Test
-  public void acceptsAMultipartMixedRequestContainingATextAndAFilePart() throws Exception {
+  void acceptsAMultipartMixedRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart-mixed")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
@@ -111,7 +111,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   /** @see <a href="https://github.com/tomakehurst/wiremock/issues/1047">#1047</a> */
   @Test
-  public void acceptsAMultipartRelatedRequestContainingATextAndAFilePart() throws Exception {
+  void acceptsAMultipartRelatedRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart-related")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
@@ -136,7 +136,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   // https://github.com/tomakehurst/wiremock/issues/1179
   @Test
-  public void multipartBodiesCanBeMatchedWhenStubsWithOtherBodyMatchTypesArePresent() {
+  void multipartBodiesCanBeMatchedWhenStubsWithOtherBodyMatchTypesArePresent() {
     stubFor(
         post("/multipart")
             .withMultipartRequestBody(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
           + "--abc";
 
   @Test
-  public void forRequestWithTextBodyIsCaseSensitiveByDefault() {
+  void forRequestWithTextBodyIsCaseSensitiveByDefault() {
     Request request = mockRequest().body(JSON_TEST_STRING);
     EqualToPattern pattern = (EqualToPattern) patternForRequest(request);
 
@@ -45,7 +45,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
-  public void forRequestWithTextBodyRespectsCaseInsensitiveOption() {
+  void forRequestWithTextBodyRespectsCaseInsensitiveOption() {
     Request request = mockRequest().body(JSON_TEST_STRING);
     RequestBodyAutomaticPatternFactory patternFactory =
         new RequestBodyAutomaticPatternFactory(false, false, true);
@@ -56,7 +56,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
-  public void forRequestWithJsonBodyIgnoresExtraElementsAndArrayOrderByDefault() {
+  void forRequestWithJsonBodyIgnoresExtraElementsAndArrayOrderByDefault() {
     Request request =
         mockRequest().header("Content-Type", "application/json").body(JSON_TEST_STRING);
     EqualToJsonPattern pattern = (EqualToJsonPattern) patternForRequest(request);
@@ -67,7 +67,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
-  public void forRequestWithJsonBodyRespectsOptions() {
+  void forRequestWithJsonBodyRespectsOptions() {
     RequestBodyAutomaticPatternFactory patternFactory =
         new RequestBodyAutomaticPatternFactory(false, false, false);
     Request request =
@@ -80,7 +80,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
-  public void forRequestWithXmlBody() {
+  void forRequestWithXmlBody() {
     Request request = mockRequest().header("Content-Type", "application/xml").body(XML_TEST_STRING);
     EqualToXmlPattern pattern = (EqualToXmlPattern) patternForRequest(request);
 
@@ -88,7 +88,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
-  public void forRequestWithMultipartBody() {
+  void forRequestWithMultipartBody() {
     Request request =
         mockRequest().header("Content-Type", "multipart/form-data").body(MULTIPART_TEST_STRING);
     // TODO: Update this when we add a matcher for multipart bodies
@@ -98,7 +98,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
   }
 
   @Test
-  public void forRequestWithBinaryBody() {
+  void forRequestWithBinaryBody() {
     Request request =
         mockRequest().header("Content-Type", "application/octet-stream").body(new byte[] {1, 2, 3});
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,79 +21,79 @@ import static org.hamcrest.Matchers.is;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
-public class DateTimeTruncationTest {
+class DateTimeTruncationTest {
 
   @Test
-  public void firstSecondOfMinute() {
+  void firstSecondOfMinute() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_SECOND_OF_MINUTE.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-06-18T10:11:00Z")));
   }
 
   @Test
-  public void firstMinuteOfHour() {
+  void firstMinuteOfHour() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_MINUTE_OF_HOUR.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-06-18T10:00:00Z")));
   }
 
   @Test
-  public void firstHourOfDay() {
+  void firstHourOfDay() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_HOUR_OF_DAY.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-06-18T00:00:00Z")));
   }
 
   @Test
-  public void firstDayOfMonth() {
+  void firstDayOfMonth() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_DAY_OF_MONTH.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-06-01T00:00:00Z")));
   }
 
   @Test
-  public void firstDayOfNextMonth() {
+  void firstDayOfNextMonth() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_DAY_OF_NEXT_MONTH.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-07-01T00:00:00Z")));
   }
 
   @Test
-  public void lastDayOfMonth() {
+  void lastDayOfMonth() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.LAST_DAY_OF_MONTH.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-06-30T00:00:00Z")));
   }
 
   @Test
-  public void firstDayOfYear() {
+  void firstDayOfYear() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_DAY_OF_YEAR.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-01-01T00:00:00Z")));
   }
 
   @Test
-  public void firstDayOfNextYear() {
+  void firstDayOfNextYear() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.FIRST_DAY_OF_NEXT_YEAR.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2022-01-01T00:00:00Z")));
   }
 
   @Test
-  public void lastDayOfYear() {
+  void lastDayOfYear() {
     ZonedDateTime input = ZonedDateTime.parse("2021-06-18T10:11:12Z");
     ZonedDateTime output = DateTimeTruncation.LAST_DAY_OF_YEAR.truncate(input);
     assertThat(output, is(ZonedDateTime.parse("2021-12-31T00:00:00Z")));
   }
 
   @Test
-  public void parsesFromFriendlyString() {
+  void parsesFromFriendlyString() {
     assertThat(
         DateTimeTruncation.fromString("last day of year"), is(DateTimeTruncation.LAST_DAY_OF_YEAR));
   }
 
   @Test
-  public void toStringReturnsFriendlyString() {
+  void toStringReturnsFriendlyString() {
     assertThat(DateTimeTruncation.FIRST_DAY_OF_MONTH.toString(), is("first day of month"));
   }
 }

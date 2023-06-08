@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class AfterDateTimePatternTest {
 
   @Test
-  public void matchesZonedToZoned() {
+  void matchesZonedToZoned() {
     StringValuePattern matcher = WireMock.after("2021-06-14T12:13:14Z");
 
     assertTrue(matcher.match("2022-06-14T12:13:14Z").isExactMatch());
@@ -41,7 +41,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void matchesLocalToLocal() {
+  void matchesLocalToLocal() {
     StringValuePattern matcher = WireMock.after("2021-06-14T12:13:14");
 
     assertTrue(matcher.match("2022-06-14T12:13:14").isExactMatch());
@@ -49,7 +49,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void matchesLocalToZoned() {
+  void matchesLocalToZoned() {
     StringValuePattern matcher = WireMock.after("2021-06-14T12:13:14");
 
     assertTrue(matcher.match("2022-06-14T12:13:14Z").isExactMatch());
@@ -57,7 +57,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedExpectedWithLocalActual() {
+  void matchesZonedExpectedWithLocalActual() {
     StringValuePattern matcher = WireMock.after("2021-06-14T15:15:15Z");
 
     assertTrue(matcher.match("2021-07-01T23:59:59").isExactMatch());
@@ -65,7 +65,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedToNowOffset() {
+  void matchesZonedToNowOffset() {
     StringValuePattern matcher = WireMock.afterNow().expectedOffset(27, DateTimeUnit.MINUTES);
 
     ZonedDateTime good = ZonedDateTime.now().plusHours(1);
@@ -75,7 +75,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void matchesNowWithExpectedAndActualTruncated() {
+  void matchesNowWithExpectedAndActualTruncated() {
     StringValuePattern matcher =
         WireMock.afterNow()
             .truncateExpected(DateTimeTruncation.FIRST_DAY_OF_MONTH)
@@ -89,13 +89,13 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenActualValueIsNull() {
+  void doesNotMatchWhenActualValueIsNull() {
     StringValuePattern matcher = WireMock.after("2021-06-14T15:15:15Z");
     assertFalse(matcher.match(null).isExactMatch());
   }
 
   @Test
-  public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
+  void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.after("2021-01-01T00:00:00Z");
     assertThat(matcher.match("1971-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("1921-01-01T00:00:00Z").getDistance(), is(1.0));
@@ -104,7 +104,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void serialisesToJson() {
+  void serialisesToJson() {
     AfterDateTimePattern matcher =
         WireMock.afterNow()
             .expectedOffset(DateTimeOffset.fromString("now -5 days"))
@@ -122,7 +122,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesFromJson() {
+  void deserialisesFromJson() {
     AfterDateTimePattern matcher =
         Json.read(
             "{\n"
@@ -138,7 +138,7 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesOffsetWithSeparateAmountAndUnitAttributesFromJson() {
+  void deserialisesOffsetWithSeparateAmountAndUnitAttributesFromJson() {
     AfterDateTimePattern matcher =
         Json.read(
             "{\n"
@@ -156,19 +156,19 @@ public class AfterDateTimePatternTest {
   }
 
   @Test
-  public void acceptsJavaZonedDateTimeAsExpected() {
+  void acceptsJavaZonedDateTimeAsExpected() {
     AfterDateTimePattern matcher = WireMock.after(ZonedDateTime.parse("2020-08-29T00:00:00Z"));
     assertTrue(matcher.match("2021-01-01T00:00:00Z").isExactMatch());
   }
 
   @Test
-  public void acceptsJavaLocalDateTimeAsExpected() {
+  void acceptsJavaLocalDateTimeAsExpected() {
     AfterDateTimePattern matcher = WireMock.after(LocalDateTime.parse("2020-08-29T00:00:00"));
     assertTrue(matcher.match("2021-01-01T00:00:00").isExactMatch());
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     AfterDateTimePattern a = WireMock.after(LocalDateTime.parse("2020-08-29T00:00:00"));
     AfterDateTimePattern b = WireMock.after(LocalDateTime.parse("2020-08-29T00:00:00"));
     AfterDateTimePattern c = WireMock.after(LocalDateTime.parse("2022-01-01T10:10:10"));

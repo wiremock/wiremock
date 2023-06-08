@@ -31,24 +31,24 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class MultiValuePatternTest {
 
   @Test
-  public void returnsExactMatchForAbsentHeaderWhenRequiredAbsent() {
+  void returnsExactMatchForAbsentHeaderWhenRequiredAbsent() {
     assertTrue(MultiValuePattern.absent().match(HttpHeader.absent("any-key")).isExactMatch());
   }
 
   @Test
-  public void returnsNonMatchForPresentHeaderWhenRequiredAbsent() {
+  void returnsNonMatchForPresentHeaderWhenRequiredAbsent() {
     assertFalse(
         MultiValuePattern.absent().match(httpHeader("the-key", "the value")).isExactMatch());
   }
 
   @Test
-  public void returnsNonMatchForAbsentHeaderWhenRequiredBeforeNow() {
+  void returnsNonMatchForAbsentHeaderWhenRequiredBeforeNow() {
     assertFalse(
         MultiValuePattern.of(beforeNow()).match(HttpHeader.absent("any-key")).isExactMatch());
   }
 
   @Test
-  public void returnsExactMatchForPresentHeaderWhenRequiredPresent() {
+  void returnsExactMatchForPresentHeaderWhenRequiredPresent() {
     assertTrue(
         MultiValuePattern.of(equalTo("required-value"))
             .match(httpHeader("the-key", "required-value"))
@@ -56,7 +56,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void returnsNonMatchForAbsentHeaderWhenRequiredPresent() {
+  void returnsNonMatchForAbsentHeaderWhenRequiredPresent() {
     MatchResult matchResult =
         MultiValuePattern.of(equalTo("required-value")).match(absent("the-key"));
 
@@ -65,7 +65,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void returnsNonZeroDistanceWhenHeaderValuesAreSimilar() {
+  void returnsNonZeroDistanceWhenHeaderValuesAreSimilar() {
     assertThat(
         MultiValuePattern.of(equalTo("required-value"))
             .match(httpHeader("any-key", "require1234567"))
@@ -74,7 +74,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void returnsTheBestMatchWhenSeveralValuesAreAvailableAndNoneAreExact() {
+  void returnsTheBestMatchWhenSeveralValuesAreAvailableAndNoneAreExact() {
     assertThat(
         MultiValuePattern.of(equalTo("required-value"))
             .match(httpHeader("any-key", "require1234567", "requi12345", "1234567rrrr"))
@@ -83,7 +83,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void returnsTheBestMatchWhenSeveralHeaderValuesAreAvailableAndOneIsExact() {
+  void returnsTheBestMatchWhenSeveralHeaderValuesAreAvailableAndOneIsExact() {
     assertTrue(
         MultiValuePattern.of(equalTo("required-value"))
             .match(httpHeader("any-key", "require1234567", "required-value", "1234567rrrr"))
@@ -91,7 +91,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void returnsTheBestMatchWhenSeveralQueryParamValuesAreAvailableAndOneIsExact() {
+  void returnsTheBestMatchWhenSeveralQueryParamValuesAreAvailableAndOneIsExact() {
     assertTrue(
         MultiValuePattern.of(equalTo("required-value"))
             .match(queryParam("any-key", "require1234567", "required-value", "1234567rrrr"))
@@ -99,7 +99,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void correctlyRendersEqualToAsJson() throws Exception {
+  void correctlyRendersEqualToAsJson() throws Exception {
     String actual = Json.write(MultiValuePattern.of(equalTo("something")));
     System.out.println(actual);
     JSONAssert.assertEquals(
@@ -109,7 +109,7 @@ public class MultiValuePatternTest {
   }
 
   @Test
-  public void correctlyRendersAbsentAsJson() throws Exception {
+  void correctlyRendersAbsentAsJson() throws Exception {
     String actual = Json.write(MultiValuePattern.absent());
     System.out.println(actual);
     JSONAssert.assertEquals(

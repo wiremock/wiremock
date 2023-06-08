@@ -69,25 +69,25 @@ import org.junit.jupiter.api.Test;
 public class CommandLineOptionsTest {
 
   @Test
-  public void returnsVerboseTrueWhenOptionPresent() {
+  void returnsVerboseTrueWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--verbose");
     assertThat(options.verboseLoggingEnabled(), is(true));
   }
 
   @Test
-  public void returnsVerboseFalseWhenOptionNotPresent() {
+  void returnsVerboseFalseWhenOptionNotPresent() {
     CommandLineOptions options = new CommandLineOptions("");
     assertThat(options.verboseLoggingEnabled(), is(false));
   }
 
   @Test
-  public void returnsRecordMappingsTrueWhenOptionPresent() {
+  void returnsRecordMappingsTrueWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--record-mappings");
     assertThat(options.recordMappingsEnabled(), is(true));
   }
 
   @Test
-  public void returnsHeaderMatchingEnabledWhenOptionPresent() {
+  void returnsHeaderMatchingEnabledWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--match-headers", "Accept,Content-Type");
     assertThat(
         options.matchingHeaders(),
@@ -95,38 +95,38 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsRecordMappingsFalseWhenOptionNotPresent() {
+  void returnsRecordMappingsFalseWhenOptionNotPresent() {
     CommandLineOptions options = new CommandLineOptions("");
     assertThat(options.recordMappingsEnabled(), is(false));
   }
 
   @Test
-  public void setsPortNumberWhenOptionPresent() {
+  void setsPortNumberWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--port", "8086");
     assertThat(options.portNumber(), is(8086));
   }
 
   @Test
-  public void disablesHttpWhenOptionPresentAndHttpsEnabled() {
+  void disablesHttpWhenOptionPresentAndHttpsEnabled() {
     CommandLineOptions options = new CommandLineOptions("--disable-http", "--https-port", "8443");
     assertThat(options.getHttpDisabled(), is(true));
   }
 
   @Test
-  public void enablesHttpsAndSetsPortNumberWhenOptionPresent() {
+  void enablesHttpsAndSetsPortNumberWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
     assertThat(options.httpsSettings().enabled(), is(true));
     assertThat(options.httpsSettings().port(), is(8443));
   }
 
   @Test
-  public void defaultsKeystorePathIfNotSpecifiedWhenHttpsEnabled() {
+  void defaultsKeystorePathIfNotSpecifiedWhenHttpsEnabled() {
     CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
     assertThat(options.httpsSettings().keyStorePath(), endsWith("/keystore"));
   }
 
   @Test
-  public void setsRequireClientCert() {
+  void setsRequireClientCert() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--https-port",
@@ -140,7 +140,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void setsTrustStoreOptions() {
+  void setsTrustStoreOptions() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--https-port", "8443",
@@ -154,7 +154,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void defaultsTrustStorePasswordIfNotSpecified() {
+  void defaultsTrustStorePasswordIfNotSpecified() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--https-keystore", "/my/keystore",
@@ -163,7 +163,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void setsHttpsKeyStorePathOptions() {
+  void setsHttpsKeyStorePathOptions() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--https-port", "8443",
@@ -178,7 +178,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
+  void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
     assertThrows(
         Exception.class,
         () -> {
@@ -187,13 +187,13 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsCorrecteyParsedBindAddress() {
+  void returnsCorrecteyParsedBindAddress() {
     CommandLineOptions options = new CommandLineOptions("--bind-address", "127.0.0.1");
     assertThat(options.bindAddress(), is("127.0.0.1"));
   }
 
   @Test
-  public void setsProxyAllRootWhenOptionPresent() {
+  void setsProxyAllRootWhenOptionPresent() {
     CommandLineOptions options =
         new CommandLineOptions("--proxy-all", "http://someotherhost.com/site");
     assertThat(options.specifiesProxyUrl(), is(true));
@@ -201,14 +201,14 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void setsProxyHostHeaderWithTrailingPortInformation() {
+  void setsProxyHostHeaderWithTrailingPortInformation() {
     CommandLineOptions options =
         new CommandLineOptions("--proxy-all", "http://someotherhost.com:8080/site");
     assertThat(options.proxyHostHeader(), is("someotherhost.com:8080"));
   }
 
   @Test
-  public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
+  void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
     assertThrows(
         Exception.class,
         () -> {
@@ -217,21 +217,21 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsBrowserProxyingEnabledWhenOptionSet() {
+  void returnsBrowserProxyingEnabledWhenOptionSet() {
     CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
     assertThat(options.browserProxyingEnabled(), is(true));
     assertThat(options.browserProxySettings().enabled(), is(true));
   }
 
   @Test
-  public void returnsBrowserProxyingDisabledWhenOptionNoSet() {
+  void returnsBrowserProxyingDisabledWhenOptionNoSet() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.browserProxyingEnabled(), is(false));
     assertThat(options.browserProxySettings().enabled(), is(false));
   }
 
   @Test
-  public void setsAll() {
+  void setsAll() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--verbose",
@@ -249,13 +249,13 @@ public class CommandLineOptionsTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void returnsHelpText() {
+  void returnsHelpText() {
     CommandLineOptions options = new CommandLineOptions("--help");
     assertThat(options.helpText(), allOf(containsString("verbose")));
   }
 
   @Test
-  public void returnsCorrectlyParsedProxyViaParameter() {
+  void returnsCorrectlyParsedProxyViaParameter() {
     CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
     assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
     assertThat(options.proxyVia().port(), is(8080));
@@ -264,7 +264,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsCorrectlyParsedProxyViaParameterWithCredentials() {
+  void returnsCorrectlyParsedProxyViaParameterWithCredentials() {
     CommandLineOptions options =
         new CommandLineOptions("--proxy-via", "user:password@somehost.mysite.com:8080");
     assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
@@ -274,19 +274,19 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsNoProxyWhenNoProxyViaSpecified() {
+  void returnsNoProxyWhenNoProxyViaSpecified() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.proxyVia(), is(ProxySettings.NO_PROXY));
   }
 
   @Test
-  public void returnsDisabledRequestJournal() {
+  void returnsDisabledRequestJournal() {
     CommandLineOptions options = new CommandLineOptions("--no-request-journal");
     assertThat(options.requestJournalDisabled(), is(true));
   }
 
   @Test
-  public void returnsMaxRequestJournalEntries() {
+  void returnsMaxRequestJournalEntries() {
     CommandLineOptions options = new CommandLineOptions("--max-request-journal-entries", "2");
     assertThat(options.maxRequestJournalEntries(), is(Optional.of(2)));
     CommandLineOptions optionsNoMax = new CommandLineOptions("");
@@ -294,37 +294,37 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnPreserveHostHeaderTrueWhenPresent() {
+  void returnPreserveHostHeaderTrueWhenPresent() {
     CommandLineOptions options = new CommandLineOptions("--preserve-host-header");
     assertThat(options.shouldPreserveHostHeader(), is(true));
   }
 
   @Test
-  public void returnPreserveHostHeaderFalseWhenNotPresent() {
+  void returnPreserveHostHeaderFalseWhenNotPresent() {
     CommandLineOptions options = new CommandLineOptions("--port", "8080");
     assertThat(options.shouldPreserveHostHeader(), is(false));
   }
 
   @Test
-  public void returnsCorrectlyParsedNumberOfThreads() {
+  void returnsCorrectlyParsedNumberOfThreads() {
     CommandLineOptions options = new CommandLineOptions("--container-threads", "300");
     assertThat(options.containerThreads(), is(300));
   }
 
   @Test
-  public void defaultsContainerThreadsTo25() {
+  void defaultsContainerThreadsTo25() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.containerThreads(), is(25));
   }
 
   @Test
-  public void returnsCorrectlyParsedJettyAcceptorThreads() {
+  void returnsCorrectlyParsedJettyAcceptorThreads() {
     CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
     assertThat(options.jettySettings().getAcceptors().get(), is(400));
   }
 
   @Test
-  public void returnsCorrectlyParsedJettyAcceptQueueSize() {
+  void returnsCorrectlyParsedJettyAcceptQueueSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-accept-queue-size", "10");
     assertThat(options.jettySettings().getAcceptQueueSize().get(), is(10));
   }
@@ -337,55 +337,55 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsCorrectlyParsedJettyHeaderRequestSize() {
+  void returnsCorrectlyParsedJettyHeaderRequestSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-request-size", "16384");
     assertThat(options.jettySettings().getRequestHeaderSize().get(), is(16384));
   }
 
   @Test
-  public void returnsCorrectlyParsedJettyHeaderResponseSize() {
+  void returnsCorrectlyParsedJettyHeaderResponseSize() {
     CommandLineOptions options = new CommandLineOptions("--jetty-header-response-size", "16384");
     assertThat(options.jettySettings().getResponseHeaderSize().get(), is(16384));
   }
 
   @Test
-  public void returnsCorrectlyParsedJettyStopTimeout() {
+  void returnsCorrectlyParsedJettyStopTimeout() {
     CommandLineOptions options = new CommandLineOptions("--jetty-stop-timeout", "1000");
     assertThat(options.jettySettings().getStopTimeout().get(), is(1000L));
   }
 
   @Test
-  public void returnsCorrectlyParsedJettyIdleTimeout() {
+  void returnsCorrectlyParsedJettyIdleTimeout() {
     CommandLineOptions options = new CommandLineOptions("--jetty-idle-timeout", "2000");
     assertThat(options.jettySettings().getIdleTimeout().get(), is(2000L));
   }
 
   @Test
-  public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
+  void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
   }
 
   @Test
-  public void returnsAbsentIfJettyAcceptorsNotSet() {
+  void returnsAbsentIfJettyAcceptorsNotSet() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.jettySettings().getAcceptors().isPresent(), is(false));
   }
 
   @Test
-  public void returnsAbsentIfJettyHeaderBufferSizeNotSet() {
+  void returnsAbsentIfJettyHeaderBufferSizeNotSet() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.jettySettings().getRequestHeaderSize().isPresent(), is(false));
   }
 
   @Test
-  public void returnsAbsentIfJettyStopTimeoutNotSet() {
+  void returnsAbsentIfJettyStopTimeoutNotSet() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.jettySettings().getStopTimeout().isPresent(), is(false));
   }
 
   @Test
-  public void preventsRecordingWhenRequestJournalDisabled() {
+  void preventsRecordingWhenRequestJournalDisabled() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -394,7 +394,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsExtensionsSpecifiedAsClassNames() {
+  void returnsExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--extensions",
@@ -411,7 +411,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
+  void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--extensions",
@@ -423,7 +423,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
+  void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options = new CommandLineOptions();
     Map<String, RequestMatcherExtension> extensions =
         options.extensionsOfType(RequestMatcherExtension.class);
@@ -431,7 +431,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsAConsoleNotifyingListenerWhenOptionPresent() {
+  void returnsAConsoleNotifyingListenerWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--print-all-network-traffic");
     assertThat(
         options.networkTrafficListener(),
@@ -439,7 +439,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void enablesGlobalResponseTemplating() {
+  void enablesGlobalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
     Map<String, ResponseTemplateTransformer> extensions =
         options.extensionsOfType(ResponseTemplateTransformer.class);
@@ -448,7 +448,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void enablesLocalResponseTemplating() {
+  void enablesLocalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--local-response-templating");
     Map<String, ResponseTemplateTransformer> extensions =
         options.extensionsOfType(ResponseTemplateTransformer.class);
@@ -457,7 +457,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void supportsAdminApiBasicAuth() {
+  void supportsAdminApiBasicAuth() {
     CommandLineOptions options = new CommandLineOptions("--admin-api-basic-auth", "user:pass");
     Authenticator authenticator = options.getAdminAuthenticator();
 
@@ -473,49 +473,49 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void canRequireHttpsForAdminApi() {
+  void canRequireHttpsForAdminApi() {
     CommandLineOptions options = new CommandLineOptions("--admin-api-require-https");
     assertThat(options.getHttpsRequiredForAdminApi(), is(true));
   }
 
   @Test
-  public void defaultsToNotRequiringHttpsForAdminApi() {
+  void defaultsToNotRequiringHttpsForAdminApi() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getHttpsRequiredForAdminApi(), is(false));
   }
 
   @Test
-  public void enablesAsynchronousResponse() {
+  void enablesAsynchronousResponse() {
     CommandLineOptions options = new CommandLineOptions("--async-response-enabled", "true");
     assertThat(options.getAsynchronousResponseSettings().isEnabled(), is(true));
   }
 
   @Test
-  public void disablesAsynchronousResponseByDefault() {
+  void disablesAsynchronousResponseByDefault() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getAsynchronousResponseSettings().isEnabled(), is(false));
   }
 
   @Test
-  public void setsNumberOfAsynchronousResponseThreads() {
+  void setsNumberOfAsynchronousResponseThreads() {
     CommandLineOptions options = new CommandLineOptions("--async-response-threads", "20");
     assertThat(options.getAsynchronousResponseSettings().getThreads(), is(20));
   }
 
   @Test
-  public void setsChunkedEncodingPolicy() {
+  void setsChunkedEncodingPolicy() {
     CommandLineOptions options = new CommandLineOptions("--use-chunked-encoding", "always");
     assertThat(options.getChunkedEncodingPolicy(), is(Options.ChunkedEncodingPolicy.ALWAYS));
   }
 
   @Test
-  public void setsDefaultNumberOfAsynchronousResponseThreads() {
+  void setsDefaultNumberOfAsynchronousResponseThreads() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getAsynchronousResponseSettings().getThreads(), is(10));
   }
 
   @Test
-  public void configuresMaxTemplateCacheEntriesIfSpecified() {
+  void configuresMaxTemplateCacheEntriesIfSpecified() {
     CommandLineOptions options =
         new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
     Map<String, ResponseTemplateTransformer> extensions =
@@ -526,7 +526,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void configuresMaxTemplateCacheEntriesToNullIfNotSpecified() {
+  void configuresMaxTemplateCacheEntriesToNullIfNotSpecified() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
     Map<String, ResponseTemplateTransformer> extensions =
         options.extensionsOfType(ResponseTemplateTransformer.class);
@@ -536,7 +536,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void configuresPermittedSystemKeysIfSpecified() {
+  void configuresPermittedSystemKeysIfSpecified() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--global-response-templating", "--permitted-system-keys", "java*,path*");
@@ -544,50 +544,50 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void configureFileTemplatesWithRightFormat() {
+  void configureFileTemplatesWithRightFormat() {
     CommandLineOptions options =
         new CommandLineOptions("--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
     assertNotNull(options.getFilenameMaker());
   }
 
   @Test
-  public void configureFileTemplatesWithWrongFormat() {
+  void configureFileTemplatesWithWrongFormat() {
     assertThrows(
         Exception.class, () -> new CommandLineOptions("--filename-template={{method}}}.json"));
   }
 
   @Test
-  public void returnsEmptyPermittedKeysIfNotSpecified() {
+  void returnsEmptyPermittedKeysIfNotSpecified() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
     assertThat(options.getPermittedSystemKeys(), emptyCollectionOf(String.class));
   }
 
   @Test
-  public void disablesGzip() {
+  void disablesGzip() {
     CommandLineOptions options = new CommandLineOptions("--disable-gzip");
     assertThat(options.getGzipDisabled(), is(true));
   }
 
   @Test
-  public void defaultsToGzipEnabled() {
+  void defaultsToGzipEnabled() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getGzipDisabled(), is(false));
   }
 
   @Test
-  public void disablesRequestLogging() {
+  void disablesRequestLogging() {
     CommandLineOptions options = new CommandLineOptions("--disable-request-logging");
     assertThat(options.getStubRequestLoggingDisabled(), is(true));
   }
 
   @Test
-  public void defaultsToRequestLoggingEnabled() {
+  void defaultsToRequestLoggingEnabled() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getStubRequestLoggingDisabled(), is(false));
   }
 
   @Test
-  public void printsTheActualPortOnlyWhenHttpsDisabled() {
+  void printsTheActualPortOnlyWhenHttpsDisabled() {
     CommandLineOptions options = new CommandLineOptions();
     options.setActualHttpPort(5432);
 
@@ -598,32 +598,32 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void enablesStubCors() {
+  void enablesStubCors() {
     CommandLineOptions options = new CommandLineOptions("--enable-stub-cors");
     assertThat(options.getStubCorsEnabled(), is(true));
   }
 
   @Test
-  public void defaultsToNoStubCors() {
+  void defaultsToNoStubCors() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getStubCorsEnabled(), is(false));
   }
 
   @Test
-  public void trustAllProxyTargets() {
+  void trustAllProxyTargets() {
     CommandLineOptions options =
         new CommandLineOptions("--enable-browser-proxying", "--trust-all-proxy-targets");
     assertThat(options.browserProxySettings().trustAllProxyTargets(), is(true));
   }
 
   @Test
-  public void defaultsToNotTrustingAllProxyTargets() {
+  void defaultsToNotTrustingAllProxyTargets() {
     CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
     assertThat(options.browserProxySettings().trustAllProxyTargets(), is(false));
   }
 
   @Test
-  public void trustsOneProxyTarget1() {
+  void trustsOneProxyTarget1() {
     CommandLineOptions options =
         new CommandLineOptions("--enable-browser-proxying", "--trust-proxy-target", "localhost");
     assertThat(
@@ -631,7 +631,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void trustsManyProxyTargets() {
+  void trustsManyProxyTargets() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--enable-browser-proxying",
@@ -645,14 +645,14 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void defaultsToNoTrustedProxyTargets() {
+  void defaultsToNoTrustedProxyTargets() {
     CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
     assertThat(
         options.browserProxySettings().trustedProxyTargets(), is(Collections.<String>emptyList()));
   }
 
   @Test
-  public void setsCaKeyStorePathAndPassword() {
+  void setsCaKeyStorePathAndPassword() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--enable-browser-proxying",
@@ -669,7 +669,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void defaultsCaKeyStorePathAndPassword() {
+  void defaultsCaKeyStorePathAndPassword() {
     CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
     KeyStoreSettings caKeyStore = options.browserProxySettings().caKeyStore();
     assertThat(caKeyStore.path(), is(DEFAULT_CA_KEYSTORE_PATH));
@@ -678,7 +678,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void printsBothActualPortsOnlyWhenHttpsEnabled() {
+  void printsBothActualPortsOnlyWhenHttpsEnabled() {
     CommandLineOptions options = new CommandLineOptions();
     options.setActualHttpPort(5432);
     options.setActualHttpsPort(2345);
@@ -690,7 +690,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void toStringWithTrustAllProxyTargetsWorks() {
+  void toStringWithTrustAllProxyTargetsWorks() {
     String options =
         new CommandLineOptions("--enable-browser-proxying", "--trust-all-proxy-targets").toString();
     assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
@@ -698,7 +698,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void toStringWithTrustProxyTarget() {
+  void toStringWithTrustProxyTarget() {
     String options =
         new CommandLineOptions(
                 "--enable-browser-proxying",
@@ -712,7 +712,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
+  void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
     CommandLineOptions options = new CommandLineOptions("--local-response-templating");
 
     Object one =
@@ -726,7 +726,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void fileSourceDefaultsToSingleRootFileSource() {
+  void fileSourceDefaultsToSingleRootFileSource() {
     CommandLineOptions options = new CommandLineOptions();
 
     FileSource fileSource = options.filesRoot();
@@ -735,7 +735,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void mappingsSourceDefaultsToJsonFileMappingsSource() {
+  void mappingsSourceDefaultsToJsonFileMappingsSource() {
     CommandLineOptions options = new CommandLineOptions();
 
     MappingsSaver mappingsSaver = options.mappingsSaver();
@@ -744,7 +744,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void loadResourcesFromClasspathSetsFileSourceToUseClasspath() {
+  void loadResourcesFromClasspathSetsFileSourceToUseClasspath() {
     CommandLineOptions options =
         new CommandLineOptions("--load-resources-from-classpath=classpath-filesource");
 
@@ -757,7 +757,7 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void loadResourcesFromClasspathSetsMappingsSourceToUseClasspath() {
+  void loadResourcesFromClasspathSetsMappingsSourceToUseClasspath() {
     CommandLineOptions options =
         new CommandLineOptions("--load-resources-from-classpath=wiremock-stuff");
 

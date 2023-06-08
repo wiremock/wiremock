@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 public class RequestPatternTransformerTest {
   @Test
-  public void applyIncludesMethodAndUrlMatchers() {
+  void applyIncludesMethodAndUrlMatchers() {
     Request request =
         mockRequest()
             .url("/foo")
@@ -44,7 +44,7 @@ public class RequestPatternTransformerTest {
   }
 
   @Test
-  public void applyWithHeaders() {
+  void applyWithHeaders() {
     Request request =
         mockRequest()
             .url("/")

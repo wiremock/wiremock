@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
 
 public class SnapshotOutputFormatterTest {
   @Test
-  public void fromStringDefault() {
+  void fromStringDefault() {
     assertEquals(FULL, SnapshotOutputFormatter.fromString(null));
   }
 
   @Test
-  public void fromStringWithInvalidFormat() {
+  void fromStringWithInvalidFormat() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -38,12 +38,12 @@ public class SnapshotOutputFormatterTest {
   }
 
   @Test
-  public void fromStringWithFull() {
+  void fromStringWithFull() {
     assertEquals(FULL, SnapshotOutputFormatter.fromString("full"));
   }
 
   @Test
-  public void fromStringWithIds() {
+  void fromStringWithIds() {
     assertEquals(IDS, SnapshotOutputFormatter.fromString("ids"));
   }
 }

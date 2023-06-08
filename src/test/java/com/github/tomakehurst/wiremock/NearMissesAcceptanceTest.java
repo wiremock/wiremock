@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class NearMissesAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void nearMisses() {
+  void nearMisses() {
     stubFor(
         get(urlEqualTo("/mypath"))
             .withHeader("My-Header", equalTo("matched"))
@@ -58,7 +58,7 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsAllUnmatchedRequests() {
+  void returnsAllUnmatchedRequests() {
     stubFor(
         get(urlEqualTo("/mypath"))
             .withHeader("My-Header", equalTo("matched"))
@@ -73,7 +73,7 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsStubMappingNearMissesForARequest() {
+  void returnsStubMappingNearMissesForARequest() {
     stubFor(
         get(urlEqualTo("/mypath"))
             .withHeader("My-Header", equalTo("matched"))
@@ -102,7 +102,7 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsRequestNearMissesForARequestPattern() {
+  void returnsRequestNearMissesForARequestPattern() {
     testClient.get("/actual11");
     testClient.get("/actual42");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void logsEventsToNotifierWhenNotDisabled() {
+  void logsEventsToNotifierWhenNotDisabled() {
     TestNotifier notifier = new TestNotifier();
     WireMockServer wm = new WireMockServer(wireMockConfig().dynamicPort().notifier(notifier));
     wm.start();
@@ -49,7 +49,7 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotLogEventsToNotifierWhenDisabled() {
+  void doesNotLogEventsToNotifierWhenDisabled() {
     TestNotifier notifier = new TestNotifier();
     WireMockServer wm =
         new WireMockServer(

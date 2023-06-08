@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,7 @@ public class ResponseDribbleAcceptanceTest {
   }
 
   @Test
-  public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled()
-      throws Exception {
+  void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled() throws Exception {
     doNotRunOnMacOSXInCI();
 
     stubFor(
@@ -90,7 +89,7 @@ public class ResponseDribbleAcceptanceTest {
   }
 
   @Test
-  public void servesAStringBodyInChunks() throws Exception {
+  void servesAStringBodyInChunks() throws Exception {
     doNotRunOnMacOSXInCI();
 
     final int TOTAL_TIME = 500;
@@ -113,7 +112,7 @@ public class ResponseDribbleAcceptanceTest {
   }
 
   @Test
-  public void requestIsSuccessfulAndBelowSocketTimeoutWhenDribbleIsDisabled() throws Exception {
+  void requestIsSuccessfulAndBelowSocketTimeoutWhenDribbleIsDisabled() throws Exception {
     doNotRunOnMacOSXInCI();
 
     stubFor(get("/nonDelayedDribble").willReturn(ok().withBody(BODY_BYTES)));

@@ -51,7 +51,7 @@ public class LoggedRequestTest {
   }
 
   @Test
-  public void headerMatchingIsCaseInsensitive() {
+  void headerMatchingIsCaseInsensitive() {
     LoggedRequest loggedRequest =
         createFrom(
             aRequest()
@@ -100,7 +100,7 @@ public class LoggedRequestTest {
           + "    }";
 
   @Test
-  public void jsonRepresentation() throws Exception {
+  void jsonRepresentation() throws Exception {
     HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
     Map<String, Cookie> cookies =
         ImmutableMap.of(
@@ -130,7 +130,7 @@ public class LoggedRequestTest {
   }
 
   @Test
-  public void bodyEncodedAsUTF8() throws Exception {
+  void bodyEncodedAsUTF8() throws Exception {
     LoggedRequest loggedRequest =
         new LoggedRequest(
             "/my/url",
@@ -171,7 +171,7 @@ public class LoggedRequestTest {
           + "}";
 
   @Test
-  public void queryParametersAreSerialized() {
+  void queryParametersAreSerialized() {
     LoggedRequest req =
         new LoggedRequest(
             "/sample/path?test-param-1=value-1&test-param-2=value-2",
@@ -201,7 +201,7 @@ public class LoggedRequestTest {
   }
 
   @Test
-  public void queryParametersAreDeserialized() throws IOException {
+  void queryParametersAreDeserialized() throws IOException {
     LoggedRequest req = new ObjectMapper().readValue(JSON_PARAMS_EXAMPLE, LoggedRequest.class);
 
     assertEquals("test-param-1", req.queryParameter("test-param-1").key());

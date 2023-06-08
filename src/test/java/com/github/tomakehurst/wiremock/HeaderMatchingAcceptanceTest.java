@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void mappingWithExactUrlMethodAndHeaderMatchingIsCreatedAndReturned() {
+  void mappingWithExactUrlMethodAndHeaderMatchingIsCreatedAndReturned() {
     testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
 
     WireMockResponse response =
@@ -40,7 +40,7 @@ public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingMatchedWithRegexHeaders() {
+  void mappingMatchedWithRegexHeaders() {
     testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_REGEX_HEADERS);
 
     WireMockResponse response =
@@ -53,7 +53,7 @@ public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingMatchedWithNegativeRegexHeader() {
+  void mappingMatchedWithNegativeRegexHeader() {
     testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_NEGATIVE_REGEX_HEADERS);
 
     WireMockResponse response =

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 
-public class XmlTest {
+class XmlTest {
 
   @Test
-  public void findsSimpleXmlNodesByXPath() {
+  void findsSimpleXmlNodesByXPath() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<things>\n"
@@ -45,7 +45,7 @@ public class XmlTest {
   }
 
   @Test
-  public void findsNamespacedXmlNodeByXPath() {
+  void findsNamespacedXmlNodeByXPath() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<things xmlns:s=\"https://stuff.biz\" id=\"1\">\n"
@@ -66,7 +66,7 @@ public class XmlTest {
   }
 
   @Test
-  public void prettyPrintsDocument() {
+  void prettyPrintsDocument() {
     String xml = "<one><two><three name='3'/></two></one>";
 
     XmlDocument xmlDocument = Xml.parse(xml);
@@ -78,7 +78,7 @@ public class XmlTest {
   }
 
   @Test
-  public void prettyPrintsNodeAttributeValue() {
+  void prettyPrintsNodeAttributeValue() {
     String xml = "<one><two><three name='3'/></two></one>";
 
     XmlDocument xmlDocument = Xml.parse(xml);
@@ -88,7 +88,7 @@ public class XmlTest {
   }
 
   @Test
-  public void prettyPrintsNodeTextValue() {
+  void prettyPrintsNodeTextValue() {
     String xml = "<one><two>2</two></one>";
 
     XmlDocument xmlDocument = Xml.parse(xml);
@@ -98,7 +98,7 @@ public class XmlTest {
   }
 
   @Test
-  public void prettyPrintsNodeXml() {
+  void prettyPrintsNodeXml() {
     String xml = "<one><two><three name=\"3\"/></two></one>";
 
     XmlDocument xmlDocument = Xml.parse(xml);
@@ -115,7 +115,7 @@ public class XmlTest {
       disabledReason =
           "SaxSource unavailable to parse undeclared namespace prefix, due to "
               + "IllegalAccessException: class com.github.tomakehurst.wiremock.common.xml.XmlNode cannot access class com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX (in module java.xml) because module java.xml does not export com.sun.org.apache.xalan.internal.xsltc.trax to unnamed module @2892dae4")
-  public void printsNamespacedXmlWhenPrefixDeclarationNotInScope() {
+  void printsNamespacedXmlWhenPrefixDeclarationNotInScope() {
     String xml =
         "<?xml version=\"1.0\"?>\n"
             + "<things xmlns:s=\"https://stuff.biz\" id=\"1\">\n"

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void settingGlobalFixedResponseDelay() {
+  void settingGlobalFixedResponseDelay() {
     WireMock.setGlobalFixedDelay(500);
     givenThat(
         get(urlEqualTo("/globally/delayed/resource")).willReturn(aResponse().withStatus(200)));
@@ -46,7 +46,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void settingGlobalRandomDistributionDelayCausesADelay() {
+  void settingGlobalRandomDistributionDelayCausesADelay() {
     WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
     givenThat(
         get(urlEqualTo("/globally/random/delayed/resource"))
@@ -60,7 +60,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void canCombineFixedAndRandomDelays() {
+  void canCombineFixedAndRandomDelays() {
     WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
     WireMock.setGlobalFixedDelay(30);
     givenThat(
@@ -75,7 +75,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void fetchSettings() {
+  void fetchSettings() {
     WireMock.setGlobalFixedDelay(30);
 
     GlobalSettings settings = WireMock.getSettings();
@@ -84,7 +84,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void setAndRetrieveExtendedSettings() {
+  void setAndRetrieveExtendedSettings() {
     WireMock.updateSettings(
         GlobalSettings.builder().extended(Parameters.one("mySetting", "setting-value")).build());
 
@@ -94,7 +94,7 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void setAndRetrieveProxyPassThroughSettings() {
+  void setAndRetrieveProxyPassThroughSettings() {
     WireMock.updateSettings(GlobalSettings.builder().proxyPassThrough(false).build());
 
     GlobalSettings fetchedSettings = WireMock.getSettings();

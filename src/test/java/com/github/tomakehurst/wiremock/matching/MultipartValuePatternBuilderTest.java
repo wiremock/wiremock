@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,14 +37,14 @@ import org.junit.jupiter.api.Test;
 public class MultipartValuePatternBuilderTest {
 
   @Test
-  public void testBuilderDefaultType() {
+  void testBuilderDefaultType() {
     MultipartValuePattern pattern = aMultipart("name").build();
     assertTrue(pattern.isMatchAny());
     assertFalse(pattern.isMatchAll());
   }
 
   @Test
-  public void testBuilderAnyType() {
+  void testBuilderAnyType() {
     MultipartValuePattern pattern =
         aMultipart("name").matchingType(MultipartValuePattern.MatchingType.ANY).build();
 
@@ -53,7 +53,7 @@ public class MultipartValuePatternBuilderTest {
   }
 
   @Test
-  public void testBuilderAllType() {
+  void testBuilderAllType() {
     MultipartValuePattern pattern =
         aMultipart("name").matchingType(MultipartValuePattern.MatchingType.ALL).build();
 
@@ -62,7 +62,7 @@ public class MultipartValuePatternBuilderTest {
   }
 
   @Test
-  public void testBuilderWithNameHeadersAndBody() {
+  void testBuilderWithNameHeadersAndBody() {
     MultipartValuePattern pattern =
         aMultipart("name")
             .withHeader("X-Header", containing("something"))
@@ -83,13 +83,13 @@ public class MultipartValuePatternBuilderTest {
   }
 
   @Test
-  public void testBuilderWithNameNoHeadersAndNoBody() {
+  void testBuilderWithNameNoHeadersAndNoBody() {
     MultipartValuePattern pattern = aMultipart().build();
     assertNull(pattern);
   }
 
   @Test
-  public void testBuilderWithoutNameWithHeadersAndBody() {
+  void testBuilderWithoutNameWithHeadersAndBody() {
     MultipartValuePattern pattern =
         aMultipart()
             .withHeader("X-Header", containing("something"))
@@ -108,7 +108,7 @@ public class MultipartValuePatternBuilderTest {
   }
 
   @Test
-  public void testBuilderWithNameAndOtherContentDispositionHeaderMatcher() {
+  void testBuilderWithNameAndOtherContentDispositionHeaderMatcher() {
     MultipartValuePattern pattern =
         aMultipart("name")
             .withHeader("Content-Disposition", containing("filename=\"something\""))

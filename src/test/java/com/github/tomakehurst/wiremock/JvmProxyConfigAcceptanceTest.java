@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class JvmProxyConfigAcceptanceTest {
   }
 
   @Test
-  public void configuresHttpProxyingOnlyFromAWireMockServer() throws Exception {
+  void configuresHttpProxyingOnlyFromAWireMockServer() throws Exception {
     wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
     wireMockServer.start();
 
@@ -61,7 +61,7 @@ public class JvmProxyConfigAcceptanceTest {
   }
 
   @Test
-  public void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
+  void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
     CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
     wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
@@ -79,7 +79,7 @@ public class JvmProxyConfigAcceptanceTest {
   }
 
   @Test
-  public void restoresPreviousSettings() {
+  void restoresPreviousSettings() {
     String previousHttpProxyHost = "prevhttpproxyhost";
     String previousHttpProxyPort = "1234";
     String previousHttpsProxyHost = "prevhttpsproxyhost";

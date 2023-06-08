@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersASimpleValue() {
+  void rendersASimpleValue() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
@@ -52,7 +52,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
+  void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
@@ -64,17 +64,17 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void extractsASimpleValue() throws IOException {
+  void extractsASimpleValue() throws IOException {
     testHelper(helper, "<test>success</test>", "/test/text()", "success");
   }
 
   @Test
-  public void extractsAnAttribute() throws IOException {
+  void extractsAnAttribute() throws IOException {
     testHelper(helper, "<test outcome=\"success\"/>", "/test/@outcome", "success");
   }
 
   @Test
-  public void extractsASubElement() throws IOException {
+  void extractsASubElement() throws IOException {
     testHelper(
         helper,
         "<outer>\n" + "    <inner>stuff</inner>\n" + "</outer>",
@@ -83,7 +83,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersAMeaningfulErrorWhenTheInputXmlIsInvalid() {
+  void rendersAMeaningfulErrorWhenTheInputXmlIsInvalid() {
     testHelperError(
         helper,
         "<testsuccess</test>",
@@ -92,7 +92,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersAMeaningfulErrorWhenTheXPathExpressionIsInvalid() {
+  void rendersAMeaningfulErrorWhenTheXPathExpressionIsInvalid() {
     testHelperError(
         helper,
         "<test>success</test>",
@@ -101,19 +101,18 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersAMeaningfulErrorWhenTheXPathExpressionIsAbsent() {
+  void rendersAMeaningfulErrorWhenTheXPathExpressionIsAbsent() {
     testHelperError(
         helper, "<test>success</test>", null, is("[ERROR: The XPath expression cannot be empty]"));
   }
 
   @Test
-  public void rendersABlankWhenTheInputXmlIsAbsent() {
+  void rendersABlankWhenTheInputXmlIsAbsent() {
     testHelperError(helper, null, "/test", is(""));
   }
 
   @Test
-  public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments()
-      throws Exception {
+  void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments() throws Exception {
     String one = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
     String two = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
 
@@ -122,8 +121,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments()
-      throws Exception {
+  void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments() throws Exception {
     String one = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
     String two = renderHelperValue(helper, "<test>two</test>", "/test/text()").toString();
 
@@ -132,7 +130,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+  void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
     String one =
         renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one/text()")
             .toString();
@@ -145,14 +143,14 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersXmlWhenElementIsSelected() throws Exception {
+  void rendersXmlWhenElementIsSelected() throws Exception {
     String one =
         renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one").toString();
     assertThat(one.trim(), is("<one>1</one>"));
   }
 
   @Test
-  public void supportsIterationOverNodeListWithEachHelper() {
+  void supportsIterationOverNodeListWithEachHelper() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -174,7 +172,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void supportsIterationOverElementsWithAttributes() {
+  void supportsIterationOverElementsWithAttributes() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -196,7 +194,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void supportsIterationOverNamespacedElements() {
+  void supportsIterationOverNamespacedElements() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -218,7 +216,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersNamespacedElement() {
+  void rendersNamespacedElement() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -244,7 +242,7 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersElementNames() {
+  void rendersElementNames() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()

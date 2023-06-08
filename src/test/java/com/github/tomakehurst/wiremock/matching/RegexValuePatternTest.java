@@ -29,7 +29,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class RegexValuePatternTest {
 
   @Test
-  public void correctlySerialisesMatchesAsJson() throws Exception {
+  void correctlySerialisesMatchesAsJson() throws Exception {
     String actual = Json.write(WireMock.matching("something"));
     System.out.println(actual);
     JSONAssert.assertEquals(
@@ -39,7 +39,7 @@ public class RegexValuePatternTest {
   }
 
   @Test
-  public void correctlyDeserialisesMatchesFromJson() {
+  void correctlyDeserialisesMatchesFromJson() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                               \n" + "  \"matches\": \"something\"    \n" + "}",
@@ -50,12 +50,12 @@ public class RegexValuePatternTest {
   }
 
   @Test
-  public void noMatchWhenValueIsNull() {
+  void noMatchWhenValueIsNull() {
     assertThat(WireMock.matching(".*").match(null).isExactMatch(), is(false));
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     RegexPattern a = new RegexPattern("test");
     RegexPattern b = new RegexPattern("test");
     RegexPattern c = new RegexPattern("anotherTest");

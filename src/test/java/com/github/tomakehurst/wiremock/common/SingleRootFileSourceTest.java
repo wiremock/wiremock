@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
-public class SingleRootFileSourceTest {
+class SingleRootFileSourceTest {
 
   public static final String ROOT_PATH = filePath("filesource");
 
   @SuppressWarnings("unchecked")
   @Test
-  public void listsTextFilesRecursively() {
+  void listsTextFilesRecursively() {
     SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
 
     List<TextFile> files = fileSource.listFilesRecursively();
@@ -58,7 +58,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void writesTextFileEvenWhenRootIsARelativePath() throws IOException {
+  void writesTextFileEvenWhenRootIsARelativePath() throws IOException {
     String relativeRootPath = "./target/tmp/";
     FileUtils.forceMkdir(new File(relativeRootPath));
     SingleRootFileSource fileSource = new SingleRootFileSource(relativeRootPath);
@@ -69,7 +69,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void listFilesRecursivelyThrowsExceptionWhenRootIsNotDir() {
+  void listFilesRecursivelyThrowsExceptionWhenRootIsNotDir() {
     assertThrows(
         RuntimeException.class,
         () -> {
@@ -80,7 +80,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void writeThrowsExceptionWhenRootIsNotDir() {
+  void writeThrowsExceptionWhenRootIsNotDir() {
     assertThrows(
         RuntimeException.class,
         () -> {
@@ -91,8 +91,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void
-      listFilesRecursivelyThrowsExceptionWhenLastPathNodeIsSimilarToRootButWithExtraCharacters() {
+  void listFilesRecursivelyThrowsExceptionWhenLastPathNodeIsSimilarToRootButWithExtraCharacters() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -103,7 +102,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void writeTextFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
+  void writeTextFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -113,7 +112,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void writeTextFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
+  void writeTextFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -124,7 +123,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void writeBinaryFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
+  void writeBinaryFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -134,7 +133,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void writeBinaryFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
+  void writeBinaryFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -145,7 +144,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
+  void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -156,7 +155,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void readBinaryFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
+  void readBinaryFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -166,7 +165,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void readTextFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
+  void readTextFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -176,7 +175,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void readBinaryFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() throws Exception {
+  void readBinaryFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {
@@ -187,7 +186,7 @@ public class SingleRootFileSourceTest {
   }
 
   @Test
-  public void readTextFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() throws Exception {
+  void readTextFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() {
     assertThrows(
         NotAuthorisedException.class,
         () -> {

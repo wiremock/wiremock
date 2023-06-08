@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 public class BodyChunkerTest {
 
   @Test
-  public void returnsBodyAsSingleChunkWhenChunkSizeIsOne() {
+  void returnsBodyAsSingleChunkWhenChunkSizeIsOne() {
     byte[] body = "1234".getBytes();
     int numberOfChunks = 1;
 
@@ -35,7 +35,7 @@ public class BodyChunkerTest {
   }
 
   @Test
-  public void returnsEvenlyChunkedBody() {
+  void returnsEvenlyChunkedBody() {
     byte[] body = "1234".getBytes();
     int numberOfChunks = 2;
 
@@ -47,7 +47,7 @@ public class BodyChunkerTest {
   }
 
   @Test
-  public void addsExcessBytesToLastChunk() {
+  void addsExcessBytesToLastChunk() {
     byte[] body = "1234".getBytes();
     int numberOfChunks = 3;
 
@@ -60,7 +60,7 @@ public class BodyChunkerTest {
   }
 
   @Test
-  public void defaultsChunkSizeToOneIfNumberOfChunksGreaterThenBodyLength() {
+  void defaultsChunkSizeToOneIfNumberOfChunksGreaterThenBodyLength() {
     byte[] body = "1234".getBytes();
     int numberOfChunks = 5;
 
@@ -74,7 +74,7 @@ public class BodyChunkerTest {
   }
 
   @Test
-  public void defaultsChunkSizeToOneIfNumberOfChunksLessThanOne() {
+  void defaultsChunkSizeToOneIfNumberOfChunksLessThanOne() {
     byte[] body = "1234".getBytes();
     int numberOfChunks = -1;
 

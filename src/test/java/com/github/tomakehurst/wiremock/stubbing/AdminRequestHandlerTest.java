@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class AdminRequestHandlerTest {
   }
 
   @Test
-  public void shouldSaveMappingsWhenSaveCalled() {
+  void shouldSaveMappingsWhenSaveCalled() {
     Request request = aRequest().withUrl("/mappings/save").withMethod(POST).build();
 
     handler.handle(request, httpResponder);
@@ -78,7 +78,7 @@ public class AdminRequestHandlerTest {
   }
 
   @Test
-  public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
+  void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
     Request request = aRequest().withUrl("/reset").withMethod(POST).build();
 
     handler.handle(request, httpResponder);
@@ -89,7 +89,7 @@ public class AdminRequestHandlerTest {
   }
 
   @Test
-  public void shouldClearJournalWhenResetRequestsCalled() {
+  void shouldClearJournalWhenResetRequestsCalled() {
     Request request = aRequest().withUrl("/requests/reset").withMethod(POST).build();
 
     handler.handle(request, httpResponder);
@@ -106,7 +106,7 @@ public class AdminRequestHandlerTest {
           + "}												";
 
   @Test
-  public void shouldReturnCountOfMatchingRequests() {
+  void shouldReturnCountOfMatchingRequests() {
     RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
     Mockito.when(admin.countRequestsMatching(requestPattern))
         .thenReturn(VerificationResult.withCount(5));
@@ -130,7 +130,7 @@ public class AdminRequestHandlerTest {
       "{												\n" + "	\"fixedDelay\": 2000						\n" + "}												";
 
   @Test
-  public void shouldUpdateGlobalSettings() {
+  void shouldUpdateGlobalSettings() {
     handler.handle(
         aRequest().withUrl("/settings").withMethod(POST).withBody(GLOBAL_SETTINGS_JSON).build(),
         httpResponder);

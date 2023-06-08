@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void savesAllInMemoryStubMappings() {
+  void savesAllInMemoryStubMappings() {
     wm.stubFor(get(urlEqualTo("/1")).willReturn(aResponse().withBody("one")));
     wm.stubFor(get(urlEqualTo("/2")).willReturn(aResponse().withBody("two")));
     wm.stubFor(get(urlEqualTo("/3")).willReturn(aResponse().withBody("three")));
@@ -80,7 +80,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void savesEditedStubToTheFileItOriginatedFrom() throws Exception {
+  void savesEditedStubToTheFileItOriginatedFrom() throws Exception {
     UUID stubId = UUID.randomUUID();
 
     writeMappingFile(
@@ -102,19 +102,19 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void savesSingleStubOnCreationIfFlaggedPersistent() {
+  void savesSingleStubOnCreationIfFlaggedPersistent() {
     stubFor(get(urlEqualTo("/save-immediately")).persistent());
     assertThat(mappingsDir, hasFileContaining("/save-immediately"));
   }
 
   @Test
-  public void doesNotSaveSingleStubOnCreationIfNotFlaggedPersistent() {
+  void doesNotSaveSingleStubOnCreationIfNotFlaggedPersistent() {
     stubFor(get(urlEqualTo("/save-immediately")));
     assertMappingsDirIsEmpty();
   }
 
   @Test
-  public void savesSingleStubOnEditIfFlaggedPersistent() {
+  void savesSingleStubOnEditIfFlaggedPersistent() {
     UUID stubId = UUID.randomUUID();
     stubFor(
         get(urlEqualTo("/save-immediately"))
@@ -135,7 +135,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void doesNotSaveSingleStubOnEditIfNotFlaggedPersistent() {
+  void doesNotSaveSingleStubOnEditIfNotFlaggedPersistent() {
     UUID stubId = UUID.randomUUID();
     stubFor(get(urlEqualTo("/no-save")).withId(stubId).willReturn(aResponse().withBody("initial")));
 
@@ -146,7 +146,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void deletesPersistentStubMappingIfFlaggedPersistent() {
+  void deletesPersistentStubMappingIfFlaggedPersistent() {
     StubMapping stubMapping = stubFor(get(urlEqualTo("/to-delete")).persistent());
     assertMappingsDirContainsOneFile();
 
@@ -155,7 +155,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void doesNotDeleteStubMappingFromDiskIfNotFlaggedPersistent() throws Exception {
+  void doesNotDeleteStubMappingFromDiskIfNotFlaggedPersistent() throws Exception {
     UUID id = UUID.randomUUID();
     StubMapping stubMapping = get(urlEqualTo("/do-not-delete")).withId(id).build();
     Files.write(mappingsDir.resolve("do-not-delete.json"), Json.write(stubMapping).getBytes());
@@ -169,7 +169,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void deletesAllPersistentStubMappingsOnReset() {
+  void deletesAllPersistentStubMappingsOnReset() {
     stubFor(get(urlEqualTo("/to-delete/1")).persistent());
     stubFor(get(urlEqualTo("/to-delete/2")).persistent());
     stubFor(get(urlEqualTo("/to-delete/3")).persistent());
@@ -182,7 +182,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void deletesNestedPersistentStubMapping() throws IOException {
+  void deletesNestedPersistentStubMapping() throws IOException {
     UUID stubId = UUID.randomUUID();
     Path subDirectoryUnderMappingsRoot = Files.createDirectory(mappingsDir.resolve("sub-dir"));
     Path mappingFilePath = subDirectoryUnderMappingsRoot.resolve("mapping-to-delete.json");
@@ -200,7 +200,7 @@ public class StubMappingPersistenceAcceptanceTest {
   }
 
   @Test
-  public void preservesPersistentFlagFalseValue() {
+  void preservesPersistentFlagFalseValue() {
     UUID id = wm.stubFor(get("/no-persist").persistent(false)).getId();
 
     StubMapping retrivedStub = wm.getSingleStubMapping(id);

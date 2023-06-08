@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,12 @@ package com.github.tomakehurst.wiremock.client;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.Test;
 
-public class HttpAdminClientTest {
+class HttpAdminClientTest {
 
   @Test
-  public void returnsOptionsWhenCallingGetOptions() {
-    Options options = new WireMockConfiguration().port(8080).bindAddress("localhost");
+  void returnsOptionsWhenCallingGetOptions() {
     HttpAdminClient client = new HttpAdminClient("localhost", 8080);
     assertThat(client.getOptions().portNumber(), is(8080));
     assertThat(client.getOptions().bindAddress(), is("localhost"));

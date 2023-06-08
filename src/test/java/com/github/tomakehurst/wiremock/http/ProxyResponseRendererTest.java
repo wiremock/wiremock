@@ -50,7 +50,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.assertj.core.api.Assertions;
@@ -80,7 +79,7 @@ public class ProxyResponseRendererTest {
   private final ProxyResponseRenderer proxyResponseRenderer = buildProxyResponseRenderer(false);
 
   @Test
-  public void acceptsAnyCertificateForStandardProxying() {
+  void acceptsAnyCertificateForStandardProxying() {
 
     origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
@@ -92,7 +91,7 @@ public class ProxyResponseRendererTest {
   }
 
   @Test
-  public void rejectsSelfSignedCertificateForForwardProxyingByDefault() {
+  void rejectsSelfSignedCertificateForForwardProxyingByDefault() {
 
     origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
 
@@ -112,7 +111,7 @@ public class ProxyResponseRendererTest {
   }
 
   @Test
-  public void acceptsSelfSignedCertificateForForwardProxyingIfTrustAllProxyTargets() {
+  void acceptsSelfSignedCertificateForForwardProxyingIfTrustAllProxyTargets() {
     ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
 
     origin.stubFor(get("/proxied").willReturn(aResponse().withBody("Result")));
@@ -263,16 +262,22 @@ public class ProxyResponseRendererTest {
   @Test
   void usesCorrectProxyRequestTimeout() {
     RequestConfig forwardProxyClientRequestConfig =
-        reflectiveInnerSpyField(RequestConfig.class, "forwardProxyClient", "defaultConfig", proxyResponseRenderer);
+        reflectiveInnerSpyField(
+            RequestConfig.class, "forwardProxyClient", "defaultConfig", proxyResponseRenderer);
     RequestConfig reverseProxyClientRequestConfig =
-        reflectiveInnerSpyField(RequestConfig.class, "reverseProxyClient", "defaultConfig", proxyResponseRenderer);
+        reflectiveInnerSpyField(
+            RequestConfig.class, "reverseProxyClient", "defaultConfig", proxyResponseRenderer);
 
-    assertThat(forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(), is(Long.valueOf(PROXY_TIMEOUT)));
-    assertThat(reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(), is(Long.valueOf(PROXY_TIMEOUT)));
+    assertThat(
+        forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
+        is(Long.valueOf(PROXY_TIMEOUT)));
+    assertThat(
+        reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
+        is(Long.valueOf(PROXY_TIMEOUT)));
   }
 
-  private static <T> T reflectiveInnerSpyField(Class<T> fieldType, String outerFieldName, String innerFieldName,
-                                               Object object) {
+  private static <T> T reflectiveInnerSpyField(
+      Class<T> fieldType, String outerFieldName, String innerFieldName, Object object) {
     try {
       Field outerField = object.getClass().getDeclaredField(outerFieldName);
       outerField.setAccessible(true);

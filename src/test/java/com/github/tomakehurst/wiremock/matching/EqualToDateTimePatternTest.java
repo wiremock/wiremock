@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 public class EqualToDateTimePatternTest {
 
   @Test
-  public void matchesZonedToZoned() {
+  void matchesZonedToZoned() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14Z");
 
     assertTrue(matcher.match("2021-06-14T12:13:14Z").isExactMatch());
@@ -43,7 +43,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void matchesLiteralDateTimesWithDifferentZones() {
+  void matchesLiteralDateTimesWithDifferentZones() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-06-24T13:40:27+01:00");
 
     assertTrue(matcher.match("2021-06-24T12:40:27Z").isExactMatch());
@@ -51,7 +51,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void matchesLocalToLocal() {
+  void matchesLocalToLocal() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14");
 
     assertTrue(matcher.match("2021-06-14T12:13:14").isExactMatch());
@@ -59,7 +59,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void matchesLocalToZoned() {
+  void matchesLocalToZoned() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14");
 
     assertTrue(matcher.match("2021-06-14T12:13:14Z").isExactMatch());
@@ -67,7 +67,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedToLocal() {
+  void matchesZonedToLocal() {
     String localExpected = "2021-06-14T12:13:14";
     String zonedExpected =
         LocalDateTime.parse(localExpected).atZone(ZoneId.systemDefault()).toString();
@@ -81,7 +81,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void matchesActualInUnixTimeFormat() {
+  void matchesActualInUnixTimeFormat() {
     String dateTime = "2021-06-14T12:13:14Z";
     StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualFormat("unix");
 
@@ -93,7 +93,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void matchesActualInEpochTimeFormat() {
+  void matchesActualInEpochTimeFormat() {
     String dateTime = "2021-06-14T12:13:14Z";
     StringValuePattern matcher = WireMock.equalToDateTime(dateTime).actualFormat("epoch");
 
@@ -105,13 +105,13 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenActualValueIsNull() {
+  void doesNotMatchWhenActualValueIsNull() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14Z");
     assertFalse(matcher.match(null).isExactMatch());
   }
 
   @Test
-  public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
+  void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
@@ -120,7 +120,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void serialisesToJson() {
+  void serialisesToJson() {
     EqualToDateTimePattern matcher =
         WireMock.isNow()
             .expectedOffset(DateTimeOffset.fromString("now -5 days"))
@@ -138,7 +138,7 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesFromJson() {
+  void deserialisesFromJson() {
     StringValuePattern matcher =
         Json.read(
             "{\n"
@@ -156,21 +156,21 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
-  public void acceptsJavaZonedDateTimeAsExpected() {
+  void acceptsJavaZonedDateTimeAsExpected() {
     EqualToDateTimePattern matcher =
         WireMock.equalToDateTime(ZonedDateTime.parse("2020-08-29T00:00:00Z"));
     assertTrue(matcher.match("2020-08-29T00:00:00Z").isExactMatch());
   }
 
   @Test
-  public void acceptsJavaLocalDateTimeAsExpected() {
+  void acceptsJavaLocalDateTimeAsExpected() {
     EqualToDateTimePattern matcher =
         WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
     assertTrue(matcher.match("2020-08-29T00:00:00").isExactMatch());
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     EqualToDateTimePattern a = WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
     EqualToDateTimePattern b = WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
     EqualToDateTimePattern c = WireMock.equalToDateTime(LocalDateTime.parse("2022-01-10T10:10:10"));

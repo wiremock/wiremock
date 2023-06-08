@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class RecordingStatusResultTest {
 
   @Test
-  public void deserialise() {
+  void deserialise() {
     RecordingStatusResult result =
         Json.read("{ \"status\": \"Recording\" }", RecordingStatusResult.class);
 
@@ -33,7 +33,7 @@ public class RecordingStatusResultTest {
   }
 
   @Test
-  public void serialise() {
+  void serialise() {
     RecordingStatusResult result = new RecordingStatusResult(RecordingStatus.Recording);
 
     String json = Json.write(result);

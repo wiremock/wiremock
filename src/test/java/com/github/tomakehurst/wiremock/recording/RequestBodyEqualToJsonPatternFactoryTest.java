@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class RequestBodyEqualToJsonPatternFactoryTest {
 
   @Test
-  public void withIgnoreArrayOrder() {
+  void withIgnoreArrayOrder() {
     RequestBodyEqualToJsonPatternFactory patternFactory =
         new RequestBodyEqualToJsonPatternFactory(true, false);
     EqualToJsonPattern pattern = patternFactory.forRequest(mockRequest().body("{}"));
@@ -36,7 +36,7 @@ public class RequestBodyEqualToJsonPatternFactoryTest {
   }
 
   @Test
-  public void withIgnoreExtraElements() {
+  void withIgnoreExtraElements() {
     RequestBodyEqualToJsonPatternFactory patternFactory =
         new RequestBodyEqualToJsonPatternFactory(false, true);
     EqualToJsonPattern pattern = patternFactory.forRequest(mockRequest().body("{}"));

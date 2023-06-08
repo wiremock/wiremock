@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 public class SystemKeyAuthorisorTest {
 
   @Test
-  public void permitsAllowedKeys() {
+  void permitsAllowedKeys() {
     SystemKeyAuthoriser authoriser =
         new SystemKeyAuthoriser(ImmutableSet.of("allowed_.*", "permitted_.*"));
 
@@ -34,7 +34,7 @@ public class SystemKeyAuthorisorTest {
   }
 
   @Test
-  public void forbidsNonAllowedKeys() {
+  void forbidsNonAllowedKeys() {
     SystemKeyAuthoriser authoriser =
         new SystemKeyAuthoriser(ImmutableSet.of("allowed_.*", "permitted_.*"));
 
@@ -44,7 +44,7 @@ public class SystemKeyAuthorisorTest {
   }
 
   @Test
-  public void defaultsToWireMockPrefixIfNoPatternsSpecified() {
+  void defaultsToWireMockPrefixIfNoPatternsSpecified() {
     SystemKeyAuthoriser authoriser = new SystemKeyAuthoriser(null);
 
     assertTrue(authoriser.isPermitted("wiremock_key_1"));

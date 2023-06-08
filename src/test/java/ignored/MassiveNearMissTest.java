@@ -46,7 +46,7 @@ public class MassiveNearMissTest {
   }
 
   @Test
-  public void timeToCalculateBigNearMissDiffXml() {
+  void timeToCalculateBigNearMissDiffXml() {
     final int stubs = 1000;
     for (int i = 0; i < stubs; i++) {
       wm.stubFor(
@@ -101,7 +101,7 @@ public class MassiveNearMissTest {
   }
 
   @Test
-  public void timeToCalculateBigNearMissDiffJson() {
+  void timeToCalculateBigNearMissDiffJson() {
     final int stubs = 1000;
     for (int i = 0; i < stubs; i++) {
       wm.stubFor(

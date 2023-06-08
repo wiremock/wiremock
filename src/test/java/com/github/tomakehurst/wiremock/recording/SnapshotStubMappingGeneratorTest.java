@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 
 public class SnapshotStubMappingGeneratorTest {
   @Test
-  public void apply() {
+  void apply() {
     final RequestPatternBuilder requestPatternBuilder = newRequestPattern().withUrl("/foo");
     final ResponseDefinition responseDefinition = ResponseDefinition.ok();
 
@@ -51,7 +51,7 @@ public class SnapshotStubMappingGeneratorTest {
   }
 
   @Test
-  public void applyWithStrangePathAndCheckSanitizedState() {
+  void applyWithStrangePathAndCheckSanitizedState() {
     final RequestPatternBuilder requestPatternBuilder =
         newRequestPattern().withUrl("hello_1_2_3___ace--ace___and");
     final ResponseDefinition responseDefinition = ResponseDefinition.ok();

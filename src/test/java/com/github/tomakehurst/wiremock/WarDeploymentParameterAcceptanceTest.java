@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class WarDeploymentParameterAcceptanceTest {
   }
 
   @Test
-  public void testCustomMapping() throws Exception {
+  void testCustomMapping() throws Exception {
     // Test war deployment using a different servlet mapping path (see webappCustomMapping).
     init(sampleWarRootDir() + "/src/main/webappCustomMapping", "/mapping");
     givenThat(
@@ -55,7 +55,7 @@ public class WarDeploymentParameterAcceptanceTest {
   }
 
   @Test
-  public void testLimitedRequestJournal() throws Exception {
+  void testLimitedRequestJournal() throws Exception {
     // Test war deployment usint a request journal restricted to two entries
     init(sampleWarRootDir() + "/src/main/webappLimitedRequestJournal", "");
     // We don't have to create a stub since failed requests are also recorded

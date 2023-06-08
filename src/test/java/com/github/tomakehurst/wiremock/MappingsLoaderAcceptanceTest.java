@@ -58,7 +58,7 @@ public class MappingsLoaderAcceptanceTest {
   }
 
   @Test
-  public void mappingsLoadedFromJsonFiles() {
+  void mappingsLoadedFromJsonFiles() {
     buildWireMock(configuration);
     wireMockServer.loadMappingsUsing(
         new JsonFileMappingsSource(
@@ -72,13 +72,13 @@ public class MappingsLoaderAcceptanceTest {
   }
 
   @Test
-  public void mappingsLoadedViaClasspath() {
+  void mappingsLoadedViaClasspath() {
     buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
     assertThat(testClient.get("/test").content(), is("THINGS!"));
   }
 
   @Test
-  public void loadsStubMappingsFromAMixtureOfSingleAndMultiStubFiles() {
+  void loadsStubMappingsFromAMixtureOfSingleAndMultiStubFiles() {
     buildWireMock(configuration);
     wireMockServer.resetMappings();
     wireMockServer.loadMappingsUsing(

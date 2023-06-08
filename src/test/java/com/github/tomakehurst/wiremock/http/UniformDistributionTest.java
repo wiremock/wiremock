@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 public class UniformDistributionTest {
 
   @Test
-  public void shouldReturnAllValuesInTheRange() {
+  void shouldReturnAllValuesInTheRange() {
     DelayDistribution distribution = new UniformDistribution(3, 4);
 
     boolean[] found = new boolean[5];

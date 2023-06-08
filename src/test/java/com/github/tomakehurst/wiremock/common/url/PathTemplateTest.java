@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
-public class PathTemplateTest {
+class PathTemplateTest {
 
   @Test
-  public void extractsSinglePathParameter() {
+  void extractsSinglePathParameter() {
     PathTemplate template = new PathTemplate("/things/{id}");
 
     PathParams pathParams = template.parse("/things/11-22-33");
@@ -39,7 +39,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void throwsIllegalArgumentExceptionIfAttemptingParsingOnNonMatchingUrl() {
+  void throwsIllegalArgumentExceptionIfAttemptingParsingOnNonMatchingUrl() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -49,28 +49,28 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void matchesWhenUrlIsEquivalentToTemplate() {
+  void matchesWhenUrlIsEquivalentToTemplate() {
     PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
 
     assertThat(template.matches("/things/11-22-33/otherthings/12378"), is(true));
   }
 
   @Test
-  public void nonMatchWhenUrlIsShorterThanTemplate() {
+  void nonMatchWhenUrlIsShorterThanTemplate() {
     PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
 
     assertThat(template.matches("/things/11-22-33/otherthings"), is(false));
   }
 
   @Test
-  public void nonMatchWhenUrlPartIsMismatch() {
+  void nonMatchWhenUrlPartIsMismatch() {
     PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
 
     assertThat(template.matches("/things/11-22-33/other-stuff/1234"), is(false));
   }
 
   @Test
-  public void rendersWithParameters() {
+  void rendersWithParameters() {
     PathTemplate template = new PathTemplate("/things/{id}/otherthings/{subId}");
     PathParams pathParams = new PathParams().add("id", "123").add("subId", "456");
 
@@ -80,7 +80,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void rendersWithoutParameters() {
+  void rendersWithoutParameters() {
     PathTemplate template = new PathTemplate("/things/stuff");
 
     String path = template.render(PathParams.empty());
@@ -89,7 +89,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void throwsErrorWhenNotAllParametersAreBound() {
+  void throwsErrorWhenNotAllParametersAreBound() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -99,7 +99,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void parseWithWildcardAndOneDepthPath() {
+  void parseWithWildcardAndOneDepthPath() {
     PathTemplate template = new PathTemplate("/things/**");
 
     PathParams pathParams = template.parse("/things/stuff");
@@ -108,7 +108,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void parseWithWildcardAndTwoDepthPath() {
+  void parseWithWildcardAndTwoDepthPath() {
     PathTemplate template = new PathTemplate("/things/**");
 
     PathParams pathParams = template.parse("/things/foo/bar");
@@ -117,7 +117,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void parseWithVariableAndWildcardAndTwoDepthPath() {
+  void parseWithVariableAndWildcardAndTwoDepthPath() {
     PathTemplate template = new PathTemplate("/things/{id}/**");
 
     PathParams pathParams = template.parse("/things/foo/bar");
@@ -127,7 +127,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void renderWithWildcardAndOneDepth() {
+  void renderWithWildcardAndOneDepth() {
     PathTemplate template = new PathTemplate("/things/**");
     PathParams pathParams = new PathParams().add("0", "stuff");
 
@@ -137,7 +137,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void renderWithWildcardAndTwoDepth() {
+  void renderWithWildcardAndTwoDepth() {
     PathTemplate template = new PathTemplate("/things/**");
     PathParams pathParams = new PathParams().add("0", "foo/bar");
 
@@ -147,7 +147,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void renderWithVariableAndWildcardAndTwoDepthPath() {
+  void renderWithVariableAndWildcardAndTwoDepthPath() {
     PathTemplate template = new PathTemplate("/things/{id}/**");
     PathParams pathParams = new PathParams().add("id", "foo").add("0", "bar");
 
@@ -157,7 +157,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void throwsErrorWhenNotWildcardParameterIsNotBound() {
+  void throwsErrorWhenNotWildcardParameterIsNotBound() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -167,7 +167,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void checkHashAndEquality() {
+  void checkHashAndEquality() {
     List<String> templates =
         asList(
             "/things",
@@ -189,7 +189,7 @@ public class PathTemplateTest {
   }
 
   @Test
-  public void checkEquality() {
+  void checkEquality() {
     List<String> templates =
         asList(
             "/things",

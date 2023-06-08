@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
-public class ListFunctionsTest {
+class ListFunctionsTest {
 
   @Test
-  public void emptyArrayReturnsTwoEmptyLists() {
+  void emptyArrayReturnsTwoEmptyLists() {
     Number[] input = new Number[0];
 
     assertEquals(
@@ -36,7 +36,7 @@ public class ListFunctionsTest {
   }
 
   @Test
-  public void singletonArrayNonMatchingReturnsSingletonAndEmptyList() {
+  void singletonArrayNonMatchingReturnsSingletonAndEmptyList() {
     Number[] input = new Number[] {1L};
 
     assertEquals(
@@ -45,7 +45,7 @@ public class ListFunctionsTest {
   }
 
   @Test
-  public void singletonArrayMatchingReturnsEmptyAndSingletonList() {
+  void singletonArrayMatchingReturnsEmptyAndSingletonList() {
     Number[] input = new Number[] {1};
 
     assertEquals(
@@ -53,7 +53,7 @@ public class ListFunctionsTest {
   }
 
   @Test
-  public void splitsTheArrayAsExpected() {
+  void splitsTheArrayAsExpected() {
     Number[] input = new Number[] {1, 1L, 2, 2L, 3, 3L};
 
     assertEquals(pair(asList(1L, 2L, 3L), asList(1, 2, 3)), splitByType(input, Integer.class));

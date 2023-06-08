@@ -98,7 +98,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsRequestsWithDefaultOptions() throws Exception {
+  void returnsRequestsWithDefaultOptions() throws Exception {
     proxyServerStart(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
     proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
@@ -148,7 +148,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
+  void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
     proxyServerStartWithEmptyFileRoot();
 
     // Matches both
@@ -193,7 +193,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                         ";
 
   @Test
-  public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
+  void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
     proxyServerStartWithEmptyFileRoot();
 
     // Matches both
@@ -239,7 +239,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                         ";
 
   @Test
-  public void returnsStubsFromNonProxiedRequestsWhenRequested() {
+  void returnsStubsFromNonProxiedRequestsWhenRequested() {
     proxyServerStartWithEmptyFileRoot();
     proxyingService.removeStubsByMetadata(matchingJsonPath("$.proxy"));
 
@@ -294,7 +294,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsStubMappingWithCapturedHeaders() {
+  void returnsStubMappingWithCapturedHeaders() {
     proxyServerStartWithEmptyFileRoot();
 
     proxyingTestClient.put(
@@ -345,7 +345,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                                   ";
 
   @Test
-  public void returnsStubMappingsWithScenariosForRepeatedRequests() {
+  void returnsStubMappingsWithScenariosForRepeatedRequests() {
     proxyServerStartWithEmptyFileRoot();
 
     proxyingTestClient.get("/bar/baz");
@@ -388,7 +388,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsTransformedStubMappingWithGlobalTransformer() {
+  void returnsTransformedStubMappingWithGlobalTransformer() {
     proxyServerStart(
         wireMockConfig()
             .withRootDirectory("src/test/resources/empty")
@@ -449,7 +449,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void returnsTransformedStubMappingWithNonGlobalTransformer() {
+  void returnsTransformedStubMappingWithNonGlobalTransformer() {
     proxyServerStart(
         wireMockConfig()
             .withRootDirectory("src/test/resources/empty")
@@ -519,7 +519,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}                                                             ";
 
   @Test
-  public void startsAndStopsRecording() {
+  void startsAndStopsRecording() {
     proxyServerStartWithEmptyFileRoot();
 
     String requestJson =
@@ -555,7 +555,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "}";
 
   @Test
-  public void returnsErrorWhenAttemptingToStopRecordingWhenNotStarted() {
+  void returnsErrorWhenAttemptingToStopRecordingWhenNotStarted() {
     proxyServerStartWithEmptyFileRoot();
 
     WireMockResponse response =

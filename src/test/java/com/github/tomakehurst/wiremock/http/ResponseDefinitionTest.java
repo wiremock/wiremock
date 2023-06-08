@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class ResponseDefinitionTest {
 
   @Test
-  public void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {
+  void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {
     ResponseDefinition response =
         ResponseDefinition.browserProxy(
             MockRequest.mockRequest()
@@ -37,7 +37,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void getProxyUrlGivesBackTheProxyUrlWhenNotBrowserProxy() {
+  void getProxyUrlGivesBackTheProxyUrlWhenNotBrowserProxy() {
     ResponseDefinition response =
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.proxy.url").build();
 
@@ -47,7 +47,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void doesNotRemoveRequestPathPrefixWhenPrefixToRemoveDoesNotMatch() {
+  void doesNotRemoveRequestPathPrefixWhenPrefixToRemoveDoesNotMatch() {
     ResponseDefinition response =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.proxy.url")
@@ -60,7 +60,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void removesRequestPathPrefixWhenPrefixToRemoveMatches() {
+  void removesRequestPathPrefixWhenPrefixToRemoveMatches() {
     ResponseDefinition response =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.proxy.url")
@@ -73,7 +73,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlBeginWithWhiteSpace() {
+  void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlBeginWithWhiteSpace() {
     ResponseDefinition response =
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom(" http://my.proxy.url").build();
 
@@ -83,7 +83,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlEndWithWhiteSpace() {
+  void getProxyUrlGivesBackTheProxyUrlWhenProxiedUrlEndWithWhiteSpace() {
     ResponseDefinition response =
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.proxy.url ").build();
 
@@ -93,7 +93,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void getProxyUrlGivesBackTheProxyUrlWhenProxiedFromUrlNull() {
+  void getProxyUrlGivesBackTheProxyUrlWhenProxiedFromUrlNull() {
     ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition().build();
 
     response.setOriginalRequest(MockRequest.mockRequest().url("/path"));

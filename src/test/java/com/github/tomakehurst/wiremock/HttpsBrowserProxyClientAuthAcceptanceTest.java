@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
           .build();
 
   @Test
-  public void canDoClientAuthEndToEndWhenProxying() throws Exception {
+  void canDoClientAuthEndToEndWhenProxying() throws Exception {
     target.stubFor(get("/whatever").willReturn(aResponse().withBody("Success")));
 
     CloseableHttpClient testClient = buildHttpClient();

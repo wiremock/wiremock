@@ -116,7 +116,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canProxyHttpsInBrowserProxyMode() throws Exception {
+  void canProxyHttpsInBrowserProxyMode() throws Exception {
     target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
     assertThat(
@@ -124,7 +124,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
+  void canProxyHttpsInBrowserHttpsProxyMode() throws Exception {
     target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
     WireMockResponse response =
@@ -134,7 +134,7 @@ public class HttpsBrowserProxyAcceptanceTest {
 
   @Test
   @Disabled("Jetty doesn't yet support proxying via HTTP2")
-  public void canProxyHttpsUsingHttp2InBrowserHttpsProxyMode() throws Exception {
+  void canProxyHttpsUsingHttp2InBrowserHttpsProxyMode() throws Exception {
 
     HttpClient httpClient = Http2ClientFactory.create();
     ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
@@ -149,7 +149,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canStubHttpsInBrowserProxyMode() throws Exception {
+  void canStubHttpsInBrowserProxyMode() throws Exception {
     target.stubFor(
         get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Should Not Be Returned")));
     proxy.stubFor(get(urlEqualTo("/stubbed")).willReturn(aResponse().withBody("Stubbed Value")));
@@ -166,7 +166,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canRecordHttpsInBrowserProxyMode() throws Exception {
+  void canRecordHttpsInBrowserProxyMode() throws Exception {
 
     // given
     proxy.startRecording(target.baseUrl());
@@ -189,7 +189,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void rejectsUntrustedTarget() {
+  void rejectsUntrustedTarget() {
 
     WireMockServer scepticalProxy =
         new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
@@ -209,7 +209,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void trustsTargetIfTrustStoreContainsItsCertificate() {
+  void trustsTargetIfTrustStoreContainsItsCertificate() {
 
     WireMockServer scepticalProxy =
         new WireMockServer(
@@ -235,7 +235,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void canTrustSpecificTargetHosts() {
+  void canTrustSpecificTargetHosts() {
 
     WireMockServer scepticalProxy =
         new WireMockServer(
@@ -341,7 +341,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
+  void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
     assertThrows(
         IOException.class,
         () -> {
@@ -353,7 +353,7 @@ public class HttpsBrowserProxyAcceptanceTest {
   }
 
   @Test
-  public void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
+  void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
     assertThrows(
         FatalStartupException.class,
         new WireMockServer(

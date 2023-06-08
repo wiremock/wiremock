@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,14 +64,14 @@ public class StubLifecycleListenerAcceptanceTest {
   }
 
   @Test
-  public void beforeAndAfterMethodsAreCalledForStubCreation() {
+  void beforeAndAfterMethodsAreCalledForStubCreation() {
     wm.stubFor(get("/test").withName("Created").willReturn(ok()));
     assertThat(loggingListener.events.get(0), is("beforeStubCreated, name: Created"));
     assertThat(loggingListener.events.get(1), is("afterStubCreated, name: Created"));
   }
 
   @Test
-  public void beforeAndAfterMethodsAreCalledForStubEdit() {
+  void beforeAndAfterMethodsAreCalledForStubEdit() {
     UUID id = UUID.randomUUID();
     wm.stubFor(get("/test").withId(id).withName("Created").willReturn(ok()));
     wm.editStub(get("/test").withId(id).withName("Edited").willReturn(ok()));
@@ -82,7 +82,7 @@ public class StubLifecycleListenerAcceptanceTest {
   }
 
   @Test
-  public void beforeAndAfterMethodsAreCalledForStubRemove() {
+  void beforeAndAfterMethodsAreCalledForStubRemove() {
     StubMapping stub = wm.stubFor(get("/test").withName("To remove").willReturn(ok()));
     wm.removeStub(stub);
     assertThat(loggingListener.events.get(2), is("beforeStubRemoved, name: To remove"));
@@ -90,7 +90,7 @@ public class StubLifecycleListenerAcceptanceTest {
   }
 
   @Test
-  public void beforeAndAfterMethodsAreCalledForStubsReset() {
+  void beforeAndAfterMethodsAreCalledForStubsReset() {
     wm.stubFor(get("/test").withName("To remove").willReturn(ok()));
     wm.resetMappings();
     assertThat(loggingListener.events.get(2), is("beforeStubsReset"));
@@ -98,7 +98,7 @@ public class StubLifecycleListenerAcceptanceTest {
   }
 
   @Test
-  public void stubCreationCanBeVetoedWhenExceptionIsThrown() {
+  void stubCreationCanBeVetoedWhenExceptionIsThrown() {
     exceptionThrowingListener.throwException = true;
 
     assertTrue(wm.listAllStubMappings().getMappings().isEmpty());
@@ -114,7 +114,7 @@ public class StubLifecycleListenerAcceptanceTest {
   }
 
   @Test
-  public void sensibleExceptionIsThrownWhenRemoteAndExceptionThrownFromListener() {
+  void sensibleExceptionIsThrownWhenRemoteAndExceptionThrownFromListener() {
     WireMock wmRemote = new WireMock(wm.getPort());
     exceptionThrowingListener.throwException = true;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesASimpleJsonObject() throws Exception {
+  void parsesASimpleJsonObject() throws Exception {
     String inputJson = "{\"testKey1\": \"val1\", \"testKey2\": \"val2\"}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 
@@ -49,7 +49,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesAJsonObjectContainingArray() throws Exception {
+  void parsesAJsonObjectContainingArray() throws Exception {
     String inputJson = "{\"arr\": [\"one\", \"two\", \"three\"]}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 
@@ -62,7 +62,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parseANestedJsonObject() throws Exception {
+  void parseANestedJsonObject() throws Exception {
     String inputJson = "{\"parent\": {\"child\": \"val\"}}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 
@@ -78,7 +78,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesJsonWithTopLevelArray() throws Exception {
+  void parsesJsonWithTopLevelArray() throws Exception {
     String inputJson = "[{\"key\": \"val\"}]";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 
@@ -93,7 +93,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesNullJsonIfSection() throws Exception {
+  void parsesNullJsonIfSection() throws Exception {
     String inputJson = null;
     Object output = render(inputJson, new Object[] {}, TagType.SECTION);
 
@@ -104,7 +104,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesNullJsonIfNotSection() throws Exception {
+  void parsesNullJsonIfNotSection() throws Exception {
     String inputJson = null;
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 
@@ -115,7 +115,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesEmptyJsonIfSection() throws Exception {
+  void parsesEmptyJsonIfSection() throws Exception {
     String inputJson = "{}";
     Object output = render(inputJson, new Object[] {}, TagType.SECTION);
 
@@ -126,7 +126,7 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void parsesEmptyJsonIfNotSection() throws Exception {
+  void parsesEmptyJsonIfNotSection() throws Exception {
     String inputJson = "{}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 

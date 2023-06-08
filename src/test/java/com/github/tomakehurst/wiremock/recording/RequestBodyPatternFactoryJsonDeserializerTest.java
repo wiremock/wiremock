@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,19 +27,19 @@ import org.junit.jupiter.api.Test;
 
 public class RequestBodyPatternFactoryJsonDeserializerTest {
   @Test
-  public void correctlyDeserializesWithEmptyObject() {
+  void correctlyDeserializesWithEmptyObject() {
     RequestBodyPatternFactory bodyPatternFactory = deserializeJson("{}");
     assertThat(bodyPatternFactory, instanceOf(RequestBodyAutomaticPatternFactory.class));
   }
 
   @Test
-  public void correctlyDeserializesWithAutoMatcher() {
+  void correctlyDeserializesWithAutoMatcher() {
     RequestBodyPatternFactory bodyPatternFactory = deserializeJson("{ \"matcher\": \"auto\" }");
     assertThat(bodyPatternFactory, instanceOf(RequestBodyAutomaticPatternFactory.class));
   }
 
   @Test
-  public void correctlyDeserializesWithEqualToMatcher() {
+  void correctlyDeserializesWithEqualToMatcher() {
     RequestBodyPatternFactory bodyPatternFactory =
         deserializeJson(
             "{                                    \n"
@@ -53,7 +53,7 @@ public class RequestBodyPatternFactoryJsonDeserializerTest {
   }
 
   @Test
-  public void correctlyDeserializesWithEqualToJsonMatcher() {
+  void correctlyDeserializesWithEqualToJsonMatcher() {
     RequestBodyPatternFactory bodyPatternFactory =
         deserializeJson(
             "{                                    \n"
@@ -68,7 +68,7 @@ public class RequestBodyPatternFactoryJsonDeserializerTest {
   }
 
   @Test
-  public void correctlyDeserializesWithEqualToXmlMatcher() {
+  void correctlyDeserializesWithEqualToXmlMatcher() {
     RequestBodyPatternFactory bodyPatternFactory =
         deserializeJson("{ \"matcher\": \"equalToXml\" }");
     assertThat(bodyPatternFactory, instanceOf(RequestBodyEqualToXmlPatternFactory.class));

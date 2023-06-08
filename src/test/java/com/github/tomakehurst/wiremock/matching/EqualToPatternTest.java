@@ -30,31 +30,31 @@ import org.junit.jupiter.api.Test;
 public class EqualToPatternTest {
 
   @Test
-  public void returnsANonZeroScoreForPartialMatchOnEquals() {
+  void returnsANonZeroScoreForPartialMatchOnEquals() {
     StringValuePattern pattern = WireMock.equalTo("matchthis");
     assertThat(pattern.match("matchthisbadlydone").getDistance(), is(0.5));
   }
 
   @Test
-  public void returns1ForNoMatchOnEquals() {
+  void returns1ForNoMatchOnEquals() {
     StringValuePattern pattern = WireMock.equalTo("matchthis");
     assertThat(pattern.match("924387348975923").getDistance(), is(1.0));
   }
 
   @Test
-  public void returns0ForExactMatchOnEquals() {
+  void returns0ForExactMatchOnEquals() {
     StringValuePattern pattern = WireMock.equalTo("matchthis");
     assertThat(pattern.match("matchthis").getDistance(), is(0.0));
   }
 
   @Test
-  public void matchesCaseInsensitive() {
+  void matchesCaseInsensitive() {
     StringValuePattern pattern = WireMock.equalToIgnoreCase("MaTchtHis");
     assertThat(pattern.match("matchthis").isExactMatch(), is(true));
   }
 
   @Test
-  public void correctlyDeserialisesEqualToFromJson() {
+  void correctlyDeserialisesEqualToFromJson() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                               \n" + "  \"equalTo\": \"something\"    \n" + "}",
@@ -65,7 +65,7 @@ public class EqualToPatternTest {
   }
 
   @Test
-  public void correctlyDeserialisesEqualToFromJsonWithIgnoreCase() {
+  void correctlyDeserialisesEqualToFromJsonWithIgnoreCase() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                              \n"
@@ -80,7 +80,7 @@ public class EqualToPatternTest {
   }
 
   @Test
-  public void correctlySerialisesToJson() throws Exception {
+  void correctlySerialisesToJson() throws Exception {
     assertEquals(
         "{                               \n" + "  \"equalTo\": \"something\"    \n" + "}",
         Json.write(new EqualToPattern("something")),
@@ -88,7 +88,7 @@ public class EqualToPatternTest {
   }
 
   @Test
-  public void failsWithMeaningfulErrorWhenOperatorNotRecognised() {
+  void failsWithMeaningfulErrorWhenOperatorNotRecognised() {
     try {
       Json.read(
           "{                               \n" + "  \"munches\": \"something\"    \n" + "}",
@@ -105,12 +105,12 @@ public class EqualToPatternTest {
   }
 
   @Test
-  public void noMatchOnNullValue() {
+  void noMatchOnNullValue() {
     assertThat(WireMock.equalTo("this_thing").match(null).isExactMatch(), is(false));
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     EqualToPattern a = new EqualToPattern("someString");
     EqualToPattern b = new EqualToPattern("someString");
     EqualToPattern c = new EqualToPattern("someOtherString");

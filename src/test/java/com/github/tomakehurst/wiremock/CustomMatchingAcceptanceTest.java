@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,14 +54,14 @@ public class CustomMatchingAcceptanceTest {
   }
 
   @Test
-  public void customRequestMatcherCanBeDefinedAsClass() {
+  void customRequestMatcherCanBeDefinedAsClass() {
     wmRule.stubFor(requestMatching(new MyRequestMatcher()).willReturn(aResponse().withStatus(200)));
     assertThat(client.get("/correct").statusCode(), is(200));
     assertThat(client.get("/wrong").statusCode(), is(404));
   }
 
   @Test
-  public void customRequestMatcherCanBeDefinedInline() {
+  void customRequestMatcherCanBeDefinedInline() {
     wmRule.stubFor(
         requestMatching(
                 new RequestMatcher() {
@@ -82,7 +82,7 @@ public class CustomMatchingAcceptanceTest {
   }
 
   @Test
-  public void customRequestMatcherCanBeSpecifiedAsNamedExtension() {
+  void customRequestMatcherCanBeSpecifiedAsNamedExtension() {
     wm.register(
         requestMatching("path-contains-param", Parameters.one("path", "findthis"))
             .willReturn(aResponse().withStatus(200)));
@@ -90,7 +90,7 @@ public class CustomMatchingAcceptanceTest {
   }
 
   @Test
-  public void inlineCustomRequestMatcherCanBeCombinedWithStandardMatchers() {
+  void inlineCustomRequestMatcherCanBeCombinedWithStandardMatchers() {
     wmRule.stubFor(
         get(urlPathMatching("/the/.*/one")).andMatching(new MyRequestMatcher()).willReturn(ok()));
 
@@ -100,7 +100,7 @@ public class CustomMatchingAcceptanceTest {
   }
 
   @Test
-  public void namedCustomRequestMatcherCanBeCombinedWithStandardMatchers() {
+  void namedCustomRequestMatcherCanBeCombinedWithStandardMatchers() {
     wm.register(
         get(urlPathMatching("/the/.*/one"))
             .andMatching("path-contains-param", Parameters.one("path", "correct"))
@@ -112,7 +112,7 @@ public class CustomMatchingAcceptanceTest {
   }
 
   @Test
-  public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
+  void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
     assertThrows(
         AdminException.class,
         () -> {

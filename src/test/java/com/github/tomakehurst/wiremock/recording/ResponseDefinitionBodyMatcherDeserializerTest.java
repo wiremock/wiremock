@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 public class ResponseDefinitionBodyMatcherDeserializerTest {
   @Test
-  public void correctlyParsesFileSize() {
+  void correctlyParsesFileSize() {
     final Map<String, Long> testCases =
         ImmutableMap.<String, Long>builder()
             .put("100", 100L)
@@ -43,20 +43,20 @@ public class ResponseDefinitionBodyMatcherDeserializerTest {
   }
 
   @Test
-  public void correctlyDeserializesWithEmptyNode() {
+  void correctlyDeserializesWithEmptyNode() {
     ResponseDefinitionBodyMatcher matcher = Json.read("{}", ResponseDefinitionBodyMatcher.class);
     assertEquals(new ResponseDefinitionBodyMatcher(Long.MAX_VALUE, Long.MAX_VALUE), matcher);
   }
 
   @Test
-  public void correctlyDeserializesWithSingleValue() {
+  void correctlyDeserializesWithSingleValue() {
     ResponseDefinitionBodyMatcher matcher =
         Json.read("{ \"textSizeThreshold\": 100 }", ResponseDefinitionBodyMatcher.class);
     assertEquals(new ResponseDefinitionBodyMatcher(100, Long.MAX_VALUE), matcher);
   }
 
   @Test
-  public void correctlyDeserializesWithBothValues() {
+  void correctlyDeserializesWithBothValues() {
     ResponseDefinitionBodyMatcher matcher =
         Json.read(
             "{ \"textSizeThreshold\": 100, \"binarySizeThreshold\": 10 }",

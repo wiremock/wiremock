@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-public class TextFileTest {
+class TextFileTest {
   @Test
   @DisabledOnOs(
       value = OS.WINDOWS,
       disabledReason = "This test can only be run on non-Windows " + "its behaviour is OS specific")
-  public void returnsPathToFileOnLinuxSystems() throws Exception {
+  void returnsPathToFileOnLinuxSystems() throws Exception {
     TextFile textFile = new TextFile(new URI("file://home/bob/myfile.txt"));
 
     String path = textFile.getPath();
@@ -45,7 +45,7 @@ public class TextFileTest {
           "This test can only be run on Windows "
               + "because File uses FileSystem in its constructor "
               + "and its behaviour is OS specific")
-  public void returnsPathToFileOnWindowsSystems() throws Exception {
+  void returnsPathToFileOnWindowsSystems() throws Exception {
     TextFile textFile = new TextFile(new URI("file:/C:/Users/bob/myfile.txt"));
 
     Path path = Paths.get(textFile.getPath());

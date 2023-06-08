@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   WireMockTestClient client;
 
   @Test
-  public void transformerSpecifiedByClassTransformsHeadersStatusAndBody() {
+  void transformerSpecifiedByClassTransformsHeadersStatusAndBody() {
     startWithExtensions(
         "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$ExampleTransformer");
     createStub("/to-transform");
@@ -53,7 +53,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void supportsMultipleTransformers() {
+  void supportsMultipleTransformers() {
     startWithExtensions(
         "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$MultiTransformer1",
         "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$MultiTransformer2");
@@ -65,7 +65,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void supportsSpecifiyingExtensionsByClass() {
+  void supportsSpecifiyingExtensionsByClass() {
     wm =
         new WireMockServer(
             wireMockConfig()
@@ -81,7 +81,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void supportsSpecifiyingExtensionsByInstance() {
+  void supportsSpecifiyingExtensionsByInstance() {
     wm =
         new WireMockServer(
             wireMockConfig()
@@ -97,7 +97,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void doesNotApplyNonGlobalExtensionsWhenNotExplicitlySpecfiedByStub() {
+  void doesNotApplyNonGlobalExtensionsWhenNotExplicitlySpecfiedByStub() {
     wm =
         new WireMockServer(
             wireMockConfig()
@@ -112,7 +112,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void appliesNonGlobalExtensionsWhenSpecifiedByStub() {
+  void appliesNonGlobalExtensionsWhenSpecifiedByStub() {
     wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(new NonGlobalTransformer()));
     wm.start();
     client = new WireMockTestClient(wm.port());
@@ -143,7 +143,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void supportsAccessingTheFilesFileSource() {
+  void supportsAccessingTheFilesFileSource() {
     startWithExtensions(
         "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$FileAccessTransformer");
     createStub("/files-access-transform");
@@ -153,7 +153,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   }
 
   @Test
-  public void supportsParameters() {
+  void supportsParameters() {
     startWithExtensions(
         "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerAcceptanceTest$ParameterisedTransformer");
 

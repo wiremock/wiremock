@@ -25,19 +25,19 @@ import org.junit.jupiter.api.Test;
 public class ContainsPatternTest {
 
   @Test
-  public void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {
+  void returnsExactMatchWhenExpectedValueWhollyContainedInTestValue() {
     assertTrue(WireMock.containing("thing").match("mythings").isExactMatch());
   }
 
   @Test
-  public void returnsNoMatchWhenExpectedValueNotContainedInTestValue() {
+  void returnsNoMatchWhenExpectedValueNotContainedInTestValue() {
     MatchResult matchResult = WireMock.containing("thing").match("otherstuff");
     assertFalse(matchResult.isExactMatch());
     assertThat(matchResult.getDistance(), is(1.0));
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     ContainsPattern a = new ContainsPattern("someString");
     ContainsPattern b = new ContainsPattern("someString");
     ContainsPattern c = new ContainsPattern("someOtherString");

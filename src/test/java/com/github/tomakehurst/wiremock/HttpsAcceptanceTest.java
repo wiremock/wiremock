@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void shouldReturnStubOnSpecifiedPort() throws Exception {
+  void shouldReturnStubOnSpecifiedPort() throws Exception {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/https-test"))
@@ -88,7 +88,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
+  void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
     Throwable exception =
         assertThrows(
             IllegalStateException.class,
@@ -119,7 +119,7 @@ public class HttpsAcceptanceTest {
       value = OS.WINDOWS,
       disabledReason =
           "This feature does not work on Windows " + "because of differing native socket behaviour")
-  public void connectionResetByPeerFault() throws IOException {
+  void connectionResetByPeerFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/connection/reset"))
@@ -136,7 +136,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void emptyResponseFault() {
+  void emptyResponseFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
@@ -146,7 +146,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void malformedResponseChunkFault() {
+  void malformedResponseChunkFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/malformed/response"))
@@ -157,7 +157,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void randomDataOnSocketFault() {
+  void randomDataOnSocketFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/random/data"))
@@ -168,7 +168,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void throwsExceptionWhenBadAlternativeKeystore() {
+  void throwsExceptionWhenBadAlternativeKeystore() {
     assertThrows(
         Exception.class,
         () -> {
@@ -178,7 +178,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptsAlternativeKeystore() throws Exception {
+  void acceptsAlternativeKeystore() throws Exception {
     String testKeystorePath = Resources.getResource("test-keystore").toString();
     startServerWithKeystore(testKeystorePath);
     stubFor(
@@ -189,7 +189,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
+  void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
     String testKeystorePath = Resources.getResource("test-keystore-pwd").toString();
     startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
     stubFor(
@@ -200,7 +200,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
+  void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
     String keystorePath = Resources.getResource("test-keystore-key-man-pwd").toString();
     startServerWithKeystore(keystorePath, "password", "anotherpassword");
     stubFor(
@@ -211,7 +211,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
+  void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
     try {
       String keystorePath = Resources.getResource("test-keystore-key-man-pwd").toString();
       startServerWithKeystore(keystorePath, "password", "wrongpassword");
@@ -222,7 +222,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void rejectsWithoutClientCertificate() {
+  void rejectsWithoutClientCertificate() {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
         get(urlEqualTo("/https-test"))
@@ -243,7 +243,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptWithClientCertificate() throws Exception {
+  void acceptWithClientCertificate() throws Exception {
     String testTrustStorePath = TRUST_STORE_PATH;
     String testClientCertPath = TRUST_STORE_PATH;
 
@@ -258,7 +258,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
+  void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
         get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().withStatus(200)));
@@ -281,7 +281,7 @@ public class HttpsAcceptanceTest {
   }
 
   @Test
-  public void proxyingFailsWhenTargetServiceRequiresClientCertificatesAndProxyDoesNotSend()
+  void proxyingFailsWhenTargetServiceRequiresClientCertificatesAndProxyDoesNotSend()
       throws Exception {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(

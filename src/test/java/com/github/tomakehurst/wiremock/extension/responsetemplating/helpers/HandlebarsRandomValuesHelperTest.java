@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesRandomAlphaNumericOfSpecifiedLength() throws Exception {
+  void generatesRandomAlphaNumericOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("length", 36);
 
     String output = render(optionsHash);
@@ -57,7 +57,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesUppercaseRandomAlphaNumericOfSpecifiedLength() throws Exception {
+  void generatesUppercaseRandomAlphaNumericOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("length", 36, "uppercase", true);
 
@@ -68,7 +68,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesRandomAlphabeticOfSpecifiedLength() throws Exception {
+  void generatesRandomAlphabeticOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("length", 43, "type", "ALPHABETIC", "uppercase", true);
 
@@ -79,7 +79,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesRandomNumericOfSpecifiedLength() throws Exception {
+  void generatesRandomNumericOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("length", 55, "type", "NUMERIC");
 
@@ -90,7 +90,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesRandomStringOfSpecifiedLength() throws Exception {
+  void generatesRandomStringOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("length", 67, "type", "ALPHANUMERIC_AND_SYMBOLS");
 
@@ -101,7 +101,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
+  void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("length", 64, "type", "HEXADECIMAL");
 
@@ -112,7 +112,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void randomValuesCanBeAssignedToVariables() {
+  void randomValuesCanBeAssignedToVariables() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/random-value"),
@@ -131,7 +131,7 @@ public class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  public void generatesRandomUUID() throws Exception {
+  void generatesRandomUUID() throws Exception {
     ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("type", "UUID");
 
     String output = render(optionsHash);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class ResponseDefinitionTest {
 
   @Test
-  public void copyProducesEqualObject() {
+  void copyProducesEqualObject() {
     ResponseDefinition response =
         new ResponseDefinition(
             222,
@@ -63,7 +63,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void copyPreservesConfiguredFlag() {
+  void copyPreservesConfiguredFlag() {
     ResponseDefinition response = ResponseDefinition.notConfigured();
     ResponseDefinition copiedResponse = copyOf(response);
     assertFalse(copiedResponse.wasConfigured(), "Should be not configured");
@@ -76,7 +76,7 @@ public class ResponseDefinitionTest {
           + "}											";
 
   @Test
-  public void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
+  void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
     ResponseDefinition responseDef = Json.read(STRING_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBase64Body(), is(nullValue()));
     assertThat(responseDef.getJsonBody(), is(nullValue()));
@@ -90,7 +90,7 @@ public class ResponseDefinitionTest {
           + "}											";
 
   @Test
-  public void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
+  void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
     ResponseDefinition responseDef = Json.read(JSON_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBase64Body(), is(nullValue()));
     assertThat(responseDef.getBody(), is(nullValue()));
@@ -100,7 +100,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void correctlyMarshalsToJsonWhenBodyIsAString() throws Exception {
+  void correctlyMarshalsToJsonWhenBodyIsAString() throws Exception {
     ResponseDefinition responseDef =
         responseDefinition().withStatus(200).withBody("String content").build();
 
@@ -118,14 +118,14 @@ public class ResponseDefinitionTest {
           + "}											        ";
 
   @Test
-  public void correctlyUnmarshalsFromJsonWhenBodyIsBinary() {
+  void correctlyUnmarshalsFromJsonWhenBodyIsBinary() {
     ResponseDefinition responseDef = Json.read(BINARY_BODY, ResponseDefinition.class);
     assertThat(responseDef.getBody(), is(nullValue()));
     assertThat(responseDef.getByteBody(), is(BODY));
   }
 
   @Test
-  public void correctlyMarshalsToJsonWhenBodyIsBinary() throws Exception {
+  void correctlyMarshalsToJsonWhenBodyIsBinary() throws Exception {
     ResponseDefinition responseDef =
         responseDefinition().withStatus(200).withBase64Body(BASE64_BODY).build();
 
@@ -134,7 +134,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void indicatesBodyFileIfBodyContentIsNotAlsoSpecified() {
+  void indicatesBodyFileIfBodyContentIsNotAlsoSpecified() {
     ResponseDefinition responseDefinition = responseDefinition().withBodyFile("my-file").build();
 
     assertTrue(responseDefinition.specifiesBodyFile());
@@ -142,7 +142,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void doesNotIndicateBodyFileIfBodyContentIsAlsoSpecified() {
+  void doesNotIndicateBodyFileIfBodyContentIsAlsoSpecified() {
     ResponseDefinition responseDefinition =
         responseDefinition().withBodyFile("my-file").withBody("hello").build();
 
@@ -151,7 +151,7 @@ public class ResponseDefinitionTest {
   }
 
   @Test
-  public void omitsResponseTransformerAttributesFromJsonWhenEmpty() {
+  void omitsResponseTransformerAttributesFromJsonWhenEmpty() {
     String json = Json.write(new ResponseDefinition(200, ""));
 
     assertThat(json, not(containsString("transformers")));

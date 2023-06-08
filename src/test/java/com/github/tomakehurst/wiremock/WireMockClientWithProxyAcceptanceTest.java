@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class WireMockClientWithProxyAcceptanceTest {
   }
 
   @Test
-  public void supportsProxyingWithTheStaticClient() {
+  void supportsProxyingWithTheStaticClient() {
     WireMock.configureFor(
         "http",
         "localhost",
@@ -64,7 +64,7 @@ public class WireMockClientWithProxyAcceptanceTest {
   }
 
   @Test
-  public void supportsProxyingWithTheInstanceClient() {
+  void supportsProxyingWithTheInstanceClient() {
     WireMock wireMock =
         WireMock.create()
             .scheme("http")

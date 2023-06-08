@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  public void testEditMapping() throws Exception {
+  void testEditMapping() throws Exception {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);
@@ -58,7 +58,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  public void testRemoveMapping() throws Exception {
+  void testRemoveMapping() throws Exception {
 
     List<StubMapping> allMappings = inMemoryStubMappings.getAll();
     assertThat(allMappings, hasSize(0));
@@ -80,7 +80,7 @@ public class InMemoryStubMappingsTest {
   }
 
   @Test
-  public void testEditMappingNotPresent() throws Exception {
+  void testEditMappingNotPresent() throws Exception {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     inMemoryStubMappings.addMapping(existingMapping);

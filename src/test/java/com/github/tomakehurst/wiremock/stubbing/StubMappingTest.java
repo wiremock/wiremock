@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class StubMappingTest {
 
   @Test
-  public void excludesInsertionIndexFromPublicView() {
+  void excludesInsertionIndexFromPublicView() {
     StubMapping stub = get("/saveable").willReturn(ok()).build();
 
     String json = Json.write(stub);
@@ -38,7 +38,7 @@ public class StubMappingTest {
   }
 
   @Test
-  public void includedInsertionIndexInPrivateView() {
+  void includedInsertionIndexInPrivateView() {
     StubMapping stub = get("/saveable").willReturn(ok()).build();
 
     String json = Json.writePrivate(stub);
@@ -48,7 +48,7 @@ public class StubMappingTest {
   }
 
   @Test
-  public void deserialisesInsertionIndex() {
+  void deserialisesInsertionIndex() {
     String json =
         "{\n"
             + "    \"request\": {\n"

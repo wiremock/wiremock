@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void canExtractSingleRegexMatch() {
+  void canExtractSingleRegexMatch() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/api/abc,def,ghi"),
@@ -53,7 +53,7 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void canExtractMultipleRegexMatches() {
+  void canExtractMultipleRegexMatches() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/api/abc,def,ghi"),
@@ -68,13 +68,13 @@ public class RegexExtractHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void noMatchErrorWhenNoRegexMatch() {
+  void noMatchErrorWhenNoRegexMatch() {
     testHelperError(
         helper, "/123/456,789,900", "([A-Za-z]+)", is("[ERROR: Nothing matched ([A-Za-z]+)]"));
   }
 
   @Test
-  public void invalidRegExErrorWhenRegexStringIsInvalid() {
+  void invalidRegExErrorWhenRegexStringIsInvalid() {
     testHelperError(
         helper,
         "/123/456,789,900",

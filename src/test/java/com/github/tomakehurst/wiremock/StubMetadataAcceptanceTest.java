@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 public class StubMetadataAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void createAndRetrieveStubMetadata() {
+  void createAndRetrieveStubMetadata() {
     UUID id = UUID.randomUUID();
     stubFor(
         get("/with-metadata")
@@ -61,7 +61,7 @@ public class StubMetadataAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void canFindStubsByMetadata() {
+  void canFindStubsByMetadata() {
     UUID id = UUID.randomUUID();
     stubFor(
         get("/with-metadata")
@@ -77,7 +77,7 @@ public class StubMetadataAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void canRemoveStubsByMetadata() {
+  void canRemoveStubsByMetadata() {
     UUID id = UUID.randomUUID();
     stubFor(
         get("/with-metadata")

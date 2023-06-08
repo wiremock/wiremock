@@ -38,7 +38,7 @@ public class WireMockServerTests {
   @TempDir public File tempDir;
 
   @Test
-  public void instantiationWithEmptyFileSource() throws IOException {
+  void instantiationWithEmptyFileSource() throws IOException {
     Options options =
         new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir));
 
@@ -54,14 +54,14 @@ public class WireMockServerTests {
   }
 
   @Test
-  public void returnsOptionsWhenCallingGetOptions() {
+  void returnsOptionsWhenCallingGetOptions() {
     Options options = new WireMockConfiguration();
     WireMockServer wireMockServer = new WireMockServer(options);
     assertThat(wireMockServer.getOptions(), is(options));
   }
 
   @Test
-  public void addFilenameTemplateAsOptionAndValidFormat() {
+  void addFilenameTemplateAsOptionAndValidFormat() {
     Options options = options().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
     WireMockServer wireMockServer = new WireMockServer(options);
     wireMockServer.start();
@@ -69,7 +69,7 @@ public class WireMockServerTests {
   }
 
   @Test
-  public void buildsQualifiedHttpUrlFromPath() {
+  void buildsQualifiedHttpUrlFromPath() {
     WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
     wireMockServer.start();
     int port = wireMockServer.port();
@@ -81,7 +81,7 @@ public class WireMockServerTests {
   }
 
   @Test
-  public void buildsQualifiedHttpsUrlFromPath() {
+  void buildsQualifiedHttpsUrlFromPath() {
     WireMockServer wireMockServer = new WireMockServer(options().dynamicPort().dynamicHttpsPort());
     wireMockServer.start();
     int port = wireMockServer.httpsPort();
@@ -94,7 +94,7 @@ public class WireMockServerTests {
   }
 
   @Test
-  public void buildsBaseHttpUrl() {
+  void buildsBaseHttpUrl() {
     WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
     wireMockServer.start();
     int port = wireMockServer.port();
@@ -103,7 +103,7 @@ public class WireMockServerTests {
   }
 
   @Test
-  public void buildsBaseHttpsUrl() {
+  void buildsBaseHttpsUrl() {
     WireMockServer wireMockServer = new WireMockServer(options().dynamicPort().dynamicHttpsPort());
     wireMockServer.start();
     int port = wireMockServer.httpsPort();
@@ -113,7 +113,7 @@ public class WireMockServerTests {
 
   // https://github.com/tomakehurst/wiremock/issues/193
   @Test
-  public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
+  void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
     WireMockServer wireMockServer =
         new WireMockServer(
             DYNAMIC_PORT,

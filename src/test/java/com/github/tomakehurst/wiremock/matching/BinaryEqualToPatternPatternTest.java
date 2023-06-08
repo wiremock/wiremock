@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class BinaryEqualToPatternPatternTest {
 
   @Test
-  public void returns1ForNonMatch() {
+  void returns1ForNonMatch() {
     ValueMatcher<byte[]> pattern = WireMock.binaryEqualTo(new byte[] {1, 2, 3});
     byte[] actual = {4, 5, 6};
 
@@ -41,7 +41,7 @@ public class BinaryEqualToPatternPatternTest {
   }
 
   @Test
-  public void returns0WhenExactlyEqual() {
+  void returns0WhenExactlyEqual() {
     ValueMatcher<byte[]> pattern = WireMock.binaryEqualTo(new byte[] {1, 2, 3});
     byte[] actual = {1, 2, 3};
 
@@ -52,7 +52,7 @@ public class BinaryEqualToPatternPatternTest {
   }
 
   @Test
-  public void returnsNonMatchWheActualIsNull() {
+  void returnsNonMatchWheActualIsNull() {
     ValueMatcher<byte[]> pattern = WireMock.binaryEqualTo(new byte[] {1, 2, 3});
     byte[] actual = null;
 
@@ -63,7 +63,7 @@ public class BinaryEqualToPatternPatternTest {
   }
 
   @Test
-  public void serialisesCorrectly() throws Exception {
+  void serialisesCorrectly() throws Exception {
     byte[] expected = {5, 5, 5, 5};
     String base64Expected = BaseEncoding.base64().encode(expected);
     String expectedJson =
@@ -94,7 +94,7 @@ public class BinaryEqualToPatternPatternTest {
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     BinaryEqualToPattern a = new BinaryEqualToPattern(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
     BinaryEqualToPattern b = new BinaryEqualToPattern(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
     BinaryEqualToPattern c = new BinaryEqualToPattern(new byte[] {0, 8, 15});

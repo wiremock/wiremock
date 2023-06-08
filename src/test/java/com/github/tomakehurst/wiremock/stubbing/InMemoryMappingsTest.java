@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void correctlyAcceptsMappingAndReturnsCorrespondingResponse() {
+  void correctlyAcceptsMappingAndReturnsCorrespondingResponse() {
     mappings.addMapping(
         new StubMapping(
             newRequestPattern(PUT, urlEqualTo("/some/resource")).build(),
@@ -62,7 +62,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void returnsNotFoundWhenMethodIncorrect() {
+  void returnsNotFoundWhenMethodIncorrect() {
     mappings.addMapping(
         new StubMapping(
             newRequestPattern(PUT, urlEqualTo("/some/resource")).build(),
@@ -75,7 +75,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void returnsNotFoundWhenUrlIncorrect() {
+  void returnsNotFoundWhenUrlIncorrect() {
     mappings.addMapping(
         new StubMapping(
             newRequestPattern(PUT, urlEqualTo("/some/resource")).build(),
@@ -88,7 +88,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void returnsNotConfiguredResponseForUnmappedRequest() {
+  void returnsNotConfiguredResponseForUnmappedRequest() {
     Request request = aRequest().withMethod(OPTIONS).withUrl("/not/mapped").build();
     ResponseDefinition response = mappings.serveFor(request).getResponseDefinition();
     assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
@@ -96,7 +96,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void returnsMostRecentlyInsertedResponseIfTwoOrMoreMatch() {
+  void returnsMostRecentlyInsertedResponseIfTwoOrMoreMatch() {
     mappings.addMapping(
         new StubMapping(
             newRequestPattern(GET, urlEqualTo("/duplicated/resource")).build(),
@@ -117,7 +117,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void returnsMappingInScenarioOnlyWhenStateIsCorrect() {
+  void returnsMappingInScenarioOnlyWhenStateIsCorrect() {
     StubMapping firstGetMapping =
         new StubMapping(
             newRequestPattern(GET, urlEqualTo("/scenario/resource")).build(),
@@ -155,7 +155,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void returnsMappingInScenarioWithNoRequiredState() {
+  void returnsMappingInScenarioWithNoRequiredState() {
     StubMapping firstGetMapping =
         new StubMapping(
             newRequestPattern(GET, urlEqualTo("/scenario/resource")).build(),
@@ -170,7 +170,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void supportsResetOfAllScenariosState() {
+  void supportsResetOfAllScenariosState() {
     StubMapping firstGetMapping =
         new StubMapping(
             newRequestPattern(GET, urlEqualTo("/scenario/resource")).build(),
@@ -214,7 +214,7 @@ public class InMemoryMappingsTest {
   }
 
   @Test
-  public void scenariosShouldBeResetWhenMappingsAreReset() {
+  void scenariosShouldBeResetWhenMappingsAreReset() {
     StubMapping firstMapping = aBasicMappingInScenario("Starting content");
     firstMapping.setRequiredScenarioState(Scenario.STARTED);
     firstMapping.setNewScenarioState("modified");

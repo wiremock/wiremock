@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class VeryLongAsynchronousDelayAcceptanceTest {
   }
 
   @Test
-  public void longDelayWithBodyMatch() throws IOException, ParseException {
+  void longDelayWithBodyMatch() throws IOException, ParseException {
     String json =
         "{ \"id\": \"cb7872bd-89cd-4015-97d1-718779df7dfe\", \"priority\": 1, \"request\": { \"urlPattern\": \"/faulty.*/.*/path/path\", \"method\": \"POST\", \"bodyPatterns\": [ { \"matches\": \".*<xml>permissions</xml>.*\" } ] }, \"response\": { \"status\": 200, \"bodyFileName\": \"plain-example.txt\", \"fixedDelayMilliseconds\": 35000 } }\n";
 

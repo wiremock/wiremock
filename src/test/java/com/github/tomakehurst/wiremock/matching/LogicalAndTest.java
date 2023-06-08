@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class LogicalAndTest {
 
   @Test
-  public void matchesWhenAllContainedMatchersMatch() {
+  void matchesWhenAllContainedMatchersMatch() {
     StringValuePattern matcher =
         WireMock.and(
             WireMock.before("2021-01-01T00:00:00Z"), WireMock.after("2020-01-01T00:00:00Z"));
@@ -40,7 +40,7 @@ public class LogicalAndTest {
   }
 
   @Test
-  public void serialisesCorrectlyToJson() {
+  void serialisesCorrectlyToJson() {
     StringValuePattern matcher =
         WireMock.and(
             WireMock.before("2021-01-01T00:00:00Z"), WireMock.after("2020-01-01T00:00:00Z"));
@@ -61,7 +61,7 @@ public class LogicalAndTest {
   }
 
   @Test
-  public void deserialisesCorrectlyFromJson() {
+  void deserialisesCorrectlyFromJson() {
     LogicalAnd matcher =
         Json.read(
             "{\n"
@@ -86,7 +86,7 @@ public class LogicalAndTest {
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     LogicalAnd a =
         new LogicalAnd(WireMock.equalTo("A"), WireMock.equalTo("B"), WireMock.equalTo("C"));
     LogicalAnd b =

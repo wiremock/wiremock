@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 
 public class ProxiedServeEventFiltersTest {
   @Test
-  public void applyWithUniversalRequestPattern() {
+  void applyWithUniversalRequestPattern() {
     ServeEvent serveEvent = proxiedServeEvent(mockRequest());
     ProxiedServeEventFilters filters =
         new ProxiedServeEventFilters(RequestPattern.ANYTHING, null, false);
@@ -49,14 +49,14 @@ public class ProxiedServeEventFiltersTest {
   }
 
   @Test
-  public void applyWithUnproxiedServeEvent() {
+  void applyWithUnproxiedServeEvent() {
     ServeEvent serveEvent = toServeEvent(null, null, ResponseDefinition.ok());
     ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, null, false);
     assertFalse(filters.test(serveEvent));
   }
 
   @Test
-  public void applyWithMethodPattern() {
+  void applyWithMethodPattern() {
     ProxiedServeEventFilters filters =
         new ProxiedServeEventFilters(newRequestPattern(GET, anyUrl()).build(), null, false);
     MockRequest request = mockRequest().method(GET).url("/foo");
@@ -67,7 +67,7 @@ public class ProxiedServeEventFiltersTest {
   }
 
   @Test
-  public void applyWithIds() {
+  void applyWithIds() {
     List<UUID> ids =
         Arrays.asList(
             UUID.fromString("00000000-0000-0000-0000-000000000000"),
@@ -81,7 +81,7 @@ public class ProxiedServeEventFiltersTest {
   }
 
   @Test
-  public void applyWithMethodAndUrlPattern() {
+  void applyWithMethodAndUrlPattern() {
     ProxiedServeEventFilters filters =
         new ProxiedServeEventFilters(
             newRequestPattern(GET, urlEqualTo("/foo")).build(), null, false);
@@ -93,7 +93,7 @@ public class ProxiedServeEventFiltersTest {
   }
 
   @Test
-  public void applyWithIdsAndMethodPattern() {
+  void applyWithIdsAndMethodPattern() {
     MockRequest request = mockRequest().method(GET).url("/foo");
     List<UUID> ids =
         Arrays.asList(

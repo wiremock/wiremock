@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   static Stubbing dsl = wireMockServer;
 
   @Test
-  public void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
+  void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
     testClient.get("/return/this");
     testClient.get("/but/not/this");
     testClient.get("/return/this");
@@ -82,7 +82,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsNoResultsAfterReset() {
+  void returnsNoResultsAfterReset() {
     testClient.get("/blah");
     testClient.get("/blah");
     testClient.get("/blah");
@@ -94,7 +94,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsNoResultsAfterRequestsReset() {
+  void returnsNoResultsAfterRequestsReset() {
     testClient.get("/blah");
     testClient.get("/blah");
     testClient.get("/blah");
@@ -107,7 +107,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void resultsAreInOrderRequestsWereReceived() {
+  void resultsAreInOrderRequestsWereReceived() {
     testClient.get("/use/1");
     testClient.get("/ignore/1");
     testClient.get("/ignore/2");
@@ -124,7 +124,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void requestBodyEncodingRemainsUtf8() {
+  void requestBodyEncodingRemainsUtf8() {
     byte[] body = new byte[] {-38, -100}; // UTF-8 bytes for ڜ
     testClient.post(
         "/encoding", new ByteArrayEntity(body, ContentType.TEXT_PLAIN.withCharset(UTF_8)));
@@ -135,7 +135,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getsAllServeEvents() {
+  void getsAllServeEvents() {
     dsl.stubFor(
         get(urlPathEqualTo("/two")).willReturn(aResponse().withStatus(200).withBody("Exactly 2")));
 
@@ -161,7 +161,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllServeEventsPreservesBinaryBody() {
+  void getAllServeEventsPreservesBinaryBody() {
     dsl.stubFor(
         any(anyUrl())
             .willReturn(aResponse().withBody(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)));
@@ -175,7 +175,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getsAllServeEventsThatWereUnmatched() {
+  void getsAllServeEventsThatWereUnmatched() {
     dsl.stubFor(get("/match").willReturn(ok()));
 
     testClient.get("/match");
@@ -191,7 +191,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getsAllServeEventsThatMatchedStubId() {
+  void getsAllServeEventsThatMatchedStubId() {
     wm.stubFor(get("/one").willReturn(ok()));
     StubMapping stub2 = wm.stubFor(get("/two").willReturn(ok()));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void matchesOnWellFormedCookie() {
+  void matchesOnWellFormedCookie() {
     stubFor(
         get(urlEqualTo("/good/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
@@ -43,7 +43,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesWhenMultipleCookiesAreSentAndRequired() {
+  void matchesWhenMultipleCookiesAreSentAndRequired() {
     stubFor(
         get(urlEqualTo("/good/cookies"))
             .withCookie("my_cookie", containing("mycookievalue"))
@@ -61,7 +61,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchWhenExpectedCookieIsAbsent() {
+  void doesNotMatchWhenExpectedCookieIsAbsent() {
     stubFor(
         get(urlEqualTo("/missing/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
@@ -75,7 +75,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchWhenExpectedCookieHasTheWrongValue() {
+  void doesNotMatchWhenExpectedCookieHasTheWrongValue() {
     stubFor(
         get(urlEqualTo("/bad/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
@@ -88,7 +88,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchWhenExpectedCookieIsMalformed() {
+  void doesNotMatchWhenExpectedCookieIsMalformed() {
     stubFor(
         get(urlEqualTo("/very-bad/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))
@@ -102,7 +102,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesWhenRequiredAbsentCookieIsAbsent() {
+  void matchesWhenRequiredAbsentCookieIsAbsent() {
     stubFor(
         get(urlEqualTo("/absent/cookie"))
             .withCookie("not_this_cookie", absent())
@@ -119,7 +119,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
+  void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
     stubFor(
         get(urlEqualTo("/absent/cookie"))
             .withCookie("my_cookie", absent())
@@ -136,7 +136,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void revealsCookiesInLoggedRequests() {
+  void revealsCookiesInLoggedRequests() {
     testClient.get(
         "/good/cookies",
         withHeader(
@@ -150,7 +150,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesWhenRequiredCookieSentAsDuplicate() {
+  void matchesWhenRequiredCookieSentAsDuplicate() {
     stubFor(
         get(urlEqualTo("/duplicate/cookie"))
             .withCookie("my_cookie", containing("mycookievalue"))

@@ -32,17 +32,17 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.HttpURLConnection;
 import org.junit.jupiter.api.Test;
 
-public class OldEditStubMappingTaskTest {
+class OldEditStubMappingTaskTest {
 
   private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
-  private Admin mockAdmin = mock(Admin.class);
-  private Request mockRequest = mock(Request.class);
+  private final Admin mockAdmin = mock(Admin.class);
+  private final Request mockRequest = mock(Request.class);
 
-  private OldEditStubMappingTask editStubMappingTask = new OldEditStubMappingTask();
+  private final OldEditStubMappingTask editStubMappingTask = new OldEditStubMappingTask();
 
   @Test
-  public void delegatesSavingMappingsToAdmin() {
+  void delegatesSavingMappingsToAdmin() {
     when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
     editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
@@ -51,7 +51,7 @@ public class OldEditStubMappingTaskTest {
   }
 
   @Test
-  public void returnsNoContentResponse() {
+  void returnsNoContentResponse() {
     when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
 
     ResponseDefinition response =

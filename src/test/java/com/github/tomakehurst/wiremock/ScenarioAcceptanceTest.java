@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void createMappingsInScenarioAndChangeResponseWithStateChange() {
+  void createMappingsInScenarioAndChangeResponseWithStateChange() {
     givenThat(
         get(urlEqualTo("/some/resource"))
             .willReturn(aResponse().withBody("Initial"))
@@ -61,7 +61,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void mappingInScenarioIndependentOfCurrentState() {
+  void mappingInScenarioIndependentOfCurrentState() {
     givenThat(
         get(urlEqualTo("/state/independent/resource"))
             .willReturn(aResponse().withBody("Some content"))
@@ -85,7 +85,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void resetAllScenariosState() {
+  void resetAllScenariosState() {
     givenThat(
         get(urlEqualTo("/stateful/resource"))
             .willReturn(aResponse().withBody("Expected content"))
@@ -105,7 +105,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void settingScenarioNameToNullCausesException() {
+  void settingScenarioNameToNullCausesException() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
@@ -114,7 +114,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void canGetAllScenarios() {
+  void canGetAllScenarios() {
     stubFor(
         get("/scenarios/1")
             .inScenario("scenario_one")
@@ -143,7 +143,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void scenarioIsRemovedWhenLastMappingReferringToItIsRemoved() {
+  void scenarioIsRemovedWhenLastMappingReferringToItIsRemoved() {
     final String NAME = "remove_this_scenario";
 
     StubMapping stub1 =
@@ -180,7 +180,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void scenarioIsRemovedWhenLastMappingReferringToHasItsScenarioNameChanged() {
+  void scenarioIsRemovedWhenLastMappingReferringToHasItsScenarioNameChanged() {
     final UUID ID1 = UUID.randomUUID();
     final UUID ID2 = UUID.randomUUID();
     final String OLD_NAME = "old_scenario";
@@ -225,12 +225,12 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsEmptyMapOnGetAllScenariosWhenThereAreNone() {
+  void returnsEmptyMapOnGetAllScenariosWhenThereAreNone() {
     assertThat(getAllScenarios().size(), is(0));
   }
 
   @Test
-  public void scenarioBuilderMethodsDoNotNeedToBeContiguous() {
+  void scenarioBuilderMethodsDoNotNeedToBeContiguous() {
     // This test has no assertions, but is here to ensure that the following compiles - i.e. that
     // whenScenarioStatesIs and willSetStateTo don't have to immediately follow inScenario() calls,
     // but can have
@@ -248,7 +248,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void resetsASingleScenarioByName() {
+  void resetsASingleScenarioByName() {
     stubFor(
         get("/one")
             .inScenario("reset-me")
@@ -267,7 +267,7 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void setsASingleScenarioStateByName() {
+  void setsASingleScenarioStateByName() {
     stubFor(
         get("/one")
             .inScenario("set-me")

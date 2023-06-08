@@ -59,7 +59,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
   }
 
   @Test
-  public void addsFixedDelayAsynchronously() throws Exception {
+  void addsFixedDelayAsynchronously() throws Exception {
     stubFor(get("/delayed").willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     List<Future<TimedHttpResponse>> responses =
@@ -73,7 +73,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
   }
 
   @Test
-  public void addsRandomDelayAsynchronously() throws Exception {
+  void addsRandomDelayAsynchronously() throws Exception {
     stubFor(get("/delayed").willReturn(ok().withUniformRandomDelay(100, 300)));
 
     List<Future<TimedHttpResponse>> responses =

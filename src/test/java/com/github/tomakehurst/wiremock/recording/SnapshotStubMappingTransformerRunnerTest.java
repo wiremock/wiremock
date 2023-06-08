@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   private final StubMapping stubMapping = WireMock.get("/").build();
 
   @Test
-  public void applyWithNoTransformers() {
+  void applyWithNoTransformers() {
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(new ArrayList<StubMappingTransformer>())
             .apply(stubMapping);
@@ -39,7 +39,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   }
 
   @Test
-  public void applyWithUnregisteredNonGlobalTransformer() {
+  void applyWithUnregisteredNonGlobalTransformer() {
     // Should not apply the transformer as it isn't registered
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(
@@ -50,7 +50,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   }
 
   @Test
-  public void applyWithRegisteredNonGlobalTransformer() {
+  void applyWithRegisteredNonGlobalTransformer() {
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(
                 Lists.<StubMappingTransformer>newArrayList(new NonGlobalStubMappingTransformer()),
@@ -63,7 +63,7 @@ public class SnapshotStubMappingTransformerRunnerTest {
   }
 
   @Test
-  public void applyWithGlobalTransformer() {
+  void applyWithGlobalTransformer() {
     StubMapping result =
         new SnapshotStubMappingTransformerRunner(
                 Lists.<StubMappingTransformer>newArrayList(new GlobalStubMappingTransformer()))

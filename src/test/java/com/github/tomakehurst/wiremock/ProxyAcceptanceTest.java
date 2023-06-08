@@ -103,7 +103,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void successfullyGetsResponseFromOtherServiceViaProxy() {
+  void successfullyGetsResponseFromOtherServiceViaProxy() {
     initWithDefaultConfig();
 
     target.register(
@@ -126,8 +126,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void
-      successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
+  void successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
     initWithDefaultConfig();
 
     proxy.register(
@@ -148,8 +147,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void
-      successfullyGetsResponseFromOtherServiceViaProxyInjectingHeadersOverridingSentHeaders() {
+  void successfullyGetsResponseFromOtherServiceViaProxyInjectingHeadersOverridingSentHeaders() {
     initWithDefaultConfig();
 
     target.register(
@@ -172,7 +170,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void successfullyPostsResponseToOtherServiceViaProxy() {
+  void successfullyPostsResponseToOtherServiceViaProxy() {
     initWithDefaultConfig();
 
     target.register(post(urlEqualTo("/proxied/resource")).willReturn(aResponse().withStatus(204)));
@@ -192,7 +190,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void successfullyGetsResponseFromOtherServiceViaProxyWithEscapeCharsInUrl() {
+  void successfullyGetsResponseFromOtherServiceViaProxyWithEscapeCharsInUrl() {
     initWithDefaultConfig();
 
     target.register(
@@ -210,7 +208,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void successfullyGetsResponseBinaryResponses() throws IOException {
+  void successfullyGetsResponseBinaryResponses() throws IOException {
     initWithDefaultConfig();
 
     final byte[] bytes =
@@ -253,7 +251,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void sendsContentLengthHeaderInRequestWhenPostingIfPresentInOriginalRequest() {
+  void sendsContentLengthHeaderInRequestWhenPostingIfPresentInOriginalRequest() {
     initWithDefaultConfig();
 
     target.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
@@ -267,7 +265,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingEnabled()
+  void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingEnabled()
       throws Exception {
     init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.ALWAYS));
 
@@ -284,7 +282,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingDisabled()
+  void returnsContentLengthHeaderFromTargetResponseIfPresentAndChunkedEncodingDisabled()
       throws Exception {
     init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER));
 
@@ -301,7 +299,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
+  void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
     initWithDefaultConfig();
 
     target.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
@@ -316,7 +314,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void preservesHostHeaderWhenSpecified() {
+  void preservesHostHeaderWhenSpecified() {
     init(wireMockConfig().preserveHostHeader(true));
 
     target.register(
@@ -336,7 +334,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void usesProxyUrlBasedHostHeaderWhenPreserveHostHeaderNotSpecified() {
+  void usesProxyUrlBasedHostHeaderWhenPreserveHostHeaderNotSpecified() {
     init(wireMockConfig().preserveHostHeader(false));
 
     target.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
@@ -353,7 +351,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void proxiesPatchRequestsWithBody() {
+  void proxiesPatchRequestsWithBody() {
     initWithDefaultConfig();
 
     target.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
@@ -367,7 +365,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void addsSpecifiedHeadersToResponse() {
+  void addsSpecifiedHeadersToResponse() {
     initWithDefaultConfig();
 
     target.register(
@@ -392,7 +390,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void doesNotDuplicateCookieHeaders() {
+  void doesNotDuplicateCookieHeaders() {
     initWithDefaultConfig();
 
     target.register(
@@ -412,7 +410,7 @@ public class ProxyAcceptanceTest {
 
   // TODO: This is passing even when it probably shouldn't - investigate
   @Test
-  public void doesNotDuplicateConnectionHeader() {
+  void doesNotDuplicateConnectionHeader() {
     initWithDefaultConfig();
     register200StubOnProxyAndTarget("/duplicate/connection-header");
 
@@ -423,7 +421,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void acceptsSelfSignedSslCertFromProxyTarget() {
+  void acceptsSelfSignedSslCertFromProxyTarget() {
     initWithDefaultConfig();
     register200StubOnProxyAndTarget("/ssl-cert");
 
@@ -431,7 +429,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void canProxyViaAForwardProxy() {
+  void canProxyViaAForwardProxy() {
     WireMockServer forwardProxy =
         new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
     forwardProxy.start();
@@ -443,7 +441,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void doesNotAddAcceptEncodingHeaderToProxyRequest() {
+  void doesNotAddAcceptEncodingHeaderToProxyRequest() {
     initWithDefaultConfig();
     register200StubOnProxyAndTarget("/no-accept-encoding-header");
 
@@ -456,7 +454,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void passesMultipleValuesOfTheSameHeaderToTheTarget() {
+  void passesMultipleValuesOfTheSameHeaderToTheTarget() {
     initWithDefaultConfig();
     register200StubOnProxyAndTarget("/multi-value-header");
 
@@ -470,7 +468,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void maintainsGZippedRequest() {
+  void maintainsGZippedRequest() {
     initWithDefaultConfig();
 
     target.register(post("/gzipped").willReturn(aResponse().withStatus(201)));
@@ -487,7 +485,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void contextPathsWithoutTrailingSlashesArePreserved() {
+  void contextPathsWithoutTrailingSlashesArePreserved() {
     initWithDefaultConfig();
 
     target.register(get("/example").willReturn(ok()));
@@ -502,7 +500,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void contextPathsWithTrailingSlashesArePreserved() {
+  void contextPathsWithTrailingSlashesArePreserved() {
     initWithDefaultConfig();
 
     target.register(get("/example/").willReturn(ok()));
@@ -522,7 +520,7 @@ public class ProxyAcceptanceTest {
    * href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
    */
   @Test
-  public void clientLibrariesTendToAddTheTrailingSlashWhenTheContextPathIsEmpty() {
+  void clientLibrariesTendToAddTheTrailingSlashWhenTheContextPathIsEmpty() {
     initWithDefaultConfig();
 
     target.register(get("/").willReturn(ok()));
@@ -541,7 +539,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void fixedDelaysAreAddedToProxiedResponses() {
+  void fixedDelaysAreAddedToProxiedResponses() {
     initWithDefaultConfig();
 
     target.register(get("/delayed").willReturn(ok()));
@@ -559,7 +557,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void chunkedDribbleDelayIsAddedToProxiedResponse() {
+  void chunkedDribbleDelayIsAddedToProxiedResponse() {
     initWithDefaultConfig();
 
     target.register(get("/chunk-delayed").willReturn(ok()));
@@ -578,7 +576,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void removesPrefixFromProxyRequestWhenMatching() {
+  void removesPrefixFromProxyRequestWhenMatching() {
     initWithDefaultConfig();
 
     proxy.register(
@@ -596,7 +594,7 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
-  public void removesPrefixFromProxyRequestWhenResponseTransformersAreUsed() {
+  void removesPrefixFromProxyRequestWhenResponseTransformersAreUsed() {
     init(wireMockConfig().extensions(new ResponseTemplateTransformer(true)));
 
     proxy.register(

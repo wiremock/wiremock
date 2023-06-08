@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class SnapshotStubMappingPostProcessorTest {
           WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
 
   @Test
-  public void processFiltersRepeatedRequestsWhenNotRecordingScenarios() {
+  void processFiltersRepeatedRequestsWhenNotRecordingScenarios() {
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, noopTransformerRunner(), null, null)
             .process(TEST_STUB_MAPPINGS);
@@ -44,7 +44,7 @@ public class SnapshotStubMappingPostProcessorTest {
   }
 
   @Test
-  public void processRunsTransformers() {
+  void processRunsTransformers() {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
@@ -66,7 +66,7 @@ public class SnapshotStubMappingPostProcessorTest {
   }
 
   @Test
-  public void processExtractsBodiesWhenMatched() {
+  void processExtractsBodiesWhenMatched() {
     final ResponseDefinitionBodyMatcher bodyMatcher =
         new ResponseDefinitionBodyMatcher(0, 0) {
           @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,13 +81,13 @@ public class WarDeploymentAcceptanceTest {
   }
 
   @Test
-  public void servesBakedInStubResponse() {
+  void servesBakedInStubResponse() {
     WireMockResponse response = testClient.get("/wiremock/api/mytest");
     assertThat(response.content(), containsString("YES"));
   }
 
   @Test
-  public void acceptsAndReturnsStubMapping() {
+  void acceptsAndReturnsStubMapping() {
     givenThat(
         get(urlEqualTo("/war/stub"))
             .willReturn(aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
@@ -96,7 +96,7 @@ public class WarDeploymentAcceptanceTest {
   }
 
   @Test
-  public void tryingToShutDownGives500() {
+  void tryingToShutDownGives500() {
     try {
       shutdownServer();
       fail("Expected a VerificationException");
@@ -106,7 +106,7 @@ public class WarDeploymentAcceptanceTest {
   }
 
   @Test
-  public void tryingToSaveMappingsGives500() {
+  void tryingToSaveMappingsGives500() {
     try {
       saveAllMappings();
       fail("Expected a VerificationException");

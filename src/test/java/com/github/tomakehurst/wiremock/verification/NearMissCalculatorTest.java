@@ -54,7 +54,7 @@ public class NearMissCalculatorTest {
   }
 
   @Test
-  public void returnsNearest3MissesForSingleRequest() {
+  void returnsNearest3MissesForSingleRequest() {
     givenStubMappings(
         get(urlEqualTo("/righ")).willReturn(aResponse()),
         get(urlEqualTo("/totally-wrong1")).willReturn(aResponse()),
@@ -73,7 +73,7 @@ public class NearMissCalculatorTest {
   }
 
   @Test
-  public void returns0NearMissesForSingleRequestWhenNoStubsPresent() {
+  void returns0NearMissesForSingleRequestWhenNoStubsPresent() {
     givenStubMappings();
 
     List<NearMiss> nearest =
@@ -83,7 +83,7 @@ public class NearMissCalculatorTest {
   }
 
   @Test
-  public void returns3NearestMissesForTheGivenRequestPattern() {
+  void returns3NearestMissesForTheGivenRequestPattern() {
     givenRequests(
         mockRequest().method(DELETE).url("/rig"),
         mockRequest().method(DELETE).url("/righ"),
@@ -101,7 +101,7 @@ public class NearMissCalculatorTest {
   }
 
   @Test
-  public void returns1NearestMissForTheGivenRequestPatternWhenOnlyOneRequestLogged() {
+  void returns1NearestMissForTheGivenRequestPatternWhenOnlyOneRequestLogged() {
     givenRequests(mockRequest().method(DELETE).url("/righ"));
 
     List<NearMiss> nearest =
@@ -112,7 +112,7 @@ public class NearMissCalculatorTest {
   }
 
   @Test
-  public void returns0NearMissesForSingleRequestPatternWhenNoRequestsLogged() {
+  void returns0NearMissesForSingleRequestPatternWhenNoRequestsLogged() {
     givenRequests();
 
     List<NearMiss> nearest =
@@ -122,8 +122,7 @@ public class NearMissCalculatorTest {
   }
 
   @Test
-  public void
-      stubMappingsWithIdenticalMethodAndUrlWillRankHigherDespiteOtherParametersBeingAbsent() {
+  void stubMappingsWithIdenticalMethodAndUrlWillRankHigherDespiteOtherParametersBeingAbsent() {
     givenStubMappings(
         post("/the-correct-path")
             .withName("Correct")

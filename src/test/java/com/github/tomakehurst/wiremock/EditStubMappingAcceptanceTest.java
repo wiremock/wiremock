@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class EditStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void canEditAnExistingStubMapping() {
+  void canEditAnExistingStubMapping() {
     UUID id = UUID.randomUUID();
 
     wireMockServer.stubFor(

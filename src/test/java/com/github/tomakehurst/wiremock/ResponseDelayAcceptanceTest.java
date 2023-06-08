@@ -69,7 +69,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void responseWithFixedDelay() {
+  void responseWithFixedDelay() {
     stubFor(
         get(urlEqualTo("/delayed/resource"))
             .willReturn(aResponse().withStatus(200).withBody("Content").withFixedDelay(500)));
@@ -82,7 +82,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void responseWithByteDribble() {
+  void responseWithByteDribble() {
     byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int numberOfChunks = body.length / 2;
     int chunkedDuration = 1000;
@@ -106,7 +106,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void responseWithByteDribbleAndFixedDelay() {
+  void responseWithByteDribbleAndFixedDelay() {
     byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int numberOfChunks = body.length / 2;
     int fixedDelay = 1000;
@@ -133,7 +133,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void responseWithLogNormalDistributedDelay() {
+  void responseWithLogNormalDistributedDelay() {
     stubFor(
         get(urlEqualTo("/lognormal/delayed/resource"))
             .willReturn(
@@ -147,7 +147,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void responseWithUniformDistributedDelay() {
+  void responseWithUniformDistributedDelay() {
     stubFor(
         get(urlEqualTo("/uniform/delayed/resource"))
             .willReturn(
@@ -161,7 +161,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void requestTimesOutWhenDelayIsLongerThanSocketTimeout() throws Exception {
+  void requestTimesOutWhenDelayIsLongerThanSocketTimeout() throws Exception {
     assertThrows(
         SocketTimeoutException.class,
         () -> {
@@ -174,7 +174,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void requestIsSuccessfulWhenDelayIsShorterThanSocketTimeout() throws Exception {
+  void requestIsSuccessfulWhenDelayIsShorterThanSocketTimeout() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
@@ -184,7 +184,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
+  void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
@@ -201,7 +201,7 @@ public class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  public void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {
+  void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));

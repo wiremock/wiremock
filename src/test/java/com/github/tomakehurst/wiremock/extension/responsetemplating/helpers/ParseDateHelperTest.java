@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class ParseDateHelperTest {
   }
 
   @Test
-  public void parsesAnISO8601DateWhenNoFormatSpecified() throws Exception {
+  void parsesAnISO8601DateWhenNoFormatSpecified() throws Exception {
     ImmutableMap<String, Object> optionsHash = ImmutableMap.of();
 
     String inputDate = "2018-05-01T01:02:03Z";
@@ -53,7 +53,7 @@ public class ParseDateHelperTest {
   }
 
   @Test
-  public void parsesAnRFC1123DateWhenNoFormatSpecified() throws Exception {
+  void parsesAnRFC1123DateWhenNoFormatSpecified() throws Exception {
     ImmutableMap<String, Object> optionsHash = ImmutableMap.of();
 
     String inputDate = "Tue, 01 Jun 2021 15:16:17 GMT";
@@ -66,7 +66,7 @@ public class ParseDateHelperTest {
   }
 
   @Test
-  public void parsesDateWithSuppliedFormat() throws Exception {
+  void parsesDateWithSuppliedFormat() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("format", "dd/MM/yyyy");
 
@@ -79,7 +79,7 @@ public class ParseDateHelperTest {
   }
 
   @Test
-  public void parsesLocalDateTimeWithSuppliedFormat() throws Exception {
+  void parsesLocalDateTimeWithSuppliedFormat() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of("format", "dd/MM/yyyy HH:mm:ss");
 
@@ -92,7 +92,7 @@ public class ParseDateHelperTest {
   }
 
   @Test
-  public void parsesDateTimeWithEpochFormat() throws Exception {
+  void parsesDateTimeWithEpochFormat() throws Exception {
     ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("format", "epoch");
 
     String inputDate = "1577964091000";

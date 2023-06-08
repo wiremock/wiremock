@@ -80,8 +80,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void
-      startsRecordingWithDefaultSpecFromTheSpecifiedProxyBaseUrlWhenServeEventsAlreadyExist() {
+  void startsRecordingWithDefaultSpecFromTheSpecifiedProxyBaseUrlWhenServeEventsAlreadyExist() {
     targetService.stubFor(get("/record-this").willReturn(okForContentType("text/plain", "Got it")));
     targetService.stubFor(get(urlPathMatching("/do-not-record-this/.*")).willReturn(noContent()));
 
@@ -104,7 +103,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void generatesStubNameFromUrlPath() {
+  void generatesStubNameFromUrlPath() {
     targetService.stubFor(get(urlPathMatching("/record-this/.*")).willReturn(ok("Fine")));
 
     startRecording(targetBaseUrl);
@@ -119,8 +118,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void
-      startsRecordingWithDefaultSpecFromTheSpecifiedProxyBaseUrlWhenNoServeEventsAlreadyExist() {
+  void startsRecordingWithDefaultSpecFromTheSpecifiedProxyBaseUrlWhenNoServeEventsAlreadyExist() {
     targetService.stubFor(get("/record-this").willReturn(okForContentType("text/plain", "Got it")));
 
     startRecording(targetBaseUrl);
@@ -137,7 +135,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsNothingWhenNoServeEventsAreRecievedDuringRecording() {
+  void recordsNothingWhenNoServeEventsAreRecievedDuringRecording() {
     targetService.stubFor(get(urlPathMatching("/do-not-record-this/.*")).willReturn(noContent()));
 
     client.get("/do-not-record-this/1");
@@ -152,7 +150,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsNothingWhenNoServeEventsAreRecievedAtAll() {
+  void recordsNothingWhenNoServeEventsAreRecievedAtAll() {
     startRecording(targetBaseUrl);
     List<StubMapping> returnedMappings = stopRecording().getStubMappings();
 
@@ -161,7 +159,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void honoursRecordSpecWhenPresent() {
+  void honoursRecordSpecWhenPresent() {
     targetService.stubFor(get("/record-this-with-header").willReturn(ok()));
 
     startRecording(recordSpec().forTarget(targetBaseUrl).captureHeader("Accept"));
@@ -176,7 +174,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsInstanceClientWithDefaultSpec() {
+  void supportsInstanceClientWithDefaultSpec() {
     targetService.stubFor(get("/record-this").willReturn(okForContentType("text/plain", "Got it")));
 
     adminClient.startStubRecording(targetBaseUrl);
@@ -193,7 +191,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsInstanceClientWithSpec() {
+  void supportsInstanceClientWithSpec() {
     targetService.stubFor(post("/record-this-with-body").willReturn(ok()));
 
     adminClient.startStubRecording(
@@ -210,7 +208,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsDirectDslCallsWithSpec() {
+  void supportsDirectDslCallsWithSpec() {
     targetService.stubFor(post("/record-this-with-body").willReturn(ok()));
 
     proxyingService.startRecording(
@@ -227,7 +225,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsTheRecordingStatus() {
+  void returnsTheRecordingStatus() {
     proxyingService.startRecording(targetBaseUrl);
 
     RecordingStatusResult result = getRecordingStatus();
@@ -236,7 +234,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsTheRecordingStatusViaInstanceClient() {
+  void returnsTheRecordingStatusViaInstanceClient() {
     proxyingService.startRecording(targetBaseUrl);
     proxyingService.stopRecording();
 
@@ -246,7 +244,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void returnsTheRecordingStatusViaDirectDsl() {
+  void returnsTheRecordingStatusViaDirectDsl() {
     proxyingService.startRecording(targetBaseUrl);
 
     RecordingStatusResult result = proxyingService.getRecordingStatus();
@@ -255,7 +253,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsIntoPlainTextWhenRequestIsGZipped() {
+  void recordsIntoPlainTextWhenRequestIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
     targetService.stubFor(post("/gzipped").willReturn(ok("Zippy")));
 
@@ -268,7 +266,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsIntoPlainTextWhenResponseIsGZipped() {
+  void recordsIntoPlainTextWhenResponseIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
 
     byte[] gzippedBody = gzip("Zippy");
@@ -287,7 +285,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void recordsIntoPlainBinaryWhenResponseIsGZipped() {
+  void recordsIntoPlainBinaryWhenResponseIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
 
     byte[] originalBody = "sdkfnslkdjfsjdf".getBytes(DEFAULT_CHARSET);
@@ -310,7 +308,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
       "iVBORw0KGgoAAAANSUhEUgAAACAAAAAPCAYAAACFgM0XAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAABcSAAAXEgFnn9JSAAAAB3RJTUUH4AYeEQ8RFdqRVAAAA/VJREFUOMvFk9+LVHUYxj/v9/yYmbVVN1NKDVvDH6yBiuiWrG6LelG33lQQ1EVIUNA/YBARRNHVFgRWF93URV4VJGQm/l5KFNfaQNnN1a3NH+vOzM6cOed8v9+3i5mdGcLb6IUDhwfe532+D88D//PIpi8n3pIwDFAENPNp42huzMy0tdHauPBCjPYDihgkin/wNr8wdfxrYfvIcy6It7zoT8moOxLHWBfi0AVz+ePDh75/86NPwWgf8BLQiyBY+cPPmm8w5A99MAVAKGH4ikSFrQCoqnhfy4Pwc5fMrUniwjs9xSX9SFvv+sFt/WOTMzuXShQfliB6esD9Sa8keAx48HU5+/prn51DKUvIIPAhUALwVZnSRC4QMLXIaNTZb0G1yS8iQbD31t4nEZFttTxd61BAWh87r0zMPkJc2qAm2NTHAsP+alufWgHLFrPcD2hFAPYtHkdBG/K4FHVQIqUjIEuP4f29DhLs3Pjd2KMiMpQ5F6XWdgyAfuvsFoJwl5egb0Bvsllv4pGmvgwIWC5FHTar3TJguL1pASWUkh4INzhTe/eJ5jlXnRtX78bbJhuzLotLe4BBr0rd5nT00uOc3U8QDAPs9eMso9aKD2guSKxIUYfJZDewaXFRc0EChRK7fVUek0KT1fQOjlTU2p+6ctljlVdFdbMCSZ7htSMhz/ODxoRDS0kY1vGOO761XVAosR3hELC0veiAAkhR+yXWHVJQ5kfXYJJrE2iensT7KqqQ5eRODyCyQoDUWTJnmwqsJUuzzc6EqzfoDE/5G037AXV4CRSKIKGuAp6nW5w0xUmkBQz7I2OICTCuMoevV66qsxPkFl9PaDgXait1XrVsbX4e69B6gyTLUGDI/8oKKk37QRHOUaAqkYIgQNRV92lC7km8yMqeHL9SAJP9NUXfrqH7Wq+f1FqdvJaQtt8FCr8Fzo9qPam5WkKijh5SRvQKwaLvUJeAIxLrZHdiO8HmqMQ6hmkjG4GtAGb6vZeZPzuGmy+f8OWFJM0yrHRYBM6UGva4VmrXs6RBQwz9Oss2nWx2f/GFwo8IFx9wvgEcw3CqC+sBRgSaDHb2Fu7u7Ut+vnwtwaOd+wlw4lpl7q6Wq6cbLscZwzP6O6v0fpdP/CLCDHCmE8f23ACuAOeBhS78WYWHDYC7M8vk+wdv59WF043I0GXjdeDSykqKrSwcr4cmLZCxz18mwrUbBpxqFeVn4M6/BFxUuA1MAJNd+ACwIwSY/uIN+t4+Rlgpf2VFi2S5iGLUmPPau+ROKkpeii404uCTFfl83zr/t9aJfSwub1l8okU6CYwC6zvZ56iAV7gn8DGwo1VKAHlQZP7zSUbXtf//AaFX9LL7Nh3cAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE2LTA2LTMwVDE3OjE1OjE3KzAxOjAwsKT/BwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNi0wNi0zMFQxNzoxNToxNyswMTowMMH5R7sAAAAASUVORK5CYII=";
 
   @Test
-  public void defaultsToWritingBinaryResponseFilesOfAnySize() {
+  void defaultsToWritingBinaryResponseFilesOfAnySize() {
     targetService.stubFor(
         get("/myimage.png").willReturn(aResponse().withBase64Body(IMAGE_CONTENT_BASE64)));
 
@@ -328,7 +326,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void defaultsToWritingTextResponseFilesOver1Kb() {
+  void defaultsToWritingTextResponseFilesOver1Kb() {
     targetService.stubFor(
         get("/large.txt")
             .willReturn(
@@ -350,7 +348,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotWriteTextResponseFilesUnder1KbByDefault() {
+  void doesNotWriteTextResponseFilesUnder1KbByDefault() {
     targetService.stubFor(
         get("/small.txt")
             .willReturn(
@@ -369,22 +367,22 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
+  void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, WireMock::stopRecording);
   }
 
   @Test
-  public void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
+  void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, adminClient::stopStubRecording);
   }
 
   @Test
-  public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
+  void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, proxyingService::stopRecording);
   }
 
   @Test
-  public void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
+  void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
     assertThrows(
         InvalidInputException.class,
         () -> {
@@ -393,7 +391,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
+  void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
     assertThrows(
         InvalidInputException.class,
         () -> {

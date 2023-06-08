@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 public class ContentTypeHeaderTest {
   @Test
-  public void returnsMimeTypeAndCharsetWhenBothPresent() {
+  void returnsMimeTypeAndCharsetWhenBothPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=utf-8");
     assertThat(header.mimeTypePart(), is("text/plain"));
     Optional<String> encoding = header.encodingPart();
@@ -37,13 +37,13 @@ public class ContentTypeHeaderTest {
   }
 
   @Test
-  public void returnsMimeTypeWhenNoCharsetPresent() {
+  void returnsMimeTypeWhenNoCharsetPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain");
     assertThat(header.mimeTypePart(), is("text/plain"));
   }
 
   @Test
-  public void returnsCharsetWhenNotFirstParameter() {
+  void returnsCharsetWhenNotFirstParameter() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; param=value; charset=utf-8");
     Optional<String> encoding = header.encodingPart();
     assertTrue(encoding.isPresent());
@@ -51,13 +51,13 @@ public class ContentTypeHeaderTest {
   }
 
   @Test
-  public void returnsAbsentOptionalEncodingPartWhenNotPresent() {
+  void returnsAbsentOptionalEncodingPartWhenNotPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain");
     assertFalse(header.encodingPart().isPresent());
   }
 
   @Test
-  public void stripsDoubleQuotesFromEncodingPart() {
+  void stripsDoubleQuotesFromEncodingPart() {
     ContentTypeHeader header = new ContentTypeHeader("application/json;charset=\"UTF-8\"");
     Optional<String> encoding = header.encodingPart();
     assertTrue(encoding.isPresent());
@@ -65,7 +65,7 @@ public class ContentTypeHeaderTest {
   }
 
   @Test
-  public void fetchesFromRequest() {
+  void fetchesFromRequest() {
     Request request = new MockRequestBuilder().withHeader("Content-Type", "text/xml").build();
 
     ContentTypeHeader contentTypeHeader = request.contentTypeHeader();
@@ -73,7 +73,7 @@ public class ContentTypeHeaderTest {
   }
 
   @Test
-  public void throwsExceptionOnAttemptToSetNullHeaderValue() {
+  void throwsExceptionOnAttemptToSetNullHeaderValue() {
     assertThrows(
         NullPointerException.class,
         () -> {
@@ -82,25 +82,25 @@ public class ContentTypeHeaderTest {
   }
 
   @Test
-  public void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {
+  void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {
     ContentTypeHeader header = ContentTypeHeader.absent();
     assertThat(header.mimeTypePart(), is(nullValue()));
   }
 
   @Test
-  public void returnsCharsetWhenPresent() {
+  void returnsCharsetWhenPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=iso-8859-1");
     assertThat(header.charset(), is(StandardCharsets.ISO_8859_1));
   }
 
   @Test
-  public void returnsDefaultCharsetWhenEncodingNotPresent() {
+  void returnsDefaultCharsetWhenEncodingNotPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain");
     assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
   }
 
   @Test
-  public void returnsDefaultCharsetWhenAbsent() {
+  void returnsDefaultCharsetWhenAbsent() {
     ContentTypeHeader header = ContentTypeHeader.absent();
     assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
   }

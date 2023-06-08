@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void addsANewScenarioWhenStubAddedWithNewScenarioName() {
+  void addsANewScenarioWhenStubAddedWithNewScenarioName() {
     StubMapping stub =
         get("/scenarios/1")
             .inScenario("one")
@@ -53,7 +53,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void updatesAnExistingScenarioWhenStubAddedWithExistingScenarioName() {
+  void updatesAnExistingScenarioWhenStubAddedWithExistingScenarioName() {
     StubMapping stub1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -80,7 +80,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void removesPossibleStateFromScenarioWhenStubThatIsNotTheLastInTheScenarioIsDeleted() {
+  void removesPossibleStateFromScenarioWhenStubThatIsNotTheLastInTheScenarioIsDeleted() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -109,7 +109,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToRemoval() {
+  void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToRemoval() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -138,7 +138,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToNameChange() {
+  void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToNameChange() {
     StubMapping oldMapping =
         get("/scenarios/1")
             .inScenario("one")
@@ -164,7 +164,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void stubMappingCanStopBeingInScenario() {
+  void stubMappingCanStopBeingInScenario() {
     StubMapping oldMapping =
         get("/scenarios/1")
             .inScenario("one")
@@ -184,7 +184,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void modifiesScenarioStateWhenStubServed() {
+  void modifiesScenarioStateWhenStubServed() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -213,7 +213,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void doesNotModifyScenarioStateWhenStubServedInNonMatchingState() {
+  void doesNotModifyScenarioStateWhenStubServedInNonMatchingState() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -239,7 +239,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void resetsAllScenarios() {
+  void resetsAllScenarios() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -280,7 +280,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void clearsScenarios() {
+  void clearsScenarios() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -316,7 +316,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void checksMappingIsInScenarioState() {
+  void checksMappingIsInScenarioState() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -340,7 +340,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void returnsOnlyStartedStateWhenNoNextStateSpecified() {
+  void returnsOnlyStartedStateWhenNoNextStateSpecified() {
     StubMapping mapping =
         get("/scenarios/1").inScenario("one").whenScenarioStateIs(STARTED).willReturn(ok()).build();
     scenarios.onStubMappingAdded(mapping);
@@ -352,7 +352,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void doesNotAddDuplicatePossibleStates() {
+  void doesNotAddDuplicatePossibleStates() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -376,7 +376,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void supportsNewScenarioStateWhenRequiredStateIsNull() {
+  void supportsNewScenarioStateWhenRequiredStateIsNull() {
     StubMapping mapping =
         get("/scenarios/1").inScenario("one").willSetStateTo("step two").willReturn(ok()).build();
 
@@ -388,7 +388,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void doesNotRemovePossibleStateWhenStubIsRemovedButOtherStubsHaveThatState() {
+  void doesNotRemovePossibleStateWhenStubIsRemovedButOtherStubsHaveThatState() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")
@@ -421,7 +421,7 @@ public class ScenariosTest {
   }
 
   @Test
-  public void returnsAllPossibleScenarioStates() {
+  void returnsAllPossibleScenarioStates() {
     StubMapping mapping1 =
         get("/scenarios/1")
             .inScenario("one")

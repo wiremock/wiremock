@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class LogicalOrTest {
 
   @Test
-  public void matchesWhenAnyContainedMatchersMatch() {
+  void matchesWhenAnyContainedMatchersMatch() {
     StringValuePattern matcher =
         WireMock.or(
             WireMock.before("2020-01-01T00:00:00Z"), WireMock.after("2021-01-01T00:00:00Z"));
@@ -42,7 +42,7 @@ public class LogicalOrTest {
   }
 
   @Test
-  public void serialisesCorrectlyToJson() {
+  void serialisesCorrectlyToJson() {
     StringValuePattern matcher =
         WireMock.or(
             WireMock.before("2020-01-01T00:00:00Z"), WireMock.after("2021-01-01T00:00:00Z"));
@@ -63,7 +63,7 @@ public class LogicalOrTest {
   }
 
   @Test
-  public void deserialisesCorrectlyFromJson() {
+  void deserialisesCorrectlyFromJson() {
     LogicalOr matcher =
         Json.read(
             "{\n"
@@ -88,7 +88,7 @@ public class LogicalOrTest {
   }
 
   @Test
-  public void returnsDistanceFromClosestMatchWhenNotAnExactMatch() {
+  void returnsDistanceFromClosestMatchWhenNotAnExactMatch() {
     LogicalOr matcher =
         WireMock.equalTo("abcde").or(WireMock.equalTo("defgh")).or(WireMock.equalTo("hijkl"));
 
@@ -101,7 +101,7 @@ public class LogicalOrTest {
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     LogicalOr a =
         new LogicalOr(WireMock.equalTo("A"), WireMock.equalTo("B"), WireMock.equalTo("C"));
     LogicalOr b =

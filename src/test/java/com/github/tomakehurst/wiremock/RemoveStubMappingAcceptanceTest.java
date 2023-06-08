@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void removeStubThatExistsUsingUUID() {
+  void removeStubThatExistsUsingUUID() {
 
     UUID id1 = UUID.randomUUID();
 
@@ -55,7 +55,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void removeStubThatExistsUsingRequestMatchUUIDNotMatch() {
+  void removeStubThatExistsUsingRequestMatchUUIDNotMatch() {
 
     UUID id1 = UUID.randomUUID();
 
@@ -86,7 +86,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void removeStubThatExistsWithRequestMatchNoUUIDPresent() {
+  void removeStubThatExistsWithRequestMatchNoUUIDPresent() {
 
     UUID id1 = UUID.randomUUID();
 
@@ -113,7 +113,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void removeStubThatDoesNotExists() {
+  void removeStubThatDoesNotExists() {
 
     UUID id1 = UUID.randomUUID();
 

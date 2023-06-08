@@ -25,13 +25,12 @@ import jakarta.servlet.*;
 import jakarta.servlet.ServletRegistration.Dynamic;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ServletContextFileSourceTest {
+class ServletContextFileSourceTest {
 
   private ServletContextFileSource fileSource;
 
@@ -42,7 +41,7 @@ public class ServletContextFileSourceTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void listsTextFilesRecursively() {
+  void listsTextFilesRecursively() {
     List<TextFile> files = fileSource.listFilesRecursively();
 
     assertThat(
@@ -60,16 +59,14 @@ public class ServletContextFileSourceTest {
   }
 
   @Test
-  public void throwsUnsupportedExceptionWhenAttemptingToWrite() {
+  void throwsUnsupportedExceptionWhenAttemptingToWrite() {
     assertThrows(
         UnsupportedOperationException.class,
-        () -> {
-          fileSource.writeTextFile("filename", "filecontents");
-        });
+        () -> fileSource.writeTextFile("filename", "filecontents"));
   }
 
   @Test
-  public void throwsUnsupportedExceptionWhenAttemptingToCreate() {
+  void throwsUnsupportedExceptionWhenAttemptingToCreate() {
     assertThrows(UnsupportedOperationException.class, fileSource::createIfNecessary);
   }
 
@@ -105,14 +102,14 @@ public class ServletContextFileSourceTest {
       return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Set getResourcePaths(String path) {
       return null;
     }
 
     @Override
-    public URL getResource(String path) throws MalformedURLException {
+    public URL getResource(String path) {
       return null;
     }
 
@@ -132,17 +129,17 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public Servlet getServlet(String name) throws ServletException {
+    public Servlet getServlet(String name) {
       return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Enumeration getServlets() {
       return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Enumeration getServletNames() {
       return null;
@@ -172,7 +169,7 @@ public class ServletContextFileSourceTest {
       return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Enumeration getInitParameterNames() {
       return null;
@@ -188,7 +185,7 @@ public class ServletContextFileSourceTest {
       return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Enumeration getAttributeNames() {
       return null;
@@ -222,7 +219,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+    public <T extends Servlet> T createServlet(Class<T> clazz) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -253,7 +250,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+    public <T extends Filter> T createFilter(Class<T> clazz) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -303,7 +300,7 @@ public class ServletContextFileSourceTest {
     }
 
     @Override
-    public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+    public <T extends EventListener> T createListener(Class<T> clazz) {
       throw new UnsupportedOperationException("not yet implemented");
     }
 

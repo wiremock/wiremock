@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 public class BeforeDateTimePatternTest {
 
   @Test
-  public void matchesZonedISO8601BeforeZonedLiteralDateTime() {
+  void matchesZonedISO8601BeforeZonedLiteralDateTime() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
     assertTrue(matcher.match("2021-06-01T15:15:15Z").isExactMatch());
@@ -43,7 +43,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedExpectedWithLocalActual() {
+  void matchesZonedExpectedWithLocalActual() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
     assertTrue(matcher.match("2021-06-01T15:15:15").isExactMatch());
@@ -51,7 +51,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesLocalISO8601BeforeLocalLiteralDateTime() {
+  void matchesLocalISO8601BeforeLocalLiteralDateTime() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15");
 
     assertTrue(matcher.match("2021-06-01T15:15:15").isExactMatch());
@@ -59,7 +59,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedISO8601BeforeLocalLiteralDateTime() {
+  void matchesZonedISO8601BeforeLocalLiteralDateTime() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15");
 
     assertTrue(matcher.match("2021-06-01T15:15:15Z").isExactMatch());
@@ -67,25 +67,25 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenActualValueUnparseable() {
+  void doesNotMatchWhenActualValueUnparseable() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15");
     assertFalse(matcher.match("2021-06-01T15:15:blahsdfj123").isExactMatch());
   }
 
   @Test
-  public void doesNotMatchWhenActualValueIsNull() {
+  void doesNotMatchWhenActualValueIsNull() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15");
     assertFalse(matcher.match(null).isExactMatch());
   }
 
   @Test
-  public void doesNotMatchWhenExpectedValueUnparseable() {
+  void doesNotMatchWhenExpectedValueUnparseable() {
     StringValuePattern matcher = WireMock.before("2021-06-wrongstuff:15:15");
     assertFalse(matcher.match("2021-06-01T15:15:15Z").isExactMatch());
   }
 
   @Test
-  public void returnsAReasonableDistanceWhenNoMatchForZonedExpectedZonedActual() {
+  void returnsAReasonableDistanceWhenNoMatchForZonedExpectedZonedActual() {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
@@ -94,7 +94,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
+  void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
@@ -103,7 +103,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedLocalActual() {
+  void returnsAReasonableDistanceWhenNoMatchForLocalExpectedLocalActual() {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
     assertThat(matcher.match("2071-01-01T00:00:00").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00").getDistance(), is(1.0));
@@ -112,7 +112,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedRFC1123ActualDate() {
+  void matchesZonedRFC1123ActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
     assertTrue(matcher.match("Tue, 01 Jun 2021 15:16:17 GMT").isExactMatch());
@@ -120,7 +120,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedRFC1036ActualDate() {
+  void matchesZonedRFC1036ActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
     assertTrue(matcher.match("Tuesday, 01-Jun-21 14:14:14 GMT").isExactMatch());
@@ -128,7 +128,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedSingleDigitDayAsctimeActualDate() {
+  void matchesZonedSingleDigitDayAsctimeActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T01:01:01Z");
 
     assertTrue(matcher.match("Tue Jun  1 01:01:01 2021").isExactMatch());
@@ -136,7 +136,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesZonedDoubleDigitDayAsctimeActualDate() {
+  void matchesZonedDoubleDigitDayAsctimeActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T01:01:01Z");
 
     assertTrue(matcher.match("Thu Jun 10 01:01:01 2021").isExactMatch());
@@ -144,7 +144,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesNonUTCZonedISO8601ActualDate() {
+  void matchesNonUTCZonedISO8601ActualDate() {
     StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15Z");
 
     assertTrue(matcher.match("2021-06-14T15:15:15+01:00[Europe/London]").isExactMatch());
@@ -152,7 +152,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesActualDateAccordingToSpecifiedFormat() {
+  void matchesActualDateAccordingToSpecifiedFormat() {
     StringValuePattern matcher = WireMock.before("2021-06-14").actualFormat("dd/MM/yyyy");
 
     assertTrue(matcher.match("01/06/2021").isExactMatch());
@@ -160,7 +160,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesAgainstNow() {
+  void matchesAgainstNow() {
     StringValuePattern matcher = WireMock.beforeNow();
 
     String right = ZonedDateTime.now().minusDays(2).toString();
@@ -171,7 +171,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void matchesAgainstOffsetFromNow() {
+  void matchesAgainstOffsetFromNow() {
     StringValuePattern matcher = WireMock.before("now -5 days");
 
     String right = ZonedDateTime.now().minusDays(7).toString();
@@ -182,7 +182,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void truncatesExpectedDateToSpecifiedUnit() {
+  void truncatesExpectedDateToSpecifiedUnit() {
     StringValuePattern matcher =
         WireMock.before("15 days")
             .truncateExpected(FIRST_DAY_OF_MONTH); // Before the 15th of this month
@@ -196,7 +196,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void truncatesActualDateToSpecifiedUnit() {
+  void truncatesActualDateToSpecifiedUnit() {
     StringValuePattern matcher =
         WireMock.before("15 days")
             .truncateExpected(FIRST_DAY_OF_MONTH)
@@ -213,7 +213,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void serialisesLiteralDateTimeAndFormatFormToJson() {
+  void serialisesLiteralDateTimeAndFormatFormToJson() {
     StringValuePattern matcher = WireMock.before("2021-06-01T00:00:00").actualFormat("dd/MM/yyyy");
 
     assertThat(
@@ -226,7 +226,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void serialisesOffsetWithActualTruncationFormToJson() {
+  void serialisesOffsetWithActualTruncationFormToJson() {
     StringValuePattern matcher =
         WireMock.beforeNow()
             .expectedOffset(15, DateTimeUnit.DAYS)
@@ -242,7 +242,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void serialisesOffsetWithExpectedAndActualTruncationFormToJson() {
+  void serialisesOffsetWithExpectedAndActualTruncationFormToJson() {
     StringValuePattern matcher =
         WireMock.beforeNow()
             .expectedOffset(15, DateTimeUnit.DAYS)
@@ -260,7 +260,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesLiteralDateAndTimeWithFormatFromJson() {
+  void deserialisesLiteralDateAndTimeWithFormatFromJson() {
     BeforeDateTimePattern matcher =
         Json.read(
             "{\n"
@@ -274,7 +274,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesPositiveOffsetAndTruncateFormFromJson() {
+  void deserialisesPositiveOffsetAndTruncateFormFromJson() {
     BeforeDateTimePattern matcher =
         Json.read(
             "{\n"
@@ -288,7 +288,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesNegativeOffsetFormFromJson() {
+  void deserialisesNegativeOffsetFormFromJson() {
     StringValuePattern matcher =
         Json.read("{\n" + "  \"before\": \"-15 days\"\n" + "}", BeforeDateTimePattern.class);
 
@@ -300,7 +300,7 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void deserialisesOffsetWithSeparateAmountAndUnitAttributesFromJson() {
+  void deserialisesOffsetWithSeparateAmountAndUnitAttributesFromJson() {
     BeforeDateTimePattern matcher =
         Json.read(
             "{\n"
@@ -318,19 +318,19 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
-  public void acceptsJavaZonedDateTimeAsExpected() {
+  void acceptsJavaZonedDateTimeAsExpected() {
     BeforeDateTimePattern matcher = WireMock.before(ZonedDateTime.parse("2020-08-29T00:00:00Z"));
     assertTrue(matcher.match("2019-01-01T00:00:00Z").isExactMatch());
   }
 
   @Test
-  public void acceptsJavaLocalDateTimeAsExpected() {
+  void acceptsJavaLocalDateTimeAsExpected() {
     BeforeDateTimePattern matcher = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
     assertTrue(matcher.match("2019-01-01T00:00:00").isExactMatch());
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     BeforeDateTimePattern a = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
     BeforeDateTimePattern b = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
     BeforeDateTimePattern c = WireMock.before(LocalDateTime.parse("2022-01-01T10:10:10"));

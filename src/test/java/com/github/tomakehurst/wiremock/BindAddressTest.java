@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class BindAddressTest {
   }
 
   @Test
-  public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
+  void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
     executeGetIn(localhost);
     try {
       executeGetIn(nonBindAddress);
@@ -86,7 +86,7 @@ public class BindAddressTest {
   }
 
   @Test
-  public void shouldRespondInTheBindAddressOnlyOnHttps() throws Exception {
+  void shouldRespondInTheBindAddressOnlyOnHttps() throws Exception {
     int localhostStatus = getStatusViaHttps(localhost);
     assertThat(localhostStatus, is(200));
 

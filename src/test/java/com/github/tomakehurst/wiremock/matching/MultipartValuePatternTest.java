@@ -30,7 +30,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class MultipartValuePatternTest {
 
   @Test
-  public void deserialisesCorrectlyWhenNoBodyOrHeaderMatchersPresent() {
+  void deserialisesCorrectlyWhenNoBodyOrHeaderMatchersPresent() {
     String serializedPattern = "{\n" + "    \"matchingType\": \"ANY\"" + "}";
 
     MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
@@ -39,7 +39,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithTypeAllAndSingleHeaderMatcher() {
+  void deserialisesCorrectlyWithTypeAllAndSingleHeaderMatcher() {
     String serializedPattern =
         "{                                           \n"
             + "    \"matchingType\": \"ALL\",              \n"
@@ -64,7 +64,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithSingleJsonBodyMatcer() throws JSONException {
+  void deserialisesCorrectlyWithSingleJsonBodyMatcer() throws JSONException {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
     String serializedPattern =
         "{                                                \n"
@@ -86,7 +86,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithANYMatchTypeWithMultipleHeaderAndBodyMatchers()
+  void deserialisesCorrectlyWithANYMatchTypeWithMultipleHeaderAndBodyMatchers()
       throws JSONException {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
     String serializedPattern =
@@ -127,7 +127,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void deserialisesCorrectlyWithHeadersAndBinaryBody() {
+  void deserialisesCorrectlyWithHeadersAndBinaryBody() {
     String expectedBinary = "RG9jdW1lbnQgYm9keSBjb250ZW50cw==";
     String serializedPattern =
         "{\n"
@@ -168,7 +168,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void serialisesCorrectlyWithMultipleHeaderAndBodyMatchers() {
+  void serialisesCorrectlyWithMultipleHeaderAndBodyMatchers() {
     MultipartValuePattern pattern =
         aMultipart()
             .withName("title")
@@ -203,7 +203,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void equalsShouldReturnTrueOnSameObject() {
+  void equalsShouldReturnTrueOnSameObject() {
     MultipartValuePattern pattern =
         aMultipart()
             .withName("title")
@@ -217,7 +217,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void equalsShouldReturnTrueOnIdenticalButNotSameObjects() {
+  void equalsShouldReturnTrueOnIdenticalButNotSameObjects() {
     MultipartValuePattern patternA =
         aMultipart()
             .withName("title")
@@ -239,7 +239,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void equalsShouldReturnFalseOnDifferentObjects() {
+  void equalsShouldReturnFalseOnDifferentObjects() {
     MultipartValuePattern patternA =
         aMultipart()
             .withName("title")
@@ -260,7 +260,7 @@ public class MultipartValuePatternTest {
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     MultipartValuePattern patternA =
         aMultipart()
             .withName("title")

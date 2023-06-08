@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
 
-public class DateTimeParserTest {
+class DateTimeParserTest {
 
   @Test
-  public void parsesFromDateTimeFormatter() {
+  void parsesFromDateTimeFormatter() {
     DateTimeParser parser = DateTimeParser.forFormatter(DateTimeFormatter.ISO_DATE_TIME);
     assertThat(
         parser.parseZonedDateTime("2021-06-23T11:12:13Z"),
@@ -39,7 +39,7 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesZonedFromFormatString() {
+  void parsesZonedFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy HH:mm:ss Z");
     assertThat(
         parser.parseZonedDateTime("23/06/2021 11:22:33 +0000"),
@@ -47,7 +47,7 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesLocalDateTimeFromFormatString() {
+  void parsesLocalDateTimeFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy HH:mm:ss");
     assertThat(
         parser.parseLocalDateTime("23/06/2021 11:12:13"),
@@ -55,13 +55,13 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesLocalDateFromFormatString() {
+  void parsesLocalDateFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy");
     assertThat(parser.parseLocalDate("23/06/2021"), is(LocalDate.parse("2021-06-23")));
   }
 
   @Test
-  public void parsesUnix() {
+  void parsesUnix() {
     DateTimeParser parser = DateTimeParser.forFormat("unix");
     assertThat(
         parser.parseZonedDateTime("1624447353"), is(ZonedDateTime.parse("2021-06-23T11:22:33Z")));
@@ -71,7 +71,7 @@ public class DateTimeParserTest {
   }
 
   @Test
-  public void parsesEpoch() {
+  void parsesEpoch() {
     DateTimeParser parser = DateTimeParser.forFormat("epoch");
     assertThat(
         parser.parseZonedDateTime("1624447353000"),

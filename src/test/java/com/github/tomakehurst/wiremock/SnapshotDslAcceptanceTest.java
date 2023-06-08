@@ -79,7 +79,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void snapshotRecordsAllLoggedRequestsWhenNoParametersPassed() throws Exception {
+  void snapshotRecordsAllLoggedRequestsWhenNoParametersPassed() throws Exception {
     targetService.stubFor(
         get("/one")
             .willReturn(
@@ -119,7 +119,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsFilteringByCriteria() throws Exception {
+  void supportsFilteringByCriteria() throws Exception {
     client.get("/things/1");
     client.get("/things/2");
     client.get("/stuff/1");
@@ -139,7 +139,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsFilteringByServeEventId() throws Exception {
+  void supportsFilteringByServeEventId() throws Exception {
     client.get("/1");
     client.get("/2");
     client.get("/3");
@@ -155,7 +155,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void willAllowNonProxiedEventsIfSpecified() throws Exception {
+  void willAllowNonProxiedEventsIfSpecified() throws Exception {
     proxyingService.removeStub(proxyStub);
 
     client.postJson("/record-this-anyway", "{ \"things\": 123 }");
@@ -171,7 +171,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsRequestHeaderCriteria() {
+  void supportsRequestHeaderCriteria() {
     client.get("/one", withHeader("Yes", "1"), withHeader("No", "1"));
     client.get("/two", withHeader("Yes", "2"), withHeader("Also-Yes", "BBB"));
 
@@ -193,7 +193,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsBodyExtractCriteria() {
+  void supportsBodyExtractCriteria() {
     targetService.stubFor(
         get("/small/text")
             .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("123")));
@@ -240,7 +240,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsDisablingRecordedStubPersistence() {
+  void supportsDisablingRecordedStubPersistence() {
     client.get("/transient");
 
     List<StubMapping> mappings = snapshotRecord(recordSpec().makeStubsPersistent(false));
@@ -249,7 +249,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void buildsAScenarioForRepeatedIdenticalRequests() {
+  void buildsAScenarioForRepeatedIdenticalRequests() {
     targetService.stubFor(get("/stateful").willReturn(ok("One")));
     client.get("/stateful");
 
@@ -273,7 +273,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void appliesTransformerWithParameters() {
+  void appliesTransformerWithParameters() {
     client.get("/transform-this");
 
     List<StubMapping> mappings =
@@ -291,7 +291,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsConfigurationOfAutoRequestBodyPatternFactory() {
+  void supportsConfigurationOfAutoRequestBodyPatternFactory() {
     client.postJson("/some-json", "{}");
     client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
     client.postWithBody("/some-json", "foo", "application/text", "utf-8");
@@ -316,7 +316,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToJsonPattern() {
+  void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToJsonPattern() {
     client.postJson("/some-json", "{}");
 
     List<StubMapping> mappings =
@@ -329,7 +329,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToXmlPattern() {
+  void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToXmlPattern() {
     client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
 
     List<StubMapping> mappings = snapshotRecord(recordSpec().matchRequestBodyWithEqualToXml());
@@ -339,7 +339,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToPattern() {
+  void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToPattern() {
     client.postWithBody("/some-json", "foo", "application/text", "utf-8");
 
     List<StubMapping> mappings = snapshotRecord(recordSpec().matchRequestBodyWithEqualTo(true));
@@ -350,7 +350,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void defaultsToAutomaticRequestBodyPattern() {
+  void defaultsToAutomaticRequestBodyPattern() {
     client.postJson("/some-json", "{}");
 
     List<StubMapping> mappings = snapshotRecord(recordSpec());
@@ -361,7 +361,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void staticClientIsSupportedWithDefaultSpec() {
+  void staticClientIsSupportedWithDefaultSpec() {
     client.get("/get-this");
 
     snapshotRecord();
@@ -371,7 +371,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void staticClientIsSupportedWithSpecProvided() {
+  void staticClientIsSupportedWithSpecProvided() {
     client.get("/get-this");
     client.get("/but-not-this");
 
@@ -383,7 +383,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void instanceClientIsSupportedWithDefaultSpec() {
+  void instanceClientIsSupportedWithDefaultSpec() {
     client.get("/get-this-too");
     adminClient.takeSnapshotRecording();
 
@@ -392,7 +392,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void instanceClientIsSupportedWithSpecProvided() {
+  void instanceClientIsSupportedWithSpecProvided() {
     client.get("/get-this");
     client.get("/but-not-this");
 

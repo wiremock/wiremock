@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class AbsentPatternTest {
 
   @Test
-  public void correctlyDeserializesFromJson() {
+  void correctlyDeserializesFromJson() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                             \n" + "  \"absent\": \"(absent)\"    \n" + "}",
@@ -37,7 +37,7 @@ public class AbsentPatternTest {
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     AbsentPattern a = new AbsentPattern("someString");
     AbsentPattern b = new AbsentPattern("someString");
     AbsentPattern c = new AbsentPattern("someOtherString");

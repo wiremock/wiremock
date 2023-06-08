@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class JUnit5ProxyTest {
   }
 
   @Test
-  public void testViaProxyUsingRule() throws Exception {
+  void testViaProxyUsingRule() throws Exception {
     wm.stubFor(get("/things").withHost(equalTo("my.first.domain")).willReturn(ok("Domain 1")));
 
     wm.stubFor(get("/things").withHost(equalTo("my.second.domain")).willReturn(ok("Domain 2")));
@@ -74,7 +74,7 @@ public class JUnit5ProxyTest {
   }
 
   @Test
-  public void testViaProxyUsingServer() throws Exception {
+  void testViaProxyUsingServer() throws Exception {
     WireMockServer wireMockServer =
         new WireMockServer(options().dynamicPort().enableBrowserProxying(true));
     wireMockServer.start();

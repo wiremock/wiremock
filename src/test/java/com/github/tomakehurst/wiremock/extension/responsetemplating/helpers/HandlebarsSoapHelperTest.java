@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void extractsASimpleBodyValue() throws IOException {
+  void extractsASimpleBodyValue() throws IOException {
     testHelper(
         this.helper,
         "<Envelope><Body><test>success</test></Body></Envelope>",
@@ -49,7 +49,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void rendersASimpleValue() {
+  void rendersASimpleValue() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()
@@ -66,7 +66,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void negativeTestResponseTemplate() {
+  void negativeTestResponseTemplate() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest()

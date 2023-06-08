@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class HostnameHelperTest {
   }
 
   @Test
-  public void generatesHostname() throws Exception {
+  void generatesHostname() throws Exception {
     ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
 
     String output = render(optionsHash);

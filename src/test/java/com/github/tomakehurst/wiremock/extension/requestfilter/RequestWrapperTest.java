@@ -26,10 +26,10 @@ import com.github.tomakehurst.wiremock.matching.MockRequest;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-public class RequestWrapperTest {
+class RequestWrapperTest {
 
   @Test
-  public void changesTheRequestMethod() {
+  void changesTheRequestMethod() {
     MockRequest request = mockRequest().method(RequestMethod.GET);
 
     Request wrappedRequest = RequestWrapper.create().setMethod(RequestMethod.POST).wrap(request);
@@ -38,7 +38,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsTheUrl() {
+  void transformsTheUrl() {
     MockRequest request = mockRequest().url("/original-path?one=1&two=2");
 
     Request wrappedRequest =
@@ -55,7 +55,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsAUrlWithNoPath() {
+  void transformsAUrlWithNoPath() {
     MockRequest request = mockRequest().url("");
 
     Request wrappedRequest =
@@ -68,7 +68,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void addsSpecifiedHeaders() {
+  void addsSpecifiedHeaders() {
     MockRequest request = mockRequest().header("One", "1");
 
     Request wrappedRequest = RequestWrapper.create().addHeader("Two", "2").wrap(request);
@@ -78,7 +78,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void removesSpecifiedHeaders() {
+  void removesSpecifiedHeaders() {
     MockRequest request = mockRequest().header("One", "1");
 
     Request wrappedRequest = RequestWrapper.create().removeHeader("One").wrap(request);
@@ -87,7 +87,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsSpecifiedHeaders() {
+  void transformsSpecifiedHeaders() {
     MockRequest request = mockRequest().header("One", "1").header("Two", "2", "3");
 
     Request wrappedRequest =
@@ -113,7 +113,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void addsSpecifiedCookies() {
+  void addsSpecifiedCookies() {
     MockRequest request = mockRequest().cookie("One", "1");
 
     Request wrappedRequest =
@@ -128,7 +128,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void removesSpecifiedCookies() {
+  void removesSpecifiedCookies() {
     MockRequest request = mockRequest().cookie("One", "1").cookie("Two", "2").cookie("Three", "3");
 
     Request wrappedRequest = RequestWrapper.create().removeCookie("Two").wrap(request);
@@ -138,7 +138,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsSpecifiedCookies() {
+  void transformsSpecifiedCookies() {
     MockRequest request = mockRequest().cookie("One", "1");
 
     Request wrappedRequest =
@@ -150,7 +150,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsAStringBody() {
+  void transformsAStringBody() {
     MockRequest request = mockRequest().body("One");
 
     Request wrappedRequest =
@@ -167,7 +167,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsABinaryBody() {
+  void transformsABinaryBody() {
     final byte[] initialBytes = new byte[] {1, 2, 3};
     final byte[] finalBytes = new byte[] {4, 5, 6};
 
@@ -181,7 +181,7 @@ public class RequestWrapperTest {
   }
 
   @Test
-  public void transformsMultiparts() {
+  void transformsMultiparts() {
     MockRequest request =
         mockRequest().part(mockPart().name("one").body("1")).part(mockPart().name("two").body("2"));
 

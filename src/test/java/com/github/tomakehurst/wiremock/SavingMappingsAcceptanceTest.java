@@ -68,7 +68,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void savesMappingsToMappingsDirectory() {
+  void savesMappingsToMappingsDirectory() {
     // Check the mapping we're about to add isn't already there
     WireMockResponse response = testClient.get("/some/url");
     assertThat(response.statusCode(), is(404));
@@ -89,7 +89,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void savedMappingIsDeletedFromTheDiskOnRemove() {
+  void savedMappingIsDeletedFromTheDiskOnRemove() {
     StubMapping stubMapping = stubFor(get("/delete/me").willReturn(ok()));
     saveAllMappings();
 
@@ -124,7 +124,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotDuplicateMappingsAlreadyPersistedToFileSystem() {
+  void doesNotDuplicateMappingsAlreadyPersistedToFileSystem() {
     // Check the mapping we're about to add isn't already there
     WireMockResponse response = testClient.get("/some/url");
     assertThat(response.statusCode(), is(404));
@@ -141,7 +141,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotDuplicateMappingsAlreadyPersistedAfterReset() {
+  void doesNotDuplicateMappingsAlreadyPersistedAfterReset() {
     // Check the mapping we're about to add isn't already there
     WireMockResponse response = testClient.get("/some/url");
     assertThat(response.statusCode(), is(404));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
           + "}														";
 
   @Test
-  public void editMappingViaTheJsonApi() {
+  void editMappingViaTheJsonApi() {
 
     testClient.addResponse(MAPPING_REQUEST_WITH_UUID);
     WireMockResponse response = testClient.get("/a/registered/resource");
@@ -77,7 +77,7 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void editMappingViaTheDsl() {
+  void editMappingViaTheDsl() {
     StubMapping stubMapping =
         stubFor(get(urlEqualTo("/edit/this")).willReturn(aResponse().withStatus(200)));
 

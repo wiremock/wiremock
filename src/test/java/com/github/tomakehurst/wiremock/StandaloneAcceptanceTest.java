@@ -104,7 +104,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void acceptsMappingRequestOnDefaultPort() throws Exception {
+  void acceptsMappingRequestOnDefaultPort() throws Exception {
     startRunner();
     givenThat(
         get(urlEqualTo("/standalone/test/resource"))
@@ -125,14 +125,14 @@ public class StandaloneAcceptanceTest {
           + "}													";
 
   @Test
-  public void readsMappingFromMappingsDir() {
+  void readsMappingFromMappingsDir() {
     writeMappingFile("test-mapping-1.json", MAPPING_REQUEST);
     startRunner();
     assertThat(testClient.get("/resource/from/file").content(), is("Body from mapping file"));
   }
 
   @Test
-  public void readsMappingFromSpecifiedRecordingsPath() {
+  void readsMappingFromSpecifiedRecordingsPath() {
     String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
     writeFile(differentRoot + separator + underMappings("test-mapping-1.json"), MAPPING_REQUEST);
     startRunner("--root-dir", differentRoot);
@@ -140,7 +140,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void servesFileFromFilesDir() {
+  void servesFileFromFilesDir() {
     writeFileToFilesDir("test-1.xml", "<content>Blah</content>");
     startRunner();
     WireMockResponse response = testClient.get("/test-1.xml");
@@ -150,7 +150,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void servesFileFromSpecifiedRecordingsPath() {
+  void servesFileFromSpecifiedRecordingsPath() {
     String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
     writeFile(differentRoot + separator + underFiles("test-1.xml"), "<content>Blah</content>");
     startRunner("--root-dir", differentRoot);
@@ -161,7 +161,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void servesFileAsJsonWhenNoFileExtension() {
+  void servesFileAsJsonWhenNoFileExtension() {
     writeFileToFilesDir("json/12345", "{ \"key\": \"value\" }");
     startRunner();
     WireMockResponse response = testClient.get("/json/12345");
@@ -171,7 +171,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void shouldNotSend302WhenPathIsDirAndTrailingSlashNotPresent() {
+  void shouldNotSend302WhenPathIsDirAndTrailingSlashNotPresent() {
     writeFileToFilesDir(
         "json/wire & mock directory/index.json", "{ \"key\": \"index page value\" }");
     startRunner();
@@ -181,7 +181,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void servesJsonIndexFileWhenTrailingSlashPresent() {
+  void servesJsonIndexFileWhenTrailingSlashPresent() {
     writeFileToFilesDir("json/23456/index.json", "{ \"key\": \"new value\" }");
     startRunner();
     WireMockResponse response = testClient.get("/json/23456/");
@@ -191,7 +191,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void servesXmlIndexFileWhenTrailingSlashPresent() {
+  void servesXmlIndexFileWhenTrailingSlashPresent() {
     writeFileToFilesDir("json/34567/index.xml", "<blob>BLAB</blob>");
     startRunner();
     WireMockResponse response = testClient.get("/json/34567/");
@@ -201,7 +201,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void doesNotServeFileFromFilesDirWhenNotGET() {
+  void doesNotServeFileFromFilesDirWhenNotGET() {
     writeFileToFilesDir("json/should-not-see-this.json", "{}");
     startRunner();
     WireMockResponse response = testClient.put("/json/should-not-see-this.json");
@@ -222,7 +222,7 @@ public class StandaloneAcceptanceTest {
           + "}													";
 
   @Test
-  public void readsBodyFileFromFilesDir() {
+  void readsBodyFileFromFilesDir() {
     writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
     writeFileToFilesDir("body-test.xml", "<body>Content</body>");
     startRunner();
@@ -230,7 +230,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void readsBinaryBodyFileFromFilesDir() {
+  void readsBinaryBodyFileFromFilesDir() {
     writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
     writeFileToFilesDir("body-test.xml", MappingJsonSamples.BINARY_COMPRESSED_CONTENT);
     startRunner();
@@ -241,21 +241,21 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void logsVerboselyWhenVerboseSetInCommandLine() {
+  void logsVerboselyWhenVerboseSetInCommandLine() {
     startRecordingSystemOutAndErr();
     startRunner("--verbose");
     assertThat(systemOutText(), containsString("Verbose logging enabled"));
   }
 
   @Test
-  public void doesNotLogVerboselyWhenVerboseNotSetInCommandLine() {
+  void doesNotLogVerboselyWhenVerboseNotSetInCommandLine() {
     startRecordingSystemOutAndErr();
     startRunner();
     assertThat(systemOutText(), not(containsString("Verbose logging enabled")));
   }
 
   @Test
-  public void startsOnPortSpecifiedOnCommandLine() throws Exception {
+  void startsOnPortSpecifiedOnCommandLine() throws Exception {
     int port = findFreePort();
     startRunner("--port", "" + port);
     WireMock client = WireMock.create().host("localhost").port(port).build();
@@ -266,7 +266,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void proxiesToHostSpecifiedOnCommandLine() throws Exception {
+  void proxiesToHostSpecifiedOnCommandLine() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     otherServerClient.register(
         get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
@@ -277,7 +277,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void respondsWithPreExistingRecordingInProxyMode() throws Exception {
+  void respondsWithPreExistingRecordingInProxyMode() throws Exception {
     writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
     writeFileToFilesDir("body-test.xml", "Existing recorded body");
 
@@ -292,7 +292,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
+  void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -311,7 +311,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
+  void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings", "--match-headers", "Accept");
     givenThat(
@@ -329,7 +329,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsGzippedResponseBodiesDecompressed() throws Exception {
+  void recordsGzippedResponseBodiesDecompressed() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -346,7 +346,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void matchesVeryLongHeader() {
+  void matchesVeryLongHeader() {
     startRunner("--jetty-header-buffer-size", "32678");
 
     String veryLongHeader = padRight("", 16336).replace(' ', 'h');
@@ -362,7 +362,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void performsBrowserProxyingWhenEnabled() throws Exception {
+  void performsBrowserProxyingWhenEnabled() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--enable-browser-proxying");
     otherServerClient.register(
@@ -377,14 +377,14 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void doesNotRecordRequestWhenNotProxied() {
+  void doesNotRecordRequestWhenNotProxied() {
     startRunner("--record-mappings");
     testClient.get("/try-to/record-this");
     assertThat(mappingsDirectory, doesNotContainAFileWithNameContaining("try-to-record"));
   }
 
   @Test
-  public void doesNotRecordRequestWhenAlreadySeen() {
+  void doesNotRecordRequestWhenAlreadySeen() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -401,7 +401,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void canBeShutDownRemotely() {
+  void canBeShutDownRemotely() {
     startRunner();
 
     WireMock.shutdownServer();
@@ -417,7 +417,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void canBeShutDownRemotelyWhenAsyncResponsesEnabled() {
+  void canBeShutDownRemotelyWhenAsyncResponsesEnabled() {
     startRunner("--async-response-enabled");
 
     stubFor(get("/delay-this").willReturn(ok().withFixedDelay(50)));
@@ -438,7 +438,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void isRunningReturnsFalseBeforeRunMethodIsExecuted() {
+  void isRunningReturnsFalseBeforeRunMethodIsExecuted() {
     runner = new WireMockServerRunner();
     assertThat(runner.isRunning(), is(false));
   }
@@ -456,7 +456,7 @@ public class StandaloneAcceptanceTest {
           + "}													";
 
   @Test
-  public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
+  void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
     writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
     MappingFileException exception = assertThrows(MappingFileException.class, this::startRunner);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class VeryShortIdGeneratorTest {
 
   @Test
-  public void IdsGeneratedContainOnlyLegalCharsAndAreRightLength() {
+  void IdsGeneratedContainOnlyLegalCharsAndAreRightLength() {
     final IdGenerator generator = new VeryShortIdGenerator();
 
     for (int i = 0; i < 1000; i++) {

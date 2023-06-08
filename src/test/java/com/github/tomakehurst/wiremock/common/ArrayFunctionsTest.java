@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class ArrayFunctionsTest {
+class ArrayFunctionsTest {
 
   private final Integer[] empty = new Integer[0];
 
   @Test
-  public void concatEmptyAndEmpty() {
+  void concatEmptyAndEmpty() {
     assertArrayEquals(empty, concat(empty, empty));
   }
 
   @Test
-  public void concatNonEmptyAndEmpty() {
+  void concatNonEmptyAndEmpty() {
     Integer[] first = {1, 2};
 
     Integer[] result = concat(first, empty);
@@ -42,7 +42,7 @@ public class ArrayFunctionsTest {
   }
 
   @Test
-  public void concatEmptyAndNonEmpty() {
+  void concatEmptyAndNonEmpty() {
     Integer[] second = {1, 2};
 
     Integer[] result = concat(empty, second);
@@ -53,7 +53,7 @@ public class ArrayFunctionsTest {
   }
 
   @Test
-  public void concatNonEmptyAndNonEmpty() {
+  void concatNonEmptyAndNonEmpty() {
     Integer[] first = {1, 2};
     Integer[] second = {3, 4};
 
@@ -66,18 +66,18 @@ public class ArrayFunctionsTest {
   }
 
   @Test
-  public void prependNullAndEmpty() {
+  void prependNullAndEmpty() {
     assertArrayEquals(new Integer[] {null}, prepend(null, empty));
   }
 
   @Test
-  public void prependSomeAndEmpty() {
+  void prependSomeAndEmpty() {
     Integer[] result = prepend(1, empty);
     assertArrayEquals(new Integer[] {1}, result);
   }
 
   @Test
-  public void prependNullAndNonEmpty() {
+  void prependNullAndNonEmpty() {
     Integer[] second = {1, 2};
 
     Integer[] result = prepend(null, second);
@@ -88,7 +88,7 @@ public class ArrayFunctionsTest {
   }
 
   @Test
-  public void prependSomeAndNonEmpty() {
+  void prependSomeAndNonEmpty() {
     Integer[] second = {2, 3};
 
     Integer[] result = prepend(1, second);

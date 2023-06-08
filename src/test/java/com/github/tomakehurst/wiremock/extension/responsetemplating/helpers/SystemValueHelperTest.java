@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getExistingEnvironmentVariableShouldNotNull() throws Exception {
+  void getExistingEnvironmentVariableShouldNotNull() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of(
             "key", "PATH",
@@ -50,7 +50,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getNonExistingEnvironmentVariableShouldNull() throws Exception {
+  void getNonExistingEnvironmentVariableShouldNull() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of(
             "key", "NON_EXISTING_VAR",
@@ -61,7 +61,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
+  void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("JAVA*")));
 
     ImmutableMap<String, Object> optionsHash =
@@ -73,7 +73,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getEmptyKeyShouldReturnError() throws Exception {
+  void getEmptyKeyShouldReturnError() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of(
             "key", "",
@@ -83,7 +83,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getAllowedPropertyShouldSuccess() throws Exception {
+  void getAllowedPropertyShouldSuccess() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("test.*")));
     System.setProperty("test.key", "aaa");
     assertEquals("aaa", System.getProperty("test.key"));
@@ -96,7 +96,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getForbiddenPropertyShouldReturnError() throws Exception {
+  void getForbiddenPropertyShouldReturnError() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("JAVA.*")));
     System.setProperty("test.key", "aaa");
     ImmutableMap<String, Object> optionsHash =
@@ -108,7 +108,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
-  public void getNonExistingSystemPropertyShouldNull() throws Exception {
+  void getNonExistingSystemPropertyShouldNull() throws Exception {
     ImmutableMap<String, Object> optionsHash =
         ImmutableMap.<String, Object>of(
             "key", "not.existing.prop",

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,31 +21,31 @@ import static org.hamcrest.Matchers.is;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class UniqueFilenameGeneratorTest {
+class UniqueFilenameGeneratorTest {
 
   @Test
-  public void generatesValidNameWhenRequestHasUrlWithTwoPathNodes() {
+  void generatesValidNameWhenRequestHasUrlWithTwoPathNodes() {
     String fileName = UniqueFilenameGenerator.generate("/some/path", "body", "random123");
 
     assertThat(fileName, is("body-some-path-random123.json"));
   }
 
   @Test
-  public void generatesValidNameWhenRequestHasUrlWithOnePathNode() {
+  void generatesValidNameWhenRequestHasUrlWithOnePathNode() {
     String fileName = UniqueFilenameGenerator.generate("/thing", "body", "random123");
 
     assertThat(fileName, is("body-thing-random123.json"));
   }
 
   @Test
-  public void generatesValidNameWhenRequestHasRootPath() {
+  void generatesValidNameWhenRequestHasRootPath() {
     String fileName = UniqueFilenameGenerator.generate("/", "body", "random123");
 
     assertThat(fileName, is("body-(root)-random123.json"));
   }
 
   @Test
-  public void truncatesToApproximately150CharactersWhenUrlVeryLong() {
+  void truncatesToApproximately150CharactersWhenUrlVeryLong() {
     String prefix = "someprefix";
     String extension = "abc";
     String id = UUID.randomUUID().toString();

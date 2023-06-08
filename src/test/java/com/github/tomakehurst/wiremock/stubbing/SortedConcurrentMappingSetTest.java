@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class SortedConcurrentMappingSetTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void returnsMappingsInPriorityThenInsertionOrder() {
+  void returnsMappingsInPriorityThenInsertionOrder() {
     mappingSet.add(aMapping(3, "/priority3/1"));
     mappingSet.add(aMapping(3, "/priority3/2"));
     mappingSet.add(aMapping(6, "/priority6/1"));
@@ -63,7 +63,7 @@ public class SortedConcurrentMappingSetTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void supportsNullPriority() {
+  void supportsNullPriority() {
     mappingSet.add(aMapping(null, "/1"));
     mappingSet.add(aMapping(null, "/2"));
     mappingSet.add(aMapping(null, "/3"));
@@ -75,7 +75,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void clearsCorrectly() {
+  void clearsCorrectly() {
     mappingSet.add(aMapping(3, "/priority3/1"));
     mappingSet.add(aMapping(3, "/priority3/2"));
     mappingSet.add(aMapping(6, "/priority6/1"));
@@ -87,7 +87,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void testRemove() throws Exception {
+  void testRemove() throws Exception {
 
     StubMapping stubMapping = aMapping(1, "/priority1/1");
 
@@ -99,7 +99,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void testReplace() throws Exception {
+  void testReplace() throws Exception {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);
@@ -118,7 +118,7 @@ public class SortedConcurrentMappingSetTest {
   }
 
   @Test
-  public void testReplaceNotExists() throws Exception {
+  void testReplaceNotExists() throws Exception {
 
     StubMapping existingMapping = aMapping(1, "/priority1/1");
     mappingSet.add(existingMapping);

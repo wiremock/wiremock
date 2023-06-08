@@ -40,7 +40,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void loadsTheMappingsFromTheDirectorySpecifiedIntoTheRemoteWireMockServer() {
+  void loadsTheMappingsFromTheDirectorySpecifiedIntoTheRemoteWireMockServer() {
     wmClient.loadMappingsFrom(rootDir);
 
     assertThat(testClient.get("/remote-load/1").content(), is("Remote load 1"));
@@ -50,7 +50,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void convertsBodyFileToStringBodyWhenAKnownTextTypeFromFileExtension() {
+  void convertsBodyFileToStringBodyWhenAKnownTextTypeFromFileExtension() {
     wmClient.loadMappingsFrom(rootDir);
 
     SingleStubMappingResult stubMapping =
@@ -61,7 +61,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void convertsBodyFileToStringBodyWhenAKnownImageTypeFromFileExtension() {
+  void convertsBodyFileToStringBodyWhenAKnownImageTypeFromFileExtension() {
     wmClient.loadMappingsFrom(rootDir);
     SingleStubMappingResult stubMapping =
         wmClient.getStubMapping(UUID.fromString("f7550b27-b544-4967-b7e8-f777eca68235"));
@@ -70,7 +70,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void convertsBodyFileToStringBodyWhenAKnownTextTypeFromContentTypeHeader() {
+  void convertsBodyFileToStringBodyWhenAKnownTextTypeFromContentTypeHeader() {
     wmClient.loadMappingsFrom(rootDir);
 
     SingleStubMappingResult stubMapping =
@@ -80,7 +80,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void convertsBodyFileToStringBodyWhenAKnownImageTypeFromContentTypeHeader() {
+  void convertsBodyFileToStringBodyWhenAKnownImageTypeFromContentTypeHeader() {
     wmClient.loadMappingsFrom(rootDir);
     SingleStubMappingResult stubMapping =
         wmClient.getStubMapping(UUID.fromString("59179b2b-ce01-49cf-8381-280dcd559484"));
@@ -89,7 +89,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void loadMultipleMappingsFromOneFile() {
+  void loadMultipleMappingsFromOneFile() {
     wmClient.loadMappingsFrom(rootDir);
 
     assertThat(testClient.get("/todo/items").content(), is("<items><item>Buy milk</item></items>"));

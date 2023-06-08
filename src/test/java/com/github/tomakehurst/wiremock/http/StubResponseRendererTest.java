@@ -81,7 +81,7 @@ public class StubResponseRendererTest {
   }
 
   @Test
-  public void shouldSetEndpointFixedDelayOnResponse() throws Exception {
+  void shouldSetEndpointFixedDelayOnResponse() throws Exception {
     Response response = stubResponseRenderer.render(createServeEvent(2000));
 
     assertThat(response.getInitialDelay(), is(2000L));

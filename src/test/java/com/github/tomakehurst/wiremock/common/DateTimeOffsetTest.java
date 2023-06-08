@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,80 +25,80 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
-public class DateTimeOffsetTest {
+class DateTimeOffsetTest {
 
   static final DateFormat ISO8601 = new ISO8601DateFormat();
 
   @Test
-  public void parsesSecondsOffset() {
+  void parsesSecondsOffset() {
     DateTimeOffset offset = DateTimeOffset.fromString("7 seconds");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.SECONDS));
     assertThat(offset.getAmount(), is(7));
   }
 
   @Test
-  public void parsesMinutesOffset() {
+  void parsesMinutesOffset() {
     DateTimeOffset offset = DateTimeOffset.fromString("78 minutes");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.MINUTES));
     assertThat(offset.getAmount(), is(78));
   }
 
   @Test
-  public void parsesHoursOffset() {
+  void parsesHoursOffset() {
     DateTimeOffset offset = DateTimeOffset.fromString("-12 hours");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.HOURS));
     assertThat(offset.getAmount(), is(-12));
   }
 
   @Test
-  public void parsesDaysOffset() {
+  void parsesDaysOffset() {
     DateTimeOffset offset = DateTimeOffset.fromString("1 days");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.DAYS));
     assertThat(offset.getAmount(), is(1));
   }
 
   @Test
-  public void parsesMonthsOffset() {
+  void parsesMonthsOffset() {
     DateTimeOffset offset = DateTimeOffset.fromString("-12 months");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.MONTHS));
     assertThat(offset.getAmount(), is(-12));
   }
 
   @Test
-  public void parsesYearsOffset() {
+  void parsesYearsOffset() {
     DateTimeOffset offset = DateTimeOffset.fromString("101 years");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.YEARS));
     assertThat(offset.getAmount(), is(101));
   }
 
   @Test
-  public void parsesPositiveLongForm() {
+  void parsesPositiveLongForm() {
     DateTimeOffset offset = DateTimeOffset.fromString("now +101 years");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.YEARS));
     assertThat(offset.getAmount(), is(101));
   }
 
   @Test
-  public void parsesNegativeLongForm() {
+  void parsesNegativeLongForm() {
     DateTimeOffset offset = DateTimeOffset.fromString("now -5 months");
     assertThat(offset.getAmountUnit(), is(DateTimeUnit.MONTHS));
     assertThat(offset.getAmount(), is(-5));
   }
 
   @Test
-  public void returnsCorrectToString() {
+  void returnsCorrectToString() {
     assertThat(DateTimeOffset.fromString("123 minutes").toString(), is("123 minutes"));
     assertThat(DateTimeOffset.fromString("-72 hours").toString(), is("-72 hours"));
   }
 
   @Test
-  public void canBeConstructedFromParts() {
+  void canBeConstructedFromParts() {
     assertThat(new DateTimeOffset(67, DateTimeUnit.DAYS).toString(), is("67 days"));
     assertThat(new DateTimeOffset(-12, DateTimeUnit.SECONDS).toString(), is("-12 seconds"));
   }
 
   @Test
-  public void shiftsZonedDateTimes() {
+  void shiftsZonedDateTimes() {
     DateTimeOffset positiveDateOffset = new DateTimeOffset(10, DateTimeUnit.DAYS);
     assertThat(
         positiveDateOffset.shift(ZonedDateTime.parse("2021-06-18T00:00:00Z")),
@@ -111,7 +111,7 @@ public class DateTimeOffsetTest {
   }
 
   @Test
-  public void offsetsProvidedDateByConfiguredAmount() throws Exception {
+  void offsetsProvidedDateByConfiguredAmount() throws Exception {
     DateTimeOffset offset = DateTimeOffset.fromString("3 days");
     Date startingDate = ISO8601.parse("2018-04-16T12:01:01Z");
     Date finalDate = offset.shift(startingDate);
@@ -120,20 +120,12 @@ public class DateTimeOffsetTest {
   }
 
   @Test
-  public void throwsExceptionWhenUnparseableStringProvided() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          DateTimeOffset.fromString("101");
-        });
+  void throwsExceptionWhenUnparseableStringProvided() {
+    assertThrows(IllegalArgumentException.class, () -> DateTimeOffset.fromString("101"));
   }
 
   @Test
-  public void throwsExceptionWhenUnparseableUnitProvided() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          DateTimeOffset.fromString("101 squillions");
-        });
+  void throwsExceptionWhenUnparseableUnitProvided() {
+    assertThrows(IllegalArgumentException.class, () -> DateTimeOffset.fromString("101 squillions"));
   }
 }

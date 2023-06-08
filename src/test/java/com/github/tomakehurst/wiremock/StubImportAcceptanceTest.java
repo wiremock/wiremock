@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void importsAllStubsWhenNoneAreAlreadyPresent() {
+  void importsAllStubsWhenNoneAreAlreadyPresent() {
     admin.importStubs(
         stubImport()
             .stub(get("/one").willReturn(ok()))
@@ -56,7 +56,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void overwritesExistingStubsByDefault() {
+  void overwritesExistingStubsByDefault() {
     UUID id1 = UUID.randomUUID();
     wm.stubFor(get("/one").withId(id1).willReturn(ok("Original")));
 
@@ -73,7 +73,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void ignoresExistingStubsIfConfigured() {
+  void ignoresExistingStubsIfConfigured() {
     UUID id1 = UUID.randomUUID();
     wm.stubFor(get("/one").withId(id1).willReturn(ok("Original")));
 
@@ -91,7 +91,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deletesStubsNotInImportIfConfigured() {
+  void deletesStubsNotInImportIfConfigured() {
     UUID id1 = UUID.randomUUID();
     wm.stubFor(get("/one").withId(id1).willReturn(ok("Original")));
     wm.stubFor(get("/four").willReturn(ok()));
@@ -113,7 +113,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotDeleteStubsNotInImportIfNotConfigured() {
+  void doesNotDeleteStubsNotInImportIfNotConfigured() {
     UUID id1 = UUID.randomUUID();
     wm.stubFor(get("/one").withId(id1).willReturn(ok("Original")));
     wm.stubFor(get("/four").willReturn(ok()));

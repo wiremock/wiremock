@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
 
   @Test
-  public void matchesPreemptiveBasicAuthWhenCredentialAreCorrect() {
+  void matchesPreemptiveBasicAuthWhenCredentialAreCorrect() {
     stubFor(
         get(urlEqualTo("/basic/auth/preemptive"))
             .withBasicAuth("the-username", "thepassword")
@@ -40,7 +40,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotMatchPreemptiveBasicAuthWhenCredentialsAreIncorrect() {
+  void doesNotMatchPreemptiveBasicAuthWhenCredentialsAreIncorrect() {
     stubFor(
         get(urlEqualTo("/basic/auth/preemptive"))
             .withBasicAuth("the-username", "thepassword")
@@ -54,7 +54,7 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matcheswhenBASICInHeaderIsAllUpperCase() {
+  void matcheswhenBASICInHeaderIsAllUpperCase() {
     stubFor(
         get(urlEqualTo("/basic/auth/case-insensitive"))
             .withBasicAuth("tom", "secret")

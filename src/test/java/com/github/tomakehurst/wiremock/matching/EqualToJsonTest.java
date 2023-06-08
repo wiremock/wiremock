@@ -28,7 +28,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class EqualToJsonTest {
 
   @Test
-  public void returns0DistanceForExactMatchForSingleLevelObject() {
+  void returns0DistanceForExactMatchForSingleLevelObject() {
     assertThat(
         WireMock.equalToJson(
                 "{                  \n"
@@ -49,7 +49,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsNon0DistanceForPartialMatchForSingleLevelObject() {
+  void returnsNon0DistanceForPartialMatchForSingleLevelObject() {
     assertThat(
         WireMock.equalToJson(
                 "{                  \n"
@@ -70,7 +70,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsLargeDistanceForTotallyDifferentDocuments() {
+  void returnsLargeDistanceForTotallyDifferentDocuments() {
     assertThat(
         WireMock.equalToJson(
                 "{                  \n"
@@ -85,7 +85,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsLargeDistanceWhenActualDocIsAnEmptyObject() {
+  void returnsLargeDistanceWhenActualDocIsAnEmptyObject() {
     assertThat(
         WireMock.equalToJson(
                 "{                  \n"
@@ -100,7 +100,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsLargeDistanceWhenActualDocIsAnEmptyArray() {
+  void returnsLargeDistanceWhenActualDocIsAnEmptyArray() {
     assertThat(
         WireMock.equalToJson(
                 "{                  \n"
@@ -115,7 +115,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsLargeDistanceWhenExpectedDocIsAnEmptyObject() {
+  void returnsLargeDistanceWhenExpectedDocIsAnEmptyObject() {
     assertThat(
         WireMock.equalToJson("{}")
             .match(
@@ -130,7 +130,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsLargeDistanceWhenExpectedDocIsAnEmptyArray() {
+  void returnsLargeDistanceWhenExpectedDocIsAnEmptyArray() {
     assertThat(
         WireMock.equalToJson("[]")
             .match(
@@ -145,7 +145,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsMediumDistanceWhenSubtreeIsMissingFromActual() {
+  void returnsMediumDistanceWhenSubtreeIsMissingFromActual() {
     assertThat(
         WireMock.equalToJson(
                 "{\n"
@@ -178,7 +178,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsExactMatchWhenObjectPropertyOrderDiffers() {
+  void returnsExactMatchWhenObjectPropertyOrderDiffers() {
     assertTrue(
         WireMock.equalToJson(
                 "{                  \n"
@@ -198,18 +198,18 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsNonMatchWhenArrayOrderDiffers() {
+  void returnsNonMatchWhenArrayOrderDiffers() {
     assertFalse(WireMock.equalToJson("[1, 2, 3, 4]").match("[1, 3, 2, 4]").isExactMatch());
   }
 
   @Test
-  public void ignoresArrayOrderDifferenceWhenConfigured() {
+  void ignoresArrayOrderDifferenceWhenConfigured() {
     assertTrue(
         WireMock.equalToJson("[1, 2, 3, 4]", true, false).match("[1, 3, 2, 4]").isExactMatch());
   }
 
   @Test
-  public void ignoresNestedArrayOrderDifferenceWhenConfigured() {
+  void ignoresNestedArrayOrderDifferenceWhenConfigured() {
     assertTrue(
         WireMock.equalToJson(
                 "{\n"
@@ -235,7 +235,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void ignoresExtraObjectAttributesWhenConfigured() {
+  void ignoresExtraObjectAttributesWhenConfigured() {
     assertTrue(
         WireMock.equalToJson(
                 "{                  \n"
@@ -259,7 +259,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void ignoresExtraObjectAttributesAndArrayOrderWhenConfigured() {
+  void ignoresExtraObjectAttributesAndArrayOrderWhenConfigured() {
     assertTrue(
         WireMock.equalToJson(
                 "{                          \n"
@@ -283,7 +283,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlyDeserialisesFromJsonStringWhenAdditionalParamsPresent() {
+  void correctlyDeserialisesFromJsonStringWhenAdditionalParamsPresent() {
     StringValuePattern pattern =
         Json.read(
             "{\n"
@@ -300,7 +300,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlyDeserialisesFromJsonValueWhenAdditionalParamsPresent() throws JSONException {
+  void correctlyDeserialisesFromJsonValueWhenAdditionalParamsPresent() throws JSONException {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
     String serializedJson =
         "{                                           \n"
@@ -319,7 +319,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlySerialisesToJsonValueWhenAdditionalParamsPresentAndConstructedWithJsonValue()
+  void correctlySerialisesToJsonValueWhenAdditionalParamsPresentAndConstructedWithJsonValue()
       throws JSONException {
     String expectedJson = "{ \"someKey\": \"someValue\" }";
     EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), true, true);
@@ -337,7 +337,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlySerialisesToJsonWhenAdditionalParamsPresentAndConstructedWithString()
+  void correctlySerialisesToJsonWhenAdditionalParamsPresentAndConstructedWithString()
       throws JSONException {
     EqualToJsonPattern pattern = new EqualToJsonPattern("4444", true, true);
 
@@ -353,7 +353,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlyDeserialisesFromJsonStringWhenAdditionalParamsAbsent() {
+  void correctlyDeserialisesFromJsonStringWhenAdditionalParamsAbsent() {
     StringValuePattern pattern =
         Json.read("{\n" + "    \"equalToJson\": \"2\"\n" + "}", StringValuePattern.class);
 
@@ -364,7 +364,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlyDeserialisesFromJsonValueWhenAdditionalParamsAbsent() throws JSONException {
+  void correctlyDeserialisesFromJsonValueWhenAdditionalParamsAbsent() throws JSONException {
     String expectedJson = "[ 1, 2, \"value\" ]";
     StringValuePattern pattern =
         Json.read("{ \"equalToJson\": " + expectedJson + " }", StringValuePattern.class);
@@ -376,7 +376,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlySerialisesToJsonWhenAdditionalParamsAbsentAndConstructedWithJsonValue()
+  void correctlySerialisesToJsonWhenAdditionalParamsAbsentAndConstructedWithJsonValue()
       throws JSONException {
     String expectedJson = "[ 1, 2, \"value\" ]";
     EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), null, null);
@@ -386,7 +386,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void correctlySerialisesToJsonWhenAdditionalParamsAbsent() throws JSONException {
+  void correctlySerialisesToJsonWhenAdditionalParamsAbsent() throws JSONException {
     EqualToJsonPattern pattern = new EqualToJsonPattern("4444", null, null);
 
     String serialised = Json.write(pattern);
@@ -394,7 +394,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void returnsNoExactMatchForVerySimilarNestedDocs() {
+  void returnsNoExactMatchForVerySimilarNestedDocs() {
     assertFalse(
         new EqualToJsonPattern(
                 "{\n"
@@ -418,7 +418,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotMatchWhenValueIsNull() {
+  void doesNotMatchWhenValueIsNull() {
     MatchResult match =
         new EqualToJsonPattern(
                 "{\n"
@@ -437,7 +437,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotMatchWhenValueIsEmptyString() {
+  void doesNotMatchWhenValueIsEmptyString() {
     MatchResult match =
         new EqualToJsonPattern(
                 "{\n"
@@ -456,7 +456,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotMatchWhenValueIsNotJson() {
+  void doesNotMatchWhenValueIsNotJson() {
     MatchResult match =
         new EqualToJsonPattern(
                 "{\n"
@@ -475,7 +475,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotBreakWhenComparingNestedArraysOfDifferentSizes() {
+  void doesNotBreakWhenComparingNestedArraysOfDifferentSizes() {
     String expected =
         "{\"columns\": [{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"utilizerstatus\",\"b\": 2}]}";
     String actual =
@@ -487,7 +487,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotBreakWhenComparingTopLevelArraysOfDifferentSizesWithCommonElements() {
+  void doesNotBreakWhenComparingTopLevelArraysOfDifferentSizesWithCommonElements() {
     String expected =
         "[    \n"
             + "  { \"one\": 1 },  \n"
@@ -508,7 +508,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void ignoresExtraElementsWhenParameterIsPresentsWithoutIgnoreArrayOrder() {
+  void ignoresExtraElementsWhenParameterIsPresentsWithoutIgnoreArrayOrder() {
     StringValuePattern pattern =
         Json.read(
             "{\n"
@@ -523,7 +523,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotMatchEmptyArraysWhenNotIgnoringExtraElements() {
+  void doesNotMatchEmptyArraysWhenNotIgnoringExtraElements() {
     String expected = "{\"client\":\"AAA\",\"name\":\"BBB\"}";
     String actual = "{\"client\":\"AAA\", \"name\":\"BBB\", \"addresses\": [ ]}";
 
@@ -533,7 +533,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotMatchEmptyArrayWhenIgnoringExtraArrayElementsAndNotIgnoringExtraElements() {
+  void doesNotMatchEmptyArrayWhenIgnoringExtraArrayElementsAndNotIgnoringExtraElements() {
     String expected = "{\"client\":\"AAA\",\"name\":\"BBB\"}";
     String actual = "{\"client\":\"AAA\", \"name\":\"BBB\", \"addresses\": [ ]}";
 
@@ -543,7 +543,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void doesNotMatchEmptyObjectWhenIgnoringExtraArrayElementsAndNotIgnoringExtraElements() {
+  void doesNotMatchEmptyObjectWhenIgnoringExtraArrayElementsAndNotIgnoringExtraElements() {
     String expected = "{\"client\":\"AAA\",\"name\":\"BBB\"}";
     String actual = "{\"client\":\"AAA\", \"name\":\"BBB\", \"addresses\": { }}";
 
@@ -553,7 +553,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void treatsTwoTopLevelsArraysWithDifferingOrderAsSameWhenIgnoringOrder() {
+  void treatsTwoTopLevelsArraysWithDifferingOrderAsSameWhenIgnoringOrder() {
     String expected = "[\"a\",\"b\", \"c\",\"d\",\"e\",\"f\",\"g\",\"h\"]";
     String actual = "[\"b\",\"a\", \"d\",\"c\",\"e\",\"f\",\"g\",\"h\"]";
 
@@ -564,7 +564,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void supportsPlaceholders() {
+  void supportsPlaceholders() {
     String expected =
         "{\n" + "  \"id\": \"${json-unit.any-string}\",\n" + "  \"name\": \"Tom\"\n" + "}";
 
@@ -575,7 +575,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void supportsRegexPlaceholders() {
+  void supportsRegexPlaceholders() {
     String expected =
         "{\n" + "  \"id\": \"${json-unit.regex}[a-z]+\",\n" + "  \"name\": \"Tom\"\n" + "}";
 
@@ -589,7 +589,7 @@ public class EqualToJsonTest {
   }
 
   @Test
-  public void objectsShouldBeEqualOnSameExpectedValue() {
+  void objectsShouldBeEqualOnSameExpectedValue() {
     EqualToJsonPattern a =
         new EqualToJsonPattern(
             "{\n" + "  \"id\": \"abc\",\n" + "  \"name\": \"Tom\"\n" + "}", false, false);

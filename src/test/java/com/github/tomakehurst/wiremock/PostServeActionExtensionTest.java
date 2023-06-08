@@ -64,7 +64,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void triggersActionWhenAppliedToAStubMapping() throws Exception {
+  void triggersActionWhenAppliedToAStubMapping() throws Exception {
     initWithOptions(options().dynamicPort().extensions(new NamedCounterAction()));
 
     StubMapping stubMapping =
@@ -96,7 +96,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void continuesWithNoEffectIfANonExistentActionIsReferenced() {
+  void continuesWithNoEffectIfANonExistentActionIsReferenced() {
     initWithOptions(options().dynamicPort());
 
     wm.stubFor(
@@ -108,7 +108,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
+  void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
     final AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()
@@ -136,7 +136,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void canBeSpecifiedAsAJsonObject() {
+  void canBeSpecifiedAsAJsonObject() {
     initWithOptions(
         options()
             .dynamicPort()
@@ -170,7 +170,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
+  void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
     initWithOptions(
         options()
             .dynamicPort()
@@ -193,7 +193,7 @@ public class PostServeActionExtensionTest {
   }
 
   @Test
-  public void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
+  void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
     initWithOptions(
         options()
             .dynamicPort()

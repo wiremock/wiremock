@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class CompositeTrustManagerTest {
   private final String authType = "AN_AUTH_TYPE";
 
   @Test
-  public void checkServerTrustedPassesForSingleTrustManager() throws CertificateException {
+  void checkServerTrustedPassesForSingleTrustManager() throws CertificateException {
 
     CompositeTrustManager compositeTrustManager =
         new CompositeTrustManager(singletonList(trustManager1));
@@ -45,7 +45,7 @@ public class CompositeTrustManagerTest {
   }
 
   @Test
-  public void checkServerTrustedFailsForSingleTrustManager() throws CertificateException {
+  void checkServerTrustedFailsForSingleTrustManager() throws CertificateException {
 
     final CertificateException invalidCertForTrustManager1 =
         new CertificateException("Invalid cert for trustManager1");
@@ -65,7 +65,7 @@ public class CompositeTrustManagerTest {
   }
 
   @Test
-  public void checkServerTrustedIfBothWouldPass() throws CertificateException {
+  void checkServerTrustedIfBothWouldPass() throws CertificateException {
 
     CompositeTrustManager compositeTrustManager =
         new CompositeTrustManager(asList(trustManager1, trustManager2));
@@ -74,7 +74,7 @@ public class CompositeTrustManagerTest {
   }
 
   @Test
-  public void checkServerTrustedIfFirstWouldPass() throws CertificateException {
+  void checkServerTrustedIfFirstWouldPass() throws CertificateException {
 
     willThrow(new CertificateException("Invalid cert for trustManager2"))
         .given(trustManager2)
@@ -87,7 +87,7 @@ public class CompositeTrustManagerTest {
   }
 
   @Test
-  public void checkServerTrustedIfSecondWouldPass() throws CertificateException {
+  void checkServerTrustedIfSecondWouldPass() throws CertificateException {
 
     willThrow(new CertificateException("Invalid cert for trustManager1"))
         .given(trustManager1)
@@ -100,7 +100,7 @@ public class CompositeTrustManagerTest {
   }
 
   @Test
-  public void checkServerNotTrustedIfNeitherPass() throws CertificateException {
+  void checkServerNotTrustedIfNeitherPass() throws CertificateException {
 
     final CertificateException invalidCertForTrustManager2 =
         new CertificateException("Invalid cert for trustManager2");
@@ -124,7 +124,7 @@ public class CompositeTrustManagerTest {
   }
 
   @Test
-  public void returnAllAcceptedIssuers() {
+  void returnAllAcceptedIssuers() {
 
     final X509Certificate cert1 = mock(X509Certificate.class, "cert1");
     final X509Certificate cert2 = mock(X509Certificate.class, "cert2");
