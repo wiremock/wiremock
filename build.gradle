@@ -93,7 +93,7 @@ dependencies {
   api 'commons-fileupload:commons-fileupload:1.5',  {
     exclude group: 'commons-io', module: 'commons-io'
   }
-  api "commons-io:commons-io:2.12.0"
+  api "commons-io:commons-io:2.13.0"
 
   api 'com.networknt:json-schema-validator:1.0.83'
 
@@ -114,7 +114,7 @@ dependencies {
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
   testImplementation 'org.awaitility:awaitility:4.2.0'
   testImplementation "com.googlecode.jarjar:jarjar:1.3"
-  testImplementation "commons-io:commons-io:2.12.0"
+  testImplementation "commons-io:commons-io:2.13.0"
   testImplementation 'org.scala-lang:scala-library:2.13.11'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
@@ -204,7 +204,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-8'
+  version = '3.0.0-beta-9'
 
 
   sourceCompatibility = 11

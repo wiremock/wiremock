@@ -30,6 +30,8 @@ import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -1008,6 +1010,18 @@ class ResponseTemplateTransformerTest {
     String result = transform("{{date (parseDate '2021' format='yyyy') format='yyyy-MM'}}");
     String expected = YearMonth.of(2021, 1).toString();
     assertThat(result, is(expected));
+  }
+
+  @Test
+  public void canHandleALargeTemplateReasonablyFast() {
+    String template = "{{#each (range 100000 199999) as |index|}}Line {{index}}\n{{/each}}";
+    Instant start = Instant.now();
+    String result = transform(template);
+    Duration timeTaken = Duration.between(start, Instant.now());
+
+    assertThat(result.substring(0, 100), startsWith("Line 100000\nLine 100001\nLine 100002\n"));
+    assertThat(result.length(), equalTo(1_200_000));
+    assertThat(timeTaken, lessThan(Duration.ofSeconds(5)));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {
