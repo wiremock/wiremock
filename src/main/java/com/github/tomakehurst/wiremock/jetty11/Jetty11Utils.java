@@ -21,6 +21,8 @@ import org.eclipse.jetty.server.*;
 
 public class Jetty11Utils {
 
+  private Jetty11Utils() {}
+
   private static final int DEFAULT_ACCEPTORS = 3;
   private static final int DEFAULT_HEADER_SIZE = 32768;
 
@@ -46,14 +48,8 @@ public class Jetty11Utils {
   }
 
   public static void setJettySettings(JettySettings jettySettings, ServerConnector connector) {
-    if (jettySettings.getAcceptQueueSize().isPresent()) {
-      connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
-    }
-
-    if (jettySettings.getIdleTimeout().isPresent()) {
-      connector.setIdleTimeout(jettySettings.getIdleTimeout().get());
-    }
-
+    jettySettings.getAcceptQueueSize().ifPresent(connector::setAcceptQueueSize);
+    jettySettings.getIdleTimeout().ifPresent(connector::setIdleTimeout);
     connector.setShutdownIdleTimeout(jettySettings.getShutdownIdleTimeout().orElse(200L));
   }
 
