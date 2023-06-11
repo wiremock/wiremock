@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.common;
 import java.util.Optional;
 
 /**
- * Exposed Jetty tuning options. See:
- * <a href="https://www.eclipse.org/jetty/javadoc/jetty-11/org/eclipse/jetty/server/AbstractConnector.html">AbstractConnector</a>
+ * Exposed Jetty tuning options. See: <a
+ * href="https://www.eclipse.org/jetty/javadoc/jetty-11/org/eclipse/jetty/server/AbstractConnector.html">AbstractConnector</a>
  */
 public class JettySettings {
   private final Integer acceptors;
