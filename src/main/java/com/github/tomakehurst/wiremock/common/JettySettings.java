@@ -19,25 +19,25 @@ import java.util.Optional;
 
 /**
  * Exposed Jetty tuning options. See:
- * https://www.eclipse.org/jetty/javadoc/jetty-11/org/eclipse/jetty/server/AbstractConnector.html
+ * <a href="https://www.eclipse.org/jetty/javadoc/jetty-11/org/eclipse/jetty/server/AbstractConnector.html">AbstractConnector</a>
  */
 public class JettySettings {
-  private final Optional<Integer> acceptors;
-  private final Optional<Integer> acceptQueueSize;
-  private final Optional<Integer> requestHeaderSize;
-  private final Optional<Integer> responseHeaderSize;
-  private final Optional<Long> stopTimeout;
-  private final Optional<Long> idleTimeout;
-  private final Optional<Long> shutdownIdleTimeout;
+  private final Integer acceptors;
+  private final Integer acceptQueueSize;
+  private final Integer requestHeaderSize;
+  private final Integer responseHeaderSize;
+  private final Long stopTimeout;
+  private final Long idleTimeout;
+  private final Long shutdownIdleTimeout;
 
   private JettySettings(
-      Optional<Integer> acceptors,
-      Optional<Integer> acceptQueueSize,
-      Optional<Integer> requestHeaderSize,
-      Optional<Integer> responseHeaderSize,
-      Optional<Long> stopTimeout,
-      Optional<Long> idleTimeout,
-      Optional<Long> shutdownIdleTimeout) {
+      Integer acceptors,
+      Integer acceptQueueSize,
+      Integer requestHeaderSize,
+      Integer responseHeaderSize,
+      Long stopTimeout,
+      Long idleTimeout,
+      Long shutdownIdleTimeout) {
     this.acceptors = acceptors;
     this.acceptQueueSize = acceptQueueSize;
     this.requestHeaderSize = requestHeaderSize;
@@ -48,31 +48,31 @@ public class JettySettings {
   }
 
   public Optional<Integer> getAcceptors() {
-    return acceptors;
+    return Optional.ofNullable(acceptors);
   }
 
   public Optional<Integer> getAcceptQueueSize() {
-    return acceptQueueSize;
+    return Optional.ofNullable(acceptQueueSize);
   }
 
   public Optional<Integer> getRequestHeaderSize() {
-    return requestHeaderSize;
+    return Optional.ofNullable(requestHeaderSize);
   }
 
   public Optional<Integer> getResponseHeaderSize() {
-    return responseHeaderSize;
+    return Optional.ofNullable(responseHeaderSize);
   }
 
   public Optional<Long> getStopTimeout() {
-    return stopTimeout;
+    return Optional.ofNullable(stopTimeout);
   }
 
   public Optional<Long> getIdleTimeout() {
-    return idleTimeout;
+    return Optional.ofNullable(idleTimeout);
   }
 
   public Optional<Long> getShutdownIdleTimeout() {
-    return shutdownIdleTimeout;
+    return Optional.ofNullable(shutdownIdleTimeout);
   }
 
   @Override
@@ -134,20 +134,20 @@ public class JettySettings {
       return this;
     }
 
-    public Builder withShutodwnIdleTimeout(Long shutdownIdleTimeout) {
+    public Builder withShutdownIdleTimeout(Long shutdownIdleTimeout) {
       this.shutdownIdleTimeout = shutdownIdleTimeout;
       return this;
     }
 
     public JettySettings build() {
       return new JettySettings(
-          Optional.ofNullable(acceptors),
-          Optional.ofNullable(acceptQueueSize),
-          Optional.ofNullable(requestHeaderSize),
-          Optional.ofNullable(responseHeaderSize),
-          Optional.ofNullable(stopTimeout),
-          Optional.ofNullable(idleTimeout),
-          Optional.ofNullable(shutdownIdleTimeout));
+          acceptors,
+          acceptQueueSize,
+          requestHeaderSize,
+          responseHeaderSize,
+          stopTimeout,
+          idleTimeout,
+          shutdownIdleTimeout);
     }
   }
 }
