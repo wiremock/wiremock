@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -25,11 +25,13 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 public class HttpClientUtils {
 
+  private HttpClientUtils() {}
+
   public static String getEntityAsStringAndCloseStream(ClassicHttpResponse httpResponse) {
     HttpEntity entity = httpResponse.getEntity();
     if (entity != null) {
       try {
-        String content = EntityUtils.toString(entity, UTF_8.name());
+        String content = EntityUtils.toString(entity, UTF_8);
         entity.getContent().close();
         return content;
       } catch (IOException | ParseException ioe) {

@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
 
 import com.github.tomakehurst.wiremock.admin.*;
@@ -177,7 +177,6 @@ public class HttpAdminClient implements Admin {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public SingleStubMappingResult getStubMapping(UUID id) {
     return executeRequest(
         adminRoutes.requestSpecForTask(GetStubMappingTask.class),
@@ -538,7 +537,7 @@ public class HttpAdminClient implements Admin {
 
   private String urlFor(Class<? extends AdminTask> taskClass) {
     RequestSpec requestSpec = adminRoutes.requestSpecForTask(taskClass);
-    checkNotNull(requestSpec, "No admin task URL is registered for " + taskClass.getSimpleName());
+    requireNonNull(requestSpec, "No admin task URL is registered for " + taskClass.getSimpleName());
     return String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
   }
 }
