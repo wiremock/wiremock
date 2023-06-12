@@ -34,7 +34,7 @@ public abstract class AbstractFileSource implements FileSource {
 
   protected final File rootDirectory;
 
-  public AbstractFileSource(File rootDirectory) {
+  protected AbstractFileSource(File rootDirectory) {
     this.rootDirectory = rootDirectory;
   }
 

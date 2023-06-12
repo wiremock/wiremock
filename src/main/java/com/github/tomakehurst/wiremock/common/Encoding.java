@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class Encoding {
+
+  private Encoding() {}
 
   private static Base64Encoder encoder = null;
 
@@ -48,11 +48,7 @@ public class Encoding {
     return content != null ? getInstance().encode(content, padding) : null;
   }
 
-  public static String urlEncode(String unencodedUrl) {
-    try {
-      return URLEncoder.encode(unencodedUrl, "utf-8");
-    } catch (UnsupportedEncodingException e) {
-      return throwUnchecked(e, String.class);
-    }
+  public static String urlEncode(String encodedUrl) {
+    return URLEncoder.encode(encodedUrl, StandardCharsets.UTF_8);
   }
 }
