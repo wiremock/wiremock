@@ -15,8 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class Encoding {
 
@@ -49,6 +50,6 @@ public class Encoding {
   }
 
   public static String urlEncode(String encodedUrl) {
-    return URLEncoder.encode(encodedUrl, StandardCharsets.UTF_8);
+    return URLEncoder.encode(encodedUrl, UTF_8);
   }
 }

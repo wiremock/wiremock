@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.google.common.collect.ImmutableList;
@@ -26,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -94,7 +94,7 @@ public class Urls {
   }
 
   public static String decode(String encoded) {
-    return URLDecoder.decode(encoded, StandardCharsets.UTF_8);
+    return URLDecoder.decode(encoded, UTF_8);
   }
 
   public static URL safelyCreateURL(String url) {
