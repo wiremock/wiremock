@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficListener {
-
   private final StringBuilder requestBuilder = new StringBuilder();
   private final StringBuilder responseBuilder = new StringBuilder();
 
