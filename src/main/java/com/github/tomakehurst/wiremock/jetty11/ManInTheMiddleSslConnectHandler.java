@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.jetty11;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.Optional;
 import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.Promise;
@@ -44,7 +45,7 @@ public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
       channel.socket().setTcpNoDelay(true);
       channel.configureBlocking(false);
 
-      String host = Optional.ofNullable(mitmProxyConnector.getHost()).orElse("localhost");
+      String host = firstNonNull(mitmProxyConnector.getHost(), "localhost");
       int port = mitmProxyConnector.getLocalPort();
       InetSocketAddress address = newConnectAddress(host, port);
 

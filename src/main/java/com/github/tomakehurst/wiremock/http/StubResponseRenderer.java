@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
@@ -27,7 +28,6 @@ import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
-import java.util.Optional;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
@@ -101,8 +101,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     StubMapping stubMapping = serveEvent.getStubMapping();
     if (serveEvent.getWasMatched() && stubMapping != null) {
       headers =
-          Optional.ofNullable(headers)
-              .orElse(new HttpHeaders())
+          firstNonNull(headers, new HttpHeaders())
               .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
 
       if (stubMapping.getName() != null) {
@@ -129,7 +128,11 @@ public class StubResponseRenderer implements ResponseRenderer {
           filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
       responseBuilder.body(bodyStreamSource);
     } else if (responseDefinition.specifiesBodyContent()) {
-      responseBuilder.body(responseDefinition.getByteBody());
+      if (responseDefinition.specifiesBinaryBodyContent()) {
+        responseBuilder.body(responseDefinition.getByteBody());
+      } else {
+        responseBuilder.body(responseDefinition.getByteBody());
+      }
     }
 
     return responseBuilder;

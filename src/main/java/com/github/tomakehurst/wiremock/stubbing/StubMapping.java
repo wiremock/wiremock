@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
@@ -25,7 +27,6 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -111,11 +112,11 @@ public class StubMapping {
   }
 
   public RequestPattern getRequest() {
-    return Optional.ofNullable(request).orElse(RequestPattern.ANYTHING);
+    return firstNonNull(request, RequestPattern.ANYTHING);
   }
 
   public ResponseDefinition getResponse() {
-    return Optional.ofNullable(response).orElse(ResponseDefinition.ok());
+    return firstNonNull(response, ResponseDefinition.ok());
   }
 
   public void setRequest(RequestPattern request) {
