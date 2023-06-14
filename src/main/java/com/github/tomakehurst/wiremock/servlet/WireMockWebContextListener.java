@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
@@ -25,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+import java.util.Optional;
 
 public class WireMockWebContextListener implements ServletContextListener {
 
@@ -36,7 +35,7 @@ public class WireMockWebContextListener implements ServletContextListener {
 
     boolean verboseLoggingEnabled =
         Boolean.parseBoolean(
-            firstNonNull(context.getInitParameter("verboseLoggingEnabled"), "true"));
+            Optional.ofNullable(context.getInitParameter("verboseLoggingEnabled")).orElse("true"));
 
     WireMockApp wireMockApp =
         new WireMockApp(new WarConfiguration(context), new NotImplementedContainer());
