@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.servlet;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
@@ -221,7 +219,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   private HttpHeaders getHeadersQuadratic() {
-    List<HttpHeader> headerList = newArrayList();
+    List<HttpHeader> headerList = new ArrayList<>();
     for (String key : getAllHeaderKeys()) {
       headerList.add(header(key));
     }
@@ -245,7 +243,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
     jakarta.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+        Optional.ofNullable(request.getCookies()).orElse(new jakarta.servlet.http.Cookie[0]);
     for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
@@ -257,13 +255,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public QueryParameter queryParameter(String key) {
     Map<String, QueryParameter> queryParams = cachedQueryParams.get();
-    return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return Optional.ofNullable(queryParams.get(key)).orElse(QueryParameter.absent(key));
   }
 
   @Override
   public FormParameter formParameter(String key) {
     Map<String, FormParameter> formParameters = cachedFormParameters.get();
-    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return Optional.ofNullable(formParameters.get(key)).orElse(FormParameter.absent(key));
   }
 
   @Override

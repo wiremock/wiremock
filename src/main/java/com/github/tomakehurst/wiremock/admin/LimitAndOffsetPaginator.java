@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.List;
+import java.util.Optional;
 
 public class LimitAndOffsetPaginator<T> implements Paginator<T> {
 
@@ -36,7 +36,7 @@ public class LimitAndOffsetPaginator<T> implements Paginator<T> {
   }
 
   public static <T> LimitAndOffsetPaginator<T> fromRequest(List<T> source, Request request) {
-    return new LimitAndOffsetPaginator<T>(
+    return new LimitAndOffsetPaginator<>(
         source,
         Conversions.toInt(request.queryParameter("limit")),
         Conversions.toInt(request.queryParameter("offset")));
@@ -44,8 +44,8 @@ public class LimitAndOffsetPaginator<T> implements Paginator<T> {
 
   @Override
   public List<T> select() {
-    int start = firstNonNull(offset, 0);
-    int end = Math.min(source.size(), start + firstNonNull(limit, source.size()));
+    int start = Optional.ofNullable(offset).orElse(0);
+    int end = Math.min(source.size(), start + Optional.ofNullable(limit).orElse(source.size()));
 
     return source.subList(start, end);
   }

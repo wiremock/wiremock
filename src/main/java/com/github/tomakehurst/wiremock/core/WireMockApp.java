@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Iterables.contains;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
@@ -44,6 +43,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -145,7 +145,7 @@ public class WireMockApp implements StubServer, Admin {
             requestMatchers,
             transformers,
             stores.getFilesBlobStore(),
-            Collections.<StubLifecycleListener>emptyList());
+            Collections.emptyList());
     this.container = container;
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder = new Recorder(this, stores.getRecorderStateStore());
@@ -520,7 +520,7 @@ public class WireMockApp implements StubServer, Admin {
   public void importStubs(StubImport stubImport) {
     List<StubMapping> mappings = stubImport.getMappings();
     StubImport.Options importOptions =
-        firstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
+        Optional.ofNullable(stubImport.getImportOptions()).orElse(StubImport.Options.DEFAULTS);
 
     for (int i = mappings.size() - 1; i >= 0; i--) {
       StubMapping mapping = mappings.get(i);
