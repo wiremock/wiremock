@@ -16,14 +16,13 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableListMultimap.Builder;
 import com.google.common.collect.Maps;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -35,6 +34,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Urls {
+
+  private Urls() {}
 
   public static Map<String, QueryParameter> splitQueryFromUrl(String url) {
     String queryPart =
@@ -56,7 +57,7 @@ public class Urls {
       return Collections.emptyMap();
     }
 
-    Iterable<String> pairs = Splitter.on('&').split(query);
+    List<String> pairs = Arrays.stream(query.split("&")).collect(Collectors.toList());
     Builder<String, String> builder = ImmutableListMultimap.builder();
     for (String queryElement : pairs) {
       int firstEqualsIndex = queryElement.indexOf('=');
@@ -93,11 +94,7 @@ public class Urls {
   }
 
   public static String decode(String encoded) {
-    try {
-      return URLDecoder.decode(encoded, "utf-8");
-    } catch (UnsupportedEncodingException e) {
-      return throwUnchecked(e, String.class);
-    }
+    return URLDecoder.decode(encoded, UTF_8);
   }
 
   public static URL safelyCreateURL(String url) {

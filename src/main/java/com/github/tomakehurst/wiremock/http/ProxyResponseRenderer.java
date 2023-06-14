@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -51,10 +50,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private static final String CONTENT_ENCODING = "content-encoding";
   private static final String CONTENT_LENGTH = "content-length";
   private static final String HOST_HEADER = "host";
-  public static final ImmutableList<String> FORBIDDEN_RESPONSE_HEADERS =
-      ImmutableList.of(TRANSFER_ENCODING, "connection");
-  public static final ImmutableList<String> FORBIDDEN_REQUEST_HEADERS =
-      ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection");
+  public static final List<String> FORBIDDEN_RESPONSE_HEADERS =
+      List.of(TRANSFER_ENCODING, "connection");
+  public static final List<String> FORBIDDEN_REQUEST_HEADERS =
+      List.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection");
 
   private final CloseableHttpClient reverseProxyClient;
   private final CloseableHttpClient forwardProxyClient;
@@ -84,7 +83,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
             proxySettings,
             trustStoreSettings,
             true,
-            Collections.<String>emptyList(),
+            Collections.emptyList(),
             true);
     forwardProxyClient =
         HttpClientFactory.createClient(

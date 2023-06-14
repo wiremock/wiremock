@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.google.common.io.Files;
@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public abstract class AbstractFileSource implements FileSource {
 
   protected final File rootDirectory;
 
-  public AbstractFileSource(File rootDirectory) {
+  protected AbstractFileSource(File rootDirectory) {
     this.rootDirectory = rootDirectory;
   }
 
@@ -80,7 +81,7 @@ public abstract class AbstractFileSource implements FileSource {
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
-    File[] files = root.listFiles();
+    File[] files = Optional.ofNullable(root.listFiles()).orElse(new File[0]);
     for (File file : files) {
       if (file.isDirectory()) {
         recursivelyAddFilesToList(file, fileList);
