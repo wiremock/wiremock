@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class HttpClientFactoryAcceptsTrustedCertificatesTest
 
   @MethodSource("data")
   @ParameterizedTest(name = "{index}: trusted={0}, certificateCN={1}, validCertificate={2}")
-  public void certificatesAreAccepted(
+  void certificatesAreAccepted(
       List<String> trustedHosts, String certificateCN, boolean validCertificate) throws Exception {
 
     startServerAndBuildClient(trustedHosts, certificateCN, validCertificate);
