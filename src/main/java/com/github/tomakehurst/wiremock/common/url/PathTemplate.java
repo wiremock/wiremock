@@ -156,7 +156,7 @@ class ParserBuilder {
 
   void addWildcard() {
     templatePattern.append("(.*?)");
-    templateVariables.add("" + wildcardCount++);
+    templateVariables.add(String.valueOf(wildcardCount++));
   }
 
   Parser build() {
@@ -213,13 +213,13 @@ class RendererBuilder {
   }
 
   void addWildcard() {
-    final String wildcardIndex = "" + wildcardCount++;
+    final String wildcardIndex = String.valueOf(wildcardCount++);
     class Wildcard implements Function<PathParams, String> {
       @Override
       public String apply(PathParams input) {
         String value = input.get(wildcardIndex);
         if (value == null) {
-          throw new IllegalArgumentException(format("Wildcard was not bound"));
+          throw new IllegalArgumentException("Wildcard was not bound");
         }
         return value;
       }

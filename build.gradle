@@ -17,7 +17,7 @@ plugins {
   id 'project-report'
   id 'com.diffplug.spotless' version '6.17.0'
   id 'com.github.johnrengelman.shadow' version '8.1.0'
-  id "org.sonarqube" version "4.2.0.3129"
+  id "org.sonarqube" version "4.2.1.3168"
   id 'jacoco'
 }
 
@@ -27,7 +27,7 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.12',
-    guava          : '32.0.0-jre',
+    guava          : '32.0.1-jre',
     jackson        : '2.15.2',
     xmlUnit        : '2.9.1',
     jsonUnit       : '2.38.0',
@@ -93,7 +93,7 @@ dependencies {
   api 'commons-fileupload:commons-fileupload:1.5',  {
     exclude group: 'commons-io', module: 'commons-io'
   }
-  api "commons-io:commons-io:2.12.0"
+  api "commons-io:commons-io:2.13.0"
 
   api 'com.networknt:json-schema-validator:1.0.83'
 
@@ -114,7 +114,7 @@ dependencies {
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
   testImplementation 'org.awaitility:awaitility:4.2.0'
   testImplementation "com.googlecode.jarjar:jarjar:1.3"
-  testImplementation "commons-io:commons-io:2.12.0"
+  testImplementation "commons-io:commons-io:2.13.0"
   testImplementation 'org.scala-lang:scala-library:2.13.11'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
@@ -204,7 +204,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-8'
+  version = '3.0.0-beta-9'
 
 
   sourceCompatibility = 11

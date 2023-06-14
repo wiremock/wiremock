@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: WireMock
-  version: 3.0.0-beta-8
+  version: 3.0.0-beta-9
 
 externalDocs:
   description: WireMock user documentation

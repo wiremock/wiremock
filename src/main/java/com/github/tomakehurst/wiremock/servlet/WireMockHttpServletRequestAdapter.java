@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.servlet;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.io.ByteStreams.toByteArray;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
@@ -172,14 +172,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return encodeBase64(getBody());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public String getHeader(String key) {
     return request.getHeader(key); // case-insensitive per javadoc
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public HttpHeader header(String key) {
     if (request.getHeader(key) == null) {
       return HttpHeader.absent(key);
@@ -214,9 +212,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   private static HttpHeaders getHeadersLinear(org.eclipse.jetty.server.Request request) {
-    org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
     List<HttpHeader> headers =
-        jettyRequest.getHttpFields().stream()
+        request.getHttpFields().stream()
             .map(field -> HttpHeader.httpHeader(field.getName(), field.getValue()))
             .collect(Collectors.toList());
     return new HttpHeaders(headers);
@@ -231,7 +228,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return new HttpHeaders(headerList);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<String> getAllHeaderKeys() {
     LinkedHashSet<String> headerKeys = new LinkedHashSet<>();
@@ -313,10 +309,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
     if (name == null || name.length() == 0) {
       return null;
     }
-    if (cachedMultiparts == null) {
-      if (getParts() == null) {
-        return null;
-      }
+    if (cachedMultiparts == null && getParts() == null) {
+      return null;
     }
 
     return cachedMultiparts.stream()

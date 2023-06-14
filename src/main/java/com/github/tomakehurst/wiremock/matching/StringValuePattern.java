@@ -25,7 +25,7 @@ import java.util.Objects;
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
-  public StringValuePattern(String expectedValue) {
+  protected StringValuePattern(String expectedValue) {
     super(expectedValue);
   }
 
