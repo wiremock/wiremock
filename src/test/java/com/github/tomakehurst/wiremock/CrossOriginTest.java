@@ -51,7 +51,7 @@ public class CrossOriginTest {
     }
 
     @Test
-    public void sendsCorsHeadersInResponseToAdminOPTIONSQuery() {
+    void sendsCorsHeadersInResponseToAdminOPTIONSQuery() {
       WireMockResponse response =
           testClient.options(
               "/__admin/",
@@ -66,7 +66,7 @@ public class CrossOriginTest {
     }
 
     @Test
-    public void sendsCorsHeadersInResponseToStubOPTIONSQuery() {
+    void sendsCorsHeadersInResponseToStubOPTIONSQuery() {
       wm.stubFor(any(urlEqualTo("/cors")).willReturn(ok()));
 
       WireMockResponse response =
@@ -98,7 +98,7 @@ public class CrossOriginTest {
     }
 
     @Test
-    public void doesNotSendCorsHeadersInResponseToStubOPTIONSQuery() {
+    void doesNotSendCorsHeadersInResponseToStubOPTIONSQuery() {
       wm.stubFor(any(urlEqualTo("/cors")).willReturn(ok()));
 
       WireMockResponse response =
