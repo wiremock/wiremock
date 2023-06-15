@@ -68,6 +68,10 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
 
   @Override
   public MatchResult match(String json) {
+    if (json == null) {
+      return MatchResult.noMatch();
+    }
+
     JsonNode jsonNode;
     try {
       jsonNode = Json.read(json, JsonNode.class);
