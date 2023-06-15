@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
   }
 
   @Override
-  public ServeEvent handleRequest(Request request) {
-    return stubServer.serveStubFor(request);
+  public ServeEvent handleRequest(ServeEvent serveEvent) {
+    return stubServer.serveStubFor(serveEvent);
   }
 
   @Override

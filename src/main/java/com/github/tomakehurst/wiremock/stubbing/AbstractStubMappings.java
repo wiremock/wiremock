@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -33,6 +34,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final Scenarios scenarios;
   protected final Map<String, RequestMatcherExtension> customMatchers;
   protected final Map<String, ResponseDefinitionTransformer> transformers;
+  protected final Map<String, ResponseDefinitionTransformerV2> v2transformers;
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final StubMappingStore store;
@@ -53,6 +56,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,
       Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners) {
 
@@ -60,12 +64,14 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
     this.transformers = transformers;
+    this.v2transformers = v2transformers;
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
   }
 
   @Override
-  public ServeEvent serveFor(Request request) {
+  public ServeEvent serveFor(ServeEvent initialServeEvent) {
+    final LoggedRequest request = initialServeEvent.getRequest();
     StubMapping matchingMapping =
         store
             .findAllMatchingRequest(request, customMatchers)
@@ -78,20 +84,18 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     scenarios.onStubServed(matchingMapping);
 
-    ServeEvent serveEvent = ServeEvent.of(request, matchingMapping);
-    ServeEvent.setCurrent(serveEvent);
-
     ResponseDefinition responseDefinition =
-        applyTransformations(
+        applyV1Transformations(
             request, matchingMapping.getResponse(), ImmutableList.copyOf(transformers.values()));
 
-    serveEvent = serveEvent.withResponseDefinition(copyOf(responseDefinition));
-    ServeEvent.setCurrent(serveEvent);
+    ServeEvent serveEvent = initialServeEvent.withResponseDefinition(responseDefinition);
 
-    return serveEvent;
+    applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
+
+    return serveEvent.withResponseDefinition(copyOf(responseDefinition));
   }
 
-  private ResponseDefinition applyTransformations(
+  private ResponseDefinition applyV1Transformations(
       Request request,
       ResponseDefinition responseDefinition,
       List<ResponseDefinitionTransformer> transformers) {
@@ -109,8 +113,30 @@ public abstract class AbstractStubMappings implements StubMappings {
                 firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
             : responseDefinition;
 
-    return applyTransformations(
+    return applyV1Transformations(
         request, newResponseDef, transformers.subList(1, transformers.size()));
+  }
+
+  private ResponseDefinition applyV2Transformations(
+          ServeEvent serveEvent,
+          List<ResponseDefinitionTransformerV2> transformers) {
+
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+    if (transformers.isEmpty()) {
+      return responseDefinition;
+    }
+
+    ResponseDefinitionTransformerV2 transformer = transformers.get(0);
+    ResponseDefinition newResponseDef =
+            transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+                    ? transformer.transform(serveEvent, filesFileSource)
+                    : responseDefinition;
+
+    return applyV2Transformations(
+            serveEvent.withResponseDefinition(newResponseDef),
+            transformers.subList(1, transformers.size())
+    );
   }
 
   @Override

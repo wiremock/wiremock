@@ -25,10 +25,12 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -39,8 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
-    implements StubLifecycleListener {
+public class ResponseTemplateTransformer
+    implements StubLifecycleListener, ResponseDefinitionTransformerV2 {
 
   public static final String NAME = "response-template";
 
@@ -85,15 +87,15 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
   }
 
   @Override
-  public ResponseDefinition transform(
-      Request request,
-      final ResponseDefinition responseDefinition,
-      FileSource files,
-      Parameters parameters) {
+  public ResponseDefinition transform(ServeEvent serveEvent, FileSource files) {
+    final Request request = serveEvent.getRequest();
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    final Parameters parameters = responseDefinition.getTransformerParameters();
+
     ResponseDefinitionBuilder newResponseDefBuilder =
         ResponseDefinitionBuilder.like(responseDefinition);
 
-    final PathTemplate pathTemplate = getCurrentEventPathTemplate();
+    final PathTemplate pathTemplate = serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
 
     final ImmutableMap<String, Object> model =
         ImmutableMap.<String, Object>builder()
@@ -184,14 +186,6 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
     } else {
       return newResponseDefBuilder.build();
     }
-  }
-
-  private static PathTemplate getCurrentEventPathTemplate() {
-    if (ServeEvent.getCurrent() == null) {
-      return null;
-    }
-
-    return ServeEvent.getCurrent().getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
   }
 
   /** Override this to add extra elements to the template model */
