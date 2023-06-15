@@ -15,17 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
-import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
-import com.github.tomakehurst.wiremock.extension.requestfilter.*;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Stopwatch;
-import java.util.List;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
@@ -55,64 +56,50 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
   @Override
   public void handle(Request request, HttpResponder httpResponder) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    ServeEvent serveEvent;
+    ServeEvent serveEvent = ServeEvent.of(request);
     Request processedRequest = request;
 
-    try {
-      if (!requestFilters.isEmpty()) {
-        RequestFilterAction requestFilterAction =
-            processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
-        if (requestFilterAction instanceof ContinueAction) {
-          processedRequest = ((ContinueAction) requestFilterAction).getRequest();
-          serveEvent = handleRequest(processedRequest);
-        } else {
-          serveEvent =
-              ServeEvent.of(
-                  LoggedRequest.createFrom(request),
-                  ((StopAction) requestFilterAction).getResponseDefinition());
-        }
+    if (!requestFilters.isEmpty()) {
+      RequestFilterAction requestFilterAction =
+          processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
+      if (requestFilterAction instanceof ContinueAction) {
+        processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+        serveEvent = handleRequest(serveEvent.replaceRequest(processedRequest));
       } else {
-        serveEvent = handleRequest(request);
+        serveEvent =
+            serveEvent.withResponseDefinition(((StopAction) requestFilterAction).getResponseDefinition());
       }
-
-      ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-      responseDefinition.setOriginalRequest(processedRequest);
-      Response response = responseRenderer.render(serveEvent);
-      response = Response.Builder.like(response).protocol(request.getProtocol()).build();
-      ServeEvent completedServeEvent =
-          serveEvent.complete(
-              response, (int) stopwatch.elapsed(MILLISECONDS), dataTruncationSettings);
-
-      if (logRequests()) {
-        notifier()
-            .info(
-                "Request received:\n"
-                    + formatRequest(processedRequest)
-                    + "\n\nMatched response definition:\n"
-                    + responseDefinition
-                    + "\n\nResponse:\n"
-                    + response);
-      }
-
-      for (RequestListener listener : listeners) {
-        listener.requestReceived(processedRequest, response);
-      }
-
-      beforeResponseSent(completedServeEvent, response);
-
-      stopwatch.reset();
-      stopwatch.start();
-      httpResponder.respond(processedRequest, response);
-
-      completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
-      afterResponseSent(completedServeEvent, response);
-    } finally {
-      ServeEvent.clearCurrent();
+    } else {
+      serveEvent = handleRequest(serveEvent);
     }
 
-    stopwatch.stop();
+    ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    responseDefinition.setOriginalRequest(processedRequest);
+    Response response = responseRenderer.render(serveEvent);
+    response = Response.Builder.like(response).protocol(request.getProtocol()).build();
+    ServeEvent completedServeEvent = serveEvent.complete(response, dataTruncationSettings);
+
+    if (logRequests()) {
+      notifier()
+          .info(
+              "Request received:\n"
+                  + formatRequest(processedRequest)
+                  + "\n\nMatched response definition:\n"
+                  + responseDefinition
+                  + "\n\nResponse:\n"
+                  + response);
+    }
+
+    for (RequestListener listener : listeners) {
+      listener.requestReceived(processedRequest, response);
+    }
+
+    beforeResponseSent(completedServeEvent, response);
+
+    serveEvent.beforeSend();
+    httpResponder.respond(processedRequest, response);
+    serveEvent.afterSend();
+    afterResponseSent(completedServeEvent, response);
   }
 
   protected String formatRequest(Request request) {
@@ -141,5 +128,5 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     return false;
   }
 
-  protected abstract ServeEvent handleRequest(Request request);
+  protected abstract ServeEvent handleRequest(ServeEvent request);
 }

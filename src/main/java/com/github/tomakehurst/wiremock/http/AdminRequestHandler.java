@@ -55,18 +55,18 @@ public class AdminRequestHandler extends AbstractRequestHandler {
   }
 
   @Override
-  public ServeEvent handleRequest(Request request) {
-    final LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
+  public ServeEvent handleRequest(ServeEvent initialServeEvent) {
+    final Request request = initialServeEvent.getRequest();
     if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
       notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
-      return ServeEvent.of(
-          loggedRequest,
-          ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API"));
+      return initialServeEvent.withResponseDefinition(
+              ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API")
+      );
     }
 
     if (!authenticator.authenticate(request)) {
       notifier().info("Authentication failed for " + request.getMethod() + " " + request.getUrl());
-      return ServeEvent.of(loggedRequest, ResponseDefinition.notAuthorised());
+      return initialServeEvent.withResponseDefinition(ResponseDefinition.notAuthorised());
     }
 
     notifier().info("Admin request received:\n" + formatRequest(request));
@@ -79,15 +79,15 @@ public class AdminRequestHandler extends AbstractRequestHandler {
           adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
       PathParams pathParams = uriTemplate.parse(path);
 
-      return ServeEvent.of(loggedRequest, adminTask.execute(admin, request, pathParams));
+      return initialServeEvent.withResponseDefinition(adminTask.execute(admin, request, pathParams));
     } catch (NotFoundException e) {
-      return ServeEvent.forUnmatchedRequest(loggedRequest);
+      return initialServeEvent.withResponseDefinition(ResponseDefinition.notConfigured());
     } catch (InvalidParameterException ipe) {
-      return ServeEvent.forBadRequest(loggedRequest, ipe.getErrors());
+      return initialServeEvent.withResponseDefinition(ResponseDefinition.badRequest(ipe.getErrors()));
     } catch (InvalidInputException iie) {
-      return ServeEvent.forBadRequestEntity(loggedRequest, iie.getErrors());
+      return initialServeEvent.withResponseDefinition(ResponseDefinition.badRequestEntity(iie.getErrors()));
     } catch (NotPermittedException npe) {
-      return ServeEvent.forNotAllowedRequest(loggedRequest, npe.getErrors());
+      return initialServeEvent.withResponseDefinition(ResponseDefinition.notPermitted(npe.getErrors()));
     } catch (Throwable t) {
       notifier().error("Unrecoverable error handling admin request", t);
       throw t;

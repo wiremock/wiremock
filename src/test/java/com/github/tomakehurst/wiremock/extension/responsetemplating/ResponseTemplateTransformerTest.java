@@ -28,6 +28,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.time.Duration;
@@ -38,6 +39,10 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -302,11 +307,11 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void escapingIsTheDefault() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
+            Parameters.empty()
+        );
 
     assertThat(
         responseDefinition.getBody(), is("{\"test\": \"look at my &#x27;single quotes&#x27;\"}"));
@@ -315,22 +320,22 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void jsonPathValueDefaultsToEmptyString() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
             aResponse().withBody("{{jsonPath request.body '$.b'}}").build(),
-            noFileSource(),
-            Parameters.empty());
+            Parameters.empty()
+        );
     assertThat(responseDefinition.getBody(), is(""));
   }
 
   @Test
   public void jsonPathValueDefaultCanBeProvided() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
             aResponse().withBody("{{jsonPath request.body '$.b' default='foo'}}").build(),
-            noFileSource(),
-            Parameters.empty());
+            Parameters.empty()
+        );
     assertThat(responseDefinition.getBody(), is("foo"));
   }
 
@@ -340,11 +345,12 @@ public class ResponseTemplateTransformerTest {
     ResponseTemplateTransformer transformerWithEscapingDisabled =
         ResponseTemplateTransformer.builder().global(true).handlebars(handlebars).build();
     final ResponseDefinition responseDefinition =
-        transformerWithEscapingDisabled.transform(
+        transform(
+            transformerWithEscapingDisabled,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
+            Parameters.empty()
+        );
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my 'single quotes'\"}"));
   }
@@ -352,26 +358,36 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void transformerParametersAreAppliedToTemplate() throws Exception {
     ResponseDefinition responseDefinition =
-        transformer.transform(
+          transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse().withBody("{\"test\": \"{{parameters.variable}}\"}").build(),
-            noFileSource(),
-            Parameters.one("variable", "some.value"));
+            Parameters.one("variable", "some.value")
+          );
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"some.value\"}"));
+  }
+
+  private ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, Parameters parameters) {
+    return transform(this.transformer, request, responseDefinition, parameters);
+  }
+
+  private ResponseDefinition transform(ResponseDefinitionTransformerV2 transformer, Request request, ResponseDefinition responseDefinition, Parameters parameters) {
+    StubMapping stubMapping = get("/json").willReturn(aResponse().withTransformerParameters(parameters)).build();
+    ServeEvent serveEvent = ServeEvent.of(LoggedRequest.createFrom(request), responseDefinition, stubMapping);
+    return transformer.transform(serveEvent, noFileSource());
   }
 
   @Test
   public void unknownTransformerParametersAreNotCausingIssues() throws Exception {
     ResponseDefinition responseDefinition =
-        transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse()
                 .withBody(
                     "{\"test1\": \"{{parameters.variable}}\", \"test2\": \"{{parameters.unknown}}\"}")
                 .build(),
-            noFileSource(),
-            Parameters.one("variable", "some.value"));
+            Parameters.one("variable", "some.value")
+        );
 
     assertThat(responseDefinition.getBody(), is("{\"test1\": \"some.value\", \"test2\": \"\"}"));
   }
@@ -1043,16 +1059,15 @@ public class ResponseTemplateTransformerTest {
   private ResponseDefinition transform(
       Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
     return transformer.transform(
-        request, responseDefinitionBuilder.build(), noFileSource(), Parameters.empty());
+        ServeEvent.of(LoggedRequest.createFrom(request), responseDefinitionBuilder.build()), noFileSource());
   }
 
   private ResponseDefinition transformFromResponseFile(
       Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
     return transformer.transform(
-        request,
-        responseDefinitionBuilder.build(),
+            ServeEvent.of(LoggedRequest.createFrom(request), responseDefinitionBuilder.build()),
         new ClasspathFileSource(
-            this.getClass().getClassLoader().getResource("templates").getPath()),
-        Parameters.empty());
+            this.getClass().getClassLoader().getResource("templates").getPath())
+    );
   }
 }

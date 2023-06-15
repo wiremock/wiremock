@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.Collections;
 import java.util.List;
@@ -454,7 +455,7 @@ public class ResponseDefinition {
     return transformerParameters;
   }
 
-  public boolean hasTransformer(AbstractTransformer transformer) {
+  public boolean hasTransformer(Extension transformer) {
     return transformers != null && transformers.contains(transformer.getName());
   }
 
