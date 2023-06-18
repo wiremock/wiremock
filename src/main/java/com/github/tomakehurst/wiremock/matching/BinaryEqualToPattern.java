@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.io.BaseEncoding;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 
 public class BinaryEqualToPattern extends ContentPattern<byte[]> {
@@ -30,7 +30,7 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
 
   @JsonCreator
   public BinaryEqualToPattern(@JsonProperty("binaryEqualTo") String expected) {
-    this(BaseEncoding.base64().decode(expected));
+    this(Base64.getDecoder().decode(expected));
   }
 
   @Override
@@ -47,7 +47,7 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
   @Override
   @JsonIgnore
   public String getExpected() {
-    return BaseEncoding.base64().encode(expectedValue);
+    return Base64.getEncoder().encodeToString(expectedValue);
   }
 
   public String getBinaryEqualTo() {

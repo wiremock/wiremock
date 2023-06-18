@@ -29,7 +29,7 @@ public class Encoding {
     if (encoder == null) {
       synchronized (Encoding.class) {
         if (encoder == null) {
-          encoder = new GuavaBase64Encoder();
+          encoder = new JdkBase64Encoder();
         }
       }
     }
