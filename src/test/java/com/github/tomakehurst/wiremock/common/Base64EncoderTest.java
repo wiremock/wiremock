@@ -25,8 +25,8 @@ public class Base64EncoderTest {
   public static final String OUTPUT = "MTIzNA==";
 
   @Test
-  public void testGuavaEncoder() {
-    Base64Encoder encoder = new JdkBase64Encoder();
+  void testEncoder() {
+    var encoder = new JdkBase64Encoder();
 
     String encoded = encoder.encode(INPUT.getBytes());
     assertThat(encoded, is(OUTPUT));
