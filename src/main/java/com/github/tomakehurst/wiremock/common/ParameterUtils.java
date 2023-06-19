@@ -29,9 +29,9 @@ public class ParameterUtils {
     throw new NullPointerException("Both parameters are null");
   }
 
-  public static void checkParameter(boolean condition, Object errorMessage) {
+  public static void checkParameter(boolean condition, String errorMessage) {
     if (!condition) {
-      throw new IllegalArgumentException(String.valueOf(errorMessage));
+      throw new IllegalArgumentException(errorMessage);
     }
   }
 }
