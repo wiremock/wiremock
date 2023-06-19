@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock.common;
 
 public class ParameterUtils {
 
-  private ParameterUtils() {}
+  private ParameterUtils() {
+  }
 
   public static <T> T getFirstNonNull(T first, T second) {
     if (first != null) {
@@ -34,4 +35,5 @@ public class ParameterUtils {
       throw new IllegalArgumentException(errorMessage);
     }
   }
+
 }
