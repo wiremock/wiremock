@@ -15,7 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-public interface ResponseDefinitionTransformerV2
-    extends AbstractTransformerV2<ResponseDefinition> {}
+public interface ResponseDefinitionTransformerV2 extends Extension {
+
+  ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource);
+
+  default boolean applyGlobally() {
+    return true;
+  }
+}
