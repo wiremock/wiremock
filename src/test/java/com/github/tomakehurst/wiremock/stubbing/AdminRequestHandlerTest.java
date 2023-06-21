@@ -63,6 +63,7 @@ public class AdminRequestHandlerTest {
             new NoAuthenticator(),
             false,
             Collections.emptyList(),
+            Collections.emptyList(),
             new DataTruncationSettings(Limit.UNLIMITED));
   }
 

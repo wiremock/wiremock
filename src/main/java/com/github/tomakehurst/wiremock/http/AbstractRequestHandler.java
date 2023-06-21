@@ -16,15 +16,11 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 import static com.google.common.collect.Lists.newArrayList;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
-import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
-import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.List;
 import java.util.Map;
@@ -33,16 +29,17 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
   protected List<RequestListener> listeners = newArrayList();
   protected final ResponseRenderer responseRenderer;
-  protected final List<RequestFilter> requestFilters;
+  protected final FilterProcessor filterProcessor;
 
   private final DataTruncationSettings dataTruncationSettings;
 
   public AbstractRequestHandler(
       ResponseRenderer responseRenderer,
       List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
       DataTruncationSettings dataTruncationSettings) {
     this.responseRenderer = responseRenderer;
-    this.requestFilters = requestFilters;
+    this.filterProcessor = new FilterProcessor(requestFilters, v2RequestFilters);
     this.dataTruncationSettings = dataTruncationSettings;
   }
 
@@ -60,9 +57,9 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     ServeEvent serveEvent = ServeEvent.of(request);
     Request processedRequest = request;
 
-    if (!requestFilters.isEmpty()) {
-      RequestFilterAction requestFilterAction =
-          processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
+    if (filterProcessor.hasAnyFilters()) {
+      RequestFilterAction requestFilterAction = filterProcessor.processFilters(request, serveEvent);
+
       if (requestFilterAction instanceof ContinueAction) {
         processedRequest = ((ContinueAction) requestFilterAction).getRequest();
         serveEvent = handleRequest(serveEvent.replaceRequest(processedRequest));
