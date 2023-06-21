@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NEAR_MISS_COUNT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -163,9 +164,7 @@ public class NearMissCalculatorTest {
   private void givenRequests(final Request... requests) {
     final List<ServeEvent> serveEvents =
         Arrays.stream(requests)
-            .map(
-                request ->
-                    ServeEvent.of(LoggedRequest.createFrom(request), new ResponseDefinition()))
+            .map(request -> newPostMatchServeEvent(request, new ResponseDefinition()))
             .collect(Collectors.toList());
 
     when(requestJournal.getAllServeEvents()).thenReturn(serveEvents);

@@ -41,6 +41,8 @@ public class MockRequest implements Request {
   private String host = "my.domain";
   private int port = 80;
   private String url = "/";
+
+  private String absoluteUrl = null;
   private RequestMethod method = RequestMethod.ANY;
   private HttpHeaders headers = new HttpHeaders();
 
@@ -78,6 +80,11 @@ public class MockRequest implements Request {
     return this;
   }
 
+  public MockRequest absoluteUrl(String absoluteUrl) {
+    this.absoluteUrl = absoluteUrl;
+    return this;
+  }
+
   public MockRequest method(RequestMethod method) {
     this.method = method;
     return this;
@@ -85,6 +92,11 @@ public class MockRequest implements Request {
 
   public MockRequest header(String key, String... values) {
     headers = headers.plus(httpHeader(key, values));
+    return this;
+  }
+
+  public MockRequest headers(HttpHeaders headers) {
+    this.headers = headers;
     return this;
   }
 
@@ -146,7 +158,8 @@ public class MockRequest implements Request {
 
   @Override
   public String getAbsoluteUrl() {
-    return "http://my.domain" + url;
+    String portPart = port == 80 || port == 443 ? "" : ":" + port;
+    return firstNonNull(absoluteUrl, String.format("%s://%s%s%s", scheme, host, portPart, url));
   }
 
   @Override

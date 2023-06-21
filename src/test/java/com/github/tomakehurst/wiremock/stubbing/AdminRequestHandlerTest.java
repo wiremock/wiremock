@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class AdminRequestHandlerTest {
   public void shouldSaveMappingsWhenSaveCalled() {
     Request request = aRequest().withUrl("/mappings/save").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -81,7 +81,7 @@ public class AdminRequestHandlerTest {
   public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
     Request request = aRequest().withUrl("/reset").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -92,7 +92,7 @@ public class AdminRequestHandlerTest {
   public void shouldClearJournalWhenResetRequestsCalled() {
     Request request = aRequest().withUrl("/requests/reset").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -117,7 +117,8 @@ public class AdminRequestHandlerTest {
             .withMethod(POST)
             .withBody(REQUEST_PATTERN_SAMPLE)
             .build(),
-        httpResponder);
+        httpResponder,
+        null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -133,7 +134,8 @@ public class AdminRequestHandlerTest {
   public void shouldUpdateGlobalSettings() {
     handler.handle(
         aRequest().withUrl("/settings").withMethod(POST).withBody(GLOBAL_SETTINGS_JSON).build(),
-        httpResponder);
+        httpResponder,
+        null);
 
     GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
     verify(admin).updateGlobalSettings(expectedSettings);

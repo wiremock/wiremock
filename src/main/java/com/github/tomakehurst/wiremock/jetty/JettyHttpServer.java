@@ -367,6 +367,8 @@ public abstract class JettyHttpServer implements HttpServer {
 
     adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
 
+    adminContext.addServlet(NotMatchedServlet.class, "/not-matched");
+
     addCorsFilter(adminContext);
 
     return adminContext;

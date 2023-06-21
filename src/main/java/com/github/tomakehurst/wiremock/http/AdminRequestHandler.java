@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.net.URI;
 import java.util.List;
 
@@ -60,8 +59,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
       notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
       return initialServeEvent.withResponseDefinition(
-              ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API")
-      );
+          ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API"));
     }
 
     if (!authenticator.authenticate(request)) {
@@ -79,15 +77,19 @@ public class AdminRequestHandler extends AbstractRequestHandler {
           adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
       PathParams pathParams = uriTemplate.parse(path);
 
-      return initialServeEvent.withResponseDefinition(adminTask.execute(admin, request, pathParams));
+      return initialServeEvent.withResponseDefinition(
+          adminTask.execute(admin, initialServeEvent, pathParams));
     } catch (NotFoundException e) {
       return initialServeEvent.withResponseDefinition(ResponseDefinition.notConfigured());
     } catch (InvalidParameterException ipe) {
-      return initialServeEvent.withResponseDefinition(ResponseDefinition.badRequest(ipe.getErrors()));
+      return initialServeEvent.withResponseDefinition(
+          ResponseDefinition.badRequest(ipe.getErrors()));
     } catch (InvalidInputException iie) {
-      return initialServeEvent.withResponseDefinition(ResponseDefinition.badRequestEntity(iie.getErrors()));
+      return initialServeEvent.withResponseDefinition(
+          ResponseDefinition.badRequestEntity(iie.getErrors()));
     } catch (NotPermittedException npe) {
-      return initialServeEvent.withResponseDefinition(ResponseDefinition.notPermitted(npe.getErrors()));
+      return initialServeEvent.withResponseDefinition(
+          ResponseDefinition.notPermitted(npe.getErrors()));
     } catch (Throwable t) {
       notifier().error("Unrecoverable error handling admin request", t);
       throw t;

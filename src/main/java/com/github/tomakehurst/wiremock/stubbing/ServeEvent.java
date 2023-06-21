@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.github.tomakehurst.wiremock.stubbing.SubEvent.NON_MATCH_TYPE;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
-import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
@@ -32,13 +32,12 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServeEvent {
+
+  public static final String ORIGINAL_SERVE_EVENT_KEY = "wiremock.ORIGINAL_SERVE_EVENT";
 
   private final UUID id;
   private final LoggedRequest request;
@@ -86,7 +85,7 @@ public class ServeEvent {
         stubMapping,
         responseDefinition,
         response,
-        timing,
+        timing != null ? timing : Timing.create(),
         subEvents != null ? new ConcurrentLinkedQueue<>(subEvents) : new ConcurrentLinkedQueue<>(),
         Stopwatch.createStarted());
   }
@@ -100,50 +99,36 @@ public class ServeEvent {
     return new ServeEvent(LoggedRequest.createFrom(request), null, null);
   }
 
-  public static ServeEvent of(Request request, StubMapping stubMapping) {
-    return new ServeEvent(LoggedRequest.createFrom(request), stubMapping, null);
-  }
-
-  public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
+  public static ServeEvent ofUnmatched(
+      LoggedRequest request, ResponseDefinition responseDefinition) {
     return new ServeEvent(request, null, responseDefinition);
-  }
-
-  public static ServeEvent of(
-      LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
-    return new ServeEvent(request, stubMapping, responseDefinition);
   }
 
   public ServeEvent replaceRequest(Request request) {
     return new ServeEvent(
-            id,
-            LoggedRequest.createFrom(request),
-            stubMapping,
-            responseDefinition,
-            response,
-            timing,
-            subEvents,
-            stopwatch
-          );
+        id,
+        LoggedRequest.createFrom(request),
+        stubMapping,
+        responseDefinition,
+        response,
+        timing,
+        subEvents,
+        stopwatch);
+  }
+
+  public ServeEvent withStubMapping(StubMapping stubMapping) {
+    return new ServeEvent(
+        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
   }
 
   public ServeEvent withResponseDefinition(ResponseDefinition responseDefinition) {
     return new ServeEvent(
-            id,
-            request,
-            stubMapping,
-            responseDefinition,
-            response,
-            false,
-            timing,
-            subEvents
-          );
+        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
   }
 
-  public ServeEvent complete(
-      Response response,
-      DataTruncationSettings dataTruncationSettings
-  ) {
-    final int processTimeMillis = (int) stopwatch.elapsed(MILLISECONDS);
+  public ServeEvent complete(Response response, DataTruncationSettings dataTruncationSettings) {
+    timing.logProcessTime(stopwatch);
+    timing.setAddedTime((int) response.getInitialDelay());
 
     return new ServeEvent(
         id,
@@ -152,9 +137,8 @@ public class ServeEvent {
         responseDefinition,
         LoggedResponse.from(response, dataTruncationSettings.getMaxResponseBodySize()),
         false,
-        new Timing((int) response.getInitialDelay(), processTimeMillis),
-        subEvents
-      );
+        timing,
+        subEvents);
   }
 
   public void beforeSend() {
@@ -162,8 +146,7 @@ public class ServeEvent {
   }
 
   public void afterSend() {
-    final int responseSendTimeMillis = (int) stopwatch.elapsed(MILLISECONDS);
-    timing.setResponseSendTime(responseSendTimeMillis);
+    timing.logResponseSendTime(stopwatch);
   }
 
   @JsonIgnore
@@ -204,8 +187,15 @@ public class ServeEvent {
   }
 
   public void appendSubEvent(String type, Object data) {
-    final int elapsed = (int) stopwatch.elapsed(MILLISECONDS);
-    subEvents.add(new SubEvent(type, elapsed, data));
+    final long elapsedNanos = stopwatch.elapsed(NANOSECONDS);
+    subEvents.add(new SubEvent(type, elapsedNanos, data));
+  }
+
+  @JsonIgnore
+  public Optional<SubEvent> getDiffSubEvent() {
+    return subEvents.stream()
+        .filter(subEvent -> subEvent.getType().equals(NON_MATCH_TYPE))
+        .findFirst();
   }
 
   @JsonIgnore
@@ -215,7 +205,8 @@ public class ServeEvent {
         : Collections.emptyList();
   }
 
-  public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST = ServeEvent::getRequest;
+  public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST =
+      ServeEvent::getRequest;
 
   public static final Predicate<ServeEvent> NOT_MATCHED = ServeEvent::isNoExactMatch;
 }

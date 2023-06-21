@@ -28,18 +28,20 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class GetAllRequestsTask implements AdminTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-    ServeEventQuery query = ServeEventQuery.fromRequest(request);
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
+    ServeEventQuery query = ServeEventQuery.fromRequest(serveEvent.getRequest());
     GetServeEventsResult serveEventsResult = admin.getServeEvents(query);
     LimitAndSinceDatePaginator paginator;
     try {
-      paginator = LimitAndSinceDatePaginator.fromRequest(serveEventsResult.getRequests(), request);
+      paginator =
+          LimitAndSinceDatePaginator.fromRequest(
+              serveEventsResult.getRequests(), serveEvent.getRequest());
     } catch (InvalidInputException e) {
       return jsonResponse(e.getErrors(), HTTP_BAD_REQUEST);
     }

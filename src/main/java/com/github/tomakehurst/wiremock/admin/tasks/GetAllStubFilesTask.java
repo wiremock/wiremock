@@ -20,10 +20,10 @@ import static java.util.stream.Collectors.toList;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.Stores;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.List;
 
 public class GetAllStubFilesTask implements AdminTask {
@@ -35,7 +35,7 @@ public class GetAllStubFilesTask implements AdminTask {
   }
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     BlobStore filesBlobStore = stores.getFilesBlobStore();
     List<String> filePaths = filesBlobStore.getAllKeys().sorted().collect(toList());
     return ResponseDefinition.okForJson(filePaths);

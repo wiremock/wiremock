@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,9 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.io.IOException;
@@ -51,16 +49,13 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void rendersASimpleValue() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/soap")
                 .body(
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-            aResponse()
-                .withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
@@ -68,14 +63,13 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void negativeTestResponseTemplate() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/soap")
                 .body(
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-            aResponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test></test>"));
   }

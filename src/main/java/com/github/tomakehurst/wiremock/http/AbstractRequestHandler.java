@@ -15,18 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
+import static com.google.common.collect.Lists.newArrayList;
+
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-
 import java.util.List;
-
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Map;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
@@ -55,7 +56,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
 
   @Override
-  public void handle(Request request, HttpResponder httpResponder) {
+  public void handle(Request request, HttpResponder httpResponder, ServeEvent originalServeEvent) {
     ServeEvent serveEvent = ServeEvent.of(request);
     Request processedRequest = request;
 
@@ -67,7 +68,8 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         serveEvent = handleRequest(serveEvent.replaceRequest(processedRequest));
       } else {
         serveEvent =
-            serveEvent.withResponseDefinition(((StopAction) requestFilterAction).getResponseDefinition());
+            serveEvent.withResponseDefinition(
+                ((StopAction) requestFilterAction).getResponseDefinition());
       }
     } else {
       serveEvent = handleRequest(serveEvent);
@@ -77,13 +79,13 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     responseDefinition.setOriginalRequest(processedRequest);
     Response response = responseRenderer.render(serveEvent);
     response = Response.Builder.like(response).protocol(request.getProtocol()).build();
-    ServeEvent completedServeEvent = serveEvent.complete(response, dataTruncationSettings);
+    serveEvent = serveEvent.complete(response, dataTruncationSettings);
 
     if (logRequests()) {
       notifier()
           .info(
               "Request received:\n"
-                  + formatRequest(processedRequest)
+                  + formatRequest(request)
                   + "\n\nMatched response definition:\n"
                   + responseDefinition
                   + "\n\nResponse:\n"
@@ -91,15 +93,18 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     }
 
     for (RequestListener listener : listeners) {
-      listener.requestReceived(processedRequest, response);
+      listener.requestReceived(request, response);
     }
 
-    beforeResponseSent(completedServeEvent, response);
+    beforeResponseSent(serveEvent, response);
 
     serveEvent.beforeSend();
-    httpResponder.respond(processedRequest, response);
+
+    Map<String, Object> attributes = Map.of(ORIGINAL_SERVE_EVENT_KEY, serveEvent);
+    httpResponder.respond(request, response, attributes);
+
     serveEvent.afterSend();
-    afterResponseSent(completedServeEvent, response);
+    afterResponseSent(serveEvent, response);
   }
 
   protected String formatRequest(Request request) {

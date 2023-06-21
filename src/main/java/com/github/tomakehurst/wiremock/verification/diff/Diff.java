@@ -303,7 +303,7 @@ public class Diff {
       }
     }
 
-    if (scenarioName != null) {
+    if (scenarioName != null && expectedScenarioState != null) {
       builder.add(
           new DiffLine<>(
               "Scenario",

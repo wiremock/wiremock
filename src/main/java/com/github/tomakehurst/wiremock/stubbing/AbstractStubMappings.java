@@ -88,9 +88,12 @@ public abstract class AbstractStubMappings implements StubMappings {
         applyV1Transformations(
             request, matchingMapping.getResponse(), ImmutableList.copyOf(transformers.values()));
 
-    ServeEvent serveEvent = initialServeEvent.withResponseDefinition(responseDefinition);
-
-    applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
+    ServeEvent serveEvent =
+        initialServeEvent
+            .withStubMapping(matchingMapping)
+            .withResponseDefinition(responseDefinition);
+    responseDefinition =
+        applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
 
     return serveEvent.withResponseDefinition(copyOf(responseDefinition));
   }
@@ -118,8 +121,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   }
 
   private ResponseDefinition applyV2Transformations(
-          ServeEvent serveEvent,
-          List<ResponseDefinitionTransformerV2> transformers) {
+      ServeEvent serveEvent, List<ResponseDefinitionTransformerV2> transformers) {
 
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
@@ -129,14 +131,13 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     ResponseDefinitionTransformerV2 transformer = transformers.get(0);
     ResponseDefinition newResponseDef =
-            transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
-                    ? transformer.transform(serveEvent, filesFileSource)
-                    : responseDefinition;
+        transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+            ? transformer.transform(serveEvent, filesFileSource)
+            : responseDefinition;
 
     return applyV2Transformations(
-            serveEvent.withResponseDefinition(newResponseDef),
-            transformers.subList(1, transformers.size())
-    );
+        serveEvent.withResponseDefinition(newResponseDef),
+        transformers.subList(1, transformers.size()));
   }
 
   @Override

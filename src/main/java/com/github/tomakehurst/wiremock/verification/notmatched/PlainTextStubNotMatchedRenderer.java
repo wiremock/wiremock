@@ -20,9 +20,9 @@ import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
@@ -35,9 +35,8 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
   public static final String CONSOLE_WIDTH_HEADER_KEY = "X-WireMock-Console-Width";
 
   @Override
-  public ResponseDefinition render(Admin admin, Request request) {
-    LoggedRequest loggedRequest =
-        LoggedRequest.createFrom(request.getOriginalRequest().orElse(request));
+  public ResponseDefinition render(Admin admin, ServeEvent serveEvent) {
+    LoggedRequest loggedRequest = serveEvent.getRequest();
     List<NearMiss> nearMisses = admin.findTopNearMissesFor(loggedRequest).getNearMisses();
 
     Map<String, RequestMatcherExtension> customMatcherExtensions =

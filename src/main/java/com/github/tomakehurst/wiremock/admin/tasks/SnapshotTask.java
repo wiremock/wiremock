@@ -22,19 +22,19 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class SnapshotTask implements AdminTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     RecordSpec recordSpec =
-        request.getBody().length == 0
+        serveEvent.getRequest().getBody().length == 0
             ? RecordSpec.DEFAULTS
-            : Json.read(request.getBodyAsString(), RecordSpec.class);
+            : Json.read(serveEvent.getRequest().getBodyAsString(), RecordSpec.class);
 
     SnapshotRecordResult result = admin.snapshotRecord(recordSpec);
     return jsonResponse(result, HTTP_OK);

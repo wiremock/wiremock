@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -25,7 +26,10 @@ import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.diff.DiffEventData;
+import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +41,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
   private final RequestJournal requestJournal;
   private final boolean loggingDisabled;
 
+  private final NotMatchedRenderer notMatchedRenderer;
+
   public StubRequestHandler(
       StubServer stubServer,
       ResponseRenderer responseRenderer,
@@ -45,13 +51,15 @@ public class StubRequestHandler extends AbstractRequestHandler {
       RequestJournal requestJournal,
       List<RequestFilter> requestFilters,
       boolean loggingDisabled,
-      DataTruncationSettings dataTruncationSettings) {
+      DataTruncationSettings dataTruncationSettings,
+      NotMatchedRenderer notMatchedRenderer) {
     super(responseRenderer, requestFilters, dataTruncationSettings);
     this.stubServer = stubServer;
     this.admin = admin;
     this.postServeActions = postServeActions;
     this.requestJournal = requestJournal;
     this.loggingDisabled = loggingDisabled;
+    this.notMatchedRenderer = notMatchedRenderer;
   }
 
   @Override
@@ -66,11 +74,32 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   @Override
   protected void beforeResponseSent(ServeEvent serveEvent, Response response) {
+    if (!response.wasConfigured()) {
+      appendNonMatchSubEvent(serveEvent);
+    }
+
     requestJournal.requestReceived(serveEvent);
+  }
+
+  private void appendNonMatchSubEvent(ServeEvent serveEvent) {
+    final ResponseDefinition responseDefinition =
+        notMatchedRenderer.execute(admin, serveEvent, PathParams.empty());
+    final HttpHeaders headers = responseDefinition.getHeaders();
+    final String contentTypeHeader =
+        headers != null && headers.getHeader(ContentTypeHeader.KEY).isPresent()
+            ? headers.getContentTypeHeader().firstValue()
+            : null;
+
+    serveEvent.appendSubEvent(
+        SubEvent.NON_MATCH_TYPE,
+        new DiffEventData(
+            responseDefinition.getStatus(), contentTypeHeader, responseDefinition.getBody()));
   }
 
   @Override
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {
+    requestJournal.serveCompleted(serveEvent);
+
     for (PostServeAction postServeAction : postServeActions.values()) {
       postServeAction.doGlobalAction(serveEvent, admin);
     }
