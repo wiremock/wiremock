@@ -17,12 +17,11 @@ package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-@Deprecated
-/** @deprecated Use {@link RequestFilterV2} instead */
-public interface RequestFilter extends Extension {
+public interface RequestFilterV2 extends Extension {
 
-  RequestFilterAction filter(Request request);
+  RequestFilterAction filter(Request request, ServeEvent serveEvent);
 
   boolean applyToAdmin();
 

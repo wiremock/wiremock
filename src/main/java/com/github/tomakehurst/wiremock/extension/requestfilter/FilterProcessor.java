@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,32 @@
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.List;
 
 public class FilterProcessor {
 
-  public static RequestFilterAction processFilters(
+  private final List<? extends RequestFilter> v1RequestFilters;
+  private final List<? extends RequestFilterV2> v2RequestFilters;
+
+  public FilterProcessor(
+      List<? extends RequestFilter> v1RequestFilters,
+      List<? extends RequestFilterV2> v2RequestFilters) {
+    this.v1RequestFilters = v1RequestFilters;
+    this.v2RequestFilters = v2RequestFilters;
+  }
+
+  public RequestFilterAction processFilters(Request request, ServeEvent serveEvent) {
+    RequestFilterAction requestFilterAction =
+        processV1Filters(request, v1RequestFilters, RequestFilterAction.continueWith(request));
+    return processV2Filters(request, serveEvent, v2RequestFilters, requestFilterAction);
+  }
+
+  private RequestFilterAction processV1Filters(
       Request request,
       List<? extends RequestFilter> requestFilters,
       RequestFilterAction lastAction) {
+
     if (requestFilters.isEmpty()) {
       return lastAction;
     }
@@ -32,9 +50,34 @@ public class FilterProcessor {
 
     if (action instanceof ContinueAction) {
       Request newRequest = ((ContinueAction) action).getRequest();
-      return processFilters(newRequest, requestFilters.subList(1, requestFilters.size()), action);
+      return processV1Filters(newRequest, requestFilters.subList(1, requestFilters.size()), action);
     }
 
     return action;
+  }
+
+  private RequestFilterAction processV2Filters(
+      Request request,
+      ServeEvent serveEvent,
+      List<? extends RequestFilterV2> v2RequestFilters,
+      RequestFilterAction lastAction) {
+
+    if (v2RequestFilters.isEmpty()) {
+      return lastAction;
+    }
+
+    RequestFilterAction action = v2RequestFilters.get(0).filter(request, serveEvent);
+
+    if (action instanceof ContinueAction) {
+      Request newRequest = ((ContinueAction) action).getRequest();
+      return processV2Filters(
+          newRequest, serveEvent, v2RequestFilters.subList(1, v2RequestFilters.size()), action);
+    }
+
+    return action;
+  }
+
+  public boolean hasAnyFilters() {
+    return !v1RequestFilters.isEmpty() || !v2RequestFilters.isEmpty();
   }
 }

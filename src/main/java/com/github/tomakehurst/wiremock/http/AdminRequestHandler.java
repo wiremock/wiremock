@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.net.URI;
@@ -45,8 +46,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
       Authenticator authenticator,
       boolean requireHttps,
       List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
       DataTruncationSettings dataTruncationSettings) {
-    super(responseRenderer, requestFilters, dataTruncationSettings);
+    super(responseRenderer, requestFilters, v2RequestFilters, dataTruncationSettings);
     this.adminRoutes = adminRoutes;
     this.admin = admin;
     this.authenticator = authenticator;

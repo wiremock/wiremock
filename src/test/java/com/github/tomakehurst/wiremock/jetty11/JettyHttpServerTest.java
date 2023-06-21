@@ -61,6 +61,7 @@ public class JettyHttpServerTest {
             new NoAuthenticator(),
             false,
             Collections.emptyList(),
+            Collections.emptyList(),
             NO_TRUNCATION);
     stubRequestHandler =
         new StubRequestHandler(
@@ -69,6 +70,7 @@ public class JettyHttpServerTest {
             admin,
             Collections.emptyMap(),
             Mockito.mock(RequestJournal.class),
+            Collections.emptyList(),
             Collections.emptyList(),
             false,
             NO_TRUNCATION,

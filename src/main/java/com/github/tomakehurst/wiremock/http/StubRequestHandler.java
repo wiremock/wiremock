@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
@@ -50,10 +51,11 @@ public class StubRequestHandler extends AbstractRequestHandler {
       Map<String, PostServeAction> postServeActions,
       RequestJournal requestJournal,
       List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
       boolean loggingDisabled,
       DataTruncationSettings dataTruncationSettings,
       NotMatchedRenderer notMatchedRenderer) {
-    super(responseRenderer, requestFilters, dataTruncationSettings);
+    super(responseRenderer, requestFilters, v2RequestFilters, dataTruncationSettings);
     this.stubServer = stubServer;
     this.admin = admin;
     this.postServeActions = postServeActions;

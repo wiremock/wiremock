@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
-import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.http.Request;
+public interface AdminRequestFilterV2 extends RequestFilterV2 {
 
-@Deprecated
-/** @deprecated Use {@link RequestFilterV2} instead */
-public interface RequestFilter extends Extension {
+  @Override
+  default boolean applyToAdmin() {
+    return true;
+  }
 
-  RequestFilterAction filter(Request request);
-
-  boolean applyToAdmin();
-
-  boolean applyToStubs();
+  @Override
+  default boolean applyToStubs() {
+    return false;
+  }
 }

@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -166,6 +167,7 @@ public class WireMockApp implements StubServer, Admin {
         options.getAdminAuthenticator(),
         options.getHttpsRequiredForAdminApi(),
         getAdminRequestFilters(),
+        getV2AdminRequestFilters(),
         options.getDataTruncationSettings());
   }
 
@@ -194,6 +196,7 @@ public class WireMockApp implements StubServer, Admin {
         postServeActions,
         requestJournal,
         getStubRequestFilters(),
+        getV2StubRequestFilters(),
         options.getStubRequestLoggingDisabled(),
         options.getDataTruncationSettings(),
         options.getNotMatchedRenderer());
@@ -205,9 +208,21 @@ public class WireMockApp implements StubServer, Admin {
         .collect(Collectors.toList());
   }
 
+  private List<RequestFilterV2> getV2AdminRequestFilters() {
+    return options.extensionsOfType(RequestFilterV2.class).values().stream()
+        .filter(RequestFilterV2::applyToAdmin)
+        .collect(Collectors.toList());
+  }
+
   private List<RequestFilter> getStubRequestFilters() {
     return options.extensionsOfType(RequestFilter.class).values().stream()
         .filter(RequestFilter::applyToStubs)
+        .collect(Collectors.toList());
+  }
+
+  private List<RequestFilterV2> getV2StubRequestFilters() {
+    return options.extensionsOfType(RequestFilterV2.class).values().stream()
+        .filter(RequestFilterV2::applyToStubs)
         .collect(Collectors.toList());
   }
 
