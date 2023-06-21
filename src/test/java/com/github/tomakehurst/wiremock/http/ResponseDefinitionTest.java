@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,7 @@ public class ResponseDefinitionTest {
   public void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {
     ResponseDefinition response =
         ResponseDefinition.browserProxy(
-            MockRequest.mockRequest()
-                .host("http://my.domain")
-                .url("/path")
-                .isBrowserProxyRequest(true));
+            MockRequest.mockRequest().host("my.domain").url("/path").isBrowserProxyRequest(true));
 
     assertThat(response.getProxyUrl(), equalTo("http://my.domain/path"));
   }

@@ -13,20 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Collections;
-import java.util.List;
 
-public class FormParameter extends MultiValue {
+public class DiffEventData {
 
-  public FormParameter(
-      @JsonProperty("key") String key, @JsonProperty("values") List<String> values) {
-    super(key, values);
+  public static final String KEY = "DIFF_REPORT";
+
+  private final int status;
+  private final String contentType;
+  private final String report;
+
+  public DiffEventData(
+      @JsonProperty("status") int status,
+      @JsonProperty("contentType") String contentType,
+      @JsonProperty("report") String report) {
+    this.status = status;
+    this.contentType = contentType;
+    this.report = report;
   }
 
-  public static FormParameter absent(String key) {
-    return new FormParameter(key, Collections.emptyList());
+  public int getStatus() {
+    return status;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
+
+  public String getReport() {
+    return report;
   }
 }

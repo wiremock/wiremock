@@ -51,6 +51,9 @@ public class DisabledRequestJournal implements RequestJournal {
   public void requestReceived(ServeEvent serveEvent) {}
 
   @Override
+  public void serveCompleted(ServeEvent serveEvent) {}
+
+  @Override
   public void removeEvent(UUID eventId) {}
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -51,11 +50,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void mergesASimpleValueFromRequestIntoResponseBody() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
   }
@@ -63,11 +61,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
 
     assertThat(
         responseDefinition.getBody(), startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
@@ -76,7 +73,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void listResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/json")
                 .body(
@@ -95,10 +93,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "}"),
             aResponse()
                 .withBody(
-                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
@@ -106,7 +101,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void mapResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/json")
                 .body(
@@ -120,10 +116,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             aResponse()
                 .withBody(
                     ""
-                        + "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                        + "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
   }
@@ -131,7 +124,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void singleValueResultFromJsonPathQueryCanBeUsedByHandlebarsIfHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/json")
                 .body(
@@ -146,10 +140,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     ""
                         + "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
-                        + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                        + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
 
     assertThat(responseDefinition.getBody(), containsString("One"));
     assertThat(responseDefinition.getBody(), not(containsString("Two")));
@@ -293,11 +284,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
         };
 
     final ResponseDefinition responseDefinition =
-        transformer.transform(
-            mockRequest(),
-            aResponse().withBody("{{jsonPath mapData '$.things'}}").build(),
-            noFileSource(),
-            Parameters.empty());
+        transform(
+            transformer, mockRequest(), aResponse().withBody("{{jsonPath mapData '$.things'}}"));
 
     assertThat(responseDefinition.getBody(), is("abc"));
   }

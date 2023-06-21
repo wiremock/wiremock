@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -25,7 +26,6 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,8 +106,8 @@ public class StubResponseRendererTest {
   }
 
   private ServeEvent createServeEvent(Integer fixedDelayMillis) {
-    return ServeEvent.of(
-        LoggedRequest.createFrom(mockRequest()),
+    return newPostMatchServeEvent(
+        mockRequest(),
         new ResponseDefinition(
             0,
             "",

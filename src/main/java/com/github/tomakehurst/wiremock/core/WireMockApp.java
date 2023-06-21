@@ -104,6 +104,7 @@ public class WireMockApp implements StubServer, Admin {
             scenarios,
             customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
+            options.extensionsOfType(ResponseDefinitionTransformerV2.class),
             stores.getFilesBlobStore(),
             ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values()));
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
@@ -122,6 +123,7 @@ public class WireMockApp implements StubServer, Admin {
       boolean requestJournalDisabled,
       Integer maxRequestJournalEntries,
       Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
       Map<String, RequestMatcherExtension> requestMatchers,
       FileSource rootFileSource,
       Container container) {
@@ -144,8 +146,9 @@ public class WireMockApp implements StubServer, Admin {
             scenarios,
             requestMatchers,
             transformers,
+            v2transformers,
             stores.getFilesBlobStore(),
-            Collections.<StubLifecycleListener>emptyList());
+            Collections.emptyList());
     this.container = container;
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder = new Recorder(this, stores.getRecorderStateStore());
@@ -155,10 +158,7 @@ public class WireMockApp implements StubServer, Admin {
 
   public AdminRequestHandler buildAdminRequestHandler() {
     AdminRoutes adminRoutes =
-        AdminRoutes.forServer(
-            options.extensionsOfType(AdminApiExtension.class).values(),
-            options.getNotMatchedRenderer(),
-            stores);
+        AdminRoutes.forServer(options.extensionsOfType(AdminApiExtension.class).values(), stores);
     return new AdminRequestHandler(
         adminRoutes,
         this,
@@ -194,7 +194,8 @@ public class WireMockApp implements StubServer, Admin {
         requestJournal,
         getStubRequestFilters(),
         options.getStubRequestLoggingDisabled(),
-        options.getDataTruncationSettings());
+        options.getDataTruncationSettings(),
+        options.getNotMatchedRenderer());
   }
 
   private List<RequestFilter> getAdminRequestFilters() {
@@ -225,7 +226,8 @@ public class WireMockApp implements StubServer, Admin {
       if (browserProxyingEnabled
           && serveEvent.getRequest().isBrowserProxyRequest()
           && getGlobalSettings().getSettings().getProxyPassThrough()) {
-        return ServeEvent.of(serveEvent.getRequest(), ResponseDefinition.browserProxy(serveEvent.getRequest()));
+        return ServeEvent.ofUnmatched(
+            serveEvent.getRequest(), ResponseDefinition.browserProxy(serveEvent.getRequest()));
       }
     }
 

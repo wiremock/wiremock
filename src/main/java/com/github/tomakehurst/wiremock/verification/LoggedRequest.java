@@ -26,15 +26,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
@@ -58,6 +54,9 @@ public class LoggedRequest implements Request {
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
+        request.getScheme(),
+        request.getHost(),
+        request.getPort(),
         request.getUrl(),
         request.getAbsoluteUrl(),
         request.getMethod(),
@@ -73,7 +72,7 @@ public class LoggedRequest implements Request {
   }
 
   @JsonCreator
-  public LoggedRequest(
+  LoggedRequest(
       @JsonProperty("url") String url,
       @JsonProperty("absoluteUrl") String absoluteUrl,
       @JsonProperty("method") RequestMethod method,
@@ -87,6 +86,9 @@ public class LoggedRequest implements Request {
       @JsonProperty("multiparts") Collection<Part> multiparts,
       @JsonProperty("protocol") String protocol) {
     this(
+        null,
+        null,
+        null,
         url,
         absoluteUrl,
         method,
@@ -97,37 +99,14 @@ public class LoggedRequest implements Request {
         loggedDate,
         decodeBase64(bodyAsBase64),
         multiparts,
-        protocol);
-  }
-
-  public LoggedRequest(
-      String url,
-      String absoluteUrl,
-      RequestMethod method,
-      String clientIp,
-      HttpHeaders headers,
-      Map<String, Cookie> cookies,
-      boolean isBrowserProxyRequest,
-      Date loggedDate,
-      byte[] body,
-      Collection<Part> multiparts,
-      String protocol) {
-    this(
-        url,
-        absoluteUrl,
-        method,
-        clientIp,
-        headers,
-        cookies,
-        isBrowserProxyRequest,
-        loggedDate,
-        body,
-        multiparts,
         protocol,
         new HashMap<>());
   }
 
-  public LoggedRequest(
+  private LoggedRequest(
+      String scheme,
+      String host,
+      Integer port,
       String url,
       String absoluteUrl,
       RequestMethod method,
@@ -144,14 +123,14 @@ public class LoggedRequest implements Request {
 
     this.absoluteUrl = absoluteUrl;
     if (absoluteUrl == null) {
-      this.scheme = null;
-      this.host = null;
-      this.port = -1;
+      this.scheme = scheme;
+      this.host = host;
+      this.port = port != null ? port : -1;
     } else {
       URL fullUrl = safelyCreateURL(absoluteUrl);
       this.scheme = fullUrl.getProtocol();
       this.host = fullUrl.getHost();
-      this.port = fullUrl.getPort();
+      this.port = Urls.getPort(fullUrl);
     }
 
     this.clientIp = clientIp;
@@ -159,7 +138,7 @@ public class LoggedRequest implements Request {
     this.body = body;
     this.headers = headers;
     this.cookies = cookies;
-    this.queryParams = splitQueryFromUrl(url);
+    this.queryParams = url != null ? splitQueryFromUrl(url) : Collections.emptyMap();
     this.formParameters = formParameters;
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;

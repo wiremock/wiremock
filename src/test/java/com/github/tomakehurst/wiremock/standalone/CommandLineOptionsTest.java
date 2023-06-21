@@ -52,6 +52,7 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -719,7 +720,7 @@ public class CommandLineOptionsTest {
         options.extensionsOfType(StubLifecycleListener.class).get(ResponseTemplateTransformer.NAME);
     Object two =
         options
-            .extensionsOfType(ResponseDefinitionTransformer.class)
+            .extensionsOfType(ResponseDefinitionTransformerV2.class)
             .get(ResponseTemplateTransformer.NAME);
 
     assertSame(one, two);

@@ -24,13 +24,11 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -90,16 +88,18 @@ public class ResponseTemplateTransformer
   public ResponseDefinition transform(ServeEvent serveEvent, FileSource files) {
     final Request request = serveEvent.getRequest();
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    final Parameters parameters = responseDefinition.getTransformerParameters();
+    final Parameters parameters =
+        firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
 
     ResponseDefinitionBuilder newResponseDefBuilder =
         ResponseDefinitionBuilder.like(responseDefinition);
 
-    final PathTemplate pathTemplate = serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
+    final PathTemplate pathTemplate =
+        serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
 
     final ImmutableMap<String, Object> model =
         ImmutableMap.<String, Object>builder()
-            .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
+            .put("parameters", parameters)
             .put("request", RequestTemplateModel.from(request, pathTemplate))
             .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
             .build();

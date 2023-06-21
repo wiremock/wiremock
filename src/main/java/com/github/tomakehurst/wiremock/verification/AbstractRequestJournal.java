@@ -69,6 +69,11 @@ public abstract class AbstractRequestJournal implements RequestJournal {
   }
 
   @Override
+  public void serveCompleted(ServeEvent serveEvent) {
+    store.put(serveEvent.getId(), serveEvent);
+  }
+
+  @Override
   public void removeEvent(final UUID eventId) {
     store.remove(eventId);
   }

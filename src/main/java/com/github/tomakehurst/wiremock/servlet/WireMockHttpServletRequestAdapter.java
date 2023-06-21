@@ -25,17 +25,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.FormParameter;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -44,18 +36,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.UrlEncoded;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
   public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
   private final HttpServletRequest request;
-  private final MultipartRequestConfigurer multipartRequestConfigurer;
   private byte[] cachedBody;
   private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
 
-  private final Supplier<Map<String, FormParameter>> cachedFormParameters;
+  private final Map<String, FormParameter> cachedFormParameters;
   private final boolean browserProxyingEnabled;
   private final String urlPrefixToRemove;
   private Collection<Part> cachedMultiparts;
@@ -66,16 +60,15 @@ public class WireMockHttpServletRequestAdapter implements Request {
       String urlPrefixToRemove,
       boolean browserProxyingEnabled) {
     this.request = request;
-    this.multipartRequestConfigurer = multipartRequestConfigurer;
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
 
     cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
 
-    this.cachedFormParameters = Suppliers.memoize(() -> getFormParameters(request));
+    this.cachedFormParameters = getFormParameters(request);
 
     if (multipartRequestConfigurer != null) {
-      this.multipartRequestConfigurer.configure(request);
+      multipartRequestConfigurer.configure(request);
     }
   }
 
@@ -261,13 +254,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public FormParameter formParameter(String key) {
-    Map<String, FormParameter> formParameters = cachedFormParameters.get();
-    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return firstNonNull(cachedFormParameters.get(key), FormParameter.absent(key));
   }
 
   @Override
   public Map<String, FormParameter> formParameters() {
-    return cachedFormParameters.get();
+    return cachedFormParameters;
   }
 
   @Override
@@ -337,12 +329,20 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   private Map<String, FormParameter> getFormParameters(HttpServletRequest request) {
 
-    Map<String, QueryParameter> queryParameters = cachedQueryParams.get();
-    return request.getParameterMap().entrySet().stream()
-        .filter(entry -> queryParameters == null || !queryParameters.containsKey(entry.getKey()))
+    final String contentType = request.getContentType();
+    if (contentType == null || !contentType.contains("application/x-www-form-urlencoded")) {
+      return Collections.emptyMap();
+    }
+
+    final MultiMap<String> formParameterMultimap = new MultiMap<>();
+    final String characterEncoding = request.getCharacterEncoding();
+    final Charset charset =
+        characterEncoding != null ? Charset.forName(characterEncoding) : Charset.defaultCharset();
+    UrlEncoded.decodeTo(getBodyAsString(), formParameterMultimap, charset);
+
+    return formParameterMultimap.entrySet().stream()
         .collect(
             Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> FormParameter.formParam(entry.getKey(), entry.getValue())));
+                Map.Entry::getKey, entry -> new FormParameter(entry.getKey(), entry.getValue())));
   }
 }

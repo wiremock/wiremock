@@ -163,16 +163,9 @@ public class RequestFilterAcceptanceTest {
     @Override
     public RequestFilterAction filter(Request request) {
       Request newRequest =
-          new RequestWrapper(request) {
-            @Override
-            public HttpHeader header(String key) {
-              if (key.equals("X-Modify-Me")) {
-                return new HttpHeader("X-Modify-Me", "modified");
-              }
-
-              return super.header(key);
-            }
-          };
+          RequestWrapper.create()
+              .transformHeader("X-Modify-Me", values -> Collections.singletonList("modified"))
+              .wrap(request);
 
       return RequestFilterAction.continueWith(newRequest);
     }
