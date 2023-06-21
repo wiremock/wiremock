@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.Timing;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -203,6 +204,15 @@ public class ServeEvent {
     return stubMapping != null && stubMapping.getPostServeActions() != null
         ? getStubMapping().getPostServeActions()
         : Collections.emptyList();
+  }
+
+  @JsonIgnore
+  public Parameters getTransformerParameters() {
+    return stubMapping != null
+            && stubMapping.getResponse() != null
+            && stubMapping.getResponse().getTransformerParameters() != null
+        ? stubMapping.getResponse().getTransformerParameters()
+        : Parameters.empty();
   }
 
   public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST =

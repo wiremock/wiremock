@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
@@ -39,6 +40,7 @@ public class StubResponseRendererTest {
   private BlobStore filesBlobStore;
   private SettingsStore settingsStore;
   private List<ResponseTransformer> responseTransformers;
+  private List<ResponseTransformerV2> v2ResponseTransformers;
   private StubResponseRenderer stubResponseRenderer;
 
   @BeforeEach
@@ -46,8 +48,10 @@ public class StubResponseRendererTest {
     filesBlobStore = Mockito.mock(BlobStore.class);
     settingsStore = new InMemorySettingsStore();
     responseTransformers = new ArrayList<>();
+    v2ResponseTransformers = new ArrayList<>();
     stubResponseRenderer =
-        new StubResponseRenderer(filesBlobStore, settingsStore, null, responseTransformers);
+        new StubResponseRenderer(
+            filesBlobStore, settingsStore, null, responseTransformers, v2ResponseTransformers);
   }
 
   @Test

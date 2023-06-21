@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,22 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class ResponseDefinitionTransformerV2AcceptanceTest {
 
@@ -214,7 +211,10 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
     @Override
     public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
-      return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition()).but().withStatus(201).build();
+      return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
+          .but()
+          .withStatus(201)
+          .build();
     }
 
     @Override
@@ -295,7 +295,12 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
       return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
           .but()
-          .withBody(serveEvent.getStubMapping().getResponse().getTransformerParameters().getString("newBody"))
+          .withBody(
+              serveEvent
+                  .getStubMapping()
+                  .getResponse()
+                  .getTransformerParameters()
+                  .getString("newBody"))
           .build();
     }
 
