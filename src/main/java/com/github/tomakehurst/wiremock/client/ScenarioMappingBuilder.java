@@ -66,6 +66,8 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
 
   <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
 
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+
   ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
 
   ScenarioMappingBuilder withMetadata(Metadata metadata);

@@ -23,6 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -51,6 +52,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private String name;
   private Boolean isPersistent = null;
   private List<PostServeActionDefinition> postServeActions = newArrayList();
+  private List<ServeEventListenerDefinition> serveEventListeners = newArrayList();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
@@ -216,10 +218,20 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   @Override
   public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
-    Parameters params =
-        parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
-    postServeActions.add(new PostServeActionDefinition(extensionName, params));
+    postServeActions.add(
+        new PostServeActionDefinition(extensionName, resolveParameters(parameters)));
     return this;
+  }
+
+  @Override
+  public <P> MappingBuilder withServeEventListener(String extensionName, P parameters) {
+    serveEventListeners.add(
+        new ServeEventListenerDefinition(extensionName, resolveParameters(parameters)));
+    return this;
+  }
+
+  private static <P> Parameters resolveParameters(P parameters) {
+    return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
   }
 
   @Override
@@ -276,6 +288,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     mapping.setPersistent(isPersistent);
 
     mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
+    mapping.setServeEventListenerDefinitions(
+        serveEventListeners.isEmpty() ? null : serveEventListeners);
 
     mapping.setMetadata(metadata);
 

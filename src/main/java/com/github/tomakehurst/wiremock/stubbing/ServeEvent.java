@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -203,6 +204,13 @@ public class ServeEvent {
   public List<PostServeActionDefinition> getPostServeActions() {
     return stubMapping != null && stubMapping.getPostServeActions() != null
         ? getStubMapping().getPostServeActions()
+        : Collections.emptyList();
+  }
+
+  @JsonIgnore
+  public List<ServeEventListenerDefinition> getServeEventListeners() {
+    return stubMapping != null && stubMapping.getServeEventListeners() != null
+        ? getStubMapping().getServeEventListeners()
         : Collections.emptyList();
   }
 
