@@ -22,17 +22,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.LoggedResponse;
+import com.github.tomakehurst.wiremock.http.Response;
 import org.junit.jupiter.api.Test;
 
 class LoggedResponseTest {
-  private static String ISO_8859_1_RESPONSE_BODY = "köttfärssås";
+  private static final String ISO_8859_1_RESPONSE_BODY = "köttfärssås";
   private static final String UTF8_RESPONSE_BODY = "Foo © bar 𝌆 baz ☃ qux";
 
   @Test
   void returnsEmptyStringForBodyWhenNotConfigured() {
     LoggedResponse loggedResponse = LoggedResponse.from(Response.notConfigured(), UNLIMITED);
-    assertEquals(loggedResponse.getBodyAsString(), "");
+    assertEquals("", loggedResponse.getBodyAsString());
   }
 
   @Test
