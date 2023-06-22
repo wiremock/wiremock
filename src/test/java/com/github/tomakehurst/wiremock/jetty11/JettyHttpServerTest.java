@@ -69,6 +69,7 @@ public class JettyHttpServerTest {
             Mockito.mock(ResponseRenderer.class),
             admin,
             Collections.emptyMap(),
+            Collections.emptyMap(),
             Mockito.mock(RequestJournal.class),
             Collections.emptyList(),
             Collections.emptyList(),

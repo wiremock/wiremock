@@ -73,6 +73,8 @@ public interface MappingBuilder {
 
   <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
 
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+
   MappingBuilder withMetadata(Map<String, ?> metadata);
 
   MappingBuilder withMetadata(Metadata metadata);

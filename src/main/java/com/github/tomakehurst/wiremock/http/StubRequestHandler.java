@@ -21,9 +21,7 @@ import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -33,12 +31,14 @@ import com.github.tomakehurst.wiremock.verification.diff.DiffEventData;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 
   private final StubServer stubServer;
   private final Admin admin;
   private final Map<String, PostServeAction> postServeActions;
+  private final Map<String, ServeEventListener> serveEventListeners;
   private final RequestJournal requestJournal;
   private final boolean loggingDisabled;
 
@@ -49,6 +49,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
       ResponseRenderer responseRenderer,
       Admin admin,
       Map<String, PostServeAction> postServeActions,
+      Map<String, ServeEventListener> serveEventListeners,
       RequestJournal requestJournal,
       List<RequestFilter> requestFilters,
       List<RequestFilterV2> v2RequestFilters,
@@ -59,14 +60,18 @@ public class StubRequestHandler extends AbstractRequestHandler {
     this.stubServer = stubServer;
     this.admin = admin;
     this.postServeActions = postServeActions;
+    this.serveEventListeners = serveEventListeners;
     this.requestJournal = requestJournal;
     this.loggingDisabled = loggingDisabled;
     this.notMatchedRenderer = notMatchedRenderer;
   }
 
   @Override
-  public ServeEvent handleRequest(ServeEvent serveEvent) {
-    return stubServer.serveStubFor(serveEvent);
+  public ServeEvent handleRequest(ServeEvent initialServeEvent) {
+    triggerBeforeMatchListeners(initialServeEvent);
+    final ServeEvent serveEvent = stubServer.serveStubFor(initialServeEvent);
+    triggerAfterMatchListeners(serveEvent);
+    return serveEvent;
   }
 
   @Override
@@ -102,6 +107,12 @@ public class StubRequestHandler extends AbstractRequestHandler {
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {
     requestJournal.serveCompleted(serveEvent);
 
+    triggerPostServeActions(serveEvent);
+
+    triggerAfterCompleteListeners(serveEvent);
+  }
+
+  private void triggerPostServeActions(ServeEvent serveEvent) {
     for (PostServeAction postServeAction : postServeActions.values()) {
       postServeAction.doGlobalAction(serveEvent, admin);
     }
@@ -115,6 +126,58 @@ public class StubRequestHandler extends AbstractRequestHandler {
       } else {
         notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
       }
+    }
+  }
+
+  private void triggerBeforeMatchListeners(ServeEvent serveEvent) {
+    triggerListeners(
+        serveEvent,
+        (eventContext) ->
+            eventContext.listener.beforeMatch(eventContext.event, eventContext.parameters));
+  }
+
+  private void triggerAfterMatchListeners(ServeEvent serveEvent) {
+    triggerListeners(
+        serveEvent,
+        (eventContext) ->
+            eventContext.listener.afterMatch(eventContext.event, eventContext.parameters));
+  }
+
+  private void triggerAfterCompleteListeners(ServeEvent serveEvent) {
+    triggerListeners(
+        serveEvent,
+        (eventContext) ->
+            eventContext.listener.afterComplete(eventContext.event, eventContext.parameters));
+  }
+
+  private void triggerListeners(ServeEvent serveEvent, Consumer<EventContext> action) {
+    serveEventListeners.values().stream()
+        .filter(ServeEventListener::applyGlobally)
+        .forEach(
+            listener -> action.accept(new EventContext(listener, serveEvent, Parameters.empty())));
+
+    List<ServeEventListenerDefinition> serveEventListenerDefinitions =
+        serveEvent.getServeEventListeners();
+    for (ServeEventListenerDefinition listenerDef : serveEventListenerDefinitions) {
+      ServeEventListener listener = serveEventListeners.get(listenerDef.getName());
+      if (listener != null && !listener.applyGlobally()) {
+        Parameters parameters = listenerDef.getParameters();
+        action.accept(new EventContext(listener, serveEvent, parameters));
+      } else {
+        notifier().error("No per-stub listener was found named \"" + listenerDef.getName() + "\"");
+      }
+    }
+  }
+
+  private static final class EventContext {
+    final ServeEventListener listener;
+    final ServeEvent event;
+    final Parameters parameters;
+
+    public EventContext(ServeEventListener listener, ServeEvent event, Parameters parameters) {
+      this.listener = listener;
+      this.event = event;
+      this.parameters = parameters;
     }
   }
 }
