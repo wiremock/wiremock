@@ -26,6 +26,8 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.jayway.jsonpath.JsonPath;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,23 @@ public class MatchesJsonSchemaPatternTest {
         pattern.match(file("schema-validation/shop-order.slightly-wrong.json"));
     assertThat(lessBadMatchResult.isExactMatch(), is(false));
     assertThat(lessBadMatchResult.getDistance(), closeTo(0.33, 0.01));
+  }
+
+  private static List<String> invalidContent() {
+    return Arrays.asList(null, "", "not json", "{");
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidContent")
+  void invalidContentGivesNoMatch(String content) {
+    String schema = file("schema-validation/shop-order.schema.json");
+
+    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema);
+
+    MatchResult veryBadMatchResult = pattern.match(content);
+
+    assertThat(veryBadMatchResult.isExactMatch(), is(false));
+    assertThat(veryBadMatchResult.getDistance(), is(1.0));
   }
 
   @Test
