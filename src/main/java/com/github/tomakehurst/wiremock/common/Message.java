@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.matching;
+package com.github.tomakehurst.wiremock.common;
 
-import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class EagerMatchResult extends MatchResult {
+public class Message {
 
-  private final double distance;
+  private final String message;
 
-  EagerMatchResult(double distance) {
-    this(distance, List.of());
+  @JsonCreator
+  public Message(@JsonProperty("message") String message) {
+    this.message = message;
   }
 
-  EagerMatchResult(double distance, List<SubEvent> subEvents) {
-    super(subEvents);
-    this.distance = distance;
-  }
-
-  public double getDistance() {
-    return distance;
-  }
-
-  public boolean isExactMatch() {
-    return distance == 0;
+  public String getMessage() {
+    return message;
   }
 }

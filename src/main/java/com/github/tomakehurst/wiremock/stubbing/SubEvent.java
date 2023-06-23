@@ -17,35 +17,61 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Message;
 import java.util.Map;
 
 public class SubEvent {
 
   public static final String NON_MATCH_TYPE = "REQUEST_NOT_MATCHED";
+  public static final String JSON_ERROR = "JSON_ERROR";
+  public static final String XML_ERROR = "XML";
+  public static final String INFO = "INFO";
+  public static final String WARNING = "WARNING";
+  public static final String ERROR = "ERROR";
   private final String type;
 
-  private final long timeOffsetNanos;
+  private final Long timeOffsetNanos;
 
   private final Map<String, Object> data;
 
+  public static SubEvent info(String message) {
+    return message(INFO, message);
+  }
+
+  public static SubEvent warning(String message) {
+    return message(WARNING, message);
+  }
+
+  public static SubEvent error(String message) {
+    return message(ERROR, message);
+  }
+
+  public static SubEvent message(String type, String message) {
+    return new SubEvent(type, null, new Message(message));
+  }
+
+  public SubEvent(String type, Object data) {
+    this(type, null, data);
+  }
+
+  public SubEvent(String type, Long timeOffsetMillis, Object data) {
+    this(type, timeOffsetMillis, Json.objectToMap(data));
+  }
+
   public SubEvent(
       @JsonProperty("type") String type,
-      @JsonProperty("timeOffsetNanos") long timeOffsetNanos,
+      @JsonProperty("timeOffsetNanos") Long timeOffsetNanos,
       @JsonProperty("data") Map<String, Object> data) {
     this.type = type;
     this.timeOffsetNanos = timeOffsetNanos;
     this.data = data;
   }
 
-  public SubEvent(String type, long timeOffsetMillis, Object data) {
-    this(type, timeOffsetMillis, Json.objectToMap(data));
-  }
-
   public String getType() {
     return type;
   }
 
-  public long getTimeOffsetNanos() {
+  public Long getTimeOffsetNanos() {
     return timeOffsetNanos;
   }
 

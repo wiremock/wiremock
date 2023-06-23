@@ -19,9 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
@@ -29,10 +27,7 @@ import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
 import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
 import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.google.common.collect.ImmutableSet;
@@ -511,5 +506,17 @@ public class EqualToXmlPatternTest {
     assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
+  }
+
+  @Test
+  void subEventIsReturnedOnXmlParsingError() {
+    MatchResult match = new EqualToXmlPattern("<things />").match("<wrong");
+
+    assertThat(match.isExactMatch(), is(false));
+    assertThat(match.getSubEvents().size(), is(1));
+    String message =
+        match.getSubEvents().stream().findFirst().get().getData().get("message").toString();
+    assertThat(
+        message, startsWith("XML document structures must start and end within the same entity"));
   }
 }
