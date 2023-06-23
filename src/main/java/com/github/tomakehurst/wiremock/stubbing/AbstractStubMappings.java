@@ -36,10 +36,7 @@ import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
@@ -72,15 +69,20 @@ public abstract class AbstractStubMappings implements StubMappings {
   @Override
   public ServeEvent serveFor(ServeEvent initialServeEvent) {
     final LoggedRequest request = initialServeEvent.getRequest();
+
+    final List<SubEvent> subEvents = new LinkedList<>();
+
     StubMapping matchingMapping =
         store
-            .findAllMatchingRequest(request, customMatchers)
+            .findAllMatchingRequest(request, customMatchers, subEvents::add)
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()
                         || scenarios.mappingMatchesScenarioState(stubMapping))
             .findFirst()
             .orElse(StubMapping.NOT_CONFIGURED);
+
+    subEvents.forEach(initialServeEvent::appendSubEvent);
 
     scenarios.onStubServed(matchingMapping);
 
@@ -172,7 +174,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   public void editMapping(StubMapping stubMapping) {
     final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
-    if (!optionalExistingMapping.isPresent()) {
+    if (optionalExistingMapping.isEmpty()) {
       String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
       notifier().error(msg);
       throw new NotFoundException(msg);

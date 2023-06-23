@@ -190,7 +190,11 @@ public class ServeEvent {
 
   public void appendSubEvent(String type, Object data) {
     final long elapsedNanos = stopwatch.elapsed(NANOSECONDS);
-    subEvents.add(new SubEvent(type, elapsedNanos, data));
+    appendSubEvent(new SubEvent(type, elapsedNanos, data));
+  }
+
+  public void appendSubEvent(SubEvent subEvent) {
+    subEvents.add(subEvent);
   }
 
   @JsonIgnore

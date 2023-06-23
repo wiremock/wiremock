@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public interface StubMappingStore {
@@ -30,10 +31,16 @@ public interface StubMappingStore {
   Optional<StubMapping> get(UUID id);
 
   default Stream<StubMapping> findAllMatchingRequest(
-      Request request, Map<String, RequestMatcherExtension> customMatchers) {
+      Request request,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Consumer<SubEvent> subEventConsumer) {
     return getAll()
-        .filter(
-            stubMapping -> stubMapping.getRequest().match(request, customMatchers).isExactMatch());
+        .map(
+            stubMapping ->
+                Pair.pair(stubMapping, stubMapping.getRequest().match(request, customMatchers)))
+        .peek(stubAndMatchResult -> stubAndMatchResult.b.getSubEvents().forEach(subEventConsumer))
+        .filter(stubAndMatchResult -> stubAndMatchResult.b.isExactMatch())
+        .map(stubAndMatchResult -> stubAndMatchResult.a);
   }
 
   void add(StubMapping stub);

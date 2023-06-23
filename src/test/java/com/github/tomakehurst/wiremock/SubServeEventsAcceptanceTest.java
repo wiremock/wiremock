@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.github.tomakehurst.wiremock.verification.diff.DiffEventData;
@@ -40,12 +41,22 @@ public class SubServeEventsAcceptanceTest extends AcceptanceTestBase {
     assertThat(subEvent.getDataAs(DiffEventData.class).getReport(), containsString("/wrong"));
   }
 
-  // Exceptions are saved as sub events
+  @Test
+  void errorsDuringMatchingAreCapturedInSubEvents() {
+    wm.stubFor(
+        post("/json").withRequestBody(equalToJson("{ \"thing\": \"value\" }")).willReturn(ok()));
 
-  // Response(Definition)Transformers can attach sub events
+    testClient.postJson("/json", "{ \"thing\": ");
 
-  // PostServeActions can attach sub events
-
-  // ServeEvents are saved to the store at the end of processing (maybe this needs to be a unit
-  // test)
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    SubEvent failedJsonParseWarning =
+        serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.JSON_ERROR))
+            .findFirst()
+            .get();
+    Errors.Error error =
+        failedJsonParseWarning.getDataAs(Errors.class).getErrors().stream().findFirst().get();
+    assertThat(
+        error.getDetail(), containsString("Unexpected end-of-input within/between Object entries"));
+  }
 }
