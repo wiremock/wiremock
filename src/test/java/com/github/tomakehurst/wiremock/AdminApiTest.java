@@ -61,7 +61,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class AdminApiTest extends AcceptanceTestBase {
+class AdminApiTest extends AcceptanceTestBase {
 
   static Stubbing dsl = wireMockServer;
 
@@ -81,7 +81,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllStubMappings() throws Exception {
+  void getAllStubMappings() throws Exception {
     StubMapping stubMapping =
         dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
 
@@ -98,7 +98,8 @@ public class AdminApiTest extends AcceptanceTestBase {
             + "\",\n"
             + "    \"request\" : {                            \n"
             + "      \"url\" : \"/my-test-url\",              \n"
-            + "      \"method\" : \"GET\"                     \n"
+            + "      \"method\" : \"GET\",                    \n"
+            + "      \"methods\" : [\"GET\"]                  \n"
             + "    },                                         \n"
             + "    \"response\" : {                           \n"
             + "      \"status\" : 418                         \n"
@@ -172,7 +173,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getStubMappingById() throws Exception {
+  void getStubMappingById() throws Exception {
     UUID id = UUID.randomUUID();
 
     dsl.stubFor(
@@ -192,7 +193,8 @@ public class AdminApiTest extends AcceptanceTestBase {
             + "\",              \n"
             + "    \"request\" : {                        \n"
             + "      \"url\" : \"/my-addressable-stub\",  \n"
-            + "      \"method\" : \"TRACE\"               \n"
+            + "      \"method\" : \"TRACE\",              \n"
+            + "      \"methods\" : [\"TRACE\"]            \n"
             + "    },                                     \n"
             + "    \"response\" : {                       \n"
             + "      \"status\" : 451                     \n"
@@ -203,7 +205,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequests() throws Exception {
+  public void getLoggedRequests() {
     dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
 
     for (int i = 1; i <= 5; i++) {

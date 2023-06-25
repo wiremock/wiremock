@@ -226,7 +226,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         host,
         port,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
-        firstNonNull(methods, List.of(method)),
+        firstNonNull(methods, List.of(firstNonNull(method, RequestMethod.ANY))),
         headers,
         pathParams,
         queryParams,

@@ -55,10 +55,10 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class RequestPatternTest {
+class RequestPatternTest {
 
   @Test
-  public void matchesExactlyWith0DistanceWhenUrlAndMethodAreExactMatch() {
+  void matchesExactlyWith0DistanceWhenUrlAndMethodAreExactMatch() {
     RequestPattern requestPattern = newRequestPattern(PUT, urlPathEqualTo("/my/url")).build();
 
     MatchResult matchResult = requestPattern.match(mockRequest().method(PUT).url("/my/url"));
@@ -67,7 +67,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void returnsNon0DistanceWhenUrlDoesNotMatch() {
+  void returnsNon0DistanceWhenUrlDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url")).withUrl("/my/url").build();
 
@@ -77,7 +77,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWith0DistanceWhenAllRequiredHeadersMatch() {
+  void matchesExactlyWith0DistanceWhenAllRequiredHeadersMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withHeader("My-Header", equalTo("my-expected-header-val"))
@@ -91,7 +91,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenHeaderDoesNotMatch() {
+  void doesNotMatchWhenHeaderDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(GET, urlPathEqualTo("/my/url"))
             .withHeader("My-Header", equalTo("my-expected-header-val"))
@@ -110,7 +110,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWhenRequiredAbsentHeaderIsAbsent() {
+  void matchesExactlyWhenRequiredAbsentHeaderIsAbsent() {
     RequestPattern requestPattern =
         newRequestPattern(GET, urlPathEqualTo("/my/url"))
             .withHeader("My-Header", absent())
@@ -128,7 +128,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenRequiredAbsentHeaderIsPresent() {
+  void doesNotMatchWhenRequiredAbsentHeaderIsPresent() {
     RequestPattern requestPattern =
         newRequestPattern(GET, urlPathEqualTo("/my/url"))
             .withHeader("My-Header", absent())
@@ -147,53 +147,55 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternForUrl() throws Exception {
+  void bindsToJsonCompatibleWithOriginalRequestPatternForUrl() throws Exception {
     RequestPattern requestPattern = newRequestPattern(GET, urlEqualTo("/my/url")).build();
 
     String actualJson = Json.write(requestPattern);
 
     JSONAssert.assertEquals(
         "{									                \n"
-            + "		\"method\": \"GET\",						\n"
-            + "		\"url\": \"/my/url\"                		\n"
+            + "		\"url\": \"/my/url\",               \n"
+            + "		\"method\": \"GET\",						    \n"
+            + "		\"methods\": [\"GET\"]						  \n"
             + "}												    ",
         actualJson,
         true);
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPattern() throws Exception {
+  void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPattern() throws Exception {
     RequestPattern requestPattern = newRequestPattern(GET, urlMatching("/my/url")).build();
 
     String actualJson = Json.write(requestPattern);
 
     JSONAssert.assertEquals(
         "{									                \n"
-            + "		\"method\": \"GET\",						\n"
-            + "		\"urlPattern\": \"/my/url\"           		\n"
+            + "		\"urlPattern\": \"/my/url\",        \n"
+            + "		\"method\": \"GET\",						    \n"
+            + "		\"methods\": [\"GET\"]						  \n"
             + "}												    ",
         actualJson,
         true);
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathPattern() throws Exception {
+  void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathPattern() throws Exception {
     RequestPattern requestPattern = newRequestPattern(GET, urlPathMatching("/my/url")).build();
 
     String actualJson = Json.write(requestPattern);
 
     JSONAssert.assertEquals(
         "{									                \n"
-            + "		\"method\": \"GET\",						\n"
-            + "		\"urlPathPattern\": \"/my/url\"             \n"
+            + "		\"urlPathPattern\": \"/my/url\",    \n"
+            + "		\"method\": \"GET\",						    \n"
+            + "		\"methods\": [\"GET\"]						  \n"
             + "}												    ",
         actualJson,
         true);
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathAndHeaders()
-      throws Exception {
+  void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathAndHeaders() throws Exception {
     RequestPattern requestPattern =
         newRequestPattern(GET, urlPathEqualTo("/my/url"))
             .withHeader("Accept", matching("(.*)xml(.*)"))
@@ -207,8 +209,9 @@ public class RequestPatternTest {
 
   static final String URL_PATH_AND_HEADERS_EXAMPLE =
       "{									                \n"
-          + "		\"method\": \"GET\",						\n"
           + "		\"urlPath\": \"/my/url\",             		\n"
+          + "		\"method\": \"GET\",						\n"
+          + "		\"methods\": [\"GET\"],						\n"
           + "		\"headers\": {								\n"
           + "			\"Accept\": {							\n"
           + "				\"matches\": \"(.*)xml(.*)\"		\n"
@@ -220,7 +223,7 @@ public class RequestPatternTest {
           + "}												    ";
 
   @Test
-  public void matchesExactlyWith0DistanceWhenAllRequiredQueryParametersMatch() {
+  void matchesExactlyWith0DistanceWhenAllRequiredQueryParametersMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withQueryParam("param1", equalTo("1"))
@@ -234,7 +237,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void returnsNon0DistanceWhenRequiredQueryParameterMatchDoesNotMatch() {
+  void returnsNon0DistanceWhenRequiredQueryParameterMatchDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withQueryParam("param1", equalTo("1"))
@@ -248,7 +251,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternWithQueryParams() throws Exception {
+  void bindsToJsonCompatibleWithOriginalRequestPatternWithQueryParams() throws Exception {
     RequestPattern requestPattern =
         newRequestPattern(GET, urlPathEqualTo("/my/url"))
             .withQueryParam("param1", equalTo("1"))
@@ -258,9 +261,10 @@ public class RequestPatternTest {
     String actualJson = Json.write(requestPattern);
 
     JSONAssert.assertEquals(
-        "{                              \n"
-            + "    \"method\": \"GET\",       \n"
+        "{                         \n"
             + "    \"urlPath\": \"/my/url\",  \n"
+            + "    \"method\": \"GET\",       \n"
+            + "    \"methods\": [\"GET\"],    \n"
             + "    \"queryParameters\": {     \n"
             + "        \"param1\": {          \n"
             + "            \"equalTo\": \"1\" \n"
@@ -275,7 +279,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWith0DistanceWhenAllRequiredFormParametersMatch() {
+  void matchesExactlyWith0DistanceWhenAllRequiredFormParametersMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withFormParam("key1", equalTo("value1"))
@@ -293,7 +297,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void returnsNon0DistanceWhenRequiredFormParameterMatchDoesNotMatch() {
+  void returnsNon0DistanceWhenRequiredFormParameterMatchDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withFormParam("key1", equalTo("value1"))
@@ -312,7 +316,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void bindsToJsonCompatibleWithOriginalRequestPatternWithFormParams() throws Exception {
+  void bindsToJsonCompatibleWithOriginalRequestPatternWithFormParams() throws Exception {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withFormParam("key1", equalTo("value1"))
@@ -325,7 +329,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void correctlyDeserializesFormParams() {
+  void correctlyDeserializesFormParams() {
     RequestPattern requestPattern =
         Json.read(getFormParameterRequestPatternJson(), RequestPattern.class);
     assertTrue(
@@ -344,8 +348,9 @@ public class RequestPatternTest {
 
   private String getFormParameterRequestPatternJson() {
     return "{                              \n"
-        + "    \"method\": \"POST\",       \n"
         + "    \"urlPath\": \"/my/url\",  \n"
+        + "    \"method\": \"POST\",       \n"
+        + "    \"methods\": [\"POST\"],       \n"
         + "    \"formParameters\": {     \n"
         + "        \"key1\": {          \n"
         + "            \"equalTo\": \"value1\" \n"
@@ -358,7 +363,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWith0DistanceWhenBodyPatternsAllMatch() {
+  void matchesExactlyWith0DistanceWhenBodyPatternsAllMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withRequestBody(equalTo("exactwordone approxwordtwo blah blah"))
@@ -373,7 +378,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchExactlyWhenOneBodyPatternDoesNotMatch() {
+  void doesNotMatchExactlyWhenOneBodyPatternDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withRequestBody(equalTo("exactwordone approxwordtwo blah blah"))
@@ -388,7 +393,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWith0DistanceWhenMultipartPatternsAllMatch() {
+  void matchesExactlyWith0DistanceWhenMultipartPatternsAllMatch() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withAnyRequestBodyPart(
@@ -422,7 +427,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchExactlyWhenOneMultipartBodyPatternDoesNotMatch() {
+  void doesNotMatchExactlyWhenOneMultipartBodyPatternDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withAnyRequestBodyPart(
@@ -445,7 +450,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchExactlyWhenOneMultipartHeaderPatternDoesNotMatch() {
+  void doesNotMatchExactlyWhenOneMultipartHeaderPatternDoesNotMatch() {
     RequestPattern requestPattern =
         newRequestPattern(PUT, urlPathEqualTo("/my/url"))
             .withAnyRequestBodyPart(
@@ -470,7 +475,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWith0DistanceWhenAllMultipartPatternsMatchAllParts() {
+  void matchesExactlyWith0DistanceWhenAllMultipartPatternsMatchAllParts() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withAllRequestBodyParts(
@@ -498,7 +503,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void matchesExactlyWhenAllCookiesMatch() {
+  void matchesExactlyWhenAllCookiesMatch() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withCookie("my_cookie", equalTo("my-cookie-value"))
@@ -513,7 +518,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenARequiredCookieIsMissing() {
+  void doesNotMatchWhenARequiredCookieIsMissing() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withCookie("my_cookie", equalTo("my-cookie-value"))
@@ -525,7 +530,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenRequiredCookieValueIsWrong() {
+  void doesNotMatchWhenRequiredCookieValueIsWrong() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withCookie("my_cookie", equalTo("my-cookie-value"))
@@ -539,7 +544,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
+  void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))
             .withCookie("my_cookie", absent())
@@ -556,6 +561,7 @@ public class RequestPatternTest {
       "{                                                      \n"
           + "    \"url\" : \"/all/body/patterns\",                  \n"
           + "    \"method\" : \"PUT\",                              \n"
+          + "    \"methods\" : [ \"PUT\" ],                         \n"
           + "    \"bodyPatterns\" : [                               \n"
           + "        { \"equalTo\": \"thing\" },                    \n"
           + "        { \"equalToJson\": \"{ \\\"thing\\\": 1 }\" }, \n"
@@ -570,9 +576,8 @@ public class RequestPatternTest {
           + "    ]                                                  \n"
           + "}";
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void correctlyDeserialisesBodyPatterns() {
+  void correctlyDeserialisesBodyPatterns() {
     RequestPattern pattern = Json.read(ALL_BODY_PATTERNS_EXAMPLE, RequestPattern.class);
     assertThat(
         pattern.getBodyPatterns(),
@@ -590,7 +595,7 @@ public class RequestPatternTest {
   }
 
   @Test
-  public void correctlySerialisesBodyPatterns() throws Exception {
+  void correctlySerialisesBodyPatterns() throws Exception {
     RequestPattern requestPattern =
         newRequestPattern(RequestMethod.PUT, urlEqualTo("/all/body/patterns"))
             .withRequestBody(equalTo("thing"))
@@ -611,7 +616,7 @@ public class RequestPatternTest {
 
   static Matcher<ContentPattern<?>> valuePattern(
       final Class<? extends StringValuePattern> patternClass, final String expectedValue) {
-    return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
         return item.getClass().equals(patternClass) && item.getValue().equals(expectedValue);
@@ -631,7 +636,7 @@ public class RequestPatternTest {
   static Matcher<ContentPattern<?>> notValuePattern(
       final Class<? extends StringValuePattern> patternClass,
       final StringValuePattern unexpectedPattern) {
-    return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
         return item.getClass().equals(patternClass)

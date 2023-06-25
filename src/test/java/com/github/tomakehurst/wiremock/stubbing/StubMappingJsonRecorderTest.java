@@ -372,6 +372,7 @@ public class StubMappingJsonRecorderTest {
           + "   \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",          \n"
           + "	\"request\": {									             \n"
           + "		\"method\": \"GET\",						             \n"
+          + "		\"methods\": [\"GET\"],						             \n"
           + "		\"url\": \"/gzipped/content\"				             \n"
           + "	},												             \n"
           + "	\"response\": {									             \n"
@@ -381,7 +382,7 @@ public class StubMappingJsonRecorderTest {
           + "}													               ";
 
   @Test
-  public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader() {
+  void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader() {
     when(admin.countRequestsMatching((any(RequestPattern.class))))
         .thenReturn(VerificationResult.withCount(0));
 

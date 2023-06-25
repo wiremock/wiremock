@@ -581,7 +581,7 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    public void showsExpectedRequestAndCountShortfallWhenNotEnoughMatchingRequestsAreReceived() {
+    void showsExpectedRequestAndCountShortfallWhenNotEnoughMatchingRequestsAreReceived() {
       testClient.get("/hit");
       testClient.get("/hit");
 
@@ -597,7 +597,9 @@ public class VerificationAcceptanceTest {
                     + lineSeparator()
                     + "  \"url\" : \"/hit\","
                     + lineSeparator()
-                    + "  \"method\" : \"GET\""
+                    + "  \"method\" : \"GET\","
+                    + lineSeparator()
+                    + "  \"methods\" : [ \"GET\" ]"
                     + lineSeparator()
                     + "}"));
       }
@@ -618,8 +620,7 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    public void
-        showsExpectedRequestAndCountShortfallWhenWrongNumberOfMatchingRequestsAreReceived() {
+    void showsExpectedRequestAndCountShortfallWhenWrongNumberOfMatchingRequestsAreReceived() {
       testClient.get("/hit");
       testClient.get("/hit");
       testClient.get("/hit");
@@ -637,7 +638,9 @@ public class VerificationAcceptanceTest {
                     + lineSeparator()
                     + "  \"url\" : \"/hit\","
                     + lineSeparator()
-                    + "  \"method\" : \"GET\""
+                    + "  \"method\" : \"GET\","
+                    + lineSeparator()
+                    + "  \"methods\" : [ \"GET\" ]"
                     + lineSeparator()
                     + "}"));
       }

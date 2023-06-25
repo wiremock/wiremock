@@ -106,8 +106,7 @@ public class RequestPatternBuilder {
     builder.hostPattern = requestPattern.getHost();
     builder.port = requestPattern.getPort();
     builder.url = requestPattern.getUrlMatcher();
-    builder.method = requestPattern.getMethod();
-    builder.methods.add(builder.method);
+    builder.methods = requestPattern.getMethods();
     if (requestPattern.getHeaders() != null) {
       builder.headers = requestPattern.getHeaders();
     }
@@ -262,7 +261,7 @@ public class RequestPatternBuilder {
         hostPattern,
         port,
         url,
-        methods,
+        methods.isEmpty() ? List.of(method) : methods,
         headers.isEmpty() ? null : headers,
         pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,
