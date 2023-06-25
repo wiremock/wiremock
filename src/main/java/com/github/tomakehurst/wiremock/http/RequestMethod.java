@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
@@ -44,6 +46,11 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   @JsonCreator
   public static RequestMethod fromString(String value) {
     return new RequestMethod(value);
+  }
+
+  @JsonCreator
+  public static List<RequestMethod> fromList(List<String> values) {
+    return values.stream().map(RequestMethod::fromString).collect(Collectors.toList());
   }
 
   @JsonValue

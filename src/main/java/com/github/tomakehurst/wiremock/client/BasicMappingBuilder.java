@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -35,13 +34,16 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
-  private RequestPatternBuilder requestPatternBuilder;
+  private final RequestPatternBuilder requestPatternBuilder;
+  private final List<PostServeActionDefinition> postServeActions = new ArrayList<>();
+
   private ResponseDefinitionBuilder responseDefBuilder;
   private Integer priority;
   private String scenarioName;
@@ -50,11 +52,14 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
-  private List<PostServeActionDefinition> postServeActions = newArrayList();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
     requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
+  }
+
+  BasicMappingBuilder(List<RequestMethod> methods, UrlPattern urlPattern) {
+    requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);
   }
 
   BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {

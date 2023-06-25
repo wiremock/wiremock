@@ -576,6 +576,14 @@ public class WireMock {
     return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
   }
 
+  public static MappingBuilder isAmong(List<String> methods, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.fromList(methods), urlPattern);
+  }
+
+  public static MappingBuilder request(List<String> methods, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.fromList(methods), urlPattern);
+  }
+
   public static MappingBuilder requestMatching(String customRequestMatcherName) {
     return new BasicMappingBuilder(customRequestMatcherName, Parameters.empty());
   }

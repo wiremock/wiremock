@@ -50,6 +50,7 @@ import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -883,7 +884,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesExactContentTypeEncodingSpecified() throws Exception {
+  public void matchesExactContentTypeEncodingSpecified() {
     String contentType = "application/json; charset=UTF-8";
     String url = "/request-content-type-case";
 
@@ -1223,6 +1224,27 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(testClient.get("/search").statusCode(), is(404));
   }
 
+  @Test
+  public void testStubWithMultipleRequestMethods() {
+    stubFor(isAmong(List.of("PUT", "POST"), urlEqualTo("/some/url"))
+        .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(200));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(200));
+  }
+
+  @Test
+  public void testStubWithInvalidRequestMethods() {
+    stubFor(isAmong(List.of("PUT", "POST"), urlEqualTo("/some/url"))
+        .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response = testClient.request("GET", "/some/url");
+    assertThat(response.statusCode(), is(404));
+  }
+
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
     connection.setRequestMethod("GET");
@@ -1233,7 +1255,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   private Matcher<StubMapping> named(final String name) {
-    return new TypeSafeMatcher<StubMapping>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public void describeTo(Description description) {
         description.appendText("named " + name);

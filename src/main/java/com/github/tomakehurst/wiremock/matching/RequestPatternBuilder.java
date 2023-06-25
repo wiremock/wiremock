@@ -15,10 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Errors;
@@ -26,6 +22,9 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,15 +35,16 @@ public class RequestPatternBuilder {
   private Integer port;
   private UrlPattern url = UrlPattern.ANY;
   private RequestMethod method = RequestMethod.ANY;
-  private Map<String, MultiValuePattern> headers = newLinkedHashMap();
-  private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
+  private List<RequestMethod> methods = new ArrayList<>();
+  private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
+  private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
 
-  private Map<String, MultiValuePattern> formParams = newLinkedHashMap();
-  private Map<String, StringValuePattern> pathParams = newLinkedHashMap();
-  private List<ContentPattern<?>> bodyPatterns = newArrayList();
-  private Map<String, StringValuePattern> cookies = newLinkedHashMap();
+  private Map<String, MultiValuePattern> formParams = new LinkedHashMap<>();
+  private Map<String, StringValuePattern> pathParams = new LinkedHashMap<>();
+  private List<ContentPattern<?>> bodyPatterns = new ArrayList<>();
+  private Map<String, StringValuePattern> cookies = new LinkedHashMap<>();
   private BasicCredentials basicCredentials;
-  private List<MultipartValuePattern> multiparts = newLinkedList();
+  private List<MultipartValuePattern> multiparts = new LinkedList<>();
 
   private ValueMatcher<Request> customMatcher;
 
@@ -58,6 +58,13 @@ public class RequestPatternBuilder {
 
   public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
     this.method = method;
+    this.methods.add(method);
+    this.url = url;
+  }
+
+  public RequestPatternBuilder(List<RequestMethod> methods, UrlPattern url) {
+    this.methods = methods;
+    this.method = methods.get(0);
     this.url = url;
   }
 
@@ -100,6 +107,7 @@ public class RequestPatternBuilder {
     builder.port = requestPattern.getPort();
     builder.url = requestPattern.getUrlMatcher();
     builder.method = requestPattern.getMethod();
+    builder.methods.add(builder.method);
     if (requestPattern.getHeaders() != null) {
       builder.headers = requestPattern.getHeaders();
     }

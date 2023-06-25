@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class MatchResult implements Comparable<MatchResult> {
@@ -86,6 +87,6 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return Double.compare(other.getDistance(), getDistance());
   }
 
-  public static final java.util.function.Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
+  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
       WeightedMatchResult::isExactMatch;
 }
