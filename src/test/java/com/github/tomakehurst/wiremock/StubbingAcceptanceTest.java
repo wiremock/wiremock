@@ -1225,7 +1225,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void testStubWithMultipleRequestMethods() {
+  void testStubWithMultipleRequestMethods() {
     stubFor(isAmong(List.of("PUT", "POST"), urlEqualTo("/some/url"))
         .willReturn(aResponse().withStatus(200)));
 

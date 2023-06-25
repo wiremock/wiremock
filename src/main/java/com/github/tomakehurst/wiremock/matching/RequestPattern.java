@@ -176,7 +176,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                         weight(hostMatches(request), 10.0),
                         weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+                        weight(isOneOf(request), 3.0),
                         weight(allPathParamsMatch(request)),
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
@@ -226,7 +226,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         host,
         port,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
-        method,
+        firstNonNull(methods, List.of(method)),
         headers,
         pathParams,
         queryParams,
@@ -245,7 +245,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           null,
           anyUrl(),
-          RequestMethod.ANY,
+          List.of(RequestMethod.ANY),
           null,
           null,
           null,
@@ -263,7 +263,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         UrlPattern.ANY,
-        RequestMethod.ANY,
+        List.of(RequestMethod.ANY),
         null,
         null,
         null,
@@ -282,7 +282,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         UrlPattern.ANY,
-        RequestMethod.ANY,
+        List.of(RequestMethod.ANY),
         null,
         null,
         null,
@@ -298,6 +298,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   @Override
   public MatchResult match(Request request) {
     return match(request, Collections.emptyMap());
+  }
+
+  public MatchResult isOneOf(Request request) {
+    return MatchResult.of(
+        this.methods.contains(RequestMethod.ANY) || this.methods.contains(request.getMethod()));
   }
 
   public static RequestPattern everything() {

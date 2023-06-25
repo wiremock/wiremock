@@ -537,43 +537,43 @@ public class WireMock {
   }
 
   public static MappingBuilder get(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.GET), urlPattern);
   }
 
   public static MappingBuilder post(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.POST, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.POST), urlPattern);
   }
 
   public static MappingBuilder put(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.PUT, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.PUT), urlPattern);
   }
 
   public static MappingBuilder delete(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.DELETE, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.DELETE), urlPattern);
   }
 
   public static MappingBuilder patch(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.PATCH), urlPattern);
   }
 
   public static MappingBuilder head(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.HEAD), urlPattern);
   }
 
   public static MappingBuilder options(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.OPTIONS, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.OPTIONS), urlPattern);
   }
 
   public static MappingBuilder trace(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.TRACE, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.TRACE), urlPattern);
   }
 
   public static MappingBuilder any(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.ANY), urlPattern);
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
+    return new BasicMappingBuilder(List.of(RequestMethod.fromString(method)), urlPattern);
   }
 
   public static MappingBuilder isAmong(List<String> methods, UrlPattern urlPattern) {

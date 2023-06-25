@@ -262,7 +262,7 @@ public class RequestPatternBuilder {
         hostPattern,
         port,
         url,
-        method,
+        methods,
         headers.isEmpty() ? null : headers,
         pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,
