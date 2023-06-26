@@ -58,10 +58,6 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return name;
   }
 
-  public boolean isOneOf(RequestMethod... methods) {
-    return asList(methods).contains(this);
-  }
-
   public MatchResult match(RequestMethod method) {
     return MatchResult.of(this.equals(ANY) || this.equals(method));
   }

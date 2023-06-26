@@ -1227,7 +1227,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithMultipleRequestMethods() {
     stubFor(
-        isAmong(List.of("PUT", "POST"), urlEqualTo("/some/url"))
+        isOneOf(List.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
@@ -1240,7 +1240,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithInvalidRequestMethods() {
     stubFor(
-        isAmong(List.of("PUT", "POST"), urlEqualTo("/some/url"))
+        isOneOf(List.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response = testClient.request("GET", "/some/url");
@@ -1250,7 +1250,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithAnyRequestMethod() {
     stubFor(
-        isAmong(List.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+        isOneOf(List.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
