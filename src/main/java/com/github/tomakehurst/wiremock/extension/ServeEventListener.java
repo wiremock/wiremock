@@ -19,6 +19,26 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public interface ServeEventListener extends Extension {
 
+  enum RequestPhase {
+    BEFORE_MATCH,
+    AFTER_MATCH,
+    AFTER_COMPLETE
+  }
+
+  default void onEvent(RequestPhase requestPhase, ServeEvent serveEvent, Parameters parameters) {
+    switch (requestPhase) {
+      case BEFORE_MATCH:
+        beforeMatch(serveEvent, parameters);
+        break;
+      case AFTER_MATCH:
+        afterMatch(serveEvent, parameters);
+        break;
+      case AFTER_COMPLETE:
+        afterComplete(serveEvent, parameters);
+        break;
+    }
+  }
+
   default void beforeMatch(ServeEvent serveEvent, Parameters parameters) {}
 
   default void afterMatch(ServeEvent serveEvent, Parameters parameters) {}

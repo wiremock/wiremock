@@ -16,15 +16,24 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Set;
 
-public class ServeEventListenerDefinition implements ServeEventListener {
+public class ServeEventListenerDefinition {
 
   private final String name;
+  private final Set<ServeEventListener.RequestPhase> requestPhases;
   private final Parameters parameters;
 
+  public ServeEventListenerDefinition(String name, Parameters parameters) {
+    this(name, null, parameters);
+  }
+
   public ServeEventListenerDefinition(
-      @JsonProperty("name") String name, @JsonProperty("parameters") Parameters parameters) {
+      @JsonProperty("name") String name,
+      @JsonProperty("requestPhases") Set<ServeEventListener.RequestPhase> requestPhases,
+      @JsonProperty("parameters") Parameters parameters) {
     this.name = name;
+    this.requestPhases = requestPhases;
     this.parameters = parameters;
   }
 
@@ -32,7 +41,15 @@ public class ServeEventListenerDefinition implements ServeEventListener {
     return name;
   }
 
+  public Set<ServeEventListener.RequestPhase> getRequestPhases() {
+    return requestPhases;
+  }
+
   public Parameters getParameters() {
     return parameters;
+  }
+
+  public boolean shouldFireFor(ServeEventListener.RequestPhase requestPhase) {
+    return requestPhases == null || requestPhases.contains(requestPhase);
   }
 }

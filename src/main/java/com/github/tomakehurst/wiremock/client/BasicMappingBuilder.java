@@ -23,6 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -38,6 +39,7 @@ import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
@@ -220,6 +222,15 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
     postServeActions.add(
         new PostServeActionDefinition(extensionName, resolveParameters(parameters)));
+    return this;
+  }
+
+  @Override
+  public <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters) {
+    serveEventListeners.add(
+        new ServeEventListenerDefinition(
+            extensionName, requestPhases, resolveParameters(parameters)));
     return this;
   }
 
