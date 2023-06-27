@@ -610,6 +610,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         && Objects.equals(port, that.port)
         && Objects.equals(url, that.url)
         && Objects.equals(method, that.method)
+        && Objects.equals(methods, that.methods)
         && Objects.equals(headers, that.headers)
         && Objects.equals(queryParams, that.queryParams)
         && Objects.equals(cookies, that.cookies)
@@ -628,6 +629,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         port,
         url,
         method,
+        methods,
         headers,
         queryParams,
         cookies,
