@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.*;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
@@ -31,7 +32,6 @@ import com.github.tomakehurst.wiremock.verification.diff.DiffEventData;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 
@@ -68,9 +68,9 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   @Override
   public ServeEvent handleRequest(ServeEvent initialServeEvent) {
-    triggerBeforeMatchListeners(initialServeEvent);
+    triggerListeners(BEFORE_MATCH, initialServeEvent);
     final ServeEvent serveEvent = stubServer.serveStubFor(initialServeEvent);
-    triggerAfterMatchListeners(serveEvent);
+    triggerListeners(AFTER_MATCH, serveEvent);
     return serveEvent;
   }
 
@@ -109,7 +109,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
     triggerPostServeActions(serveEvent);
 
-    triggerAfterCompleteListeners(serveEvent);
+    triggerListeners(AFTER_COMPLETE, serveEvent);
   }
 
   private void triggerPostServeActions(ServeEvent serveEvent) {
@@ -129,55 +129,24 @@ public class StubRequestHandler extends AbstractRequestHandler {
     }
   }
 
-  private void triggerBeforeMatchListeners(ServeEvent serveEvent) {
-    triggerListeners(
-        serveEvent,
-        (eventContext) ->
-            eventContext.listener.beforeMatch(eventContext.event, eventContext.parameters));
-  }
-
-  private void triggerAfterMatchListeners(ServeEvent serveEvent) {
-    triggerListeners(
-        serveEvent,
-        (eventContext) ->
-            eventContext.listener.afterMatch(eventContext.event, eventContext.parameters));
-  }
-
-  private void triggerAfterCompleteListeners(ServeEvent serveEvent) {
-    triggerListeners(
-        serveEvent,
-        (eventContext) ->
-            eventContext.listener.afterComplete(eventContext.event, eventContext.parameters));
-  }
-
-  private void triggerListeners(ServeEvent serveEvent, Consumer<EventContext> action) {
+  private void triggerListeners(
+      ServeEventListener.RequestPhase requestPhase, ServeEvent serveEvent) {
     serveEventListeners.values().stream()
         .filter(ServeEventListener::applyGlobally)
-        .forEach(
-            listener -> action.accept(new EventContext(listener, serveEvent, Parameters.empty())));
+        .forEach(listener -> listener.onEvent(requestPhase, serveEvent, Parameters.empty()));
 
     List<ServeEventListenerDefinition> serveEventListenerDefinitions =
         serveEvent.getServeEventListeners();
     for (ServeEventListenerDefinition listenerDef : serveEventListenerDefinitions) {
       ServeEventListener listener = serveEventListeners.get(listenerDef.getName());
-      if (listener != null && !listener.applyGlobally()) {
+      if (listener != null
+          && !listener.applyGlobally()
+          && listenerDef.shouldFireFor(requestPhase)) {
         Parameters parameters = listenerDef.getParameters();
-        action.accept(new EventContext(listener, serveEvent, parameters));
+        listener.onEvent(requestPhase, serveEvent, parameters);
       } else {
         notifier().error("No per-stub listener was found named \"" + listenerDef.getName() + "\"");
       }
-    }
-  }
-
-  private static final class EventContext {
-    final ServeEventListener listener;
-    final ServeEvent event;
-    final Parameters parameters;
-
-    public EventContext(ServeEventListener listener, ServeEvent event, Parameters parameters) {
-      this.listener = listener;
-      this.event = event;
-      this.parameters = parameters;
     }
   }
 }

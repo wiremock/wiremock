@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.Count
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -38,6 +39,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -189,6 +192,80 @@ public class ServeEventListenerExtensionTest {
                 + "      }\n"
                 + "    }\n"
                 + "  ]"));
+  }
+
+  @Test
+  void eventSelectedPerStubWithVaryingParameters() {
+    final List<String> messages = new ArrayList<>();
+
+    initWithOptions(
+        options()
+            .dynamicPort()
+            .extensions(
+                new ServeEventListener() {
+
+                  @Override
+                  public void onEvent(
+                      RequestPhase requestPhase, ServeEvent serveEvent, Parameters parameters) {
+                    messages.add(requestPhase.name() + ": " + parameters.getString("phase"));
+                  }
+
+                  @Override
+                  public boolean applyGlobally() {
+                    return false;
+                  }
+
+                  @Override
+                  public String getName() {
+                    return "request-phase-reporter";
+                  }
+                }));
+
+    wm.stubFor(
+        get(urlPathEqualTo("/report"))
+            .withServeEventListener(
+                AFTER_MATCH, "request-phase-reporter", Parameters.one("phase", "after-match"))
+            .withServeEventListener(
+                AFTER_COMPLETE, "request-phase-reporter", Parameters.one("phase", "after-complete"))
+            .willReturn(aResponse()));
+
+    client.get("/report");
+
+    assertThat(messages, is(List.of("AFTER_MATCH: after-match", "AFTER_COMPLETE: after-complete")));
+  }
+
+  @Test
+  void globalOnEventListenerIsTriggeredInAllRequestPhases() {
+    final List<String> messages = new ArrayList<>();
+
+    initWithOptions(
+        options()
+            .dynamicPort()
+            .extensions(
+                new ServeEventListener() {
+
+                  @Override
+                  public void onEvent(
+                      RequestPhase requestPhase, ServeEvent serveEvent, Parameters parameters) {
+                    messages.add(requestPhase.name());
+                  }
+
+                  @Override
+                  public boolean applyGlobally() {
+                    return true;
+                  }
+
+                  @Override
+                  public String getName() {
+                    return "request-phase-reporter";
+                  }
+                }));
+
+    wm.stubFor(get(urlPathEqualTo("/report")).willReturn(aResponse()));
+
+    client.get("/report");
+
+    assertThat(messages, is(List.of("BEFORE_MATCH", "AFTER_MATCH", "AFTER_COMPLETE")));
   }
 
   @Test
