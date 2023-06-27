@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.assertMessageSubEventPresent;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -303,6 +303,18 @@ public class ResponseTemplatingAcceptanceTest {
       String content = client.get("/v1/first/first1/second/second2").content();
 
       assertThat(content, is(" v1 first first1 second second2 "));
+    }
+
+    @Test
+    void exceptionThrownWhileRenderingIsReportedViaSubEvent() {
+      wm.stubFor(get("/bad").willReturn(ok("{{math '1' '/' 0}}")));
+
+      WireMockResponse response = client.get("/bad");
+
+      assertThat(response.statusCode(), is(500));
+      assertThat(response.content(), is("1:2: java.lang.ArithmeticException: / by zero"));
+
+      assertMessageSubEventPresent(wm, "ERROR", "1:2: java.lang.ArithmeticException: / by zero");
     }
   }
 

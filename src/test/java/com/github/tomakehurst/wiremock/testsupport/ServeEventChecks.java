@@ -17,14 +17,34 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.stubbing.SubEvent.JSON_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Message;
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 
 public class ServeEventChecks {
+
+  public static void assertMessageSubEventPresent(Admin admin, String type, String message) {
+    admin.getServeEvents().getServeEvents().stream()
+        .findFirst()
+        .ifPresentOrElse(
+            serveEvent -> {
+              assertThat(serveEvent.getSubEvents(), hasSize(1));
+              serveEvent.getSubEvents().stream()
+                  .findFirst()
+                  .ifPresentOrElse(
+                      subEvent -> {
+                        assertThat(subEvent.getType(), is(type));
+                        assertThat(subEvent.getDataAs(Message.class).getMessage(), is(message));
+                      },
+                      () -> fail("No sub events found"));
+            },
+            () -> fail("No serve events found"));
+  }
 
   public static void checkMessage(MatchResult matchResult, String type, String message) {
     matchResult.getSubEvents().stream()
