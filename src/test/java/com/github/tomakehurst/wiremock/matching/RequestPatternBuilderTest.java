@@ -31,9 +31,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class RequestPatternBuilderTest {
@@ -60,13 +59,13 @@ class RequestPatternBuilderTest {
             1234,
             WireMock.urlEqualTo("/foo"),
             List.of(RequestMethod.POST),
-            ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
-            ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("cookie", WireMock.equalTo("yum")),
+            Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
-            ImmutableList.of(WireMock.equalTo("BODY")),
+            List.of(WireMock.equalTo("BODY")),
             null,
             null,
             null);
@@ -120,13 +119,13 @@ class RequestPatternBuilderTest {
             1234,
             WireMock.urlEqualTo("/foo"),
             List.of(RequestMethod.POST),
-            ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
-            ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("cookie", WireMock.equalTo("yum")),
+            Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
-            ImmutableList.of(WireMock.equalTo("BODY")),
+            List.of(WireMock.equalTo("BODY")),
             null,
             null,
             singletonList(multipartPattern));
