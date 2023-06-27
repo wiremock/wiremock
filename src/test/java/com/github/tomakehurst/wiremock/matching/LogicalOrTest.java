@@ -117,4 +117,16 @@ public class LogicalOrTest {
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
   }
+
+  @Test
+  void correctlyEvaluatesAbsentOrDoesNotMatch() {
+    LogicalOr matcher =
+        new LogicalOr(
+            WireMock.absent(),
+            WireMock.notMatching("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"));
+
+    assertThat(matcher.match(null).isExactMatch(), is(true));
+    assertThat(matcher.match("some-non-date-string").isExactMatch(), is(true));
+    assertThat(matcher.match("2023-02-03T12:11:10Z").isExactMatch(), is(false));
+  }
 }
