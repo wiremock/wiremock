@@ -33,7 +33,7 @@ public class LogicalAnd extends StringValuePattern {
     super(
         operands.stream()
             .findFirst()
-            .map(ContentPattern::getValue)
+            .map(ContentPattern::getExpected)
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(
