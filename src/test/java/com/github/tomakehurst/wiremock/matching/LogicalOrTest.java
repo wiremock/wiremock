@@ -129,4 +129,12 @@ public class LogicalOrTest {
     assertThat(matcher.match("some-non-date-string").isExactMatch(), is(true));
     assertThat(matcher.match("2023-02-03T12:11:10Z").isExactMatch(), is(false));
   }
+
+  @Test
+  void throwsErrorOnConstructionIfOnlyOneMatcherSupplied() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new LogicalOr(WireMock.equalTo("A")),
+        "LogicalOr must be constructed with at least two matchers");
+  }
 }
