@@ -106,6 +106,9 @@ public class LogicalAndTest {
   @Test
   void canSuccessfullyConstructWithAbsentAsFirstMatcher() {
     assertDoesNotThrow(
-            () -> new LogicalAnd(WireMock.absent(), WireMock.notMatching("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")));
+        () ->
+            new LogicalAnd(
+                WireMock.absent(),
+                WireMock.notMatching("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$")));
   }
 }
