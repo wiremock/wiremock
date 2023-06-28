@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
 import static com.github.tomakehurst.wiremock.stubbing.SubEvent.JSON_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -39,7 +40,9 @@ public class ServeEventChecks {
                   .ifPresentOrElse(
                       subEvent -> {
                         assertThat(subEvent.getType(), is(type));
-                        assertThat(subEvent.getDataAs(Message.class).getMessage(), is(message));
+                        assertThat(
+                                normaliseLineBreaks(subEvent.getDataAs(Message.class).getMessage()),
+                                is(normaliseLineBreaks(message)));
                       },
                       () -> fail("No sub events found"));
             },
@@ -51,7 +54,9 @@ public class ServeEventChecks {
         .filter(subEvent -> subEvent.getType().equals(type))
         .findFirst()
         .ifPresentOrElse(
-            subEvent -> assertThat(subEvent.getDataAs(Message.class).getMessage(), is(message)),
+            subEvent -> assertThat(
+                    normaliseLineBreaks(subEvent.getDataAs(Message.class).getMessage()),
+                    is(normaliseLineBreaks(message))),
             () -> fail("No sub event of type " + type + " found"));
   }
 
@@ -61,7 +66,9 @@ public class ServeEventChecks {
         .findFirst()
         .ifPresentOrElse(
             subEvent ->
-                assertThat(subEvent.getDataAs(Errors.class).first().getDetail(), is(detailMessage)),
+                assertThat(
+                        normaliseLineBreaks(subEvent.getDataAs(Errors.class).first().getDetail()),
+                        is(normaliseLineBreaks(detailMessage))),
             () -> fail("No sub event of type JSON_ERROR found"));
   }
 }
