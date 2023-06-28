@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static java.util.Arrays.asList;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LogicalAnd extends StringValuePattern {
-
-  private final List<StringValuePattern> operands;
+public class LogicalAnd extends AbstractLogicalMatcher {
 
   public LogicalAnd(StringValuePattern... operands) {
-    this(asList(operands));
+    super(operands);
   }
 
   public LogicalAnd(@JsonProperty("and") List<StringValuePattern> operands) {
-    super(
-        operands.stream()
-            .findFirst()
-            .map(ContentPattern::getValue)
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Logical AND must be constructed with at least two matchers")));
-    this.operands = operands;
+    super(operands);
   }
 
   @Override
-  public String getExpected() {
-    return operands.stream()
-        .map(contentPattern -> contentPattern.getName() + " " + contentPattern.getExpected())
-        .collect(Collectors.joining(" AND "));
+  protected String getOperationName() {
+    return "AND";
   }
 
   public List<StringValuePattern> getAnd() {
