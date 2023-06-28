@@ -265,7 +265,9 @@ public class ServeEventListenerExtensionTest {
 
     client.get("/report");
 
-    assertThat(messages, is(List.of("BEFORE_MATCH", "AFTER_MATCH", "AFTER_COMPLETE")));
+    await()
+        .atMost(2, SECONDS)
+        .until(() -> messages, hasItems("BEFORE_MATCH", "AFTER_MATCH", "AFTER_COMPLETE"));
   }
 
   @Test

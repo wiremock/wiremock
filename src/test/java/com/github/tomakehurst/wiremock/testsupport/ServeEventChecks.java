@@ -41,8 +41,8 @@ public class ServeEventChecks {
                       subEvent -> {
                         assertThat(subEvent.getType(), is(type));
                         assertThat(
-                                normaliseLineBreaks(subEvent.getDataAs(Message.class).getMessage()),
-                                is(normaliseLineBreaks(message)));
+                            normaliseLineBreaks(subEvent.getDataAs(Message.class).getMessage()),
+                            is(normaliseLineBreaks(message)));
                       },
                       () -> fail("No sub events found"));
             },
@@ -54,7 +54,8 @@ public class ServeEventChecks {
         .filter(subEvent -> subEvent.getType().equals(type))
         .findFirst()
         .ifPresentOrElse(
-            subEvent -> assertThat(
+            subEvent ->
+                assertThat(
                     normaliseLineBreaks(subEvent.getDataAs(Message.class).getMessage()),
                     is(normaliseLineBreaks(message))),
             () -> fail("No sub event of type " + type + " found"));
@@ -67,8 +68,8 @@ public class ServeEventChecks {
         .ifPresentOrElse(
             subEvent ->
                 assertThat(
-                        normaliseLineBreaks(subEvent.getDataAs(Errors.class).first().getDetail()),
-                        is(normaliseLineBreaks(detailMessage))),
+                    normaliseLineBreaks(subEvent.getDataAs(Errors.class).first().getDetail()),
+                    is(normaliseLineBreaks(detailMessage))),
             () -> fail("No sub event of type JSON_ERROR found"));
   }
 }
