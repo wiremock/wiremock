@@ -25,6 +25,8 @@ import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
@@ -75,7 +77,7 @@ public class JettyHttpServerTest {
             Collections.emptyList(),
             false,
             NO_TRUNCATION,
-            new PlainTextStubNotMatchedRenderer());
+            new PlainTextStubNotMatchedRenderer(new Extensions(new ExtensionDeclarations())));
   }
 
   @Test

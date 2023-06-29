@@ -151,16 +151,17 @@ public class NotMatchedPageAcceptanceTest {
   public void supportsCustomNoMatchRenderer() {
     configure(
         wireMockConfig()
-            .notMatchedRenderer(
-                new NotMatchedRenderer() {
-                  @Override
-                  protected ResponseDefinition render(Admin admin, ServeEvent serveEvent) {
-                    return ResponseDefinitionBuilder.responseDefinition()
-                        .withStatus(403)
-                        .withBody("No you don't!")
-                        .build();
-                  }
-                }));
+            .notMatchedRendererFactory(
+                extensions ->
+                    new NotMatchedRenderer() {
+                      @Override
+                      protected ResponseDefinition render(Admin admin, ServeEvent serveEvent) {
+                        return ResponseDefinitionBuilder.responseDefinition()
+                            .withStatus(403)
+                            .withBody("No you don't!")
+                            .build();
+                      }
+                    }));
 
     WireMockResponse response = testClient.get("/should-not-match");
 

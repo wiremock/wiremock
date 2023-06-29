@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
@@ -38,11 +38,16 @@ import java.util.stream.Collectors;
 public class Recorder {
 
   private final Admin admin;
+  private final Extensions extensions;
+  private final BlobStore filesBlobStore;
 
   private final RecorderStateStore stateStore;
 
-  public Recorder(Admin admin, RecorderStateStore stateStore) {
+  public Recorder(
+      Admin admin, Extensions extensions, BlobStore filesBlobStore, RecorderStateStore stateStore) {
     this.admin = admin;
+    this.extensions = extensions;
+    this.filesBlobStore = filesBlobStore;
     this.stateStore = stateStore;
   }
 
@@ -109,7 +114,7 @@ public class Recorder {
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),
-            getStubMappingPostProcessor(admin.getOptions(), recordSpec));
+            getStubMappingPostProcessor(recordSpec));
 
     for (StubMapping stubMapping : stubMappings) {
       if (recordSpec.shouldPersist()) {
@@ -135,12 +140,10 @@ public class Recorder {
     return stubMappingPostProcessor.process(stubMappings);
   }
 
-  public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(
-      Options options, RecordSpec recordSpec) {
-    final BlobStore filesBlobStore = options.getStores().getFilesBlobStore();
+  public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
-            options.extensionsOfType(StubMappingTransformer.class).values(),
+            extensions.ofType(StubMappingTransformer.class).values(),
             recordSpec.getTransformers(),
             recordSpec.getTransformerParameters(),
             filesBlobStore);
