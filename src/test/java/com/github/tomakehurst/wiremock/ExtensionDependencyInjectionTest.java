@@ -18,8 +18,9 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
 
 import com.github.tomakehurst.wiremock.admin.Router;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -28,15 +29,12 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import jakarta.inject.Inject;
 import java.util.Map;
-
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-@Ignore("Until DI actually implemented")
 public class ExtensionDependencyInjectionTest {
 
   WireMockServer wm;
@@ -50,7 +48,7 @@ public class ExtensionDependencyInjectionTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void injectsCoreServicesOnConstruction() {
+  void injectsCoreServicesOnConstructionByClass() {
     wm =
         new WireMockServer(
             options()
@@ -63,16 +61,33 @@ public class ExtensionDependencyInjectionTest {
     client.get("/something");
     client.get("/something");
 
-    WireMockResponse response = client.get("/__admin/misc-info");
+    String content = client.get("/__admin/misc-info").content();
 
-    assertThat(
-        response.content(),
-        jsonEquals(
-            "{\n"
-                + "  \"example1\": \"Example 1\",\n"
-                + "  \"example2\": \"Example 2\",\n"
-                + "  \"requestCount\": 2\n"
-                + "}"));
+    assertThat(content, jsonPartEquals("example1", "Example 1"));
+    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root")));
+    assertThat(content, jsonPartEquals("requestCount", 2));
+  }
+
+  @Test
+  void injectsCoreServicesOnConstructionByClassName() {
+    wm =
+        new WireMockServer(
+            options()
+                .dynamicPort()
+                .withRootDirectory(defaultTestFilesRoot())
+                .extensions(
+                    "com.github.tomakehurst.wiremock.ExtensionDependencyInjectionTest$RequestCounterApi"));
+    wm.start();
+    WireMockTestClient client = new WireMockTestClient(wm.port());
+
+    client.get("/something");
+    client.get("/something");
+
+    String content = client.get("/__admin/misc-info").content();
+
+    assertThat(content, jsonPartEquals("example1", "Example 1"));
+    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root")));
+    assertThat(content, jsonPartEquals("requestCount", 2));
   }
 
   public static class RequestCounterApi implements AdminApiExtension {
@@ -81,6 +96,7 @@ public class ExtensionDependencyInjectionTest {
     private final Stores stores;
     private final FileSource fileSource;
 
+    @Inject
     public RequestCounterApi(Admin admin, Stores stores, FileSource fileSource) {
       this.admin = admin;
       this.stores = stores;
@@ -100,13 +116,12 @@ public class ExtensionDependencyInjectionTest {
           (ignored, serveEvent, pathParams) -> {
             String example1 =
                 Strings.stringFromBytes(stores.getFilesBlobStore().get("plain-example1.txt").get());
-            String example2 =
-                fileSource.getTextFileNamed("plain-example2.txt").readContentsAsString();
+            String fileSourcePath = fileSource.getPath();
             int requestCount = admin.getServeEvents().getRequests().size();
             return ResponseDefinition.okForJson(
                 Map.of(
                     "example1", example1,
-                    "example2", example2,
+                    "fileSourcePath", fileSourcePath,
                     "requestCount", requestCount));
           });
     }

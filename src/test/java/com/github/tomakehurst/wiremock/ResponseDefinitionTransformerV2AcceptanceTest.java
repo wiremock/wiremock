@@ -133,9 +133,12 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
         IllegalArgumentException.class,
         () -> {
           new WireMockServer(
-              wireMockConfig()
-                  .dynamicPort()
-                  .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
+                  wireMockConfig()
+                      .dynamicPort()
+                      .extensions(ExampleTransformer.class)
+                      .extensions(
+                          "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$AnotherExampleTransformer"))
+              .start();
         });
   }
 
