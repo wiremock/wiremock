@@ -65,6 +65,20 @@ public class ResponseTemplatingAcceptanceTest {
     }
 
     @Test
+    public void appliedLastPathMatchesDoesNotWork() {
+      wm.stubFor(
+              get(urlPathTemplate("/{template_param}"))
+                      .willReturn(
+                              aResponse()
+                                      .withBody("{ \"key\": \"{{{ request.path.template_param }}}\" }")
+                                      .withTransformers("response-template")));
+
+      String content = client.get("/foo?bar=1").content();
+
+      assertThat(content, is("{ \"key\": \"foo\" }"));
+    }
+
+    @Test
     public void doesNotApplyResponseTemplateWhenNotAddedToStubMapping() {
       wm.stubFor(
           get(urlPathEqualTo("/not-templated"))
