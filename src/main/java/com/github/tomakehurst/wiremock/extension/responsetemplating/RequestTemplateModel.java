@@ -45,8 +45,10 @@ public class RequestTemplateModel {
     return from(request, false, null);
   }
 
-  public static RequestTemplateModel from(final Request request, boolean isPathTemplateDefinition, final PathTemplate pathTemplate) {
-    RequestLine requestLine = RequestLine.fromRequest(request, isPathTemplateDefinition, pathTemplate);
+  public static RequestTemplateModel from(
+      final Request request, boolean isPathTemplateDefinition, final PathTemplate pathTemplate) {
+    RequestLine requestLine =
+        RequestLine.fromRequest(request, isPathTemplateDefinition, pathTemplate);
     Map<String, ListOrSingle<String>> adaptedHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     adaptedHeaders.putAll(
         Maps.toMap(

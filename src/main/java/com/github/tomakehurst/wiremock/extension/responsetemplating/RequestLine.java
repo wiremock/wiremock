@@ -58,7 +58,8 @@ public class RequestLine {
     this.pathTemplate = pathTemplate;
   }
 
-  public static RequestLine fromRequest(final Request request, boolean isPathTemplateDefinition, final PathTemplate pathTemplate) {
+  public static RequestLine fromRequest(
+      final Request request, boolean isPathTemplateDefinition, final PathTemplate pathTemplate) {
     URI url = URI.create(request.getUrl());
     Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
     Map<String, ListOrSingle<String>> adaptedQuery =

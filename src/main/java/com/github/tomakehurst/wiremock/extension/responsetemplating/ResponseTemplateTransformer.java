@@ -94,13 +94,16 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
         ResponseDefinitionBuilder.like(responseDefinition);
 
     final PathTemplate pathTemplate = getCurrentEventPathTemplate();
-    final boolean isPathTemplateDefinition = responseDefinition.getBody() != null
+    final boolean isPathTemplateDefinition =
+        responseDefinition.getBody() != null
             && responseDefinition.getBody().contains("request.path");
 
     final ImmutableMap<String, Object> model =
         ImmutableMap.<String, Object>builder()
             .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
-            .put("request", RequestTemplateModel.from(request, isPathTemplateDefinition, pathTemplate))
+            .put(
+                "request",
+                RequestTemplateModel.from(request, isPathTemplateDefinition, pathTemplate))
             .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
             .build();
 
