@@ -22,21 +22,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMu
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,10 +38,7 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -63,7 +48,6 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
@@ -395,40 +379,28 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsExtensionsSpecifiedAsClassNames() {
-    CommandLineOptions options =
-        new CommandLineOptions(
-            "--extensions",
-            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt2,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1");
-    Map<String, ResponseDefinitionTransformer> extensions =
-        options.extensionsOfType(ResponseDefinitionTransformer.class);
-    assertThat(extensions.entrySet(), hasSize(2));
-    assertThat(
-        extensions.get("ResponseDefinitionTransformer_One"),
-        instanceOf(ResponseDefinitionTransformerExt1.class));
-    assertThat(
-        extensions.get("ResponseDefinitionTransformer_Two"),
-        instanceOf(ResponseDefinitionTransformerExt2.class));
-  }
-
-  @Test
   public void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--extensions",
             "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1");
-    Map<String, RequestMatcherExtension> extensions =
-        options.extensionsOfType(RequestMatcherExtension.class);
-    assertThat(extensions.entrySet(), hasSize(1));
-    assertThat(extensions.get("RequestMatcherExtension_One"), instanceOf(RequestExt1.class));
+
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    assertThat(extensionDeclarations.getClassNames(), hasSize(2));
+    assertThat(
+        extensionDeclarations.getClassNames(),
+        hasItems(
+            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1",
+            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1"));
   }
 
   @Test
   public void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options = new CommandLineOptions();
-    Map<String, RequestMatcherExtension> extensions =
-        options.extensionsOfType(RequestMatcherExtension.class);
-    assertThat(extensions.entrySet(), hasSize(0));
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    assertThat(extensionDeclarations.getClassNames(), hasSize(0));
   }
 
   @Test
@@ -442,19 +414,40 @@ public class CommandLineOptionsTest {
   @Test
   public void enablesGlobalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    assertThat(extensions.entrySet(), hasSize(1));
-    assertThat(extensions.get("response-template").applyGlobally(), is(true));
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    Extension responseTemplateExtension =
+        extensionDeclarations.getInstances().get("response-template");
+    assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
+    assertThat(((ResponseTemplateTransformer) responseTemplateExtension).applyGlobally(), is(true));
+    assertThat(
+        ((ResponseTemplateTransformer) responseTemplateExtension).getMaxCacheEntries(),
+        nullValue());
   }
 
   @Test
   public void enablesLocalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--local-response-templating");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    assertThat(extensions.entrySet(), hasSize(1));
-    assertThat(extensions.get("response-template").applyGlobally(), is(false));
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    Extension responseTemplateExtension =
+        extensionDeclarations.getInstances().get("response-template");
+    assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
+    assertThat(
+        ((ResponseTemplateTransformer) responseTemplateExtension).applyGlobally(), is(false));
+  }
+
+  @Test
+  public void configuresMaxTemplateCacheEntriesIfSpecified() {
+    CommandLineOptions options =
+        new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    Extension responseTemplateExtension =
+        extensionDeclarations.getInstances().get("response-template");
+    assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
+    assertThat(
+        ((ResponseTemplateTransformer) responseTemplateExtension).getMaxCacheEntries(), is(5L));
   }
 
   @Test
@@ -513,27 +506,6 @@ public class CommandLineOptionsTest {
   public void setsDefaultNumberOfAsynchronousResponseThreads() {
     CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getAsynchronousResponseSettings().getThreads(), is(10));
-  }
-
-  @Test
-  public void configuresMaxTemplateCacheEntriesIfSpecified() {
-    CommandLineOptions options =
-        new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
-
-    assertThat(transformer.getMaxCacheEntries(), is(5L));
-  }
-
-  @Test
-  public void configuresMaxTemplateCacheEntriesToNullIfNotSpecified() {
-    CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
-
-    assertThat(transformer.getMaxCacheEntries(), nullValue());
   }
 
   @Test
@@ -710,20 +682,6 @@ public class CommandLineOptionsTest {
             .toString();
     assertThat(options, matchesMultiLine(".*enable-browser-proxying: *true.*"));
     assertThat(options, matchesMultiLine(".*trust-proxy-target: *localhost, example\\.com.*"));
-  }
-
-  @Test
-  public void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
-    CommandLineOptions options = new CommandLineOptions("--local-response-templating");
-
-    Object one =
-        options.extensionsOfType(StubLifecycleListener.class).get(ResponseTemplateTransformer.NAME);
-    Object two =
-        options
-            .extensionsOfType(ResponseDefinitionTransformerV2.class)
-            .get(ResponseTemplateTransformer.NAME);
-
-    assertSame(one, two);
   }
 
   @Test
