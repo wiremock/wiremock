@@ -15,30 +15,75 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
-import com.google.common.collect.Maps;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.store.Stores;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.ServiceLocatorFactory;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+
 public class Extensions {
+
+  public static Extensions NONE = new Extensions(new ExtensionDeclarations(), null, null, null);
+
+  private final ExtensionDeclarations extensionDeclarations;
+  private final Admin admin;
+  private final Stores stores;
+  private final FileSource files;
 
   private final Map<String, Extension> loadedExtensions;
 
   @SuppressWarnings("unchecked")
-  public Extensions(ExtensionDeclarations extensionDeclarations) {
-    final Map<String, Extension> byClassName =
-        ExtensionLoader.load(extensionDeclarations.getClassNames().toArray(String[]::new));
-    final Map<String, Extension> byClass =
-        ExtensionLoader.load(extensionDeclarations.getClasses().toArray(Class[]::new));
+  public Extensions(
+      ExtensionDeclarations extensionDeclarations, Admin admin, Stores stores, FileSource files) {
+    this.extensionDeclarations = extensionDeclarations;
+    this.admin = admin;
+    this.stores = stores;
+    this.files = files;
+
     loadedExtensions = new LinkedHashMap<>();
-    Stream.of(byClassName, byClass, extensionDeclarations.getInstances())
-        .map(Map::entrySet)
-        .flatMap(Set::stream)
-        .forEach(entry -> loadedExtensions.put(entry.getKey(), entry.getValue()));
+  }
+
+  public void load() {
+    final ServiceLocatorFactory serviceLocatorFactory = ServiceLocatorFactory.getInstance();
+    final ServiceLocator serviceLocator = serviceLocatorFactory.create("default");
+
+    ServiceLocatorUtilities.addOneConstant(serviceLocator, admin, "Admin", Admin.class);
+    ServiceLocatorUtilities.addOneConstant(serviceLocator, stores, "Stores", Stores.class);
+    ServiceLocatorUtilities.addOneConstant(serviceLocator, files, "FileSource", FileSource.class);
+
+    Streams.concat(
+            extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
+            extensionDeclarations.getClasses().stream())
+        .map(serviceLocator::create)
+        .forEach(
+            extension -> {
+              if (loadedExtensions.containsKey(extension.getName())) {
+                throw new IllegalArgumentException(
+                    "Duplicate extension name: " + extension.getName());
+              }
+              loadedExtensions.put(extension.getName(), extension);
+            });
+
+    loadedExtensions.putAll(extensionDeclarations.getInstances());
+
+    serviceLocatorFactory.destroy("default");
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Class<? extends Extension> loadClass(String className) {
+    try {
+      return (Class<? extends Extension>) Class.forName(className);
+    } catch (ClassNotFoundException e) {
+      return throwUnchecked(e, Class.class);
+    }
   }
 
   @SuppressWarnings("unchecked")

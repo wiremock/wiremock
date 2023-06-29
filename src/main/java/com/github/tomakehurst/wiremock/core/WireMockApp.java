@@ -89,7 +89,8 @@ public class WireMockApp implements StubServer, Admin {
 
     this.settingsStore = stores.getSettingsStore();
 
-    extensions = new Extensions(options.getDeclaredExtensions());
+    extensions = new Extensions(options.getDeclaredExtensions(), this, stores, options.filesRoot());
+    extensions.load();
 
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
