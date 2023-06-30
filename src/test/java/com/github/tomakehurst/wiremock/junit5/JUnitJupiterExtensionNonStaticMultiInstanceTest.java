@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,10 @@ public class JUnitJupiterExtensionNonStaticMultiInstanceTest {
   @RegisterExtension
   WireMockExtension wm2 =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().extensions(new ResponseTemplateTransformer(true)))
+          .options(
+              wireMockConfig()
+                  .dynamicPort()
+                  .extensions(ResponseTemplateTransformer.builder().global(true).build()))
           .build();
 
   @BeforeEach

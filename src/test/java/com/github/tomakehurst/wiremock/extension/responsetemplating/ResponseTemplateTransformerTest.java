@@ -18,16 +18,16 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.ServeEventFactory;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.time.Duration;
 import java.time.Instant;
@@ -56,7 +57,9 @@ public class ResponseTemplateTransformerTest {
 
   @BeforeEach
   public void setup() {
-    transformer = new ResponseTemplateTransformer(true);
+    transformer =
+        ExtensionFactoryUtils.buildTemplateTransformer(
+            ResponseTemplateTransformer.builder().global(true));
   }
 
   @Test
@@ -266,7 +269,8 @@ public class ResponseTemplateTransformerTest {
     Helper<String> helper = (context, options) -> context.length();
 
     transformer =
-        ResponseTemplateTransformer.builder().global(false).helper("string-length", helper).build();
+        ExtensionFactoryUtils.buildTemplateTransformer(
+            ResponseTemplateTransformer.builder().global(false).helper("string-length", helper));
 
     ResponseDefinition transformedResponseDef =
         transform(
@@ -342,7 +346,8 @@ public class ResponseTemplateTransformerTest {
   public void escapingCanBeDisabled() {
     Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
     ResponseTemplateTransformer transformerWithEscapingDisabled =
-        ResponseTemplateTransformer.builder().global(true).handlebars(handlebars).build();
+        ExtensionFactoryUtils.buildTemplateTransformer(
+            ResponseTemplateTransformer.builder().global(true).handlebars(handlebars));
     final ResponseDefinition responseDefinition =
         transform(
             transformerWithEscapingDisabled,
@@ -380,7 +385,7 @@ public class ResponseTemplateTransformerTest {
     ServeEvent serveEvent =
         newPostMatchServeEvent(
             LoggedRequest.createFrom(request), responseDefinitionBuilder, stubMapping);
-    return transformer.transform(serveEvent, noFileSource());
+    return transformer.transform(serveEvent);
   }
 
   @Test
@@ -806,7 +811,9 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void honoursCacheSizeLimit() {
-    transformer = ResponseTemplateTransformer.builder().maxCacheEntries(3L).build();
+    transformer =
+        ExtensionFactoryUtils.buildTemplateTransformer(
+            ResponseTemplateTransformer.builder().maxCacheEntries(3L));
 
     transform("{{now}} 1");
     transform("{{now}} 2");
@@ -819,7 +826,9 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void honours0CacheSizeLimit() {
-    transformer = ResponseTemplateTransformer.builder().maxCacheEntries(0L).build();
+    transformer =
+        ExtensionFactoryUtils.buildTemplateTransformer(
+            ResponseTemplateTransformer.builder().maxCacheEntries(0L));
 
     transform("{{now}} 1");
     transform("{{now}} 2");
@@ -1071,7 +1080,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   private ResponseDefinition transform(ServeEvent serveEvent) {
-    return transformer.transform(serveEvent, noFileSource());
+    return transformer.transform(serveEvent);
   }
 
   private ResponseDefinition transformFromResponseFile(
@@ -1079,8 +1088,6 @@ public class ResponseTemplateTransformerTest {
 
     final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
     return transformer.transform(
-        ServeEventFactory.newPostMatchServeEvent(request, responseDefinitionBuilder, stub),
-        new ClasspathFileSource(
-            this.getClass().getClassLoader().getResource("templates").getPath()));
+        ServeEventFactory.newPostMatchServeEvent(request, responseDefinitionBuilder, stub));
   }
 }

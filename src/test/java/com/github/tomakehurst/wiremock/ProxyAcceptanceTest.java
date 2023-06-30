@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
@@ -597,7 +599,7 @@ public class ProxyAcceptanceTest {
 
   @Test
   public void removesPrefixFromProxyRequestWhenResponseTransformersAreUsed() {
-    init(wireMockConfig().extensions(new ResponseTemplateTransformer(true)));
+    init(wireMockConfig().extensions(ResponseTemplateTransformer.global(true)));
 
     proxy.register(
         get("/other/service/doc/123")

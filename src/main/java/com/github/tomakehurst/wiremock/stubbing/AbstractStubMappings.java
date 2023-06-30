@@ -134,7 +134,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     ResponseDefinitionTransformerV2 transformer = transformers.get(0);
     ResponseDefinition newResponseDef =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
-            ? transformer.transform(serveEvent, filesFileSource)
+            ? transformer.transform(serveEvent)
             : responseDefinition;
 
     return applyV2Transformations(

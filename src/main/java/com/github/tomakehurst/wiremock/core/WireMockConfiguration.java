@@ -41,6 +41,7 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -401,6 +402,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration extensions(Extension... extensionInstances) {
     extensions.add(extensionInstances);
+    return this;
+  }
+
+  public WireMockConfiguration extensions(ExtensionFactory<?>... extensionFactories) {
+    extensions.add(extensionFactories);
     return this;
   }
 

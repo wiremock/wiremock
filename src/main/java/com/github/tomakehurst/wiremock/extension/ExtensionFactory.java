@@ -15,14 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-
-public interface ResponseTransformerV2 extends Extension {
-
-  Response transform(Response response, ServeEvent serveEvent);
-
-  default boolean applyGlobally() {
-    return true;
-  }
+public interface ExtensionFactory<T extends Extension> {
+  T create(WireMockServices services);
 }

@@ -25,9 +25,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -48,33 +46,28 @@ public class ResponseTemplateTransformer
   public static final String NAME = "response-template";
 
   private final boolean global;
+  private final FileSource files;
   private final TemplateEngine templateEngine;
 
   public static Builder builder() {
     return new Builder();
   }
 
-  public ResponseTemplateTransformer(boolean global) {
-    this(global, Collections.emptyMap());
-  }
-
-  public ResponseTemplateTransformer(boolean global, String helperName, Helper<?> helper) {
-    this(global, ImmutableMap.of(helperName, helper));
-  }
-
-  public ResponseTemplateTransformer(boolean global, Map<String, Helper<?>> helpers) {
-    this(global, new Handlebars(), helpers, null, null);
-  }
-
   public ResponseTemplateTransformer(
       boolean global,
+      FileSource files,
       Handlebars handlebars,
       Map<String, Helper<?>> helpers,
       Long maxCacheEntries,
       Set<String> permittedSystemKeys) {
     this.global = global;
+    this.files = files;
     this.templateEngine =
         new TemplateEngine(handlebars, helpers, maxCacheEntries, permittedSystemKeys);
+  }
+
+  public static ExtensionFactory<ResponseTemplateTransformer> global(boolean global) {
+    return builder().global(global).build();
   }
 
   @Override
@@ -88,7 +81,7 @@ public class ResponseTemplateTransformer
   }
 
   @Override
-  public ResponseDefinition transform(ServeEvent serveEvent, FileSource files) {
+  public ResponseDefinition transform(ServeEvent serveEvent) {
     try {
       final Request request = serveEvent.getRequest();
       final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
@@ -292,9 +285,15 @@ public class ResponseTemplateTransformer
       return this;
     }
 
-    public ResponseTemplateTransformer build() {
-      return new ResponseTemplateTransformer(
-          global, handlebars, helpers, maxCacheEntries, permittedSystemKeys);
+    public ExtensionFactory<ResponseTemplateTransformer> build() {
+      return wireMockServices ->
+          new ResponseTemplateTransformer(
+              global,
+              wireMockServices.getFiles(),
+              handlebars,
+              helpers,
+              maxCacheEntries,
+              permittedSystemKeys);
     }
   }
 }

@@ -20,7 +20,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.assertMessageSubEventPresent;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -44,7 +45,7 @@ public class ResponseTemplatingAcceptanceTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(options().dynamicPort().extensions(new ResponseTemplateTransformer(false)))
+            .options(options().dynamicPort().extensions(ResponseTemplateTransformer.global(false)))
             .build();
 
     @BeforeEach
@@ -86,7 +87,7 @@ public class ResponseTemplatingAcceptanceTest {
                 options()
                     .dynamicPort()
                     .withRootDirectory(defaultTestFilesRoot())
-                    .extensions(new ResponseTemplateTransformer(true)))
+                    .extensions(ResponseTemplateTransformer.builder().global(true).build()))
             .build();
 
     @BeforeEach

@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -42,7 +42,7 @@ public class HandlebarsRandomValuesHelperTest {
   @BeforeEach
   public void init() {
     helper = new HandlebarsRandomValuesHelper();
-    transformer = new ResponseTemplateTransformer(true);
+    transformer = buildTemplateTransformer(true);
 
     LocalNotifier.set(new ConsoleNotifier(true));
   }
@@ -123,8 +123,7 @@ public class HandlebarsRandomValuesHelperTest {
                         + "{{paymentId}}\n"
                         + "{{paymentId}}"));
 
-    final ResponseDefinition responseDefinition =
-        this.transformer.transform(serveEvent, noFileSource());
+    final ResponseDefinition responseDefinition = this.transformer.transform(serveEvent);
 
     String[] bodyLines = responseDefinition.getBody().trim().split("\n");
     assertThat(bodyLines[0], is(bodyLines[1]));

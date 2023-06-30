@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -417,7 +418,10 @@ public class CommandLineOptionsTest {
     ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
 
     Extension responseTemplateExtension =
-        extensionDeclarations.getInstances().get("response-template");
+        extensionDeclarations.getFactories().stream()
+            .map(factory -> factory.create(new MockWireMockServices()))
+            .findFirst()
+            .get();
     assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
     assertThat(((ResponseTemplateTransformer) responseTemplateExtension).applyGlobally(), is(true));
     assertThat(
@@ -431,7 +435,10 @@ public class CommandLineOptionsTest {
     ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
 
     Extension responseTemplateExtension =
-        extensionDeclarations.getInstances().get("response-template");
+        extensionDeclarations.getFactories().stream()
+            .map(factory -> factory.create(new MockWireMockServices()))
+            .findFirst()
+            .get();
     assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
     assertThat(
         ((ResponseTemplateTransformer) responseTemplateExtension).applyGlobally(), is(false));
@@ -444,7 +451,10 @@ public class CommandLineOptionsTest {
     ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
 
     Extension responseTemplateExtension =
-        extensionDeclarations.getInstances().get("response-template");
+        extensionDeclarations.getFactories().stream()
+            .map(factory -> factory.create(new MockWireMockServices()))
+            .findFirst()
+            .get();
     assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
     assertThat(
         ((ResponseTemplateTransformer) responseTemplateExtension).getMaxCacheEntries(), is(5L));
