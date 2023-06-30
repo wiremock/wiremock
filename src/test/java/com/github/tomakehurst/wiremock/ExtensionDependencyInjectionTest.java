@@ -26,6 +26,8 @@ import com.github.tomakehurst.wiremock.admin.Router;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.Test;
 public class ExtensionDependencyInjectionTest {
 
   WireMockServer wm;
+  WireMockTestClient client;
 
   @AfterEach
   void stopServer() {
@@ -49,37 +52,28 @@ public class ExtensionDependencyInjectionTest {
   @SuppressWarnings("unchecked")
   @Test
   void injectsCoreServicesOnConstructionByClass() {
-    wm =
-        new WireMockServer(
-            options()
-                .dynamicPort()
-                .withRootDirectory(defaultTestFilesRoot())
-                .extensions(RequestCounterApi.class));
-    wm.start();
-    WireMockTestClient client = new WireMockTestClient(wm.port());
+    initialiseWireMockServer(options()
+            .dynamicPort()
+            .withRootDirectory(defaultTestFilesRoot())
+            .stubCorsEnabled(true)
+            .extensions(MiscInfoApi.class));
 
-    client.get("/something");
-    client.get("/something");
-
-    String content = client.get("/__admin/misc-info").content();
-
-    assertThat(content, jsonPartEquals("example1", "Example 1"));
-    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
-    assertThat(content, jsonPartEquals("requestCount", 2));
+    assertCorrectValuesReturnedFromApiCall();
   }
 
   @Test
   void injectsCoreServicesOnConstructionByClassName() {
-    wm =
-        new WireMockServer(
-            options()
-                .dynamicPort()
-                .withRootDirectory(defaultTestFilesRoot())
-                .extensions(
-                    "com.github.tomakehurst.wiremock.ExtensionDependencyInjectionTest$RequestCounterApi"));
-    wm.start();
-    WireMockTestClient client = new WireMockTestClient(wm.port());
+    initialiseWireMockServer(options()
+            .dynamicPort()
+            .withRootDirectory(defaultTestFilesRoot())
+            .stubCorsEnabled(true)
+            .extensions(
+                    "com.github.tomakehurst.wiremock.ExtensionDependencyInjectionTest$MiscInfoApi"));
 
+    assertCorrectValuesReturnedFromApiCall();
+  }
+
+  private void assertCorrectValuesReturnedFromApiCall() {
     client.get("/something");
     client.get("/something");
 
@@ -88,17 +82,26 @@ public class ExtensionDependencyInjectionTest {
     assertThat(content, jsonPartEquals("example1", "Example 1"));
     assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
     assertThat(content, jsonPartEquals("requestCount", 2));
+    assertThat(content, jsonPartEquals("stubCorsEnabled", true));
   }
 
-  public static class RequestCounterApi implements AdminApiExtension {
+  private void initialiseWireMockServer(WireMockConfiguration options) {
+    wm = new WireMockServer(options);
+    wm.start();
+    client = new WireMockTestClient(wm.port());
+  }
+
+  public static class MiscInfoApi implements AdminApiExtension {
 
     private final Admin admin;
+    private final Options options;
     private final Stores stores;
     private final FileSource fileSource;
 
     @Inject
-    public RequestCounterApi(Admin admin, Stores stores, FileSource fileSource) {
+    public MiscInfoApi(Admin admin, Options options, Stores stores, FileSource fileSource) {
       this.admin = admin;
+      this.options = options;
       this.stores = stores;
       this.fileSource = fileSource;
     }
@@ -122,7 +125,9 @@ public class ExtensionDependencyInjectionTest {
                 Map.of(
                     "example1", example1,
                     "fileSourcePath", fileSourcePath,
-                    "requestCount", requestCount));
+                    "requestCount", requestCount,
+                    "stubCorsEnabled", options.getStubCorsEnabled()
+                ));
           });
     }
   }

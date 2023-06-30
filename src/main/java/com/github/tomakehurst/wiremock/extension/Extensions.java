@@ -35,22 +35,25 @@ import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 
 public class Extensions implements WireMockServices {
 
-  public static Extensions NONE = new Extensions(new ExtensionDeclarations(), null, null, null);
+  public static Extensions NONE = new Extensions(new ExtensionDeclarations(), null, null, null, null);
 
   private final ExtensionDeclarations extensionDeclarations;
   private final Admin admin;
+
+  private final Options options;
   private final Stores stores;
   private final FileSource files;
 
-  // TODO: Add TemplateEngine, Extensions, Options to list of available services
+  // TODO: Add TemplateEngine, Extensions to list of available services
 
   private final Map<String, Extension> loadedExtensions;
 
   @SuppressWarnings("unchecked")
   public Extensions(
-      ExtensionDeclarations extensionDeclarations, Admin admin, Stores stores, FileSource files) {
+          ExtensionDeclarations extensionDeclarations, Admin admin, Options options, Stores stores, FileSource files) {
     this.extensionDeclarations = extensionDeclarations;
     this.admin = admin;
+    this.options = options;
     this.stores = stores;
     this.files = files;
 
@@ -62,6 +65,7 @@ public class Extensions implements WireMockServices {
     final ServiceLocator serviceLocator = serviceLocatorFactory.create("default");
 
     ServiceLocatorUtilities.addOneConstant(serviceLocator, admin, "Admin", Admin.class);
+    ServiceLocatorUtilities.addOneConstant(serviceLocator, options, "Options", Options.class);
     ServiceLocatorUtilities.addOneConstant(serviceLocator, stores, "Stores", Stores.class);
     ServiceLocatorUtilities.addOneConstant(serviceLocator, files, "FileSource", FileSource.class);
 
@@ -104,7 +108,7 @@ public class Extensions implements WireMockServices {
 
   @Override
   public Options getOptions() {
-    return null;
+    return options;
   }
 
   @Override
