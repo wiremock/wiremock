@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.tomakehurst.wiremock.common.Exceptions;
@@ -50,7 +51,7 @@ public class HandlebarsOptimizedTemplate {
       }
     }
 
-    this.template = uncheckedCompileTemplate(handlebars, templateContent);
+    this.template = uncheckedCompileTemplate(handlebars.with(EscapingStrategy.NOOP), templateContent);
   }
 
   private static Template uncheckedCompileTemplate(Handlebars handlebars, String templateContent) {
