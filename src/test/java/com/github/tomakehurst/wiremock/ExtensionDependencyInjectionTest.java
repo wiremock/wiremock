@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -73,6 +74,24 @@ public class ExtensionDependencyInjectionTest {
     assertCorrectValuesReturnedFromApiCall();
   }
 
+  @Test
+  void injectsCoreServicesOnConstructionByFactory() {
+    initialiseWireMockServer(options()
+            .dynamicPort()
+            .withRootDirectory(defaultTestFilesRoot())
+            .stubCorsEnabled(true)
+            .extensions(
+                    services -> new MiscInfoApi(
+                            services.getAdmin(),
+                            services.getOptions(),
+                            services.getStores(),
+                            services.getFiles(),
+                            services.getExtensions()
+                    )));
+
+    assertCorrectValuesReturnedFromApiCall();
+  }
+
   private void assertCorrectValuesReturnedFromApiCall() {
     client.get("/something");
     client.get("/something");
@@ -83,6 +102,7 @@ public class ExtensionDependencyInjectionTest {
     assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
     assertThat(content, jsonPartEquals("requestCount", 2));
     assertThat(content, jsonPartEquals("stubCorsEnabled", true));
+    assertThat(content, jsonPartEquals("extensionCount", 1));
   }
 
   private void initialiseWireMockServer(WireMockConfiguration options) {
@@ -98,12 +118,15 @@ public class ExtensionDependencyInjectionTest {
     private final Stores stores;
     private final FileSource fileSource;
 
+    private final Extensions extensions;
+
     @Inject
-    public MiscInfoApi(Admin admin, Options options, Stores stores, FileSource fileSource) {
+    public MiscInfoApi(Admin admin, Options options, Stores stores, FileSource fileSource, Extensions extensions) {
       this.admin = admin;
       this.options = options;
       this.stores = stores;
       this.fileSource = fileSource;
+      this.extensions = extensions;
     }
 
     @Override
@@ -126,7 +149,8 @@ public class ExtensionDependencyInjectionTest {
                     "example1", example1,
                     "fileSourcePath", fileSourcePath,
                     "requestCount", requestCount,
-                    "stubCorsEnabled", options.getStubCorsEnabled()
+                    "stubCorsEnabled", options.getStubCorsEnabled(),
+                    "extensionCount", extensions.getCount()
                 ));
           });
     }
