@@ -175,9 +175,7 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void urlWithOddOutputParams() {
     ResponseDefinition transformedResponseDef =
-            transform(
-                    mockRequest().url("/thing/1?foo=bar"),
-                    aResponse().withBody("{{request.url}}"));
+        transform(mockRequest().url("/thing/1?foo=bar"), aResponse().withBody("{{request.url}}"));
 
     assertThat(transformedResponseDef.getBody(), is("/thing/1?foo=bar"));
   }

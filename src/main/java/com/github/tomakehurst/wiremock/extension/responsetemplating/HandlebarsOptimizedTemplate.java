@@ -51,7 +51,8 @@ public class HandlebarsOptimizedTemplate {
       }
     }
 
-    this.template = uncheckedCompileTemplate(handlebars.with(EscapingStrategy.NOOP), templateContent);
+    this.template =
+        uncheckedCompileTemplate(handlebars.with(EscapingStrategy.NOOP), templateContent);
   }
 
   private static Template uncheckedCompileTemplate(Handlebars handlebars, String templateContent) {
