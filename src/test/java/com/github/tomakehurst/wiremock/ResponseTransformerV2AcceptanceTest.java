@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTransformerV2AcceptanceTest {
@@ -91,7 +92,7 @@ public class ResponseTransformerV2AcceptanceTest {
   public static class StubResponseTransformer implements ResponseTransformerV2 {
 
     @Override
-    public Response transform(Response response, ServeEvent serveEvent, FileSource fileSource) {
+    public Response transform(Response response, ServeEvent serveEvent) {
       return Response.Builder.like(response).but().body("Modified body").build();
     }
 
@@ -109,7 +110,7 @@ public class ResponseTransformerV2AcceptanceTest {
   public static class StubResponseTransformerWithParams implements ResponseTransformerV2 {
 
     @Override
-    public Response transform(Response response, ServeEvent serveEvent, FileSource fileSource) {
+    public Response transform(Response response, ServeEvent serveEvent) {
       Parameters parameters = serveEvent.getTransformerParameters();
       return Response.Builder.like(response)
           .but()
@@ -136,7 +137,7 @@ public class ResponseTransformerV2AcceptanceTest {
   public static class GlobalResponseTransformer implements ResponseTransformerV2 {
 
     @Override
-    public Response transform(Response response, ServeEvent serveEvent, FileSource fileSource) {
+    public Response transform(Response response, ServeEvent serveEvent) {
       return Response.Builder.like(response)
           .but()
           .headers(response.getHeaders().plus(httpHeader("X-Extra", "extra val")))
@@ -156,8 +157,15 @@ public class ResponseTransformerV2AcceptanceTest {
 
   public static class FilesUsingResponseTransformer implements ResponseTransformerV2 {
 
+    private final FileSource fileSource;
+
+    @Inject
+    public FilesUsingResponseTransformer(FileSource fileSource) {
+      this.fileSource = fileSource;
+    }
+
     @Override
-    public Response transform(Response response, ServeEvent serveEvent, FileSource fileSource) {
+    public Response transform(Response response, ServeEvent serveEvent) {
       return Response.Builder.like(response)
           .but()
           .body(fileSource.getTextFileNamed("plain-example.txt").getPath())

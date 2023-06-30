@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelperTestBase.transform;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -44,7 +45,7 @@ public class HandlebarsCurrentDateHelperTest {
   @BeforeEach
   public void init() {
     helper = new HandlebarsCurrentDateHelper();
-    transformer = new ResponseTemplateTransformer(true);
+    transformer = buildTemplateTransformer(true);
 
     LocalNotifier.set(new ConsoleNotifier(true));
   }

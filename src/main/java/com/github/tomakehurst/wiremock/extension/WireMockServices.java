@@ -15,14 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.store.Stores;
 
-public interface ResponseTransformerV2 extends Extension {
+public interface WireMockServices {
 
-  Response transform(Response response, ServeEvent serveEvent);
+  Admin getAdmin();
 
-  default boolean applyGlobally() {
-    return true;
-  }
+  Stores getStores();
+
+  FileSource getFiles();
+
+  Options getOptions();
+
+  Extensions getExtensions();
+
+  TemplateEngine getTemplateEngine();
 }

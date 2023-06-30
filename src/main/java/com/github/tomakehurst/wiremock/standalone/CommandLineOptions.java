@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -440,13 +441,13 @@ public class CommandLineOptions implements Options {
   }
 
   private void contributeResponseTemplateTransformer(boolean global) {
-    ResponseTemplateTransformer transformer =
+    ExtensionFactory<ResponseTemplateTransformer> transformerFactory =
         ResponseTemplateTransformer.builder()
             .global(global)
             .maxCacheEntries(getMaxTemplateCacheEntries())
             .permittedSystemKeys(getPermittedSystemKeys())
             .build();
-    extensions.add(transformer);
+    extensions.add(transformerFactory);
   }
 
   private void validate() {

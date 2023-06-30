@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -34,7 +35,7 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   @BeforeEach
   public void init() {
     this.helper = new HandlebarsSoapHelper();
-    this.transformer = new ResponseTemplateTransformer(true);
+    this.transformer = buildTemplateTransformer(true);
   }
 
   @Test

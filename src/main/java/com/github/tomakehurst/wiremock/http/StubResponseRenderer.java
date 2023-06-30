@@ -116,7 +116,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 
     Response newResponse =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
-            ? transformer.transform(response, serveEvent, filesFileSource)
+            ? transformer.transform(response, serveEvent)
             : response;
 
     return applyV2Transformations(

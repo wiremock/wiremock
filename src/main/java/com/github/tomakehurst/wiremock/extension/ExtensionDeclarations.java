@@ -24,11 +24,13 @@ public class ExtensionDeclarations {
   private final List<String> classNames;
   private final List<Class<? extends Extension>> classes;
   private final Map<String, Extension> instances;
+  private final List<ExtensionFactory<? extends Extension>> factories;
 
   public ExtensionDeclarations() {
     this.classNames = new ArrayList<>();
     this.classes = new ArrayList<>();
     this.instances = new LinkedHashMap<>();
+    this.factories = new ArrayList<>();
   }
 
   public void add(String... classNames) {
@@ -43,6 +45,10 @@ public class ExtensionDeclarations {
     this.classes.addAll(asList(classes));
   }
 
+  public void add(ExtensionFactory<? extends Extension>... factories) {
+    this.factories.addAll(asList(factories));
+  }
+
   public List<String> getClassNames() {
     return classNames;
   }
@@ -53,5 +59,9 @@ public class ExtensionDeclarations {
 
   public Map<String, Extension> getInstances() {
     return instances;
+  }
+
+  public List<ExtensionFactory<? extends Extension>> getFactories() {
+    return factories;
   }
 }

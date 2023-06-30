@@ -64,7 +64,7 @@ public class ExtensionDependencyInjectionTest {
     String content = client.get("/__admin/misc-info").content();
 
     assertThat(content, jsonPartEquals("example1", "Example 1"));
-    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root")));
+    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
     assertThat(content, jsonPartEquals("requestCount", 2));
   }
 
@@ -86,7 +86,7 @@ public class ExtensionDependencyInjectionTest {
     String content = client.get("/__admin/misc-info").content();
 
     assertThat(content, jsonPartEquals("example1", "Example 1"));
-    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root")));
+    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
     assertThat(content, jsonPartEquals("requestCount", 2));
   }
 

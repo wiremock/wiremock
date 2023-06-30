@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -44,7 +44,7 @@ public abstract class HandlebarsHelperTestBase {
 
   @BeforeEach
   public void initRenderCache() {
-    transformer = new ResponseTemplateTransformer(true);
+    transformer = buildTemplateTransformer(true);
     renderCache = new RenderCache();
   }
 
@@ -115,7 +115,6 @@ public abstract class HandlebarsHelperTestBase {
       ResponseDefinitionTransformerV2 transformer,
       Request request,
       ResponseDefinitionBuilder responseDefinitionBuilder) {
-    return transformer.transform(
-        newPostMatchServeEvent(request, responseDefinitionBuilder), noFileSource());
+    return transformer.transform(newPostMatchServeEvent(request, responseDefinitionBuilder));
   }
 }

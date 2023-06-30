@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -53,7 +50,8 @@ public class JUnitJupiterExtensionStaticMultiInstanceTest {
   @RegisterExtension
   static WireMockExtension wm2 =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().extensions(new ResponseTemplateTransformer(true)))
+          .options(
+              wireMockConfig().dynamicPort().extensions(ResponseTemplateTransformer.global(true)))
           .build();
 
   @BeforeEach

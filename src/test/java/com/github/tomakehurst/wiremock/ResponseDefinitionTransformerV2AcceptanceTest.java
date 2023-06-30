@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -196,7 +197,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public static class ExampleTransformer implements ResponseDefinitionTransformerV2 {
 
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return new ResponseDefinitionBuilder()
           .withHeader("MyHeader", "Transformed")
           .withStatus(200)
@@ -213,7 +214,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public static class MultiTransformer1 implements ResponseDefinitionTransformerV2 {
 
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
           .but()
           .withStatus(201)
@@ -229,7 +230,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public static class MultiTransformer2 implements ResponseDefinitionTransformerV2 {
 
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
           .but()
           .withBody("Expect this")
@@ -245,7 +246,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public static class NonGlobalTransformer implements ResponseDefinitionTransformerV2 {
 
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
           .but()
           .withBody("Non-global transformed body")
@@ -266,7 +267,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public static class AnotherExampleTransformer implements ResponseDefinitionTransformerV2 {
 
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return serveEvent.getResponseDefinition();
     }
 
@@ -278,8 +279,15 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
   public static class FileAccessTransformer implements ResponseDefinitionTransformerV2 {
 
+    private final FileSource files;
+
+    @Inject
+    public FileAccessTransformer(FileSource files) {
+      this.files = files;
+    }
+
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource files) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
           .but()
           .withBody(files.getBinaryFileNamed("plain-example.txt").readContents())
@@ -295,7 +303,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public static class ParameterisedTransformer implements ResponseDefinitionTransformerV2 {
 
     @Override
-    public ResponseDefinition transform(ServeEvent serveEvent, FileSource fileSource) {
+    public ResponseDefinition transform(ServeEvent serveEvent) {
       return ResponseDefinitionBuilder.like(serveEvent.getResponseDefinition())
           .but()
           .withBody(

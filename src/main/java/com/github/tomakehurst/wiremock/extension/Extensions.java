@@ -17,19 +17,23 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static java.util.stream.Collectors.toMap;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 
-public class Extensions {
+public class Extensions implements WireMockServices {
 
   public static Extensions NONE = new Extensions(new ExtensionDeclarations(), null, null, null);
 
@@ -37,6 +41,8 @@ public class Extensions {
   private final Admin admin;
   private final Stores stores;
   private final FileSource files;
+
+  // TODO: Add TemplateEngine, Extensions, Options to list of available services
 
   private final Map<String, Extension> loadedExtensions;
 
@@ -73,8 +79,42 @@ public class Extensions {
             });
 
     loadedExtensions.putAll(extensionDeclarations.getInstances());
+    loadedExtensions.putAll(
+        extensionDeclarations.getFactories().stream()
+            .map(factory -> factory.create(Extensions.this))
+            .collect(toMap(Extension::getName, Function.identity())));
 
     serviceLocatorFactory.destroy("default");
+  }
+
+  @Override
+  public Admin getAdmin() {
+    return admin;
+  }
+
+  @Override
+  public Stores getStores() {
+    return stores;
+  }
+
+  @Override
+  public FileSource getFiles() {
+    return files;
+  }
+
+  @Override
+  public Options getOptions() {
+    return null;
+  }
+
+  @Override
+  public Extensions getExtensions() {
+    return this;
+  }
+
+  @Override
+  public TemplateEngine getTemplateEngine() {
+    return null;
   }
 
   @SuppressWarnings("unchecked")

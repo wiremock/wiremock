@@ -17,11 +17,14 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -272,16 +275,20 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void extractsValueFromAMap() {
     ResponseTemplateTransformer transformer =
-        new ResponseTemplateTransformer(true) {
-          @Override
-          protected Map<String, Object> addExtraModelElements(
-              Request request,
-              ResponseDefinition responseDefinition,
-              FileSource files,
-              Parameters parameters) {
-            return ImmutableMap.<String, Object>of("mapData", ImmutableMap.of("things", "abc"));
-          }
-        };
+        buildExtension(
+            services ->
+                new ResponseTemplateTransformer(
+                    true, services.getFiles(), new Handlebars(), emptyMap(), null, null) {
+                  @Override
+                  protected Map<String, Object> addExtraModelElements(
+                      Request request,
+                      ResponseDefinition responseDefinition,
+                      FileSource files,
+                      Parameters parameters) {
+                    return ImmutableMap.<String, Object>of(
+                        "mapData", ImmutableMap.of("things", "abc"));
+                  }
+                });
 
     final ResponseDefinition responseDefinition =
         transform(
