@@ -44,7 +44,7 @@ public class Extensions implements WireMockServices {
   private final Stores stores;
   private final FileSource files;
 
-  // TODO: Add TemplateEngine, Extensions to list of available services
+  // TODO: Add TemplateEngine to list of available services
 
   private final Map<String, Extension> loadedExtensions;
 
@@ -68,6 +68,7 @@ public class Extensions implements WireMockServices {
     ServiceLocatorUtilities.addOneConstant(serviceLocator, options, "Options", Options.class);
     ServiceLocatorUtilities.addOneConstant(serviceLocator, stores, "Stores", Stores.class);
     ServiceLocatorUtilities.addOneConstant(serviceLocator, files, "FileSource", FileSource.class);
+    ServiceLocatorUtilities.addOneConstant(serviceLocator, this, "Extensions", Extensions.class);
 
     Streams.concat(
             extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
@@ -119,6 +120,10 @@ public class Extensions implements WireMockServices {
   @Override
   public TemplateEngine getTemplateEngine() {
     return null;
+  }
+
+  public int getCount() {
+    return loadedExtensions.size();
   }
 
   @SuppressWarnings("unchecked")
