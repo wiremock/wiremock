@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Set;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTemplateTransformerTest {
@@ -309,7 +309,7 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  @Ignore("Discuss where we need for this")
+  @Disabled("Discuss where we need for this")
   public void escapingIsTheDefault() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
