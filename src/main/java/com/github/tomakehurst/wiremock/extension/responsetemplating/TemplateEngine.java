@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import static java.util.Collections.emptyMap;
+
+import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.helper.AssignHelper;
@@ -36,17 +39,19 @@ public class TemplateEngine {
   private final Cache<Object, HandlebarsOptimizedTemplate> cache;
   private final Long maxCacheEntries;
 
-  public TemplateEngine(
-      Map<String, Helper<?>> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
-    this(new Handlebars(), helpers, maxCacheEntries, permittedSystemKeys);
+  public static TemplateEngine defaultTemplateEngine() {
+    return new TemplateEngine(emptyMap(), null, null, false);
   }
 
   public TemplateEngine(
-      Handlebars handlebars,
       Map<String, Helper<?>> helpers,
       Long maxCacheEntries,
-      Set<String> permittedSystemKeys) {
-    this.handlebars = handlebars;
+      Set<String> permittedSystemKeys,
+      boolean escapingDisabled) {
+
+    this.handlebars =
+        escapingDisabled ? new Handlebars().with(EscapingStrategy.NOOP) : new Handlebars();
+
     this.maxCacheEntries = maxCacheEntries;
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
     if (maxCacheEntries != null) {

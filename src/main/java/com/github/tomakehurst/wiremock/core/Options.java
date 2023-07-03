@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRendere
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 public interface Options {
@@ -125,4 +126,14 @@ public interface Options {
   NetworkAddressRules getProxyTargetRules();
 
   int proxyTimeout();
+
+  boolean getResponseTemplatingEnabled();
+
+  boolean getResponseTemplatingGlobal();
+
+  Long getMaxTemplateCacheEntries();
+
+  Set<String> getTemplatePermittedSystemKeys();
+
+  boolean getTemplateEscapingDisabled();
 }

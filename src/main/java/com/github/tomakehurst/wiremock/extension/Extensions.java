@@ -17,11 +17,13 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.Maps;
@@ -42,7 +44,7 @@ public class Extensions implements WireMockServices {
   private final Stores stores;
   private final FileSource files;
 
-  // TODO: Add TemplateEngine to list of available services
+  private TemplateEngine templateEngine;
 
   private final Map<String, Extension> loadedExtensions;
 
@@ -81,6 +83,20 @@ public class Extensions implements WireMockServices {
         extensionDeclarations.getFactories().stream()
             .map(factory -> factory.create(Extensions.this))
             .collect(toMap(Extension::getName, Function.identity())));
+
+    templateEngine =
+        new TemplateEngine(
+            emptyMap(),
+            options.getMaxTemplateCacheEntries(),
+            options.getTemplatePermittedSystemKeys(),
+            options.getTemplateEscapingDisabled());
+
+    if (options.getResponseTemplatingEnabled()) {
+      final ResponseTemplateTransformer responseTemplateTransformer =
+          new ResponseTemplateTransformer(
+              getTemplateEngine(), options.getResponseTemplatingGlobal(), getFiles());
+      loadedExtensions.put(responseTemplateTransformer.getName(), responseTemplateTransformer);
+    }
   }
 
   @Override
@@ -110,7 +126,7 @@ public class Extensions implements WireMockServices {
 
   @Override
   public TemplateEngine getTemplateEngine() {
-    return null;
+    return templateEngine;
   }
 
   public int getCount() {

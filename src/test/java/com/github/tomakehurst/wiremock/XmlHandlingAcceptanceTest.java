@@ -33,10 +33,7 @@ public class XmlHandlingAcceptanceTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(
-              options()
-                  .dynamicPort()
-                  .extensions(ResponseTemplateTransformer.builder().global(false).build()))
+          .options(options().dynamicPort().templatingEnabled(true))
           .build();
 
   @RegisterExtension

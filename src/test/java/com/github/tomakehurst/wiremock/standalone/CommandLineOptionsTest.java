@@ -39,7 +39,6 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.*;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -47,7 +46,6 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
-import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -415,49 +413,24 @@ public class CommandLineOptionsTest {
   @Test
   public void enablesGlobalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
-
-    Extension responseTemplateExtension =
-        extensionDeclarations.getFactories().stream()
-            .map(factory -> factory.create(new MockWireMockServices()))
-            .findFirst()
-            .get();
-    assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
-    assertThat(((ResponseTemplateTransformer) responseTemplateExtension).applyGlobally(), is(true));
-    assertThat(
-        ((ResponseTemplateTransformer) responseTemplateExtension).getMaxCacheEntries(),
-        nullValue());
+    assertThat(options.getResponseTemplatingEnabled(), is(true));
+    assertThat(options.getResponseTemplatingGlobal(), is(true));
   }
 
   @Test
   public void enablesLocalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--local-response-templating");
-    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
-
-    Extension responseTemplateExtension =
-        extensionDeclarations.getFactories().stream()
-            .map(factory -> factory.create(new MockWireMockServices()))
-            .findFirst()
-            .get();
-    assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
-    assertThat(
-        ((ResponseTemplateTransformer) responseTemplateExtension).applyGlobally(), is(false));
+    assertThat(options.getResponseTemplatingEnabled(), is(true));
+    assertThat(options.getResponseTemplatingGlobal(), is(false));
   }
 
   @Test
   public void configuresMaxTemplateCacheEntriesIfSpecified() {
     CommandLineOptions options =
         new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
-    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
 
-    Extension responseTemplateExtension =
-        extensionDeclarations.getFactories().stream()
-            .map(factory -> factory.create(new MockWireMockServices()))
-            .findFirst()
-            .get();
-    assertThat(responseTemplateExtension, instanceOf(ResponseTemplateTransformer.class));
-    assertThat(
-        ((ResponseTemplateTransformer) responseTemplateExtension).getMaxCacheEntries(), is(5L));
+    assertThat(options.getResponseTemplatingGlobal(), is(true));
+    assertThat(options.getMaxTemplateCacheEntries(), is(5L));
   }
 
   @Test
@@ -523,7 +496,7 @@ public class CommandLineOptionsTest {
     CommandLineOptions options =
         new CommandLineOptions(
             "--global-response-templating", "--permitted-system-keys", "java*,path*");
-    assertThat(options.getPermittedSystemKeys(), hasItems("java*", "path*"));
+    assertThat(options.getTemplatePermittedSystemKeys(), hasItems("java*", "path*"));
   }
 
   @Test
@@ -542,7 +515,7 @@ public class CommandLineOptionsTest {
   @Test
   public void returnsEmptyPermittedKeysIfNotSpecified() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    assertThat(options.getPermittedSystemKeys(), emptyCollectionOf(String.class));
+    assertThat(options.getTemplatePermittedSystemKeys(), emptyCollectionOf(String.class));
   }
 
   @Test

@@ -56,6 +56,7 @@ public class ExtensionFactoryTest {
             .dynamicPort()
             .withRootDirectory(defaultTestFilesRoot())
             .stubCorsEnabled(true)
+            .templatingEnabled(false)
             .extensions(
                 services ->
                     new MiscInfoApi(

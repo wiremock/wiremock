@@ -65,6 +65,7 @@ import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -133,7 +134,6 @@ public class WireMockConfiguration implements Options {
   private ChunkedEncodingPolicy chunkedEncodingPolicy;
   private boolean gzipDisabled = false;
   private boolean stubLoggingDisabled = false;
-  private String permittedSystemKeys = null;
 
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
@@ -145,6 +145,12 @@ public class WireMockConfiguration implements Options {
   private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
 
   private int proxyTimeout = DEFAULT_TIMEOUT;
+
+  private boolean templatingEnabled = true;
+  private boolean globalTemplating = false;
+  private Set<String> permittedSystemKeys = null;
+  private Long maxTemplateCacheEntries = null;
+  private boolean templateEscapingDisabled = false;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -516,6 +522,26 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration templatingEnabled(boolean templatingEnabled) {
+    this.templatingEnabled = templatingEnabled;
+    return this;
+  }
+
+  public WireMockConfiguration globalTemplating(boolean globalTemplating) {
+    this.globalTemplating = globalTemplating;
+    return this;
+  }
+
+  public WireMockConfiguration withPermittedSystemKeys(String... systemKeys) {
+    this.permittedSystemKeys = Set.of(systemKeys);
+    return this;
+  }
+
+  public WireMockConfiguration withTemplateEscapingDisabled(boolean templateEscapingDisabled) {
+    this.templateEscapingDisabled = templateEscapingDisabled;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -744,5 +770,30 @@ public class WireMockConfiguration implements Options {
   @Override
   public int proxyTimeout() {
     return proxyTimeout;
+  }
+
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return templatingEnabled;
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return globalTemplating;
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
+    return maxTemplateCacheEntries;
+  }
+
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
+    return permittedSystemKeys;
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return templateEscapingDisabled;
   }
 }

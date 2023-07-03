@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import static java.util.Collections.emptyMap;
+
+import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -22,10 +25,18 @@ import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.store.Stores;
+import com.google.common.base.Suppliers;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class MockWireMockServices implements WireMockServices {
 
   private FileSource fileSource = new NoFileSource();
+
+  private Map<String, Helper<?>> helpers = emptyMap();
+  private Long maxCacheEntries = null;
+  private Supplier<TemplateEngine> templateEngine =
+      Suppliers.memoize(() -> new TemplateEngine(helpers, maxCacheEntries, null, false));
 
   @Override
   public Admin getAdmin() {
@@ -54,11 +65,21 @@ public class MockWireMockServices implements WireMockServices {
 
   @Override
   public TemplateEngine getTemplateEngine() {
-    return null;
+    return templateEngine.get();
   }
 
   public MockWireMockServices setFileSource(FileSource fileSource) {
     this.fileSource = fileSource;
+    return this;
+  }
+
+  public MockWireMockServices setHelpers(Map<String, Helper<?>> helpers) {
+    this.helpers = helpers;
+    return this;
+  }
+
+  public MockWireMockServices setMaxCacheEntries(Long maxCacheEntries) {
+    this.maxCacheEntries = maxCacheEntries;
     return this;
   }
 }
