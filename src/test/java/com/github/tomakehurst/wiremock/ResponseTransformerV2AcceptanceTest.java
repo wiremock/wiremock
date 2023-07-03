@@ -24,12 +24,12 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTransformerV2AcceptanceTest {
@@ -74,7 +74,7 @@ public class ResponseTransformerV2AcceptanceTest {
 
   @Test
   public void filesRootIsCorrectlyPassedToTransformer() {
-    startWithExtensions(FilesUsingResponseTransformer.class);
+    startWithExtensions(services -> new FilesUsingResponseTransformer(services.getFiles()));
 
     wm.stubFor(get(urlEqualTo("/response-transform-with-files")).willReturn(ok()));
 
@@ -85,6 +85,12 @@ public class ResponseTransformerV2AcceptanceTest {
   @SuppressWarnings("unchecked")
   private void startWithExtensions(Class<? extends Extension> extensionClasses) {
     wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionClasses));
+    wm.start();
+    client = new WireMockTestClient(wm.port());
+  }
+
+  private void startWithExtensions(ExtensionFactory<?>... extensionFactories) {
+    wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionFactories));
     wm.start();
     client = new WireMockTestClient(wm.port());
   }
@@ -159,7 +165,6 @@ public class ResponseTransformerV2AcceptanceTest {
 
     private final FileSource fileSource;
 
-    @Inject
     public FilesUsingResponseTransformer(FileSource fileSource) {
       this.fileSource = fileSource;
     }

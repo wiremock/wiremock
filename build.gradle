@@ -97,8 +97,6 @@ dependencies {
 
   api 'com.networknt:json-schema-validator:1.0.83'
 
-  implementation 'org.glassfish.hk2:hk2-locator:3.0.4'
-
   testImplementation "junit:junit:4.13"
   testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testImplementation("org.junit.platform:junit-platform-testkit")

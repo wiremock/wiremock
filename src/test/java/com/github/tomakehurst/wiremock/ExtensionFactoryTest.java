@@ -33,12 +33,11 @@ import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import jakarta.inject.Inject;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class ExtensionDependencyInjectionTest {
+public class ExtensionFactoryTest {
 
   WireMockServer wm;
   WireMockTestClient client;
@@ -50,44 +49,21 @@ public class ExtensionDependencyInjectionTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  @Test
-  void injectsCoreServicesOnConstructionByClass() {
-    initialiseWireMockServer(options()
-            .dynamicPort()
-            .withRootDirectory(defaultTestFilesRoot())
-            .stubCorsEnabled(true)
-            .extensions(MiscInfoApi.class));
-
-    assertCorrectValuesReturnedFromApiCall();
-  }
-
-  @Test
-  void injectsCoreServicesOnConstructionByClassName() {
-    initialiseWireMockServer(options()
-            .dynamicPort()
-            .withRootDirectory(defaultTestFilesRoot())
-            .stubCorsEnabled(true)
-            .extensions(
-                    "com.github.tomakehurst.wiremock.ExtensionDependencyInjectionTest$MiscInfoApi"));
-
-    assertCorrectValuesReturnedFromApiCall();
-  }
-
   @Test
   void injectsCoreServicesOnConstructionByFactory() {
-    initialiseWireMockServer(options()
+    initialiseWireMockServer(
+        options()
             .dynamicPort()
             .withRootDirectory(defaultTestFilesRoot())
             .stubCorsEnabled(true)
             .extensions(
-                    services -> new MiscInfoApi(
-                            services.getAdmin(),
-                            services.getOptions(),
-                            services.getStores(),
-                            services.getFiles(),
-                            services.getExtensions()
-                    )));
+                services ->
+                    new MiscInfoApi(
+                        services.getAdmin(),
+                        services.getOptions(),
+                        services.getStores(),
+                        services.getFiles(),
+                        services.getExtensions())));
 
     assertCorrectValuesReturnedFromApiCall();
   }
@@ -120,8 +96,8 @@ public class ExtensionDependencyInjectionTest {
 
     private final Extensions extensions;
 
-    @Inject
-    public MiscInfoApi(Admin admin, Options options, Stores stores, FileSource fileSource, Extensions extensions) {
+    public MiscInfoApi(
+        Admin admin, Options options, Stores stores, FileSource fileSource, Extensions extensions) {
       this.admin = admin;
       this.options = options;
       this.stores = stores;
@@ -150,8 +126,7 @@ public class ExtensionDependencyInjectionTest {
                     "fileSourcePath", fileSourcePath,
                     "requestCount", requestCount,
                     "stubCorsEnabled", options.getStubCorsEnabled(),
-                    "extensionCount", extensions.getCount()
-                ));
+                    "extensionCount", extensions.getCount()));
           });
     }
   }
