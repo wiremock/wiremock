@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
+import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -30,6 +30,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class Extensions implements WireMockServices {
@@ -84,9 +85,20 @@ public class Extensions implements WireMockServices {
             .map(factory -> factory.create(Extensions.this))
             .collect(toMap(Extension::getName, Function.identity())));
 
+    configureTemplating();
+  }
+
+  private void configureTemplating() {
+    final Map<String, Helper<?>> helpers =
+        ofType(TemplateHelperProviderExtension.class).values().stream()
+            .map(TemplateHelperProviderExtension::provideTemplateHelpers)
+            .map(Map::entrySet)
+            .flatMap(Set::stream)
+            .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     templateEngine =
         new TemplateEngine(
-            emptyMap(),
+            helpers,
             options.getMaxTemplateCacheEntries(),
             options.getTemplatePermittedSystemKeys(),
             options.getTemplateEscapingDisabled());
