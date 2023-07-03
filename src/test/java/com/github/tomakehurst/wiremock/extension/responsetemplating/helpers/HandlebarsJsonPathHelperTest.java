@@ -19,12 +19,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.jknack.handlebars.Context;
-import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -33,6 +31,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -276,9 +275,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   public void extractsValueFromAMap() {
     ResponseTemplateTransformer transformer =
         buildExtension(
+            new MockWireMockServices(),
             services ->
                 new ResponseTemplateTransformer(
-                    true, services.getFiles(), new Handlebars(), emptyMap(), null, null) {
+                    services.getTemplateEngine(), true, services.getFiles()) {
                   @Override
                   protected Map<String, Object> addExtraModelElements(
                       Request request,

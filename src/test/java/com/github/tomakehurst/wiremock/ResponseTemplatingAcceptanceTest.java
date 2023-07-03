@@ -23,7 +23,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -45,7 +44,7 @@ public class ResponseTemplatingAcceptanceTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(options().dynamicPort().extensions(ResponseTemplateTransformer.global(false)))
+            .options(options().dynamicPort().templatingEnabled(true).globalTemplating(false))
             .build();
 
     @BeforeEach
@@ -87,7 +86,8 @@ public class ResponseTemplatingAcceptanceTest {
                 options()
                     .dynamicPort()
                     .withRootDirectory(defaultTestFilesRoot())
-                    .extensions(ResponseTemplateTransformer.builder().global(true).build()))
+                    .templatingEnabled(true)
+                    .globalTemplating(true))
             .build();
 
     @BeforeEach
@@ -331,11 +331,8 @@ public class ResponseTemplatingAcceptanceTest {
                 options()
                     .dynamicPort()
                     .withRootDirectory(defaultTestFilesRoot())
-                    .extensions(
-                        new ResponseTemplateTransformer.Builder()
-                            .global(true)
-                            .permittedSystemKeys("allowed.*")
-                            .build()))
+                    .withPermittedSystemKeys("allowed.*")
+                    .globalTemplating(true))
             .build();
 
     @BeforeEach
@@ -385,6 +382,40 @@ public class ResponseTemplatingAcceptanceTest {
               .willReturn(aResponse().withBody("{{systemValue type='ENVIRONMENT' key='PATH'}}")));
 
       assertThat(client.get("/templated").content(), notNullValue());
+    }
+  }
+
+  @Nested
+  class NoEscaping {
+
+    WireMockTestClient client;
+
+    @RegisterExtension
+    public WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(
+                options()
+                    .dynamicPort()
+                    .withRootDirectory(defaultTestFilesRoot())
+                    .templatingEnabled(true)
+                    .globalTemplating(true)
+                    .withTemplateEscapingDisabled(true))
+            .build();
+
+    @BeforeEach
+    public void init() {
+      client = new WireMockTestClient(wm.getPort());
+    }
+
+    @Test
+    void escapingIsDisabled() {
+      wm.stubFor(
+          post("/noescape").willReturn(ok("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}")));
+
+      WireMockResponse response =
+          client.postJson("/noescape", "{\"a\": {\"test\": \"look at my 'single quotes'\"}}");
+
+      assertThat(response.content(), is("{\"test\": \"look at my 'single quotes'\"}"));
     }
   }
 }

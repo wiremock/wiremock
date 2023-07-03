@@ -22,7 +22,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -50,8 +49,7 @@ public class JUnitJupiterExtensionStaticMultiInstanceTest {
   @RegisterExtension
   static WireMockExtension wm2 =
       WireMockExtension.newInstance()
-          .options(
-              wireMockConfig().dynamicPort().extensions(ResponseTemplateTransformer.global(true)))
+          .options(wireMockConfig().dynamicPort().templatingEnabled(true).globalTemplating(true))
           .build();
 
   @BeforeEach

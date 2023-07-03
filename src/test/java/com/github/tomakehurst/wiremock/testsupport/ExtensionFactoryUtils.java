@@ -15,32 +15,51 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformerTest;
+import java.util.Map;
 
 public class ExtensionFactoryUtils {
 
   public static ResponseTemplateTransformer buildTemplateTransformer(boolean global) {
-    return buildTemplateTransformer(ResponseTemplateTransformer.builder().global(global));
+    return buildExtension(
+        new MockWireMockServices(),
+        services ->
+            new ResponseTemplateTransformer(
+                services.getTemplateEngine(), global, services.getFiles()));
   }
 
   public static ResponseTemplateTransformer buildTemplateTransformer(
-      ResponseTemplateTransformer.Builder builder) {
-    return buildExtension(builder.build());
+      boolean global, String helperName, Helper<?> helper) {
+    return buildExtension(
+        new MockWireMockServices().setHelpers(Map.of(helperName, helper)),
+        services ->
+            new ResponseTemplateTransformer(
+                services.getTemplateEngine(), global, services.getFiles()));
   }
 
-  public static <T extends Extension> T buildExtension(ExtensionFactory<T> factory) {
+  public static ResponseTemplateTransformer buildTemplateTransformer(Long maxCacheEntries) {
+    return buildExtension(
+        new MockWireMockServices().setMaxCacheEntries(maxCacheEntries),
+        services ->
+            new ResponseTemplateTransformer(
+                services.getTemplateEngine(), false, services.getFiles()));
+  }
+
+  public static <T extends Extension> T buildExtension(
+      MockWireMockServices wireMockServices, ExtensionFactory<T> factory) {
     FileSource fileSource =
         new ClasspathFileSource(
             ResponseTemplateTransformerTest.class
                 .getClassLoader()
                 .getResource("templates")
                 .getPath());
-    MockWireMockServices services = new MockWireMockServices().setFileSource(fileSource);
-    return factory.create(services);
+    wireMockServices.setFileSource(fileSource);
+    return factory.create(wireMockServices);
   }
 }

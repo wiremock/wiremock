@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import jakarta.servlet.ServletContext;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class WarConfiguration implements Options {
 
@@ -236,5 +237,30 @@ public class WarConfiguration implements Options {
   @Override
   public int proxyTimeout() {
     return DEFAULT_TIMEOUT;
+  }
+
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return true;
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return false;
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
+    return null;
+  }
+
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
+    return null;
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return false;
   }
 }

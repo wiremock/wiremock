@@ -31,8 +31,6 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
-import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -46,7 +44,6 @@ import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.io.Resources;
@@ -412,12 +409,6 @@ public class CommandLineOptions implements Options {
       final String[] classNames = classNamesParamValue.split(",");
       extensions.add(classNames);
     }
-
-    if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING)) {
-      contributeResponseTemplateTransformer(true);
-    } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING)) {
-      contributeResponseTemplateTransformer(false);
-    }
   }
 
   private String getFilenameTemplateOption() {
@@ -438,16 +429,6 @@ public class CommandLineOptions implements Options {
       throw new IllegalArgumentException(
           "Format for filename template should be contain handlebar value. Please check format one more time");
     }
-  }
-
-  private void contributeResponseTemplateTransformer(boolean global) {
-    ExtensionFactory<ResponseTemplateTransformer> transformerFactory =
-        ResponseTemplateTransformer.builder()
-            .global(global)
-            .maxCacheEntries(getMaxTemplateCacheEntries())
-            .permittedSystemKeys(getPermittedSystemKeys())
-            .build();
-    extensions.add(transformerFactory);
   }
 
   private void validate() {
@@ -944,18 +925,34 @@ public class CommandLineOptions implements Options {
         : DEFAULT_TIMEOUT;
   }
 
-  private Long getMaxTemplateCacheEntries() {
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return optionSet.has(GLOBAL_RESPONSE_TEMPLATING) || optionSet.has(LOCAL_RESPONSE_TEMPLATING);
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return optionSet.has(GLOBAL_RESPONSE_TEMPLATING);
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
     return optionSet.has(MAX_TEMPLATE_CACHE_ENTRIES)
         ? Long.valueOf(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString())
         : null;
   }
 
   @SuppressWarnings("unchecked")
-  @VisibleForTesting
-  public Set<String> getPermittedSystemKeys() {
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
     return optionSet.has(PERMITTED_SYSTEM_KEYS)
         ? ImmutableSet.copyOf((List<String>) optionSet.valuesOf(PERMITTED_SYSTEM_KEYS))
         : Collections.<String>emptySet();
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return false;
   }
 
   private boolean isAsynchronousResponseEnabled() {

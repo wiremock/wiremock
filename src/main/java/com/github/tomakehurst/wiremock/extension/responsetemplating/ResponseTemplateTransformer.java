@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.HandlebarsException;
-import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
@@ -32,13 +30,10 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class ResponseTemplateTransformer
     implements StubLifecycleListener, ResponseDefinitionTransformerV2 {
@@ -49,25 +44,11 @@ public class ResponseTemplateTransformer
   private final FileSource files;
   private final TemplateEngine templateEngine;
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   public ResponseTemplateTransformer(
-      boolean global,
-      FileSource files,
-      Handlebars handlebars,
-      Map<String, Helper<?>> helpers,
-      Long maxCacheEntries,
-      Set<String> permittedSystemKeys) {
+      TemplateEngine templateEngine, boolean global, FileSource files) {
+    this.templateEngine = templateEngine;
     this.global = global;
     this.files = files;
-    this.templateEngine =
-        new TemplateEngine(handlebars, helpers, maxCacheEntries, permittedSystemKeys);
-  }
-
-  public static ExtensionFactory<ResponseTemplateTransformer> global(boolean global) {
-    return builder().global(global).build();
   }
 
   @Override
@@ -243,57 +224,20 @@ public class ResponseTemplateTransformer
     return templateEngine.getMaxCacheEntries();
   }
 
-  public static class Builder {
-    private boolean global = true;
-    private Handlebars handlebars = new Handlebars();
-    private Map<String, Helper<?>> helpers = new HashMap<>();
-    private Long maxCacheEntries = null;
-    private Set<String> permittedSystemKeys = null;
-
-    public Builder global(boolean global) {
-      this.global = global;
-      return this;
-    }
-
-    public Builder handlebars(Handlebars handlebars) {
-      this.handlebars = handlebars;
-      return this;
-    }
-
-    public Builder helpers(Map<String, Helper<?>> helpers) {
-      this.helpers = helpers;
-      return this;
-    }
-
-    public Builder helper(String name, Helper<?> helper) {
-      this.helpers.put(name, helper);
-      return this;
-    }
-
-    public Builder maxCacheEntries(Long maxCacheEntries) {
-      this.maxCacheEntries = maxCacheEntries;
-      return this;
-    }
-
-    public Builder permittedSystemKeys(Set<String> keys) {
-      this.permittedSystemKeys = keys;
-      return this;
-    }
-
-    public Builder permittedSystemKeys(String... keys) {
-      this.permittedSystemKeys = ImmutableSet.copyOf(keys);
-      return this;
-    }
-
-    public ExtensionFactory<ResponseTemplateTransformer> build() {
-      return wireMockServices ->
-          new ResponseTemplateTransformer(
-              global,
-              wireMockServices.getFiles(),
-              handlebars,
-              helpers,
-              maxCacheEntries,
-              permittedSystemKeys);
-    }
-  }
+  //  public static class Builder {
+  //    private boolean global = true;
+  //    public Builder global(boolean global) {
+  //      this.global = global;
+  //      return this;
+  //    }
+  //
+  //    public ExtensionFactory<ResponseTemplateTransformer> build() {
+  //      return wireMockServices ->
+  //          new ResponseTemplateTransformer(
+  //              wireMockServices.getTemplateEngine(),
+  //              global,
+  //              wireMockServices.getFiles()
+  //          );
+  //    }
+  //  }
 }
