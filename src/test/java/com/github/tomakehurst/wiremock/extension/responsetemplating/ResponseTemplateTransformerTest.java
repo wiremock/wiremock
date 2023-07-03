@@ -336,23 +336,6 @@ public class ResponseTemplateTransformerTest {
     assertThat(responseDefinition.getBody(), is("foo"));
   }
 
-  //  @Test
-  //  public void escapingCanBeDisabled() {
-  //    Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
-  //    TemplateEngine templateEngine = new TemplateEngine(handlebars, emptyMa);
-  //    ResponseTemplateTransformer transformerWithEscapingDisabled =
-  //
-  //    final ResponseDefinition responseDefinition =
-  //        transform(
-  //            transformerWithEscapingDisabled,
-  //            mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single
-  // quotes'\"}}"),
-  //            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"),
-  //            Parameters.empty());
-  //
-  //    assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my 'single quotes'\"}"));
-  //  }
-
   @Test
   public void transformerParametersAreAppliedToTemplate() throws Exception {
     ResponseDefinition responseDefinition =
