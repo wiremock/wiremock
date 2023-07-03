@@ -29,7 +29,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -281,7 +280,6 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
     private final FileSource files;
 
-    @Inject
     public FileAccessTransformer(FileSource files) {
       this.files = files;
     }

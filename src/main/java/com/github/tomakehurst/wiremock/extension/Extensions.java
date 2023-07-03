@@ -29,13 +29,11 @@ import com.google.common.collect.Streams;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.api.ServiceLocatorFactory;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 
 public class Extensions implements WireMockServices {
 
-  public static Extensions NONE = new Extensions(new ExtensionDeclarations(), null, null, null, null);
+  public static Extensions NONE =
+      new Extensions(new ExtensionDeclarations(), null, null, null, null);
 
   private final ExtensionDeclarations extensionDeclarations;
   private final Admin admin;
@@ -50,7 +48,11 @@ public class Extensions implements WireMockServices {
 
   @SuppressWarnings("unchecked")
   public Extensions(
-          ExtensionDeclarations extensionDeclarations, Admin admin, Options options, Stores stores, FileSource files) {
+      ExtensionDeclarations extensionDeclarations,
+      Admin admin,
+      Options options,
+      Stores stores,
+      FileSource files) {
     this.extensionDeclarations = extensionDeclarations;
     this.admin = admin;
     this.options = options;
@@ -61,19 +63,10 @@ public class Extensions implements WireMockServices {
   }
 
   public void load() {
-    final ServiceLocatorFactory serviceLocatorFactory = ServiceLocatorFactory.getInstance();
-    final ServiceLocator serviceLocator = serviceLocatorFactory.create("default");
-
-    ServiceLocatorUtilities.addOneConstant(serviceLocator, admin, "Admin", Admin.class);
-    ServiceLocatorUtilities.addOneConstant(serviceLocator, options, "Options", Options.class);
-    ServiceLocatorUtilities.addOneConstant(serviceLocator, stores, "Stores", Stores.class);
-    ServiceLocatorUtilities.addOneConstant(serviceLocator, files, "FileSource", FileSource.class);
-    ServiceLocatorUtilities.addOneConstant(serviceLocator, this, "Extensions", Extensions.class);
-
     Streams.concat(
             extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
             extensionDeclarations.getClasses().stream())
-        .map(serviceLocator::create)
+        .map(Extensions::load)
         .forEach(
             extension -> {
               if (loadedExtensions.containsKey(extension.getName())) {
@@ -88,8 +81,6 @@ public class Extensions implements WireMockServices {
         extensionDeclarations.getFactories().stream()
             .map(factory -> factory.create(Extensions.this))
             .collect(toMap(Extension::getName, Function.identity())));
-
-    serviceLocatorFactory.destroy("default");
   }
 
   @Override
@@ -132,6 +123,14 @@ public class Extensions implements WireMockServices {
       return (Class<? extends Extension>) Class.forName(className);
     } catch (ClassNotFoundException e) {
       return throwUnchecked(e, Class.class);
+    }
+  }
+
+  public static Extension load(Class<? extends Extension> extensionClass) {
+    try {
+      return extensionClass.getDeclaredConstructor().newInstance();
+    } catch (Exception e) {
+      return throwUnchecked(e, Extension.class);
     }
   }
 
