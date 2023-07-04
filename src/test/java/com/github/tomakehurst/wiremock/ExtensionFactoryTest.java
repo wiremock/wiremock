@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static net.javacrumbs.jsonunit.JsonMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.Router;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -33,6 +36,7 @@ import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -59,17 +63,14 @@ public class ExtensionFactoryTest {
             .templatingEnabled(false)
             .extensions(
                 services ->
-                    new MiscInfoApi(
-                        services.getAdmin(),
-                        services.getOptions(),
-                        services.getStores(),
-                        services.getFiles(),
-                        services.getExtensions())));
+                    List.of(
+                        new MiscInfoApi(
+                            services.getAdmin(),
+                            services.getOptions(),
+                            services.getStores(),
+                            services.getFiles(),
+                            services.getExtensions()))));
 
-    assertCorrectValuesReturnedFromApiCall();
-  }
-
-  private void assertCorrectValuesReturnedFromApiCall() {
     client.get("/something");
     client.get("/something");
 
@@ -79,7 +80,31 @@ public class ExtensionFactoryTest {
     assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
     assertThat(content, jsonPartEquals("requestCount", 2));
     assertThat(content, jsonPartEquals("stubCorsEnabled", true));
-    assertThat(content, jsonPartEquals("extensionCount", 1));
+    assertThat(
+        content, jsonPartEquals("extensionCount", 3)); // Includes the two service loaded extensions
+  }
+
+  @Test
+  void usesExtensionFactoryLoadedViaServiceLoader() {
+    initialiseWireMockServer(
+        options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).templatingEnabled(false));
+
+    wm.stubFor(get("/transform-this").willReturn(noContent().withTransformers("loader-test")));
+
+    client.get("/just-count-this");
+
+    assertThat(client.get("/transform-this").content(), is("Request count 1"));
+  }
+
+  @Test
+  void usesExtensionInstanceLoadedViaServiceLoader() {
+    initialiseWireMockServer(
+        options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).templatingEnabled(false));
+
+    wm.stubFor(
+        get("/transform-this").willReturn(noContent().withTransformers("instance-loader-test")));
+
+    assertThat(client.get("/transform-this").content(), is("Expected stuff"));
   }
 
   private void initialiseWireMockServer(WireMockConfiguration options) {

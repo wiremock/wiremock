@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.Pair.pair;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
@@ -23,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
@@ -94,8 +96,11 @@ public abstract class AbstractStubMappings implements StubMappings {
         initialServeEvent
             .withStubMapping(matchingMapping)
             .withResponseDefinition(responseDefinition);
-    responseDefinition =
+
+    final Pair<ServeEvent, ResponseDefinition> transformed =
         applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
+    serveEvent = transformed.a;
+    responseDefinition = transformed.b;
 
     return serveEvent.withResponseDefinition(copyOf(responseDefinition));
   }
@@ -122,13 +127,13 @@ public abstract class AbstractStubMappings implements StubMappings {
         request, newResponseDef, transformers.subList(1, transformers.size()));
   }
 
-  private ResponseDefinition applyV2Transformations(
+  private Pair<ServeEvent, ResponseDefinition> applyV2Transformations(
       ServeEvent serveEvent, List<ResponseDefinitionTransformerV2> transformers) {
 
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
     if (transformers.isEmpty()) {
-      return responseDefinition;
+      return pair(serveEvent, responseDefinition);
     }
 
     ResponseDefinitionTransformerV2 transformer = transformers.get(0);

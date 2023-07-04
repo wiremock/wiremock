@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension;
+package org.wiremock;
 
+import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
+import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import java.util.List;
 
-public interface ExtensionFactory {
-  List<Extension> create(WireMockServices services);
+public class LoaderTestExtensionFactory implements ExtensionFactory {
+
+  @Override
+  public List<Extension> create(WireMockServices services) {
+    return List.of(new FactoryLoaderTestExtension(services.getAdmin()));
+  }
 }

@@ -411,7 +411,7 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  public WireMockConfiguration extensions(ExtensionFactory<?>... extensionFactories) {
+  public WireMockConfiguration extensions(ExtensionFactory... extensionFactories) {
     extensions.add(extensionFactories);
     return this;
   }

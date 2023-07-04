@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -274,21 +275,23 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void extractsValueFromAMap() {
     ResponseTemplateTransformer transformer =
-        buildExtension(
-            new MockWireMockServices(),
-            services ->
-                new ResponseTemplateTransformer(
-                    services.getTemplateEngine(), true, services.getFiles()) {
-                  @Override
-                  protected Map<String, Object> addExtraModelElements(
-                      Request request,
-                      ResponseDefinition responseDefinition,
-                      FileSource files,
-                      Parameters parameters) {
-                    return ImmutableMap.<String, Object>of(
-                        "mapData", ImmutableMap.of("things", "abc"));
-                  }
-                });
+        (ResponseTemplateTransformer)
+            buildExtension(
+                new MockWireMockServices(),
+                services ->
+                    List.of(
+                        new ResponseTemplateTransformer(
+                            services.getTemplateEngine(), true, services.getFiles()) {
+                          @Override
+                          protected Map<String, Object> addExtraModelElements(
+                              Request request,
+                              ResponseDefinition responseDefinition,
+                              FileSource files,
+                              Parameters parameters) {
+                            return ImmutableMap.<String, Object>of(
+                                "mapData", ImmutableMap.of("things", "abc"));
+                          }
+                        }));
 
     final ResponseDefinition responseDefinition =
         transform(

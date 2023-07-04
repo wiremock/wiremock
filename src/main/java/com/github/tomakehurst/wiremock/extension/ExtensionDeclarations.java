@@ -24,7 +24,7 @@ public class ExtensionDeclarations {
   private final List<String> classNames;
   private final List<Class<? extends Extension>> classes;
   private final Map<String, Extension> instances;
-  private final List<ExtensionFactory<? extends Extension>> factories;
+  private final List<ExtensionFactory> factories;
 
   public ExtensionDeclarations() {
     this.classNames = new ArrayList<>();
@@ -45,7 +45,7 @@ public class ExtensionDeclarations {
     this.classes.addAll(asList(classes));
   }
 
-  public void add(ExtensionFactory<? extends Extension>... factories) {
+  public void add(ExtensionFactory... factories) {
     this.factories.addAll(asList(factories));
   }
 
@@ -61,7 +61,7 @@ public class ExtensionDeclarations {
     return instances;
   }
 
-  public List<ExtensionFactory<? extends Extension>> getFactories() {
+  public List<ExtensionFactory> getFactories() {
     return factories;
   }
 }
