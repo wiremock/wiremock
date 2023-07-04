@@ -33,7 +33,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ResponseTemplateTransformer
     implements StubLifecycleListener, ResponseDefinitionTransformerV2 {
@@ -44,11 +47,17 @@ public class ResponseTemplateTransformer
   private final FileSource files;
   private final TemplateEngine templateEngine;
 
+  private final List<TemplateModelDataProviderExtension> templateModelDataProviders;
+
   public ResponseTemplateTransformer(
-      TemplateEngine templateEngine, boolean global, FileSource files) {
+      TemplateEngine templateEngine,
+      boolean global,
+      FileSource files,
+      List<TemplateModelDataProviderExtension> templateModelDataProviders) {
     this.templateEngine = templateEngine;
     this.global = global;
     this.files = files;
+    this.templateModelDataProviders = templateModelDataProviders;
   }
 
   @Override
@@ -75,11 +84,18 @@ public class ResponseTemplateTransformer
       final PathTemplate pathTemplate =
           serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
 
+      final Map<String, Object> additionalModelData =
+          templateModelDataProviders.stream()
+              .map(provider -> provider.provideTemplateModelData(serveEvent).entrySet())
+              .flatMap(Set::stream)
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
       final ImmutableMap<String, Object> model =
           ImmutableMap.<String, Object>builder()
               .put("parameters", parameters)
               .put("request", RequestTemplateModel.from(request, pathTemplate))
               .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
+              .putAll(additionalModelData)
               .build();
 
       if (responseDefinition.specifiesTextBodyContent()) {
@@ -223,21 +239,4 @@ public class ResponseTemplateTransformer
   public Long getMaxCacheEntries() {
     return templateEngine.getMaxCacheEntries();
   }
-
-  //  public static class Builder {
-  //    private boolean global = true;
-  //    public Builder global(boolean global) {
-  //      this.global = global;
-  //      return this;
-  //    }
-  //
-  //    public ExtensionFactory<ResponseTemplateTransformer> build() {
-  //      return wireMockServices ->
-  //          new ResponseTemplateTransformer(
-  //              wireMockServices.getTemplateEngine(),
-  //              global,
-  //              wireMockServices.getFiles()
-  //          );
-  //    }
-  //  }
 }
