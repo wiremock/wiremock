@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class ResponseTransformerV2AcceptanceTest {
@@ -74,7 +75,8 @@ public class ResponseTransformerV2AcceptanceTest {
 
   @Test
   public void filesRootIsCorrectlyPassedToTransformer() {
-    startWithExtensions(services -> new FilesUsingResponseTransformer(services.getFiles()));
+    startWithExtensions(
+        services -> List.of(new FilesUsingResponseTransformer(services.getFiles())));
 
     wm.stubFor(get(urlEqualTo("/response-transform-with-files")).willReturn(ok()));
 
@@ -89,7 +91,7 @@ public class ResponseTransformerV2AcceptanceTest {
     client = new WireMockTestClient(wm.port());
   }
 
-  private void startWithExtensions(ExtensionFactory<?>... extensionFactories) {
+  private void startWithExtensions(ExtensionFactory... extensionFactories) {
     wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionFactories));
     wm.start();
     client = new WireMockTestClient(wm.port());

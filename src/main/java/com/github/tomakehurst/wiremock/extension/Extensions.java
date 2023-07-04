@@ -28,10 +28,9 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngi
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class Extensions implements WireMockServices {
 
@@ -80,12 +79,30 @@ public class Extensions implements WireMockServices {
             });
 
     loadedExtensions.putAll(extensionDeclarations.getInstances());
+
     loadedExtensions.putAll(
-        extensionDeclarations.getFactories().stream()
+        loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
+
+    final Stream<ExtensionFactory> allFactories =
+        Streams.concat(
+            extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices());
+    loadedExtensions.putAll(
+        allFactories
             .map(factory -> factory.create(Extensions.this))
+            .flatMap(List::stream)
             .collect(toMap(Extension::getName, Function.identity())));
 
     configureTemplating();
+  }
+
+  private Stream<Extension> loadExtensionsAsServices() {
+    final ServiceLoader<Extension> loader = ServiceLoader.load(Extension.class);
+    return loader.stream().map(ServiceLoader.Provider::get);
+  }
+
+  private Stream<ExtensionFactory> loadExtensionFactoriesAsServices() {
+    final ServiceLoader<ExtensionFactory> loader = ServiceLoader.load(ExtensionFactory.class);
+    return loader.stream().map(ServiceLoader.Provider::get);
   }
 
   private void configureTemplating() {

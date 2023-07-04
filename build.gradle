@@ -132,6 +132,8 @@ dependencies {
   }
   testImplementation "io.netty:netty-all:4.1.93.Final"
 
+  testImplementation files('test-extension/test-extension.jar')
+
   constraints {
     implementation "net.minidev:json-smart:2.4.11", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
