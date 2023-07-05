@@ -21,7 +21,7 @@ plugins {
   id 'jacoco'
 }
 
-group = 'com.github.tomakehurst'
+group = 'org.wiremock'
 
 project.ext {
   versions = [
