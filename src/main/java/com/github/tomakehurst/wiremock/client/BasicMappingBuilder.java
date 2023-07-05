@@ -51,6 +51,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
+
+  private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {

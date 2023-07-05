@@ -44,8 +44,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -296,14 +296,14 @@ public class Examples extends AcceptanceTestBase {
             .willReturn(
                 aResponse()
                     .withTransformerParameter("newValue", 66)
-                    .withTransformerParameter("inner", ImmutableMap.of("thing", "value"))));
+                    .withTransformerParameter("inner", Map.of("thing", "value"))));
 
     System.out.println(
         get(urlEqualTo("/transform"))
             .willReturn(
                 aResponse()
                     .withTransformerParameter("newValue", 66)
-                    .withTransformerParameter("inner", ImmutableMap.of("thing", "value")))
+                    .withTransformerParameter("inner", Map.of("thing", "value")))
             .build());
   }
 

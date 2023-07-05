@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -215,42 +214,42 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void rendersAnEmptyStringWhenJsonValueUndefinedAndOptionsEmpty() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of();
+    Map<String, Object> options = Map.of();
     String output = render("{\"test\":\"success\"}", "$.test2", options);
     assertThat(output, is(""));
   }
 
   @Test
   public void rendersDefaultValueWhenShallowJsonValueUndefined() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{}", "$.test", options);
     assertThat(output, is("0"));
   }
 
   @Test
   public void rendersDefaultValueWhenDeepJsonValueUndefined() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{}", "$.outer.inner[0]", options);
     assertThat(output, is("0"));
   }
 
   @Test
   public void rendersDefaultValueWhenJsonValueNull() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{\"test\":null}", "$.test", options);
     assertThat(output, is("0"));
   }
 
   @Test
   public void ignoresDefaultWhenJsonValueEmpty() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{\"test\":\"\"}", "$.test", options);
     assertThat(output, is(""));
   }
 
   @Test
   public void ignoresDefaultWhenJsonValueZero() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "1");
+    Map<String, Object> options = Map.of("default", "1");
     String output = render("{\"test\":0}", "$.test", options);
     assertThat(output, is("0"));
   }
@@ -288,7 +287,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
               ResponseDefinition responseDefinition,
               FileSource files,
               Parameters parameters) {
-            return ImmutableMap.<String, Object>of("mapData", ImmutableMap.of("things", "abc"));
+            return Map.of("mapData", Map.of("things", "abc"));
           }
         };
 

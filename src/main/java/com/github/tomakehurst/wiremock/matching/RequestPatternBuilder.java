@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
@@ -26,6 +24,8 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,10 +41,10 @@ public class RequestPatternBuilder {
 
   private Map<String, MultiValuePattern> formParams = newLinkedHashMap();
   private Map<String, StringValuePattern> pathParams = newLinkedHashMap();
-  private List<ContentPattern<?>> bodyPatterns = newArrayList();
+  private List<ContentPattern<?>> bodyPatterns = new ArrayList<>();
   private Map<String, StringValuePattern> cookies = newLinkedHashMap();
   private BasicCredentials basicCredentials;
-  private List<MultipartValuePattern> multiparts = newLinkedList();
+  private List<MultipartValuePattern> multiparts = new LinkedList<>();
 
   private ValueMatcher<Request> customMatcher;
 
