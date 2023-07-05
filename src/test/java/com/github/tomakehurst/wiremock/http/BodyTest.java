@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.io.BaseEncoding;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
 class BodyTest {
@@ -59,7 +59,7 @@ class BodyTest {
 
   @Test
   void constructsFromBase64() {
-    byte[] base64Encoded = BaseEncoding.base64().encode("this content".getBytes()).getBytes();
+    byte[] base64Encoded = Base64.getEncoder().encodeToString("this content".getBytes()).getBytes();
     String encodedText = stringFromBytes(base64Encoded);
     Body body = Body.fromOneOf(null, null, null, encodedText);
 

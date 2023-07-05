@@ -26,13 +26,12 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class InMemoryRequestJournalTest {
+public class InMemoryRequestJournalTest {
 
   static final Map<String, RequestMatcherExtension> NO_CUSTOM_MATCHERS = Collections.emptyMap();
 
@@ -46,7 +45,7 @@ class InMemoryRequestJournalTest {
   }
 
   @Test
-  void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
+  public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
     RequestJournal journal = new InMemoryRequestJournal(null, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
@@ -60,7 +59,7 @@ class InMemoryRequestJournalTest {
   }
 
   @Test
-  void resettingTheJournalClearsAllEntries() {
+  public void resettingTheJournalClearsAllEntries() throws Exception {
     LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
     RequestJournal journal = new InMemoryRequestJournal(1, NO_CUSTOM_MATCHERS);
@@ -71,7 +70,7 @@ class InMemoryRequestJournalTest {
   }
 
   @Test
-  void discardsOldRequestsWhenJournalSizeIsLimited() {
+  public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
     RequestJournal journal = new InMemoryRequestJournal(2, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
@@ -88,9 +87,8 @@ class InMemoryRequestJournalTest {
   }
 
   @Test
-  void matchesRequestWithCustomMatcherDefinition() {
-    RequestJournal journal =
-        new InMemoryRequestJournal(null, ImmutableMap.of(ALWAYS.getName(), ALWAYS));
+  public void matchesRequestWithCustomMatcherDefinition() throws Exception {
+    RequestJournal journal = new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);

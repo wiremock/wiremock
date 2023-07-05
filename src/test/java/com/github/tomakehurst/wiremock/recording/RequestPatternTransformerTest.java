@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -59,9 +58,11 @@ class RequestPatternTransformerTest {
             .withHeader("X-CaseInsensitive", equalToIgnoreCase("Baz"));
 
     Map<String, CaptureHeadersSpec> headers =
-        ImmutableMap.of(
-            "X-CaseSensitive", new CaptureHeadersSpec(false),
-            "X-CaseInsensitive", new CaptureHeadersSpec(true));
+        Map.of(
+            "X-CaseSensitive",
+            new CaptureHeadersSpec(false),
+            "X-CaseInsensitive",
+            new CaptureHeadersSpec(true));
 
     assertEquals(
         expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());

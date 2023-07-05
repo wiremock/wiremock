@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.common.Urls;
@@ -27,12 +27,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class MockRequest implements Request {
 
@@ -43,8 +38,8 @@ public class MockRequest implements Request {
   private RequestMethod method = RequestMethod.ANY;
   private HttpHeaders headers = new HttpHeaders();
 
-  private final PathParams pathParams = new PathParams();
   private final Map<String, Cookie> cookies = new HashMap<>();
+  private final PathParams pathParams = new PathParams();
   private byte[] body;
   private String clientIp = "1.1.1.1";
   private Collection<Part> multiparts = null;
@@ -219,7 +214,7 @@ public class MockRequest implements Request {
 
   @Override
   public FormParameter formParameter(String key) {
-    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
   }
 
   @Override

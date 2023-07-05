@@ -17,10 +17,10 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.fasterxml.jackson.annotation.*;
@@ -269,12 +269,12 @@ public class LoggedRequest implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
   }
 
   @Override
   public FormParameter formParameter(String key) {
-    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
   }
 
   @Override

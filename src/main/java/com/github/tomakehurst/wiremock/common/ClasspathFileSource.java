@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 
@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
@@ -84,7 +85,8 @@ public class ClasspathFileSource implements FileSource {
 
   private ClassLoader getClassLoader() {
     if (classLoader != null) return classLoader;
-    return firstNonNull(currentThread().getContextClassLoader(), Resources.class.getClassLoader());
+    return getFirstNonNull(
+        currentThread().getContextClassLoader(), Resources.class.getClassLoader());
   }
 
   private boolean isFileSystem() {
@@ -118,10 +120,10 @@ public class ClasspathFileSource implements FileSource {
       if (candidate.getName().equals(lookFor)) {
         return getUriFor(candidate);
       }
-      candidates.append(candidate.getName() + "\n");
+      candidates.append(candidate.getName()).append("\n");
     }
     throw new RuntimeException(
-        "Was unable to find entry: \"" + lookFor + "\", found:\n" + candidates.toString());
+        "Was unable to find entry: \"" + lookFor + "\", found:\n" + candidates);
   }
 
   @Override
@@ -166,7 +168,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
-    File[] files = root.listFiles();
+    File[] files = Optional.ofNullable(root.listFiles()).orElse(new File[0]);
     for (File file : files) {
       if (file.isDirectory()) {
         recursivelyAddFilesToList(file, fileList);

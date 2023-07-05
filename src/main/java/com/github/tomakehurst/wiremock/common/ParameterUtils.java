@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+public class ParameterUtils {
 
-import org.junit.jupiter.api.Test;
+  private ParameterUtils() {}
 
-public class Base64EncoderTest {
-  public static final String INPUT = "1234";
-  public static final String OUTPUT = "MTIzNA==";
+  public static <T> T getFirstNonNull(T first, T second) {
+    if (first != null) {
+      return first;
+    }
+    if (second != null) {
+      return second;
+    }
+    throw new NullPointerException("Both parameters are null");
+  }
 
-  @Test
-  void testEncoder() {
-    var encoder = new JdkBase64Encoder();
-
-    String encoded = encoder.encode(INPUT.getBytes());
-    assertThat(encoded, is(OUTPUT));
-
-    String decoded = new String(encoder.decode(encoded));
-    assertThat(decoded, is(INPUT));
+  public static void checkParameter(boolean condition, String errorMessage) {
+    if (!condition) {
+      throw new IllegalArgumentException(errorMessage);
+    }
   }
 }

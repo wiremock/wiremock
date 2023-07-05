@@ -23,7 +23,7 @@ import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.io.BaseEncoding;
+import java.util.Base64;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +65,7 @@ class BinaryEqualToPatternPatternTest {
   @Test
   void serialisesCorrectly() throws Exception {
     byte[] expected = {5, 5, 5, 5};
-    String base64Expected = BaseEncoding.base64().encode(expected);
+    String base64Expected = Base64.getEncoder().encodeToString(expected);
     String expectedJson =
         "{                                                   \n"
             + "  \"binaryEqualTo\": \""
@@ -78,7 +78,7 @@ class BinaryEqualToPatternPatternTest {
   @Test
   @SuppressWarnings("unchecked")
   void deserializesCorrectly() {
-    String base64Expected = BaseEncoding.base64().encode(new byte[] {1, 2, 3});
+    String base64Expected = Base64.getEncoder().encodeToString(new byte[] {1, 2, 3});
 
     ContentPattern<byte[]> pattern =
         Json.read(

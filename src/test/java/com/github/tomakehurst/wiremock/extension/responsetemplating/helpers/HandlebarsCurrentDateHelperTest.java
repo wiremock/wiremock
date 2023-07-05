@@ -30,14 +30,14 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class HandlebarsCurrentDateHelperTest {
+public class HandlebarsCurrentDateHelperTest {
 
   private HandlebarsCurrentDateHelper helper;
   private ResponseTemplateTransformer transformer;
@@ -51,8 +51,8 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void rendersNowDateTime() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of();
+  public void rendersNowDateTime() throws Exception {
+    Map<String, Object> optionsHash = Map.of();
 
     Object output = render(optionsHash);
 
@@ -61,8 +61,8 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void rendersNowDateTimeWithCustomFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("format", "yyyy/mm/dd");
+  public void rendersNowDateTimeWithCustomFormat() throws Exception {
+    Map<String, Object> optionsHash = Map.of("format", "yyyy/mm/dd");
 
     Object output = render(optionsHash);
 
@@ -71,11 +71,10 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void rendersPassedDateTimeWithDayOffset() throws Exception {
+  public void rendersPassedDateTimeWithDayOffset() throws Exception {
     String format = "yyyy-MM-dd";
     SimpleDateFormat df = new SimpleDateFormat(format);
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.of("format", format, "offset", "5 days");
+    Map<String, Object> optionsHash = Map.of("format", format, "offset", "5 days");
 
     Object output = render(df.parse("2018-04-16"), optionsHash);
 
@@ -83,8 +82,8 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void rendersNowWithDayOffset() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("offset", "6 months");
+  public void rendersNowWithDayOffset() throws Exception {
+    Map<String, Object> optionsHash = Map.of("offset", "6 months");
 
     Object output = render(optionsHash);
 
@@ -92,8 +91,8 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void rendersNowAsUnixEpochInMilliseconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("format", "epoch");
+  public void rendersNowAsUnixEpochInMilliseconds() throws Exception {
+    Map<String, Object> optionsHash = Map.of("format", "epoch");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -102,8 +101,8 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void rendersNowAsUnixEpochInSeconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("format", "unix");
+  public void rendersNowAsUnixEpochInSeconds() throws Exception {
+    Map<String, Object> optionsHash = Map.of("format", "unix");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -112,11 +111,8 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void adjustsISO8601ToSpecfiedTimezone() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney");
+  public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
+    Map<String, Object> optionsHash = Map.of("offset", "3 days", "timezone", "Australia/Sydney");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
@@ -125,12 +121,10 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney",
-            "format", "yyyy-MM-dd HH:mm:ssZ");
+  public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
+    Map<String, Object> optionsHash =
+        Map.of(
+            "offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
@@ -139,7 +133,7 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void helperIsIncludedInTemplateTransformerWithNowTagName() {
+  public void helperIsIncludedInTemplateTransformerWithNowTagName() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/random-value"),
@@ -152,7 +146,7 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void helperIsIncludedInTemplateTransformerWithDateTagName() {
+  public void helperIsIncludedInTemplateTransformerWithDateTagName() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/random-value"),
@@ -165,7 +159,7 @@ class HandlebarsCurrentDateHelperTest {
   }
 
   @Test
-  void acceptsDateParameterwithDateTagName() {
+  public void acceptsDateParameterwithDateTagName() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/parsed-date"),
@@ -179,11 +173,11 @@ class HandlebarsCurrentDateHelperTest {
     assertThat(body, is("2018-05-04T10:11:12Z"));
   }
 
-  private Object render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private Object render(Map<String, Object> optionsHash) throws IOException {
     return render(null, optionsHash);
   }
 
-  private Object render(Date context, ImmutableMap<String, Object> optionsHash) throws IOException {
+  private Object render(Date context, Map<String, Object> optionsHash) throws IOException {
     return helper.apply(
         context, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
   }

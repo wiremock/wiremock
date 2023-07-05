@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Iterables.contains;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
@@ -145,7 +145,7 @@ public class WireMockApp implements StubServer, Admin {
             requestMatchers,
             transformers,
             stores.getFilesBlobStore(),
-            Collections.<StubLifecycleListener>emptyList());
+            Collections.emptyList());
     this.container = container;
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder = new Recorder(this, stores.getRecorderStateStore());
@@ -221,12 +221,11 @@ public class WireMockApp implements StubServer, Admin {
   public ServeEvent serveStubFor(Request request) {
     ServeEvent serveEvent = stubMappings.serveFor(request);
 
-    if (serveEvent.isNoExactMatch()) {
-      if (browserProxyingEnabled
-          && request.isBrowserProxyRequest()
-          && getGlobalSettings().getSettings().getProxyPassThrough()) {
-        return ServeEvent.of(serveEvent.getRequest(), ResponseDefinition.browserProxy(request));
-      }
+    if (serveEvent.isNoExactMatch()
+        && browserProxyingEnabled
+        && request.isBrowserProxyRequest()
+        && getGlobalSettings().getSettings().getProxyPassThrough()) {
+      return ServeEvent.of(serveEvent.getRequest(), ResponseDefinition.browserProxy(request));
     }
 
     return serveEvent;
@@ -520,7 +519,7 @@ public class WireMockApp implements StubServer, Admin {
   public void importStubs(StubImport stubImport) {
     List<StubMapping> mappings = stubImport.getMappings();
     StubImport.Options importOptions =
-        firstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
+        getFirstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
 
     for (int i = mappings.size() - 1; i >= 0; i--) {
       StubMapping mapping = mappings.get(i);

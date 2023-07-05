@@ -16,9 +16,9 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -35,7 +35,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -44,6 +43,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class WireMockHttpServletRequestAdapter implements Request {
@@ -244,7 +244,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
     jakarta.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+        getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
     for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
@@ -256,13 +256,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public QueryParameter queryParameter(String key) {
     Map<String, QueryParameter> queryParams = cachedQueryParams.get();
-    return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
   }
 
   @Override
   public FormParameter formParameter(String key) {
     Map<String, FormParameter> formParameters = cachedFormParameters.get();
-    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
   }
 
   @Override
@@ -295,7 +295,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
       cachedMultiparts = PartParser.parseFrom(this);
     }
 
-    return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
+    return (cachedMultiparts.isEmpty()) ? null : cachedMultiparts;
   }
 
   @Override

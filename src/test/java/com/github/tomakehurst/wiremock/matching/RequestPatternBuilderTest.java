@@ -32,13 +32,13 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-class RequestPatternBuilderTest {
+public class RequestPatternBuilderTest {
   @Test
-  void likeRequestPatternWithDifferentUrl() {
+  public void likeRequestPatternWithDifferentUrl() {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
@@ -49,7 +49,7 @@ class RequestPatternBuilderTest {
   }
 
   @Test
-  void likeRequestPatternWithoutCustomMatcher() {
+  public void likeRequestPatternWithoutCustomMatcher() {
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
     // set properly
     RequestPattern requestPattern =
@@ -59,13 +59,13 @@ class RequestPatternBuilderTest {
             1234,
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
-            ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
-            ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("cookie", WireMock.equalTo("yum")),
+            Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
-            ImmutableList.of(WireMock.equalTo("BODY")),
+            List.of(WireMock.equalTo("BODY")),
             null,
             null,
             null);
@@ -75,7 +75,7 @@ class RequestPatternBuilderTest {
   }
 
   @Test
-  void likeRequestPatternWithCustomMatcher() {
+  public void likeRequestPatternWithCustomMatcher() {
     RequestMatcher customRequestMatcher =
         new RequestMatcherExtension() {
           @Override
@@ -90,7 +90,7 @@ class RequestPatternBuilderTest {
   }
 
   @Test
-  void likeRequestPatternWithMultipartMatcher() {
+  public void likeRequestPatternWithMultipartMatcher() {
     MultipartValuePattern multipartValuePattern = aMultipart().withBody(equalToJson("[]")).build();
 
     RequestPattern requestPattern = RequestPattern.everything();
@@ -107,7 +107,7 @@ class RequestPatternBuilderTest {
   }
 
   @Test
-  void likeRequestPatternWithoutMultipartMatcher() {
+  public void likeRequestPatternWithoutMultipartMatcher() {
     MultipartValuePattern multipartPattern = aMultipart().withBody(equalToJson("[]")).build();
 
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
@@ -119,13 +119,13 @@ class RequestPatternBuilderTest {
             1234,
             WireMock.urlEqualTo("/foo"),
             RequestMethod.POST,
-            ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
-            ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
-            ImmutableMap.of("cookie", WireMock.equalTo("yum")),
+            Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("form_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+            Map.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
-            ImmutableList.of(WireMock.equalTo("BODY")),
+            List.of(WireMock.equalTo("BODY")),
             null,
             null,
             asList(multipartPattern));
@@ -135,7 +135,7 @@ class RequestPatternBuilderTest {
   }
 
   @Test
-  void likeRequestPatternWithCustomMatcherDefinition() {
+  public void likeRequestPatternWithCustomMatcherDefinition() {
     CustomMatcherDefinition customMatcherDefinition =
         new CustomMatcherDefinition("foo", Parameters.empty());
     RequestPattern requestPattern = new RequestPattern(customMatcherDefinition);

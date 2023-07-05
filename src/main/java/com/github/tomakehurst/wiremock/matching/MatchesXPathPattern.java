@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Sets.newTreeSet;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
@@ -58,7 +58,7 @@ public class MatchesXPathPattern extends PathPattern {
   public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
     Map<String, String> namespaceMap =
         ImmutableMap.<String, String>builder()
-            .putAll(firstNonNull(xpathNamespaces, Collections.<String, String>emptyMap()))
+            .putAll(getFirstNonNull(xpathNamespaces, Collections.emptyMap()))
             .put(name, namespaceUri)
             .build();
     return new MatchesXPathPattern(expectedValue, namespaceMap);
@@ -86,7 +86,7 @@ public class MatchesXPathPattern extends PathPattern {
       return MatchResult.noMatch();
     }
 
-    SortedSet<MatchResult> results = newTreeSet();
+    SortedSet<MatchResult> results = new TreeSet<>();
     for (XmlNode node : nodeList) {
       results.add(valuePattern.match(node.toString()));
     }

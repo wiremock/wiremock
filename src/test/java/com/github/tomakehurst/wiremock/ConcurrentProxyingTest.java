@@ -18,12 +18,12 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
-import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,7 +57,7 @@ class ConcurrentProxyingTest {
 
     ExecutorService executor = Executors.newFixedThreadPool(20);
 
-    List<Future<?>> results = newArrayList();
+    List<Future<?>> results = new ArrayList<>();
     for (int i = 0; i < 100; i++) {
       results.add(
           executor.submit(

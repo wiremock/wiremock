@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
@@ -95,6 +95,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       Request request,
       ResponseDefinition responseDefinition,
       List<ResponseDefinitionTransformer> transformers) {
+
     if (transformers.isEmpty()) {
       return responseDefinition;
     }
@@ -106,7 +107,7 @@ public abstract class AbstractStubMappings implements StubMappings {
                 request,
                 responseDefinition,
                 filesFileSource,
-                firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
+                getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
             : responseDefinition;
 
     return applyTransformations(
@@ -145,7 +146,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   public void editMapping(StubMapping stubMapping) {
     final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
-    if (!optionalExistingMapping.isPresent()) {
+    if (optionalExistingMapping.isEmpty()) {
       String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
       notifier().error(msg);
       throw new NotFoundException(msg);

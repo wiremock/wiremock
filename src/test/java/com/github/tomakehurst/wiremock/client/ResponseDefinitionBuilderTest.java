@@ -27,8 +27,8 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.google.common.io.BaseEncoding;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
 class ResponseDefinitionBuilderTest {
@@ -60,7 +60,7 @@ class ResponseDefinitionBuilderTest {
             .withStatusMessage("OK")
             .withBody("some body")
             .withBase64Body(
-                BaseEncoding.base64().encode("some body".getBytes(StandardCharsets.UTF_8)))
+                Base64.getEncoder().encodeToString("some body".getBytes(StandardCharsets.UTF_8)))
             .withBodyFile("some_body.json")
             .withHeader("some header", "some value")
             .withFixedDelay(100)

@@ -28,12 +28,12 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class HandlebarsRandomValuesHelperTest {
+public class HandlebarsRandomValuesHelperTest {
 
   private HandlebarsRandomValuesHelper helper;
   private ResponseTemplateTransformer transformer;
@@ -47,8 +47,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesRandomAlphaNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 36);
+  public void generatesRandomAlphaNumericOfSpecifiedLength() throws Exception {
+    Map<String, Object> optionsHash = Map.of("length", 36);
 
     String output = render(optionsHash);
 
@@ -57,8 +57,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesUppercaseRandomAlphaNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 36, "uppercase", true);
+  public void generatesUppercaseRandomAlphaNumericOfSpecifiedLength() throws Exception {
+    Map<String, Object> optionsHash = Map.of("length", 36, "uppercase", true);
 
     String output = render(optionsHash);
 
@@ -67,9 +67,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesRandomAlphabeticOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.of("length", 43, "type", "ALPHABETIC", "uppercase", true);
+  public void generatesRandomAlphabeticOfSpecifiedLength() throws Exception {
+    Map<String, Object> optionsHash = Map.of("length", 43, "type", "ALPHABETIC", "uppercase", true);
 
     String output = render(optionsHash);
 
@@ -78,8 +77,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesRandomNumericOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 55, "type", "NUMERIC");
+  public void generatesRandomNumericOfSpecifiedLength() throws Exception {
+    Map<String, Object> optionsHash = Map.of("length", 55, "type", "NUMERIC");
 
     String output = render(optionsHash);
 
@@ -88,9 +87,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesRandomStringOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.of("length", 67, "type", "ALPHANUMERIC_AND_SYMBOLS");
+  public void generatesRandomStringOfSpecifiedLength() throws Exception {
+    Map<String, Object> optionsHash = Map.of("length", 67, "type", "ALPHANUMERIC_AND_SYMBOLS");
 
     String output = render(optionsHash);
 
@@ -99,8 +97,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("length", 64, "type", "HEXADECIMAL");
+  public void generatesRandomHexadecimalOfSpecifiedLength() throws Exception {
+    Map<String, Object> optionsHash = Map.of("length", 64, "type", "HEXADECIMAL");
 
     String output = render(optionsHash);
 
@@ -109,7 +107,7 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void randomValuesCanBeAssignedToVariables() {
+  public void randomValuesCanBeAssignedToVariables() {
     final ResponseDefinition responseDefinition =
         this.transformer.transform(
             mockRequest().url("/random-value"),
@@ -128,8 +126,8 @@ class HandlebarsRandomValuesHelperTest {
   }
 
   @Test
-  void generatesRandomUUID() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.of("type", "UUID");
+  public void generatesRandomUUID() throws Exception {
+    Map<String, Object> optionsHash = Map.of("type", "UUID");
 
     String output = render(optionsHash);
 
@@ -137,7 +135,7 @@ class HandlebarsRandomValuesHelperTest {
     assertThat(output, WireMatchers.matches("^[a-z0-9\\-]+$"));
   }
 
-  private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private String render(Map<String, Object> optionsHash) throws IOException {
     return helper
         .apply(null, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build())
         .toString();
