@@ -107,7 +107,7 @@ public class PathTemplate {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(templateString);
+    return Objects.hash(templateString);
   }
 }
 

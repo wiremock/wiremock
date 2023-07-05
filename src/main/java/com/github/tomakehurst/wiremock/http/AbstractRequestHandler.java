@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
@@ -25,11 +24,12 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
-  protected List<RequestListener> listeners = newArrayList();
+  protected List<RequestListener> listeners = new ArrayList<>();
   protected final ResponseRenderer responseRenderer;
   protected final List<RequestFilter> requestFilters;
 
