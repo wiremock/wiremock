@@ -16,10 +16,10 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -82,8 +82,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
-    this.url = firstNonNull(url, UrlPattern.ANY);
-    this.method = firstNonNull(method, RequestMethod.ANY);
+    this.url = getFirstNonNull(url, UrlPattern.ANY);
+    this.method = getFirstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
     this.pathParams = pathParams;
     this.formParams = formParams;
@@ -168,7 +168,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         multiPattern);
   }
 
-  public static RequestPattern ANYTHING =
+  public static final RequestPattern ANYTHING =
       new RequestPattern(
           null,
           null,
@@ -236,7 +236,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
     if (customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
-          firstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
+          getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
 
       MatchResult standardMatchResult = matcher.match(request);
       MatchResult customMatchResult =
@@ -310,7 +310,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     Map<String, MultiValuePattern> combinedHeaders = headers;
     Builder<String, MultiValuePattern> allHeadersBuilder =
         ImmutableMap.<String, MultiValuePattern>builder()
-            .putAll(firstNonNull(combinedHeaders, Collections.emptyMap()));
+            .putAll(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
     allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
     combinedHeaders = allHeadersBuilder.build();
     return combinedHeaders;

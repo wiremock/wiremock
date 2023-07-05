@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
@@ -97,7 +97,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer
 
     final ImmutableMap<String, Object> model =
         ImmutableMap.<String, Object>builder()
-            .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
+            .put("parameters", getFirstNonNull(parameters, Collections.<String, Object>emptyMap()))
             .put("request", RequestTemplateModel.from(request, pathTemplate))
             .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
             .build();
