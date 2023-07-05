@@ -508,6 +508,15 @@ tasks.withType(JavaCompile) {
   ])
 }
 
+eclipse.classpath.file {
+  whenMerged {
+    entries.find{ it.path ==~ '.*JRE_CONTAINER.*' }.each {
+      it.entryAttributes['module'] = true
+      it.entryAttributes['add-exports'] = 'java.desktop/com.sun.java.swing.plaf.motif=ALL-UNNAMED'
+    }
+  }
+}
+
 int getMajorVersion() {
   Integer.valueOf(project.version.substring(0, project.version.indexOf('.')))
 }
