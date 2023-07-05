@@ -69,6 +69,6 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(valuePattern);
+    return Objects.hash(valuePattern);
   }
 }

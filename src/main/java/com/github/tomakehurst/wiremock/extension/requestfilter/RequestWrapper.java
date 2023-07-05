@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.ordinalIndexOf;
@@ -282,13 +281,13 @@ public class RequestWrapper implements Request {
     private RequestMethod requestMethod;
     private FieldTransformer<String> absoluteUrlTransformer;
 
-    private final List<HttpHeader> additionalHeaders = newArrayList();
-    private final List<String> headersToRemove = newArrayList();
+    private final List<HttpHeader> additionalHeaders = new ArrayList<>();
+    private final List<String> headersToRemove = new ArrayList<>();
     private final Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers =
         newHashMap();
 
     private final Map<String, Cookie> additionalCookies = newHashMap();
-    private final List<String> cookiesToRemove = newArrayList();
+    private final List<String> cookiesToRemove = new ArrayList<>();
     private final Map<String, FieldTransformer<Cookie>> cookieTransformers = newHashMap();
 
     private FieldTransformer<Body> bodyTransformer;
