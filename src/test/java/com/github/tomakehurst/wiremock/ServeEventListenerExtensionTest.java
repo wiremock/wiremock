@@ -231,9 +231,10 @@ public class ServeEventListenerExtensionTest {
 
     client.get("/report");
 
-      await()
-          .atMost(2, SECONDS)
-          .until(() -> messages, hasItems("AFTER_MATCH: after-match", "AFTER_COMPLETE: after-complete"));
+    await()
+        .atMost(2, SECONDS)
+        .until(
+            () -> messages, hasItems("AFTER_MATCH: after-match", "AFTER_COMPLETE: after-complete"));
   }
 
   @Test
