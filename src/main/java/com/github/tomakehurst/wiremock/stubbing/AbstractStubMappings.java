@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Pair.pair;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
@@ -109,6 +109,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       Request request,
       ResponseDefinition responseDefinition,
       List<ResponseDefinitionTransformer> transformers) {
+
     if (transformers.isEmpty()) {
       return responseDefinition;
     }
@@ -120,7 +121,7 @@ public abstract class AbstractStubMappings implements StubMappings {
                 request,
                 responseDefinition,
                 filesFileSource,
-                firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
+                getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
             : responseDefinition;
 
     return applyV1Transformations(

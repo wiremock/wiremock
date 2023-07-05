@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.CounterNameParameter.counterNameParameter;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static org.awaitility.Awaitility.await;
@@ -262,7 +262,7 @@ public class PostServeActionExtensionTest {
           "/named-counter/{name}",
           (admin, serveEvent, pathParams) -> {
             String name = pathParams.get("name");
-            Integer count = firstNonNull(counters.get(name), 0);
+            Integer count = getFirstNonNull(counters.get(name), 0);
             return responseDefinition().withStatus(200).withBody(String.valueOf(count)).build();
           });
     }

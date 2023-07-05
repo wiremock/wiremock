@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -115,11 +115,11 @@ public class StubMapping {
   }
 
   public RequestPattern getRequest() {
-    return firstNonNull(request, RequestPattern.ANYTHING);
+    return getFirstNonNull(request, RequestPattern.ANYTHING);
   }
 
   public ResponseDefinition getResponse() {
-    return firstNonNull(response, ResponseDefinition.ok());
+    return getFirstNonNull(response, ResponseDefinition.ok());
   }
 
   public void setRequest(RequestPattern request) {
