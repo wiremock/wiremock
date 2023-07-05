@@ -27,7 +27,7 @@ public abstract class AbstractScenarios implements Scenarios {
 
   private final ScenariosStore store;
 
-  protected AbstractScenarios(ScenariosStore store) {
+  public AbstractScenarios(ScenariosStore store) {
     this.store = store;
   }
 

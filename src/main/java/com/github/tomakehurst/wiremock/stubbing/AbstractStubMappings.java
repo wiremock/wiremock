@@ -48,7 +48,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final StubMappingStore store;
 
-  protected AbstractStubMappings(
+  public AbstractStubMappings(
       StubMappingStore store,
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,
