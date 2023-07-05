@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -77,7 +78,9 @@ public class ExtensionFactoryTest {
     String content = client.get("/__admin/misc-info").content();
 
     assertThat(content, jsonPartEquals("example1", "Example 1"));
-    assertThat(content, jsonPartMatches("fileSourcePath", endsWith("test-file-root/__files")));
+    assertThat(
+        content,
+        jsonPartMatches("fileSourcePath", endsWith("test-file-root" + File.separator + "__files")));
     assertThat(content, jsonPartEquals("requestCount", 2));
     assertThat(content, jsonPartEquals("stubCorsEnabled", true));
     assertThat(
