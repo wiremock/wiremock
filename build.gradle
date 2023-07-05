@@ -270,7 +270,7 @@ final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
 jar {
   archiveBaseName.set('wiremock')
   manifest {
-    attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
+    attributes("Main-Class": "wiremock.Run")
     attributes("Add-Exports": "java.base/sun.security.x509")
   }
 }
