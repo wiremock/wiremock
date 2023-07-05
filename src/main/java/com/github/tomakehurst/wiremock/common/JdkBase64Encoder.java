@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.io.BaseEncoding;
+import java.util.Base64;
 
-public class GuavaBase64Encoder implements Base64Encoder {
+public class JdkBase64Encoder implements Base64Encoder {
 
   @Override
   public String encode(byte[] content) {
@@ -26,15 +26,12 @@ public class GuavaBase64Encoder implements Base64Encoder {
 
   @Override
   public String encode(byte[] content, boolean padding) {
-    BaseEncoding encoder = BaseEncoding.base64();
-    if (!padding) {
-      encoder = encoder.omitPadding();
-    }
-    return encoder.encode(content);
+    var encoder = padding ? Base64.getEncoder() : Base64.getEncoder().withoutPadding();
+    return encoder.encodeToString(content);
   }
 
   @Override
   public byte[] decode(String base64) {
-    return BaseEncoding.base64().decode(base64);
+    return Base64.getDecoder().decode(base64);
   }
 }

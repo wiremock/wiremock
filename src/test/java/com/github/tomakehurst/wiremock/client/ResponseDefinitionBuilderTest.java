@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.google.common.io.BaseEncoding;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
-public class ResponseDefinitionBuilderTest {
+class ResponseDefinitionBuilderTest {
 
   @Test
-  public void withTransformerParameterShouldNotChangeOriginalTransformerParametersValue() {
+  void withTransformerParameterShouldNotChangeOriginalTransformerParametersValue() {
     ResponseDefinition originalResponseDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .withTransformerParameter("name", "original")
@@ -53,14 +53,14 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void likeShouldCreateCompleteResponseDefinitionCopy() throws Exception {
+  void likeShouldCreateCompleteResponseDefinitionCopy() {
     ResponseDefinition originalResponseDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .withStatus(200)
             .withStatusMessage("OK")
             .withBody("some body")
             .withBase64Body(
-                BaseEncoding.base64().encode("some body".getBytes(StandardCharsets.UTF_8)))
+                Base64.getEncoder().encodeToString("some body".getBytes(StandardCharsets.UTF_8)))
             .withBodyFile("some_body.json")
             .withHeader("some header", "some value")
             .withFixedDelay(100)
@@ -78,7 +78,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinition() {
+  void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinition() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.domain").build();
 
@@ -87,8 +87,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void
-      proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithJsonBody() {
+  void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithJsonBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -100,8 +99,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void
-      proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithBinaryBody() {
+  void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithBinaryBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -113,7 +111,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinition() {
+  void proxyResponseDefinitionWithExtraInformationIsInResponseDefinition() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -128,7 +126,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithJsonBody() {
+  void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithJsonBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -144,7 +142,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithBinaryBody() {
+  void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithBinaryBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
