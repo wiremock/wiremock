@@ -148,7 +148,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     try {
       final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
       return !Arrays.stream(resolvedAddresses)
-          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
+          .allMatch(targetAddressRules::isAllowed);
     } catch (UnknownHostException e) {
       return true;
     }

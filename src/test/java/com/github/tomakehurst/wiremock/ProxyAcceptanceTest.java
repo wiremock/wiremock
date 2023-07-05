@@ -676,6 +676,29 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
+  void preventsProxyingToDeniedHostnamesAndProxyAllowedHostNames() {
+    init(
+        wireMockConfig()
+            .limitProxyTargets(
+                NetworkAddressRules.builder()
+                    .allow("wiremock.org")
+                    .allow("*.wiremock.org")
+                    .deny("wiremock.io")
+                    .build()));
+
+    proxy.register(proxyAllTo("https://wiremock.org"));
+    assertThat(testClient.get("/").statusCode(), is(200));
+
+    proxy.register(proxyAllTo("https://www.wiremock.org"));
+    assertThat(testClient.get("/").statusCode(), is(301));
+
+    proxy.register(proxyAllTo("http://wiremock.io"));
+    assertThat(
+        testClient.get("/").content(),
+        is("The target proxy address is denied in WireMock's configuration."));
+  }
+
+  @Test
   void preventsProxyingToIpResolvedFromHostname() {
     init(
         wireMockConfig()

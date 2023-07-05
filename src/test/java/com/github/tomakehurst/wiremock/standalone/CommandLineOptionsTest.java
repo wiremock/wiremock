@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -46,9 +47,11 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class CommandLineOptionsTest {
 
@@ -736,11 +739,11 @@ public class CommandLineOptionsTest {
 
     NetworkAddressRules proxyTargetRules = options.getProxyTargetRules();
 
-    assertThat(proxyTargetRules.isAllowed("192.168.1.1"), is(true));
-    assertThat(proxyTargetRules.isAllowed("10.1.2.3"), is(true));
+    assertThat(proxyTargetRules.isAllowed(mockInetAddressForHostAddress("192.168.1.1")), is(true));
+    assertThat(proxyTargetRules.isAllowed(mockInetAddressForHostAddress("10.1.2.3")), is(true));
 
-    assertThat(proxyTargetRules.isAllowed("10.3.2.1"), is(false));
-    assertThat(proxyTargetRules.isAllowed("localhost"), is(false));
+    assertThat(proxyTargetRules.isAllowed(mockInetAddressForHostAddress("10.3.2.1")), is(false));
+    assertThat(proxyTargetRules.isAllowed(mockInetAddressForHostName("localhost")), is(false));
   }
 
   @Test
@@ -824,5 +827,21 @@ public class CommandLineOptionsTest {
     public String getName() {
       return "RequestMatcherExtension_One";
     }
+  }
+
+  private static InetAddress mockInetAddressForHostAddress(String hostAddress) {
+    InetAddress inetAddress = Mockito.mock(InetAddress.class);
+    Mockito.when(inetAddress.getHostAddress()).thenReturn(hostAddress);
+    Mockito.when(inetAddress.getHostName()).thenReturn(StringUtils.EMPTY);
+
+    return inetAddress;
+  }
+
+  private static InetAddress mockInetAddressForHostName(String hostName) {
+    InetAddress inetAddress = Mockito.mock(InetAddress.class);
+    Mockito.when(inetAddress.getHostName()).thenReturn(hostName);
+    Mockito.when(inetAddress.getHostAddress()).thenReturn(StringUtils.EMPTY);
+
+    return inetAddress;
   }
 }

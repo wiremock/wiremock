@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static java.util.Collections.emptySet;
 
 import com.google.common.collect.ImmutableSet;
+import java.net.InetAddress;
 import java.util.Set;
 
 public class NetworkAddressRules {
@@ -37,9 +38,13 @@ public class NetworkAddressRules {
     this.denied = denied;
   }
 
-  public boolean isAllowed(String testValue) {
-    return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
-        && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+  public boolean isAllowed(InetAddress address) {
+    return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue(rule, address)))
+        && denied.stream().noneMatch(rule -> rule.isIncluded(testValue(rule, address)));
+  }
+
+  private String testValue(NetworkAddressRange rule, InetAddress address) {
+    return rule.isDomainNameWildCard() ? address.getHostName() : address.getHostAddress();
   }
 
   public static class Builder {

@@ -43,6 +43,10 @@ public abstract class NetworkAddressRange {
     return new DomainNameWildcard(value);
   }
 
+  public boolean isDomainNameWildCard() {
+    return this instanceof DomainNameWildcard;
+  }
+
   public abstract boolean isIncluded(String testValue);
 
   private static class SingleIp extends NetworkAddressRange {
