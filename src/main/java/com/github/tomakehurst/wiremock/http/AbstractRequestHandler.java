@@ -17,17 +17,17 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
-import static com.google.common.collect.Lists.newArrayList;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
-  protected List<RequestListener> listeners = newArrayList();
+  protected List<RequestListener> listeners = new ArrayList<>();
   protected final ResponseRenderer responseRenderer;
   protected final FilterProcessor filterProcessor;
 

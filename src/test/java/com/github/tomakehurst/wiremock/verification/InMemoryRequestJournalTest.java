@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,8 +88,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void matchesRequestWithCustomMatcherDefinition() throws Exception {
-    RequestJournal journal =
-        new InMemoryRequestJournal(null, ImmutableMap.of(ALWAYS.getName(), ALWAYS));
+    RequestJournal journal = new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);

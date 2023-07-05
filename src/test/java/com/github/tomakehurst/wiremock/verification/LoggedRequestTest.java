@@ -30,7 +30,6 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -103,9 +102,7 @@ public class LoggedRequestTest {
   public void jsonRepresentation() throws Exception {
     HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
     Map<String, Cookie> cookies =
-        ImmutableMap.of(
-            "first_cookie", new Cookie("yum"),
-            "monster_cookie", new Cookie("COOKIIIEESS"));
+        Map.of("first_cookie", new Cookie("yum"), "monster_cookie", new Cookie("COOKIIIEESS"));
 
     Date loggedDate = Dates.parse(DATE);
 

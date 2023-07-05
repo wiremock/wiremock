@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 
@@ -29,11 +28,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class MockRequest implements Request {
 
@@ -127,7 +122,7 @@ public class MockRequest implements Request {
 
   public MockRequest part(MockMultipart part) {
     if (multiparts == null) {
-      multiparts = newArrayList();
+      multiparts = new ArrayList<>();
     }
 
     multiparts.add(part);
