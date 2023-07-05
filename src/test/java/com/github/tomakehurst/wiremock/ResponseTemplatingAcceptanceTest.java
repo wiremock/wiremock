@@ -412,8 +412,7 @@ public class ResponseTemplatingAcceptanceTest {
                     .dynamicPort()
                     .withRootDirectory(defaultTestFilesRoot())
                     .templatingEnabled(true)
-                    .globalTemplating(true)
-                    .withTemplateEscapingDisabled(true))
+                    .globalTemplating(true))
             .build();
 
     @BeforeEach
@@ -422,7 +421,7 @@ public class ResponseTemplatingAcceptanceTest {
     }
 
     @Test
-    void escapingIsDisabled() {
+    void escapingIsDisabledByDefault() {
       wm.stubFor(
           post("/noescape").willReturn(ok("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}")));
 
@@ -430,6 +429,40 @@ public class ResponseTemplatingAcceptanceTest {
           client.postJson("/noescape", "{\"a\": {\"test\": \"look at my 'single quotes'\"}}");
 
       assertThat(response.content(), is("{\"test\": \"look at my 'single quotes'\"}"));
+    }
+  }
+
+  @Nested
+  class Escaping {
+
+    WireMockTestClient client;
+
+    @RegisterExtension
+    public WireMockExtension wm =
+        WireMockExtension.newInstance()
+            .options(
+                options()
+                    .dynamicPort()
+                    .withRootDirectory(defaultTestFilesRoot())
+                    .templatingEnabled(true)
+                    .globalTemplating(true)
+                    .withTemplateEscapingDisabled(false))
+            .build();
+
+    @BeforeEach
+    public void init() {
+      client = new WireMockTestClient(wm.getPort());
+    }
+
+    @Test
+    void escapingIsEnabled() {
+      wm.stubFor(
+          post("/noescape").willReturn(ok("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}")));
+
+      WireMockResponse response =
+          client.postJson("/noescape", "{\"a\": {\"test\": \"look at my 'single quotes'\"}}");
+
+      assertThat(response.content(), is("{\"test\": \"look at my &#x27;single quotes&#x27;\"}"));
     }
   }
 }

@@ -150,7 +150,7 @@ public class WireMockConfiguration implements Options {
   private boolean globalTemplating = false;
   private Set<String> permittedSystemKeys = null;
   private Long maxTemplateCacheEntries = null;
-  private boolean templateEscapingDisabled = false;
+  private boolean templateEscapingDisabled = true;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
