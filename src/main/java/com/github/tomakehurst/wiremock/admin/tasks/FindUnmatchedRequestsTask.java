@@ -22,14 +22,14 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 
 public class FindUnmatchedRequestsTask implements AdminTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     FindRequestsResult unmatchedRequests = admin.findUnmatchedRequests();
     return responseDefinition()
         .withStatus(HTTP_OK)

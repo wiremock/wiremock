@@ -17,16 +17,17 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import java.io.IOException;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class HandlebarsRandomValuesHelperTest {
   @BeforeEach
   public void init() {
     helper = new HandlebarsRandomValuesHelper();
-    transformer = new ResponseTemplateTransformer(true);
+    transformer = buildTemplateTransformer(true);
 
     LocalNotifier.set(new ConsoleNotifier(true));
   }
@@ -108,17 +109,16 @@ public class HandlebarsRandomValuesHelperTest {
 
   @Test
   public void randomValuesCanBeAssignedToVariables() {
-    final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+    ServeEvent serveEvent =
+        newPostMatchServeEvent(
             mockRequest().url("/random-value"),
             aResponse()
                 .withBody(
                     "{{#assign 'paymentId'}}{{randomValue length=20 type='ALPHANUMERIC' uppercase=true}}{{/assign}}\n"
                         + "{{paymentId}}\n"
-                        + "{{paymentId}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                        + "{{paymentId}}"));
+
+    final ResponseDefinition responseDefinition = this.transformer.transform(serveEvent);
 
     String[] bodyLines = responseDefinition.getBody().trim().split("\n");
     assertThat(bodyLines[0], is(bodyLines[1]));

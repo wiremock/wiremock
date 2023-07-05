@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.Pair.pair;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static java.util.stream.Collectors.toList;
@@ -23,8 +24,10 @@ import static java.util.stream.Collectors.toList;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -33,17 +36,16 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
   protected final Scenarios scenarios;
   protected final Map<String, RequestMatcherExtension> customMatchers;
   protected final Map<String, ResponseDefinitionTransformer> transformers;
+  protected final Map<String, ResponseDefinitionTransformerV2> v2transformers;
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final StubMappingStore store;
@@ -53,6 +55,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       Scenarios scenarios,
       Map<String, RequestMatcherExtension> customMatchers,
       Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
       List<StubLifecycleListener> stubLifecycleListeners) {
 
@@ -60,15 +63,20 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
     this.transformers = transformers;
+    this.v2transformers = v2transformers;
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
   }
 
   @Override
-  public ServeEvent serveFor(Request request) {
+  public ServeEvent serveFor(ServeEvent initialServeEvent) {
+    final LoggedRequest request = initialServeEvent.getRequest();
+
+    final List<SubEvent> subEvents = new LinkedList<>();
+
     StubMapping matchingMapping =
         store
-            .findAllMatchingRequest(request, customMatchers)
+            .findAllMatchingRequest(request, customMatchers, subEvents::add)
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()
@@ -76,22 +84,28 @@ public abstract class AbstractStubMappings implements StubMappings {
             .findFirst()
             .orElse(StubMapping.NOT_CONFIGURED);
 
+    subEvents.forEach(initialServeEvent::appendSubEvent);
+
     scenarios.onStubServed(matchingMapping);
 
-    ServeEvent serveEvent = ServeEvent.of(request, matchingMapping);
-    ServeEvent.setCurrent(serveEvent);
-
     ResponseDefinition responseDefinition =
-        applyTransformations(
+        applyV1Transformations(
             request, matchingMapping.getResponse(), ImmutableList.copyOf(transformers.values()));
 
-    serveEvent = serveEvent.withResponseDefinition(copyOf(responseDefinition));
-    ServeEvent.setCurrent(serveEvent);
+    ServeEvent serveEvent =
+        initialServeEvent
+            .withStubMapping(matchingMapping)
+            .withResponseDefinition(responseDefinition);
 
-    return serveEvent;
+    final Pair<ServeEvent, ResponseDefinition> transformed =
+        applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
+    serveEvent = transformed.a;
+    responseDefinition = transformed.b;
+
+    return serveEvent.withResponseDefinition(copyOf(responseDefinition));
   }
 
-  private ResponseDefinition applyTransformations(
+  private ResponseDefinition applyV1Transformations(
       Request request,
       ResponseDefinition responseDefinition,
       List<ResponseDefinitionTransformer> transformers) {
@@ -110,8 +124,28 @@ public abstract class AbstractStubMappings implements StubMappings {
                 getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
             : responseDefinition;
 
-    return applyTransformations(
+    return applyV1Transformations(
         request, newResponseDef, transformers.subList(1, transformers.size()));
+  }
+
+  private Pair<ServeEvent, ResponseDefinition> applyV2Transformations(
+      ServeEvent serveEvent, List<ResponseDefinitionTransformerV2> transformers) {
+
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+    if (transformers.isEmpty()) {
+      return pair(serveEvent, responseDefinition);
+    }
+
+    ResponseDefinitionTransformerV2 transformer = transformers.get(0);
+    ResponseDefinition newResponseDef =
+        transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+            ? transformer.transform(serveEvent)
+            : responseDefinition;
+
+    return applyV2Transformations(
+        serveEvent.withResponseDefinition(newResponseDef),
+        transformers.subList(1, transformers.size()));
   }
 
   @Override

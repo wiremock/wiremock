@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public interface AdminTask {
-  ResponseDefinition execute(Admin admin, Request request, PathParams pathParams);
+  ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams);
 }

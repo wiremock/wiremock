@@ -15,19 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static java.util.Arrays.asList;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 
 public class FormParameter extends MultiValue {
 
-  public FormParameter(String key, List<String> values) {
+  public FormParameter(
+      @JsonProperty("key") String key, @JsonProperty("values") List<String> values) {
     super(key, values);
-  }
-
-  public static FormParameter formParam(String key, String[] values) {
-    return new FormParameter(key, asList(values));
   }
 
   public static FormParameter absent(String key) {

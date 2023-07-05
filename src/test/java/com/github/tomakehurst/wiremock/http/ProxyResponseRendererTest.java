@@ -19,6 +19,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.NetworkAddressRules.ALLOW_ALL;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +39,6 @@ import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.io.File;
 import java.io.IOException;
@@ -48,9 +49,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.assertj.core.api.Assertions;
@@ -263,16 +262,22 @@ public class ProxyResponseRendererTest {
   @Test
   void usesCorrectProxyRequestTimeout() {
     RequestConfig forwardProxyClientRequestConfig =
-        reflectiveInnerSpyField(RequestConfig.class, "forwardProxyClient", "defaultConfig", proxyResponseRenderer);
+        reflectiveInnerSpyField(
+            RequestConfig.class, "forwardProxyClient", "defaultConfig", proxyResponseRenderer);
     RequestConfig reverseProxyClientRequestConfig =
-        reflectiveInnerSpyField(RequestConfig.class, "reverseProxyClient", "defaultConfig", proxyResponseRenderer);
+        reflectiveInnerSpyField(
+            RequestConfig.class, "reverseProxyClient", "defaultConfig", proxyResponseRenderer);
 
-    assertThat(forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(), is(Long.valueOf(PROXY_TIMEOUT)));
-    assertThat(reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(), is(Long.valueOf(PROXY_TIMEOUT)));
+    assertThat(
+        forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
+        is(Long.valueOf(PROXY_TIMEOUT)));
+    assertThat(
+        reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
+        is(Long.valueOf(PROXY_TIMEOUT)));
   }
 
-  private static <T> T reflectiveInnerSpyField(Class<T> fieldType, String outerFieldName, String innerFieldName,
-                                               Object object) {
+  private static <T> T reflectiveInnerSpyField(
+      Class<T> fieldType, String outerFieldName, String innerFieldName, Object object) {
     try {
       Field outerField = object.getClass().getDeclaredField(outerFieldName);
       outerField.setAccessible(true);
@@ -317,23 +322,21 @@ public class ProxyResponseRendererTest {
       byte[] body,
       RequestMethod method,
       HttpHeaders headers) {
+
     LoggedRequest loggedRequest =
-        new LoggedRequest(
-            /* url = */ path,
-            /* absoluteUrl = */ origin.url(path),
-            /* method = */ method,
-            /* clientIp = */ "127.0.0.1",
-            /* headers = */ headers,
-            /* cookies = */ new HashMap<String, Cookie>(),
-            /* isBrowserProxyRequest = */ isBrowserProxyRequest,
-            /* loggedDate = */ new Date(),
-            /* body = */ body,
-            /* multiparts = */ null,
-            /* protocol = */ "HTTP/1.1");
+        LoggedRequest.createFrom(
+            mockRequest()
+                .url(path)
+                .absoluteUrl(origin.url(path))
+                .method(method)
+                .headers(headers)
+                .isBrowserProxyRequest(isBrowserProxyRequest)
+                .body(body)
+                .protocol("HTTP/1.1"));
     ResponseDefinition responseDefinition = aResponse().proxiedFrom(origin.baseUrl()).build();
     responseDefinition.setOriginalRequest(loggedRequest);
 
-    return ServeEvent.of(loggedRequest, responseDefinition, new StubMapping());
+    return newPostMatchServeEvent(loggedRequest, responseDefinition);
   }
 
   private File generateKeystore() throws Exception {

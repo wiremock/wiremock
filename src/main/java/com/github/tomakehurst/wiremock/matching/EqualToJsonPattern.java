@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.stubbing.SubEvent.JSON_ERROR;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import net.javacrumbs.jsonunit.core.Configuration;
 import net.javacrumbs.jsonunit.core.Option;
 import net.javacrumbs.jsonunit.core.internal.Diff;
@@ -77,8 +81,10 @@ public class EqualToJsonPattern extends StringValuePattern {
               "",
               "",
               diffConfig);
+    } catch (JsonException je) {
+      return MatchResult.noMatch(new SubEvent(JSON_ERROR, je.getErrors()));
     } catch (Exception e) {
-      return MatchResult.noMatch();
+      return MatchResult.noMatch(SubEvent.warning(e.getMessage()));
     }
 
     return new MatchResult() {

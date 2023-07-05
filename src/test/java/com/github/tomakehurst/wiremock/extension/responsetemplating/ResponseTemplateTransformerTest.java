@@ -17,19 +17,25 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 
-import com.github.jknack.handlebars.EscapingStrategy;
-import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MockRequest;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.ServeEventFactory;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.YearMonth;
@@ -49,7 +55,7 @@ public class ResponseTemplateTransformerTest {
 
   @BeforeEach
   public void setup() {
-    transformer = new ResponseTemplateTransformer(true);
+    transformer = ExtensionFactoryUtils.buildTemplateTransformer(true);
   }
 
   @Test
@@ -258,8 +264,7 @@ public class ResponseTemplateTransformerTest {
   public void customHelper() {
     Helper<String> helper = (context, options) -> context.length();
 
-    transformer =
-        ResponseTemplateTransformer.builder().global(false).helper("string-length", helper).build();
+    transformer = ExtensionFactoryUtils.buildTemplateTransformer(false, "string-length", helper);
 
     ResponseDefinition transformedResponseDef =
         transform(
@@ -302,10 +307,9 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void escapingIsTheDefault() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
-            noFileSource(),
+            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"),
             Parameters.empty());
 
     assertThat(
@@ -315,10 +319,9 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void jsonPathValueDefaultsToEmptyString() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
-            aResponse().withBody("{{jsonPath request.body '$.b'}}").build(),
-            noFileSource(),
+            aResponse().withBody("{{jsonPath request.body '$.b'}}"),
             Parameters.empty());
     assertThat(responseDefinition.getBody(), is(""));
   }
@@ -326,51 +329,51 @@ public class ResponseTemplateTransformerTest {
   @Test
   public void jsonPathValueDefaultCanBeProvided() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": \"1\"}"),
-            aResponse().withBody("{{jsonPath request.body '$.b' default='foo'}}").build(),
-            noFileSource(),
+            aResponse().withBody("{{jsonPath request.body '$.b' default='foo'}}"),
             Parameters.empty());
     assertThat(responseDefinition.getBody(), is("foo"));
   }
 
   @Test
-  public void escapingCanBeDisabled() {
-    Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
-    ResponseTemplateTransformer transformerWithEscapingDisabled =
-        ResponseTemplateTransformer.builder().global(true).handlebars(handlebars).build();
-    final ResponseDefinition responseDefinition =
-        transformerWithEscapingDisabled.transform(
-            mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
-
-    assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my 'single quotes'\"}"));
-  }
-
-  @Test
   public void transformerParametersAreAppliedToTemplate() throws Exception {
     ResponseDefinition responseDefinition =
-        transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
-            aResponse().withBody("{\"test\": \"{{parameters.variable}}\"}").build(),
-            noFileSource(),
+            aResponse().withBody("{\"test\": \"{{parameters.variable}}\"}"),
             Parameters.one("variable", "some.value"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"some.value\"}"));
   }
 
+  private ResponseDefinition transform(
+      Request request, ResponseDefinitionBuilder responseDefinitionBuilder, Parameters parameters) {
+    return transform(this.transformer, request, responseDefinitionBuilder, parameters);
+  }
+
+  private ResponseDefinition transform(
+      ResponseDefinitionTransformerV2 transformer,
+      Request request,
+      ResponseDefinitionBuilder responseDefinitionBuilder,
+      Parameters parameters) {
+    StubMapping stubMapping =
+        get("/json").willReturn(aResponse().withTransformerParameters(parameters)).build();
+    responseDefinitionBuilder.withTransformerParameters(parameters);
+    ServeEvent serveEvent =
+        newPostMatchServeEvent(
+            LoggedRequest.createFrom(request), responseDefinitionBuilder, stubMapping);
+    return transformer.transform(serveEvent);
+  }
+
   @Test
   public void unknownTransformerParametersAreNotCausingIssues() throws Exception {
     ResponseDefinition responseDefinition =
-        transformer.transform(
+        transform(
             mockRequest().url("/json").body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
             aResponse()
                 .withBody(
-                    "{\"test1\": \"{{parameters.variable}}\", \"test2\": \"{{parameters.unknown}}\"}")
-                .build(),
-            noFileSource(),
+                    "{\"test1\": \"{{parameters.variable}}\", \"test2\": \"{{parameters.unknown}}\"}"),
             Parameters.one("variable", "some.value"));
 
     assertThat(responseDefinition.getBody(), is("{\"test1\": \"some.value\", \"test2\": \"\"}"));
@@ -786,7 +789,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void honoursCacheSizeLimit() {
-    transformer = ResponseTemplateTransformer.builder().maxCacheEntries(3L).build();
+    transformer = ExtensionFactoryUtils.buildTemplateTransformer(3L);
 
     transform("{{now}} 1");
     transform("{{now}} 2");
@@ -799,7 +802,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void honours0CacheSizeLimit() {
-    transformer = ResponseTemplateTransformer.builder().maxCacheEntries(0L).build();
+    transformer = ExtensionFactoryUtils.buildTemplateTransformer(0L);
 
     transform("{{now}} 1");
     transform("{{now}} 2");
@@ -1032,7 +1035,11 @@ public class ResponseTemplateTransformerTest {
   }
 
   private String transform(String responseBodyTemplate) {
-    return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
+    final ResponseDefinitionBuilder responseDefinitionBuilder =
+        aResponse().withBody(responseBodyTemplate);
+    final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
+    final MockRequest request = mockRequest();
+    return transform(newPostMatchServeEvent(request, responseDefinitionBuilder, stub)).getBody();
   }
 
   private String transform(String responseBodyTemplate, String requestBody) {
@@ -1042,17 +1049,19 @@ public class ResponseTemplateTransformerTest {
 
   private ResponseDefinition transform(
       Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
-    return transformer.transform(
-        request, responseDefinitionBuilder.build(), noFileSource(), Parameters.empty());
+    final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
+    return transform(newPostMatchServeEvent(request, responseDefinitionBuilder, stub));
+  }
+
+  private ResponseDefinition transform(ServeEvent serveEvent) {
+    return transformer.transform(serveEvent);
   }
 
   private ResponseDefinition transformFromResponseFile(
       Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
+
+    final StubMapping stub = get("/").willReturn(responseDefinitionBuilder).build();
     return transformer.transform(
-        request,
-        responseDefinitionBuilder.build(),
-        new ClasspathFileSource(
-            this.getClass().getClassLoader().getResource("templates").getPath()),
-        Parameters.empty());
+        ServeEventFactory.newPostMatchServeEvent(request, responseDefinitionBuilder, stub));
   }
 }

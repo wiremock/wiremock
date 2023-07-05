@@ -260,7 +260,7 @@ public class PostServeActionExtensionTest {
       router.add(
           GET,
           "/named-counter/{name}",
-          (admin, request, pathParams) -> {
+          (admin, serveEvent, pathParams) -> {
             String name = pathParams.get("name");
             Integer count = getFirstNonNull(counters.get(name), 0);
             return responseDefinition().withStatus(200).withBody(String.valueOf(count)).build();

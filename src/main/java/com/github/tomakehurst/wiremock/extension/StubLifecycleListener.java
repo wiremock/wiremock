@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,19 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public interface StubLifecycleListener extends Extension {
 
-  void beforeStubCreated(StubMapping stub);
+  default void beforeStubCreated(StubMapping stub) {}
 
-  void afterStubCreated(StubMapping stub);
+  default void afterStubCreated(StubMapping stub) {}
 
-  void beforeStubEdited(StubMapping oldStub, StubMapping newStub);
+  default void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {}
 
-  void afterStubEdited(StubMapping oldStub, StubMapping newStub);
+  default void afterStubEdited(StubMapping oldStub, StubMapping newStub) {}
 
-  void beforeStubRemoved(StubMapping stub);
+  default void beforeStubRemoved(StubMapping stub) {}
 
-  void afterStubRemoved(StubMapping stub);
+  default void afterStubRemoved(StubMapping stub) {}
 
-  void beforeStubsReset();
+  default void beforeStubsReset() {}
 
-  void afterStubsReset();
+  default void afterStubsReset() {}
 }
