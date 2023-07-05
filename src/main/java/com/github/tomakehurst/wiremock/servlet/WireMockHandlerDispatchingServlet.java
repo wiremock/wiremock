@@ -16,12 +16,12 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
@@ -112,7 +112,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     browserProxyingEnabled =
         Boolean.parseBoolean(
-            firstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
+            getFirstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
   }
 
   private String getNormalizedMappedUnder(ServletConfig config) {

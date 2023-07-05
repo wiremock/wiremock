@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -76,7 +76,7 @@ public class ResponseTemplateTransformer
       final Request request = serveEvent.getRequest();
       final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
       final Parameters parameters =
-          firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
+          getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
 
       ResponseDefinitionBuilder newResponseDefBuilder =
           ResponseDefinitionBuilder.like(responseDefinition);

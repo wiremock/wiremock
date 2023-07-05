@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -42,7 +42,7 @@ public class HttpHeaders {
 
   public HttpHeaders(Iterable<HttpHeader> headers) {
     ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
-    for (HttpHeader header : firstNonNull(headers, Collections.<HttpHeader>emptyList())) {
+    for (HttpHeader header : getFirstNonNull(headers, Collections.<HttpHeader>emptyList())) {
       builder.putAll(caseInsensitive(header.key()), header.values());
     }
 
@@ -111,9 +111,7 @@ public class HttpHeaders {
 
     HttpHeaders that = (HttpHeaders) o;
 
-    if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
-
-    return true;
+    return headers != null ? headers.equals(that.headers) : that.headers == null;
   }
 
   @Override
@@ -127,12 +125,12 @@ public class HttpHeaders {
       return "(no headers)\n";
     }
 
-    String outString = "";
+    StringBuilder outString = new StringBuilder();
     for (CaseInsensitiveKey key : headers.keySet()) {
-      outString += key.toString() + ": " + headers.get(key).toString() + "\n";
+      outString.append(key.toString()).append(": ").append(headers.get(key)).append("\n");
     }
 
-    return outString;
+    return outString.toString();
   }
 
   private CaseInsensitiveKey caseInsensitive(String key) {
