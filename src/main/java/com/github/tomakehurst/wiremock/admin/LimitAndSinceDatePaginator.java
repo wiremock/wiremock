@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.admin;
 
 import static com.github.tomakehurst.wiremock.admin.Conversions.toDate;
 import static com.github.tomakehurst.wiremock.admin.Conversions.toInt;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -33,7 +33,7 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
   private final Date since;
 
   public LimitAndSinceDatePaginator(List<ServeEvent> source, Integer limit, Date since) {
-    checkArgument(limit == null || limit >= 0, "limit must be 0 or greater");
+    checkParameter(limit == null || limit >= 0, "limit must be 0 or greater");
     this.source = source;
     this.limit = limit;
     this.since = since;
@@ -48,7 +48,7 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
   public List<ServeEvent> select() {
     return source.stream()
         .filter(input -> since == null || input.getRequest().getLoggedDate().after(since))
-        .limit(firstNonNull(limit, source.size()))
+        .limit(getFirstNonNull(limit, source.size()))
         .collect(Collectors.toList());
   }
 

@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
-import static com.google.common.base.MoreObjects.firstNonNull;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
@@ -134,7 +134,7 @@ public class Diff {
             requestPattern.getMethod().getName());
     builder.add(methodSection);
 
-    UrlPattern urlPattern = firstNonNull(requestPattern.getUrlMatcher(), anyUrl());
+    UrlPattern urlPattern = getFirstNonNull(requestPattern.getUrlMatcher(), anyUrl());
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
     DiffLine<String> urlSection =
         new DiffLine<>("URL", urlPattern, request.getUrl(), printedUrlPattern);
@@ -182,7 +182,7 @@ public class Diff {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         QueryParameter queryParameter =
-            firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
+            getFirstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
@@ -209,7 +209,7 @@ public class Diff {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         FormParameter formParameter =
-            firstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
+            getFirstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
@@ -229,11 +229,11 @@ public class Diff {
 
     boolean anyCookieSections = false;
     if (requestPattern.getCookies() != null) {
-      Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.emptyMap());
+      Map<String, Cookie> cookies = getFirstNonNull(request.getCookies(), Collections.emptyMap());
       for (Map.Entry<String, StringValuePattern> entry : requestPattern.getCookies().entrySet()) {
         String key = entry.getKey();
         StringValuePattern pattern = entry.getValue();
-        Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
+        Cookie cookie = getFirstNonNull(cookies.get(key), Cookie.absent());
 
         String operator = generateOperatorString(pattern, "=");
         DiffLine<String> section =
