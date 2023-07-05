@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,13 +43,13 @@ public class HostnameHelperTest {
 
   @Test
   public void generatesHostname() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
+    Map<String, Object> optionsHash = Map.of();
 
     String output = render(optionsHash);
     assertThat(output, equalToCompressingWhiteSpace(hostname));
   }
 
-  private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private String render(Map<String, Object> optionsHash) throws IOException {
     return helper
         .apply(null, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build())
         .toString();

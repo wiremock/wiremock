@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
-import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class Parameters extends Metadata {
   }
 
   public static Parameters one(String name, Object value) {
-    return from(ImmutableMap.of(name, value));
+    return from(Map.of(name, value));
   }
 
   public static <T> Parameters of(T myData) {
