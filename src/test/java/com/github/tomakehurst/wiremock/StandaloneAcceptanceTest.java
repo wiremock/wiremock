@@ -18,13 +18,13 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.io.Files.asCharSink;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -43,7 +43,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -531,7 +530,7 @@ public class StandaloneAcceptanceTest {
     try {
       File file = new File(absolutePath);
       createParentDirs(file);
-      asCharSink(file, StandardCharsets.UTF_8).write(contents);
+      asCharSink(file, UTF_8).write(contents);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -602,8 +601,7 @@ public class StandaloneAcceptanceTest {
       public boolean matchesSafely(File dir) {
         for (File file : dir.listFiles()) {
           try {
-            if (FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                .contains(expectedContents)) {
+            if (FileUtils.readFileToString(file, UTF_8).contains(expectedContents)) {
               return true;
             }
           } catch (IOException e) {
