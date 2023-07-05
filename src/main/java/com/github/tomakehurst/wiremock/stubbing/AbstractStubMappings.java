@@ -95,6 +95,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       Request request,
       ResponseDefinition responseDefinition,
       List<ResponseDefinitionTransformer> transformers) {
+
     if (transformers.isEmpty()) {
       return responseDefinition;
     }
