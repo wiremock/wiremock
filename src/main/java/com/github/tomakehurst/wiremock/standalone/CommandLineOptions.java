@@ -952,7 +952,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public boolean getTemplateEscapingDisabled() {
-    return false;
+    return true;
   }
 
   private boolean isAsynchronousResponseEnabled() {
