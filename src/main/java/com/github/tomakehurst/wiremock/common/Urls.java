@@ -109,4 +109,12 @@ public class Urls {
   private static String clean(String url) {
     return url.matches(".*:[0-9]+null$") ? url.substring(0, url.length() - 4) : url;
   }
+
+  public static int getPort(URL url) {
+    if (url.getPort() == -1) {
+      return url.getProtocol().equals("https") ? 443 : 80;
+    }
+
+    return url.getPort();
+  }
 }

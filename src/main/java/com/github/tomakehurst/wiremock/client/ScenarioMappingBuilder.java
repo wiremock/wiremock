@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
@@ -23,6 +24,7 @@ import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ScenarioMappingBuilder extends MappingBuilder {
@@ -65,6 +67,11 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
   ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
   <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
 
   ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
 

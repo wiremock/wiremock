@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common.filemaker;
 
+import static com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine.defaultTemplateEngine;
+
 import com.github.tomakehurst.wiremock.extension.responsetemplating.HandlebarsOptimizedTemplate;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.text.Normalizer;
-import java.util.Collections;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -36,17 +37,17 @@ public class FilenameMaker {
   private final String filenameTemplate;
 
   public FilenameMaker() {
-    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    this.templateEngine = defaultTemplateEngine();
     this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
   }
 
   public FilenameMaker(String filenameTemplate) {
-    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    this.templateEngine = defaultTemplateEngine();
     this.filenameTemplate = filenameTemplate;
   }
 
   public FilenameMaker(String filenameTemplate, String extension) {
-    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    this.templateEngine = defaultTemplateEngine();
     if (filenameTemplate.equals("default")) {
       this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE + POINT + extension;
     } else {
