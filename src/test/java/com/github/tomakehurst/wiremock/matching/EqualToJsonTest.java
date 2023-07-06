@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -608,5 +609,22 @@ class EqualToJsonTest {
     assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
+  }
+
+  @Test
+  void subEventIsReturnedOnJsonParsingError() {
+    MatchResult match = new EqualToJsonPattern("{}", false, false).match("{ \"wrong");
+
+    assertThat(match.getSubEvents().size(), is(1));
+    Errors.Error error =
+        match.getSubEvents().stream()
+            .findFirst()
+            .get()
+            .getDataAs(Errors.class)
+            .getErrors()
+            .stream()
+            .findFirst()
+            .get();
+    assertThat(error.getDetail(), startsWith("Unexpected end-of-input"));
   }
 }

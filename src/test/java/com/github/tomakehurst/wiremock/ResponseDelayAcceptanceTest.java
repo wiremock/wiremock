@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
@@ -30,6 +31,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,12 +39,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-class ResponseDelayAcceptanceTest {
+public class ResponseDelayAcceptanceTest {
 
   private static final int SOCKET_TIMEOUT_MILLISECONDS = 1000;
   private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 2;
@@ -69,7 +72,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void responseWithFixedDelay() {
+  public void responseWithFixedDelay() {
     stubFor(
         get(urlEqualTo("/delayed/resource"))
             .willReturn(aResponse().withStatus(200).withBody("Content").withFixedDelay(500)));
@@ -82,7 +85,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void responseWithByteDribble() {
+  public void responseWithByteDribble() {
     byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int numberOfChunks = body.length / 2;
     int chunkedDuration = 1000;
@@ -106,7 +109,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void responseWithByteDribbleAndFixedDelay() {
+  public void responseWithByteDribbleAndFixedDelay() {
     byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int numberOfChunks = body.length / 2;
     int fixedDelay = 1000;
@@ -133,7 +136,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void responseWithLogNormalDistributedDelay() {
+  public void responseWithLogNormalDistributedDelay() {
     stubFor(
         get(urlEqualTo("/lognormal/delayed/resource"))
             .willReturn(
@@ -147,7 +150,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void responseWithUniformDistributedDelay() {
+  public void responseWithUniformDistributedDelay() {
     stubFor(
         get(urlEqualTo("/uniform/delayed/resource"))
             .willReturn(
@@ -161,7 +164,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void requestTimesOutWhenDelayIsLongerThanSocketTimeout() {
+  public void requestTimesOutWhenDelayIsLongerThanSocketTimeout() throws Exception {
     assertThrows(
         SocketTimeoutException.class,
         () -> {
@@ -174,7 +177,7 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void requestIsSuccessfulWhenDelayIsShorterThanSocketTimeout() throws Exception {
+  public void requestIsSuccessfulWhenDelayIsShorterThanSocketTimeout() throws Exception {
     stubFor(
         get(urlEqualTo("/delayed"))
             .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
@@ -184,10 +187,8 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
-    stubFor(
-        get(urlEqualTo("/delayed"))
-            .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
+  public void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
+    stubFor(get("/delayed").willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     final AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
@@ -201,10 +202,9 @@ class ResponseDelayAcceptanceTest {
   }
 
   @Test
-  void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {
+  public void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {
     stubFor(
-        get(urlEqualTo("/delayed"))
-            .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
+        get(urlEqualTo("/delayed")).willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     final AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
@@ -221,15 +221,14 @@ class ResponseDelayAcceptanceTest {
 
   private AtomicBoolean callDelayedEndpointAsynchronously(ExecutorService executorService) {
     final AtomicBoolean success = new AtomicBoolean(false);
+    HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
     executorService.submit(
         () -> {
-          try {
-            HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
-            final HttpResponse execute = httpClient.execute(request);
-            assertThat(execute.getCode(), is(200));
+          try (final CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getCode(), is(200));
             success.set(true);
-          } catch (Throwable e) {
-            e.printStackTrace();
+          } catch (IOException e) {
+            Exceptions.throwUnchecked(e, AtomicBoolean.class);
           }
         });
     return success;

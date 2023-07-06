@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -155,9 +156,9 @@ class PlainTextDiffRendererTest {
 
   private Map<String, FormParameter> getFormParameters() {
     Map<String, FormParameter> formParameters = new HashMap<>();
-    formParameters.put("one", FormParameter.formParam("one", new String[] {"2"}));
-    formParameters.put("two", FormParameter.formParam("two", new String[] {"wrong things"}));
-    formParameters.put("three", FormParameter.formParam("three", new String[] {"abcde"}));
+    formParameters.put("one", new FormParameter("one", List.of("2")));
+    formParameters.put("two", new FormParameter("two", List.of("wrong things")));
+    formParameters.put("three", new FormParameter("three", List.of("abcde")));
     return formParameters;
   }
 

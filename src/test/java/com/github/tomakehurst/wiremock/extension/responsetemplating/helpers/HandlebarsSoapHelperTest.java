@@ -17,11 +17,10 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.io.IOException;
@@ -36,7 +35,7 @@ class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   @BeforeEach
   public void init() {
     this.helper = new HandlebarsSoapHelper();
-    this.transformer = new ResponseTemplateTransformer(true);
+    this.transformer = buildTemplateTransformer(true);
   }
 
   @Test
@@ -51,16 +50,13 @@ class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   @Test
   void rendersASimpleValue() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/soap")
                 .body(
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-            aResponse()
-                .withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
@@ -68,14 +64,13 @@ class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
   @Test
   void negativeTestResponseTemplate() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/soap")
                 .body(
                     "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-            aResponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("<test>{{soapXPath request.body '/b/test'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test></test>"));
   }

@@ -15,17 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getAllServeEvents;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -53,7 +49,7 @@ class JUnitJupiterExtensionStaticMultiInstanceTest {
   @RegisterExtension
   static WireMockExtension wm2 =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().extensions(new ResponseTemplateTransformer(true)))
+          .options(wireMockConfig().dynamicPort().templatingEnabled(true).globalTemplating(true))
           .build();
 
   @BeforeEach

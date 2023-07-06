@@ -63,6 +63,7 @@ class AdminRequestHandlerTest {
             new NoAuthenticator(),
             false,
             Collections.emptyList(),
+            Collections.emptyList(),
             new DataTruncationSettings(Limit.UNLIMITED));
   }
 
@@ -70,7 +71,7 @@ class AdminRequestHandlerTest {
   void shouldSaveMappingsWhenSaveCalled() {
     Request request = aRequest().withUrl("/mappings/save").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -81,7 +82,7 @@ class AdminRequestHandlerTest {
   void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
     Request request = aRequest().withUrl("/reset").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -92,7 +93,7 @@ class AdminRequestHandlerTest {
   void shouldClearJournalWhenResetRequestsCalled() {
     Request request = aRequest().withUrl("/requests/reset").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -117,7 +118,8 @@ class AdminRequestHandlerTest {
             .withMethod(POST)
             .withBody(REQUEST_PATTERN_SAMPLE)
             .build(),
-        httpResponder);
+        httpResponder,
+        null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -133,7 +135,8 @@ class AdminRequestHandlerTest {
   void shouldUpdateGlobalSettings() {
     handler.handle(
         aRequest().withUrl("/settings").withMethod(POST).withBody(GLOBAL_SETTINGS_JSON).build(),
-        httpResponder);
+        httpResponder,
+        null);
 
     GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
     verify(admin).updateGlobalSettings(expectedSettings);

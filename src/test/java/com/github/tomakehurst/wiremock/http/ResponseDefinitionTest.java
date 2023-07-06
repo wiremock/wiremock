@@ -28,10 +28,7 @@ class ResponseDefinitionTest {
   void getProxyUrlGivesBackRequestUrlIfBrowserProxyRequest() {
     ResponseDefinition response =
         ResponseDefinition.browserProxy(
-            MockRequest.mockRequest()
-                .host("http://my.domain")
-                .url("/path")
-                .isBrowserProxyRequest(true));
+            MockRequest.mockRequest().host("my.domain").url("/path").isBrowserProxyRequest(true));
 
     assertThat(response.getProxyUrl(), equalTo("http://my.domain/path"));
   }

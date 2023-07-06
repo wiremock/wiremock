@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.junit.jupiter.api.Test;
 
 class ProxiedServeEventFiltersTest {
@@ -118,7 +119,8 @@ class ProxiedServeEventFiltersTest {
         responseDefinition,
         null,
         true,
-        Timing.UNTIMED);
+        Timing.UNTIMED,
+        new LinkedBlockingQueue<>());
   }
 
   private ServeEvent proxiedServeEvent(UUID id, MockRequest request) {

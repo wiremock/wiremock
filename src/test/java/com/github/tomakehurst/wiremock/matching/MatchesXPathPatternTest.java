@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.SubEvent.WARNING;
+import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.checkJsonError;
+import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.checkMessage;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -29,10 +32,10 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-class MatchesXPathPatternTest {
+public class MatchesXPathPatternTest {
 
   @Test
-  void returnsExactMatchWhenXPathMatches() {
+  public void returnsExactMatchWhenXPathMatches() {
     String mySolarSystemXML =
         "<solar-system>"
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
@@ -46,7 +49,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void returnsNoExactMatchWhenXPathDoesNotMatch() {
+  public void returnsNoExactMatchWhenXPathDoesNotMatch() {
     String mySolarSystemXML =
         "<solar-system>"
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
@@ -60,7 +63,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void returnsNoExactMatchWhenXPathExpressionIsInvalid() {
+  public void returnsNoExactMatchWhenXPathExpressionIsInvalid() {
     String mySolarSystemXML =
         "<solar-system>"
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
@@ -74,7 +77,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void returnsNoExactMatchWhenXmlIsBadlyFormed() {
+  public void returnsNoExactMatchWhenXmlIsBadlyFormed() {
     String mySolarSystemXML =
         "solar-system>"
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
@@ -88,7 +91,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesNamespacedXmlWhenNamespacesSpecified() {
+  public void matchesNamespacedXmlWhenNamespacesSpecified() {
     String xml =
         "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
@@ -102,7 +105,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesNamespacedXmlFromLocalNames() {
+  public void matchesNamespacedXmlFromLocalNames() {
     String xml =
         "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
@@ -113,7 +116,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesAgainstValuePatternWhenSingleElementReturnedFromXPath() {
+  public void matchesAgainstValuePatternWhenSingleElementReturnedFromXPath() {
     String xml = "<outer>\n" + "    <inner>stuff</inner>\n" + "</outer>";
 
     StringValuePattern pattern = WireMock.matchingXPath("//inner/text()", matching("[a-z]*"));
@@ -122,7 +125,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesAgainstValuePatternWhenMultipleElementsReturnedFromXPath() {
+  public void matchesAgainstValuePatternWhenMultipleElementsReturnedFromXPath() {
     String xml =
         "<outer>\n"
             + "    <inner>stuffing</inner>\n"
@@ -138,7 +141,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void returnsTheMatchFromTheClosestElementWhenNoneMatchExactly() {
+  public void returnsTheMatchFromTheClosestElementWhenNoneMatchExactly() {
     String xml =
         "<outer>\n"
             + "    <inner>stuffing</inner>\n"
@@ -154,7 +157,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesAttributeAgainstValuePattern() {
+  public void matchesAttributeAgainstValuePattern() {
     String xml = "<outer inner=\"stuff\"/>";
 
     StringValuePattern pattern =
@@ -164,7 +167,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void returnsAMaxDistanceNoMatchWhenNoNodesReturnedAndValuePatternIsPresent() {
+  public void returnsAMaxDistanceNoMatchWhenNoNodesReturnedAndValuePatternIsPresent() {
     String xml = "<outer inner=\"stuff\"/>";
 
     StringValuePattern pattern =
@@ -175,7 +178,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesComplexElementAgainstValuePattern() {
+  public void matchesComplexElementAgainstValuePattern() {
     String xml = "<outer>\n" + "    <inner>stuff</inner>\n" + "</outer>";
 
     StringValuePattern pattern =
@@ -185,7 +188,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void matchesCorrectlyWhenSubMatcherIsDateEquality() {
+  public void matchesCorrectlyWhenSubMatcherIsDateEquality() {
     String xml =
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<soapenv:Envelope>\n"
@@ -208,7 +211,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void deserialisesCorrectlyWithoutNamespaces() {
+  public void deserialisesCorrectlyWithoutNamespaces() {
     String json = "{ \"matchesXPath\" : \"/stuff:outer/stuff:inner[.=111]\" }";
 
     MatchesXPathPattern pattern = Json.read(json, MatchesXPathPattern.class);
@@ -218,7 +221,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void deserialisesCorrectlyWithNamespaces() {
+  public void deserialisesCorrectlyWithNamespaces() {
     String json =
         "{ \"matchesXPath\" : \"/stuff:outer/stuff:inner[.=111]\" ,   \n"
             + "  \"xPathNamespaces\" : {                                    \n"
@@ -234,7 +237,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void deserialisesCorrectlyWithValuePattern() {
+  public void deserialisesCorrectlyWithValuePattern() {
     String json =
         "{                                      \n"
             + "    \"matchesXPath\": {                 \n"
@@ -251,7 +254,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void serialisesCorrectlyWithNamspaces() throws JSONException {
+  public void serialisesCorrectlyWithNamspaces() throws JSONException {
     MatchesXPathPattern pattern =
         new MatchesXPathPattern("//*", Map.of("one", "http://one.com/", "two", "http://two.com/"));
 
@@ -269,7 +272,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void serialisesCorrectlyWithoutNamspaces() throws JSONException {
+  public void serialisesCorrectlyWithoutNamspaces() throws JSONException {
     MatchesXPathPattern pattern =
         new MatchesXPathPattern("//*", Collections.<String, String>emptyMap());
 
@@ -279,7 +282,7 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void serialisesCorrectlyWithValuePattern() {
+  public void serialisesCorrectlyWithValuePattern() {
     assertThat(
         Json.write(WireMock.matchingXPath("/thing", containing("123"))),
         equalToJson(
@@ -292,12 +295,44 @@ class MatchesXPathPatternTest {
   }
 
   @Test
-  void noMatchOnNullValue() {
+  public void noMatchOnNullValue() {
     assertThat(WireMock.matchingXPath("//*").match(null).isExactMatch(), is(false));
   }
 
   @Test
-  void objectsShouldBeEqualOnSameExpectedValue() {
+  void reportsErrorWhenActualXmlIsInvalid() {
+    MatchResult matchResult = new MatchesXPathPattern("/thing").match("<xml");
+    checkMessage(
+        matchResult,
+        WARNING,
+        "Warning: failed to parse the XML document. Reason: {\n  \"errors\" : [ {\n    \"code\" : 50,\n    \"title\" : \"XML document structures must start and end within the same entity.\"\n  } ]\n}\nXML: <xml");
+  }
+
+  @Test
+  void reportsErrorWhenActualIsNotXml() {
+    MatchResult matchResult = new MatchesXPathPattern("/thing").match("{not-xml");
+    checkMessage(matchResult, WARNING, "Warning: failed to parse the XML document\nXML: {not-xml");
+  }
+
+  @Test
+  void reportsErrorFromSubMatcher() {
+    MatchResult matchResult =
+        new MatchesXPathPattern("/something/text()", WireMock.equalToJson("{}"))
+            .match("<something>{ bad json</something>");
+    checkJsonError(
+        matchResult,
+        "Unexpected character ('b' (code 98)): was expecting double-quote to start field name\n at [Source: (String)\"{ bad json\"; line: 1, column: 4]");
+  }
+
+  @Test
+  void reportsErrorWhenXPathExpressionIsInvalid() {
+    MatchResult matchResult = new MatchesXPathPattern("/\\!what?").match("<things/>");
+    checkMessage(
+        matchResult, WARNING, "Warning: failed to evaluate the XPath expression /\\!what?");
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
     MatchesXPathPattern a = new MatchesXPathPattern("/thing");
     MatchesXPathPattern b = new MatchesXPathPattern("/thing");
     MatchesXPathPattern c = new MatchesXPathPattern("/other");

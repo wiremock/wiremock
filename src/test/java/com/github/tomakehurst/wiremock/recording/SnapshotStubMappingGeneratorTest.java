@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.junit.jupiter.api.Test;
 
 class SnapshotStubMappingGeneratorTest {
@@ -101,6 +102,7 @@ class SnapshotStubMappingGeneratorTest {
         null,
         LoggedResponse.from(Response.notConfigured(), UNLIMITED),
         false,
-        Timing.UNTIMED);
+        Timing.UNTIMED,
+        new LinkedBlockingQueue<>());
   }
 }

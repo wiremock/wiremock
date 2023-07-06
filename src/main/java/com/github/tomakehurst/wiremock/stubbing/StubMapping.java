@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.List;
@@ -49,6 +50,8 @@ public class StubMapping {
   private String newScenarioState;
 
   private List<PostServeActionDefinition> postServeActions;
+
+  private List<ServeEventListenerDefinition> serveEventListeners;
 
   private Metadata metadata;
 
@@ -208,6 +211,10 @@ public class StubMapping {
     return postServeActions;
   }
 
+  public List<ServeEventListenerDefinition> getServeEventListeners() {
+    return serveEventListeners;
+  }
+
   public void setPostServeActions(List<PostServeActionDefinition> postServeActions) {
     this.postServeActions = postServeActions;
   }
@@ -234,6 +241,27 @@ public class StubMapping {
           ((List<Map<String, Object>>) postServeActions)
               .stream()
                   .map(item -> Json.mapToObject(item, PostServeActionDefinition.class))
+                  .collect(Collectors.toList());
+    }
+  }
+
+  public void setServeEventListenerDefinitions(
+      List<ServeEventListenerDefinition> serveEventListeners) {
+    this.serveEventListeners = serveEventListeners;
+  }
+
+  @SuppressWarnings("unchecked")
+  @JsonProperty("serveEventListeners")
+  public void setServeEventListeners(Object serveEventListeners) {
+    if (serveEventListeners == null) {
+      return;
+    }
+
+    if (List.class.isAssignableFrom(serveEventListeners.getClass())) {
+      this.serveEventListeners =
+          ((List<Map<String, Object>>) serveEventListeners)
+              .stream()
+                  .map(item -> Json.mapToObject(item, ServeEventListenerDefinition.class))
                   .collect(Collectors.toList());
     }
   }

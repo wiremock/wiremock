@@ -16,16 +16,17 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,7 @@ class StubResponseRendererTest {
   private BlobStore filesBlobStore;
   private SettingsStore settingsStore;
   private List<ResponseTransformer> responseTransformers;
+  private List<ResponseTransformerV2> v2ResponseTransformers;
   private StubResponseRenderer stubResponseRenderer;
 
   @BeforeEach
@@ -46,8 +48,10 @@ class StubResponseRendererTest {
     filesBlobStore = Mockito.mock(BlobStore.class);
     settingsStore = new InMemorySettingsStore();
     responseTransformers = new ArrayList<>();
+    v2ResponseTransformers = new ArrayList<>();
     stubResponseRenderer =
-        new StubResponseRenderer(filesBlobStore, settingsStore, null, responseTransformers);
+        new StubResponseRenderer(
+            filesBlobStore, settingsStore, null, responseTransformers, v2ResponseTransformers);
   }
 
   @Test
@@ -106,8 +110,8 @@ class StubResponseRendererTest {
   }
 
   private ServeEvent createServeEvent(Integer fixedDelayMillis) {
-    return ServeEvent.of(
-        LoggedRequest.createFrom(mockRequest()),
+    return newPostMatchServeEvent(
+        mockRequest(),
         new ResponseDefinition(
             0,
             "",

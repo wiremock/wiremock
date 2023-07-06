@@ -17,14 +17,12 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,11 +40,10 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void rendersASimpleValue() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
-            aResponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>"));
 
     assertThat(responseDefinition.getBody(), is("<test>success</test>"));
   }
@@ -54,11 +51,10 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/xml").body("<a><test>success</test></a>"),
-            aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>"));
 
     assertThat(responseDefinition.getBody(), startsWith("<test></test>"));
   }
@@ -152,7 +148,8 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void supportsIterationOverNodeListWithEachHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .body(
                     "<?xml version=\"1.0\"?>\n"
@@ -163,10 +160,7 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "</stuff>"),
             aResponse()
                 .withBody(
-                    "{{#each (xPath request.body '/stuff/thing/text()') as |thing|}}{{thing}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                    "{{#each (xPath request.body '/stuff/thing/text()') as |thing|}}{{thing}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
@@ -174,7 +168,8 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void supportsIterationOverElementsWithAttributes() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .body(
                     "<?xml version=\"1.0\"?>\n"
@@ -185,10 +180,7 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "</stuff>"),
             aResponse()
                 .withBody(
-                    "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.attributes.id}}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                    "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.attributes.id}}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("1 2 3 "));
   }
@@ -196,7 +188,8 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void supportsIterationOverNamespacedElements() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .body(
                     "<?xml version=\"1.0\"?>\n"
@@ -207,10 +200,7 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "</stuff>"),
             aResponse()
                 .withBody(
-                    "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.text}}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                    "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.text}}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
@@ -218,7 +208,8 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void rendersNamespacedElement() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .body(
                     "<?xml version=\"1.0\"?>\n"
@@ -227,9 +218,7 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "    <th:thing>Two</th:thing>\n"
                         + "    <th:thing>Three</th:thing>\n"
                         + "</stuff>"),
-            aResponse().withBody("{{{xPath request.body '/stuff'}}}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{{xPath request.body '/stuff'}}}"));
 
     assertThat(
         responseDefinition.getBody(),
@@ -244,7 +233,8 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   void rendersElementNames() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .body(
                     "<?xml version=\"1.0\"?>\n"
@@ -255,10 +245,7 @@ class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                         + "</stuff>"),
             aResponse()
                 .withBody(
-                    "{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                    "{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("one two three "));
   }

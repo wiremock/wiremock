@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -34,13 +34,10 @@ import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import jakarta.servlet.ServletContext;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class WarConfiguration implements Options {
 
@@ -163,8 +160,8 @@ public class WarConfiguration implements Options {
   }
 
   @Override
-  public <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType) {
-    return Collections.emptyMap();
+  public ExtensionDeclarations getDeclaredExtensions() {
+    return new ExtensionDeclarations();
   }
 
   @Override
@@ -180,11 +177,6 @@ public class WarConfiguration implements Options {
   @Override
   public boolean getHttpsRequiredForAdminApi() {
     return false;
-  }
-
-  @Override
-  public NotMatchedRenderer getNotMatchedRenderer() {
-    return new PlainTextStubNotMatchedRenderer();
   }
 
   @Override
@@ -245,5 +237,30 @@ public class WarConfiguration implements Options {
   @Override
   public int proxyTimeout() {
     return DEFAULT_TIMEOUT;
+  }
+
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return true;
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return false;
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
+    return null;
+  }
+
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
+    return null;
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return false;
   }
 }

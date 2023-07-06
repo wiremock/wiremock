@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
@@ -33,6 +34,7 @@ import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import org.eclipse.jetty.server.ServerConnector;
@@ -60,6 +62,7 @@ class JettyHttpServerTest {
             new NoAuthenticator(),
             false,
             Collections.emptyList(),
+            Collections.emptyList(),
             NO_TRUNCATION);
     stubRequestHandler =
         new StubRequestHandler(
@@ -67,10 +70,13 @@ class JettyHttpServerTest {
             Mockito.mock(ResponseRenderer.class),
             admin,
             Collections.emptyMap(),
+            Collections.emptyMap(),
             Mockito.mock(RequestJournal.class),
             Collections.emptyList(),
+            Collections.emptyList(),
             false,
-            NO_TRUNCATION);
+            NO_TRUNCATION,
+            new PlainTextStubNotMatchedRenderer(Extensions.NONE));
   }
 
   @Test
