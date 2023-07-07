@@ -16,10 +16,10 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -49,7 +49,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final Integer port;
   private final UrlPattern url;
   private final RequestMethod method;
-  private final List<RequestMethod> methods;
   private final Map<String, MultiValuePattern> headers;
 
   private final Map<String, StringValuePattern> pathParams;
@@ -83,10 +82,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
-    this.url = firstNonNull(url, UrlPattern.ANY);
-    this.method = firstNonNull(method, RequestMethod.ANY);
-    this.methods = new ArrayList<>();
-    methods.add(method);
+    this.url = getFirstNonNull(url, UrlPattern.ANY);
+    this.method = getFirstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
     this.pathParams = pathParams;
     this.formParams = formParams;
@@ -132,73 +129,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         };
   }
 
-  public RequestPattern(
-      final String scheme,
-      final StringValuePattern host,
-      final Integer port,
-      final UrlPattern url,
-      final List<RequestMethod> methods,
-      final Map<String, MultiValuePattern> headers,
-      final Map<String, StringValuePattern> pathParams,
-      final Map<String, MultiValuePattern> queryParams,
-      final Map<String, MultiValuePattern> formParams,
-      final Map<String, StringValuePattern> cookies,
-      final BasicCredentials basicAuthCredentials,
-      final List<ContentPattern<?>> bodyPatterns,
-      final CustomMatcherDefinition customMatcherDefinition,
-      final ValueMatcher<Request> customMatcher,
-      final List<MultipartValuePattern> multiPattern) {
-    this.scheme = scheme;
-    this.host = host;
-    this.port = port;
-    this.url = firstNonNull(url, UrlPattern.ANY);
-    this.methods = methods;
-    this.method = methods.get(0);
-    this.headers = headers;
-    this.pathParams = pathParams;
-    this.formParams = formParams;
-    this.queryParams = queryParams;
-    this.cookies = cookies;
-    this.basicAuthCredentials = basicAuthCredentials;
-    this.bodyPatterns = bodyPatterns;
-    this.customMatcherDefinition = customMatcherDefinition;
-    this.multipartPatterns = multiPattern;
-    this.hasInlineCustomMatcher = customMatcher != null;
-
-    this.matcher =
-        new RequestMatcher() {
-          @Override
-          public MatchResult match(Request request) {
-            List<WeightedMatchResult> matchResults =
-                new ArrayList<>(
-                    asList(
-                        weight(schemeMatches(request), 3.0),
-                        weight(hostMatches(request), 10.0),
-                        weight(portMatches(request), 10.0),
-                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(isOneOf(request), 3.0),
-                        weight(allPathParamsMatch(request)),
-                        weight(allHeadersMatchResult(request)),
-                        weight(allQueryParamsMatch(request)),
-                        weight(allFormParamsMatch(request)),
-                        weight(allCookiesMatch(request)),
-                        weight(allBodyPatternsMatch(request)),
-                        weight(allMultipartPatternsMatch(request))));
-
-            if (hasInlineCustomMatcher) {
-              matchResults.add(weight(customMatcher.match(request)));
-            }
-
-            return MatchResult.aggregateWeighted(matchResults);
-          }
-
-          @Override
-          public String getName() {
-            return "request-matcher";
-          }
-        };
-  }
-
   @JsonCreator
   public RequestPattern(
       @JsonProperty("scheme") String scheme,
@@ -210,7 +140,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("urlPathPattern") String urlPathPattern,
       @JsonProperty("urlPathTemplate") String urlPathTemplate,
       @JsonProperty("method") RequestMethod method,
-      @JsonProperty("methods") List<RequestMethod> methods,
       @JsonProperty("headers") Map<String, MultiValuePattern> headers,
       @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
       @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
@@ -226,7 +155,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         host,
         port,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
-        firstNonNull(methods, List.of(firstNonNull(method, RequestMethod.ANY))),
+        method,
         headers,
         pathParams,
         queryParams,
@@ -245,7 +174,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           null,
           anyUrl(),
-          List.of(RequestMethod.ANY),
+          RequestMethod.ANY,
           null,
           null,
           null,
@@ -263,7 +192,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         UrlPattern.ANY,
-        List.of(RequestMethod.ANY),
+        RequestMethod.ANY,
         null,
         null,
         null,
@@ -282,7 +211,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         UrlPattern.ANY,
-        List.of(RequestMethod.ANY),
+        RequestMethod.ANY,
         null,
         null,
         null,
@@ -300,11 +229,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return match(request, Collections.emptyMap());
   }
 
-  public MatchResult isOneOf(Request request) {
-    return MatchResult.of(
-        this.methods.contains(RequestMethod.ANY) || this.methods.contains(request.getMethod()));
-  }
-
   public static RequestPattern everything() {
     return newRequestPattern(RequestMethod.ANY, anyUrl()).build();
   }
@@ -312,7 +236,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
     if (customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
-          firstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
+          getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
 
       MatchResult standardMatchResult = matcher.match(request);
       MatchResult customMatchResult =
@@ -386,7 +310,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     Map<String, MultiValuePattern> combinedHeaders = headers;
     Builder<String, MultiValuePattern> allHeadersBuilder =
         ImmutableMap.<String, MultiValuePattern>builder()
-            .putAll(firstNonNull(combinedHeaders, Collections.emptyMap()));
+            .putAll(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
     allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
     combinedHeaders = allHeadersBuilder.build();
     return combinedHeaders;
@@ -532,10 +456,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return method;
   }
 
-  public List<RequestMethod> getMethods() {
-    return methods;
-  }
-
   public Map<String, MultiValuePattern> getHeaders() {
     return headers;
   }
@@ -610,7 +530,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         && Objects.equals(port, that.port)
         && Objects.equals(url, that.url)
         && Objects.equals(method, that.method)
-        && Objects.equals(methods, that.methods)
         && Objects.equals(headers, that.headers)
         && Objects.equals(queryParams, that.queryParams)
         && Objects.equals(cookies, that.cookies)
@@ -629,7 +548,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         port,
         url,
         method,
-        methods,
         headers,
         queryParams,
         cookies,

@@ -23,13 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.io.BaseEncoding;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
-public class BodyTest {
+class BodyTest {
 
   @Test
-  public void constructsFromBytes() {
+  void constructsFromBytes() {
     Body body =
         Body.fromOneOf(
             "this content".getBytes(), "not this content", new IntNode(1), "lskdjflsjdflks");
@@ -40,7 +40,7 @@ public class BodyTest {
   }
 
   @Test
-  public void constructsFromString() {
+  void constructsFromString() {
     Body body = Body.fromOneOf(null, "this content", new IntNode(1), "lskdjflsjdflks");
 
     assertThat(body.asString(), is("this content"));
@@ -49,7 +49,7 @@ public class BodyTest {
   }
 
   @Test
-  public void constructsFromJson() {
+  void constructsFromJson() {
     Body body = Body.fromOneOf(null, null, new IntNode(1), "lskdjflsjdflks");
 
     assertThat(body.asString(), is("1"));
@@ -58,8 +58,8 @@ public class BodyTest {
   }
 
   @Test
-  public void constructsFromBase64() {
-    byte[] base64Encoded = BaseEncoding.base64().encode("this content".getBytes()).getBytes();
+  void constructsFromBase64() {
+    byte[] base64Encoded = Base64.getEncoder().encodeToString("this content".getBytes()).getBytes();
     String encodedText = stringFromBytes(base64Encoded);
     Body body = Body.fromOneOf(null, null, null, encodedText);
 
@@ -69,7 +69,7 @@ public class BodyTest {
   }
 
   @Test
-  public void bodyAsJson() {
+  void bodyAsJson() {
     final JsonNode jsonContent = Json.node("{\"name\":\"wiremock\",\"isCool\":true}");
     Body body = Body.fromOneOf(null, null, jsonContent, "lskdjflsjdflks");
 
@@ -77,7 +77,7 @@ public class BodyTest {
   }
 
   @Test
-  public void hashCorrectly() {
+  void hashCorrectly() {
     byte[] primes = {2, 3, 5, 7};
     byte[] primes2 = {2, 3, 5, 7};
 

@@ -21,6 +21,7 @@ import static org.xmlunit.diff.ComparisonType.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.*;
@@ -137,6 +138,8 @@ public class EqualToXmlPattern extends StringValuePattern {
 
           return !diff.hasDifferences();
         } catch (XMLUnitException e) {
+          appendSubEvent(SubEvent.warning(e.getMessage()));
+
           notifier()
               .info(
                   "Failed to process XML. "

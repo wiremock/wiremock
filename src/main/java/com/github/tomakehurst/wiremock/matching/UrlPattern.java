@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class UrlPattern implements NamedValueMatcher<String> {
@@ -97,8 +96,7 @@ public class UrlPattern implements NamedValueMatcher<String> {
 
   @Override
   public int hashCode() {
-    Object[] arr = {pattern, regex};
-    return Arrays.hashCode(arr);
+    return Objects.hash(pattern, regex);
   }
 
   public boolean isSpecified() {

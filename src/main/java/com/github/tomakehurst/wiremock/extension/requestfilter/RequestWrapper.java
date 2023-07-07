@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.ordinalIndexOf;
 
@@ -47,12 +45,12 @@ public class RequestWrapper implements Request {
         delegate,
         null,
         null,
-        Collections.<HttpHeader>emptyList(),
-        Collections.<String>emptyList(),
-        Collections.<CaseInsensitiveKey, FieldTransformer<List<String>>>emptyMap(),
-        Collections.<String, Cookie>emptyMap(),
-        Collections.<String>emptyList(),
-        Collections.<String, FieldTransformer<Cookie>>emptyMap(),
+        Collections.emptyList(),
+        Collections.emptyList(),
+        Collections.emptyMap(),
+        Collections.emptyMap(),
+        Collections.emptyList(),
+        Collections.emptyMap(),
         null,
         null);
   }
@@ -108,7 +106,7 @@ public class RequestWrapper implements Request {
 
   @Override
   public RequestMethod getMethod() {
-    return firstNonNull(method, delegate.getMethod());
+    return getFirstNonNull(method, delegate.getMethod());
   }
 
   @Override
@@ -282,14 +280,14 @@ public class RequestWrapper implements Request {
     private RequestMethod requestMethod;
     private FieldTransformer<String> absoluteUrlTransformer;
 
-    private final List<HttpHeader> additionalHeaders = newArrayList();
-    private final List<String> headersToRemove = newArrayList();
+    private final List<HttpHeader> additionalHeaders = new ArrayList<>();
+    private final List<String> headersToRemove = new ArrayList<>();
     private final Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers =
-        newHashMap();
+        new HashMap<>();
 
-    private final Map<String, Cookie> additionalCookies = newHashMap();
-    private final List<String> cookiesToRemove = newArrayList();
-    private final Map<String, FieldTransformer<Cookie>> cookieTransformers = newHashMap();
+    private final Map<String, Cookie> additionalCookies = new HashMap<>();
+    private final List<String> cookiesToRemove = new ArrayList<>();
+    private final Map<String, FieldTransformer<Cookie>> cookieTransformers = new HashMap<>();
 
     private FieldTransformer<Body> bodyTransformer;
     private FieldTransformer<Part> mutlipartTransformer;

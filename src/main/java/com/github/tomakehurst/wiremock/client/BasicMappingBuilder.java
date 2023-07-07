@@ -16,12 +16,14 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -37,13 +39,12 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   private final RequestPatternBuilder requestPatternBuilder;
-  private final List<PostServeActionDefinition> postServeActions = new ArrayList<>();
-
   private ResponseDefinitionBuilder responseDefBuilder;
   private Integer priority;
   private String scenarioName;
@@ -52,14 +53,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
+  private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
+  private List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
-    requestPatternBuilder = new RequestPatternBuilder(List.of(method), urlPattern);
-  }
-
-  BasicMappingBuilder(List<RequestMethod> methods, UrlPattern urlPattern) {
-    requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);
+    requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
   }
 
   BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
@@ -171,7 +170,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   @Override
   public BasicMappingBuilder inScenario(String scenarioName) {
-    checkArgument(scenarioName != null, "Scenario name must not be null");
+    checkParameter(scenarioName != null, "Scenario name must not be null");
 
     this.scenarioName = scenarioName;
     return this;
@@ -221,10 +220,29 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   @Override
   public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
-    Parameters params =
-        parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
-    postServeActions.add(new PostServeActionDefinition(extensionName, params));
+    postServeActions.add(
+        new PostServeActionDefinition(extensionName, resolveParameters(parameters)));
     return this;
+  }
+
+  @Override
+  public <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters) {
+    serveEventListeners.add(
+        new ServeEventListenerDefinition(
+            extensionName, requestPhases, resolveParameters(parameters)));
+    return this;
+  }
+
+  @Override
+  public <P> MappingBuilder withServeEventListener(String extensionName, P parameters) {
+    serveEventListeners.add(
+        new ServeEventListenerDefinition(extensionName, resolveParameters(parameters)));
+    return this;
+  }
+
+  private static <P> Parameters resolveParameters(P parameters) {
+    return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
   }
 
   @Override
@@ -270,7 +288,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
           "Scenario name must be specified to require or set a new scenario state");
     }
     RequestPattern requestPattern = requestPatternBuilder.build();
-    ResponseDefinition response = firstNonNull(responseDefBuilder, aResponse()).build();
+    ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
     StubMapping mapping = new StubMapping(requestPattern, response);
     mapping.setPriority(priority);
     mapping.setScenarioName(scenarioName);
@@ -281,6 +299,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     mapping.setPersistent(isPersistent);
 
     mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
+    mapping.setServeEventListenerDefinitions(
+        serveEventListeners.isEmpty() ? null : serveEventListeners);
 
     mapping.setMetadata(metadata);
 

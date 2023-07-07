@@ -19,9 +19,7 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
-import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -42,7 +40,9 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -61,12 +61,12 @@ import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class WireMockConfiguration implements Options {
@@ -120,20 +120,20 @@ public class WireMockConfiguration implements Options {
   private Long jettyStopTimeout;
   private Long jettyIdleTimeout;
 
-  private Map<String, Extension> extensions = newLinkedHashMap();
+  private ExtensionDeclarations extensions = new ExtensionDeclarations();
   private WiremockNetworkTrafficListener networkTrafficListener =
       new DoNothingWiremockNetworkTrafficListener();
 
   private Authenticator adminAuthenticator = new NoAuthenticator();
   private boolean requireHttpsForAdminApi = false;
 
-  private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
+  private Function<Extensions, NotMatchedRenderer> notMatchedRendererFactory =
+      PlainTextStubNotMatchedRenderer::new;
   private boolean asynchronousResponseEnabled;
   private int asynchronousResponseThreads;
   private ChunkedEncodingPolicy chunkedEncodingPolicy;
   private boolean gzipDisabled = false;
   private boolean stubLoggingDisabled = false;
-  private String permittedSystemKeys = null;
 
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
@@ -145,6 +145,12 @@ public class WireMockConfiguration implements Options {
   private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
 
   private int proxyTimeout = DEFAULT_TIMEOUT;
+
+  private boolean templatingEnabled = true;
+  private boolean globalTemplating = false;
+  private Set<String> permittedSystemKeys = null;
+  private Long maxTemplateCacheEntries = null;
+  private boolean templateEscapingDisabled = true;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -396,17 +402,22 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration extensions(String... classNames) {
-    extensions.putAll(ExtensionLoader.load(classNames));
+    extensions.add(classNames);
     return this;
   }
 
   public WireMockConfiguration extensions(Extension... extensionInstances) {
-    extensions.putAll(ExtensionLoader.asMap(asList(extensionInstances)));
+    extensions.add(extensionInstances);
+    return this;
+  }
+
+  public WireMockConfiguration extensions(ExtensionFactory... extensionFactories) {
+    extensions.add(extensionFactories);
     return this;
   }
 
   public WireMockConfiguration extensions(Class<? extends Extension>... classes) {
-    extensions.putAll(ExtensionLoader.load(classes));
+    extensions.add(classes);
     return this;
   }
 
@@ -440,8 +451,9 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  public WireMockConfiguration notMatchedRenderer(NotMatchedRenderer notMatchedRenderer) {
-    this.notMatchedRenderer = notMatchedRenderer;
+  public WireMockConfiguration notMatchedRendererFactory(
+      Function<Extensions, NotMatchedRenderer> notMatchedRendererFactory) {
+    this.notMatchedRendererFactory = notMatchedRendererFactory;
     return this;
   }
 
@@ -507,6 +519,26 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration proxyTimeout(int proxyTimeout) {
     this.proxyTimeout = proxyTimeout;
+    return this;
+  }
+
+  public WireMockConfiguration templatingEnabled(boolean templatingEnabled) {
+    this.templatingEnabled = templatingEnabled;
+    return this;
+  }
+
+  public WireMockConfiguration globalTemplating(boolean globalTemplating) {
+    this.globalTemplating = globalTemplating;
+    return this;
+  }
+
+  public WireMockConfiguration withPermittedSystemKeys(String... systemKeys) {
+    this.permittedSystemKeys = Set.of(systemKeys);
+    return this;
+  }
+
+  public WireMockConfiguration withTemplateEscapingDisabled(boolean templateEscapingDisabled) {
+    this.templateEscapingDisabled = templateEscapingDisabled;
     return this;
   }
 
@@ -638,10 +670,8 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-    return (Map<String, T>)
-        Maps.filterEntries(extensions, valueAssignableFrom(extensionType)::test);
+  public ExtensionDeclarations getDeclaredExtensions() {
+    return extensions;
   }
 
   @Override
@@ -660,8 +690,8 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public NotMatchedRenderer getNotMatchedRenderer() {
-    return notMatchedRenderer;
+  public Function<Extensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
+    return notMatchedRendererFactory;
   }
 
   @Override
@@ -740,5 +770,30 @@ public class WireMockConfiguration implements Options {
   @Override
   public int proxyTimeout() {
     return proxyTimeout;
+  }
+
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return templatingEnabled;
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return globalTemplating;
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
+    return maxTemplateCacheEntries;
+  }
+
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
+    return permittedSystemKeys;
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return templateEscapingDisabled;
   }
 }

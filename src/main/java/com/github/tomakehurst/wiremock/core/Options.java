@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
-import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -26,9 +27,11 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 public interface Options {
 
@@ -90,7 +93,7 @@ public interface Options {
 
   ThreadPoolFactory threadPoolFactory();
 
-  <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
+  ExtensionDeclarations getDeclaredExtensions();
 
   WiremockNetworkTrafficListener networkTrafficListener();
 
@@ -98,7 +101,9 @@ public interface Options {
 
   boolean getHttpsRequiredForAdminApi();
 
-  NotMatchedRenderer getNotMatchedRenderer();
+  default Function<Extensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
+    return PlainTextStubNotMatchedRenderer::new;
+  }
 
   AsynchronousResponseSettings getAsynchronousResponseSettings();
 
@@ -121,4 +126,14 @@ public interface Options {
   NetworkAddressRules getProxyTargetRules();
 
   int proxyTimeout();
+
+  boolean getResponseTemplatingEnabled();
+
+  boolean getResponseTemplatingGlobal();
+
+  Long getMaxTemplateCacheEntries();
+
+  Set<String> getTemplatePermittedSystemKeys();
+
+  boolean getTemplateEscapingDisabled();
 }

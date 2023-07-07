@@ -15,12 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.google.common.base.MoreObjects.firstNonNull;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.SettingsStore;
@@ -36,16 +37,19 @@ public class StubResponseRenderer implements ResponseRenderer {
   private final SettingsStore settingsStore;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
+  private final List<ResponseTransformerV2> v2ResponseTransformers;
 
   public StubResponseRenderer(
       BlobStore filesBlobStore,
       SettingsStore settingsStore,
       ProxyResponseRenderer proxyResponseRenderer,
-      List<ResponseTransformer> responseTransformers) {
+      List<ResponseTransformer> responseTransformers,
+      List<ResponseTransformerV2> v2ResponseTransformers) {
     this.filesBlobStore = filesBlobStore;
     this.settingsStore = settingsStore;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
+    this.v2ResponseTransformers = v2ResponseTransformers;
 
     filesFileSource = new BlobStoreFileSource(filesBlobStore);
   }
@@ -58,11 +62,17 @@ public class StubResponseRenderer implements ResponseRenderer {
     }
 
     Response response = buildResponse(serveEvent);
-    return applyTransformations(
-        responseDefinition.getOriginalRequest(),
-        responseDefinition,
-        response,
-        responseTransformers);
+
+    response =
+        applyTransformations(
+            responseDefinition.getOriginalRequest(),
+            responseDefinition,
+            response,
+            responseTransformers);
+
+    response = applyV2Transformations(response, serveEvent, v2ResponseTransformers);
+
+    return response;
   }
 
   private Response buildResponse(ServeEvent serveEvent) {
@@ -94,6 +104,25 @@ public class StubResponseRenderer implements ResponseRenderer {
         request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
   }
 
+  private Response applyV2Transformations(
+      Response response, ServeEvent serveEvent, List<ResponseTransformerV2> transformers) {
+
+    if (transformers.isEmpty()) {
+      return response;
+    }
+
+    final ResponseTransformerV2 transformer = transformers.get(0);
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+    Response newResponse =
+        transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+            ? transformer.transform(response, serveEvent)
+            : response;
+
+    return applyV2Transformations(
+        newResponse, serveEvent, transformers.subList(1, transformers.size()));
+  }
+
   private Response.Builder renderDirectly(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
@@ -101,7 +130,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     StubMapping stubMapping = serveEvent.getStubMapping();
     if (serveEvent.getWasMatched() && stubMapping != null) {
       headers =
-          firstNonNull(headers, new HttpHeaders())
+          getFirstNonNull(headers, new HttpHeaders())
               .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
 
       if (stubMapping.getName() != null) {
@@ -128,11 +157,7 @@ public class StubResponseRenderer implements ResponseRenderer {
           filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
       responseBuilder.body(bodyStreamSource);
     } else if (responseDefinition.specifiesBodyContent()) {
-      if (responseDefinition.specifiesBinaryBodyContent()) {
-        responseBuilder.body(responseDefinition.getByteBody());
-      } else {
-        responseBuilder.body(responseDefinition.getByteBody());
-      }
+      responseBuilder.body(responseDefinition.getByteBody());
     }
 
     return responseBuilder;

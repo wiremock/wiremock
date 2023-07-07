@@ -16,31 +16,30 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.extension.requestfilter.FilterProcessor.processFilters;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Stopwatch;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
-  protected List<RequestListener> listeners = newArrayList();
+  protected List<RequestListener> listeners = new ArrayList<>();
   protected final ResponseRenderer responseRenderer;
-  protected final List<RequestFilter> requestFilters;
+  protected final FilterProcessor filterProcessor;
 
   private final DataTruncationSettings dataTruncationSettings;
 
   public AbstractRequestHandler(
       ResponseRenderer responseRenderer,
       List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
       DataTruncationSettings dataTruncationSettings) {
     this.responseRenderer = responseRenderer;
-    this.requestFilters = requestFilters;
+    this.filterProcessor = new FilterProcessor(requestFilters, v2RequestFilters);
     this.dataTruncationSettings = dataTruncationSettings;
   }
 
@@ -54,65 +53,55 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
   protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
 
   @Override
-  public void handle(Request request, HttpResponder httpResponder) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    ServeEvent serveEvent;
+  public void handle(Request request, HttpResponder httpResponder, ServeEvent originalServeEvent) {
+    ServeEvent serveEvent = ServeEvent.of(request);
     Request processedRequest = request;
 
-    try {
-      if (!requestFilters.isEmpty()) {
-        RequestFilterAction requestFilterAction =
-            processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
-        if (requestFilterAction instanceof ContinueAction) {
-          processedRequest = ((ContinueAction) requestFilterAction).getRequest();
-          serveEvent = handleRequest(processedRequest);
-        } else {
-          serveEvent =
-              ServeEvent.of(
-                  LoggedRequest.createFrom(request),
-                  ((StopAction) requestFilterAction).getResponseDefinition());
-        }
+    if (filterProcessor.hasAnyFilters()) {
+      RequestFilterAction requestFilterAction = filterProcessor.processFilters(request, serveEvent);
+
+      if (requestFilterAction instanceof ContinueAction) {
+        processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+        serveEvent = handleRequest(serveEvent.replaceRequest(processedRequest));
       } else {
-        serveEvent = handleRequest(request);
+        serveEvent =
+            serveEvent.withResponseDefinition(
+                ((StopAction) requestFilterAction).getResponseDefinition());
       }
-
-      ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-      responseDefinition.setOriginalRequest(processedRequest);
-      Response response = responseRenderer.render(serveEvent);
-      response = Response.Builder.like(response).protocol(request.getProtocol()).build();
-      ServeEvent completedServeEvent =
-          serveEvent.complete(
-              response, (int) stopwatch.elapsed(MILLISECONDS), dataTruncationSettings);
-
-      if (logRequests()) {
-        notifier()
-            .info(
-                "Request received:\n"
-                    + formatRequest(processedRequest)
-                    + "\n\nMatched response definition:\n"
-                    + responseDefinition
-                    + "\n\nResponse:\n"
-                    + response);
-      }
-
-      for (RequestListener listener : listeners) {
-        listener.requestReceived(processedRequest, response);
-      }
-
-      beforeResponseSent(completedServeEvent, response);
-
-      stopwatch.reset();
-      stopwatch.start();
-      httpResponder.respond(processedRequest, response);
-
-      completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
-      afterResponseSent(completedServeEvent, response);
-    } finally {
-      ServeEvent.clearCurrent();
+    } else {
+      serveEvent = handleRequest(serveEvent);
     }
 
-    stopwatch.stop();
+    ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    responseDefinition.setOriginalRequest(processedRequest);
+    Response response = responseRenderer.render(serveEvent);
+    response = Response.Builder.like(response).protocol(request.getProtocol()).build();
+    serveEvent = serveEvent.complete(response, dataTruncationSettings);
+
+    if (logRequests()) {
+      notifier()
+          .info(
+              "Request received:\n"
+                  + formatRequest(request)
+                  + "\n\nMatched response definition:\n"
+                  + responseDefinition
+                  + "\n\nResponse:\n"
+                  + response);
+    }
+
+    for (RequestListener listener : listeners) {
+      listener.requestReceived(request, response);
+    }
+
+    beforeResponseSent(serveEvent, response);
+
+    serveEvent.beforeSend();
+
+    Map<String, Object> attributes = Map.of(ORIGINAL_SERVE_EVENT_KEY, serveEvent);
+    httpResponder.respond(request, response, attributes);
+
+    serveEvent.afterSend();
+    afterResponseSent(serveEvent, response);
   }
 
   protected String formatRequest(Request request) {
@@ -141,5 +130,5 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
     return false;
   }
 
-  protected abstract ServeEvent handleRequest(Request request);
+  protected abstract ServeEvent handleRequest(ServeEvent request);
 }

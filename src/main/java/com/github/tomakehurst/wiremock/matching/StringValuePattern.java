@@ -90,6 +90,6 @@ public abstract class StringValuePattern extends ContentPattern<String> {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(expectedValue);
+    return Objects.hash(expectedValue);
   }
 }

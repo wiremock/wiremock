@@ -21,13 +21,13 @@ plugins {
   id 'jacoco'
 }
 
-group = 'com.github.tomakehurst'
+group = 'org.wiremock'
 
 project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.12',
-    guava          : '32.0.1-jre',
+    guava          : '32.1.1-jre',
     jackson        : '2.15.2',
     xmlUnit        : '2.9.1',
     jsonUnit       : '2.38.0',
@@ -130,6 +130,8 @@ dependencies {
   }
   testImplementation "io.netty:netty-all:4.1.94.Final"
 
+  testImplementation files('test-extension/test-extension.jar')
+
   constraints {
     implementation "net.minidev:json-smart:2.4.11", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
@@ -202,7 +204,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-10'
+  version = '3.0.0-beta-11'
 
 
   sourceCompatibility = 11
@@ -268,7 +270,7 @@ final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
 jar {
   archiveBaseName.set('wiremock')
   manifest {
-    attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
+    attributes("Main-Class": "wiremock.Run")
     attributes("Add-Exports": "java.base/sun.security.x509")
   }
 }

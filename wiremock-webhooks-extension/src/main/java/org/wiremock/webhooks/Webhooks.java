@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class Webhooks extends PostServeAction {
     this.httpClient = httpClient;
     this.transformers = transformers;
 
-    this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
+    this.templateEngine = TemplateEngine.defaultTemplateEngine();
   }
 
   @JsonCreator

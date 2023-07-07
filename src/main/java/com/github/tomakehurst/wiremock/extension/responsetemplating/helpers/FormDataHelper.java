@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
@@ -29,7 +29,7 @@ public class FormDataHelper extends HandlebarsHelper<Object> {
         FormParser.parse(
             context.toString(),
             Boolean.TRUE.equals(options.hash.get("urlDecode")),
-            firstNonNull(options.hash.get("encoding"), "utf-8").toString());
+            getFirstNonNull(options.hash.get("encoding"), "utf-8").toString());
 
     if (options.params.length > 0) {
       String variableName = options.param(0);

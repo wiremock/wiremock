@@ -16,11 +16,12 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
@@ -33,6 +34,7 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.io.ByteStreams;
 import jakarta.servlet.*;
@@ -41,6 +43,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -109,7 +112,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     browserProxyingEnabled =
         Boolean.parseBoolean(
-            firstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
+            getFirstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
   }
 
   private String getNormalizedMappedUnder(ServletConfig config) {
@@ -146,7 +149,13 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     ServletHttpResponder responder =
         new ServletHttpResponder(httpServletRequest, httpServletResponse);
-    requestHandler.handle(request, responder);
+
+    final ServeEvent originalServeEvent =
+        httpServletRequest.getAttribute(ORIGINAL_SERVE_EVENT_KEY) != null
+            ? (ServeEvent) httpServletRequest.getAttribute(ORIGINAL_SERVE_EVENT_KEY)
+            : null;
+
+    requestHandler.handle(request, responder, originalServeEvent);
   }
 
   private class ServletHttpResponder implements HttpResponder {
@@ -161,12 +170,14 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     }
 
     @Override
-    public void respond(final Request request, final Response response) {
+    public void respond(
+        final Request request, final Response response, Map<String, Object> attributes) {
       if (Thread.currentThread().isInterrupted()) {
         return;
       }
 
       httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
+      attributes.forEach(httpServletRequest::setAttribute);
 
       if (isAsyncSupported(response, httpServletRequest)) {
         respondAsync(request, response);

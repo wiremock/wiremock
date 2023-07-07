@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.servlet.*;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +35,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
@@ -367,6 +367,8 @@ public abstract class JettyHttpServer implements HttpServer {
 
     adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
 
+    adminContext.addServlet(NotMatchedServlet.class, "/not-matched");
+
     addCorsFilter(adminContext);
 
     return adminContext;
@@ -379,11 +381,15 @@ public abstract class JettyHttpServer implements HttpServer {
   private FilterHolder buildCorsFilter() {
     FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
     filterHolder.setInitParameters(
-        ImmutableMap.of(
-            "chainPreflight", "false",
-            "allowedOrigins", "*",
-            "allowedHeaders", "*",
-            "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
+        Map.of(
+            "chainPreflight",
+            "false",
+            "allowedOrigins",
+            "*",
+            "allowedHeaders",
+            "*",
+            "allowedMethods",
+            "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
     return filterHolder;
   }
 

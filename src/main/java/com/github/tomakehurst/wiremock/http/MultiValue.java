@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,15 @@ public class MultiValue {
     this.values = values;
   }
 
+  public String getKey() {
+    return key;
+  }
+
+  public List<String> getValues() {
+    return values;
+  }
+
+  @JsonIgnore
   public boolean isPresent() {
     return !values.isEmpty();
   }
@@ -53,6 +63,7 @@ public class MultiValue {
     checkState(isPresent(), "No value for " + key);
   }
 
+  @JsonIgnore
   public boolean isSingleValued() {
     return values.size() == 1;
   }

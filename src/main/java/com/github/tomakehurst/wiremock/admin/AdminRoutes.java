@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.collect.ImmutableBiMap;
 import java.util.Collections;
 import java.util.Map.Entry;
@@ -35,23 +34,19 @@ public class AdminRoutes {
   private final Stores stores;
 
   public static AdminRoutes forClient() {
-    return new AdminRoutes(
-        Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer(), null);
+    return new AdminRoutes(Collections.<AdminApiExtension>emptyList(), null);
   }
 
-  public static AdminRoutes forServer(
-      Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask, Stores stores) {
-    return new AdminRoutes(apiExtensions, notMatchedTask, stores);
+  public static AdminRoutes forServer(Iterable<AdminApiExtension> apiExtensions, Stores stores) {
+    return new AdminRoutes(apiExtensions, stores);
   }
 
-  protected AdminRoutes(
-      Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask, Stores stores) {
+  protected AdminRoutes(Iterable<AdminApiExtension> apiExtensions, Stores stores) {
     this.apiExtensions = apiExtensions;
     this.stores = stores;
     RouteBuilder routeBuilder = new RouteBuilder();
     initDefaultRoutes(routeBuilder);
     initAdditionalRoutes(routeBuilder);
-    routeBuilder.add(ANY, "/not-matched", notMatchedTask);
     routes = routeBuilder.build();
   }
 
