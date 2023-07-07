@@ -58,7 +58,11 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
-    requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
+    requestPatternBuilder = new RequestPatternBuilder(List.of(method), urlPattern);
+  }
+
+  BasicMappingBuilder(List<RequestMethod> methods, UrlPattern urlPattern) {
+    requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);
   }
 
   BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {

@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class RequestPatternBuilderTest {
+class RequestPatternBuilderTest {
   @Test
-  public void likeRequestPatternWithDifferentUrl() {
+  void likeRequestPatternWithDifferentUrl() {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
@@ -49,7 +48,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithoutCustomMatcher() {
+  void likeRequestPatternWithoutCustomMatcher() {
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
     // set properly
     RequestPattern requestPattern =
@@ -58,7 +57,7 @@ public class RequestPatternBuilderTest {
             WireMock.equalTo("my.wiremock.org"),
             1234,
             WireMock.urlEqualTo("/foo"),
-            RequestMethod.POST,
+            List.of(RequestMethod.POST),
             Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
             Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
@@ -75,7 +74,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithCustomMatcher() {
+  void likeRequestPatternWithCustomMatcher() {
     RequestMatcher customRequestMatcher =
         new RequestMatcherExtension() {
           @Override
@@ -90,7 +89,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithMultipartMatcher() {
+  void likeRequestPatternWithMultipartMatcher() {
     MultipartValuePattern multipartValuePattern = aMultipart().withBody(equalToJson("[]")).build();
 
     RequestPattern requestPattern = RequestPattern.everything();
@@ -107,7 +106,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithoutMultipartMatcher() {
+  void likeRequestPatternWithoutMultipartMatcher() {
     MultipartValuePattern multipartPattern = aMultipart().withBody(equalToJson("[]")).build();
 
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
@@ -118,7 +117,7 @@ public class RequestPatternBuilderTest {
             WireMock.equalTo("my.wiremock.org"),
             1234,
             WireMock.urlEqualTo("/foo"),
-            RequestMethod.POST,
+            List.of(RequestMethod.POST),
             Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
             Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
@@ -128,14 +127,14 @@ public class RequestPatternBuilderTest {
             List.of(WireMock.equalTo("BODY")),
             null,
             null,
-            asList(multipartPattern));
+            singletonList(multipartPattern));
 
     RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
     assertThat(newRequestPattern, is(requestPattern));
   }
 
   @Test
-  public void likeRequestPatternWithCustomMatcherDefinition() {
+  void likeRequestPatternWithCustomMatcherDefinition() {
     CustomMatcherDefinition customMatcherDefinition =
         new CustomMatcherDefinition("foo", Parameters.empty());
     RequestPattern requestPattern = new RequestPattern(customMatcherDefinition);
