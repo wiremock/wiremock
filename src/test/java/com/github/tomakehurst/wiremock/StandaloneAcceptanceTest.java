@@ -19,12 +19,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.any;
-import static com.google.common.io.Files.asCharSink;
-import static com.google.common.io.Files.createParentDirs;
-import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -43,6 +42,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -514,9 +515,9 @@ public class StandaloneAcceptanceTest {
   private void writeFileToFilesDir(String name, byte[] contents) {
     try {
       String filePath = underFileSourceRoot(underFiles(name));
-      File file = new File(filePath);
-      createParentDirs(file);
-      write(contents, file);
+      Path file = Paths.get(filePath);
+      createDirectories(file.getParent());
+      write(file, contents);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -528,9 +529,9 @@ public class StandaloneAcceptanceTest {
 
   private void writeFile(String absolutePath, String contents) {
     try {
-      File file = new File(absolutePath);
-      createParentDirs(file);
-      asCharSink(file, UTF_8).write(contents);
+      Path file = Paths.get(absolutePath);
+      createDirectories(file.getParent());
+      write(file, contents.getBytes(UTF_8));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

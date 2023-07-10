@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +84,7 @@ public class BlobStoreFileSourceTest {
     byte[] contents = "{}".getBytes();
     fileSource.writeBinaryFile("folder/file.json", contents);
 
-    byte[] actual = Files.toByteArray(tempDir.resolve("folder/file.json").toFile());
+    byte[] actual = Files.readAllBytes(tempDir.resolve("folder/file.json"));
     assertThat(actual, is(contents));
   }
 
@@ -96,8 +96,7 @@ public class BlobStoreFileSourceTest {
     String contents = "{}";
     fileSource.writeTextFile("folder/text-file.json", contents);
 
-    String actual =
-        new String(Files.toByteArray(tempDir.resolve("folder/text-file.json").toFile()));
+    String actual = new String(Files.readAllBytes(tempDir.resolve("folder/text-file.json")));
     assertThat(actual, is(contents));
   }
 
