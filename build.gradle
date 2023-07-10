@@ -510,6 +510,15 @@ tasks.withType(JavaCompile) {
   ])
 }
 
+eclipse.classpath.file {
+  whenMerged {
+    entries.find{ it.path ==~ '.*JRE_CONTAINER.*' }.each {
+      it.entryAttributes['module'] = true
+      it.entryAttributes['add-exports'] = 'java.base/sun.security.x509=ALL-UNNAMED'
+    }
+  }
+}
+
 int getMajorVersion() {
   Integer.valueOf(project.version.substring(0, project.version.indexOf('.')))
 }
