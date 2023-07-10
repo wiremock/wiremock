@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.collect.Maps.newHashMap;
 import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.http.*;
@@ -30,7 +29,7 @@ public class MockRequestBuilder {
   private RequestMethod method = GET;
   private String clientIp = "x.x.x.x";
   private List<HttpHeader> individualHeaders = new ArrayList<>();
-  private Map<String, Cookie> cookies = newHashMap();
+  private Map<String, Cookie> cookies = new HashMap<>();
   private List<QueryParameter> queryParameters = new ArrayList<>();
 
   private List<FormParameter> formParameters = new ArrayList<>();
