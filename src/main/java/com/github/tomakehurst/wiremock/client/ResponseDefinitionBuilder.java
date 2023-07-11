@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 
@@ -25,6 +24,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class ResponseDefinitionBuilder {
   protected String proxyUrlPrefixToRemove;
   protected Fault fault;
   protected List<String> responseTransformerNames;
-  protected Map<String, Object> transformerParameters = newHashMap();
+  protected Map<String, Object> transformerParameters = new HashMap<>();
   protected Boolean wasConfigured = true;
 
   public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
