@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonSchema;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.not;
 import static com.github.tomakehurst.wiremock.client.WireMock.notContaining;
@@ -31,12 +32,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathTemplate;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -49,10 +52,14 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 class RequestPatternTest {
@@ -549,6 +556,56 @@ class RequestPatternTest {
             mockRequest().method(POST).cookie("my_cookie", "any-value").url("/my/url"));
 
     assertFalse(matchResult.isExactMatch());
+  }
+
+  private static final StringValuePattern stringSchema =
+      matchingJsonSchema(
+          "{" + "\"type\": \"string\"," + "\"minLength\": 2," + "\"maxLength\": 4" + "}");
+
+  @ParameterizedTest
+  @MethodSource("validStrings")
+  void matchesAPathParamAgainstAStringSchema(String toMatch) {
+
+    RequestPattern requestPattern =
+        newRequestPattern(GET, urlPathTemplate("/foo/{id}"))
+            .withPathParam("id", stringSchema)
+            .build();
+
+    MatchResult matchResult =
+        requestPattern.match(mockRequest().method(GET).url("/foo/" + toMatch));
+
+    assertThat(matchResult.isExactMatch(), is(true));
+  }
+
+  private static Stream<Arguments> validStrings() {
+    return Stream.of(Arguments.of("\"12\""), Arguments.of("\"123\""), Arguments.of("\"1234\""));
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidStrings")
+  void doesNotMatchAnInvalidString(String toMatch) {
+
+    RequestPattern requestPattern =
+        newRequestPattern(GET, urlPathTemplate("/foo/{id}"))
+            .withPathParam("id", stringSchema)
+            .build();
+
+    MatchResult matchResult =
+        requestPattern.match(mockRequest().method(GET).url("/foo/" + toMatch));
+
+    assertThat(matchResult.isExactMatch(), is(false));
+    assertThat(matchResult.getDistance(), closeTo(0.02, 0.01));
+  }
+
+  private static Stream<Arguments> invalidStrings() {
+    return Stream.of(
+        Arguments.of(""),
+        Arguments.of("\"\""),
+        Arguments.of("\"1\""),
+        Arguments.of("\"12345\""),
+        Arguments.of("12"),
+        Arguments.of("123"),
+        Arguments.of("1234"));
   }
 
   static final String ALL_BODY_PATTERNS_EXAMPLE =

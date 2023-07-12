@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.absent;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.everyItem;
@@ -30,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -70,7 +70,7 @@ class MultipartValuePatternBuilderTest {
             .withBody(equalToXml("<xml />"))
             .build();
 
-    Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();
+    Map<String, List<MultiValuePattern>> headerPatterns = new LinkedHashMap<>();
     headerPatterns.put(
         "Content-Disposition", asList(MultiValuePattern.of(containing("name=\"name\""))));
     headerPatterns.put("X-Header", asList(MultiValuePattern.of(containing("something"))));
@@ -97,7 +97,7 @@ class MultipartValuePatternBuilderTest {
             .withBody(equalToXml("<xml />"))
             .build();
 
-    Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();
+    Map<String, List<MultiValuePattern>> headerPatterns = new LinkedHashMap<>();
     headerPatterns.put("X-Header", asList(MultiValuePattern.of(containing("something"))));
     headerPatterns.put("X-Other", asList(MultiValuePattern.of(absent())));
     //        assertThat(headerPatterns.entrySet(),
@@ -114,7 +114,7 @@ class MultipartValuePatternBuilderTest {
             .withHeader("Content-Disposition", containing("filename=\"something\""))
             .build();
 
-    Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();
+    Map<String, List<MultiValuePattern>> headerPatterns = new LinkedHashMap<>();
     headerPatterns.put(
         "Content-Disposition",
         asList(

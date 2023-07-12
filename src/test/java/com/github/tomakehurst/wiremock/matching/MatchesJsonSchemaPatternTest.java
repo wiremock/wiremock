@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion.V4;
 import static com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion.V6;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonSchema;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -141,6 +142,41 @@ class MatchesJsonSchemaPatternTest {
     MatchesJsonSchemaPattern pattern = Json.read(matcherJson, MatchesJsonSchemaPattern.class);
 
     assertThat(pattern.getSchemaVersion(), is(V6));
+  }
+
+  private static final StringValuePattern stringSchema =
+      matchingJsonSchema(
+          "{" + "\"type\": \"string\"," + "\"minLength\": 2," + "\"maxLength\": 4" + "}");
+
+  @ParameterizedTest
+  @MethodSource("validStrings")
+  void matchesAString(String toMatch) {
+    MatchResult match = stringSchema.match(toMatch);
+    assertThat(match.isExactMatch(), is(true));
+  }
+
+  private static Stream<Arguments> validStrings() {
+    return Stream.of(Arguments.of("\"12\""), Arguments.of("\"123\""), Arguments.of("\"1234\""));
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidStrings")
+  void doesNotMatchAnInvalidString(String toMatch) {
+    MatchResult match = stringSchema.match(toMatch);
+
+    assertThat(match.isExactMatch(), is(false));
+    assertThat(match.getDistance(), is(1.0));
+  }
+
+  private static Stream<Arguments> invalidStrings() {
+    return Stream.of(
+        Arguments.of(""),
+        Arguments.of("\"\""),
+        Arguments.of("\"1\""),
+        Arguments.of("\"12345\""),
+        Arguments.of("12"),
+        Arguments.of("123"),
+        Arguments.of("1234"));
   }
 
   @ParameterizedTest
