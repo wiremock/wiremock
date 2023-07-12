@@ -16,11 +16,10 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -29,7 +28,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
@@ -37,10 +35,11 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
@@ -83,8 +82,8 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
-    this.url = firstNonNull(url, UrlPattern.ANY);
-    this.method = firstNonNull(method, RequestMethod.ANY);
+    this.url = getFirstNonNull(url, UrlPattern.ANY);
+    this.method = getFirstNonNull(method, RequestMethod.ANY);
     this.headers = headers;
     this.pathParams = pathParams;
     this.formParams = formParams;
@@ -169,12 +168,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         multiPattern);
   }
 
-  public static RequestPattern ANYTHING =
+  public static final RequestPattern ANYTHING =
       new RequestPattern(
           null,
           null,
           null,
-          WireMock.anyUrl(),
+          anyUrl(),
           RequestMethod.ANY,
           null,
           null,
@@ -227,7 +226,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   @Override
   public MatchResult match(Request request) {
-    return match(request, Collections.<String, RequestMatcherExtension>emptyMap());
+    return match(request, Collections.emptyMap());
   }
 
   public static RequestPattern everything() {
@@ -237,7 +236,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
     if (customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
-          firstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
+          getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
 
       MatchResult standardMatchResult = matcher.match(request);
       MatchResult customMatchResult =
@@ -252,37 +251,23 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private MatchResult allCookiesMatch(final Request request) {
     if (cookies != null && !cookies.isEmpty()) {
       return MatchResult.aggregate(
-          from(cookies.entrySet())
-              .transform(
-                  new Function<Map.Entry<String, StringValuePattern>, MatchResult>() {
-                    public MatchResult apply(
-                        final Map.Entry<String, StringValuePattern> cookiePattern) {
-                      Cookie cookie = request.getCookies().get(cookiePattern.getKey());
-                      if (cookie == null) {
-                        return cookiePattern.getValue().nullSafeIsAbsent()
-                            ? MatchResult.exactMatch()
-                            : MatchResult.noMatch();
-                      }
-
-                      return from(cookie.getValues())
-                          .transform(
-                              new Function<String, MatchResult>() {
-                                @Override
-                                public MatchResult apply(String cookieValue) {
-                                  return cookiePattern.getValue().match(cookieValue);
-                                }
-                              })
-                          .toSortedList(
-                              new Comparator<MatchResult>() {
-                                @Override
-                                public int compare(MatchResult o1, MatchResult o2) {
-                                  return o2.compareTo(o1);
-                                }
-                              })
-                          .get(0);
+          cookies.entrySet().stream()
+              .map(
+                  entry -> {
+                    final StringValuePattern cookiePattern = entry.getValue();
+                    Cookie cookie = request.getCookies().get(entry.getKey());
+                    if (cookie == null) {
+                      return cookiePattern.nullSafeIsAbsent()
+                          ? MatchResult.exactMatch()
+                          : MatchResult.noMatch();
                     }
+
+                    return cookie.getValues().stream()
+                        .map(cookiePattern::match)
+                        .max(Comparator.naturalOrder())
+                        .orElse(MatchResult.noMatch());
                   })
-              .toList());
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
@@ -307,14 +292,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     if (combinedHeaders != null && !combinedHeaders.isEmpty()) {
       return MatchResult.aggregate(
-          from(combinedHeaders.entrySet())
-              .transform(
-                  new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
-                    public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
-                      return headerPattern.getValue().match(request.header(headerPattern.getKey()));
-                    }
-                  })
-              .toList());
+          combinedHeaders.entrySet().stream()
+              .map(
+                  headerPattern ->
+                      headerPattern.getValue().match(request.header(headerPattern.getKey())))
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
@@ -326,10 +308,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     Map<String, MultiValuePattern> combinedHeaders = headers;
-    ImmutableMap.Builder<String, MultiValuePattern> allHeadersBuilder =
+    Builder<String, MultiValuePattern> allHeadersBuilder =
         ImmutableMap.<String, MultiValuePattern>builder()
-            .putAll(
-                firstNonNull(combinedHeaders, Collections.<String, MultiValuePattern>emptyMap()));
+            .putAll(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
     allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
     combinedHeaders = allHeadersBuilder.build();
     return combinedHeaders;
@@ -338,17 +319,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private MatchResult allQueryParamsMatch(final Request request) {
     if (queryParams != null && !queryParams.isEmpty()) {
       return MatchResult.aggregate(
-          from(queryParams.entrySet())
-              .transform(
-                  new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
-                    public MatchResult apply(
-                        Map.Entry<String, MultiValuePattern> queryParamPattern) {
-                      return queryParamPattern
+          queryParams.entrySet().stream()
+              .map(
+                  queryParamPattern ->
+                      queryParamPattern
                           .getValue()
-                          .match(request.queryParameter(queryParamPattern.getKey()));
-                    }
-                  })
-              .toList());
+                          .match(request.queryParameter(queryParamPattern.getKey())))
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
@@ -357,17 +334,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private MatchResult allFormParamsMatch(final Request request) {
     if (formParams != null && !formParams.isEmpty()) {
       return MatchResult.aggregate(
-          from(formParams.entrySet())
-              .transform(
-                  new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
-                    public MatchResult apply(
-                        Map.Entry<String, MultiValuePattern> formParamPattern) {
-                      return formParamPattern
+          formParams.entrySet().stream()
+              .map(
+                  formParamPattern ->
+                      formParamPattern
                           .getValue()
-                          .match(request.formParameter(formParamPattern.getKey()));
-                    }
-                  })
-              .toList());
+                          .match(request.formParameter(formParamPattern.getKey())))
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
@@ -393,47 +366,37 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return MatchResult.exactMatch();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private MatchResult allBodyPatternsMatch(final Request request) {
     if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
       return MatchResult.aggregate(
-          from(bodyPatterns)
-              .transform(
-                  new Function<ContentPattern, MatchResult>() {
-                    @Override
-                    public MatchResult apply(ContentPattern pattern) {
-                      if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
-                        String body =
-                            StringUtils.isEmpty(request.getBodyAsString())
-                                ? null
-                                : request.getBodyAsString();
-                        return pattern.match(body);
-                      }
+          bodyPatterns.stream()
+              .map(
+                  (Function<ContentPattern, MatchResult>)
+                      pattern -> {
+                        if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
+                          String body =
+                              StringUtils.isEmpty(request.getBodyAsString())
+                                  ? null
+                                  : request.getBodyAsString();
+                          return pattern.match(body);
+                        }
 
-                      return pattern.match(request.getBody());
-                    }
-                  })
-              .toList());
+                        return pattern.match(request.getBody());
+                      })
+              .collect(toList()));
     }
 
     return MatchResult.exactMatch();
   }
 
-  @SuppressWarnings("unchecked")
   private MatchResult allMultipartPatternsMatch(final Request request) {
     if (multipartPatterns != null && !multipartPatterns.isEmpty()) {
       if (!request.isMultipart()) {
         return MatchResult.noMatch();
       }
       return MatchResult.aggregate(
-          from(multipartPatterns)
-              .transform(
-                  new Function<MultipartValuePattern, MatchResult>() {
-                    public MatchResult apply(MultipartValuePattern pattern) {
-                      return pattern.match(request);
-                    }
-                  })
-              .toList());
+          multipartPatterns.stream().map(pattern -> pattern.match(request)).collect(toList()));
     }
 
     return MatchResult.exactMatch();
@@ -607,20 +570,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public static Predicate<Request> thatMatch(
       final RequestPattern pattern, final Map<String, RequestMatcherExtension> customMatchers) {
-    return new Predicate<Request>() {
-      @Override
-      public boolean apply(Request request) {
-        return pattern.match(request, customMatchers).isExactMatch();
-      }
-    };
+    return request -> pattern.match(request, customMatchers).isExactMatch();
   }
 
-  public static Predicate<ServeEvent> withRequstMatching(final RequestPattern pattern) {
-    return new Predicate<ServeEvent>() {
-      @Override
-      public boolean apply(ServeEvent serveEvent) {
-        return pattern.match(serveEvent.getRequest()).isExactMatch();
-      }
-    };
+  public static Predicate<ServeEvent> withRequestMatching(final RequestPattern pattern) {
+    return serveEvent -> pattern.match(serveEvent.getRequest()).isExactMatch();
   }
 }

@@ -16,19 +16,14 @@
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.ordinalIndexOf;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RequestWrapper implements Request {
 
@@ -50,12 +45,12 @@ public class RequestWrapper implements Request {
         delegate,
         null,
         null,
-        Collections.<HttpHeader>emptyList(),
-        Collections.<String>emptyList(),
-        Collections.<CaseInsensitiveKey, FieldTransformer<List<String>>>emptyMap(),
-        Collections.<String, Cookie>emptyMap(),
-        Collections.<String>emptyList(),
-        Collections.<String, FieldTransformer<Cookie>>emptyMap(),
+        Collections.emptyList(),
+        Collections.emptyList(),
+        Collections.emptyMap(),
+        Collections.emptyMap(),
+        Collections.emptyList(),
+        Collections.emptyMap(),
         null,
         null);
   }
@@ -111,7 +106,7 @@ public class RequestWrapper implements Request {
 
   @Override
   public RequestMethod getMethod() {
-    return firstNonNull(method, delegate.getMethod());
+    return getFirstNonNull(method, delegate.getMethod());
   }
 
   @Override
@@ -151,33 +146,25 @@ public class RequestWrapper implements Request {
 
   @Override
   public HttpHeaders getHeaders() {
-    Collection<HttpHeader> existingHeaders = delegate.getHeaders().all();
+    List<HttpHeader> existingHeaders = new ArrayList<>(delegate.getHeaders().all());
+    existingHeaders.addAll(addedHeaders);
 
     List<HttpHeader> combinedHeaders =
-        from(existingHeaders)
-            .append(addedHeaders)
-            .filter(
-                new Predicate<HttpHeader>() {
-                  @Override
-                  public boolean apply(HttpHeader httpHeader) {
-                    return !removedHeaders.contains(httpHeader.key());
+        existingHeaders.stream()
+            .filter(httpHeader -> !removedHeaders.contains(httpHeader.key()))
+            .map(
+                httpHeader -> {
+                  if (headerTransformers.containsKey(httpHeader.caseInsensitiveKey())) {
+                    FieldTransformer<List<String>> transformer =
+                        headerTransformers.get(httpHeader.caseInsensitiveKey());
+                    List<String> newValues = transformer.transform(httpHeader.values());
+                    return new HttpHeader(httpHeader.key(), newValues);
                   }
-                })
-            .transform(
-                new Function<HttpHeader, HttpHeader>() {
-                  @Override
-                  public HttpHeader apply(HttpHeader httpHeader) {
-                    if (headerTransformers.containsKey(httpHeader.caseInsensitiveKey())) {
-                      FieldTransformer<List<String>> transformer =
-                          headerTransformers.get(httpHeader.caseInsensitiveKey());
-                      List<String> newValues = transformer.transform(httpHeader.values());
-                      return new HttpHeader(httpHeader.key(), newValues);
-                    }
 
-                    return httpHeader;
-                  }
+                  return httpHeader;
                 })
-            .toList();
+            .collect(Collectors.toList());
+
     return new HttpHeaders(combinedHeaders);
   }
 
@@ -259,15 +246,9 @@ public class RequestWrapper implements Request {
       return delegate.getParts();
     }
 
-    return from(delegate.getParts())
-        .transform(
-            new Function<Part, Part>() {
-              @Override
-              public Part apply(Part part) {
-                return multipartTransformer.transform(part);
-              }
-            })
-        .toList();
+    return delegate.getParts().stream()
+        .map(multipartTransformer::transform)
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -299,14 +280,14 @@ public class RequestWrapper implements Request {
     private RequestMethod requestMethod;
     private FieldTransformer<String> absoluteUrlTransformer;
 
-    private final List<HttpHeader> additionalHeaders = newArrayList();
-    private final List<String> headersToRemove = newArrayList();
+    private final List<HttpHeader> additionalHeaders = new ArrayList<>();
+    private final List<String> headersToRemove = new ArrayList<>();
     private final Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers =
-        newHashMap();
+        new HashMap<>();
 
-    private final Map<String, Cookie> additionalCookies = newHashMap();
-    private final List<String> cookiesToRemove = newArrayList();
-    private final Map<String, FieldTransformer<Cookie>> cookieTransformers = newHashMap();
+    private final Map<String, Cookie> additionalCookies = new HashMap<>();
+    private final List<String> cookiesToRemove = new ArrayList<>();
+    private final Map<String, FieldTransformer<Cookie>> cookieTransformers = new HashMap<>();
 
     private FieldTransformer<Body> bodyTransformer;
     private FieldTransformer<Part> mutlipartTransformer;

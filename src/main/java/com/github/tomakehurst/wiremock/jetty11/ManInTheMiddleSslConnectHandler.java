@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2022 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty11;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.Closeable;
@@ -45,7 +45,7 @@ public class ManInTheMiddleSslConnectHandler extends ConnectHandler {
       channel.socket().setTcpNoDelay(true);
       channel.configureBlocking(false);
 
-      String host = firstNonNull(mitmProxyConnector.getHost(), "localhost");
+      String host = getFirstNonNull(mitmProxyConnector.getHost(), "localhost");
       int port = mitmProxyConnector.getLocalPort();
       InetSocketAddress address = newConnectAddress(host, port);
 

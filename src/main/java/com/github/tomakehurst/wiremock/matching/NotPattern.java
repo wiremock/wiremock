@@ -22,7 +22,7 @@ public class NotPattern extends StringValuePattern {
   private StringValuePattern unexpectedPattern;
 
   public NotPattern(@JsonProperty("not") StringValuePattern unexpectedPattern) {
-    super(unexpectedPattern.expectedValue);
+    super(unexpectedPattern.getExpected());
     this.unexpectedPattern = unexpectedPattern;
   }
 

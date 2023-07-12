@@ -19,9 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
@@ -29,13 +27,9 @@ import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
 import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
 import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
 
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Set;
 import org.hamcrest.Matchers;
@@ -44,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.xmlunit.diff.ComparisonType;
 
 public class EqualToXmlPatternTest {
@@ -289,7 +284,7 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() throws Exception {
+  public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() {
     final EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
     final MatchResult matchResult = pattern.match("<two>Hello</two>");
 
@@ -306,7 +301,7 @@ public class EqualToXmlPatternTest {
   }
 
   @Test
-  public void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() throws Exception {
+  public void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() {
     String xmlWithDtdThatCannotBeFetched =
         "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
     EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);
@@ -401,8 +396,7 @@ public class EqualToXmlPatternTest {
         placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
     assertThat(
         equalToXmlPattern.getExemptedComparisons(),
-        Matchers.<Set<ComparisonType>>is(
-            ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
+        Matchers.<Set<ComparisonType>>is(Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
   }
 
   @Test
@@ -418,7 +412,7 @@ public class EqualToXmlPatternTest {
             enablePlaceholders,
             placeholderOpeningDelimiterRegex,
             placeholderClosingDelimiterRegex,
-            ImmutableSet.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE));
+            Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE));
 
     String json = Json.write(pattern);
 
@@ -430,8 +424,9 @@ public class EqualToXmlPatternTest {
                 + "  \"enablePlaceholders\": true,\n"
                 + "  \"placeholderOpeningDelimiterRegex\": \"[\",\n"
                 + "  \"placeholderClosingDelimiterRegex\": \"]\",\n"
-                + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"NAMESPACE_URI\", \"ATTR_VALUE\"]\n"
-                + "}"));
+                + "  \"exemptedComparisons\": [\"SCHEMA_LOCATION\", \"ATTR_VALUE\", \"NAMESPACE_URI\"]\n"
+                + "}",
+            JSONCompareMode.NON_EXTENSIBLE));
   }
 
   @Test
@@ -511,5 +506,17 @@ public class EqualToXmlPatternTest {
     assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
+  }
+
+  @Test
+  void subEventIsReturnedOnXmlParsingError() {
+    MatchResult match = new EqualToXmlPattern("<things />").match("<wrong");
+
+    assertThat(match.isExactMatch(), is(false));
+    assertThat(match.getSubEvents().size(), is(1));
+    String message =
+        match.getSubEvents().stream().findFirst().get().getData().get("message").toString();
+    assertThat(
+        message, startsWith("XML document structures must start and end within the same entity"));
   }
 }

@@ -24,9 +24,9 @@ import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
@@ -36,7 +36,7 @@ public class GetCaCertTask implements AdminTask {
       Base64.getMimeEncoder(64, new byte[] {'\r', '\n'});
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     BrowserProxySettings browserProxySettings = admin.getOptions().browserProxySettings();
     KeyStoreSettings caKeyStore = browserProxySettings.caKeyStore();
     try {

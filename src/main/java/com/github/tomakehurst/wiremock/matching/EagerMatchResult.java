@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import java.util.List;
+
 public class EagerMatchResult extends MatchResult {
 
   private final double distance;
 
   EagerMatchResult(double distance) {
+    this(distance, List.of());
+  }
+
+  EagerMatchResult(double distance, List<SubEvent> subEvents) {
+    super(subEvents);
     this.distance = distance;
   }
 

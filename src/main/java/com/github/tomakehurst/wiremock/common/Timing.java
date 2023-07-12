@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,29 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Stopwatch;
 
 public class Timing {
 
-  public static final Timing UNTIMED = new Timing(-1, -1);
+  public static final Timing UNTIMED = create();
 
-  private final int addedDelay;
-  private final int processTime;
-  private final int responseSendTime;
+  private volatile Integer addedDelay;
+  private volatile Integer processTime;
+  private volatile Integer responseSendTime;
 
-  public Timing(int addedDelay, int processTime) {
-    this(addedDelay, processTime, -1, -1, -1);
+  public static Timing create() {
+    return new Timing(null, null, null, null, null);
   }
 
   private Timing(
-      @JsonProperty("addedDelay") int addedDelay,
-      @JsonProperty("processTime") int processTime,
-      @JsonProperty("responseSendTime") int responseSendTime,
-      @JsonProperty("serveTime") int ignored1,
-      @JsonProperty("totalTime") int ignored2) {
+      @JsonProperty("addedDelay") Integer addedDelay,
+      @JsonProperty("processTime") Integer processTime,
+      @JsonProperty("responseSendTime") Integer responseSendTime,
+      @JsonProperty("serveTime") Integer ignored1,
+      @JsonProperty("totalTime") Integer ignored2) {
     this.addedDelay = addedDelay;
     this.processTime = processTime;
     this.responseSendTime = responseSendTime;
@@ -65,7 +68,15 @@ public class Timing {
     return getServeTime() + addedDelay;
   }
 
-  public Timing withResponseSendTime(int responseSendTimeMillis) {
-    return new Timing(addedDelay, processTime, responseSendTimeMillis, -1, -1);
+  public void setAddedTime(int addedDelayMillis) {
+    this.addedDelay = addedDelayMillis;
+  }
+
+  public void logProcessTime(Stopwatch stopwatch) {
+    processTime = (int) stopwatch.elapsed(MILLISECONDS);
+  }
+
+  public void logResponseSendTime(Stopwatch stopwatch) {
+    responseSendTime = (int) stopwatch.elapsed(MILLISECONDS);
   }
 }

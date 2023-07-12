@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,11 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.any;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MultiValue {
 
@@ -35,8 +32,17 @@ public class MultiValue {
     this.values = values;
   }
 
+  public String getKey() {
+    return key;
+  }
+
+  public List<String> getValues() {
+    return values;
+  }
+
+  @JsonIgnore
   public boolean isPresent() {
-    return values.size() > 0;
+    return !values.isEmpty();
   }
 
   public String key() {
@@ -57,6 +63,7 @@ public class MultiValue {
     checkState(isPresent(), "No value for " + key);
   }
 
+  @JsonIgnore
   public boolean isSingleValued() {
     return values.size() == 1;
   }
@@ -70,26 +77,11 @@ public class MultiValue {
   }
 
   private boolean anyValueMatches(final StringValuePattern valuePattern) {
-    return any(
-        values,
-        new Predicate<String>() {
-          public boolean apply(String headerValue) {
-            return valuePattern.match(headerValue).isExactMatch();
-          }
-        });
+    return values.stream().anyMatch(headerValue -> valuePattern.match(headerValue).isExactMatch());
   }
 
   @Override
   public String toString() {
-    return Joiner.on("\n")
-        .join(
-            from(values)
-                .transform(
-                    new Function<String, String>() {
-                      @Override
-                      public String apply(String value) {
-                        return key + ": " + value;
-                      }
-                    }));
+    return values.stream().map(value -> key + ": " + value).collect(Collectors.joining("\n"));
   }
 }

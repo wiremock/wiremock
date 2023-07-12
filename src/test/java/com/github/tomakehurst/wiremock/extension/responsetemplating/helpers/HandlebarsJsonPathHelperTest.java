@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -31,9 +32,11 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,11 +54,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void mergesASimpleValueFromRequestIntoResponseBody() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}"));
 
     assertThat(responseDefinition.getBody(), is("{\"test\": \"success\"}"));
   }
@@ -63,11 +65,10 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void incluesAnErrorInTheResponseBodyWhenTheJsonPathIsInvalid() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/json").body("{\"a\": {\"test\": \"success\"}}"),
-            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{\"test\": \"{{jsonPath request.body '$![bbb'}}\"}"));
 
     assertThat(
         responseDefinition.getBody(), startsWith("{\"test\": \"" + HandlebarsHelper.ERROR_PREFIX));
@@ -76,7 +77,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void listResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/json")
                 .body(
@@ -95,10 +97,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "}"),
             aResponse()
                 .withBody(
-                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("One Two Three "));
   }
@@ -106,7 +105,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void mapResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/json")
                 .body(
@@ -120,10 +120,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             aResponse()
                 .withBody(
                     ""
-                        + "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                        + "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
   }
@@ -131,7 +128,8 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void singleValueResultFromJsonPathQueryCanBeUsedByHandlebarsIfHelper() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest()
                 .url("/json")
                 .body(
@@ -146,10 +144,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                 .withBody(
                     ""
                         + "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
-                        + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+                        + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
 
     assertThat(responseDefinition.getBody(), containsString("One"));
     assertThat(responseDefinition.getBody(), not(containsString("Two")));
@@ -215,42 +210,42 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void rendersAnEmptyStringWhenJsonValueUndefinedAndOptionsEmpty() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of();
+    Map<String, Object> options = Map.of();
     String output = render("{\"test\":\"success\"}", "$.test2", options);
     assertThat(output, is(""));
   }
 
   @Test
   public void rendersDefaultValueWhenShallowJsonValueUndefined() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{}", "$.test", options);
     assertThat(output, is("0"));
   }
 
   @Test
   public void rendersDefaultValueWhenDeepJsonValueUndefined() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{}", "$.outer.inner[0]", options);
     assertThat(output, is("0"));
   }
 
   @Test
   public void rendersDefaultValueWhenJsonValueNull() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{\"test\":null}", "$.test", options);
     assertThat(output, is("0"));
   }
 
   @Test
   public void ignoresDefaultWhenJsonValueEmpty() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "0");
+    Map<String, Object> options = Map.of("default", "0");
     String output = render("{\"test\":\"\"}", "$.test", options);
     assertThat(output, is(""));
   }
 
   @Test
   public void ignoresDefaultWhenJsonValueZero() throws Exception {
-    Map<String, Object> options = ImmutableMap.<String, Object>of("default", "1");
+    Map<String, Object> options = Map.of("default", "1");
     String output = render("{\"test\":0}", "$.test", options);
     assertThat(output, is("0"));
   }
@@ -281,23 +276,27 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   @Test
   public void extractsValueFromAMap() {
     ResponseTemplateTransformer transformer =
-        new ResponseTemplateTransformer(true) {
-          @Override
-          protected Map<String, Object> addExtraModelElements(
-              Request request,
-              ResponseDefinition responseDefinition,
-              FileSource files,
-              Parameters parameters) {
-            return ImmutableMap.<String, Object>of("mapData", ImmutableMap.of("things", "abc"));
-          }
-        };
+        (ResponseTemplateTransformer)
+            buildExtension(
+                new MockWireMockServices(),
+                services ->
+                    List.of(
+                        new ResponseTemplateTransformer(
+                            services.getTemplateEngine(), true, services.getFiles(), emptyList()) {
+                          @Override
+                          protected Map<String, Object> addExtraModelElements(
+                              Request request,
+                              ResponseDefinition responseDefinition,
+                              FileSource files,
+                              Parameters parameters) {
+                            return ImmutableMap.<String, Object>of(
+                                "mapData", ImmutableMap.of("things", "abc"));
+                          }
+                        }));
 
     final ResponseDefinition responseDefinition =
-        transformer.transform(
-            mockRequest(),
-            aResponse().withBody("{{jsonPath mapData '$.things'}}").build(),
-            noFileSource(),
-            Parameters.empty());
+        transform(
+            transformer, mockRequest(), aResponse().withBody("{{jsonPath mapData '$.things'}}"));
 
     assertThat(responseDefinition.getBody(), is("abc"));
   }

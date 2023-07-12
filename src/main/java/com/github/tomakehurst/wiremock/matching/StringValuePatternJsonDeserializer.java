@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Iterators.find;
-import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,8 +28,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -117,14 +113,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
-    return find(
-        rootNode.fields(),
-        new Predicate<Map.Entry<String, JsonNode>>() {
-          @Override
-          public boolean apply(Map.Entry<String, JsonNode> input) {
-            return PATTERNS.keySet().contains(input.getKey());
-          }
-        });
+    return find(rootNode.fields(), input -> PATTERNS.containsKey(input.getKey()));
   }
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
@@ -388,17 +377,14 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static Constructor<? extends StringValuePattern> findConstructor(
       Class<? extends StringValuePattern> clazz) {
     Optional<Constructor<?>> optionalConstructor =
-        tryFind(
-            asList(clazz.getDeclaredConstructors()),
-            new Predicate<Constructor<?>>() {
-              @Override
-              public boolean apply(Constructor<?> input) {
-                return input.getParameterTypes().length == 1
-                    && input.getGenericParameterTypes()[0].equals(String.class);
-              }
-            });
+        Arrays.stream(clazz.getDeclaredConstructors())
+            .filter(
+                input ->
+                    input.getParameterTypes().length == 1
+                        && input.getGenericParameterTypes()[0].equals(String.class))
+            .findFirst();
 
-    if (!optionalConstructor.isPresent()) {
+    if (optionalConstructor.isEmpty()) {
       throw new IllegalStateException(
           "Constructor for "
               + clazz.getSimpleName()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.io.BaseEncoding;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
-public class BodyTest {
+class BodyTest {
 
   @Test
-  public void constructsFromBytes() {
+  void constructsFromBytes() {
     Body body =
         Body.fromOneOf(
             "this content".getBytes(), "not this content", new IntNode(1), "lskdjflsjdflks");
@@ -39,7 +40,7 @@ public class BodyTest {
   }
 
   @Test
-  public void constructsFromString() {
+  void constructsFromString() {
     Body body = Body.fromOneOf(null, "this content", new IntNode(1), "lskdjflsjdflks");
 
     assertThat(body.asString(), is("this content"));
@@ -48,7 +49,7 @@ public class BodyTest {
   }
 
   @Test
-  public void constructsFromJson() {
+  void constructsFromJson() {
     Body body = Body.fromOneOf(null, null, new IntNode(1), "lskdjflsjdflks");
 
     assertThat(body.asString(), is("1"));
@@ -57,8 +58,8 @@ public class BodyTest {
   }
 
   @Test
-  public void constructsFromBase64() {
-    byte[] base64Encoded = BaseEncoding.base64().encode("this content".getBytes()).getBytes();
+  void constructsFromBase64() {
+    byte[] base64Encoded = Base64.getEncoder().encodeToString("this content".getBytes()).getBytes();
     String encodedText = stringFromBytes(base64Encoded);
     Body body = Body.fromOneOf(null, null, null, encodedText);
 
@@ -68,10 +69,21 @@ public class BodyTest {
   }
 
   @Test
-  public void bodyAsJson() {
+  void bodyAsJson() {
     final JsonNode jsonContent = Json.node("{\"name\":\"wiremock\",\"isCool\":true}");
     Body body = Body.fromOneOf(null, null, jsonContent, "lskdjflsjdflks");
 
     assertThat(body.asJson(), is(jsonContent));
+  }
+
+  @Test
+  void hashCorrectly() {
+    byte[] primes = {2, 3, 5, 7};
+    byte[] primes2 = {2, 3, 5, 7};
+
+    Body body = new Body(primes);
+    Body body2 = new Body(primes2);
+
+    assertEquals(body.hashCode(), body2.hashCode());
   }
 }

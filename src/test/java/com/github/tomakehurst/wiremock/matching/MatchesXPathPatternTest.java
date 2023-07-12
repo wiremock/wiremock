@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.SubEvent.WARNING;
+import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.checkJsonError;
+import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.checkMessage;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -23,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.Map;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -95,7 +98,7 @@ public class MatchesXPathPatternTest {
     StringValuePattern pattern =
         WireMock.matchingXPath(
             "//sub:subThing[.='The stuff']",
-            ImmutableMap.of("sub", "http://subthings", "t", "http://things"));
+            Map.of("sub", "http://subthings", "t", "http://things"));
 
     MatchResult match = pattern.match(xml);
     assertTrue(match.isExactMatch());
@@ -253,11 +256,7 @@ public class MatchesXPathPatternTest {
   @Test
   public void serialisesCorrectlyWithNamspaces() throws JSONException {
     MatchesXPathPattern pattern =
-        new MatchesXPathPattern(
-            "//*",
-            ImmutableMap.of(
-                "one", "http://one.com/",
-                "two", "http://two.com/"));
+        new MatchesXPathPattern("//*", Map.of("one", "http://one.com/", "two", "http://two.com/"));
 
     String json = Json.write(pattern);
 
@@ -298,6 +297,38 @@ public class MatchesXPathPatternTest {
   @Test
   public void noMatchOnNullValue() {
     assertThat(WireMock.matchingXPath("//*").match(null).isExactMatch(), is(false));
+  }
+
+  @Test
+  void reportsErrorWhenActualXmlIsInvalid() {
+    MatchResult matchResult = new MatchesXPathPattern("/thing").match("<xml");
+    checkMessage(
+        matchResult,
+        WARNING,
+        "Warning: failed to parse the XML document. Reason: {\n  \"errors\" : [ {\n    \"code\" : 50,\n    \"title\" : \"XML document structures must start and end within the same entity.\"\n  } ]\n}\nXML: <xml");
+  }
+
+  @Test
+  void reportsErrorWhenActualIsNotXml() {
+    MatchResult matchResult = new MatchesXPathPattern("/thing").match("{not-xml");
+    checkMessage(matchResult, WARNING, "Warning: failed to parse the XML document\nXML: {not-xml");
+  }
+
+  @Test
+  void reportsErrorFromSubMatcher() {
+    MatchResult matchResult =
+        new MatchesXPathPattern("/something/text()", WireMock.equalToJson("{}"))
+            .match("<something>{ bad json</something>");
+    checkJsonError(
+        matchResult,
+        "Unexpected character ('b' (code 98)): was expecting double-quote to start field name\n at [Source: (String)\"{ bad json\"; line: 1, column: 4]");
+  }
+
+  @Test
+  void reportsErrorWhenXPathExpressionIsInvalid() {
+    MatchResult matchResult = new MatchesXPathPattern("/\\!what?").match("<things/>");
+    checkMessage(
+        matchResult, WARNING, "Warning: failed to evaluate the XPath expression /\\!what?");
   }
 
   @Test

@@ -31,10 +31,6 @@ public class FormParameter extends MultiValue {
     super(key, values);
   }
 
-  public static FormParameter formParam(String key, String[] values) {
-    return new FormParameter(key, asList(values));
-  }
-
   public static FormParameter absent(String key) {
     return new FormParameter(key, Collections.emptyList());
   }

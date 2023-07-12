@@ -54,6 +54,8 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class VerificationAcceptanceTest {
 
@@ -376,6 +378,27 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
+    public void verifiesQueryParamAbsent() {
+      testClient.get("/without/queryParam?test-param=test-value");
+      verify(
+          getRequestedFor(urlPathEqualTo("/without/queryParam"))
+              .withQueryParam("test-param", equalTo("test-value"))
+              .withoutQueryParam("absent-param"));
+    }
+
+    @Test
+    public void failsVerificationWhenAbsentQueryParamPresent() {
+      assertThrows(
+          VerificationException.class,
+          () -> {
+            testClient.get("/without/queryParam?test-param=test-value");
+            verify(
+                getRequestedFor(urlPathEqualTo("/without/queryParam"))
+                    .withoutQueryParam("test-param"));
+          });
+    }
+
+    @Test
     public void resetErasesCounters() {
       assertThrows(
           VerificationException.class,
@@ -535,6 +558,16 @@ public class VerificationAcceptanceTest {
           getRequestedFor(urlEqualTo("/without/header"))
               .withHeader("Content-Type", equalTo("application/json"))
               .withoutHeader("Accept"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+          "GET", "POST", "PUT", "HEAD", "TRACE", "PATCH", "OPTIONS", "DELETE", "ANY", "RANDOM"
+        })
+    public void verifyRequestedForSameMethodAsRequest(String method) {
+      testClient.request(method, "/methods");
+      verify(requestedFor(method, urlEqualTo("/methods")));
     }
 
     @Test

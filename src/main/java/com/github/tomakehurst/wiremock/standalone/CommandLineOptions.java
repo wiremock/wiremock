@@ -21,7 +21,6 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker.DEFAULT_FILENAME_TEMPLATE;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -31,9 +30,7 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -47,11 +44,6 @@ import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.io.Resources;
@@ -59,6 +51,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -134,7 +129,7 @@ public class CommandLineOptions implements Options {
   private final FileSource fileSource;
 
   private final MappingsSource mappingsSource;
-  private final Map<String, Extension> extensions;
+  private final ExtensionDeclarations extensions;
   private final FilenameMaker filenameMaker;
 
   private String helpText;
@@ -378,6 +373,8 @@ public class CommandLineOptions implements Options {
     validate();
     captureHelpTextIfRequested(optionParser);
 
+    extensions = new ExtensionDeclarations();
+
     if (optionSet.has(LOAD_RESOURCES_FROM_CLASSPATH)) {
       fileSource =
           new ClasspathFileSource((String) optionSet.valueOf(LOAD_RESOURCES_FROM_CLASSPATH));
@@ -401,25 +398,17 @@ public class CommandLineOptions implements Options {
 
     filenameMaker = new FilenameMaker(getFilenameTemplateOption());
     mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
-    extensions = buildExtensions();
+    buildExtensions();
 
     actualHttpPort = null;
   }
 
-  private Map<String, Extension> buildExtensions() {
-    ImmutableMap.Builder<String, Extension> builder = ImmutableMap.builder();
+  private void buildExtensions() {
     if (optionSet.has(EXTENSIONS)) {
-      String classNames = (String) optionSet.valueOf(EXTENSIONS);
-      builder.putAll(ExtensionLoader.load(classNames.split(",")));
+      String classNamesParamValue = (String) optionSet.valueOf(EXTENSIONS);
+      final String[] classNames = classNamesParamValue.split(",");
+      extensions.add(classNames);
     }
-
-    if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING)) {
-      contributeResponseTemplateTransformer(builder, true);
-    } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING)) {
-      contributeResponseTemplateTransformer(builder, false);
-    }
-
-    return builder.build();
   }
 
   private String getFilenameTemplateOption() {
@@ -440,17 +429,6 @@ public class CommandLineOptions implements Options {
       throw new IllegalArgumentException(
           "Format for filename template should be contain handlebar value. Please check format one more time");
     }
-  }
-
-  private void contributeResponseTemplateTransformer(
-      ImmutableMap.Builder<String, Extension> builder, boolean global) {
-    ResponseTemplateTransformer transformer =
-        ResponseTemplateTransformer.builder()
-            .global(global)
-            .maxCacheEntries(getMaxTemplateCacheEntries())
-            .permittedSystemKeys(getPermittedSystemKeys())
-            .build();
-    builder.put(transformer.getName(), transformer);
   }
 
   private void validate() {
@@ -492,8 +470,10 @@ public class CommandLineOptions implements Options {
   public List<CaseInsensitiveKey> matchingHeaders() {
     if (optionSet.hasArgument(MATCH_HEADERS)) {
       String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
-      UnmodifiableIterator<String> headerKeys = Iterators.forArray(headerSpec.split(","));
-      return ImmutableList.copyOf(Iterators.transform(headerKeys, TO_CASE_INSENSITIVE_KEYS));
+
+      return Arrays.stream(headerSpec.split(","))
+          .map(TO_CASE_INSENSITIVE_KEYS)
+          .collect(Collectors.toUnmodifiableList());
     }
 
     return Collections.emptyList();
@@ -655,9 +635,8 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-    return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
+  public ExtensionDeclarations getDeclaredExtensions() {
+    return extensions;
   }
 
   @Override
@@ -687,11 +666,6 @@ public class CommandLineOptions implements Options {
   @Override
   public boolean getHttpsRequiredForAdminApi() {
     return optionSet.has(ADMIN_API_REQUIRE_HTTPS);
-  }
-
-  @Override
-  public NotMatchedRenderer getNotMatchedRenderer() {
-    return new PlainTextStubNotMatchedRenderer();
   }
 
   /** @deprecated use {@link BrowserProxySettings#enabled()} */
@@ -753,7 +727,7 @@ public class CommandLineOptions implements Options {
     if (specifiesMaxRequestJournalEntries()) {
       return Optional.of(Integer.parseInt((String) optionSet.valueOf(MAX_ENTRIES_REQUEST_JOURNAL)));
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -798,7 +772,7 @@ public class CommandLineOptions implements Options {
       builder.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
       List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
       if (!trustedProxyTargets.isEmpty()) {
-        builder.put(TRUST_PROXY_TARGET, Joiner.on(", ").join(trustedProxyTargets));
+        builder.put(TRUST_PROXY_TARGET, String.join(", ", trustedProxyTargets));
       }
       builder.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
       builder.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());
@@ -951,18 +925,34 @@ public class CommandLineOptions implements Options {
         : DEFAULT_TIMEOUT;
   }
 
-  private Long getMaxTemplateCacheEntries() {
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return optionSet.has(GLOBAL_RESPONSE_TEMPLATING) || optionSet.has(LOCAL_RESPONSE_TEMPLATING);
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return optionSet.has(GLOBAL_RESPONSE_TEMPLATING);
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
     return optionSet.has(MAX_TEMPLATE_CACHE_ENTRIES)
         ? Long.valueOf(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString())
         : null;
   }
 
   @SuppressWarnings("unchecked")
-  @VisibleForTesting
-  public Set<String> getPermittedSystemKeys() {
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
     return optionSet.has(PERMITTED_SYSTEM_KEYS)
         ? ImmutableSet.copyOf((List<String>) optionSet.valuesOf(PERMITTED_SYSTEM_KEYS))
         : Collections.<String>emptySet();
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return true;
   }
 
   private boolean isAsynchronousResponseEnabled() {

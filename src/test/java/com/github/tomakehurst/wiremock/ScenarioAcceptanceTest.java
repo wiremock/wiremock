@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.resetScenario;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.withName;
-import static com.google.common.collect.Iterables.find;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -134,11 +132,13 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
     List<Scenario> scenarios = getAllScenarios();
 
-    Scenario scenario1 = find(scenarios, withName("scenario_one"));
+    Scenario scenario1 =
+        scenarios.stream().filter(withName("scenario_one")).findAny().orElseThrow();
     assertThat(scenario1.getPossibleStates(), hasItems(STARTED, "state_2"));
     assertThat(scenario1.getState(), is("state_2"));
 
-    Scenario scenario2 = find(scenarios, withName("scenario_two"));
+    Scenario scenario2 =
+        scenarios.stream().filter(withName("scenario_two")).findAny().orElseThrow();
     assertThat(scenario2.getState(), is("Started"));
   }
 

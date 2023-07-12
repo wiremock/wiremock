@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static java.util.Arrays.asList;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LogicalOr extends StringValuePattern {
-
-  private final List<StringValuePattern> operands;
+public class LogicalOr extends AbstractLogicalMatcher {
 
   public LogicalOr(StringValuePattern... operands) {
-    this(asList(operands));
+    super(operands);
   }
 
   public LogicalOr(@JsonProperty("or") List<StringValuePattern> operands) {
-    super(
-        operands.stream()
-            .findFirst()
-            .map(ContentPattern::getValue)
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Logical OR must be constructed with at least two matchers")));
-    this.operands = operands;
+    super(operands);
   }
 
   @Override
-  public String getExpected() {
-    return operands.stream()
-        .map(contentPattern -> contentPattern.getName() + " " + contentPattern.getExpected())
-        .collect(Collectors.joining(" OR "));
+  protected String getOperationName() {
+    return "OR";
   }
 
   public List<StringValuePattern> getOr() {

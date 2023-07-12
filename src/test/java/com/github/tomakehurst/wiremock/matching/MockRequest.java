@@ -15,14 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.tryFind;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.common.Urls;
@@ -30,13 +26,8 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MockRequest implements Request {
 
@@ -44,11 +35,13 @@ public class MockRequest implements Request {
   private String host = "my.domain";
   private int port = 80;
   private String url = "/";
+
+  private String absoluteUrl = null;
   private RequestMethod method = RequestMethod.ANY;
   private HttpHeaders headers = new HttpHeaders();
 
-  private PathParams pathParams = new PathParams();
-  private Map<String, Cookie> cookies = newHashMap();
+  private final Map<String, Cookie> cookies = new HashMap<>();
+  private final PathParams pathParams = new PathParams();
   private byte[] body;
   private String clientIp = "1.1.1.1";
   private Collection<Part> multiparts = null;
@@ -81,6 +74,11 @@ public class MockRequest implements Request {
     return this;
   }
 
+  public MockRequest absoluteUrl(String absoluteUrl) {
+    this.absoluteUrl = absoluteUrl;
+    return this;
+  }
+
   public MockRequest method(RequestMethod method) {
     this.method = method;
     return this;
@@ -88,6 +86,11 @@ public class MockRequest implements Request {
 
   public MockRequest header(String key, String... values) {
     headers = headers.plus(httpHeader(key, values));
+    return this;
+  }
+
+  public MockRequest headers(HttpHeaders headers) {
+    this.headers = headers;
     return this;
   }
 
@@ -118,7 +121,7 @@ public class MockRequest implements Request {
 
   public MockRequest part(MockMultipart part) {
     if (multiparts == null) {
-      multiparts = newArrayList();
+      multiparts = new ArrayList<>();
     }
 
     multiparts.add(part);
@@ -149,7 +152,8 @@ public class MockRequest implements Request {
 
   @Override
   public String getAbsoluteUrl() {
-    return "http://my.domain" + url;
+    String portPart = port == 80 || port == 443 ? "" : ":" + port;
+    return getFirstNonNull(absoluteUrl, String.format("%s://%s%s%s", scheme, host, portPart, url));
   }
 
   @Override
@@ -184,14 +188,10 @@ public class MockRequest implements Request {
 
   @Override
   public HttpHeader header(final String key) {
-    return tryFind(
-            headers.all(),
-            new Predicate<HttpHeader>() {
-              public boolean apply(HttpHeader input) {
-                return input.keyEquals(key);
-              }
-            })
-        .or(HttpHeader.absent(key));
+    return headers.all().stream()
+        .filter(input -> input.keyEquals(key))
+        .findFirst()
+        .orElseGet(() -> HttpHeader.absent(key));
   }
 
   @Override
@@ -227,7 +227,7 @@ public class MockRequest implements Request {
 
   @Override
   public FormParameter formParameter(String key) {
-    return firstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
   }
 
   @Override
@@ -257,7 +257,7 @@ public class MockRequest implements Request {
 
   @Override
   public Optional<Request> getOriginalRequest() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @Override
@@ -282,18 +282,7 @@ public class MockRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (getParts() != null && name != null)
-        ? from(multiparts)
-            .firstMatch(
-                new Predicate<Part>() {
-                  @Override
-                  public boolean apply(Part input) {
-                    if (name.equals(input.getName())) {
-                      return true;
-                    }
-                    return false;
-                  }
-                })
-            .get()
+        ? multiparts.stream().filter(input -> name.equals(input.getName())).findFirst().orElse(null)
         : null;
   }
 

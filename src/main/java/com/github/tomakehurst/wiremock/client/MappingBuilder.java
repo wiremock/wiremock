@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
@@ -25,6 +26,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface MappingBuilder {
@@ -72,6 +74,16 @@ public interface MappingBuilder {
   MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
   <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
+
+  default <P> MappingBuilder withServeEventListener(
+      ServeEventListener.RequestPhase requestPhase, String extensionName, P parameters) {
+    return withServeEventListener(Set.of(requestPhase), extensionName, parameters);
+  }
+
+  <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
 
   MappingBuilder withMetadata(Map<String, ?> metadata);
 
