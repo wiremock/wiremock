@@ -38,6 +38,11 @@ public class NetworkAddressRules {
     this.denied = denied;
   }
 
+  public boolean isAllowed(String testValue) {
+    return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
+            && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+  }
+
   public boolean isAllowed(InetAddress address) {
     return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue(rule, address)))
         && denied.stream().noneMatch(rule -> rule.isIncluded(testValue(rule, address)));
