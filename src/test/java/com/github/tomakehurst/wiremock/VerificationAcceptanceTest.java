@@ -48,9 +48,10 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import java.util.List;
 import java.util.UUID;
-import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.EntityBuilder;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -972,7 +973,9 @@ public class VerificationAcceptanceTest {
       String testFormParam = "test-form-param";
       String testFormValue = "test-form-value";
       HttpEntity requestEntity =
-          MultipartEntityBuilder.create().addTextBody(testFormParam, testFormValue).build();
+          EntityBuilder.create()
+              .setParameters(new BasicNameValuePair(testFormParam, testFormValue))
+              .build();
       stubFor(post(testUrl).withFormParam(testFormParam, equalTo(testFormValue)));
       testClient.post(testUrl, requestEntity);
       verify(
@@ -987,7 +990,9 @@ public class VerificationAcceptanceTest {
       String testFormParam = "test-form-param";
       String testFormValue = "test-form-value";
       HttpEntity requestEntity =
-          MultipartEntityBuilder.create().addTextBody(testFormParam, testFormValue).build();
+          EntityBuilder.create()
+              .setParameters(new BasicNameValuePair(testFormParam, testFormValue))
+              .build();
       stubFor(post(testUrl).withFormParam(testFormParam, equalTo(testFormValue)));
       testClient.post(testUrl, requestEntity);
       assertThrows(
