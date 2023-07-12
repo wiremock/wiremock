@@ -53,7 +53,7 @@ public class JsonFileMappingsSourceTest {
 
   @BeforeEach
   public void init() throws Exception {
-    stubMappings = new InMemoryStubMappings();
+    stubMappings = new InMemoryStubMappings(false);
   }
 
   private void configureWithMultipleMappingFile() throws Exception {
@@ -83,7 +83,7 @@ public class JsonFileMappingsSourceTest {
   public void loadsMappingsViaClasspathFileSource() {
     ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
     JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource, new FilenameMaker());
-    StoreBackedStubMappings stubMappings = new InMemoryStubMappings();
+    StoreBackedStubMappings stubMappings = new InMemoryStubMappings(false);
 
     source.loadMappingsInto(stubMappings);
 

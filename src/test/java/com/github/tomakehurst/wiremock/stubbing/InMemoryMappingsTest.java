@@ -40,7 +40,7 @@ public class InMemoryMappingsTest {
 
   @BeforeEach
   public void init() {
-    mappings = new InMemoryStubMappings();
+    mappings = new InMemoryStubMappings(false);
   }
 
   @AfterEach

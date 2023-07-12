@@ -136,4 +136,6 @@ public interface Options {
   Set<String> getTemplatePermittedSystemKeys();
 
   boolean getTemplateEscapingDisabled();
+
+  boolean failIfMultipleMappingsMatch();
 }

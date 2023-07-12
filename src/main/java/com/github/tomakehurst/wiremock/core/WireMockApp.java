@@ -118,7 +118,8 @@ public class WireMockApp implements StubServer, Admin {
             extensions.ofType(ResponseDefinitionTransformer.class),
             extensions.ofType(ResponseDefinitionTransformerV2.class),
             stores.getFilesBlobStore(),
-            ImmutableList.copyOf(extensions.ofType(StubLifecycleListener.class).values()));
+            ImmutableList.copyOf(extensions.ofType(StubLifecycleListener.class).values()),
+            options.failIfMultipleMappingsMatch());
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
@@ -139,7 +140,8 @@ public class WireMockApp implements StubServer, Admin {
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       Map<String, RequestMatcherExtension> requestMatchers,
       FileSource rootFileSource,
-      Container container) {
+      Container container,
+      boolean failIfMultipleMappingsMatch) {
 
     this.stores = new DefaultStores(rootFileSource);
 
@@ -161,7 +163,8 @@ public class WireMockApp implements StubServer, Admin {
             transformers,
             v2transformers,
             stores.getFilesBlobStore(),
-            Collections.emptyList());
+            Collections.emptyList(),
+            failIfMultipleMappingsMatch);
     this.container = container;
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder =
