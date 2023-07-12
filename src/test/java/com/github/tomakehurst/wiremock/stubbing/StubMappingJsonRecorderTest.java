@@ -421,7 +421,7 @@ public class StubMappingJsonRecorderTest {
           + "		\"url\": \"/multipart/content\",							\n"
           + "		\"multipartPatterns\" : [ {									\n"
           + "			\"name\" : \"binaryFile\",								\n"
-          + "			\"matchingType\" : \"ALL\",								\n"
+          + "			\"matchingType\" : \"ANY\",								\n"
           + "			\"headers\" : {											\n"
           + "				\"Content-Disposition\" : {							\n"
           + "					\"contains\" : \"name=\\\"binaryFile\\\"\"		\n"
@@ -432,7 +432,7 @@ public class StubMappingJsonRecorderTest {
           + "			} ]														\n"
           + "		}, {														\n"
           + "			\"name\" : \"textFile\",								\n"
-          + "			\"matchingType\" : \"ALL\",								\n"
+          + "			\"matchingType\" : \"ANY\",								\n"
           + "			\"headers\" : {											\n"
           + "				\"Content-Disposition\" : {							\n"
           + "					\"contains\" : \"name=\\\"textFile\\\"\"		\n"
@@ -443,7 +443,7 @@ public class StubMappingJsonRecorderTest {
           + "			} ]														\n"
           + "		}, {														\n"
           + "			\"name\" : \"formInput\",								\n"
-          + "			\"matchingType\" : \"ALL\",								\n"
+          + "			\"matchingType\" : \"ANY\",								\n"
           + "			\"headers\" : {											\n"
           + "				\"Content-Disposition\" : {							\n"
           + "					\"contains\" : \"name=\\\"formInput\\\"\"		\n"
@@ -472,14 +472,14 @@ public class StubMappingJsonRecorderTest {
             .withUrl("/multipart/content")
             .withMultiparts(
                 Arrays.asList(
-                    createPart(
+                    createFormPart(
                         "binaryFile",
                         "This a file content".getBytes(),
                         "application/octet-stream",
                         "binaryFile.raw"),
-                    createPart(
+                    createFormPart(
                         "textFile", "This a file content".getBytes(), "text/plain", "textFile.txt"),
-                    createPart("formInput", "I am a field!".getBytes(), null, null)))
+                    createFormPart("formInput", "I am a field!".getBytes(), null, null)))
             .build();
 
     listener.requestReceived(
@@ -489,6 +489,73 @@ public class StubMappingJsonRecorderTest {
         .put(
             eq("mapping-multipart-content-1$2!3.json"),
             argThat(equalToBinaryJson(MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
+  }
+
+  private static final String MULTIPART_RELATED_REQUEST_MAPPING =
+      "{																	\n"
+          + "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+          + "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+          + "	\"request\": {													\n"
+          + "		\"method\": \"POST\",										\n"
+          + "		\"url\": \"/multipart/related\",							\n"
+          + "		\"multipartPatterns\" : [ {									\n"
+          + "			\"name\" : \"part-1\",								\n"
+          + "			\"matchingType\" : \"ANY\",								\n"
+          + "			\"bodyPatterns\" : [ {									\n"
+          + "				\"equalToXml\" : \"<root><ref>cid:xml2</ref></root>\"\n"
+          + "			} ]														\n"
+          + "		}, {														\n"
+          + "			\"name\" : \"part-2\",								\n"
+          + "			\"matchingType\" : \"ANY\",								\n"
+          + "			\"bodyPatterns\" : [ {									\n"
+          + "				\"equalToXml\" : \"<a><b>1</b></a>\"				\n"
+          + "			} ]														\n"
+          + "		} ]															\n"
+          + "	},												            	\n"
+          + "	\"response\": {									            	\n"
+          + "		\"status\": 200,							            	\n"
+          + "		\"bodyFileName\": \"body-multipart-related-1$2!3.txt\"  	\n"
+          + "	}												            	\n"
+          + "}																	";
+
+  @Test
+  public void multipartRelatedRequestProcessingWithTextXml() {
+    when(admin.countRequestsMatching((any(RequestPattern.class))))
+        .thenReturn(VerificationResult.withCount(0));
+
+    Request request =
+        new MockRequestBuilder()
+            .withMethod(RequestMethod.POST)
+            .withUrl("/multipart/related")
+            .withHeader("Content-Type", "multipart/related; charset=utf-8;  boundary=\"_boundary_\"; type=\"text/xml\"; start=\"<root-part>\"")
+            .withHeader("SOAPAction", "\"\"")
+            .withMultiparts(
+                Arrays.asList(
+                    createPart(
+                        "part-1",
+                        "<root><ref>cid:xml2</ref></root>".getBytes(),
+                        "text/xml; charset=utf-8",
+                        "Content-Transfer-Encoding: binary",
+                        "Content-ID: <root-part>"
+                    ),
+                    createPart(
+                        "part-2",
+                        "<a><b>1</b></a>".getBytes(),
+                        "text/xml",
+                        "Content-Transfer-Encoding: binary",
+                        "Content-ID: <xml2>"
+                    )
+                )
+            )
+            .build();
+
+    listener.requestReceived(
+        request, response().status(200).body("anything").fromProxy(true).build());
+
+    verify(mappingsBlobStore)
+        .put(
+            eq("mapping-multipart-related-1$2!3.json"),
+            argThat(equalToBinaryJson(MULTIPART_RELATED_REQUEST_MAPPING, STRICT_ORDER)));
   }
 
   private static final String BAD_MULTIPART_REQUEST_MAPPING =
@@ -615,41 +682,18 @@ public class StubMappingJsonRecorderTest {
     return () -> id;
   }
 
-  private static Request.Part createPart(
+  private static Request.Part createFormPart(
       final String name,
       final byte[] data,
       final String contentType,
       final String fileName,
       String... extraHeaderLines) {
-    MockMultipart part = new MockMultipart().name(name).body(data);
-
-    for (String headerLine : extraHeaderLines) {
-      int i = headerLine.indexOf(':');
-
-      if (i <= 0) {
-        Assertions.fail("Invalid header expected line: " + headerLine);
-      }
-
-      Collection<String> params = new ArrayList<>();
-      int start = i + 1;
-
-      while (true) {
-        int end = headerLine.indexOf(';', start);
-
-        if (end > 0) {
-          params.add(headerLine.substring(start, end).trim());
-          start = end + 1;
-        } else {
-          break;
-        }
-      }
-
-      part.header(headerLine.substring(0, i).trim(), params.toArray(new String[0]));
-    }
-
-    if (contentType != null) {
-      part.header("Content-Type", contentType);
-    }
+    MockMultipart part = createPart(
+        name,
+        data,
+        contentType,
+        extraHeaderLines
+    );
 
     if (fileName == null) {
       part.header("Content-Disposition", "form-data", "name=\"" + name + "\"");
@@ -662,5 +706,56 @@ public class StubMappingJsonRecorderTest {
     }
 
     return part;
+  }
+
+  private static MockMultipart createPart(
+      String name,
+      byte[] data,
+      String contentType,
+      String... extraHeaderLines) {
+
+    MockMultipart part = new MockMultipart()
+        .name(name)
+        .body(data);
+
+    for (String headerLine : extraHeaderLines) {
+      final int i = headerLine.indexOf(':');
+      if (i <= 0) {
+        Assertions.fail("Invalid header expected line: " + headerLine);
+      }
+
+      final String headerName = headerLine.substring(0, i).trim();
+
+      final int valuesStartIndex = i + 1;
+      final String headerValuesString = headerLine.substring(valuesStartIndex);
+      final List<String> headerValues = splitHeaderValues(headerValuesString);
+
+      part.header(headerName, headerValues.toArray(new String[0]));
+    }
+
+    if (contentType != null) {
+      part.header("Content-Type", contentType);
+    }
+    return part;
+  }
+
+  private static List<String> splitHeaderValues(String headerLine) {
+    List<String> headerValues = new ArrayList<>();
+
+    int nextValueStartIndex = 0;
+    while (true) {
+      int end = headerLine.indexOf(';', nextValueStartIndex);
+
+      if (end > 0) {
+        final String headerValue = headerLine.substring(nextValueStartIndex, end).trim();
+        headerValues.add(headerValue);
+        nextValueStartIndex = end + 1;
+      } else {
+        final String headerValue = headerLine.substring(nextValueStartIndex).trim();
+        headerValues.add(headerValue);
+        break;
+      }
+    }
+    return headerValues;
   }
 }
