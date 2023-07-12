@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.direct;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.*;
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -45,7 +46,7 @@ class DirectCallHttpServerTest {
   @BeforeEach
   void setup() {
     when(options.jettySettings()).thenReturn(jettySettings);
-    when(jettySettings.getStopTimeout()).thenReturn(Optional.absent());
+    when(jettySettings.getStopTimeout()).thenReturn(Optional.empty());
     server =
         new DirectCallHttpServer(sleepFacade, options, adminRequestHandler, stubRequestHandler);
   }
@@ -154,18 +155,18 @@ class DirectCallHttpServerTest {
         doAnswer(
                 (i) -> {
                   HttpResponder responder = i.getArgument(1, HttpResponder.class);
-                  responder.respond(request, response);
+                  responder.respond(request, response, emptyMap());
                   return null;
                 })
             .when(handler())
-            .handle(any(), any());
+            .handle(any(), any(), any());
 
         actual = handle(request);
       }
 
       @Test
       void delegatesRequest() {
-        verify(handler()).handle(eq(request), any());
+        verify(handler()).handle(eq(request), any(), any());
       }
 
       @Test
@@ -186,18 +187,18 @@ class DirectCallHttpServerTest {
           doAnswer(
                   (i) -> {
                     HttpResponder responder = i.getArgument(1, HttpResponder.class);
-                    responder.respond(request, response);
+                    responder.respond(request, response, emptyMap());
                     return null;
                   })
               .when(handler())
-              .handle(any(), any());
+              .handle(any(), any(), any());
 
           actual = handle(request);
         }
 
         @Test
         void delegatesRequest() {
-          verify(handler()).handle(eq(request), any());
+          verify(handler()).handle(eq(request), any(), any());
         }
 
         @Test

@@ -159,6 +159,8 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + "[equalToJson]"
+                    + lineSeparator()
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : {"
@@ -175,6 +177,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + lineSeparator()
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : { }"
@@ -198,6 +201,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + "[equalToJson]\n"
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : {"
@@ -214,6 +218,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + lineSeparator()
                     + "{"
                     + lineSeparator()
                     + "  \"outer\" : { }"
@@ -284,6 +289,7 @@ public class DiffTest {
                 "ANY\n"
                     + "/thing\n"
                     + "\n"
+                    + "[equalToXml]\n"
                     + "<my-elements>"
                     + lineSeparator()
                     + "  <one attr-one=\"1111\"/>"
@@ -296,7 +302,7 @@ public class DiffTest {
                     + lineSeparator(),
                 "ANY\n"
                     + "/thing\n"
-                    + "\n"
+                    + "\n\n"
                     + "<my-elements>"
                     + lineSeparator()
                     + "  <one attr-one=\"2222\"/>"
@@ -402,7 +408,8 @@ public class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "POST\n" + "/thing\n\n" + "(absent)", "POST\n" + "/thing\n\n" + "not absent")));
+                "POST\n" + "/thing\n\n[absent]\n" + "(absent)",
+                "POST\n" + "/thing\n\n" + "\nnot absent")));
   }
 
   @Test

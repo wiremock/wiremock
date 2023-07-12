@@ -41,7 +41,6 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import java.io.File;
@@ -487,7 +486,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(body, jsonPartEquals("scenarios[0].id", "my-scenario"));
     assertThat(body, jsonPartEquals("scenarios[0].name", "my-scenario"));
     assertThat(body, jsonPartEquals("scenarios[0].state", "\"2\""));
-    assertThat(body, jsonPartEquals("scenarios[0].possibleStates", asList("2", "3", "Started")));
+    assertThat(body, jsonPartEquals("scenarios[0].possibleStates", asList("Started", "2", "3")));
     assertThat(body, jsonPartEquals("scenarios[0].mappings[0].request.url", "/one"));
   }
 
@@ -934,15 +933,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         get("/with-metadata")
             .withId(id)
             .withMetadata(
-                ImmutableMap.<String, Object>of(
-                    "one",
-                    1,
-                    "two",
-                    "2",
-                    "three",
-                    true,
-                    "four",
-                    ImmutableMap.of("five", "55555"))));
+                Map.of("one", 1, "two", "2", "three", true, "four", Map.of("five", "55555"))));
 
     WireMockResponse response = testClient.get("/__admin/mappings/" + id);
 

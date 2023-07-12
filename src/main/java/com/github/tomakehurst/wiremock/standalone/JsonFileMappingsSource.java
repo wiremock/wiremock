@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,28 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
-import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.filter;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.google.common.base.Predicate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JsonFileMappingsSource implements MappingsSource {
 
   private final FileSource mappingsFileSource;
   private final Map<UUID, StubMappingFileMetadata> fileNameMap;
+  private final FilenameMaker filenameMaker;
 
-  public JsonFileMappingsSource(FileSource mappingsFileSource) {
+  public JsonFileMappingsSource(FileSource mappingsFileSource, FilenameMaker filenameMaker) {
     this.mappingsFileSource = mappingsFileSource;
+    this.filenameMaker = Objects.requireNonNullElseGet(filenameMaker, FilenameMaker::new);
     fileNameMap = new HashMap<>();
   }
 
@@ -53,7 +55,7 @@ public class JsonFileMappingsSource implements MappingsSource {
   public void save(StubMapping stubMapping) {
     StubMappingFileMetadata fileMetadata = fileNameMap.get(stubMapping.getId());
     if (fileMetadata == null) {
-      fileMetadata = new StubMappingFileMetadata(SafeNames.makeSafeFileName(stubMapping), false);
+      fileMetadata = new StubMappingFileMetadata(filenameMaker.filenameFor(stubMapping), false);
     }
 
     if (fileMetadata.multi) {
@@ -93,14 +95,7 @@ public class JsonFileMappingsSource implements MappingsSource {
   }
 
   private boolean anyFilesAreMultiMapping() {
-    return any(
-        fileNameMap.values(),
-        new Predicate<StubMappingFileMetadata>() {
-          @Override
-          public boolean apply(StubMappingFileMetadata input) {
-            return input.multi;
-          }
-        });
+    return fileNameMap.values().stream().anyMatch(input -> input.multi);
   }
 
   @Override
@@ -109,8 +104,10 @@ public class JsonFileMappingsSource implements MappingsSource {
       return;
     }
 
-    Iterable<TextFile> mappingFiles =
-        filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+    List<TextFile> mappingFiles =
+        mappingsFileSource.listFilesRecursively().stream()
+            .filter(byFileExtension("json"))
+            .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingCollection stubCollection =

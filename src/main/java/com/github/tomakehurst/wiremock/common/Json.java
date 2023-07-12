@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
 
@@ -46,6 +48,8 @@ public final class Json {
           objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
           objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
           objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+          objectMapper.registerModule(new JavaTimeModule());
+          objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
           return objectMapper;
         }
       };
@@ -149,5 +153,20 @@ public final class Json {
   public static <T> Map<String, Object> objectToMap(T theObject) {
     ObjectMapper mapper = getObjectMapper();
     return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
+  }
+
+  public static int schemaPropertyCount(JsonNode schema) {
+    int count = 0;
+    final JsonNode propertiesNode = schema.get("properties");
+    if (propertiesNode != null && !propertiesNode.isEmpty()) {
+      for (JsonNode property : propertiesNode) {
+        count++;
+        if (property.has("properties")) {
+          count += schemaPropertyCount(property);
+        }
+      }
+    }
+
+    return count;
   }
 }

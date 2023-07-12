@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,12 +102,12 @@ public class PathTemplate {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     PathTemplate that = (PathTemplate) o;
-    return Objects.equal(templateString, that.templateString);
+    return Objects.equals(templateString, that.templateString);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(templateString);
+    return Objects.hash(templateString);
   }
 }
 
@@ -156,7 +156,7 @@ class ParserBuilder {
 
   void addWildcard() {
     templatePattern.append("(.*?)");
-    templateVariables.add("" + wildcardCount++);
+    templateVariables.add(String.valueOf(wildcardCount++));
   }
 
   Parser build() {
@@ -213,13 +213,13 @@ class RendererBuilder {
   }
 
   void addWildcard() {
-    final String wildcardIndex = "" + wildcardCount++;
+    final String wildcardIndex = String.valueOf(wildcardCount++);
     class Wildcard implements Function<PathParams, String> {
       @Override
       public String apply(PathParams input) {
         String value = input.get(wildcardIndex);
         if (value == null) {
-          throw new IllegalArgumentException(format("Wildcard was not bound"));
+          throw new IllegalArgumentException("Wildcard was not bound");
         }
         return value;
       }

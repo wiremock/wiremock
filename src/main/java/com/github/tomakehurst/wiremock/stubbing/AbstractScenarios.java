@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
@@ -46,7 +46,8 @@ public abstract class AbstractScenarios implements Scenarios {
     if (mapping.isInScenario()) {
       String scenarioName = mapping.getScenarioName();
       Scenario scenario =
-          firstNonNull(store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
+          getFirstNonNull(
+                  store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
               .withStubMapping(mapping);
       store.put(scenarioName, scenario);
     }
@@ -72,7 +73,8 @@ public abstract class AbstractScenarios implements Scenarios {
     if (newMapping.isInScenario()) {
       String scenarioName = newMapping.getScenarioName();
       Scenario scenario =
-          firstNonNull(store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
+          getFirstNonNull(
+                  store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
               .withStubMapping(newMapping);
       store.put(scenarioName, scenario);
     }

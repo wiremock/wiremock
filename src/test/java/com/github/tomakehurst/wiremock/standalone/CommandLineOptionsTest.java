@@ -22,20 +22,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMu
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,10 +38,7 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -60,9 +46,8 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWire
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
-import com.google.common.base.Optional;
 import java.util.Collections;
-import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class CommandLineOptionsTest {
@@ -393,40 +378,28 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsExtensionsSpecifiedAsClassNames() {
-    CommandLineOptions options =
-        new CommandLineOptions(
-            "--extensions",
-            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt2,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1");
-    Map<String, ResponseDefinitionTransformer> extensions =
-        options.extensionsOfType(ResponseDefinitionTransformer.class);
-    assertThat(extensions.entrySet(), hasSize(2));
-    assertThat(
-        extensions.get("ResponseDefinitionTransformer_One"),
-        instanceOf(ResponseDefinitionTransformerExt1.class));
-    assertThat(
-        extensions.get("ResponseDefinitionTransformer_Two"),
-        instanceOf(ResponseDefinitionTransformerExt2.class));
-  }
-
-  @Test
   public void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--extensions",
             "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1");
-    Map<String, RequestMatcherExtension> extensions =
-        options.extensionsOfType(RequestMatcherExtension.class);
-    assertThat(extensions.entrySet(), hasSize(1));
-    assertThat(extensions.get("RequestMatcherExtension_One"), instanceOf(RequestExt1.class));
+
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    assertThat(extensionDeclarations.getClassNames(), hasSize(2));
+    assertThat(
+        extensionDeclarations.getClassNames(),
+        hasItems(
+            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1",
+            "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1"));
   }
 
   @Test
   public void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
     CommandLineOptions options = new CommandLineOptions();
-    Map<String, RequestMatcherExtension> extensions =
-        options.extensionsOfType(RequestMatcherExtension.class);
-    assertThat(extensions.entrySet(), hasSize(0));
+    ExtensionDeclarations extensionDeclarations = options.getDeclaredExtensions();
+
+    assertThat(extensionDeclarations.getClassNames(), hasSize(0));
   }
 
   @Test
@@ -440,19 +413,24 @@ public class CommandLineOptionsTest {
   @Test
   public void enablesGlobalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    assertThat(extensions.entrySet(), hasSize(1));
-    assertThat(extensions.get("response-template").applyGlobally(), is(true));
+    assertThat(options.getResponseTemplatingEnabled(), is(true));
+    assertThat(options.getResponseTemplatingGlobal(), is(true));
   }
 
   @Test
   public void enablesLocalResponseTemplating() {
     CommandLineOptions options = new CommandLineOptions("--local-response-templating");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    assertThat(extensions.entrySet(), hasSize(1));
-    assertThat(extensions.get("response-template").applyGlobally(), is(false));
+    assertThat(options.getResponseTemplatingEnabled(), is(true));
+    assertThat(options.getResponseTemplatingGlobal(), is(false));
+  }
+
+  @Test
+  public void configuresMaxTemplateCacheEntriesIfSpecified() {
+    CommandLineOptions options =
+        new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
+
+    assertThat(options.getResponseTemplatingGlobal(), is(true));
+    assertThat(options.getMaxTemplateCacheEntries(), is(5L));
   }
 
   @Test
@@ -514,38 +492,30 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void configuresMaxTemplateCacheEntriesIfSpecified() {
-    CommandLineOptions options =
-        new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
-
-    assertThat(transformer.getMaxCacheEntries(), is(5L));
-  }
-
-  @Test
-  public void configuresMaxTemplateCacheEntriesToNullIfNotSpecified() {
-    CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    Map<String, ResponseTemplateTransformer> extensions =
-        options.extensionsOfType(ResponseTemplateTransformer.class);
-    ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
-
-    assertThat(transformer.getMaxCacheEntries(), nullValue());
-  }
-
-  @Test
   public void configuresPermittedSystemKeysIfSpecified() {
     CommandLineOptions options =
         new CommandLineOptions(
             "--global-response-templating", "--permitted-system-keys", "java*,path*");
-    assertThat(options.getPermittedSystemKeys(), hasItems("java*", "path*"));
+    assertThat(options.getTemplatePermittedSystemKeys(), hasItems("java*", "path*"));
+  }
+
+  @Test
+  public void configureFileTemplatesWithRightFormat() {
+    CommandLineOptions options =
+        new CommandLineOptions("--filename-template={{{method}}}-{{{path}}}-{{{id}}}.json");
+    assertNotNull(options.getFilenameMaker());
+  }
+
+  @Test
+  public void configureFileTemplatesWithWrongFormat() {
+    assertThrows(
+        Exception.class, () -> new CommandLineOptions("--filename-template={{method}}}.json"));
   }
 
   @Test
   public void returnsEmptyPermittedKeysIfNotSpecified() {
     CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-    assertThat(options.getPermittedSystemKeys(), emptyCollectionOf(String.class));
+    assertThat(options.getTemplatePermittedSystemKeys(), emptyCollectionOf(String.class));
   }
 
   @Test
@@ -698,20 +668,6 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void returnsTheSameInstanceOfTemplatingExtensionForEveryInterfaceImplemented() {
-    CommandLineOptions options = new CommandLineOptions("--local-response-templating");
-
-    Object one =
-        options.extensionsOfType(StubLifecycleListener.class).get(ResponseTemplateTransformer.NAME);
-    Object two =
-        options
-            .extensionsOfType(ResponseDefinitionTransformer.class)
-            .get(ResponseTemplateTransformer.NAME);
-
-    assertSame(one, two);
-  }
-
-  @Test
   public void fileSourceDefaultsToSingleRootFileSource() {
     CommandLineOptions options = new CommandLineOptions();
 
@@ -804,7 +760,7 @@ public class CommandLineOptionsTest {
 
     assertThat(proxyTimeout, is(Options.DEFAULT_TIMEOUT));
   }
-  
+
   @Test
   void testProxyPassThroughOptionPassedAsFalse() {
     CommandLineOptions options = new CommandLineOptions("--proxy-pass-through", "false");

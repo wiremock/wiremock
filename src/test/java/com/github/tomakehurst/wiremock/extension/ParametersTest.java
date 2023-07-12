@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ import static org.hamcrest.Matchers.is;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
+import java.time.LocalDate;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class ParametersTest {
@@ -28,31 +29,38 @@ public class ParametersTest {
   @Test
   public void convertsParametersToAnObject() {
     MyData myData =
-        Parameters.from(ImmutableMap.<String, Object>of("name", "Tom", "num", 27)).as(MyData.class);
+        Parameters.from(Map.of("name", "Tom", "num", 27, "date", "2023-01-01")).as(MyData.class);
 
     assertThat(myData.getName(), is("Tom"));
     assertThat(myData.getNum(), is(27));
+    assertThat(myData.getDate(), is(LocalDate.of(2023, 1, 1)));
   }
 
   @Test
   public void convertsToParametersFromAnObject() {
-    MyData myData = new MyData("Mark", 12);
+    MyData myData = new MyData("Mark", 12, LocalDate.of(2023, 1, 1));
 
     Parameters parameters = Parameters.of(myData);
 
     assertThat(parameters.getString("name"), is("Mark"));
     assertThat(parameters.getInt("num"), is(12));
+    assertThat(parameters.getString("date"), is("2023-01-01"));
   }
 
   public static class MyData {
 
     private final String name;
     private final Integer num;
+    private final LocalDate date;
 
     @JsonCreator
-    public MyData(@JsonProperty("name") String name, @JsonProperty("num") Integer num) {
+    public MyData(
+        @JsonProperty("name") String name,
+        @JsonProperty("num") Integer num,
+        @JsonProperty("date") LocalDate date) {
       this.name = name;
       this.num = num;
+      this.date = date;
     }
 
     public String getName() {
@@ -61,6 +69,10 @@ public class ParametersTest {
 
     public Integer getNum() {
       return num;
+    }
+
+    public LocalDate getDate() {
+      return date;
     }
   }
 }

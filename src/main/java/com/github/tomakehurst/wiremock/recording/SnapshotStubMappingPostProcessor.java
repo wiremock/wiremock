@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
@@ -75,7 +76,8 @@ public class SnapshotStubMappingPostProcessor {
     // 3. Extract response bodies to a separate file, if applicable.
     extractStubMappingBodies(processedStubMappings);
 
-    return processedStubMappings;
+    // Run any stub mapping transformer extensions
+    return processedStubMappings.stream().map(transformerRunner).collect(Collectors.toList());
   }
   
   private void extractStubMappingBodies(List<StubMapping> stubMappings) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,7 @@ import java.util.UUID;
 
 public interface StubMappings {
 
-  ServeEvent serveFor(Request request);
+  ServeEvent serveFor(ServeEvent request);
 
   void addMapping(StubMapping mapping);
 

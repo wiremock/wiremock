@@ -37,8 +37,8 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -193,7 +193,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void supportsBodyExtractCriteria() throws Exception {
+  public void supportsBodyExtractCriteria() {
     targetService.stubFor(
         get("/small/text")
             .willReturn(aResponse().withHeader("Content-Type", "text/plain").withBody("123")));
@@ -230,13 +230,13 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(),
-        containsString("large_text"));
+        startsWith("large_text"));
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(),
         nullValue());
     assertThat(
         WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(),
-        containsString("large_binary"));
+        startsWith("large_binary"));
   }
 
   @Test
@@ -281,10 +281,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
             recordSpec()
                 .transformers("test-transformer")
                 .transformerParameters(
-                    Parameters.from(
-                        ImmutableMap.<String, Object>of(
-                            "headerKey", "X-Key",
-                            "headerValue", "My value"))));
+                    Parameters.from(Map.of("headerKey", "X-Key", "headerValue", "My value"))));
 
     assertThat(
         mappings.get(0).getResponse().getHeaders().getHeader("X-Key").firstValue(), is("My value"));

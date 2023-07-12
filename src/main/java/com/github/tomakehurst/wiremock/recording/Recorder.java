@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,37 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Recorder {
 
   private final Admin admin;
+  private final Extensions extensions;
+  private final BlobStore filesBlobStore;
 
   private final RecorderStateStore stateStore;
 
-  public Recorder(Admin admin, RecorderStateStore stateStore) {
+  public Recorder(
+      Admin admin, Extensions extensions, BlobStore filesBlobStore, RecorderStateStore stateStore) {
     this.admin = admin;
+    this.extensions = extensions;
+    this.filesBlobStore = filesBlobStore;
     this.stateStore = stateStore;
   }
 
@@ -88,8 +93,8 @@ public class Recorder {
     int startIndex =
         state.getStartingServeEventId() == null
             ? serveEvents.size()
-            : indexOf(serveEvents, withId(state.getStartingServeEventId()));
-    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId()));
+            : indexOf(serveEvents, withId(state.getStartingServeEventId())::test);
+    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId())::test);
     List<ServeEvent> eventsToSnapshot = serveEvents.subList(endIndex, startIndex);
 
     SnapshotRecordResult result = takeSnapshot(eventsToSnapshot, state.getSpec());
@@ -99,12 +104,7 @@ public class Recorder {
   }
 
   private static Predicate<ServeEvent> withId(final UUID id) {
-    return new Predicate<ServeEvent>() {
-      @Override
-      public boolean apply(ServeEvent input) {
-        return input.getId().equals(id);
-      }
-    };
+    return input -> input.getId().equals(id);
   }
 
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
@@ -114,7 +114,7 @@ public class Recorder {
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),
-            getStubMappingPostProcessor(admin.getOptions(), recordSpec));
+            getStubMappingPostProcessor(recordSpec));
 
     for (StubMapping stubMapping : stubMappings) {
       if (recordSpec.shouldPersist()) {
@@ -131,18 +131,19 @@ public class Recorder {
       ProxiedServeEventFilters serveEventFilters,
       SnapshotStubMappingGenerator stubMappingGenerator,
       SnapshotStubMappingPostProcessor stubMappingPostProcessor) {
-    final Iterable<StubMapping> stubMappings =
-        from(serveEventsResult).filter(serveEventFilters).transform(stubMappingGenerator);
+    final List<StubMapping> stubMappings =
+        serveEventsResult.stream()
+            .filter(serveEventFilters)
+            .map(stubMappingGenerator)
+            .collect(Collectors.toList());
 
     return stubMappingPostProcessor.process(stubMappings);
   }
 
-  public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(
-      Options options, RecordSpec recordSpec) {
-    final BlobStore filesBlobStore = options.getStores().getFilesBlobStore();
+  public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(RecordSpec recordSpec) {
     final SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(
-            options.extensionsOfType(StubMappingTransformer.class).values(),
+            extensions.ofType(StubMappingTransformer.class).values(),
             recordSpec.getTransformers(),
             recordSpec.getTransformerParameters(),
             filesBlobStore);
