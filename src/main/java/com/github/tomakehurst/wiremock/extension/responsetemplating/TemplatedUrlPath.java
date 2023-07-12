@@ -30,7 +30,7 @@ public class TemplatedUrlPath extends LinkedHashMap<String, String> implements I
   public TemplatedUrlPath(String url, PathTemplate pathTemplate) {
     this.originalPath = URI.create(url).getPath();
     addAllPathSegments();
-    putAll(pathTemplate.parse(url));
+    putAll(pathTemplate.parse(originalPath));
   }
 
   private void addAllPathSegments() {

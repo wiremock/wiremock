@@ -22,8 +22,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Lists.transform;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +40,7 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,7 +71,9 @@ public class StubMappingJsonRecorderTest {
             mappingsBlobStore,
             filesBlobStore,
             admin,
-            transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+            headersToRecord.stream()
+                .map(TO_CASE_INSENSITIVE_KEYS)
+                .collect(Collectors.toUnmodifiableList()));
     listener.setIdGenerator(fixedIdGenerator("1$2!3"));
   }
 

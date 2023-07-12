@@ -1,0 +1,16 @@
+{
+  "#ref": "#/schemas/Person",
+  "schemas": {
+    "Person": {
+      "name": {
+        "type": "string"
+      },
+      "children": {
+        "type": "array",
+        "items": {
+          "#ref": "#/schemas/Person"
+        }
+      }
+    }
+  }
+}

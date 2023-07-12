@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,15 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 public class SnapshotStubMappingPostProcessorTest {
-    // NOTE: testStubMappings is not deeply immutable, as StubMappings are mutable, and to preserve hermeticity must be
-    // an instance rather than a class variable.
-  private final List<StubMapping> testStubMappings =
+
+  // NOTE: testStubMappings is not deeply immutable, as StubMappings are mutable, and to preserve hermeticity must be
+  // an instance rather than a class variable.
+  private static final List<StubMapping> TEST_STUB_MAPPINGS =
       ImmutableList.of(
           WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
 

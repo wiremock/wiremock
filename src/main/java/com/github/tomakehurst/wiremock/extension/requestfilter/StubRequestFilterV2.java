@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.extension.requestfilter;
 
-import com.google.common.io.BaseEncoding;
-
-public class GuavaBase64Encoder implements Base64Encoder {
+public interface StubRequestFilterV2 extends RequestFilterV2 {
 
   @Override
-  public String encode(byte[] content) {
-    return encode(content, true);
+  default boolean applyToAdmin() {
+    return false;
   }
 
   @Override
-  public String encode(byte[] content, boolean padding) {
-    BaseEncoding encoder = BaseEncoding.base64();
-    if (!padding) {
-      encoder = encoder.omitPadding();
-    }
-    return encoder.encode(content);
-  }
-
-  @Override
-  public byte[] decode(String base64) {
-    return BaseEncoding.base64().decode(base64);
+  default boolean applyToStubs() {
+    return true;
   }
 }

@@ -26,8 +26,6 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +46,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
-    RequestJournal journal = new InMemoryRequestJournal(Optional.absent(), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(null, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent1);
@@ -64,7 +62,7 @@ public class InMemoryRequestJournalTest {
   public void resettingTheJournalClearsAllEntries() throws Exception {
     LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
-    RequestJournal journal = new InMemoryRequestJournal(Optional.of(1), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(1, NO_CUSTOM_MATCHERS);
     journal.requestReceived(ServeEvent.of(loggedRequest));
     assertThat(journal.countRequestsMatching(everything()), is(1));
     journal.reset();
@@ -73,7 +71,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
-    RequestJournal journal = new InMemoryRequestJournal(Optional.of(2), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(2, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);
@@ -90,8 +88,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void matchesRequestWithCustomMatcherDefinition() throws Exception {
-    RequestJournal journal =
-        new InMemoryRequestJournal(Optional.absent(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));
+    RequestJournal journal = new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);

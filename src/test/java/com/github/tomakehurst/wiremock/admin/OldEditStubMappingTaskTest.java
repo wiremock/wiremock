@@ -21,13 +21,13 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.admin.tasks.OldEditStubMappingTask;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MockRequest;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.HttpURLConnection;
 import org.junit.jupiter.api.Test;
@@ -37,25 +37,26 @@ public class OldEditStubMappingTaskTest {
   private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
   private Admin mockAdmin = mock(Admin.class);
-  private Request mockRequest = mock(Request.class);
 
   private OldEditStubMappingTask editStubMappingTask = new OldEditStubMappingTask();
 
   @Test
   public void delegatesSavingMappingsToAdmin() {
-    when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
-
-    editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
+    editStubMappingTask.execute(
+        mockAdmin,
+        ServeEvent.of(MockRequest.mockRequest().body(buildJsonStringFor(MOCK_MAPPING))),
+        PathParams.empty());
 
     verify(mockAdmin).editStubMapping(any(StubMapping.class));
   }
 
   @Test
   public void returnsNoContentResponse() {
-    when(mockRequest.getBodyAsString()).thenReturn(buildJsonStringFor(MOCK_MAPPING));
-
     ResponseDefinition response =
-        editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
+        editStubMappingTask.execute(
+            mockAdmin,
+            ServeEvent.of(MockRequest.mockRequest().body(buildJsonStringFor(MOCK_MAPPING))),
+            PathParams.empty());
 
     assertThat(response.getStatus(), is(HttpURLConnection.HTTP_NO_CONTENT));
     verify(mockAdmin).editStubMapping(any(StubMapping.class));

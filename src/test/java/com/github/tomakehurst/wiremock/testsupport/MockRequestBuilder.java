@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,10 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newLinkedHashSet;
 import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.http.*;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.mockito.Mockito;
 
 public class MockRequestBuilder {
@@ -34,12 +28,14 @@ public class MockRequestBuilder {
   private String url = "/";
   private RequestMethod method = GET;
   private String clientIp = "x.x.x.x";
-  private List<HttpHeader> individualHeaders = newArrayList();
-  private Map<String, Cookie> cookies = newHashMap();
-  private List<QueryParameter> queryParameters = newArrayList();
+  private List<HttpHeader> individualHeaders = new ArrayList<>();
+  private Map<String, Cookie> cookies = new HashMap<>();
+  private List<QueryParameter> queryParameters = new ArrayList<>();
+
+  private List<FormParameter> formParameters = new ArrayList<>();
   private String body = "";
   private String bodyAsBase64 = "";
-  private Collection<Request.Part> multiparts = newArrayList();
+  private Collection<Request.Part> multiparts = new ArrayList<>();
   private String protocol = "HTTP/1.1";
 
   private boolean browserProxyRequest = false;
@@ -66,6 +62,11 @@ public class MockRequestBuilder {
 
   public MockRequestBuilder withQueryParameter(String key, String... values) {
     queryParameters.add(new QueryParameter(key, Arrays.asList(values)));
+    return this;
+  }
+
+  public MockRequestBuilder withFormParameter(String key, String... values) {
+    formParameters.add(new FormParameter(key, Arrays.asList(values)));
     return this;
   }
 
@@ -138,10 +139,14 @@ public class MockRequestBuilder {
       when(request.queryParameter(queryParameter.key())).thenReturn(queryParameter);
     }
 
+    for (FormParameter formParameter : formParameters) {
+      when(request.formParameter(formParameter.key())).thenReturn(formParameter);
+    }
+
     when(request.header(Mockito.any(String.class))).thenReturn(httpHeader("key", "value"));
 
     when(request.getHeaders()).thenReturn(headers);
-    when(request.getAllHeaderKeys()).thenReturn(newLinkedHashSet(headers.keys()));
+    when(request.getAllHeaderKeys()).thenReturn(new LinkedHashSet<>(headers.keys()));
     when(request.containsHeader(Mockito.any(String.class))).thenReturn(false);
     when(request.getCookies()).thenReturn(cookies);
     when(request.getBody()).thenReturn(body.getBytes());

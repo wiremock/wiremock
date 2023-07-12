@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -69,7 +69,8 @@ public class MassiveNearMissTest {
       if (i > drop) sum += time;
     }
 
-    System.out.printf("Times:\n%s\n", Joiner.on("\n").join(times));
+    System.out.printf(
+        "Times:\n%s\n", times.stream().map(Object::toString).collect(Collectors.joining("\n")));
     long mean = sum / (reps - drop);
     System.out.printf("Mean: %dms\n", mean);
   }
@@ -122,7 +123,8 @@ public class MassiveNearMissTest {
       if (i > drop) sum += time;
     }
 
-    System.out.printf("Times:\n%s\n", Joiner.on("\n").join(times));
+    System.out.printf(
+        "Times:\n%s\n", times.stream().map(Object::toString).collect(Collectors.joining("\n")));
     long mean = sum / (reps - drop);
     System.out.printf("Mean: %dms\n", mean);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 public class CaseInsensitiveKey {
 
@@ -67,9 +67,5 @@ public class CaseInsensitiveKey {
   }
 
   public static final Function<String, CaseInsensitiveKey> TO_CASE_INSENSITIVE_KEYS =
-      new Function<String, CaseInsensitiveKey>() {
-        public CaseInsensitiveKey apply(String input) {
-          return from(input);
-        }
-      };
+      CaseInsensitiveKey::from;
 }

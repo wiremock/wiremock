@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.*;
 
 public class TrailingSlashFilter implements Filter {
@@ -44,8 +45,8 @@ public class TrailingSlashFilter implements Filter {
   private static class StatusAndRedirectExposingHttpServletResponse
       extends HttpServletResponseWrapper {
 
-    private String path;
-    private HttpServletRequest request;
+    private final String path;
+    private final HttpServletRequest request;
 
     public StatusAndRedirectExposingHttpServletResponse(
         HttpServletResponse response, String path, HttpServletRequest request) {
@@ -84,12 +85,10 @@ public class TrailingSlashFilter implements Filter {
   private String getRequestPathFrom(HttpServletRequest httpServletRequest) throws ServletException {
     try {
       String fullPath =
-          new URI(URLEncoder.encode(httpServletRequest.getRequestURI(), "utf-8")).getPath();
+          new URI(URLEncoder.encode(httpServletRequest.getRequestURI(), UTF_8)).getPath();
       String pathWithoutContext = fullPath.substring(httpServletRequest.getContextPath().length());
-      return URLDecoder.decode(pathWithoutContext, "utf-8");
+      return URLDecoder.decode(pathWithoutContext, UTF_8);
     } catch (URISyntaxException e) {
-      throw new ServletException(e);
-    } catch (UnsupportedEncodingException e) {
       throw new ServletException(e);
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.SubEvent.WARNING;
+import static com.github.tomakehurst.wiremock.testsupport.ServeEventChecks.checkMessage;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,10 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.JsonException;
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -104,10 +104,19 @@ public class MatchesJsonPathPatternTest {
     Notifier notifier = setMockNotifier();
 
     StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
-    assertFalse(pattern.match("Not a JSON document").isExactMatch(), "Expected the match to fail");
-    verify(notifier)
-        .info(
-            "Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
+    MatchResult match = pattern.match("Not a JSON document");
+
+    assertFalse(match.isExactMatch(), "Expected the match to fail");
+    checkWarningMessageAndEvent(
+        notifier,
+        match,
+        "Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
+  }
+
+  private static void checkWarningMessageAndEvent(
+      Notifier notifier, MatchResult match, String warningMessage) {
+    verify(notifier).info(warningMessage);
+    checkMessage(match, WARNING, warningMessage);
   }
 
   @Test
@@ -115,10 +124,39 @@ public class MatchesJsonPathPatternTest {
     Notifier notifier = setMockNotifier();
 
     StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
-    assertFalse(pattern.match("{ \"nothing\": 1 }").isExactMatch(), "Expected the match to fail");
-    verify(notifier)
-        .info(
-            "Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
+    MatchResult matchResult = pattern.match("{ \"nothing\": 1 }");
+
+    assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
+    checkWarningMessageAndEvent(
+        notifier,
+        matchResult,
+        "Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
+  }
+
+  @Test
+  void notifiesWhenMatchingBeingSkippedDueToContentProbablyBeingXml() {
+    Notifier notifier = setMockNotifier();
+
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
+    MatchResult matchResult = pattern.match("<xml-stuff />");
+
+    assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
+    checkWarningMessageAndEvent(
+        notifier,
+        matchResult,
+        "Warning: JSON path expression '$.something' failed to match document '<xml-stuff />' because it's not JSON but probably XML");
+  }
+
+  @Test
+  void subEventsReturnedBySubMatchersAreAddedToServeEvent() {
+    StringValuePattern pattern =
+        WireMock.matchingJsonPath("$.something", WireMock.equalToJson("{}"));
+    MatchResult matchResult = pattern.match("{ \"something\": \"{ \\\"bad:\" }");
+
+    assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
+    ServeEventChecks.checkJsonError(
+        matchResult,
+        "Unexpected end-of-input in field name\n at [Source: (String)\"{ \"bad:\"; line: 1, column: 8]");
   }
 
   @Test
@@ -420,6 +458,25 @@ public class MatchesJsonPathPatternTest {
             .match(json);
 
     assertTrue(result.isExactMatch());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    MatchesJsonPathPattern a =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
+    MatchesJsonPathPattern b =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
+    MatchesJsonPathPattern c =
+        new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '1234')].date");
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 
   private static Notifier setMockNotifier() {
