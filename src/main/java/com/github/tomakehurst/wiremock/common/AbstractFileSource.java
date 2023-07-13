@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.common;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -172,7 +172,7 @@ public abstract class AbstractFileSource implements FileSource {
   private void writeTextFileAndTranslateExceptions(String contents, File toFile) {
     try {
       ensureDirectoryExists(toFile);
-      Files.asCharSink(toFile, UTF_8).write(contents);
+      Files.write(toFile.toPath(), contents.getBytes(UTF_8));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -181,7 +181,7 @@ public abstract class AbstractFileSource implements FileSource {
   private void writeBinaryFileAndTranslateExceptions(byte[] contents, File toFile) {
     try {
       ensureDirectoryExists(toFile);
-      Files.write(contents, toFile);
+      Files.write(toFile.toPath(), contents);
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }

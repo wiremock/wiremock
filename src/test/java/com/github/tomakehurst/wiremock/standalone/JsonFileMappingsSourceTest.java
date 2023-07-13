@@ -32,8 +32,10 @@ import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StoreBackedStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.io.Files;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.io.FileUtils;
@@ -57,13 +59,19 @@ class JsonFileMappingsSourceTest {
 
   private void configureWithMultipleMappingFile() throws Exception {
     stubMappingFile = File.createTempFile("multi", ".json", tempDir);
-    Files.copy(new File(filePath("multi-stub/multi.json")), stubMappingFile);
+    Files.copy(
+        Paths.get(filePath("multi-stub/multi.json")),
+        stubMappingFile.toPath(),
+        StandardCopyOption.REPLACE_EXISTING);
     load();
   }
 
   private void configureWithSingleMappingFile() throws Exception {
     stubMappingFile = File.createTempFile("single", ".json", tempDir);
-    Files.copy(new File(filePath("multi-stub/single.json")), stubMappingFile);
+    Files.copy(
+        Paths.get(filePath("multi-stub/single.json")),
+        stubMappingFile.toPath(),
+        StandardCopyOption.REPLACE_EXISTING);
     load();
   }
 

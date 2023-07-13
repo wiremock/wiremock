@@ -49,10 +49,10 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-class Examples extends AcceptanceTestBase {
+public class Examples extends AcceptanceTestBase {
 
   @Test
-  void exactUrlOnly() {
+  public void exactUrlOnly() {
     stubFor(
         get(urlEqualTo("/some/thing"))
             .willReturn(
@@ -63,12 +63,12 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void urlRegexMatch() {
+  public void urlRegexMatch() {
     stubFor(put(urlMatching("/thing/matching/[0-9]+")).willReturn(aResponse().withStatus(200)));
   }
 
   @Test
-  void headerMatching() {
+  public void headerMatching() {
     stubFor(
         post(urlEqualTo("/with/headers"))
             .withHeader("Content-Type", equalTo("text/xml"))
@@ -79,7 +79,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void bodyMatching() {
+  public void bodyMatching() {
     stubFor(
         post(urlEqualTo("/with/body"))
             .withRequestBody(matching("<status>OK</status>"))
@@ -88,7 +88,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void binaryBodyMatchingByteArray() {
+  public void binaryBodyMatchingByteArray() {
     stubFor(
         post(urlEqualTo("/with/body"))
             .withRequestBody(binaryEqualTo(new byte[] {1, 2, 3}))
@@ -96,12 +96,12 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void binaryBodyMatchingBase64() {
+  public void binaryBodyMatchingBase64() {
     stubFor(post(urlEqualTo("/with/body")).withRequestBody(binaryEqualTo("AQID")).willReturn(ok()));
   }
 
   @Test
-  void multipartBodyMatchingBase64() {
+  public void multipartBodyMatchingBase64() {
     stubFor(
         post(urlEqualTo("/with/multipart"))
             .withMultipartRequestBody(aMultipart().withBody(binaryEqualTo("Content")))
@@ -109,7 +109,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void priorities() {
+  public void priorities() {
 
     // Catch-all case
     stubFor(get(urlMatching("/api/.*")).atPriority(5).willReturn(aResponse().withStatus(401)));
@@ -122,7 +122,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void responseHeaders() {
+  public void responseHeaders() {
     stubFor(
         get(urlEqualTo("/whatever"))
             .willReturn(
@@ -133,19 +133,19 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void bodyFile() {
+  public void bodyFile() {
     stubFor(
         get(urlEqualTo("/body-file")).willReturn(aResponse().withBodyFile("path/to/myfile.xml")));
   }
 
   @Test
-  void binaryBody() {
+  public void binaryBody() {
     stubFor(
         get(urlEqualTo("/binary-body")).willReturn(aResponse().withBody(new byte[] {1, 2, 3, 4})));
   }
 
   @Test
-  void verifyAtLeastOnce() {
+  public void verifyAtLeastOnce() {
     assertThrows(
         VerificationException.class,
         () -> {
@@ -158,7 +158,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void verifyWithoutHeader() {
+  public void verifyWithoutHeader() {
     assertThrows(
         VerificationException.class,
         () -> {
@@ -167,19 +167,30 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void findingRequests() {
+  public void verifyWithoutQueryParam() {
+    assertThrows(
+        VerificationException.class,
+        () -> {
+          verify(
+              getRequestedFor(urlPathEqualTo("without/queryParam"))
+                  .withoutQueryParam("test-param"));
+        });
+  }
+
+  @Test
+  public void findingRequests() {
     List<LoggedRequest> requests = findAll(putRequestedFor(urlMatching("/api/.*")));
   }
 
   @Test
-  void proxying() {
+  public void proxying() {
     stubFor(
         get(urlMatching("/other/service/.*"))
             .willReturn(aResponse().proxiedFrom("http://otherhost.com/approot")));
   }
 
   @Test
-  void proxyIntercept() {
+  public void proxyIntercept() {
     // Low priority catch-all proxies to otherhost.com by default
     stubFor(
         get(urlMatching(".*"))
@@ -193,7 +204,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void toDoListScenario() {
+  public void toDoListScenario() {
     stubFor(
         get(urlEqualTo("/todo/items"))
             .inScenario("To do list")
@@ -235,20 +246,20 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void delay() {
+  public void delay() {
     stubFor(
         get(urlEqualTo("/delayed")).willReturn(aResponse().withStatus(200).withFixedDelay(2000)));
   }
 
   @Test
-  void fault() {
+  public void fault() {
     stubFor(
         get(urlEqualTo("/fault"))
             .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
   }
 
   @Test
-  void xpath() {
+  public void xpath() {
     stubFor(
         put(urlEqualTo("/xpath"))
             .withRequestBody(matchingXPath("/todo-list[count(todo-item) = 3]"))
@@ -256,7 +267,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void xpathWithNamespaces() {
+  public void xpathWithNamespaces() {
     stubFor(
         put(urlEqualTo("/namespaced/xpath"))
             .withRequestBody(
@@ -266,7 +277,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void advancedXPathMatching() {
+  public void advancedXPathMatching() {
     stubFor(
         put(urlEqualTo("/xpath"))
             .withRequestBody(matchingXPath("//todo-item/text()", containing("wash")))
@@ -274,7 +285,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void advancedJSONPathMatching() {
+  public void advancedJSONPathMatching() {
     stubFor(
         put(urlEqualTo("/jsonpath"))
             .withRequestBody(matchingJsonPath("$..todoItem", containing("wash")))
@@ -282,7 +293,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void advancedJSONPathMatchingWithObject() {
+  public void advancedJSONPathMatchingWithObject() {
     System.out.println(
         matchingJsonPath("$.outer", equalToJson("{\n" + "        \"inner\": 42\n" + "    }"))
             .match("{\n" + "    \"outer\": {\n" + "        \"inner\": 42\n" + "    }\n" + "}")
@@ -290,7 +301,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void transformerParameters() {
+  public void transformerParameters() {
     stubFor(
         get(urlEqualTo("/transform"))
             .willReturn(
@@ -308,7 +319,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void transformerWithParameters() {
+  public void transformerWithParameters() {
     stubFor(
         get(urlEqualTo("/transform"))
             .willReturn(aResponse().withTransformer("body-transformer", "newValue", 66)));
@@ -320,7 +331,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void customMatcherName() {
+  public void customMatcherName() {
     stubFor(
         requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
             .willReturn(aResponse().withStatus(422)));
@@ -332,7 +343,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void customMatcher() {
+  public void customMatcher() {
     wireMockServer.stubFor(
         requestMatching(
                 new RequestMatcherExtension() {
@@ -345,7 +356,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void tmp() {
+  public void tmp() {
     System.out.println(
         Json.write(
             any(urlPathEqualTo("/everything"))
@@ -380,7 +391,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void removeStubMapping() {
+  public void removeStubMapping() {
     StubMapping stubMapping =
         stubFor(get(urlEqualTo("/delete-me")).willReturn(aResponse().withStatus(200)));
     assertThat(testClient.get("/delete-me").statusCode(), is(200));
@@ -390,12 +401,12 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void servedStubs() {
+  public void servedStubs() {
     List<ServeEvent> allServeEvents = getAllServeEvents();
   }
 
   @Test
-  void configuration() {
+  public void configuration() {
     WireMockConfiguration.options()
         // Statically set the HTTP port number. Defaults to 8080.
         .port(8000)
@@ -487,7 +498,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void abbreviatedDsl() {
+  public void abbreviatedDsl() {
     stubFor(get("/some/thing").willReturn(aResponse().withStatus(200)));
 
     stubFor(delete("/fine").willReturn(ok()));
@@ -520,7 +531,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void recordingDsl() {
+  public void recordingDsl() {
     startRecording(
         recordSpec()
             .forTarget("http://example.mocklab.io")
@@ -553,7 +564,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void snapshotDsl() {
+  public void snapshotDsl() {
     snapshotRecord(
         recordSpec()
             .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
@@ -587,7 +598,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void customAndStandardMatcherJson() {
+  public void customAndStandardMatcherJson() {
     System.out.println(
         Json.write(
             get(urlPathMatching("/the/.*/one"))
@@ -597,7 +608,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void dates() {
+  public void dates() {
     stubFor(
         post("/dates")
             .withHeader("X-Munged-Date", beforeNow().expectedOffset(3, DateTimeUnit.DAYS))
@@ -624,7 +635,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void logicalAnd() {
+  public void logicalAnd() {
     stubFor(
         get(urlPathEqualTo("/and"))
             .withHeader("X-Some-Value", and(matching("[a-z]+"), containing("magicvalue")))
@@ -644,7 +655,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void logicalOr() {
+  public void logicalOr() {
     stubFor(
         get(urlPathEqualTo("/or"))
             .withQueryParam("search", or(matching("[a-z]+"), absent()))
@@ -664,7 +675,7 @@ class Examples extends AcceptanceTestBase {
   }
 
   @Test
-  void jsonPathAndDates() {
+  public void jsonPathAndDates() {
     stubFor(
         post("/date-range")
             .withRequestBody(
