@@ -1,0 +1,88 @@
+type: object
+example:
+  bodyPatterns:
+    - equalToJson: '{ "numbers": [1, 2, 3] }'
+  headers:
+    Content-Type:
+      equalTo: application/json
+  method: POST
+  url: /some/thing
+properties:
+  scheme:
+    type: string
+    description: The URI scheme
+  host:
+    type: object
+    description: 'URI host pattern to match against in the "<predicate>": "<value>" form'
+  port:
+    type: integer
+    description: The HTTP port number
+  method:
+    type: string
+    description: The HTTP request method e.g. GET
+  url:
+    type: string
+    description: The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPath:
+    type: string
+    description: The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPathPattern:
+    type: string
+    description: The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  urlPattern:
+    type: string
+    description: The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.
+  queryParameters:
+    type: object
+    description: 'Query parameter patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+  headers:
+    type: object
+    description: 'Header patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+  basicAuthCredentials:
+    type: object
+    description: Pre-emptive basic auth credentials to match against
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+      - username
+      - password
+  cookies:
+    type: object
+    description: 'Cookie patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+  bodyPatterns:
+    type: array
+    description: 'Request body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
+    items:
+      type: object
+  customMatcher:
+    type: object
+    description: Custom request matcher to match against
+    properties:
+      name:
+        type: string
+        description: The matcher's name specified in the implementation of the matcher.
+      parameters:
+        type: object
+  multipartPatterns:
+    type: array
+    description: Multipart patterns to match against headers and body
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        matchingType:
+          type: string
+          default: ANY
+          enum:
+            - ALL
+            - ANY
+        headers:
+          type: object
+        bodyPatterns:
+          type: array
+          items:
+            type: object

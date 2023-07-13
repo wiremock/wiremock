@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,123 +15,120 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.mockito.Mockito;
 
-import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-@RunWith(JMock.class)
 public class StubResponseRendererTest {
-    private static final int EXECUTE_WITHOUT_SLEEP_MILLIS = 100;
+  private static final int TEST_TIMEOUT = 500;
 
-    private Mockery context;
-    private FileSource fileSource;
-    private GlobalSettingsHolder globalSettingsHolder;
-    private List<ResponseTransformer> responseTransformers;
-    private StubResponseRenderer stubResponseRenderer;
+  private BlobStore filesBlobStore;
+  private SettingsStore settingsStore;
+  private List<ResponseTransformer> responseTransformers;
+  private List<ResponseTransformerV2> v2ResponseTransformers;
+  private StubResponseRenderer stubResponseRenderer;
 
-    @Before
-    public void init() {
-        context = new Mockery();
-        fileSource = context.mock(FileSource.class);
-        globalSettingsHolder = new GlobalSettingsHolder();
-        responseTransformers = new ArrayList<>();
-        stubResponseRenderer = new StubResponseRenderer(fileSource, globalSettingsHolder, null, responseTransformers);
-    }
+  @BeforeEach
+  public void init() {
+    filesBlobStore = Mockito.mock(BlobStore.class);
+    settingsStore = new InMemorySettingsStore();
+    responseTransformers = new ArrayList<>();
+    v2ResponseTransformers = new ArrayList<>();
+    stubResponseRenderer =
+        new StubResponseRenderer(
+            filesBlobStore, settingsStore, null, responseTransformers, v2ResponseTransformers);
+  }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
-    public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
-        globalSettingsHolder.get().setFixedDelay(1000);
+  @Test
+  @Timeout(TEST_TIMEOUT)
+  public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
-        Response response = stubResponseRenderer.render(createServeEvent(100));
+    Response response = stubResponseRenderer.render(createServeEvent(100));
 
-        assertThat(response.getInitialDelay(), is(100L));
-    }
+    assertThat(response.getInitialDelay(), is(100L));
+  }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
-    public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
-        globalSettingsHolder.get().setFixedDelay(1000);
+  @Test
+  @Timeout(TEST_TIMEOUT)
+  public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
-        Response response = stubResponseRenderer.render(createServeEvent(null));
+    Response response = stubResponseRenderer.render(createServeEvent(null));
 
-        assertThat(response.getInitialDelay(), is(1000L));
-    }
+    assertThat(response.getInitialDelay(), is(1000L));
+  }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
-    public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
-        globalSettingsHolder.get().setFixedDelay(1000);
+  @Test
+  @Timeout(TEST_TIMEOUT)
+  public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
-        Response response = stubResponseRenderer.render(createServeEvent(null));
+    Response response = stubResponseRenderer.render(createServeEvent(null));
 
-        assertThat(response.getInitialDelay(), is(1000L));
-    }
+    assertThat(response.getInitialDelay(), is(1000L));
+  }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
-    public void shouldSetEndpointFixedDelayOnResponse() throws Exception {
-        Response response = stubResponseRenderer.render(createServeEvent(2000));
+  @Test
+  public void shouldSetEndpointFixedDelayOnResponse() throws Exception {
+    Response response = stubResponseRenderer.render(createServeEvent(2000));
 
-        assertThat(response.getInitialDelay(), is(2000L));
-    }
+    assertThat(response.getInitialDelay(), is(2000L));
+  }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
-    public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
-        globalSettingsHolder.get().setDelayDistribution(new DelayDistribution() {
-            @Override
-            public long sampleMillis() {
-                return 123;
-            }
-        });
+  @Test
+  @Timeout(TEST_TIMEOUT)
+  public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
+    settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
 
-        Response response = stubResponseRenderer.render(createServeEvent(null));
+    Response response = stubResponseRenderer.render(createServeEvent(null));
 
-        assertThat(response.getInitialDelay(), is(123L));
-    }
+    assertThat(response.getInitialDelay(), is(123L));
+  }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
-    public void shouldCombineFixedDelayDistributionDelay() throws Exception {
-        globalSettingsHolder.get().setDelayDistribution(new DelayDistribution() {
-            @Override
-            public long sampleMillis() {
-                return 123;
-            }
-        });
-        Response response = stubResponseRenderer.render(createServeEvent(2000));
-        assertThat(response.getInitialDelay(), is(2123L));
-    }
+  @Test
+  @Timeout(TEST_TIMEOUT)
+  public void shouldCombineFixedDelayDistributionDelay() throws Exception {
+    settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
+    Response response = stubResponseRenderer.render(createServeEvent(2000));
+    assertThat(response.getInitialDelay(), is(2123L));
+  }
 
-    private ServeEvent createServeEvent(Integer fixedDelayMillis) {
-        return ServeEvent.of(LoggedRequest.createFrom(mockRequest()),
-            new ResponseDefinition(
-                    0,
-                    "",
-                    "",
-                    null,
-                    "",
-                    "",
-                    null,
-                    null,
-                    fixedDelayMillis,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    true
-            )
-        );
-    }
+  private ServeEvent createServeEvent(Integer fixedDelayMillis) {
+    return newPostMatchServeEvent(
+        mockRequest(),
+        new ResponseDefinition(
+            0,
+            "",
+            "",
+            null,
+            "",
+            "",
+            null,
+            null,
+            fixedDelayMillis,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true));
+  }
 }

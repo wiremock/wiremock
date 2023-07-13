@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,70 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
-
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ScenarioMappingBuilder extends MappingBuilder {
 
-    ScenarioMappingBuilder whenScenarioStateIs(String stateName);
-    ScenarioMappingBuilder willSetStateTo(String stateName);
+  ScenarioMappingBuilder whenScenarioStateIs(String stateName);
 
-    ScenarioMappingBuilder atPriority(Integer priority);
-    ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
-    ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
-    ScenarioMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
-    ScenarioMappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
-    ScenarioMappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
-    ScenarioMappingBuilder inScenario(String scenarioName);
-    ScenarioMappingBuilder withId(UUID id);
-    ScenarioMappingBuilder persistent();
-    ScenarioMappingBuilder withBasicAuth(String username, String password);
-    ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+  ScenarioMappingBuilder willSetStateTo(String stateName);
 
-    <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+  ScenarioMappingBuilder atPriority(Integer priority);
 
-    ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
-    ScenarioMappingBuilder withMetadata(Metadata metadata);
-    ScenarioMappingBuilder withMetadata(Metadata.Builder metadata);
+  ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
 
-    ScenarioMappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
+  ScenarioMappingBuilder withHeader(String key, MultiValuePattern headerPattern);
 
-    ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
+  ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+
+  ScenarioMappingBuilder withQueryParam(String key, MultiValuePattern queryParamPattern);
+
+  ScenarioMappingBuilder withFormParam(String key, StringValuePattern formParamPattern);
+
+  ScenarioMappingBuilder withFormParam(String key, MultiValuePattern formParamPattern);
+
+  ScenarioMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
+
+  ScenarioMappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
+
+  ScenarioMappingBuilder withMultipartRequestBody(
+      MultipartValuePatternBuilder multipartPatternBuilder);
+
+  ScenarioMappingBuilder inScenario(String scenarioName);
+
+  ScenarioMappingBuilder withId(UUID id);
+
+  ScenarioMappingBuilder persistent();
+
+  ScenarioMappingBuilder persistent(boolean persistent);
+
+  ScenarioMappingBuilder withBasicAuth(String username, String password);
+
+  ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+
+  <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+
+  ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
+
+  ScenarioMappingBuilder withMetadata(Metadata metadata);
+
+  ScenarioMappingBuilder withMetadata(Metadata.Builder metadata);
+
+  ScenarioMappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
+
+  ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

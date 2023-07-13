@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,19 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import java.io.IOException;
 
 public class StringValuePatternJsonSerializer extends JsonSerializer<StringValuePattern> {
 
-    @Override
-    public void serialize(StringValuePattern value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
-        gen.writeStartObject();
-        if (value.nullSafeIsAbsent()) {
-            gen.writeBooleanField("absent", true);
-        } else {
-            gen.writeStringField(value.getName(), value.getValue());
-        }
-        gen.writeEndObject();
+  @Override
+  public void serialize(StringValuePattern value, JsonGenerator gen, SerializerProvider serializers)
+      throws IOException, JsonProcessingException {
+    gen.writeStartObject();
+    if (value.nullSafeIsAbsent()) {
+      gen.writeBooleanField("absent", true);
+    } else {
+      gen.writeStringField(value.getName(), value.getValue());
     }
+    gen.writeEndObject();
+  }
 }

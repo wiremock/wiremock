@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,54 +15,125 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.google.common.base.Optional;
-
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 public interface Options {
 
-    int DEFAULT_PORT = 8080;
-    int DYNAMIC_PORT = 0;
-    int DEFAULT_CONTAINER_THREADS = 10;
-    String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+  enum ChunkedEncodingPolicy {
+    ALWAYS,
+    NEVER,
+    BODY_FILE
+  }
 
-    int portNumber();
-    HttpsSettings httpsSettings();
-    JettySettings jettySettings();
-    int containerThreads();
-    boolean browserProxyingEnabled();
-    ProxySettings proxyVia();
-    FileSource filesRoot();
-    MappingsLoader mappingsLoader();
-    MappingsSaver mappingsSaver();
-    Notifier notifier();
-    boolean requestJournalDisabled();
-    Optional<Integer> maxRequestJournalEntries();
-    String bindAddress();
-    List<CaseInsensitiveKey> matchingHeaders();
-    boolean shouldPreserveHostHeader();
-    String proxyHostHeader();
-    HttpServerFactory httpServerFactory();
-    ThreadPoolFactory threadPoolFactory();
-    <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
-    WiremockNetworkTrafficListener networkTrafficListener();
-    Authenticator getAdminAuthenticator();
-    boolean getHttpsRequiredForAdminApi();
-    NotMatchedRenderer getNotMatchedRenderer();
-    AsynchronousResponseSettings getAsynchronousResponseSettings();
+  int DEFAULT_PORT = 8080;
+  int DYNAMIC_PORT = 0;
+  int DEFAULT_TIMEOUT = 300_000;
+  int DEFAULT_CONTAINER_THREADS = 25;
+  String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+
+  int portNumber();
+
+  boolean getHttpDisabled();
+
+  HttpsSettings httpsSettings();
+
+  JettySettings jettySettings();
+
+  int containerThreads();
+
+  /** @deprecated use {@link BrowserProxySettings#enabled()} */
+  @Deprecated
+  boolean browserProxyingEnabled();
+
+  BrowserProxySettings browserProxySettings();
+
+  ProxySettings proxyVia();
+
+  Stores getStores();
+
+  FileSource filesRoot();
+
+  MappingsLoader mappingsLoader();
+
+  MappingsSaver mappingsSaver();
+
+  Notifier notifier();
+
+  boolean requestJournalDisabled();
+
+  Optional<Integer> maxRequestJournalEntries();
+
+  String bindAddress();
+
+  FilenameMaker getFilenameMaker();
+
+  List<CaseInsensitiveKey> matchingHeaders();
+
+  boolean shouldPreserveHostHeader();
+
+  String proxyHostHeader();
+
+  HttpServerFactory httpServerFactory();
+
+  ThreadPoolFactory threadPoolFactory();
+
+  ExtensionDeclarations getDeclaredExtensions();
+
+  WiremockNetworkTrafficListener networkTrafficListener();
+
+  Authenticator getAdminAuthenticator();
+
+  boolean getHttpsRequiredForAdminApi();
+
+  default Function<Extensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
+    return PlainTextStubNotMatchedRenderer::new;
+  }
+
+  AsynchronousResponseSettings getAsynchronousResponseSettings();
+
+  ChunkedEncodingPolicy getChunkedEncodingPolicy();
+
+  boolean getGzipDisabled();
+
+  boolean getStubRequestLoggingDisabled();
+
+  boolean getStubCorsEnabled();
+
+  long timeout();
+
+  boolean getDisableOptimizeXmlFactoriesLoading();
+
+  boolean getDisableStrictHttpHeaders();
+
+  DataTruncationSettings getDataTruncationSettings();
+
+  NetworkAddressRules getProxyTargetRules();
+
+  int proxyTimeout();
+
+  boolean getResponseTemplatingEnabled();
+
+  boolean getResponseTemplatingGlobal();
+
+  Long getMaxTemplateCacheEntries();
+
+  Set<String> getTemplatePermittedSystemKeys();
+
+  boolean getTemplateEscapingDisabled();
 }

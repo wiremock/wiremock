@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,124 +15,142 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.junit.Test;
-
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.io.File;
+import java.net.*;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class ClasspathFileSourceTest {
 
-    ClasspathFileSource classpathFileSource;
+  ClasspathFileSource classpathFileSource;
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void listsFilesRecursivelyFromJar() {
-        initForJar();
+  @SuppressWarnings("unchecked")
+  @Test
+  public void listsFilesRecursivelyFromJar() {
+    initForJar();
 
-        List<TextFile> files = classpathFileSource.listFilesRecursively();
+    List<TextFile> files = classpathFileSource.listFilesRecursively();
 
-        assertThat(files, hasItems(fileNamed("pom.properties"), fileNamed("pom.xml")));
+    assertThat(files, hasItems(fileNamed("pom.properties"), fileNamed("pom.xml")));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void listsFilesRecursivelyFromFileSystem() {
+    initForFileSystem();
+
+    List<TextFile> files = classpathFileSource.listFilesRecursively();
+
+    assertThat(
+        files,
+        hasItems(
+            fileNamed("one"),
+            fileNamed("two"),
+            fileNamed("three"),
+            fileNamed("four"),
+            fileNamed("five"),
+            fileNamed("six")));
+  }
+
+  @Test
+  public void readsBinaryFileFromJar() {
+    initForJar();
+
+    BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("guava/pom.xml");
+
+    assertThat("Expected a non zero length file", binaryFile.readContents().length, greaterThan(0));
+  }
+
+  @Test
+  public void readsBinaryFileFromCustomClassLoader() throws MalformedURLException {
+    initForCustomClassLoader();
+
+    BinaryFile binaryFile = classpathFileSource.child("__files").getBinaryFileNamed("stuff.txt");
+
+    assertThat("Expected a non zero length file", binaryFile.readContents().length, greaterThan(0));
+  }
+
+  @Test
+  public void readsBinaryFileFromZip() {
+    classpathFileSource = new ClasspathFileSource("zippeddir");
+
+    BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("zippedfile.txt");
+
+    String contents = new String(binaryFile.readContents());
+    assertThat(contents, containsString("zip"));
+  }
+
+  @Test
+  public void readsBinaryFileFromZipWithoutMatch() {
+    classpathFileSource = new ClasspathFileSource("zippeddir");
+    try {
+      classpathFileSource.getBinaryFileNamed("thisWillNotBeFound.txt");
+      fail("Should have thrown exception.");
+    } catch (Exception e) {
+      assertThat(
+          "Informative error",
+          e.getMessage(),
+          startsWith("Was unable to find entry: \"zippeddir/thisWillNotBeFound.txt\", found:"));
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void listsFilesRecursivelyFromFileSystem() {
-        initForFileSystem();
+  @Test
+  public void readsBinaryFileFromFileSystem() {
+    initForFileSystem();
 
-        List<TextFile> files = classpathFileSource.listFilesRecursively();
+    BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("subdir/deepfile.json");
 
-        assertThat(files, hasItems(
-                fileNamed("one"),
-                fileNamed("two"),
-                fileNamed("three"),
-                fileNamed("four"),
-                fileNamed("five"),
-                fileNamed("six")));
-    }
+    assertThat("Expected a non zero length file", binaryFile.readContents().length, greaterThan(0));
+  }
 
-    @Test
-    public void readsBinaryFileFromJar() {
-        initForJar();
+  @Test
+  public void createsChildSource() {
+    initForFileSystem();
 
-        BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("guava/pom.xml");
+    FileSource child = classpathFileSource.child("subdir");
 
-        assertThat("Expected a non zero length file",
-                binaryFile.readContents().length, greaterThan(0));
-    }
+    assertThat(child.getPath(), is("filesource/subdir"));
+  }
 
-    @Test
-    public void readsBinaryFileFromZip() {
-        classpathFileSource = new ClasspathFileSource("zippeddir");
+  @Test
+  public void correctlyReportsExistence() {
+    assertTrue(new ClasspathFileSource("filesource/subdir").exists(), "Expected to exist");
+    assertTrue(
+        new ClasspathFileSource("META-INF/maven/com.google.guava").exists(), "Expected to exist");
+    assertFalse(new ClasspathFileSource("not/exist").exists(), "Expected not to exist");
+  }
 
-        BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("zippedfile.txt");
+  @Test
+  public void failsSilentlyOnWrites() {
+    initForFileSystem();
+    classpathFileSource.deleteFile("one");
+    classpathFileSource.writeBinaryFile("any-bytes", new byte[] {});
+    classpathFileSource.writeTextFile("any-text", "things");
+    classpathFileSource.createIfNecessary();
+  }
 
-        String contents = new String(binaryFile.readContents());
-        assertThat(contents, containsString("zip"));
-    }
+  private void initForJar() {
+    classpathFileSource = new ClasspathFileSource("META-INF/maven/com.google.guava");
+  }
 
-    @Test
-    public void readsBinaryFileFromZipWithoutMatch() {
-        classpathFileSource = new ClasspathFileSource("zippeddir");
-        try {
-            classpathFileSource.getBinaryFileNamed("thisWillNotBeFound.txt");
-            fail("Should have thrown exception.");
-        } catch (Exception e) {
-            assertThat("Informative error", e.getMessage(), startsWith("Was unable to find entry: \"zippeddir/thisWillNotBeFound.txt\", found:"));
-        }
-    }
+  private void initForFileSystem() {
+    classpathFileSource = new ClasspathFileSource("filesource");
+  }
 
-    @Test
-    public void readsBinaryFileFromFileSystem() {
-        initForFileSystem();
-
-        BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("subdir/deepfile.json");
-
-        assertThat("Expected a non zero length file",
-                binaryFile.readContents().length, greaterThan(0));
-    }
-
-    @Test
-    public void createsChildSource() {
-        initForFileSystem();
-
-        FileSource child = classpathFileSource.child("subdir");
-
-        assertThat(child.getPath(), is("filesource/subdir"));
-    }
-
-    @Test
-    public void correctlyReportsExistence() {
-        assertTrue("Expected to exist", new ClasspathFileSource("filesource/subdir").exists());
-        assertTrue("Expected to exist", new ClasspathFileSource("META-INF/maven/com.google.guava").exists());
-        assertFalse("Expected not to exist", new ClasspathFileSource("not/exist").exists());
-    }
-
-    @Test
-    public void failsSilentlyOnWrites() {
-        initForFileSystem();
-        classpathFileSource.deleteFile("one");
-        classpathFileSource.writeBinaryFile("any-bytes", new byte[] {});
-        classpathFileSource.writeTextFile("any-text", "things");
-        classpathFileSource.createIfNecessary();
-    }
-
-    void initForJar() {
-        classpathFileSource = new ClasspathFileSource("META-INF/maven/com.google.guava");
-    }
-
-    private void initForFileSystem() {
-        classpathFileSource = new ClasspathFileSource("filesource");
-    }
-
-
+  private void initForCustomClassLoader() throws MalformedURLException {
+    URL[] urls = {new File("src/main/resources/classpath-filesource.jar").toURI().toURL()};
+    ClassLoader cl = new URLClassLoader(urls);
+    classpathFileSource = new ClasspathFileSource(cl, "jar-filesource");
+  }
 }

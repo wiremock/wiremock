@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,41 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.net.URLEncoder;
+
 public class Encoding {
 
-    private static Base64Encoder encoder = null;
+  private Encoding() {}
 
-    private static Base64Encoder getInstance() {
+  private static Base64Encoder encoder = null;
+
+  private static Base64Encoder getInstance() {
+    if (encoder == null) {
+      synchronized (Encoding.class) {
         if (encoder == null) {
-            try {
-                Class.forName("javax.xml.bind.DatatypeConverter");
-                encoder = new DatatypeConverterBase64Encoder();
-            } catch (ClassNotFoundException e) {
-                encoder = new GuavaBase64Encoder();
-            }
+          encoder = new JdkBase64Encoder();
         }
-
-        return encoder;
+      }
     }
 
-    public static byte[] decodeBase64(String base64) {
-        return base64 != null ?
-               getInstance().decode(base64) :
-               null;
-    }
+    return encoder;
+  }
 
-    public static String encodeBase64(byte[] content) {
-        return content != null ?
-               getInstance().encode(content) :
-               null;
-    }
+  public static byte[] decodeBase64(String base64) {
+    return base64 != null ? getInstance().decode(base64) : null;
+  }
+
+  public static String encodeBase64(byte[] content) {
+    return encodeBase64(content, true);
+  }
+
+  public static String encodeBase64(byte[] content, boolean padding) {
+    return content != null ? getInstance().encode(content, padding) : null;
+  }
+
+  public static String urlEncode(String encodedUrl) {
+    return URLEncoder.encode(encodedUrl, UTF_8);
+  }
 }

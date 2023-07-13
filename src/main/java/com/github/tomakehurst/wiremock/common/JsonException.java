@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,57 +15,52 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
-
-import static com.google.common.collect.Lists.transform;
+import java.util.stream.Collectors;
 
 public class JsonException extends InvalidInputException {
 
-    protected JsonException(Errors errors) {
-        super(errors);
+  protected JsonException(Errors errors) {
+    super(errors);
+  }
+
+  public static JsonException fromJackson(JsonProcessingException processingException) {
+    Throwable rootCause = getRootCause(processingException);
+
+    String message = rootCause.getMessage();
+    if (rootCause instanceof PatternSyntaxException) {
+      PatternSyntaxException patternSyntaxException = (PatternSyntaxException) rootCause;
+      message = patternSyntaxException.getMessage();
+    } else if (rootCause instanceof JsonMappingException) {
+      message = ((JsonMappingException) rootCause).getOriginalMessage();
+    } else if (rootCause instanceof InvalidInputException) {
+      message = ((InvalidInputException) rootCause).getErrors().first().getDetail();
     }
 
-    public static JsonException fromJackson(JsonMappingException e) {
-        Throwable rootCause = getRootCause(e);
-
-        String message = rootCause.getMessage();
-        if (rootCause instanceof PatternSyntaxException) {
-            PatternSyntaxException patternSyntaxException = (PatternSyntaxException) rootCause;
-            message = patternSyntaxException.getMessage();
-        } else if (rootCause instanceof JsonMappingException) {
-            message = ((JsonMappingException) rootCause).getOriginalMessage();
-        } else if (rootCause instanceof InvalidInputException) {
-            message = ((InvalidInputException) rootCause).getErrors().first().getDetail();
-        }
-
-        List<String> nodes = transform(e.getPath(), TO_NODE_NAMES);
-        String pointer = '/' + Joiner.on('/').join(nodes);
-
-        return new JsonException(Errors.single(10, pointer, "Error parsing JSON", message));
+    String pointer = null;
+    if (processingException instanceof JsonMappingException) {
+      List<String> nodes =
+          ((JsonMappingException) processingException)
+              .getPath().stream().map(TO_NODE_NAMES).collect(Collectors.toList());
+      pointer = "/" + String.join("/", nodes);
     }
 
-    private static Throwable getRootCause(Throwable e) {
-        if (e.getCause() != null) {
-            return getRootCause(e.getCause());
-        }
+    return new JsonException(Errors.single(10, pointer, "Error parsing JSON", message));
+  }
 
-        return e;
+  private static Throwable getRootCause(Throwable e) {
+    if (e.getCause() != null) {
+      return getRootCause(e.getCause());
     }
 
-    private static final Function<JsonMappingException.Reference, String> TO_NODE_NAMES = new Function<JsonMappingException.Reference, String>() {
-        @Override
-        public String apply(JsonMappingException.Reference input) {
-            if (input.getFieldName() != null) {
-                return input.getFieldName();
-            }
+    return e;
+  }
 
-            return String.valueOf(input.getIndex());
-        }
-    };
-
+  private static final Function<JsonMappingException.Reference, String> TO_NODE_NAMES =
+      input ->
+          input.getFieldName() != null ? input.getFieldName() : String.valueOf(input.getIndex());
 }

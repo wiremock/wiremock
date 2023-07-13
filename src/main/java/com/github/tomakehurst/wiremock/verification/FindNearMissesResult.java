@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,18 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class FindNearMissesResult {
 
-    private final List<NearMiss> nearMisses;
+  private final List<NearMiss> nearMisses;
 
-    @JsonCreator
-    public FindNearMissesResult(@JsonProperty("nearMisses") List<NearMiss> nearMisses) {
-        this.nearMisses = nearMisses;
-    }
+  @JsonCreator
+  public FindNearMissesResult(@JsonProperty("nearMisses") List<NearMiss> nearMisses) {
+    this.nearMisses = nearMisses;
+  }
 
-    public List<NearMiss> getNearMisses() {
-        return nearMisses;
-    }
+  public List<NearMiss> getNearMisses() {
+    return nearMisses;
+  }
 }

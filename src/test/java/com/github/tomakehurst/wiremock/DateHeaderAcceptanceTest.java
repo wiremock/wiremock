@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,37 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.hamcrest.Matchers;
-import org.junit.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
 
 public class DateHeaderAcceptanceTest extends AcceptanceTestBase {
 
-    @Test
-    public void returnsOnlyStubbedDateHeader() {
+  @Test
+  public void returnsOnlyStubbedDateHeader() {
 
-        stubFor(get(urlEqualTo("/stubbed/dateheader"))
-            .willReturn(aResponse().withStatus(200).withHeader("Date", "Sun, 06 Nov 1994 08:49:37 GMT")));
+    stubFor(
+        get(urlEqualTo("/stubbed/dateheader"))
+            .willReturn(
+                aResponse().withStatus(200).withHeader("Date", "Sun, 06 Nov 1994 08:49:37 GMT")));
 
-        WireMockResponse response = testClient.get("/stubbed/dateheader");
+    WireMockResponse response = testClient.get("/stubbed/dateheader");
 
-        assertThat(response.headers().get("Date"), contains("Sun, 06 Nov 1994 08:49:37 GMT"));
-    }
+    assertThat(response.headers().get("Date"), contains("Sun, 06 Nov 1994 08:49:37 GMT"));
+  }
 
-    @Test
-    public void returnsNoDateHeaderIfNotStubbed() {
+  @Test
+  public void returnsNoDateHeaderIfNotStubbed() {
 
-        stubFor(get(urlEqualTo("/nodateheader")).willReturn(aResponse().withStatus(200)));
+    stubFor(get(urlEqualTo("/nodateheader")).willReturn(aResponse().withStatus(200)));
 
-        WireMockResponse response = testClient.get("/nodateheader");
+    WireMockResponse response = testClient.get("/nodateheader");
 
-        assertThat(response.headers().get("Date"), is(Matchers.<String>empty()));
-    }
-
+    assertThat(response.headers().get("Date"), is(Matchers.<String>empty()));
+  }
 }

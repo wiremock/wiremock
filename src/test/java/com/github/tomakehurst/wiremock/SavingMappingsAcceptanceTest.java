@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,107 +15,164 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Objects;
+import org.apache.commons.io.FileUtils;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
-    private static final File FILE_SOURCE_ROOT = new File("build/save-mappings-files");
-    private static final File FILES_DIRECTORY = new File(FILE_SOURCE_ROOT, "__files");
-    private static final File MAPPINGS_DIRECTORY = new File(FILE_SOURCE_ROOT, "mappings");
+  private static final File FILE_SOURCE_ROOT = new File("build/save-mappings-files");
+  private static final File FILES_DIRECTORY = new File(FILE_SOURCE_ROOT, "__files");
+  private static final File MAPPINGS_DIRECTORY = new File(FILE_SOURCE_ROOT, "mappings");
 
-    private static void resetFileSourceRoot() {
-        try {
-            if (FILE_SOURCE_ROOT.exists()) {
-                FileUtils.deleteDirectory(FILE_SOURCE_ROOT);
-            }
-            if (!FILES_DIRECTORY.mkdirs()) {
-                throw new Exception("Could no create " + FILES_DIRECTORY.getAbsolutePath());
-            }
-            if (!MAPPINGS_DIRECTORY.mkdirs()) {
-                throw new Exception("Could no create " + MAPPINGS_DIRECTORY.getAbsolutePath());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+  private static void resetFileSourceRoot() {
+    try {
+      if (FILE_SOURCE_ROOT.exists()) {
+        FileUtils.deleteDirectory(FILE_SOURCE_ROOT);
+      }
+      if (!FILES_DIRECTORY.mkdirs()) {
+        throw new Exception("Could no create " + FILES_DIRECTORY.getAbsolutePath());
+      }
+      if (!MAPPINGS_DIRECTORY.mkdirs()) {
+        throw new Exception("Could no create " + MAPPINGS_DIRECTORY.getAbsolutePath());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @BeforeAll
+  public static void setupServer() {
+    resetFileSourceRoot();
+    setupServer(wireMockConfig().fileSource(new SingleRootFileSource(FILE_SOURCE_ROOT)));
+  }
+
+  @BeforeEach
+  public void setUp() throws Exception {
+    resetFileSourceRoot();
+    reset();
+  }
+
+  @Test
+  public void savesMappingsToMappingsDirectory() {
+    // Check the mapping we're about to add isn't already there
+    WireMockResponse response = testClient.get("/some/url");
+    assertThat(response.statusCode(), is(404));
+
+    // Add a mapping and save it
+    stubFor(get(urlEqualTo("/some/url")).willReturn(aResponse().withBody("Response to /some/url")));
+    saveAllMappings();
+
+    // Reset, clearing in-memory mappings
+    resetToDefault();
+
+    // Check the mapping now exists
+    response = testClient.get("/some/url");
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("Response to /some/url"));
+
+    assertThat(listAllStubMappings().getMappings(), everyItem(IS_PERSISTENT));
+  }
+
+  @Test
+  public void savedMappingIsDeletedFromTheDiskOnRemove() {
+    StubMapping stubMapping = stubFor(get("/delete/me").willReturn(ok()));
+    saveAllMappings();
+
+    assertThat(MAPPINGS_DIRECTORY, containsFileWithNameContaining(stubMapping.getId().toString()));
+
+    removeStub(stubMapping);
+
+    assertThat(
+        MAPPINGS_DIRECTORY, not(containsFileWithNameContaining(stubMapping.getId().toString())));
+  }
+
+  private static Matcher<File> containsFileWithNameContaining(final String namePart) {
+    return new TypeSafeDiagnosingMatcher<>() {
+      @Override
+      protected boolean matchesSafely(File directory, Description mismatchDescription) {
+        boolean found =
+            Arrays.stream(Objects.requireNonNull(directory.list()))
+                .anyMatch(filename -> filename.contains(namePart));
+
+        if (!found) {
+          mismatchDescription.appendText("file with name containing " + namePart + " not found");
         }
-    }
 
-    @BeforeClass
-    public static void setupServer() {
-        resetFileSourceRoot();
-        setupServer(wireMockConfig().fileSource(new SingleRootFileSource(FILE_SOURCE_ROOT)));
-    }
+        return found;
+      }
 
-    @Before
-    public void setUp() throws Exception {
-        resetFileSourceRoot();
-        reset();
-    }
+      @Override
+      public void describeTo(Description description) {
+        description.appendText("a file whose name contains " + namePart);
+      }
+    };
+  }
 
-    @Test
-    public void savesMappingsToMappingsDirectory() {
-        // Check the mapping we're about to add isn't already there
-        WireMockResponse response = testClient.get("/some/url");
-        assertThat(response.statusCode(), is(404));
+  @Test
+  public void doesNotDuplicateMappingsAlreadyPersistedToFileSystem() {
+    // Check the mapping we're about to add isn't already there
+    WireMockResponse response = testClient.get("/some/url");
+    assertThat(response.statusCode(), is(404));
 
-        // Add a mapping and save it
-        stubFor(get(urlEqualTo("/some/url"))
-                .willReturn(aResponse().withBody("Response to /some/url")));
-        saveAllMappings();
+    // Add a mapping and save it
+    stubFor(get(urlEqualTo("/some/url")).willReturn(aResponse().withBody("Response to /some/url")));
+    saveAllMappings();
 
-        // Reset, clearing in-memory mappings
-        resetToDefault();
+    // Save a second time
+    saveAllMappings();
 
-        // Check the mapping now exists
-        response = testClient.get("/some/url");
-        assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), is("Response to /some/url"));
-    }
+    // Check only one file has been written
+    assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
+  }
 
-    @Test
-    public void doesNotDuplicateMappingsAlreadyPersistedToFileSystem() {
-        // Check the mapping we're about to add isn't already there
-        WireMockResponse response = testClient.get("/some/url");
-        assertThat(response.statusCode(), is(404));
+  @Test
+  public void doesNotDuplicateMappingsAlreadyPersistedAfterReset() {
+    // Check the mapping we're about to add isn't already there
+    WireMockResponse response = testClient.get("/some/url");
+    assertThat(response.statusCode(), is(404));
 
-        // Add a mapping and save it
-        stubFor(get(urlEqualTo("/some/url"))
-                .willReturn(aResponse().withBody("Response to /some/url")));
-        saveAllMappings();
+    // Add a mapping and save it
+    stubFor(get(urlEqualTo("/some/url")).willReturn(aResponse().withBody("Response to /some/url")));
+    saveAllMappings();
 
-        // Save a second time
-        saveAllMappings();
+    // Reset to default to reload the just saved mappings, then save a second time
+    resetToDefault();
+    saveAllMappings();
 
-        // Check only one file has been written
-        assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
-    }
+    // Check only one file has been written
+    assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
+  }
 
-    @Test
-    public void doesNotDuplicateMappingsAlreadyPersistedAfterReset() {
-        // Check the mapping we're about to add isn't already there
-        WireMockResponse response = testClient.get("/some/url");
-        assertThat(response.statusCode(), is(404));
+  static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =
+      new TypeSafeDiagnosingMatcher<>() {
+        @Override
+        public void describeTo(Description description) {
+          description.appendText("a stub mapping marked as persistent");
+        }
 
-        // Add a mapping and save it
-        stubFor(get(urlEqualTo("/some/url"))
-                .willReturn(aResponse().withBody("Response to /some/url")));
-        saveAllMappings();
+        @Override
+        protected boolean matchesSafely(StubMapping stub, Description mismatchDescription) {
+          final boolean result = stub.shouldBePersisted();
+          if (!result) {
+            mismatchDescription.appendText(stub.getId() + " not marked as persistent");
+          }
 
-        // Reset to default to reload the just saved mappings, then save a second time
-        resetToDefault();
-        saveAllMappings();
-
-        // Check only one file has been written
-        assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
-    }
+          return result;
+        }
+      };
 }

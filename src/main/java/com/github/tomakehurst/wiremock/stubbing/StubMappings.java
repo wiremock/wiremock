@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,30 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.google.common.base.Optional;
-
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface StubMappings {
 
-	ServeEvent serveFor(Request request);
-	void addMapping(StubMapping mapping);
-	void removeMapping(StubMapping mapping);
-	void editMapping(StubMapping stubMapping);
-	void reset();
-	void resetScenarios();
+  ServeEvent serveFor(ServeEvent request);
 
-    List<StubMapping> getAll();
-	Optional<StubMapping> get(UUID id);
+  void addMapping(StubMapping mapping);
 
-	List<Scenario> getAllScenarios();
+  void removeMapping(StubMapping mapping);
 
-    List<StubMapping> findByMetadata(StringValuePattern pattern);
+  void editMapping(StubMapping stubMapping);
+
+  void reset();
+
+  void resetScenarios();
+
+  List<StubMapping> getAll();
+
+  Optional<StubMapping> get(UUID id);
+
+  List<Scenario> getAllScenarios();
+
+  List<StubMapping> findByMetadata(StringValuePattern pattern);
 }

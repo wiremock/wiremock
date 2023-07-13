@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-public interface RequestHandler {
-	
-	String HANDLER_CLASS_KEY = "RequestHandlerClass";
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-	void handle(Request request, HttpResponder httpResponder);
+public interface RequestHandler {
+
+  String HANDLER_CLASS_KEY = "RequestHandlerClass";
+
+  void handle(Request request, HttpResponder httpResponder, ServeEvent originalServeEvent);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public interface NamedValueMatcher<T> extends ValueMatcher<T> {
 
-    @JsonIgnore
-    String getName();
+  @JsonIgnore
+  String getName();
 
-    @JsonIgnore
-    String getExpected();
+  @JsonIgnore
+  String getExpected();
 }

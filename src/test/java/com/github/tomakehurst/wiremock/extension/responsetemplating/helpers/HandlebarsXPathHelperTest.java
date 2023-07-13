@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,99 +15,240 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalToCompressingWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import java.io.IOException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
 
-    private HandlebarsXPathHelper helper;
-    private ResponseTemplateTransformer transformer;
+  private HandlebarsXPathHelper helper;
 
-    @Before
-    public void init() {
-        helper = new HandlebarsXPathHelper();
-        this.transformer = new ResponseTemplateTransformer(true);
-    }
+  @BeforeEach
+  public void init() {
+    helper = new HandlebarsXPathHelper();
+  }
 
-    @Test
-    public void rendersASimpleValue() {
-        final ResponseDefinition responseDefinition = this.transformer.transform(
-                mockRequest().url("/xml")
-                    .body("<a><test>success</test></a>"),
-                aResponse()
-                    .withBody("<test>{{xPath request.body '/a/test/text()'}}</test>").build(),
-                noFileSource(),
-                Parameters.empty());
+  @Test
+  public void rendersASimpleValue() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest().url("/xml").body("<a><test>success</test></a>"),
+            aResponse().withBody("<test>{{xPath request.body '/a/test/text()'}}</test>"));
 
-        assertThat(responseDefinition.getBody(), is("<test>success</test>"));
-    }
+    assertThat(responseDefinition.getBody(), is("<test>success</test>"));
+  }
 
-    @Test
-    public void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
-        final ResponseDefinition responseDefinition = this.transformer.transform(
-                mockRequest().url("/xml")
-                    .body("<a><test>success</test></a>"),
-                aResponse()
-                    .withBody("<test>{{xPath request.body '/b/test'}}</test>").build(),
-                noFileSource(),
-                Parameters.empty());
+  @Test
+  public void rendersNothingWhenTheXPathExpressionResolvesNoContent() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest().url("/xml").body("<a><test>success</test></a>"),
+            aResponse().withBody("<test>{{xPath request.body '/b/test'}}</test>"));
 
-        assertThat(responseDefinition.getBody(), startsWith("<test></test>"));
-    }
+    assertThat(responseDefinition.getBody(), startsWith("<test></test>"));
+  }
 
-    @Test
-    public void extractsASimpleValue() throws IOException {
-        testHelper(helper, "<test>success</test>", "/test/text()", "success");
-    }
+  @Test
+  public void extractsASimpleValue() throws IOException {
+    testHelper(helper, "<test>success</test>", "/test/text()", "success");
+  }
 
-    @Test
-    public void extractsAnAttribute() throws IOException {
-        testHelper(helper, "<test outcome=\"success\"/>", "/test/@outcome", "success");
-    }
+  @Test
+  public void extractsAnAttribute() throws IOException {
+    testHelper(helper, "<test outcome=\"success\"/>", "/test/@outcome", "success");
+  }
 
-    @Test
-    public void extractsASubElement() throws IOException {
-        testHelper(helper, "<outer>\n" +
-            "    <inner>stuff</inner>\n" +
-            "</outer>",
-            "/outer/inner",
-            equalToXml("<inner>stuff</inner>"));
-    }
+  @Test
+  public void extractsASubElement() throws IOException {
+    testHelper(
+        helper,
+        "<outer>\n" + "    <inner>stuff</inner>\n" + "</outer>",
+        "/outer/inner",
+        equalToXml("<inner>stuff</inner>"));
+  }
 
-    @Test
-    public void rendersAMeaningfulErrorWhenTheInputXmlIsInvalid() {
-        testHelperError(helper, "<testsuccess</test>", "/test", is("[ERROR: <testsuccess</test> is not valid XML]"));
-    }
+  @Test
+  public void rendersAMeaningfulErrorWhenTheInputXmlIsInvalid() {
+    testHelperError(
+        helper,
+        "<testsuccess</test>",
+        "/test",
+        is("[ERROR: <testsuccess</test> is not valid XML]"));
+  }
 
-    @Test
-    public void rendersAMeaningfulErrorWhenTheXPathExpressionIsInvalid() {
-        testHelperError(helper, "<test>success</test>", "/\\test", is("[ERROR: /\\test is not a valid XPath expression]"));
-    }
+  @Test
+  public void rendersAMeaningfulErrorWhenTheXPathExpressionIsInvalid() {
+    testHelperError(
+        helper,
+        "<test>success</test>",
+        "/\\test",
+        is("[ERROR: /\\test is not a valid XPath expression]"));
+  }
 
-    @Test
-    public void rendersAMeaningfulErrorWhenTheXPathExpressionIsAbsent() {
-        testHelperError(helper, "<test>success</test>", null, is("[ERROR: The XPath expression cannot be empty]"));
-    }
+  @Test
+  public void rendersAMeaningfulErrorWhenTheXPathExpressionIsAbsent() {
+    testHelperError(
+        helper, "<test>success</test>", null, is("[ERROR: The XPath expression cannot be empty]"));
+  }
 
-    @Test
-    public void rendersABlankWhenTheInputXmlIsAbsent() {
-        testHelperError(helper, null, "/test", is(""));
-    }
+  @Test
+  public void rendersABlankWhenTheInputXmlIsAbsent() {
+    testHelperError(helper, null, "/test", is(""));
+  }
 
+  @Test
+  public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments()
+      throws Exception {
+    String one = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
+    String two = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
 
+    assertThat(one, is("one"));
+    assertThat(two, is("one"));
+  }
 
+  @Test
+  public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments()
+      throws Exception {
+    String one = renderHelperValue(helper, "<test>one</test>", "/test/text()").toString();
+    String two = renderHelperValue(helper, "<test>two</test>", "/test/text()").toString();
+
+    assertThat(one, is("one"));
+    assertThat(two, is("two"));
+  }
+
+  @Test
+  public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+    String one =
+        renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one/text()")
+            .toString();
+    String two =
+        renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/two/text()")
+            .toString();
+
+    assertThat(one, is("1"));
+    assertThat(two, is("2"));
+  }
+
+  @Test
+  public void rendersXmlWhenElementIsSelected() throws Exception {
+    String one =
+        renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one").toString();
+    assertThat(one.trim(), is("<one>1</one>"));
+  }
+
+  @Test
+  public void supportsIterationOverNodeListWithEachHelper() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .body(
+                    "<?xml version=\"1.0\"?>\n"
+                        + "<stuff>\n"
+                        + "    <thing>One</thing>\n"
+                        + "    <thing>Two</thing>\n"
+                        + "    <thing>Three</thing>\n"
+                        + "</stuff>"),
+            aResponse()
+                .withBody(
+                    "{{#each (xPath request.body '/stuff/thing/text()') as |thing|}}{{thing}} {{/each}}"));
+
+    assertThat(responseDefinition.getBody(), is("One Two Three "));
+  }
+
+  @Test
+  public void supportsIterationOverElementsWithAttributes() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .body(
+                    "<?xml version=\"1.0\"?>\n"
+                        + "<stuff>\n"
+                        + "    <thing id=\"1\">One</thing>\n"
+                        + "    <thing id=\"2\">Two</thing>\n"
+                        + "    <thing id=\"3\">Three</thing>\n"
+                        + "</stuff>"),
+            aResponse()
+                .withBody(
+                    "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.attributes.id}}} {{/each}}"));
+
+    assertThat(responseDefinition.getBody(), is("1 2 3 "));
+  }
+
+  @Test
+  public void supportsIterationOverNamespacedElements() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .body(
+                    "<?xml version=\"1.0\"?>\n"
+                        + "<stuff xmlns:th=\"https://thing.com\">\n"
+                        + "    <th:thing>One</th:thing>\n"
+                        + "    <th:thing>Two</th:thing>\n"
+                        + "    <th:thing>Three</th:thing>\n"
+                        + "</stuff>"),
+            aResponse()
+                .withBody(
+                    "{{#each (xPath request.body '/stuff/thing') as |thing|}}{{{thing.text}}} {{/each}}"));
+
+    assertThat(responseDefinition.getBody(), is("One Two Three "));
+  }
+
+  @Test
+  public void rendersNamespacedElement() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .body(
+                    "<?xml version=\"1.0\"?>\n"
+                        + "<stuff xmlns:th=\"https://thing.com\">\n"
+                        + "    <th:thing>One</th:thing>\n"
+                        + "    <th:thing>Two</th:thing>\n"
+                        + "    <th:thing>Three</th:thing>\n"
+                        + "</stuff>"),
+            aResponse().withBody("{{{xPath request.body '/stuff'}}}"));
+
+    assertThat(
+        responseDefinition.getBody(),
+        equalToCompressingWhiteSpace(
+            "<stuff xmlns:th=\"https://thing.com\">\n"
+                + "    <th:thing>One</th:thing>\n"
+                + "    <th:thing>Two</th:thing>\n"
+                + "    <th:thing>Three</th:thing>\n"
+                + "</stuff>"));
+  }
+
+  @Test
+  public void rendersElementNames() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .body(
+                    "<?xml version=\"1.0\"?>\n"
+                        + "<stuff>\n"
+                        + "    <one>1</one>\n"
+                        + "    <two>2</two>\n"
+                        + "    <three>3</three>\n"
+                        + "</stuff>"),
+            aResponse()
+                .withBody(
+                    "{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}"));
+
+    assertThat(responseDefinition.getBody(), is("one two three "));
+  }
 }

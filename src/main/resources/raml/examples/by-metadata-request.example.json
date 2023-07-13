@@ -1,6 +1,0 @@
-{
-    "matchesJsonPath" : {
-        "expression": "$.outer",
-        "equalToJson": "{ \"inner\": 42 }"
-    }
-}

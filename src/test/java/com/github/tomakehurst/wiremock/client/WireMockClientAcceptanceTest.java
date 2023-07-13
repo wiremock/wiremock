@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,67 +15,59 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class WireMockClientAcceptanceTest {
-	
-	private WireMockServer wireMockServer;
-	private WireMockTestClient testClient;
 
-	@Before
-	public void init() {
-		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
-		wireMockServer.start();
-		WireMock.configureFor(wireMockServer.port());
-		testClient = new WireMockTestClient(wireMockServer.port());
-	}
-	
-	@After
-	public void stopServer() {
-		wireMockServer.stop();
-	}
+  private WireMockServer wireMockServer;
+  private WireMockTestClient testClient;
 
-	@Test
-	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
-		WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
-		wireMock.register(
-				get(urlEqualTo("/my/new/resource"))
-				.willReturn(
-						aResponse()
-						.withStatus(304)));
-		
-		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
-	}
-	
-	@Test
-	public void buildsMappingFromStaticSyntax() {
-		givenThat(get(urlEqualTo("/my/new/resource"))
-					.willReturn(aResponse()
-						.withStatus(304)));
-		
-		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
-	}
-	
-	@Test
-	public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
-		WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
-		wireMock.register(
-				get(urlEqualTo("/my/new/resource"))
-				.willReturn(
-						aResponse()
-						.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
-						.withStatus(200)));
+  @BeforeEach
+  public void init() {
+    wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
+    wireMockServer.start();
+    WireMock.configureFor(wireMockServer.port());
+    testClient = new WireMockTestClient(wireMockServer.port());
+  }
 
-		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
-	}
+  @AfterEach
+  public void stopServer() {
+    wireMockServer.stop();
+  }
+
+  @Test
+  public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
+    WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
+    wireMock.register(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
+
+    assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+  }
+
+  @Test
+  public void buildsMappingFromStaticSyntax() {
+    givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
+
+    assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+  }
+
+  @Test
+  public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
+    WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
+    wireMock.register(
+        get(urlEqualTo("/my/new/resource"))
+            .willReturn(
+                aResponse().withBody("{\"address\":\"Puerto Banús, Málaga\"}").withStatus(200)));
+
+    assertThat(
+        testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
+  }
 }

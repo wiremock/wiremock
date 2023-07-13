@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,28 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import com.google.common.base.Splitter;
-import org.apache.commons.lang3.StringUtils;
-
+import com.github.tomakehurst.wiremock.common.Urls;
 import java.net.URI;
 import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 
 public class UrlPath extends ArrayList<String> {
 
-    private final String originalPath;
+  private final String originalPath;
 
-    public UrlPath(String url) {
-        originalPath = URI.create(url).getPath();
-        Iterable<String> pathNodes = Splitter.on('/').split(originalPath);
-        for (String pathNode: pathNodes) {
-            if (StringUtils.isNotEmpty(pathNode)) {
+  public UrlPath(String url) {
+    originalPath = URI.create(url).getPath();
+    Urls.getPathSegments(originalPath)
+        .forEach(
+            pathNode -> {
+              if (StringUtils.isNotEmpty(pathNode)) {
                 add(pathNode);
-            }
-        }
-    }
+              }
+            });
+  }
 
-    @Override
-    public String toString() {
-        return originalPath;
-    }
+  @Override
+  public String toString() {
+    return originalPath;
+  }
 }

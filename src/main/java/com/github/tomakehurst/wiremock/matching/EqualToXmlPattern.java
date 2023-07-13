@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,166 +15,240 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.xmlunit.diff.ComparisonType.*;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.Xml;
-import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import com.github.tomakehurst.wiremock.common.xml.Xml;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.xmlunit.diff.ComparisonType.*;
+import org.xmlunit.placeholder.PlaceholderDifferenceEvaluator;
 
 public class EqualToXmlPattern extends StringValuePattern {
 
-    private static List<ComparisonType> COUNTED_COMPARISONS = ImmutableList.of(
-        ELEMENT_TAG_NAME,
-        SCHEMA_LOCATION,
-        NO_NAMESPACE_SCHEMA_LOCATION,
-        NODE_TYPE,
-        NAMESPACE_URI,
-        TEXT_VALUE,
-        PROCESSING_INSTRUCTION_TARGET,
-        PROCESSING_INSTRUCTION_DATA,
-        ELEMENT_NUM_ATTRIBUTES,
-        ATTR_VALUE,
-        CHILD_NODELIST_LENGTH,
-        CHILD_LOOKUP,
-        ATTR_NAME_LOOKUP
-    );
+  private static final Set<ComparisonType> COUNTED_COMPARISONS =
+      Set.of(
+          ELEMENT_TAG_NAME,
+          SCHEMA_LOCATION,
+          NO_NAMESPACE_SCHEMA_LOCATION,
+          NODE_TYPE,
+          NAMESPACE_URI,
+          TEXT_VALUE,
+          PROCESSING_INSTRUCTION_TARGET,
+          PROCESSING_INSTRUCTION_DATA,
+          ELEMENT_NUM_ATTRIBUTES,
+          ATTR_VALUE,
+          CHILD_NODELIST_LENGTH,
+          CHILD_LOOKUP,
+          ATTR_NAME_LOOKUP);
 
-    private final Document xmlDocument;
+  private final Boolean enablePlaceholders;
+  private final String placeholderOpeningDelimiterRegex;
+  private final String placeholderClosingDelimiterRegex;
+  private final DifferenceEvaluator diffEvaluator;
+  private final Set<ComparisonType> exemptedComparisons;
+  private final Document expectedXmlDoc;
 
-    public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
-        super(expectedValue);
-        xmlDocument = Xml.read(expectedValue);
+  public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
+    this(expectedValue, null, null, null, null);
+  }
+
+  public EqualToXmlPattern(
+      @JsonProperty("equalToXml") String expectedValue,
+      @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
+      @JsonProperty("placeholderOpeningDelimiterRegex") String placeholderOpeningDelimiterRegex,
+      @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex,
+      @JsonProperty("exemptedComparisons") Set<ComparisonType> exemptedComparisons) {
+
+    super(expectedValue);
+    expectedXmlDoc = Xml.read(expectedValue); // Throw an exception if we can't parse the document
+    this.enablePlaceholders = enablePlaceholders;
+    this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
+    this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
+    this.exemptedComparisons = exemptedComparisons;
+
+    IgnoreUncountedDifferenceEvaluator baseDifferenceEvaluator =
+        new IgnoreUncountedDifferenceEvaluator(exemptedComparisons);
+    if (enablePlaceholders != null && enablePlaceholders) {
+      diffEvaluator =
+          DifferenceEvaluators.chain(
+              baseDifferenceEvaluator,
+              new PlaceholderDifferenceEvaluator(
+                  placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex));
+    } else {
+      diffEvaluator = baseDifferenceEvaluator;
     }
+  }
 
-    public String getEqualToXml() {
-        return expectedValue;
-    }
+  public String getEqualToXml() {
+    return expectedValue;
+  }
 
-    @Override
-    public String getExpected() {
-        return Xml.prettyPrint(getValue());
-    }
+  @Override
+  public String getExpected() {
+    return Xml.prettyPrint(getValue());
+  }
 
-    @Override
-    public MatchResult match(final String value) {
-        return new MatchResult() {
-            @Override
-            public boolean isExactMatch() {
-                if (isNullOrEmpty(value)) {
-                    return false;
-                }
+  public Boolean isEnablePlaceholders() {
+    return enablePlaceholders;
+  }
 
-                try {
-                    Diff diff = DiffBuilder.compare(Input.from(expectedValue))
-                        .withTest(value)
-                        .withComparisonController(ComparisonControllers.StopWhenDifferent)
-                        .ignoreWhitespace()
-                        .ignoreComments()
-                        .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                        .withNodeMatcher(new OrderInvariantNodeMatcher())
-                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
-                        .build();
+  public String getPlaceholderOpeningDelimiterRegex() {
+    return placeholderOpeningDelimiterRegex;
+  }
 
-                    return !diff.hasDifferences();
-                } catch (XMLUnitException e) {
-                    notifier().info("Failed to process XML. " + e.getMessage() +
-                        "\nExpected:\n" + expectedValue +
-                        "\n\nActual:\n" + value);
-                    return false;
-                }
-            }
+  public String getPlaceholderClosingDelimiterRegex() {
+    return placeholderClosingDelimiterRegex;
+  }
 
-            @Override
-            public double getDistance() {
-                if (isNullOrEmpty(value)) {
-                    return 1.0;
-                }
+  public Set<ComparisonType> getExemptedComparisons() {
+    return exemptedComparisons;
+  }
 
-                final AtomicInteger totalComparisons = new AtomicInteger(0);
-                final AtomicInteger differences = new AtomicInteger(0);
-
-                Diff diff = null;
-                try {
-                    diff = DiffBuilder.compare(Input.from(expectedValue))
-                        .withTest(value)
-                        .ignoreWhitespace()
-                        .ignoreComments()
-                        .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                        .withComparisonListeners(new ComparisonListener() {
-                            @Override
-                            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-                                if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
-                                    totalComparisons.incrementAndGet();
-                                    if (outcome == ComparisonResult.DIFFERENT) {
-                                        differences.incrementAndGet();
-                                    }
-                                }
-                            }
-                        })
-                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
-                        .build();
-                } catch (XMLUnitException e) {
-                    notifier().info("Failed to process XML. " + e.getMessage() +
-                        "\nExpected:\n" + expectedValue +
-                        "\n\nActual:\n" + value);
-                    return 1.0;
-                }
-
-                notifier().info(
-                    Joiner.on("\n").join(diff.getDifferences())
-                );
-
-                return differences.doubleValue() / totalComparisons.doubleValue();
-            }
-        };
-    }
-
-    private static final DifferenceEvaluator IGNORE_UNCOUNTED_COMPARISONS = new DifferenceEvaluator() {
-        @Override
-        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
-            if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
-                return outcome;
-            }
-
-            return ComparisonResult.EQUAL;
+  @Override
+  public MatchResult match(final String value) {
+    return new MatchResult() {
+      @Override
+      public boolean isExactMatch() {
+        if (isNullOrEmpty(value)) {
+          return false;
         }
+        try {
+          Diff diff =
+              DiffBuilder.compare(Input.from(expectedXmlDoc))
+                  .withTest(value)
+                  .withComparisonController(ComparisonControllers.StopWhenDifferent)
+                  .ignoreWhitespace()
+                  .ignoreComments()
+                  .withDifferenceEvaluator(diffEvaluator)
+                  .withNodeMatcher(new OrderInvariantNodeMatcher())
+                  .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
+                  .build();
+
+          return !diff.hasDifferences();
+        } catch (XMLUnitException e) {
+          appendSubEvent(SubEvent.warning(e.getMessage()));
+
+          notifier()
+              .info(
+                  "Failed to process XML. "
+                      + e.getMessage()
+                      + "\nExpected:\n"
+                      + expectedValue
+                      + "\n\nActual:\n"
+                      + value);
+          return false;
+        }
+      }
+
+      @Override
+      public double getDistance() {
+        if (isNullOrEmpty(value)) {
+          return 1.0;
+        }
+
+        final AtomicInteger totalComparisons = new AtomicInteger(0);
+        final AtomicInteger differences = new AtomicInteger(0);
+
+        Diff diff;
+        try {
+          diff =
+              DiffBuilder.compare(Input.from(expectedValue))
+                  .withTest(value)
+                  .ignoreWhitespace()
+                  .ignoreComments()
+                  .withDifferenceEvaluator(diffEvaluator)
+                  .withComparisonListeners(
+                      (comparison, outcome) -> {
+                        if (COUNTED_COMPARISONS.contains(comparison.getType())
+                            && comparison.getControlDetails().getValue() != null) {
+                          totalComparisons.incrementAndGet();
+                          if (outcome == ComparisonResult.DIFFERENT) {
+                            differences.incrementAndGet();
+                          }
+                        }
+                      })
+                  .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
+                  .build();
+        } catch (XMLUnitException e) {
+          notifier()
+              .info(
+                  "Failed to process XML. "
+                      + e.getMessage()
+                      + "\nExpected:\n"
+                      + expectedValue
+                      + "\n\nActual:\n"
+                      + value);
+          return 1.0;
+        }
+
+        notifier()
+            .info(
+                StreamSupport.stream(diff.getDifferences().spliterator(), false)
+                    .map(Object::toString)
+                    .collect(Collectors.joining("\n")));
+
+        return differences.doubleValue() / totalComparisons.doubleValue();
+      }
     };
+  }
 
+  private static class IgnoreUncountedDifferenceEvaluator implements DifferenceEvaluator {
 
-    private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
-        @Override
-        public Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+    private final Set<ComparisonType> finalCountedComparisons;
 
-            return super.match(
-                sort(controlNodes),
-                sort(testNodes)
-            );
-        }
-
-        private static Iterable<Node> sort(Iterable<Node> nodes) {
-            return FluentIterable.from(nodes).toSortedList(COMPARATOR);
-        }
-
-        private static final Comparator<Node> COMPARATOR = new Comparator<Node>() {
-            @Override
-            public int compare(Node node1, Node node2) {
-                return node1.getLocalName().compareTo(node2.getLocalName());
-            }
-        };
+    public IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
+      finalCountedComparisons =
+          exemptedComparisons != null
+              ? Sets.difference(COUNTED_COMPARISONS, exemptedComparisons)
+              : COUNTED_COMPARISONS;
     }
+
+    @Override
+    public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+      if (finalCountedComparisons.contains(comparison.getType())
+          && comparison.getControlDetails().getValue() != null) {
+        return outcome;
+      }
+
+      return ComparisonResult.EQUAL;
+    }
+  }
+
+  public EqualToXmlPattern exemptingComparisons(ComparisonType... comparisons) {
+    return new EqualToXmlPattern(
+        expectedValue,
+        enablePlaceholders,
+        placeholderOpeningDelimiterRegex,
+        placeholderClosingDelimiterRegex,
+        ImmutableSet.copyOf(comparisons));
+  }
+
+  private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
+    @Override
+    public Iterable<Map.Entry<Node, Node>> match(
+        Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+
+      return super.match(sort(controlNodes), sort(testNodes));
+    }
+
+    private static Iterable<Node> sort(Iterable<Node> nodes) {
+      return StreamSupport.stream(nodes.spliterator(), false)
+          .sorted(COMPARATOR)
+          .collect(Collectors.toList());
+    }
+
+    private static final Comparator<Node> COMPARATOR = Comparator.comparing(Node::getLocalName);
+  }
 }

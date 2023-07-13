@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,49 +15,75 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.fasterxml.jackson.databind.node.IntNode;
-import org.apache.commons.codec.binary.Base64;
-import org.junit.Test;
-
-
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BodyTest {
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.github.tomakehurst.wiremock.common.Json;
+import java.util.Base64;
+import org.junit.jupiter.api.Test;
 
-    @Test
-    public void constructsFromBytes() {
-        Body body = Body.fromOneOf("this content".getBytes(), "not this content", new IntNode(1), "lskdjflsjdflks");
+class BodyTest {
 
-        assertThat(body.asString(), is("this content"));
-        assertThat(body.isBinary(), is(true));
-    }
+  @Test
+  void constructsFromBytes() {
+    Body body =
+        Body.fromOneOf(
+            "this content".getBytes(), "not this content", new IntNode(1), "lskdjflsjdflks");
 
-    @Test
-    public void constructsFromString() {
-        Body body = Body.fromOneOf(null, "this content", new IntNode(1), "lskdjflsjdflks");
+    assertThat(body.asString(), is("this content"));
+    assertThat(body.isBinary(), is(true));
+    assertThat(body.isJson(), is(false));
+  }
 
-        assertThat(body.asString(), is("this content"));
-        assertThat(body.isBinary(), is(false));
-    }
+  @Test
+  void constructsFromString() {
+    Body body = Body.fromOneOf(null, "this content", new IntNode(1), "lskdjflsjdflks");
 
-    @Test
-    public void constructsFromJson() {
-        Body body = Body.fromOneOf(null, null, new IntNode(1), "lskdjflsjdflks");
+    assertThat(body.asString(), is("this content"));
+    assertThat(body.isBinary(), is(false));
+    assertThat(body.isJson(), is(false));
+  }
 
-        assertThat(body.asString(), is("1"));
-        assertThat(body.isBinary(), is(false));
-    }
+  @Test
+  void constructsFromJson() {
+    Body body = Body.fromOneOf(null, null, new IntNode(1), "lskdjflsjdflks");
 
-    @Test
-    public void constructsFromBase64() {
-        byte[] base64Encoded = Base64.encodeBase64("this content".getBytes());
-        String encodedText = stringFromBytes(base64Encoded);
-        Body body = Body.fromOneOf(null, null, null, encodedText);
+    assertThat(body.asString(), is("1"));
+    assertThat(body.isBinary(), is(false));
+    assertThat(body.isJson(), is(true));
+  }
 
-        assertThat(body.asString(), is("this content"));
-        assertThat(body.isBinary(), is(true));
-    }
+  @Test
+  void constructsFromBase64() {
+    byte[] base64Encoded = Base64.getEncoder().encodeToString("this content".getBytes()).getBytes();
+    String encodedText = stringFromBytes(base64Encoded);
+    Body body = Body.fromOneOf(null, null, null, encodedText);
 
+    assertThat(body.asString(), is("this content"));
+    assertThat(body.isBinary(), is(true));
+    assertThat(body.isJson(), is(false));
+  }
+
+  @Test
+  void bodyAsJson() {
+    final JsonNode jsonContent = Json.node("{\"name\":\"wiremock\",\"isCool\":true}");
+    Body body = Body.fromOneOf(null, null, jsonContent, "lskdjflsjdflks");
+
+    assertThat(body.asJson(), is(jsonContent));
+  }
+
+  @Test
+  void hashCorrectly() {
+    byte[] primes = {2, 3, 5, 7};
+    byte[] primes2 = {2, 3, 5, 7};
+
+    Body body = new Body(primes);
+    Body body2 = new Body(primes2);
+
+    assertEquals(body.hashCode(), body2.hashCode());
+  }
 }

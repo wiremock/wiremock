@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class NoFaultInjectorFactory implements FaultInjectorFactory {
 
-    @Override
-    public FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        return new NoFaultInjector(httpServletResponse);
-    }
+  @Override
+  public FaultInjector buildFaultInjector(
+      HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    return new NoFaultInjector(httpServletResponse);
+  }
 }

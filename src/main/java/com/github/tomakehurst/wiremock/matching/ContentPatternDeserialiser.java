@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,40 +22,41 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
-
 import java.io.IOException;
 import java.util.Map;
 
 public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
 
-    @Override
-    public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
-        JsonNode rootNode = parser.readValueAsTree();
+  @Override
+  public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
+      throws IOException, JsonProcessingException {
+    JsonNode rootNode = parser.readValueAsTree();
 
-        if (isAbsent(rootNode)) {
-            return StringValuePattern.ABSENT;
-        }
-
-        if (!rootNode.has("binaryEqualTo")) {
-            return new StringValuePatternJsonDeserializer().buildStringValuePattern(rootNode);
-        }
-
-        return deserializeBinaryEqualTo(rootNode);
+    if (isAbsent(rootNode)) {
+      return AbsentPattern.ABSENT;
     }
 
-    private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode) throws JsonMappingException {
-        String operand = rootNode.findValue("binaryEqualTo").textValue();
-
-        return new BinaryEqualToPattern(operand);
+    if (rootNode.has("binaryEqualTo")) {
+      return deserializeBinaryEqualTo(rootNode);
     }
 
-    private static boolean isAbsent(JsonNode rootNode) {
-        for (Map.Entry<String, JsonNode> node: ImmutableList.copyOf(rootNode.fields())) {
-            if (node.getKey().equals("absent")) {
-                return true;
-            }
-        }
+    return new StringValuePatternJsonDeserializer().buildStringValuePattern(rootNode);
+  }
 
-        return false;
+  private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode)
+      throws JsonMappingException {
+    String operand = rootNode.findValue("binaryEqualTo").textValue();
+
+    return new BinaryEqualToPattern(operand);
+  }
+
+  private static boolean isAbsent(JsonNode rootNode) {
+    for (Map.Entry<String, JsonNode> node : ImmutableList.copyOf(rootNode.fields())) {
+      if (node.getKey().equals("absent")) {
+        return true;
+      }
     }
+
+    return false;
+  }
 }

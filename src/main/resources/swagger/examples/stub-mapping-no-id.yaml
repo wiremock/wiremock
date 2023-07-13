@@ -1,0 +1,8 @@
+request:
+  method: GET
+  url: /some/thing
+response:
+  body: Hello world!
+  headers:
+    Content-Type: text/plain
+  status: 200

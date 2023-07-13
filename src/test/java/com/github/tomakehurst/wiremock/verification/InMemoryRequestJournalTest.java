@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,76 +15,109 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Optional;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.ALWAYS;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.Collections;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InMemoryRequestJournalTest {
 
-    private ServeEvent serveEvent1, serveEvent2, serveEvent3;
+  static final Map<String, RequestMatcherExtension> NO_CUSTOM_MATCHERS = Collections.emptyMap();
 
-    @Before
-    public void createTestRequests() {
-        Mockery context = new Mockery();
-        serveEvent1 = ServeEvent.of(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
-        serveEvent2 = ServeEvent.of(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
-        serveEvent3 = ServeEvent.of(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
-    }
+  private ServeEvent serveEvent1, serveEvent2, serveEvent3;
 
-    @Test
-    public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
-        RequestJournal journal = new InMemoryRequestJournal(Optional.<Integer>absent());
+  @BeforeEach
+  public void createTestRequests() {
+    serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()));
+    serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()));
+    serveEvent3 = ServeEvent.of(createFrom(aRequest("log3").withUrl("/logging3").build()));
+  }
 
-        journal.requestReceived(serveEvent1);
-        journal.requestReceived(serveEvent1);
-        journal.requestReceived(serveEvent2);
+  @Test
+  public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
+    RequestJournal journal = new InMemoryRequestJournal(null, NO_CUSTOM_MATCHERS);
 
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(2));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
-    }
+    journal.requestReceived(serveEvent1);
+    journal.requestReceived(serveEvent1);
+    journal.requestReceived(serveEvent2);
 
-    @Test
-    public void resettingTheJournalClearsAllEntries() throws Exception {
-        Mockery context = new Mockery();
-        LoggedRequest loggedRequest = createFrom(aRequest(context)
-                .withUrl("/for/logging")
-                .build());
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(2));
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
+  }
 
-        RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
-        journal.requestReceived(ServeEvent.of(loggedRequest, null));
-        assertThat(journal.countRequestsMatching(everything()), is(1));
-        journal.reset();
-        assertThat(journal.countRequestsMatching(everything()), is(0));
-    }
+  @Test
+  public void resettingTheJournalClearsAllEntries() throws Exception {
+    LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
-    @Test
-    public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
-        RequestJournal journal = new InMemoryRequestJournal(Optional.of(2));
+    RequestJournal journal = new InMemoryRequestJournal(1, NO_CUSTOM_MATCHERS);
+    journal.requestReceived(ServeEvent.of(loggedRequest));
+    assertThat(journal.countRequestsMatching(everything()), is(1));
+    journal.reset();
+    assertThat(journal.countRequestsMatching(everything()), is(0));
+  }
 
-        journal.requestReceived(serveEvent1);
-        journal.requestReceived(serveEvent2);
+  @Test
+  public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
+    RequestJournal journal = new InMemoryRequestJournal(2, NO_CUSTOM_MATCHERS);
 
-        assertThat(journal.countRequestsMatching(everything()), is(2));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(1));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
+    journal.requestReceived(serveEvent1);
+    journal.requestReceived(serveEvent2);
 
-        journal.requestReceived(serveEvent3);
-        assertOnlyLastTwoRequestsLeft(journal);
-    }
+    assertThat(journal.countRequestsMatching(everything()), is(2));
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(1));
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
 
-    private void assertOnlyLastTwoRequestsLeft(RequestJournal journal) {
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(0));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging3")).build()), is(1));
-    }
+    journal.requestReceived(serveEvent3);
+    assertOnlyLastTwoRequestsLeft(journal);
+  }
+
+  @Test
+  public void matchesRequestWithCustomMatcherDefinition() throws Exception {
+    RequestJournal journal = new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
+
+    journal.requestReceived(serveEvent1);
+    journal.requestReceived(serveEvent2);
+
+    assertThat(
+        journal.countRequestsMatching(requestMadeFor(ALWAYS.getName(), Parameters.empty()).build()),
+        is(2));
+    assertThat(
+        journal.countRequestsMatching(requestMadeFor("not-existing", Parameters.empty()).build()),
+        is(0));
+
+    assertThat(
+        journal
+            .getRequestsMatching(requestMadeFor(ALWAYS.getName(), Parameters.empty()).build())
+            .size(),
+        is(2));
+    assertThat(
+        journal
+            .getRequestsMatching(requestMadeFor("not-existing", Parameters.empty()).build())
+            .size(),
+        is(0));
+  }
+
+  private void assertOnlyLastTwoRequestsLeft(RequestJournal journal) {
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(0));
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
+    assertThat(
+        journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging3")).build()), is(1));
+  }
 }

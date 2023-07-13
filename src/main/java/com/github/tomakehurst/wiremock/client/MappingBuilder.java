@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +17,87 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface MappingBuilder {
 
-    MappingBuilder atPriority(Integer priority);
-    MappingBuilder withHeader(String key, StringValuePattern headerPattern);
-    MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
-    MappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
-    MappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
-    MappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
-    ScenarioMappingBuilder inScenario(String scenarioName);
-    MappingBuilder withId(UUID id);
-    MappingBuilder withName(String name);
+  MappingBuilder withScheme(String scheme);
 
-    MappingBuilder persistent();
-    MappingBuilder withBasicAuth(String username, String password);
+  MappingBuilder withHost(StringValuePattern hostPattern);
 
-    MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+  MappingBuilder withPort(int port);
 
-    <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
+  MappingBuilder atPriority(Integer priority);
 
-    MappingBuilder withMetadata(Map<String, ?> metadata);
-    MappingBuilder withMetadata(Metadata metadata);
-    MappingBuilder withMetadata(Metadata.Builder metadata);
+  MappingBuilder withHeader(String key, StringValuePattern headerPattern);
 
-    MappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
-    MappingBuilder andMatching(String customRequestMatcherName);
-    MappingBuilder andMatching(String customRequestMatcherName, Parameters parameters);
+  MappingBuilder withHeader(String key, MultiValuePattern headerPattern);
 
-    MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
+  MappingBuilder withPathParam(String name, StringValuePattern pattern);
 
-    StubMapping build();
+  MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+
+  MappingBuilder withQueryParam(String key, MultiValuePattern multiValueQueryParamPattern);
+
+  MappingBuilder withFormParam(String key, StringValuePattern formParamPattern);
+
+  MappingBuilder withFormParam(String key, MultiValuePattern multiValueFormParamPattern);
+
+  MappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
+
+  MappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
+
+  MappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
+
+  ScenarioMappingBuilder inScenario(String scenarioName);
+
+  MappingBuilder withId(UUID id);
+
+  MappingBuilder withName(String name);
+
+  MappingBuilder persistent();
+
+  MappingBuilder persistent(boolean persistent);
+
+  MappingBuilder withBasicAuth(String username, String password);
+
+  MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+
+  <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
+
+  default <P> MappingBuilder withServeEventListener(
+      ServeEventListener.RequestPhase requestPhase, String extensionName, P parameters) {
+    return withServeEventListener(Set.of(requestPhase), extensionName, parameters);
+  }
+
+  <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+
+  MappingBuilder withMetadata(Map<String, ?> metadata);
+
+  MappingBuilder withMetadata(Metadata metadata);
+
+  MappingBuilder withMetadata(Metadata.Builder metadata);
+
+  MappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
+
+  MappingBuilder andMatching(String customRequestMatcherName);
+
+  MappingBuilder andMatching(String customRequestMatcherName, Parameters parameters);
+
+  MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
+
+  StubMapping build();
 }

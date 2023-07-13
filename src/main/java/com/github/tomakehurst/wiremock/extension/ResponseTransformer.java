@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 
+@Deprecated
+/** @deprecated Use {@link ResponseTransformerV2} instead */
 public abstract class ResponseTransformer extends AbstractTransformer<Response> {
 
-    @Override
-    public abstract Response transform(Request request, Response response, FileSource files, Parameters parameters);
-
+  @Override
+  public abstract Response transform(
+      Request request, Response response, FileSource files, Parameters parameters);
 }

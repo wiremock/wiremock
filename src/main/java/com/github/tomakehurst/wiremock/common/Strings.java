@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +15,77 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.commons.lang3.text.WordUtils;
+import static java.lang.System.lineSeparator;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.getLevenshteinDistance;
 
 import java.nio.charset.Charset;
-
-import static com.google.common.base.Charsets.UTF_8;
+import org.apache.commons.lang3.text.WordUtils;
 
 public class Strings {
-    public static final Charset DEFAULT_CHARSET = UTF_8;
 
-    public static String stringFromBytes(byte[] bytes) {
-        return stringFromBytes(bytes, DEFAULT_CHARSET);
+  private Strings() {}
+
+  public static final Charset DEFAULT_CHARSET = UTF_8;
+
+  public static String stringFromBytes(byte[] bytes) {
+    return stringFromBytes(bytes, DEFAULT_CHARSET);
+  }
+
+  public static String stringFromBytes(byte[] bytes, Charset charset) {
+    if (bytes == null) {
+      return null;
     }
 
-    public static String stringFromBytes(byte[] bytes, Charset charset) {
-        if (bytes == null) {
-            return null;
-        }
+    return new String(bytes, charset);
+  }
 
-        return new String(bytes, charset);
+  public static byte[] bytesFromString(String str) {
+    return bytesFromString(str, DEFAULT_CHARSET);
+  }
+
+  public static byte[] bytesFromString(String str, Charset charset) {
+    if (str == null) {
+      return null;
     }
 
-    public static byte[] bytesFromString(String str) {
-        return bytesFromString(str, DEFAULT_CHARSET);
+    return str.getBytes(charset);
+  }
+
+  public static String wrapIfLongestLineExceedsLimit(String s, int maxLineLength) {
+    int longestLength = findLongestLineLength(s);
+    if (longestLength > maxLineLength) {
+      String wrapped = WordUtils.wrap(s, maxLineLength, null, true);
+      return wrapped.replaceAll("(?m)^[ \t]*\r?\n", "");
     }
 
-    public static byte[] bytesFromString(String str, Charset charset) {
-        if (str == null) {
-            return null;
-        }
+    return s;
+  }
 
-        return str.getBytes(charset);
+  private static int findLongestLineLength(String s) {
+    String[] lines = s.split("\n");
+    int longestLength = 0;
+    for (String line : lines) {
+      int length = line.length();
+      if (length > longestLength) {
+        longestLength = length;
+      }
     }
 
-    public static String wrapIfLongestLineExceedsLimit(String s, int maxLineLength) {
-        int longestLength = findLongestLineLength(s);
-        if (longestLength > maxLineLength) {
-            String wrapped = WordUtils.wrap(s, maxLineLength, null, true);
-            return wrapped.replaceAll("(?m)^[ \t]*\r?\n", "");
-        }
+    return longestLength;
+  }
 
-        return s;
+  public static double normalisedLevenshteinDistance(String one, String two) {
+    if (one == null || two == null) {
+      return 1.0;
     }
 
-    private static int findLongestLineLength(String s) {
-        String[] lines = s.split("\n");
-        int longestLength = 0;
-        for (String line: lines) {
-            int length = line.length();
-            if (length > longestLength) {
-                longestLength = length;
-            }
-        }
+    double maxDistance = Math.max(one.length(), two.length());
+    double actualDistance = getLevenshteinDistance(one, two);
+    return (actualDistance / maxDistance);
+  }
 
-        return longestLength;
-    }
-
+  public static String normaliseLineBreaks(String s) {
+    return s.replace("\r\n", "\n").replace("\n", lineSeparator());
+  }
 }

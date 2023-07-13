@@ -1,183 +1,179 @@
+/*
+ * Copyright (C) 2018-2023 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelperTestBase.transform;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableMap;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HandlebarsCurrentDateHelperTest {
 
-    private HandlebarsCurrentDateHelper helper;
-    private ResponseTemplateTransformer transformer;
+  private HandlebarsCurrentDateHelper helper;
+  private ResponseTemplateTransformer transformer;
 
-    @Before
-    public void init() {
-        helper = new HandlebarsCurrentDateHelper();
-        transformer = new ResponseTemplateTransformer(true);
+  @BeforeEach
+  public void init() {
+    helper = new HandlebarsCurrentDateHelper();
+    transformer = buildTemplateTransformer(true);
 
-        LocalNotifier.set(new ConsoleNotifier(true));
-    }
+    LocalNotifier.set(new ConsoleNotifier(true));
+  }
 
-    @Test
-    public void rendersNowDateTime() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
+  @Test
+  public void rendersNowDateTime() throws Exception {
+    Map<String, Object> optionsHash = Map.of();
 
-        Object output = render(optionsHash);
+    Object output = render(optionsHash);
 
-        assertThat(output, instanceOf(RenderableDate.class));
-        assertThat(output.toString(), WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
-    }
+    assertThat(output, instanceOf(RenderableDate.class));
+    assertThat(output.toString(), WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+  }
 
-    @Test
-    public void rendersNowDateTimeWithCustomFormat() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-            "format", "yyyy/mm/dd"
-        );
+  @Test
+  public void rendersNowDateTimeWithCustomFormat() throws Exception {
+    Map<String, Object> optionsHash = Map.of("format", "yyyy/mm/dd");
 
-        Object output = render(optionsHash);
+    Object output = render(optionsHash);
 
-        assertThat(output, instanceOf(RenderableDate.class));
-        assertThat(output.toString(), WireMatchers.matches("^[0-9]{4}/[0-9]{2}/[0-9]{2}$"));
-    }
+    assertThat(output, instanceOf(RenderableDate.class));
+    assertThat(output.toString(), WireMatchers.matches("^[0-9]{4}/[0-9]{2}/[0-9]{2}$"));
+  }
 
-    @Test
-    public void rendersPassedDateTimeWithDayOffset() throws Exception {
-        String format = "yyyy-MM-dd";
-        SimpleDateFormat df = new SimpleDateFormat(format);
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-            "format", format,
-            "offset", "5 days"
-        );
+  @Test
+  public void rendersPassedDateTimeWithDayOffset() throws Exception {
+    String format = "yyyy-MM-dd";
+    SimpleDateFormat df = new SimpleDateFormat(format);
+    Map<String, Object> optionsHash = Map.of("format", format, "offset", "5 days");
 
-        Object output = render(df.parse("2018-04-16"), optionsHash);
+    Object output = render(df.parse("2018-04-16"), optionsHash);
 
-        assertThat(output.toString(), is("2018-04-21"));
-    }
+    assertThat(output.toString(), is("2018-04-21"));
+  }
 
-    @Test
-    public void rendersNowWithDayOffset() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-            "offset", "6 months"
-        );
+  @Test
+  public void rendersNowWithDayOffset() throws Exception {
+    Map<String, Object> optionsHash = Map.of("offset", "6 months");
 
-        Object output = render(optionsHash);
+    Object output = render(optionsHash);
 
-        System.out.println(output);
-    }
+    System.out.println(output);
+  }
 
-    @Test
-    public void rendersNowAsUnixEpoch() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-            "format", "epoch"
-        );
+  @Test
+  public void rendersNowAsUnixEpochInMilliseconds() throws Exception {
+    Map<String, Object> optionsHash = Map.of("format", "epoch");
 
-        Date date = new Date();
-        Object output = render(date, optionsHash);
+    Date date = new Date();
+    Object output = render(date, optionsHash);
 
-        assertThat(output.toString(), is(String.valueOf(date.getTime())));
-    }
+    assertThat(output.toString(), is(String.valueOf(date.getTime())));
+  }
 
-    @Test
-    public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney"
-        );
+  @Test
+  public void rendersNowAsUnixEpochInSeconds() throws Exception {
+    Map<String, Object> optionsHash = Map.of("format", "unix");
 
-        Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
-        Object output = render(inputDate, optionsHash);
+    Date date = new Date();
+    Object output = render(date, optionsHash);
 
-        assertThat(output.toString(), is("2014-10-12T17:06:01+11:00"));
-    }
+    assertThat(output.toString(), is(String.valueOf(date.getTime() / 1000L)));
+  }
 
-    @Test
-    public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney",
-            "format", "yyyy-MM-dd HH:mm:ssZ"
-        );
+  @Test
+  public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
+    Map<String, Object> optionsHash = Map.of("offset", "3 days", "timezone", "Australia/Sydney");
 
-        Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
-        Object output = render(inputDate, optionsHash);
+    Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
+    Object output = render(inputDate, optionsHash);
 
-        assertThat(output.toString(), is("2014-10-12 17:06:01+1100"));
-    }
+    assertThat(output.toString(), is("2014-10-12T17:06:01+11:00"));
+  }
 
-    @Test
-    public void helperIsIncludedInTemplateTransformerWithNowTagName() {
-        final ResponseDefinition responseDefinition = this.transformer.transform(
+  @Test
+  public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
+    Map<String, Object> optionsHash =
+        Map.of(
+            "offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
+
+    Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
+    Object output = render(inputDate, optionsHash);
+
+    assertThat(output.toString(), is("2014-10-12 17:06:01+1100"));
+  }
+
+  @Test
+  public void helperIsIncludedInTemplateTransformerWithNowTagName() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
             mockRequest().url("/random-value"),
-            aResponse()
-                .withBody(
-                    "{{now offset='6 days'}}"
-                ).build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{now offset='6 days'}}"));
 
-        String body = responseDefinition.getBody().trim();
-        assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
-    }
+    String body = responseDefinition.getBody().trim();
+    assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+  }
 
-    @Test
-    public void helperIsIncludedInTemplateTransformerWithDateTagName() {
-        final ResponseDefinition responseDefinition = this.transformer.transform(
+  @Test
+  public void helperIsIncludedInTemplateTransformerWithDateTagName() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
             mockRequest().url("/random-value"),
-            aResponse()
-                .withBody(
-                    "{{date offset='6 days'}}"
-                ).build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{date offset='6 days'}}"));
 
-        String body = responseDefinition.getBody().trim();
-        assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
-    }
+    String body = responseDefinition.getBody().trim();
+    assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+  }
 
-    @Test
-    public void acceptsDateParameterwithDateTagName() {
-        final ResponseDefinition responseDefinition = this.transformer.transform(
+  @Test
+  public void acceptsDateParameterwithDateTagName() {
+    final ResponseDefinition responseDefinition =
+        transform(
+            transformer,
             mockRequest().url("/parsed-date"),
-            aResponse()
-                .withBody(
-                    "{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"
-                ).build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"));
 
-        String body = responseDefinition.getBody().trim();
-        assertThat(body, is("2018-05-04T10:11:12Z"));
-    }
+    String body = responseDefinition.getBody().trim();
+    assertThat(body, is("2018-05-04T10:11:12Z"));
+  }
 
-    private Object render(ImmutableMap<String, Object> optionsHash) throws IOException {
-        return render(null, optionsHash);
-    }
+  private Object render(Map<String, Object> optionsHash) throws IOException {
+    return render(null, optionsHash);
+  }
 
-    private Object render(Date context, ImmutableMap<String, Object> optionsHash) throws IOException {
-        return helper.apply(context,
-            new Options.Builder(null, null, null, null, null)
-                .setHash(optionsHash).build()
-        );
-    }
-
+  private Object render(Date context, Map<String, Object> optionsHash) throws IOException {
+    return helper.apply(
+        context, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
+  }
 }

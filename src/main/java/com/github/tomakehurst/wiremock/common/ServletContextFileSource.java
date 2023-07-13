@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,33 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.File;
 
 public class ServletContextFileSource extends AbstractFileSource {
-    
-    private final String rootPath;
-    private final ServletContext servletContext;
-    
-    public ServletContextFileSource(ServletContext servletContext, String rootPath) {
-        super(getRootFile(servletContext, rootPath));
-        this.rootPath = rootPath;
-        this.servletContext = servletContext;
-    }
-    
-    private static File getRootFile(ServletContext servletContext, String rootPath) {
-        String containerRootPath = servletContext.getRealPath(rootPath);
-        servletContext.log("rootPath: " + rootPath);
-        return new File(containerRootPath);
-    }
-    
 
-    @Override
-    public FileSource child(String subDirectoryName) {
-        return new ServletContextFileSource(servletContext, rootPath + '/' + subDirectoryName);
-    }
+  private final String rootPath;
+  private final ServletContext servletContext;
 
-    @Override
-    protected boolean readOnly() {
-        return true;
-    }
+  public ServletContextFileSource(ServletContext servletContext, String rootPath) {
+    super(getRootFile(servletContext, rootPath));
+    this.rootPath = rootPath;
+    this.servletContext = servletContext;
+  }
+
+  private static File getRootFile(ServletContext servletContext, String rootPath) {
+    String containerRootPath = servletContext.getRealPath(rootPath);
+    servletContext.log("rootPath: " + rootPath);
+    return new File(containerRootPath);
+  }
+
+  @Override
+  public FileSource child(String subDirectoryName) {
+    return new ServletContextFileSource(servletContext, rootPath + '/' + subDirectoryName);
+  }
+
+  @Override
+  protected boolean readOnly() {
+    return true;
+  }
 }

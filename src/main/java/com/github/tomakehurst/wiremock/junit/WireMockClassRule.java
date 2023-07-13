@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2013-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.junit;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -24,65 +26,67 @@ import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-
 public class WireMockClassRule extends WireMockServer implements MethodRule, TestRule {
 
-    public WireMockClassRule(Options options) {
-        super(options);
-    }
+  public WireMockClassRule(Options options) {
+    super(options);
+  }
 
-    public WireMockClassRule(int port, Integer httpsPort) {
-        this(wireMockConfig().port(port).httpsPort(httpsPort));
-    }
+  public WireMockClassRule(int port, Integer httpsPort) {
+    this(wireMockConfig().port(port).httpsPort(httpsPort));
+  }
 
-    public WireMockClassRule(int port) {
-        this(wireMockConfig().port(port));
-    }
+  public WireMockClassRule(int port) {
+    this(wireMockConfig().port(port));
+  }
 
-    public WireMockClassRule() {
-        this(wireMockConfig());
-    }
+  public WireMockClassRule() {
+    this(wireMockConfig());
+  }
 
-    @Override
-    public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-        return apply(base, null);
-    }
+  @Override
+  public Statement apply(final Statement base, FrameworkMethod method, Object target) {
+    return apply(base, null);
+  }
 
-    @Override
-    public Statement apply(final Statement base, Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                if (isRunning()) {
-                    try {
-                        before();
-                        base.evaluate();
-                    } finally {
-                        after();
-                        client.resetMappings();
-                    }
-                } else {
-                    start();
-                    WireMock.configureFor("localhost", port());
-                    try {
-                        before();
-                        base.evaluate();
-                    } finally {
-                        after();
-                        stop();
-                    }
-                }
-            }
+  @Override
+  public Statement apply(final Statement base, Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        if (isRunning()) {
+          try {
+            before();
+            base.evaluate();
+          } finally {
+            after();
+            client.resetMappings();
+          }
+        } else {
+          start();
+          if (options.getHttpDisabled()) {
+            WireMock.configureFor("https", "localhost", httpsPort());
+          } else {
+            WireMock.configureFor("http", "localhost", port());
+          }
 
-        };
-    }
+          try {
+            before();
+            base.evaluate();
+          } finally {
+            after();
+            stop();
+          }
+        }
+      }
+    };
+  }
 
-    protected void before() {
-        // NOOP
-    }
+  protected void before() {
+    // NOOP
+  }
 
-    protected void after() {
-        // NOOP
-    }
+  protected void after() {
+    // NOOP
+  }
 }

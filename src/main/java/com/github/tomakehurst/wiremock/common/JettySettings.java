@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,92 +15,139 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
- * Exposed Jetty tuning options. See: http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/server/AbstractConnector.html
+ * Exposed Jetty tuning options. See: <a
+ * href="https://www.eclipse.org/jetty/javadoc/jetty-11/org/eclipse/jetty/server/AbstractConnector.html">AbstractConnector</a>
  */
 public class JettySettings {
-    private final Optional<Integer> acceptors;
-    private final Optional<Integer> acceptQueueSize;
-    private final Optional<Integer> requestHeaderSize;
-    private final Optional<Long> stopTimeout;
+  private final Integer acceptors;
+  private final Integer acceptQueueSize;
+  private final Integer requestHeaderSize;
+  private final Integer responseHeaderSize;
+  private final Long stopTimeout;
+  private final Long idleTimeout;
+  private final Long shutdownIdleTimeout;
 
-    private JettySettings(Optional<Integer> acceptors,
-                          Optional<Integer> acceptQueueSize,
-                          Optional<Integer> requestHeaderSize,
-                          Optional<Long> stopTimeout) {
-        this.acceptors = acceptors;
-        this.acceptQueueSize = acceptQueueSize;
-        this.requestHeaderSize = requestHeaderSize;
-        this.stopTimeout = stopTimeout;
+  private JettySettings(
+      Integer acceptors,
+      Integer acceptQueueSize,
+      Integer requestHeaderSize,
+      Integer responseHeaderSize,
+      Long stopTimeout,
+      Long idleTimeout,
+      Long shutdownIdleTimeout) {
+    this.acceptors = acceptors;
+    this.acceptQueueSize = acceptQueueSize;
+    this.requestHeaderSize = requestHeaderSize;
+    this.responseHeaderSize = responseHeaderSize;
+    this.stopTimeout = stopTimeout;
+    this.idleTimeout = idleTimeout;
+    this.shutdownIdleTimeout = shutdownIdleTimeout;
+  }
+
+  public Optional<Integer> getAcceptors() {
+    return Optional.ofNullable(acceptors);
+  }
+
+  public Optional<Integer> getAcceptQueueSize() {
+    return Optional.ofNullable(acceptQueueSize);
+  }
+
+  public Optional<Integer> getRequestHeaderSize() {
+    return Optional.ofNullable(requestHeaderSize);
+  }
+
+  public Optional<Integer> getResponseHeaderSize() {
+    return Optional.ofNullable(responseHeaderSize);
+  }
+
+  public Optional<Long> getStopTimeout() {
+    return Optional.ofNullable(stopTimeout);
+  }
+
+  public Optional<Long> getIdleTimeout() {
+    return Optional.ofNullable(idleTimeout);
+  }
+
+  public Optional<Long> getShutdownIdleTimeout() {
+    return Optional.ofNullable(shutdownIdleTimeout);
+  }
+
+  @Override
+  public String toString() {
+    return "JettySettings{"
+        + "acceptors="
+        + acceptors
+        + ", acceptQueueSize="
+        + acceptQueueSize
+        + ", requestHeaderSize="
+        + requestHeaderSize
+        + ", responseHeaderSize="
+        + responseHeaderSize
+        + '}';
+  }
+
+  public static class Builder {
+    private Integer acceptors;
+    private Integer acceptQueueSize;
+    private Integer requestHeaderSize;
+    private Integer responseHeaderSize;
+    private Long stopTimeout;
+    private Long idleTimeout;
+    private Long shutdownIdleTimeout;
+
+    private Builder() {}
+
+    public static Builder aJettySettings() {
+      return new Builder();
     }
 
-    public Optional<Integer> getAcceptors() {
-        return acceptors;
+    public Builder withAcceptors(Integer acceptors) {
+      this.acceptors = acceptors;
+      return this;
     }
 
-    public Optional<Integer> getAcceptQueueSize() {
-        return acceptQueueSize;
+    public Builder withAcceptQueueSize(Integer acceptQueueSize) {
+      this.acceptQueueSize = acceptQueueSize;
+      return this;
     }
 
-    public Optional<Integer> getRequestHeaderSize() {
-        return requestHeaderSize;
+    public Builder withRequestHeaderSize(Integer requestHeaderSize) {
+      this.requestHeaderSize = requestHeaderSize;
+      return this;
     }
 
-    public Optional<Long> getStopTimeout() {
-        return stopTimeout;
+    public Builder withResponseHeaderSize(Integer responseHeaderSize) {
+      this.responseHeaderSize = responseHeaderSize;
+      return this;
     }
 
-    @Override
-    public String toString() {
-        return "JettySettings{" +
-                "acceptors=" + acceptors +
-                ", acceptQueueSize=" + acceptQueueSize +
-                ", requestHeaderSize=" + requestHeaderSize +
-                '}';
+    public Builder withStopTimeout(Long stopTimeout) {
+      this.stopTimeout = stopTimeout;
+      return this;
     }
 
-    public static class Builder {
-        private Integer acceptors;
-        private Integer acceptQueueSize;
-        private Integer requestHeaderSize;
-        private Long stopTimeout;
-
-        private Builder() {
-        }
-
-        public static Builder aJettySettings() {
-            return new Builder();
-        }
-
-        public Builder withAcceptors(Integer acceptors) {
-            this.acceptors = acceptors;
-            return this;
-        }
-
-        public Builder withAcceptQueueSize(Integer acceptQueueSize) {
-            this.acceptQueueSize = acceptQueueSize;
-            return this;
-        }
-
-        public Builder withRequestHeaderSize(Integer requestHeaderSize) {
-            this.requestHeaderSize = requestHeaderSize;
-            return this;
-        }
-
-        public Builder withStopTimeout(Long stopTimeout) {
-            this.stopTimeout = stopTimeout;
-            return this;
-        }
-
-        public JettySettings build() {
-            return new JettySettings(Optional.fromNullable(acceptors),
-                    Optional.fromNullable(acceptQueueSize),
-                    Optional.fromNullable(requestHeaderSize),
-                    Optional.fromNullable(stopTimeout));
-        }
+    public Builder withIdleTimeout(Long idleTimeout) {
+      this.idleTimeout = idleTimeout;
+      return this;
     }
 
+    public Builder withShutdownIdleTimeout(Long shutdownIdleTimeout) {
+      this.shutdownIdleTimeout = shutdownIdleTimeout;
+      return this;
+    }
 
+    public JettySettings build() {
+      return new JettySettings(
+          acceptors,
+          acceptQueueSize,
+          requestHeaderSize,
+          responseHeaderSize,
+          stopTimeout,
+          idleTimeout,
+          shutdownIdleTimeout);
+    }
+  }
 }

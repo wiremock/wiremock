@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,281 +15,316 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
+import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
+import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
-
-import java.net.URI;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-
 import java.nio.charset.Charset;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
-import static com.google.common.base.Charsets.UTF_8;
-
-import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
-import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
-    private final String scheme;
-    private final String host;
-    private final int port;
-    private final String url;
-    private final String absoluteUrl;
-    private final String clientIp;
-    private final RequestMethod method;
-    private final HttpHeaders headers;
-    private final Map<String, Cookie> cookies;
-    private final Map<String, QueryParameter> queryParams;
-    private final byte[] body;
-    private final boolean isBrowserProxyRequest;
-    private final Date loggedDate;
-    private final Collection<Part> multiparts;
+  private final String scheme;
+  private final String host;
+  private final int port;
+  private final String url;
+  private final String absoluteUrl;
+  private final String clientIp;
+  private final RequestMethod method;
+  private final HttpHeaders headers;
+  private final Map<String, Cookie> cookies;
+  private final Map<String, QueryParameter> queryParams;
+  private final Map<String, FormParameter> formParameters;
+  private final byte[] body;
+  private final boolean isBrowserProxyRequest;
+  private final Date loggedDate;
+  private final Collection<Part> multiparts;
+  private final String protocol;
 
-    public static LoggedRequest createFrom(Request request) {
-        return new LoggedRequest(request.getUrl(),
-            request.getAbsoluteUrl(),
-            request.getMethod(),
-            request.getClientIp(),
-            copyOf(request.getHeaders()),
-            ImmutableMap.copyOf(request.getCookies()),
-            request.isBrowserProxyRequest(),
-            new Date(),
-            request.getBody(),
-            request.getParts()
-        );
+  public static LoggedRequest createFrom(Request request) {
+    return new LoggedRequest(
+        request.getScheme(),
+        request.getHost(),
+        request.getPort(),
+        request.getUrl(),
+        request.getAbsoluteUrl(),
+        request.getMethod(),
+        request.getClientIp(),
+        request.getHeaders(),
+        request.getCookies(),
+        request.isBrowserProxyRequest(),
+        new Date(),
+        request.getBody(),
+        request.getParts(),
+        request.getProtocol(),
+        request.formParameters());
+  }
+
+  @JsonCreator
+  LoggedRequest(
+      @JsonProperty("url") String url,
+      @JsonProperty("absoluteUrl") String absoluteUrl,
+      @JsonProperty("method") RequestMethod method,
+      @JsonProperty("clientIp") String clientIp,
+      @JsonProperty("headers") HttpHeaders headers,
+      @JsonProperty("cookies") Map<String, Cookie> cookies,
+      @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+      @JsonProperty("loggedDate") Date loggedDate,
+      @JsonProperty("bodyAsBase64") String bodyAsBase64,
+      @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
+      @JsonProperty("multiparts") Collection<Part> multiparts,
+      @JsonProperty("protocol") String protocol) {
+    this(
+        null,
+        null,
+        null,
+        url,
+        absoluteUrl,
+        method,
+        clientIp,
+        headers,
+        cookies,
+        isBrowserProxyRequest,
+        loggedDate,
+        decodeBase64(bodyAsBase64),
+        multiparts,
+        protocol,
+        new HashMap<>());
+  }
+
+  private LoggedRequest(
+      String scheme,
+      String host,
+      Integer port,
+      String url,
+      String absoluteUrl,
+      RequestMethod method,
+      String clientIp,
+      HttpHeaders headers,
+      Map<String, Cookie> cookies,
+      boolean isBrowserProxyRequest,
+      Date loggedDate,
+      byte[] body,
+      Collection<Part> multiparts,
+      String protocol,
+      Map<String, FormParameter> formParameters) {
+    this.url = url;
+
+    this.absoluteUrl = absoluteUrl;
+    if (absoluteUrl == null) {
+      this.scheme = scheme;
+      this.host = host;
+      this.port = port != null ? port : -1;
+    } else {
+      URL fullUrl = safelyCreateURL(absoluteUrl);
+      this.scheme = fullUrl.getProtocol();
+      this.host = fullUrl.getHost();
+      this.port = Urls.getPort(fullUrl);
     }
 
-    @JsonCreator
-    public LoggedRequest(
-            @JsonProperty("url") String url,
-            @JsonProperty("absoluteUrl") String absoluteUrl,
-            @JsonProperty("method") RequestMethod method,
-            @JsonProperty("clientIp") String clientIp,
-            @JsonProperty("headers") HttpHeaders headers,
-            @JsonProperty("cookies") Map<String, Cookie> cookies,
-            @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-            @JsonProperty("loggedDate") Date loggedDate,
-            @JsonProperty("bodyAsBase64") String bodyAsBase64,
-            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
-            @JsonProperty("multiparts") Collection<Part> multiparts) {
-        this(url, absoluteUrl, method, clientIp, headers, cookies, isBrowserProxyRequest, loggedDate, decodeBase64(bodyAsBase64), multiparts);
+    this.clientIp = clientIp;
+    this.method = method;
+    this.body = body;
+    this.headers = headers;
+    this.cookies = cookies;
+    this.queryParams = url != null ? splitQueryFromUrl(url) : Collections.emptyMap();
+    this.formParameters = formParameters;
+    this.isBrowserProxyRequest = isBrowserProxyRequest;
+    this.loggedDate = loggedDate;
+    this.multiparts = multiparts;
+    this.protocol = protocol;
+  }
+
+  @Override
+  public String getUrl() {
+    return url;
+  }
+
+  @Override
+  public String getAbsoluteUrl() {
+    return absoluteUrl;
+  }
+
+  @Override
+  public RequestMethod getMethod() {
+    return method;
+  }
+
+  @Override
+  public String getScheme() {
+    return scheme;
+  }
+
+  @Override
+  public String getHost() {
+    return host;
+  }
+
+  @Override
+  public int getPort() {
+    return port;
+  }
+
+  @Override
+  public String getClientIp() {
+    return clientIp;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getHeader(String key) {
+    HttpHeader header = header(key);
+    if (header.isPresent()) {
+      return header.firstValue();
     }
 
-    public LoggedRequest(
-            String url,
-            String absoluteUrl,
-            RequestMethod method,
-            String clientIp,
-            HttpHeaders headers,
-            Map<String, Cookie> cookies,
-            boolean isBrowserProxyRequest,
-            Date loggedDate,
-            byte[] body,
-            Collection<Part> multiparts) {
-        this.url = url;
+    return null;
+  }
 
-        this.absoluteUrl = absoluteUrl;
-        if (absoluteUrl == null) {
-            this.scheme = null;
-            this.host = null;
-            this.port = -1;
-        } else {
-            URL fullUrl = safelyCreateURL(absoluteUrl);
-            this.scheme = fullUrl.getProtocol();
-            this.host = fullUrl.getHost();
-            this.port = fullUrl.getPort();
-        }
+  @Override
+  public HttpHeader header(String key) {
+    return headers.getHeader(key);
+  }
 
-        this.clientIp = clientIp;
-        this.method = method;
-        this.body = body;
-        this.headers = headers;
-        this.cookies = cookies;
-        this.queryParams = splitQuery(URI.create(url));
-        this.isBrowserProxyRequest = isBrowserProxyRequest;
-        this.loggedDate = loggedDate;
-        this.multiparts = multiparts;
+  @Override
+  public ContentTypeHeader contentTypeHeader() {
+    if (headers != null) {
+      return headers.getContentTypeHeader();
     }
+    return null;
+  }
 
-    @Override
-    public String getUrl() {
-        return url;
+  private Charset encodingFromContentTypeHeaderOrUtf8() {
+    ContentTypeHeader contentTypeHeader = contentTypeHeader();
+    if (contentTypeHeader != null) {
+      return contentTypeHeader.charset();
     }
+    return UTF_8;
+  }
 
-    @Override
-    public String getAbsoluteUrl() {
-        return absoluteUrl;
-    }
+  @Override
+  public boolean containsHeader(String key) {
+    return getHeader(key) != null;
+  }
 
-    @Override
-    public RequestMethod getMethod() {
-        return method;
-    }
+  @Override
+  public Map<String, Cookie> getCookies() {
+    return cookies;
+  }
 
-    @Override
-    public String getScheme() {
-        return scheme;
-    }
+  @Override
+  public byte[] getBody() {
+    return body;
+  }
 
-    @Override
-    public String getHost() {
-        return host;
-    }
+  @Override
+  @JsonProperty("body")
+  public String getBodyAsString() {
+    return stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8());
+  }
 
-    @Override
-    public int getPort() {
-        return port;
-    }
+  @Override
+  @JsonProperty("bodyAsBase64")
+  public String getBodyAsBase64() {
+    return encodeBase64(body);
+  }
 
-    @Override
-    public String getClientIp() {
-        return clientIp;
-    }
+  @Override
+  @JsonIgnore
+  public Set<String> getAllHeaderKeys() {
+    return headers.keys();
+  }
 
-    @Override
-    @JsonIgnore
-    public String getHeader(String key) {
-        HttpHeader header = header(key);
-        if (header.isPresent()) {
-            return header.firstValue();
-        }
+  @Override
+  public QueryParameter queryParameter(String key) {
+    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+  }
 
-        return null;
-    }
+  @Override
+  public FormParameter formParameter(String key) {
+    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
+  }
 
-    @Override
-    public HttpHeader header(String key) {
-        return headers.getHeader(key);
-    }
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return formParameters;
+  }
 
-    @Override
-    public ContentTypeHeader contentTypeHeader() {
-        if (headers != null) {
-            return headers.getContentTypeHeader();
-        }
-        return null;
-    }
+  @JsonProperty("formParams")
+  public Map<String, FormParameter> getFormParameters() {
+    return formParameters;
+  }
 
-    private Charset encodingFromContentTypeHeaderOrUtf8() {
-        ContentTypeHeader contentTypeHeader = contentTypeHeader();
-        if (contentTypeHeader != null) {
-            return contentTypeHeader.charset();
-        }
-        return UTF_8;
-    }
+  @JsonProperty("queryParams")
+  public Map<String, QueryParameter> getQueryParams() {
+    return queryParams;
+  }
 
-    @Override
-    public boolean containsHeader(String key) {
-        return getHeader(key) != null;
-    }
+  public HttpHeaders getHeaders() {
+    return headers;
+  }
 
-    @Override
-    public Map<String, Cookie> getCookies() {
-        return cookies;
-    }
+  @Override
+  public boolean isBrowserProxyRequest() {
+    return isBrowserProxyRequest;
+  }
 
-    @Override
-    public byte[] getBody() {
-        return body;
-    }
+  @JsonIgnore
+  @Override
+  public Optional<Request> getOriginalRequest() {
+    return Optional.empty();
+  }
 
-    @Override
-    @JsonProperty("body")
-    public String getBodyAsString() {
-        return stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8());
-    }
+  @Override
+  public String getProtocol() {
+    return protocol;
+  }
 
-    @Override
-    @JsonProperty("bodyAsBase64")
-    public String getBodyAsBase64() {
-        return encodeBase64(body);
-    }
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+  public Date getLoggedDate() {
+    return loggedDate;
+  }
 
-    @Override
-    @JsonIgnore
-    public Set<String> getAllHeaderKeys() {
-        return headers.keys();
-    }
+  public String getLoggedDateString() {
+    return loggedDate != null ? Dates.format(loggedDate) : null;
+  }
 
-    @Override
-    public QueryParameter queryParameter(String key) {
-        return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
-    }
+  @Override
+  public String toString() {
+    return Json.write(this);
+  }
 
-    @JsonProperty("queryParams")
-    public Map<String, QueryParameter> getQueryParams() {
-        return queryParams;
-    }
+  @JsonIgnore
+  @Override
+  public boolean isMultipart() {
+    return (multiparts != null && !multiparts.isEmpty());
+  }
 
-    public HttpHeaders getHeaders() {
-        return headers;
-    }
+  @JsonIgnore
+  @Override
+  public Collection<Part> getParts() {
+    return multiparts;
+  }
 
-    @Override
-    public boolean isBrowserProxyRequest() {
-        return isBrowserProxyRequest;
-    }
-
-    @JsonIgnore
-    @Override
-    public Optional<Request> getOriginalRequest() {
-        return Optional.absent();
-    }
-
-    public Date getLoggedDate() {
-        return loggedDate;
-    }
-
-    public String getLoggedDateString() {
-        return Dates.format(loggedDate);
-    }
-
-    @Override
-    public String toString() {
-        return Json.write(this);
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isMultipart() {
-        return (multiparts != null && multiparts.size() > 0);
-    }
-
-    @JsonIgnore
-    @Override
-    public Collection<Part> getParts() {
-        return multiparts;
-    }
-
-    @JsonIgnore
-    @Override
-    public Part getPart(final String name) {
-        return (multiparts != null && name != null) ? from(multiparts).firstMatch(new Predicate<Part>() {
-            @Override
-            public boolean apply(Part input) {
-                return (name.equals(input.getName()));
-            }
-        }).get() : null;
-    }
+  @JsonIgnore
+  @Override
+  public Part getPart(final String name) {
+    return (multiparts != null && name != null)
+        ? multiparts.stream()
+            .filter(input -> (name.equals(input.getName())))
+            .findFirst()
+            .orElse(null)
+        : null;
+  }
 }

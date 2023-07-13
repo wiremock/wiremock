@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,24 @@
 package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-
-import java.io.File;
-
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import com.github.tomakehurst.wiremock.store.Stores;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class DeleteStubFileTask implements AdminTask {
-    @Override
-    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        FileSource fileSource = admin.getOptions().filesRoot().child(FILES_ROOT);
-        File filename = new File(fileSource.getPath(), pathParams.get("filename"));
-        boolean deleted = filename.delete();
-        if (deleted) {
-            return ResponseDefinition.ok();
-        } else {
-            return new ResponseDefinition(HTTP_INTERNAL_ERROR, "File not deleted");
-        }
-    }
+
+  private final Stores stores;
+
+  public DeleteStubFileTask(Stores stores) {
+    this.stores = stores;
+  }
+
+  @Override
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
+    String filePath = pathParams.get("0");
+    stores.getFilesBlobStore().remove(filePath);
+    return ResponseDefinition.ok();
+  }
 }

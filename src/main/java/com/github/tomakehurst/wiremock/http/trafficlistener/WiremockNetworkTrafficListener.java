@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 public interface WiremockNetworkTrafficListener {
-    void opened(Socket socket);
-    void incoming(Socket socket, ByteBuffer bytes);
-    void outgoing(Socket socket, ByteBuffer bytes);
-    void closed(Socket socket);
+  void opened(Socket socket);
+
+  void incoming(Socket socket, ByteBuffer bytes);
+
+  void outgoing(Socket socket, ByteBuffer bytes);
+
+  void closed(Socket socket);
 }

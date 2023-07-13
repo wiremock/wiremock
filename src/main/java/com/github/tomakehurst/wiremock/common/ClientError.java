@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,33 @@ import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 
 public class ClientError extends RuntimeException {
 
-    private final Errors errors;
+  private final Errors errors;
 
-    public ClientError(Errors errors) {
-        super(Json.write(errors));
-        this.errors = errors;
-    }
+  public ClientError(Errors errors) {
+    super(Json.write(errors));
+    this.errors = errors;
+  }
 
-    public static ClientError fromErrors(Errors errors) {
-        Integer errorCode = errors.first().getCode();
-        switch (errorCode) {
-            case 10:
-                return new InvalidInputException(errors);
-            case 30:
-                return new NotRecordingException();
-            default:
-                return new ClientError(errors);
-        }
-    }
+  protected ClientError(Throwable cause, Errors errors) {
+    super(Json.write(errors), cause);
+    this.errors = errors;
+  }
 
-    public Errors getErrors() {
-        return errors;
+  public static ClientError fromErrors(Errors errors) {
+    Integer errorCode = errors.first().getCode();
+    switch (errorCode) {
+      case 10:
+        return new InvalidInputException(errors);
+      case 30:
+        return new NotRecordingException();
+      case 50:
+        return new NotPermittedException(errors);
+      default:
+        return new ClientError(errors);
     }
+  }
+
+  public Errors getErrors() {
+    return errors;
+  }
 }

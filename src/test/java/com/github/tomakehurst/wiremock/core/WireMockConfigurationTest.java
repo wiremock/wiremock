@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,39 +15,69 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.google.common.base.Optional;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.junit.Test;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import java.util.Optional;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.junit.jupiter.api.Test;
 
 public class WireMockConfigurationTest {
 
-    @Test
-    public void testJettyStopTimeout() {
-        Long expectedStopTimeout = 500L;
-        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
-        Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
+  @Test
+  public void testJettyStopTimeout() {
+    Long expectedStopTimeout = 500L;
+    WireMockConfiguration wireMockConfiguration =
+        WireMockConfiguration.wireMockConfig().jettyStopTimeout(expectedStopTimeout);
+    Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
 
-        assertThat(jettyStopTimeout.isPresent(), is(true));
-        assertThat(jettyStopTimeout.get(), is(expectedStopTimeout));
-    }
+    assertThat(jettyStopTimeout.isPresent(), is(true));
+    assertThat(jettyStopTimeout.get(), is(expectedStopTimeout));
+  }
 
-    @Test
-    public void testJettyStopTimeoutNotSet() {
-        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
-        Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
-        assertThat(jettyStopTimeout.isPresent(), is(false));
-    }
+  @Test
+  public void testJettyStopTimeoutNotSet() {
+    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
+    Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
+    assertThat(jettyStopTimeout.isPresent(), is(false));
+  }
 
-    @Test
-    public void shouldUseQueuedThreadPoolByDefault() {
-        int maxThreads = 20;
-        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().containerThreads(maxThreads);
+  @Test
+  public void testJettyIdleTimeout() {
+    Long expectedIdleTimeout = 500L;
+    WireMockConfiguration wireMockConfiguration =
+        WireMockConfiguration.wireMockConfig().jettyIdleTimeout(expectedIdleTimeout);
+    Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
 
-        QueuedThreadPool threadPool = (QueuedThreadPool) wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
+    assertThat(jettyIdleTimeout.isPresent(), is(true));
+    assertThat(jettyIdleTimeout.get(), is(expectedIdleTimeout));
+  }
 
-        assertThat(threadPool.getMaxThreads(), is(maxThreads));
-    }
+  @Test
+  public void testJettyIdleTimeoutNotSet() {
+    WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
+    Optional<Long> jettyIdleTimeout = wireMockConfiguration.jettySettings().getIdleTimeout();
+    assertThat(jettyIdleTimeout.isPresent(), is(false));
+  }
+
+  @Test
+  public void shouldUseQueuedThreadPoolByDefault() {
+    int maxThreads = 20;
+    WireMockConfiguration wireMockConfiguration =
+        WireMockConfiguration.wireMockConfig().containerThreads(maxThreads);
+
+    QueuedThreadPool threadPool =
+        (QueuedThreadPool)
+            wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
+
+    assertThat(threadPool.getMaxThreads(), is(maxThreads));
+  }
+
+  @Test
+  public void testProxyPassThroughSetAsFalse() {
+    WireMockConfiguration wireMockConfiguration =
+        WireMockConfiguration.wireMockConfig().proxyPassThrough(false);
+    assertFalse(wireMockConfiguration.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
 }

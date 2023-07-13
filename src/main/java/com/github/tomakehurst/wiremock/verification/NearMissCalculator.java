@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,64 +15,74 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
+import static java.lang.Math.min;
 
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.MemoizingMatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.Math.min;
+import java.util.stream.Collectors;
 
 public class NearMissCalculator {
 
-    public static final int NEAR_MISS_COUNT = 3;
+  public static final int NEAR_MISS_COUNT = 3;
 
-    public static final Comparator<NearMiss> NEAR_MISS_ASCENDING_COMPARATOR = new Comparator<NearMiss>() {
-        public int compare(NearMiss o1, NearMiss o2) {
-            return o1.compareTo(o2);
-        }
-    };
+  public static final Comparator<NearMiss> NEAR_MISS_ASCENDING_COMPARATOR = Comparable::compareTo;
 
-    private final StubMappings stubMappings;
-    private final RequestJournal requestJournal;
+  private final StubMappings stubMappings;
+  private final RequestJournal requestJournal;
+  private final Scenarios scenarios;
 
-    public NearMissCalculator(StubMappings stubMappings, RequestJournal requestJournal) {
-        this.stubMappings = stubMappings;
-        this.requestJournal = requestJournal;
+  public NearMissCalculator(
+      StubMappings stubMappings, RequestJournal requestJournal, Scenarios scenarios) {
+    this.stubMappings = stubMappings;
+    this.requestJournal = requestJournal;
+    this.scenarios = scenarios;
+  }
+
+  public List<NearMiss> findNearestTo(final LoggedRequest request) {
+    List<StubMapping> allMappings = stubMappings.getAll();
+
+    return sortAndTruncate(
+        allMappings.stream()
+            .map(
+                stubMapping -> {
+                  MatchResult matchResult =
+                      new MemoizingMatchResult(stubMapping.getRequest().match(request));
+                  String actualScenarioState = getScenarioStateOrNull(stubMapping);
+                  return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
+                })
+            .collect(Collectors.toList()),
+        allMappings.size());
+  }
+
+  private String getScenarioStateOrNull(StubMapping stubMapping) {
+    if (!stubMapping.isInScenario()) {
+      return null;
     }
 
-    public List<NearMiss> findNearestTo(final LoggedRequest request) {
-        List<StubMapping> allMappings = stubMappings.getAll();
+    Scenario scenario = scenarios.getByName(stubMapping.getScenarioName());
+    return scenario != null ? scenario.getState() : null;
+  }
 
-        return sortAndTruncate(from(allMappings).transform(new Function<StubMapping, NearMiss>() {
-            public NearMiss apply(StubMapping stubMapping) {
-                MatchResult matchResult = stubMapping.getRequest().match(request);
-                return new NearMiss(request, stubMapping, matchResult);
-            }
-        }), allMappings.size());
-    }
+  public List<NearMiss> findNearestTo(final RequestPattern requestPattern) {
+    List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
+    return sortAndTruncate(
+        serveEvents.stream()
+            .map(
+                serveEvent -> {
+                  MatchResult matchResult =
+                      new MemoizingMatchResult(requestPattern.match(serveEvent.getRequest()));
+                  return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
+                })
+            .collect(Collectors.toList()),
+        serveEvents.size());
+  }
 
-    public List<NearMiss> findNearestTo(final RequestPattern requestPattern) {
-        List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
-        return sortAndTruncate(from(serveEvents).transform(new Function<ServeEvent, NearMiss>() {
-            public NearMiss apply(ServeEvent serveEvent) {
-                MatchResult matchResult = requestPattern.match(serveEvent.getRequest());
-                return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
-            }
-        }), serveEvents.size());
-    }
-
-    private static List<NearMiss> sortAndTruncate(FluentIterable<NearMiss> nearMisses, int originalSize) {
-        return nearMisses
-            .toSortedList(NEAR_MISS_ASCENDING_COMPARATOR)
-            .subList(0, min(NEAR_MISS_COUNT, originalSize));
-    }
-
-
+  private static List<NearMiss> sortAndTruncate(List<NearMiss> nearMisses, int originalSize) {
+    nearMisses.sort(NEAR_MISS_ASCENDING_COMPARATOR);
+    return nearMisses.subList(0, min(NEAR_MISS_COUNT, originalSize));
+  }
 }

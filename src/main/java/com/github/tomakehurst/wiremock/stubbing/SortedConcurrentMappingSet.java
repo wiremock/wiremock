@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,83 +15,81 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.google.common.base.Predicate;
+import static com.google.common.collect.Iterables.removeIf;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static com.google.common.collect.Iterables.removeIf;
+import java.util.stream.Stream;
 
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
-	private AtomicLong insertionCount;
-	private ConcurrentSkipListSet<StubMapping> mappingSet;
-	
-	public SortedConcurrentMappingSet() {
-		insertionCount = new AtomicLong();
-		mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
-	}
-	
-	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
-		return new Comparator<StubMapping>() {
-			public int compare(StubMapping one, StubMapping two) {
-				int priorityComparison = one.comparePriorityWith(two);
-				if (priorityComparison != 0) {
-					return priorityComparison;
-				}
+  private final AtomicLong insertionCount;
+  private final ConcurrentSkipListSet<StubMapping> mappingSet;
 
-				return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
-			}
-		};
-	}
+  public SortedConcurrentMappingSet() {
+    insertionCount = new AtomicLong();
+    mappingSet = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
+  }
 
-	@Override
-	public Iterator<StubMapping> iterator() {
-		return mappingSet.iterator();
-	}
-	
-	public void add(StubMapping mapping) {
-		mapping.setInsertionIndex(insertionCount.getAndIncrement());
-		mappingSet.add(mapping);
-	}
+  private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
+    return (one, two) -> {
+      int priorityComparison = one.comparePriorityWith(two);
+      if (priorityComparison != 0) {
+        return priorityComparison;
+      }
 
-	public boolean remove(final StubMapping mappingToRemove) {
-		boolean removedByUuid = removeIf(mappingSet, new Predicate<StubMapping>() {
-            @Override
-            public boolean apply(StubMapping mapping) {
-                return mappingToRemove.getUuid() != null &&
-                    mapping.getUuid() != null &&
-                    mappingToRemove.getUuid().equals(mapping.getUuid());
-            }
-        });
+      return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
+    };
+  }
 
-        boolean removedByRequestPattern = !removedByUuid && removeIf(mappingSet, new Predicate<StubMapping>() {
-            @Override
-            public boolean apply(StubMapping mapping) {
-                return mappingToRemove.getRequest().equals(mapping.getRequest());
-            }
-        });
+  @Override
+  public Iterator<StubMapping> iterator() {
+    return mappingSet.iterator();
+  }
 
-        return removedByUuid || removedByRequestPattern;
-	}
+  public Stream<StubMapping> stream() {
+    return mappingSet.stream();
+  }
 
-	public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
+  public void add(StubMapping mapping) {
+    mapping.setInsertionIndex(insertionCount.getAndIncrement());
+    mappingSet.add(mapping);
+  }
 
-		if ( mappingSet.remove(existingStubMapping) ) {
-			mappingSet.add(newStubMapping);
-			return true;
-		}
-		return false;
-	}
+  public boolean remove(final StubMapping mappingToRemove) {
+    boolean removedByUuid =
+        removeIf(
+            mappingSet,
+            mapping ->
+                mappingToRemove.getUuid() != null
+                    && mapping.getUuid() != null
+                    && mappingToRemove.getUuid().equals(mapping.getUuid()));
 
-	public void clear() {
-		mappingSet.clear();
-	}
-	
-	@Override
-	public String toString() {
-		return mappingSet.toString();
-	}
+    boolean removedByRequestPattern =
+        !removedByUuid
+            && removeIf(
+                mappingSet, mapping -> mappingToRemove.getRequest().equals(mapping.getRequest()));
+
+    return removedByUuid || removedByRequestPattern;
+  }
+
+  public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
+
+    if (mappingSet.remove(existingStubMapping)) {
+      mappingSet.add(newStubMapping);
+      return true;
+    }
+    return false;
+  }
+
+  public void clear() {
+    mappingSet.clear();
+  }
+
+  @Override
+  public String toString() {
+    return mappingSet.toString();
+  }
 }

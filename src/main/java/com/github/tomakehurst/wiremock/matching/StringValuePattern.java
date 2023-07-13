@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,73 +18,78 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Objects;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
-    public static final AbsentPattern ABSENT = new AbsentPattern(null);
+  protected StringValuePattern(String expectedValue) {
+    super(expectedValue);
+  }
 
-    public StringValuePattern(String expectedValue) {
-        super(expectedValue);
-    }
+  @JsonIgnore
+  public boolean isPresent() {
+    return !nullSafeIsAbsent();
+  }
 
-    @JsonIgnore
-    public boolean isPresent() {
-        return this != ABSENT;
-    }
+  public Boolean isAbsent() {
+    return !nullSafeIsAbsent() ? null : true;
+  }
 
-    public Boolean isAbsent() {
-        return this != ABSENT ? null : true;
-    }
+  @JsonIgnore
+  public boolean nullSafeIsAbsent() {
+    return false;
+  }
 
-    @JsonIgnore
-    public Boolean nullSafeIsAbsent() {
-        return this == ABSENT;
-    }
+  @Override
+  public String toString() {
+    return getName() + " " + getValue();
+  }
 
-    @Override
-    public String toString() {
-        return getName() + " " + getValue();
-    }
+  public final String getName() {
+    Constructor<?> constructor =
+        Arrays.stream(this.getClass().getDeclaredConstructors())
+            .filter(
+                input ->
+                    input.getParameterAnnotations().length > 0
+                        && input.getParameterAnnotations()[0].length > 0
+                        && input.getParameterAnnotations()[0][0] instanceof JsonProperty)
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Constructor must have a first parameter annotated with JsonProperty(\"<operator name>\")"));
 
-    public final String getName() {
-        Constructor<?> constructor =
-            FluentIterable.from(this.getClass().getDeclaredConstructors()).firstMatch(new Predicate<Constructor<?>>() {
-            @Override
-            public boolean apply(Constructor<?> input) {
-                return (input.getParameterAnnotations().length > 0 &&
-                        input.getParameterAnnotations()[0].length > 0 &&
-                        input.getParameterAnnotations()[0][0] instanceof JsonProperty);
-            }
-        }).orNull();
+    JsonProperty jsonPropertyAnnotation =
+        (JsonProperty) constructor.getParameterAnnotations()[0][0];
+    return jsonPropertyAnnotation.value();
+  }
 
-        if (constructor == null) {
-            throw new IllegalStateException("Constructor must have a first parameter annotatated with JsonProperty(\"<operator name>\")");
-        }
-        JsonProperty jsonPropertyAnnotation = (JsonProperty) constructor.getParameterAnnotations()[0][0];
-        return jsonPropertyAnnotation.value();
-    }
+  @Override
+  public String getExpected() {
+    return getValue();
+  }
 
-    @Override
-    public String getExpected() {
-        return getValue();
-    }
+  public LogicalAnd and(StringValuePattern other) {
+    return new LogicalAnd(this, other);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StringValuePattern that = (StringValuePattern) o;
-        return Objects.equal(expectedValue, that.expectedValue);
-    }
+  public LogicalOr or(StringValuePattern other) {
+    return new LogicalOr(this, other);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(expectedValue);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    StringValuePattern that = (StringValuePattern) o;
+    return Objects.equals(expectedValue, that.expectedValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(expectedValue);
+  }
 }

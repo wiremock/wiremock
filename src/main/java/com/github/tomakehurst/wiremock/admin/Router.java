@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 public interface Router {
 
-    void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> task);
-    void add(RequestMethod method, String urlTemplate, AdminTask adminTask);
+  void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> task);
+
+  void add(RequestMethod method, String urlTemplate, AdminTask adminTask);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,78 +16,83 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.common.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.xml.*;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import java.io.IOException;
-import java.io.StringReader;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static javax.xml.xpath.XPathConstants.NODE;
 
 /**
- * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for response
- * templating.
+ * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for
+ * response templating.
  */
 public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
-    @Override
-    public Object apply(final String inputXml, final Options options) throws IOException {
-        if (inputXml == null ) {
-            return "";
-        }
-
-        if (options.param(0, null) == null) {
-            return handleError("The XPath expression cannot be empty");
-        }
-
-        final String xPathInput = options.param(0);
-
-        Document doc;
-        try (final StringReader reader = new StringReader(inputXml)) {
-            InputSource source = new InputSource(reader);
-            final DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            doc = builder.parse(source);
-        } catch (SAXException se) {
-            return handleError(inputXml + " is not valid XML");
-        } catch (ParserConfigurationException e) {
-            return throwUnchecked(e, Object.class);
-        }
-
-        try {
-            final XPathFactory xPathfactory = XPathFactory.newInstance();
-            final XPath xpath = xPathfactory.newXPath();
-
-            Node node = (Node) xpath.evaluate(getXPathPrefix() + xPathInput, doc, NODE);
-
-            if (node == null) {
-                return "";
-            }
-
-            return Xml.toStringValue(node);
-        } catch (XPathExpressionException e) {
-            return handleError(xPathInput + " is not a valid XPath expression", e);
-        }
+  @Override
+  public Object apply(final String inputXml, final Options options) throws IOException {
+    if (inputXml == null) {
+      return "";
     }
 
+    if (options.param(0, null) == null) {
+      return handleError("The XPath expression cannot be empty");
+    }
 
-    /**
-     * No prefix by default. It allows to extend this class with a specified prefix. Just overwrite this method to do
-     * so.
-     *
-     * @return a prefix which will be applied before the specified xpath.
-     */
-    protected String getXPathPrefix() {
+    final String xPathInput = options.param(0);
+
+    XmlDocument xmlDocument;
+    try {
+      xmlDocument = getXmlDocument(inputXml, options);
+    } catch (XmlException e) {
+      return handleError(inputXml + " is not valid XML");
+    }
+
+    try {
+      ListOrSingle<XmlNode> xmlNodes =
+          getXmlNodes(getXPathPrefix() + xPathInput, xmlDocument, options);
+
+      if (xmlNodes == null || xmlNodes.isEmpty()) {
         return "";
+      }
+
+      return xmlNodes;
+    } catch (XPathException e) {
+      return handleError(xPathInput + " is not a valid XPath expression", e);
     }
+  }
+
+  private ListOrSingle<XmlNode> getXmlNodes(
+      String xPathExpression, XmlDocument doc, Options options) {
+    RenderCache renderCache = getRenderCache(options);
+    RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
+    ListOrSingle<XmlNode> nodes = renderCache.get(cacheKey);
+
+    if (nodes == null) {
+      nodes = doc.findNodes(xPathExpression);
+      renderCache.put(cacheKey, nodes);
+    }
+
+    return nodes;
+  }
+
+  private XmlDocument getXmlDocument(String xml, Options options) {
+    RenderCache renderCache = getRenderCache(options);
+    RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xml);
+    XmlDocument document = renderCache.get(cacheKey);
+    if (document == null) {
+      document = Xml.parse(xml);
+      renderCache.put(cacheKey, document);
+    }
+
+    return document;
+  }
+
+  /**
+   * No prefix by default. It allows to extend this class with a specified prefix. Just overwrite
+   * this method to do so.
+   *
+   * @return a prefix which will be applied before the specified xpath.
+   */
+  protected String getXPathPrefix() {
+    return "";
+  }
 }

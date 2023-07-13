@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,136 +15,125 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static java.util.Arrays.asList;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.base.Functions.toStringFunction;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.asList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
 public class HttpHeaders {
 
-    private final Multimap<CaseInsensitiveKey, String> headers;
+  private final Multimap<CaseInsensitiveKey, String> headers;
 
-    public HttpHeaders() {
-        headers = ImmutableMultimap.of();
+  public HttpHeaders() {
+    headers = ImmutableMultimap.of();
+  }
+
+  public HttpHeaders(HttpHeader... headers) {
+    this(ImmutableList.copyOf(headers));
+  }
+
+  public HttpHeaders(Iterable<HttpHeader> headers) {
+    ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
+    for (HttpHeader header : getFirstNonNull(headers, Collections.<HttpHeader>emptyList())) {
+      builder.putAll(caseInsensitive(header.key()), header.values());
     }
 
-    public HttpHeaders(HttpHeader... headers) {
-        this(ImmutableList.copyOf(headers));
+    this.headers = builder.build();
+  }
+
+  public HttpHeaders(HttpHeaders headers) {
+    this(headers.all());
+  }
+
+  public static HttpHeaders noHeaders() {
+    return new HttpHeaders();
+  }
+
+  public HttpHeader getHeader(String key) {
+    if (!headers.containsKey(caseInsensitive(key))) {
+      return HttpHeader.absent(key);
     }
 
-    public HttpHeaders(Iterable<HttpHeader> headers) {
-        ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
-        for (HttpHeader header: firstNonNull(headers, Collections.<HttpHeader>emptyList())) {
-            builder.putAll(caseInsensitive(header.key()), header.values());
-        }
+    Collection<String> values = headers.get(caseInsensitive(key));
+    return new HttpHeader(key, values);
+  }
 
-        this.headers = builder.build();
+  public ContentTypeHeader getContentTypeHeader() {
+    HttpHeader header = getHeader(ContentTypeHeader.KEY);
+    if (header.isPresent()) {
+      return new ContentTypeHeader(header.firstValue());
     }
 
-    public HttpHeaders(HttpHeaders headers) {
-        this(headers.all());
+    return ContentTypeHeader.absent();
+  }
+
+  public Collection<HttpHeader> all() {
+    List<HttpHeader> httpHeaderList = new ArrayList<>();
+    for (CaseInsensitiveKey key : headers.keySet()) {
+      httpHeaderList.add(new HttpHeader(key.value(), headers.get(key)));
     }
 
-    public static HttpHeaders noHeaders() {
-        return new HttpHeaders();
+    return httpHeaderList;
+  }
+
+  public Set<String> keys() {
+    return headers.keySet().stream().map(CaseInsensitiveKey::toString).collect(Collectors.toSet());
+  }
+
+  public static HttpHeaders copyOf(HttpHeaders source) {
+    return new HttpHeaders(source);
+  }
+
+  public int size() {
+    return headers.asMap().size();
+  }
+
+  public HttpHeaders plus(HttpHeader... additionalHeaders) {
+    return new HttpHeaders(
+        ImmutableList.<HttpHeader>builder()
+            .addAll(all())
+            .addAll(asList(additionalHeaders))
+            .build());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    HttpHeaders that = (HttpHeaders) o;
+
+    return headers != null ? headers.equals(that.headers) : that.headers == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return headers != null ? headers.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    if (headers.isEmpty()) {
+      return "(no headers)\n";
     }
 
-    public HttpHeader getHeader(String key) {
-        if (!headers.containsKey(caseInsensitive(key))) {
-            return HttpHeader.absent(key);
-        }
-
-        Collection<String> values = headers.get(caseInsensitive(key));
-        return new HttpHeader(key, values);
+    StringBuilder outString = new StringBuilder();
+    for (CaseInsensitiveKey key : headers.keySet()) {
+      outString.append(key.toString()).append(": ").append(headers.get(key)).append("\n");
     }
 
-    public ContentTypeHeader getContentTypeHeader() {
-        HttpHeader header = getHeader(ContentTypeHeader.KEY);
-        if (header.isPresent()) {
-            return new ContentTypeHeader(header.firstValue());
-        }
+    return outString.toString();
+  }
 
-        return ContentTypeHeader.absent();
-    }
-
-    public Collection<HttpHeader> all() {
-        List<HttpHeader> httpHeaderList = newArrayList();
-        for (CaseInsensitiveKey key: headers.keySet()) {
-            httpHeaderList.add(new HttpHeader(key.value(), headers.get(key)));
-        }
-
-        return httpHeaderList;
-    }
-
-    public Set<String> keys() {
-        return newHashSet(transform(headers.keySet(), toStringFunction()));
-    }
-
-    public static HttpHeaders copyOf(HttpHeaders source) {
-        return new HttpHeaders(source);
-    }
-
-    public int size() {
-        return headers.asMap().size();
-    }
-
-    public HttpHeaders plus(HttpHeader... additionalHeaders) {
-        return new HttpHeaders(ImmutableList.<HttpHeader>builder()
-                .addAll(all())
-                .addAll(asList(additionalHeaders))
-                .build());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        HttpHeaders that = (HttpHeaders) o;
-
-        if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (headers != null ? headers.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        if (headers.isEmpty()) {
-            return "(no headers)\n";
-        }
-
-        String outString = "";
-        for (CaseInsensitiveKey key : headers.keySet()) {
-            outString += key.toString() + ": " + headers.get(key).toString() + "\n";
-        }
-
-        return outString;
-    }
-
-    private CaseInsensitiveKey caseInsensitive(String key) {
-        return new CaseInsensitiveKey(key);
-    }
-
+  private CaseInsensitiveKey caseInsensitive(String key) {
+    return new CaseInsensitiveKey(key);
+  }
 }

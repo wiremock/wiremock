@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,39 @@ package com.github.tomakehurst.wiremock.matching;
 
 public class WeightedMatchResult {
 
-    private final MatchResult matchResult;
-    private final double weighting;
+  private final MatchResult matchResult;
+  private final double weighting;
 
-    public static WeightedMatchResult weight(MatchResult matchResult, double weighting) {
-        return new WeightedMatchResult(matchResult, weighting);
-    }
+  public static WeightedMatchResult weight(MatchResult matchResult, double weighting) {
+    return new WeightedMatchResult(matchResult, weighting);
+  }
 
-    public static WeightedMatchResult weight(MatchResult matchResult) {
-        return new WeightedMatchResult(matchResult);
-    }
+  public static WeightedMatchResult weight(MatchResult matchResult) {
+    return new WeightedMatchResult(matchResult);
+  }
 
-    public WeightedMatchResult(MatchResult matchResult) {
-        this(matchResult, 1.0);
-    }
+  public WeightedMatchResult(MatchResult matchResult) {
+    this(matchResult, 1.0);
+  }
 
-    public WeightedMatchResult(MatchResult matchResult, double weighting) {
-        this.matchResult = matchResult;
-        this.weighting = weighting;
-    }
+  public WeightedMatchResult(MatchResult matchResult, double weighting) {
+    this.matchResult = matchResult;
+    this.weighting = weighting;
+  }
 
-    public boolean isExactMatch() {
-        return matchResult.isExactMatch();
-    }
+  public boolean isExactMatch() {
+    return matchResult.isExactMatch();
+  }
 
-    public double getDistance() {
-        return weighting * matchResult.getDistance();
-    }
+  public double getDistance() {
+    return weighting * matchResult.getDistance();
+  }
 
-    public double getWeighting() {
-        return weighting;
-    }
+  public double getWeighting() {
+    return weighting;
+  }
+
+  public MatchResult getMatchResult() {
+    return matchResult;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,86 +15,120 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Stopwatch;
-
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
+
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.extension.requestfilter.*;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
-	protected List<RequestListener> listeners = newArrayList();
-	protected final ResponseRenderer responseRenderer;
+  protected List<RequestListener> listeners = new ArrayList<>();
+  protected final ResponseRenderer responseRenderer;
+  protected final FilterProcessor filterProcessor;
 
-	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
-		this.responseRenderer = responseRenderer;
-	}
+  private final DataTruncationSettings dataTruncationSettings;
 
-	@Override
-	public void addRequestListener(RequestListener requestListener) {
-		listeners.add(requestListener);
-	}
+  public AbstractRequestHandler(
+      ResponseRenderer responseRenderer,
+      List<RequestFilter> requestFilters,
+      List<RequestFilterV2> v2RequestFilters,
+      DataTruncationSettings dataTruncationSettings) {
+    this.responseRenderer = responseRenderer;
+    this.filterProcessor = new FilterProcessor(requestFilters, v2RequestFilters);
+    this.dataTruncationSettings = dataTruncationSettings;
+  }
 
-	protected void beforeResponseSent(ServeEvent serveEvent, Response response) {}
-    protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
+  @Override
+  public void addRequestListener(RequestListener requestListener) {
+    listeners.add(requestListener);
+  }
 
-	@Override
-	public void handle(Request request, HttpResponder httpResponder) {
-        Stopwatch stopwatch = Stopwatch.createStarted();
-		ServeEvent serveEvent = handleRequest(request);
-		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-		responseDefinition.setOriginalRequest(request);
-		Response response = responseRenderer.render(serveEvent);
-		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
+  protected void beforeResponseSent(ServeEvent serveEvent, Response response) {}
 
-		if (logRequests()) {
-			notifier().info("Request received:\n" +
-					formatRequest(request) +
-					"\n\nMatched response definition:\n" + responseDefinition +
-					"\n\nResponse:\n" + response);
-		}
+  protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
 
-		for (RequestListener listener: listeners) {
-			listener.requestReceived(request, response);
-		}
+  @Override
+  public void handle(Request request, HttpResponder httpResponder, ServeEvent originalServeEvent) {
+    ServeEvent serveEvent = ServeEvent.of(request);
+    Request processedRequest = request;
 
-        beforeResponseSent(completedServeEvent, response);
+    if (filterProcessor.hasAnyFilters()) {
+      RequestFilterAction requestFilterAction = filterProcessor.processFilters(request, serveEvent);
 
-		stopwatch.reset();
-		stopwatch.start();
-		httpResponder.respond(request, response);
+      if (requestFilterAction instanceof ContinueAction) {
+        processedRequest = ((ContinueAction) requestFilterAction).getRequest();
+        serveEvent = handleRequest(serveEvent.replaceRequest(processedRequest));
+      } else {
+        serveEvent =
+            serveEvent.withResponseDefinition(
+                ((StopAction) requestFilterAction).getResponseDefinition());
+      }
+    } else {
+      serveEvent = handleRequest(serveEvent);
+    }
 
-        completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
-        afterResponseSent(completedServeEvent, response);
-        stopwatch.stop();
-	}
+    ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    responseDefinition.setOriginalRequest(processedRequest);
+    Response response = responseRenderer.render(serveEvent);
+    response = Response.Builder.like(response).protocol(request.getProtocol()).build();
+    serveEvent = serveEvent.complete(response, dataTruncationSettings);
 
-	protected String formatRequest(Request request) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(request.getClientIp())
-				.append(" - ")
-				.append(request.getMethod())
-				.append(" ")
-				.append(request.getUrl());
+    if (logRequests()) {
+      notifier()
+          .info(
+              "Request received:\n"
+                  + formatRequest(request)
+                  + "\n\nMatched response definition:\n"
+                  + responseDefinition
+                  + "\n\nResponse:\n"
+                  + response);
+    }
 
-		if (request.isBrowserProxyRequest()) {
-			sb.append(" (via browser proxy request)");
-		}
+    for (RequestListener listener : listeners) {
+      listener.requestReceived(request, response);
+    }
 
-		sb.append("\n\n");
-		sb.append(request.getHeaders());
+    beforeResponseSent(serveEvent, response);
 
-		if (request.getBody() != null) {
-			sb.append(request.getBodyAsString()).append("\n");
-		}
+    serveEvent.beforeSend();
 
-		return sb.toString();
-	}
+    Map<String, Object> attributes = Map.of(ORIGINAL_SERVE_EVENT_KEY, serveEvent);
+    httpResponder.respond(request, response, attributes);
 
-	protected boolean logRequests() { return false; }
+    serveEvent.afterSend();
+    afterResponseSent(serveEvent, response);
+  }
 
-	protected abstract ServeEvent handleRequest(Request request);
+  protected String formatRequest(Request request) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(request.getClientIp())
+        .append(" - ")
+        .append(request.getMethod())
+        .append(" ")
+        .append(request.getUrl());
+
+    if (request.isBrowserProxyRequest()) {
+      sb.append(" (via browser proxy request)");
+    }
+
+    sb.append("\n\n");
+    sb.append(request.getHeaders());
+
+    if (request.getBody() != null) {
+      sb.append(request.getBodyAsString()).append("\n");
+    }
+
+    return sb.toString();
+  }
+
+  protected boolean logRequests() {
+    return false;
+  }
+
+  protected abstract ServeEvent handleRequest(ServeEvent request);
 }

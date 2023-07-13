@@ -18,12 +18,12 @@ package com.github.tomakehurst.wiremock
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.Options
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.hamcrest.Matchers.is
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 
 
 class WireMockScalaAcceptanceTest {
@@ -31,7 +31,7 @@ class WireMockScalaAcceptanceTest {
 	var wireMockServer: WireMockServer = null
 	var testClient: WireMockTestClient = null
 
-	@Before
+	@BeforeEach
 	def init() {
 		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT)
 		wireMockServer.start()
@@ -39,7 +39,7 @@ class WireMockScalaAcceptanceTest {
 		testClient = new WireMockTestClient(wireMockServer.port())
 	}
 	
-	@After
+	@AfterEach
 	def stopServer() {
 		wireMockServer.stop()
 	}

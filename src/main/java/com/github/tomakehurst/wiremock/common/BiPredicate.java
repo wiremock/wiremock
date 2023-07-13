@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2015-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-/**
- *
- */
+/** */
 public interface BiPredicate<T, U> {
 
-    boolean test(T first, U second);
-
+  boolean test(T first, U second);
 }

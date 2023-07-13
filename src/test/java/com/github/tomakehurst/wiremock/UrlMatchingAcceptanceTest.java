@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,31 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.junit.Test;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.junit.jupiter.api.Test;
 
 public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
 
-	@Test
-	public void mappingMatchedWithRegexUrl() {
-		String REGEX_URL_MAPPING_REQUEST =
-			"{ 													\n" +
-			"	\"request\": {									\n" +
-			"		\"method\": \"GET\",						\n" +
-			"		\"urlPattern\": \"/one/(.*?)/three\"		\n" +
-			"	},												\n" +
-			"	\"response\": {									\n" +
-			"		\"body\": \"Matched!\"						\n" +
-			"	}												\n" +
-			"}													  ";
-		
-		testClient.addResponse(REGEX_URL_MAPPING_REQUEST);
-		WireMockResponse response = testClient.get("/one/two/three");
-		
-		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("Matched!"));
-	}
+  @Test
+  public void mappingMatchedWithRegexUrl() {
+    String REGEX_URL_MAPPING_REQUEST =
+        "{ 													\n"
+            + "	\"request\": {									\n"
+            + "		\"method\": \"GET\",						\n"
+            + "		\"urlPattern\": \"/one/(.*?)/three\"		\n"
+            + "	},												\n"
+            + "	\"response\": {									\n"
+            + "		\"body\": \"Matched!\"						\n"
+            + "	}												\n"
+            + "}													  ";
+
+    testClient.addResponse(REGEX_URL_MAPPING_REQUEST);
+    WireMockResponse response = testClient.get("/one/two/three");
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("Matched!"));
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,43 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Preconditions;
+import java.util.Objects;
 
 @JsonDeserialize(using = ContentPatternDeserialiser.class)
 public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
 
-    protected final T expectedValue;
+  protected final T expectedValue;
 
-    public ContentPattern(T expectedValue) {
-        this.expectedValue = expectedValue;
+  public ContentPattern(T expectedValue) {
+    if (!isNullValuePermitted()) {
+      Preconditions.checkNotNull(
+          expectedValue, "'" + getName() + "' expected value cannot be null");
     }
+    this.expectedValue = expectedValue;
+  }
 
-    @JsonIgnore
-    public T getValue() {
-        return expectedValue;
-    }
+  @JsonIgnore
+  public T getValue() {
+    return expectedValue;
+  }
+
+  protected boolean isNullValuePermitted() {
+    return false;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ContentPattern<?> that = (ContentPattern<?>) o;
+
+    return Objects.equals(expectedValue, that.expectedValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return expectedValue != null ? expectedValue.hashCode() : 0;
+  }
 }

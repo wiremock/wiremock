@@ -1,0 +1,56 @@
+type: object
+properties:
+  id:
+    type: string
+    description: This stub mapping's unique identifier
+  uuid:
+    type: string
+    description: Alias for the id
+  name:
+    type: string
+    description: The stub mapping's name
+  request:
+    $ref: 'request-pattern.yaml'
+  response:
+    $ref: "response-definition.yaml"
+  persistent:
+    type: boolean
+    description: Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.
+  priority:
+    type: integer
+    description: This stub mapping's priority relative to others. 1 is highest.
+    minimum: 1
+  scenarioName:
+    type: string
+    description: The name of the scenario that this stub mapping is part of
+  requiredScenarioState:
+    type: string
+    description: The required state of the scenario in order for this stub to be matched.
+  newScenarioState:
+    type: string
+    description: The new state for the scenario to be updated to after this stub is served.
+  postServeActions:
+    type: object
+    description: A map of the names of post serve action extensions to trigger and their parameters.
+  serveEventListeners:
+    type: array
+    description: The list of serve event listeners
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        requestPhases:
+          type: array
+          items:
+            type: string
+            enum:
+              - BEFORE_MATCH
+              - AFTER_MATCH
+              - AFTER_COMPLETE
+        parameters:
+          type: object
+  metadata:
+    type: object
+    description: Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs.
+additionalProperties: false

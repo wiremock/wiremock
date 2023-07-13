@@ -1,55 +1,65 @@
-WireMock - a web service test double for all occasions
-======================================================
+# WireMock - flexible and open source API mocking
 
-[![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=master)](https://travis-ci.org/tomakehurst/wiremock)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock)
+<p align="center">
+    <a href="https://wiremock.org" target="_blank">
+        <img width="512px" src="https://wiremock.org/images/logos/wiremock/logo_wide.svg" alt="WireMock Logo"/>
+    </a>
+</p>
 
+[![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
+[![Docs](https://img.shields.io/static/v1?label=Documentation&message=public&color=green)](https://wiremock.org/docs/)
+[![a](https://img.shields.io/badge/slack-Join%20us-brightgreen?style=flat&logo=slack)](https://slack.wiremock.org/)
+[![Participate](https://img.shields.io/static/v1?label=Contributing&message=guide&color=orange)](./CONTRIBUTING.md)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
 
-Key Features
-------------
-	
--	HTTP response stubbing, matchable on URL, header and body content patterns
--	Request verification
--	Runs in unit tests, as a standalone process or as a WAR app
--	Configurable via a fluent Java API, JSON files and JSON over HTTP
--	Record/playback of stubs
--	Fault injection
--	Per-request conditional proxying
--   Browser proxying for request inspection and replacement
--	Stateful behaviour simulation
--	Configurable response delays
- 
+WireMock is a popular open-source tool for API mock testing with over 5 million downloads per month.
+It can help you to create stable test and development environments,
+isolate yourself from flakey 3rd parties and simulate APIs that don’t exist yet.
 
-Full documentation can be found at [wiremock.org](http://wiremock.org/ "wiremock.org")
+Started in 2011 as a Java library by [Tom Akehurst](https://github.com/tomakehurst),
+now WireMock spans across multiple programming languages and technology stacks.
+It can run as a library or client wrapper in many languages, or as a standalone server.
+There is a big community behind the project and its ecosystem.
 
-Questions and Issues
---------------------
-If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the 
-[WireMock mailing list](https://groups.google.com/forum/#!forum/wiremock-user).
+WireMock supports several approaches for creating mock APIs -
+in code, via its REST API, as JSON files and by recording HTTP traffic proxied to another destination.
+WireMock has a rich matching system, allowing any part of an incoming request to be matched against complex and precise criteria.
+Responses of any complexity can be dynamically generated via the Handlebars based templating system.
+Finally, WireMock is easy to integrate into any workflow due to its numerous extension points and comprehensive APIs.
+
+## Key Features
+
+WireMock can run in unit tests, as a standalone process or a container.
+Key features include:
+
+- HTTP response stubbing, matchable on URL, header and body content patterns
+- Configuration via a fluent Java API, JSON files and JSON over HTTP
+- Record/playback of stubs
+- Request verification
+- Fault and response delays injection
+- Per-request conditional proxying
+- Browser proxying for request inspection and replacement
+- Stateful behaviour simulation
+- Extensibility
+
+Full documentation can be found at [wiremock.org/docs](https://wiremock.org/docs).
+
+## Questions and Issues
+
+If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the
+[WireMock Community Slack](https://slack.wiremock.org) in the `#help` channel.
 
 On the other hand if you're pretty certain you've found a bug please open an issue.
 
-Contributing
-------------
-We welcome bug fixes and new features in the form of pull requests. If you'd like to contribute, please be mindful of the
-following guidelines:
-* All changes should include suitable tests, whether to demonstrate the bug or exercise and document the new feature.
-* Please make one change per pull request.
-* If the new feature is significantly large/complex/breaks existing behaviour, please first post a summary of your idea
-on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
-* Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
-more difficult.
+## Log4j Notice
 
-Building WireMock locally
--------------------------
-To run all of WireMock's tests:
-```bash
-./gradlew clean test
-```
+WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
+you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability.
 
-To build both JARs (thin and standalone):
-```bash
-./gradlew jar shadowJar
-```
+## Contributing
 
-The built JARs will be placed under ``build/libs``.
+WireMock exists and continues to thrive due to the efforts of contributors.
+Regardless of your expertise and time you could dedicate,
+there're opportunities to participate and help the project!
+
+See the [Contributing Guide](./CONTRIBUTING.md) for more information.

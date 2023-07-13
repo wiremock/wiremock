@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,47 +17,51 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public class SnapshotStubMappingBodyExtractor {
-    private final FileSource fileSource;
+  private final BlobStore filesBlobStore;
 
-    public SnapshotStubMappingBodyExtractor(FileSource fileSource) {
-        this.fileSource = fileSource;
-    }
+  public SnapshotStubMappingBodyExtractor(BlobStore filesBlobStore) {
+    this.filesBlobStore = filesBlobStore;
+  }
 
-    /**
-     * Extracts body of the ResponseDefinition to a file written to the files source.
-     * Modifies the ResponseDefinition to point to the file in-place.
-     *
-     * @param stubMapping Stub mapping to extract
-     */
-    public void extractInPlace(StubMapping stubMapping) {
-        byte[] body = stubMapping.getResponse().getByteBody();
-        HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
-        String extension = ContentTypes.determineFileExtension(
+  /**
+   * Extracts body of the ResponseDefinition to a file written to the files source. Modifies the
+   * ResponseDefinition to point to the file in-place.
+   *
+   * @param stubMapping Stub mapping to extract
+   */
+  public void extractInPlace(StubMapping stubMapping) {
+    byte[] body = stubMapping.getResponse().getByteBody();
+    HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
+    String extension =
+        ContentTypes.determineFileExtension(
             stubMapping.getRequest().getUrl(),
-            responseHeaders != null ? responseHeaders.getContentTypeHeader() : ContentTypeHeader.absent(),
+            responseHeaders != null
+                ? responseHeaders.getContentTypeHeader()
+                : ContentTypeHeader.absent(),
             body);
 
-        String bodyFileName = SafeNames.makeSafeFileName(stubMapping, extension);
+    FilenameMaker filenameMaker = new FilenameMaker("default", extension);
+    String bodyFileName = filenameMaker.filenameFor(stubMapping);
 
-         // used to prevent ambiguous method call error for withBody()
-        String noStringBody = null;
-        byte[] noByteBody = null;
+    // used to prevent ambiguous method call error for withBody()
+    String noStringBody = null;
+    byte[] noByteBody = null;
 
-        stubMapping.setResponse(
-            ResponseDefinitionBuilder
-                .like(stubMapping.getResponse())
-                .withBodyFile(bodyFileName)
-                .withBody(noStringBody)
-                .withBody(noByteBody)
-                .withBase64Body(null)
-                .build()
-        );
+    stubMapping.setResponse(
+        ResponseDefinitionBuilder.like(stubMapping.getResponse())
+            .withBodyFile(bodyFileName)
+            .withBody(noStringBody)
+            .withBody(noByteBody)
+            .withBase64Body(null)
+            .build());
 
-        fileSource.writeBinaryFile(bodyFileName, body);
-    }
+    filesBlobStore.put(bodyFileName, body);
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2021 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,91 +15,73 @@
  */
 package com.github.tomakehurst.wiremock.junit;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
-
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockRule extends WireMockServer implements MethodRule, TestRule {
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Options;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
-    private final boolean failOnUnmatchedRequests;
+public class WireMockRule extends WireMockServer implements TestRule {
 
-    public WireMockRule(Options options) {
-        this(options, true);
-    }
+  private final boolean failOnUnmatchedRequests;
 
-    public WireMockRule(Options options, boolean failOnUnmatchedRequests) {
-        super(options);
-        this.failOnUnmatchedRequests = failOnUnmatchedRequests;
-    }
+  public WireMockRule(Options options) {
+    this(options, true);
+  }
 
-    public WireMockRule(int port) {
-		this(wireMockConfig().port(port));
-	}
+  public WireMockRule(Options options, boolean failOnUnmatchedRequests) {
+    super(options);
+    this.failOnUnmatchedRequests = failOnUnmatchedRequests;
+  }
 
-    public WireMockRule(int port, Integer httpsPort) {
-        this(wireMockConfig().port(port).httpsPort(httpsPort));
-    }
-	
-	public WireMockRule() {
-		this(wireMockConfig());
-	}
+  public WireMockRule(int port) {
+    this(wireMockConfig().port(port));
+  }
 
-    @Override
-    public Statement apply(final Statement base, Description description) {
-        return apply(base, null, null);
-    }
+  public WireMockRule(int port, Integer httpsPort) {
+    this(wireMockConfig().port(port).httpsPort(httpsPort));
+  }
 
-	@Override
-	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-		return new Statement() {
-			@Override
-			public void evaluate() throws Throwable {
-				start();
-				WireMock.configureFor("localhost", port());
-				try {
-                    before();
-                    base.evaluate();
-                    checkForUnmatchedRequests();
-                } finally {
-                    after();
-                    stop();
-                }
-			}
+  public WireMockRule() {
+    this(wireMockConfig());
+  }
 
-		};
-	}
+  @Override
+  public Statement apply(final Statement base, Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        start();
 
-    private void checkForUnmatchedRequests() {
-        if (failOnUnmatchedRequests) {
-            List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
-            if (!unmatchedRequests.isEmpty()) {
-                List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
-                if (nearMisses.isEmpty()) {
-                    throw VerificationException.forUnmatchedRequests(unmatchedRequests);
-                } else {
-                    throw VerificationException.forUnmatchedNearMisses(nearMisses);
-                }
-            }
+        if (options.getHttpDisabled()) {
+          WireMock.configureFor("https", "localhost", httpsPort());
+        } else {
+          WireMock.configureFor("localhost", port());
         }
-    }
 
-    protected void before() {
-        // NOOP
-    }
+        try {
+          before();
+          base.evaluate();
 
-    protected void after() {
-        // NOOP
-    }
+          if (failOnUnmatchedRequests) {
+            checkForUnmatchedRequests();
+          }
+        } finally {
+          after();
+          stop();
+        }
+      }
+    };
+  }
+
+  protected void before() {
+    // NOOP
+  }
+
+  protected void after() {
+    // NOOP
+  }
 }

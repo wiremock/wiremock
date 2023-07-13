@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,51 +15,90 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.LogNormal;
-import org.junit.Test;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.http.LogNormal;
+import org.junit.jupiter.api.Test;
 
 public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
 
-	@Test
-	public void settingGlobalFixedResponseDelay() {
-		WireMock.setGlobalFixedDelay(500);
-		givenThat(get(urlEqualTo("/globally/delayed/resource")).willReturn(aResponse().withStatus(200)));
-        
-	    long start = System.currentTimeMillis();
-        testClient.get("/globally/delayed/resource");
-        int duration = (int) (System.currentTimeMillis() - start);
-        
-        assertThat(duration, greaterThanOrEqualTo(500));
-	}
+  @Test
+  public void settingGlobalFixedResponseDelay() {
+    WireMock.setGlobalFixedDelay(500);
+    givenThat(
+        get(urlEqualTo("/globally/delayed/resource")).willReturn(aResponse().withStatus(200)));
 
-	@Test
-	public void settingGlobalRandomDistributionDelayCausesADelay() {
-		WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
-		givenThat(get(urlEqualTo("/globally/random/delayed/resource")).willReturn(aResponse().withStatus(200)));
+    long start = System.currentTimeMillis();
+    testClient.get("/globally/delayed/resource");
+    int duration = (int) (System.currentTimeMillis() - start);
 
-		long start = System.currentTimeMillis();
-		testClient.get("/globally/random/delayed/resource");
-		int duration = (int) (System.currentTimeMillis() - start);
+    assertThat(duration, greaterThanOrEqualTo(500));
+  }
 
-		assertThat(duration, greaterThanOrEqualTo(60));
-	}
+  @Test
+  public void settingGlobalRandomDistributionDelayCausesADelay() {
+    WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
+    givenThat(
+        get(urlEqualTo("/globally/random/delayed/resource"))
+            .willReturn(aResponse().withStatus(200)));
 
-	@Test
-	public void canCombineFixedAndRandomDelays() {
-		WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
-		WireMock.setGlobalFixedDelay(30);
-		givenThat(get(urlEqualTo("/globally/random/delayed/resource")).willReturn(aResponse().withStatus(200)));
+    long start = System.currentTimeMillis();
+    testClient.get("/globally/random/delayed/resource");
+    int duration = (int) (System.currentTimeMillis() - start);
 
-		long start = System.currentTimeMillis();
-		testClient.get("/globally/random/delayed/resource");
-		int duration = (int) (System.currentTimeMillis() - start);
+    assertThat(duration, greaterThanOrEqualTo(60));
+  }
 
-		assertThat(duration, greaterThanOrEqualTo(90));
-	}
+  @Test
+  public void canCombineFixedAndRandomDelays() {
+    WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
+    WireMock.setGlobalFixedDelay(30);
+    givenThat(
+        get(urlEqualTo("/globally/random/delayed/resource"))
+            .willReturn(aResponse().withStatus(200)));
 
+    long start = System.currentTimeMillis();
+    testClient.get("/globally/random/delayed/resource");
+    int duration = (int) (System.currentTimeMillis() - start);
+
+    assertThat(duration, greaterThanOrEqualTo(90));
+  }
+
+  @Test
+  public void fetchSettings() {
+    WireMock.setGlobalFixedDelay(30);
+
+    GlobalSettings settings = WireMock.getSettings();
+
+    assertThat(settings.getFixedDelay(), is(30));
+  }
+
+  @Test
+  public void setAndRetrieveExtendedSettings() {
+    WireMock.updateSettings(
+        GlobalSettings.builder().extended(Parameters.one("mySetting", "setting-value")).build());
+
+    GlobalSettings fetchedSettings = WireMock.getSettings();
+
+    assertThat(fetchedSettings.getExtended().getString("mySetting"), is("setting-value"));
+  }
+
+  @Test
+  public void setAndRetrieveProxyPassThroughSettings() {
+    WireMock.updateSettings(GlobalSettings.builder().proxyPassThrough(false).build());
+
+    GlobalSettings fetchedSettings = WireMock.getSettings();
+
+    assertFalse(fetchedSettings.getProxyPassThrough());
+  }
 }

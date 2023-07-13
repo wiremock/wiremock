@@ -41,6 +41,9 @@ wiremock.iws
 **/*.iml
 .idea
 
+# NPM #
+##################
+**/node_modules
 
 # Misc #
 ########
@@ -48,8 +51,14 @@ copy-admin.sh
 .DS_Store
 **/.DS_Store
 
+**/log.txt
+
 .vagrant
 tmp*
 
-src/main/resources/swagger
-docs-v2/_docs/wiremock-admin-api.html
+bin
+
+scripts/client-cert.*
+!scripts/client-cert.conf
+
+notes.txt

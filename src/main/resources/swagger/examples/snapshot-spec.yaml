@@ -1,0 +1,23 @@
+filters:
+  urlPathPattern: "/api/.*"
+  method: GET
+  ids:
+  - 40a93c4a-d378-4e07-8321-6158d5dbcb29
+captureHeaders:
+  Accept: {}
+  Content-Type:
+    caseInsensitive: true
+requestBodyPattern:
+  matcher: equalToJson
+  ignoreArrayOrder: false
+  ignoreExtraElements: true
+extractBodyCriteria:
+  textSizeThreshold: 2 kb
+  binarySizeThreshold: 1 Mb
+outputFormat: FULL
+persist: false
+repeatsAsScenarios: false
+transformers:
+- modify-response-header
+transformerParameters:
+  headerValue: '123'

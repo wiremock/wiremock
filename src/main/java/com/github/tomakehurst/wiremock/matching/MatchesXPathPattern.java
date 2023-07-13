@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,128 +15,132 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
-import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.xml.*;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.collect.ImmutableMap;
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.SimpleNamespaceContext;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.XpathEngine;
-import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Sets.newTreeSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
 public class MatchesXPathPattern extends PathPattern {
 
-    private final Map<String, String> xpathNamespaces;
+  private final Map<String, String> xpathNamespaces;
 
-    public MatchesXPathPattern(String xpath) {
-        this(xpath, null, null);
-    }
+  public MatchesXPathPattern(String xpath) {
+    this(xpath, null, null);
+  }
 
-    public MatchesXPathPattern(String xpath, StringValuePattern valuePattern) {
-        this(xpath, null, valuePattern);
-    }
+  public MatchesXPathPattern(String xpath, StringValuePattern valuePattern) {
+    this(xpath, null, valuePattern);
+  }
 
-    public MatchesXPathPattern(String xpath, Map<String, String> namespaces) {
-        this(xpath, namespaces, null);
-    }
+  public MatchesXPathPattern(String xpath, Map<String, String> namespaces) {
+    this(xpath, namespaces, null);
+  }
 
-    public MatchesXPathPattern(@JsonProperty("matchesXPath") String xpath,
-                               @JsonProperty("namespaces") Map<String, String> namespaces,
-                               @JsonProperty("valuePattern") StringValuePattern valuePattern) {
-        super(xpath, valuePattern);
-        xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
-    }
+  public MatchesXPathPattern(
+      @JsonProperty("matchesXPath") String xpath,
+      @JsonProperty("namespaces") Map<String, String> namespaces,
+      @JsonProperty("valuePattern") StringValuePattern valuePattern) {
+    super(xpath, valuePattern);
+    xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
+  }
 
-    public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
-        Map<String, String> namespaceMap = ImmutableMap.<String, String>builder()
-            .putAll(firstNonNull(xpathNamespaces, Collections.<String, String>emptyMap()))
+  public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
+    Map<String, String> namespaceMap =
+        ImmutableMap.<String, String>builder()
+            .putAll(getFirstNonNull(xpathNamespaces, Collections.emptyMap()))
             .put(name, namespaceUri)
             .build();
-        return new MatchesXPathPattern(expectedValue, namespaceMap);
+    return new MatchesXPathPattern(expectedValue, namespaceMap);
+  }
+
+  public String getMatchesXPath() {
+    return expectedValue;
+  }
+
+  @JsonGetter("xPathNamespaces")
+  public Map<String, String> getXPathNamespaces() {
+    return xpathNamespaces;
+  }
+
+  @Override
+  protected MatchResult isSimpleMatch(String value) {
+    final XmlNodeFindResult xmlNodeFindResult = findXmlNodes(value);
+    ListOrSingle<XmlNode> nodeList = xmlNodeFindResult.nodes;
+    return MatchResult.of(nodeList != null && nodeList.size() > 0, xmlNodeFindResult.subEvents);
+  }
+
+  @Override
+  protected MatchResult isAdvancedMatch(String value) {
+    final XmlNodeFindResult xmlNodeFindResult = findXmlNodes(value);
+    ListOrSingle<XmlNode> nodeList = xmlNodeFindResult.nodes;
+    if (nodeList == null || nodeList.size() == 0) {
+      return MatchResult.noMatch(xmlNodeFindResult.subEvents);
     }
 
-    public String getMatchesXPath() {
-        return expectedValue;
+    SortedSet<MatchResult> results = new TreeSet<>();
+    for (XmlNode node : nodeList) {
+      results.add(valuePattern.match(node.toString()));
     }
 
-    @JsonGetter("xPathNamespaces")
-    public Map<String, String> getXPathNamespaces() {
-        return xpathNamespaces;
+    return results.last();
+  }
+
+  @Override
+  public ListOrSingle<String> getExpressionResult(String value) {
+    ListOrSingle<XmlNode> nodeList = findXmlNodes(value).nodes;
+    if (nodeList == null || nodeList.size() == 0) {
+      return ListOrSingle.of();
     }
 
-    @Override
-    protected MatchResult isSimpleMatch(String value) {
-        NodeList nodeList = findXmlNodesMatching(value);
+    return ListOrSingle.of(nodeList.stream().map(XmlNode::toString).collect(Collectors.toList()));
+  }
 
-        return MatchResult.of(nodeList != null && nodeList.getLength() > 0);
+  private XmlNodeFindResult findXmlNodes(String value) {
+    // For performance reason, don't try to parse non XML value
+    if (value == null || !value.trim().startsWith("<")) {
+      final String message =
+          String.format("Warning: failed to parse the XML document\nXML: %s", value);
+      notifier().info(message);
+      return new XmlNodeFindResult(null, SubEvent.warning(message));
     }
 
-    @Override
-    protected MatchResult isAdvancedMatch(String value) {
-        NodeList nodeList = findXmlNodesMatching(value);
-        if (nodeList == null || nodeList.getLength() == 0) {
-            return MatchResult.noMatch();
-        }
-
-        SortedSet<MatchResult> results = newTreeSet();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            String nodeValue = Xml.toStringValue(node);
-            results.add(valuePattern.match(nodeValue));
-        }
-
-        return results.last();
+    try {
+      XmlDocument xmlDocument = Xml.parse(value);
+      return new XmlNodeFindResult(xmlDocument.findNodes(expectedValue, xpathNamespaces));
+    } catch (XmlException e) {
+      final String message =
+          String.format(
+              "Warning: failed to parse the XML document. Reason: %s\nXML: %s",
+              e.getMessage(), value);
+      notifier().info(message);
+      return new XmlNodeFindResult(null, SubEvent.warning(message));
+    } catch (XPathException e) {
+      final String message = "Warning: failed to evaluate the XPath expression " + expectedValue;
+      notifier().info(message);
+      return new XmlNodeFindResult(null, SubEvent.warning(message));
     }
+  }
 
-    private NodeList findXmlNodesMatching(String value) {
-        // For performance reason, don't try to parse non XML value
-        if (value == null || !value.trim().startsWith("<")) {
-            notifier().info(String.format(
-                "Warning: failed to parse the XML document\nXML: %s", value));
-            return null;
-        }
-        try {
-            DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
-            documentBuilder.setErrorHandler(new SilentErrorHandler());
-            Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(value));
-            XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
-            if (xpathNamespaces != null) {
-                NamespaceContext namespaceContext = new SimpleNamespaceContext(xpathNamespaces);
-                simpleXpathEngine.setNamespaceContext(namespaceContext);
-            }
-            return simpleXpathEngine.getMatchingNodes(expectedValue, inDocument);
-        } catch (SAXException e) {
-            notifier().info(String.format(
-                "Warning: failed to parse the XML document. Reason: %s\nXML: %s", e.getMessage(), value));
-            return null;
-        } catch (IOException e) {
-            notifier().info(e.getMessage());
-            return null;
-        } catch (XpathException e) {
-            notifier().info("Warning: failed to evaluate the XPath expression " + expectedValue);
-            return null;
-        } catch (Exception e) {
-            return throwUnchecked(e, NodeList.class);
-        }
+  private static class XmlNodeFindResult {
+    final ListOrSingle<XmlNode> nodes;
+    final List<SubEvent> subEvents;
+
+    public XmlNodeFindResult(ListOrSingle<XmlNode> nodes, SubEvent... subEvents) {
+      this.nodes = nodes;
+      this.subEvents = List.of(subEvents);
     }
+  }
 }
