@@ -15,15 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 
 public class FormParameter extends MultiValue {
 
-  @JsonCreator
   public FormParameter(
       @JsonProperty("key") String key, @JsonProperty("values") List<String> values) {
     super(key, values);
@@ -31,29 +28,5 @@ public class FormParameter extends MultiValue {
 
   public static FormParameter absent(String key) {
     return new FormParameter(key, Collections.emptyList());
-  }
-
-  @JsonIgnore
-  @Override
-  public boolean isPresent() {
-    return super.isPresent();
-  }
-
-  @JsonProperty
-  @Override
-  public String key() {
-    return super.key();
-  }
-
-  @JsonProperty
-  @Override
-  public List<String> values() {
-    return super.values();
-  }
-
-  @JsonIgnore
-  @Override
-  public boolean isSingleValued() {
-    return super.isSingleValued();
   }
 }
