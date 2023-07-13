@@ -94,7 +94,7 @@ dependencies {
   }
   api "commons-io:commons-io:2.13.0"
 
-  api 'com.networknt:json-schema-validator:1.0.85'
+  api 'com.networknt:json-schema-validator:1.0.86'
 
   testImplementation "junit:junit:4.13"
   testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
@@ -106,7 +106,7 @@ dependencies {
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
   testImplementation 'org.mockito:mockito-core:5.4.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
+  testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
@@ -133,7 +133,7 @@ dependencies {
   testImplementation files('test-extension/test-extension.jar')
 
   constraints {
-    implementation "net.minidev:json-smart:2.4.11", {
+    implementation "net.minidev:json-smart:2.5.0", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
     }
   }
@@ -508,6 +508,15 @@ tasks.withType(JavaCompile) {
     "--add-exports",
     "java.base/sun.security.x509=ALL-UNNAMED"
   ])
+}
+
+eclipse.classpath.file {
+  whenMerged {
+    entries.find{ it.path ==~ '.*JRE_CONTAINER.*' }.each {
+      it.entryAttributes['module'] = true
+      it.entryAttributes['add-exports'] = 'java.base/sun.security.x509=ALL-UNNAMED'
+    }
+  }
 }
 
 int getMajorVersion() {

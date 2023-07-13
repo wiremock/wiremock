@@ -848,6 +848,10 @@ public class WireMock {
     return new RequestPatternBuilder(RequestMethod.ANY, urlPattern);
   }
 
+  public static RequestPatternBuilder requestedFor(String method, UrlPattern urlPattern) {
+    return new RequestPatternBuilder(RequestMethod.fromString(method), urlPattern);
+  }
+
   public static RequestPatternBuilder requestMadeFor(
       String customMatcherName, Parameters parameters) {
     return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);

@@ -167,6 +167,17 @@ public class Examples extends AcceptanceTestBase {
   }
 
   @Test
+  public void verifyWithoutQueryParam() {
+    assertThrows(
+        VerificationException.class,
+        () -> {
+          verify(
+              getRequestedFor(urlPathEqualTo("without/queryParam"))
+                  .withoutQueryParam("test-param"));
+        });
+  }
+
+  @Test
   public void findingRequests() {
     List<LoggedRequest> requests = findAll(putRequestedFor(urlMatching("/api/.*")));
   }

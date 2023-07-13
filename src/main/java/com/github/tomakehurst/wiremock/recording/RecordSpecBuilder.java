@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,7 +30,7 @@ public class RecordSpecBuilder {
   private String targetBaseUrl;
   private RequestPatternBuilder filterRequestPatternBuilder;
   private List<UUID> filterIds;
-  private Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
+  private Map<String, CaptureHeadersSpec> headers = new LinkedHashMap<>();
   private RequestBodyPatternFactory requestBodyPatternFactory;
   private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
   private long maxBinaryBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;

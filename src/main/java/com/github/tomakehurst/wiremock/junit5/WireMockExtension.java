@@ -37,8 +37,6 @@ public class WireMockExtension extends DslWrapper
         AfterEachCallback,
         AfterAllCallback {
 
-  private static final Options DEFAULT_OPTIONS = WireMockConfiguration.options().dynamicPort();
-
   private final boolean configureStaticDsl;
   private final boolean failOnUnmatchedRequests;
 
@@ -189,6 +187,7 @@ public class WireMockExtension extends DslWrapper
   }
 
   private Options resolveOptions(ExtensionContext extensionContext) {
+    final Options defaultOptions = WireMockConfiguration.options().dynamicPort();
     return extensionContext
         .getElement()
         .flatMap(
@@ -196,8 +195,8 @@ public class WireMockExtension extends DslWrapper
                 this.isDeclarative
                     ? AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class)
                     : Optional.empty())
-        .<Options>map(this::buildOptionsFromWireMockTestAnnotation)
-        .orElse(Optional.ofNullable(this.options).orElse(DEFAULT_OPTIONS));
+        .map(this::buildOptionsFromWireMockTestAnnotation)
+        .orElse(Optional.ofNullable(this.options).orElse(defaultOptions));
   }
 
   private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
