@@ -154,7 +154,7 @@ public abstract class AbstractFileSource implements FileSource {
               : new File(rootDirectory, path).getCanonicalPath();
 
       if (!Paths.get(filePath).normalize().startsWith(rootPath)) {
-        throw new NotAuthorisedException("Access to file " + path + " is not permitted");
+        throw new NotAuthorisedException("Access to file " + path + " is not permitted. An absolute path from the filesystem root might be specified");
       }
     } catch (IOException ioe) {
       throw new NotAuthorisedException("File " + path + " cannot be accessed", ioe);
