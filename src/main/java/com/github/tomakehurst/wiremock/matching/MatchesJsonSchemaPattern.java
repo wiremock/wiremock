@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
@@ -76,7 +77,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     try {
       jsonNode = Json.read(json, JsonNode.class);
     } catch (JsonException je) {
-      return MatchResult.noMatch();
+      jsonNode = new TextNode(json);
     }
 
     final Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
