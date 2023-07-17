@@ -916,12 +916,7 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void parsesEmptyJsonLiteralToAnEmptyMap() {
-    String result =
-        transform(
-            "{{#parseJson 'parsedObj'}}\n"
-                + "{\n"
-                + "}\n"
-                + "{{/parseJson}}\n");
+    String result = transform("{{#parseJson 'parsedObj'}}\n" + "{\n" + "}\n" + "{{/parseJson}}\n");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
