@@ -384,7 +384,8 @@ public class StubMappingJsonRecorderTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"gzip", "deflate", "br"})
-  public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader(String acceptEncodingHeaders) {
+  public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader(
+      String acceptEncodingHeaders) {
     when(admin.countRequestsMatching((any(RequestPattern.class))))
         .thenReturn(VerificationResult.withCount(0));
 
@@ -401,7 +402,8 @@ public class StubMappingJsonRecorderTest {
             .fromProxy(true)
             .headers(
                 new HttpHeaders(
-                    httpHeader("Content-Encoding", acceptEncodingHeaders), httpHeader("Content-Length", "123")))
+                    httpHeader("Content-Encoding", acceptEncodingHeaders),
+                    httpHeader("Content-Length", "123")))
             .body(gzip("Recorded body content"))
             .build();
 

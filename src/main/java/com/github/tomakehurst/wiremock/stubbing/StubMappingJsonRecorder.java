@@ -34,7 +34,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class StubMappingJsonRecorder implements RequestListener {
-  private static final List<String> ALLOWABLE_GZIP_ACCEPT_ENCODING_HEADERS = List.of("gzip", "deflate", "br");
+  private static final List<String> ALLOWABLE_GZIP_ACCEPT_ENCODING_HEADERS =
+      List.of("gzip", "deflate", "br");
   private final BlobStore mappingsBlobStore;
   private final BlobStore filesBlobStore;
   private final Admin admin;
@@ -180,7 +181,8 @@ public class StubMappingJsonRecorder implements RequestListener {
 
   private byte[] bodyDecompressedIfRequired(Response response) {
     HttpHeader contentEncodingHeader = response.getHeaders().getHeader("Content-Encoding");
-    if (ALLOWABLE_GZIP_ACCEPT_ENCODING_HEADERS.stream().anyMatch(contentEncodingHeader::containsValue)) {
+    if (ALLOWABLE_GZIP_ACCEPT_ENCODING_HEADERS.stream()
+        .anyMatch(contentEncodingHeader::containsValue)) {
       return Gzip.unGzip(response.getBody());
     }
 
