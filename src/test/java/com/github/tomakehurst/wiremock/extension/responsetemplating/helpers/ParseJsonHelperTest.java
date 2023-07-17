@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,16 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.nullValue;
 
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
 import com.github.jknack.handlebars.Template;
@@ -116,10 +124,54 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void parsesEmptyJsonIfSection() throws Exception {
-    String inputJson = "{}";
-    Object output = render(inputJson, new Object[] {}, TagType.SECTION);
+    String inputJson = "";
+    String variableName = "parsedObject";
+    Template template = new Handlebars().compileInline(inputJson);
+    Options options =
+        new Options.Builder(null, null, TagType.SECTION, createContext(), template)
+            .setParams(new Object[] {})
+            .build();
+    Object output = render(variableName, options);
 
-    // Check that it returns empty object
+    // Check that it returns null
+    assertThat(output, is(nullValue()));
+
+    /* Check that it stores parsed json (an empty map in this case because json is empty)
+     * in given variable name */
+    Object storedData = options.data(variableName);
+    assertThat(storedData, isA(Map.class));
+    Map<String, Object> castedData = (Map<String, Object>) storedData;
+    assertThat(castedData, is(aMapWithSize(0)));
+  }
+
+  @Test
+  public void parsesEmptyJsonWithBracesIfSection() throws Exception {
+    String inputJson = "{}";
+    String variableName = "parsedObject";
+    Template template = new Handlebars().compileInline(inputJson);
+    Options options =
+        new Options.Builder(null, null, TagType.SECTION, createContext(), template)
+            .setParams(new Object[] {})
+            .build();
+    Object output = render(variableName, options);
+
+    // Check that it returns null
+    assertThat(output, is(nullValue()));
+
+    /* Check that it stores parsed json (an empty map in this case because json is empty)
+     * in given variable name */
+    Object storedData = options.data(variableName);
+    assertThat(storedData, isA(Map.class));
+    Map<String, Object> castedData = (Map<String, Object>) storedData;
+    assertThat(castedData, is(aMapWithSize(0)));
+  }
+
+  @Test
+  public void parsesEmptyJsonIfSectionIfVariableNameNull() throws Exception {
+    String variableName = null;
+    Object output = render(variableName, new Object[] {}, TagType.SECTION);
+
+    // Check that it returns empty object because variable name is null
     assertThat(output, instanceOf(Map.class));
     Map<String, Object> result = (Map<String, Object>) output;
     assertThat(result, aMapWithSize(0));
@@ -127,20 +179,68 @@ public class ParseJsonHelperTest extends HandlebarsHelperTestBase {
 
   @Test
   public void parsesEmptyJsonIfNotSection() throws Exception {
+    String inputJson = "";
+    String variableName = "parsedObject";
+    Object[] params = {variableName};
+    Options options =
+        new Options.Builder(null, null, TagType.VAR, createContext(), Template.EMPTY)
+            .setParams(params)
+            .build();
+    Object output = render(inputJson, options);
+
+    // Check that it returns empty object
+    assertThat(output, is(nullValue()));
+
+    /* Check that it stores parsed json (an empty map in this case because json is empty)
+     * in given variable name */
+    Object storedData = options.data(variableName);
+    assertThat(storedData, isA(Map.class));
+    Map<String, Object> castedData = (Map<String, Object>) storedData;
+    assertThat(castedData, is(aMapWithSize(0)));
+  }
+
+  @Test
+  public void parsesEmptyJsonWithBracesIfNotSection() throws Exception {
+    String inputJson = "{}";
+    String variableName = "parsedObject";
+    Object[] params = {variableName};
+    Options options =
+        new Options.Builder(null, null, TagType.VAR, createContext(), Template.EMPTY)
+            .setParams(params)
+            .build();
+    Object output = render(inputJson, options);
+
+    // Check that it returns empty object
+    assertThat(output, is(nullValue()));
+
+    /* Check that it stores parsed json (an empty map in this case because json is empty)
+     * in given variable name */
+    Object storedData = options.data(variableName);
+    assertThat(storedData, isA(Map.class));
+    Map<String, Object> castedData = (Map<String, Object>) storedData;
+    assertThat(castedData, is(aMapWithSize(0)));
+  }
+
+  @Test
+  public void parsesEmptyJsonIfNotSectionIfVariableNameAbsent() throws Exception {
     String inputJson = "{}";
     Object output = render(inputJson, new Object[] {}, TagType.VAR);
 
-    // Check that it returns empty object
+    // Check that it returns empty object because variable name is null
     assertThat(output, instanceOf(Map.class));
     Map<String, Object> result = (Map<String, Object>) output;
     assertThat(result, aMapWithSize(0));
   }
 
   private Object render(Object context, Object[] params, TagType tagType) throws IOException {
-    return helper.apply(
+    return render(
         context,
         new Options.Builder(null, null, tagType, createContext(), Template.EMPTY)
             .setParams(params)
             .build());
+  }
+
+  private Object render(Object context, Options options) throws IOException {
+    return helper.apply(context, options);
   }
 }
