@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,14 @@ package com.github.tomakehurst.wiremock.admin;
 
 import static com.github.tomakehurst.wiremock.admin.Conversions.toDate;
 import static com.github.tomakehurst.wiremock.admin.Conversions.toInt;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
@@ -34,7 +33,7 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
   private final Date since;
 
   public LimitAndSinceDatePaginator(List<ServeEvent> source, Integer limit, Date since) {
-    checkArgument(limit == null || limit >= 0, "limit must be 0 or greater");
+    checkParameter(limit == null || limit >= 0, "limit must be 0 or greater");
     this.source = source;
     this.limit = limit;
     this.since = since;
@@ -47,17 +46,10 @@ public class LimitAndSinceDatePaginator implements Paginator<ServeEvent> {
 
   @Override
   public List<ServeEvent> select() {
-    FluentIterable<ServeEvent> chain = FluentIterable.from(source);
-    return chain
-        .filter(
-            new Predicate<ServeEvent>() {
-              @Override
-              public boolean apply(ServeEvent input) {
-                return since == null || input.getRequest().getLoggedDate().after(since);
-              }
-            })
-        .limit(firstNonNull(limit, source.size()))
-        .toList();
+    return source.stream()
+        .filter(input -> since == null || input.getRequest().getLoggedDate().after(since))
+        .limit(getFirstNonNull(limit, source.size()))
+        .collect(Collectors.toList());
   }
 
   @Override

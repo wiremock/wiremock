@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.http.MultiValue;
-import com.google.common.base.Objects;
 import java.util.List;
+import java.util.Objects;
 
 @JsonDeserialize(as = SingleMatchMultiValuePattern.class)
 public class SingleMatchMultiValuePattern extends MultiValuePattern {
@@ -64,11 +64,11 @@ public class SingleMatchMultiValuePattern extends MultiValuePattern {
       return false;
     }
     SingleMatchMultiValuePattern that = (SingleMatchMultiValuePattern) o;
-    return Objects.equal(valuePattern, that.valuePattern);
+    return Objects.equals(valuePattern, that.valuePattern);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(valuePattern);
+    return Objects.hash(valuePattern);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public class Body {
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, binary);
+    return Objects.hash(Arrays.hashCode(content), binary);
   }
 
   @Override

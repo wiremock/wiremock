@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface Request {
@@ -59,6 +59,10 @@ public interface Request {
   Set<String> getAllHeaderKeys();
 
   QueryParameter queryParameter(String key);
+
+  FormParameter formParameter(String key);
+
+  Map<String, FormParameter> formParameters();
 
   Map<String, Cookie> getCookies();
 

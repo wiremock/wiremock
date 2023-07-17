@@ -16,15 +16,16 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
@@ -33,6 +34,7 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.io.ByteStreams;
 import jakarta.servlet.*;
@@ -41,6 +43,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
@@ -108,7 +112,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     browserProxyingEnabled =
         Boolean.parseBoolean(
-            firstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
+            getFirstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
   }
 
   private String getNormalizedMappedUnder(ServletConfig config) {
@@ -124,7 +128,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
   private boolean getFileContextForwardingFlagFrom(ServletConfig config) {
     String flagValue = config.getInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT);
-    return Boolean.valueOf(flagValue);
+    return Boolean.parseBoolean(flagValue);
   }
 
   @Override
@@ -135,7 +139,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     // TODO: The HTTP/1.x CONNECT is also forwarded to the servlet now. To keep backward
     // compatible behavior (with proxy involved), skipping the CONNECT handling altogether.
-    if (httpServletRequest.getMethod() == "CONNECT") {
+    if (Objects.equals(httpServletRequest.getMethod(), "CONNECT")) {
       return;
     }
 
@@ -145,7 +149,13 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     ServletHttpResponder responder =
         new ServletHttpResponder(httpServletRequest, httpServletResponse);
-    requestHandler.handle(request, responder);
+
+    final ServeEvent originalServeEvent =
+        httpServletRequest.getAttribute(ORIGINAL_SERVE_EVENT_KEY) != null
+            ? (ServeEvent) httpServletRequest.getAttribute(ORIGINAL_SERVE_EVENT_KEY)
+            : null;
+
+    requestHandler.handle(request, responder, originalServeEvent);
   }
 
   private class ServletHttpResponder implements HttpResponder {
@@ -160,12 +170,14 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     }
 
     @Override
-    public void respond(final Request request, final Response response) {
+    public void respond(
+        final Request request, final Response response, Map<String, Object> attributes) {
       if (Thread.currentThread().isInterrupted()) {
         return;
       }
 
       httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
+      attributes.forEach(httpServletRequest::setAttribute);
 
       if (isAsyncSupported(response, httpServletRequest)) {
         respondAsync(request, response);
@@ -329,7 +341,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       throws ServletException, IOException {
     String forwardUrl = wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getUrl();
     RequestDispatcher dispatcher =
-        httpServletRequest.getRequestDispatcher(decode(forwardUrl, UTF_8.name()));
+        httpServletRequest.getRequestDispatcher(decode(forwardUrl, UTF_8));
     dispatcher.forward(httpServletRequest, httpServletResponse);
   }
 }

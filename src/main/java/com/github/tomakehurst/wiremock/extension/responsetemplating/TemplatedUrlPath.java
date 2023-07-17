@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
-import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,9 +27,9 @@ public class TemplatedUrlPath extends LinkedHashMap<String, String> implements I
   private final String originalPath;
 
   public TemplatedUrlPath(String url, PathTemplate pathTemplate) {
-    this.originalPath = URI.create(url).getPath();
+    this.originalPath = Urls.getPath(url);
     addAllPathSegments();
-    putAll(pathTemplate.parse(url));
+    putAll(pathTemplate.parse(originalPath));
   }
 
   private void addAllPathSegments() {

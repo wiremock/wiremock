@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelperTestBase.transform;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -26,14 +27,13 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,14 +45,14 @@ public class HandlebarsCurrentDateHelperTest {
   @BeforeEach
   public void init() {
     helper = new HandlebarsCurrentDateHelper();
-    transformer = new ResponseTemplateTransformer(true);
+    transformer = buildTemplateTransformer(true);
 
     LocalNotifier.set(new ConsoleNotifier(true));
   }
 
   @Test
   public void rendersNowDateTime() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of();
+    Map<String, Object> optionsHash = Map.of();
 
     Object output = render(optionsHash);
 
@@ -62,8 +62,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowDateTimeWithCustomFormat() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("format", "yyyy/mm/dd");
+    Map<String, Object> optionsHash = Map.of("format", "yyyy/mm/dd");
 
     Object output = render(optionsHash);
 
@@ -75,8 +74,7 @@ public class HandlebarsCurrentDateHelperTest {
   public void rendersPassedDateTimeWithDayOffset() throws Exception {
     String format = "yyyy-MM-dd";
     SimpleDateFormat df = new SimpleDateFormat(format);
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("format", format, "offset", "5 days");
+    Map<String, Object> optionsHash = Map.of("format", format, "offset", "5 days");
 
     Object output = render(df.parse("2018-04-16"), optionsHash);
 
@@ -85,8 +83,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowWithDayOffset() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of("offset", "6 months");
+    Map<String, Object> optionsHash = Map.of("offset", "6 months");
 
     Object output = render(optionsHash);
 
@@ -95,7 +92,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowAsUnixEpochInMilliseconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("format", "epoch");
+    Map<String, Object> optionsHash = Map.of("format", "epoch");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -105,7 +102,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void rendersNowAsUnixEpochInSeconds() throws Exception {
-    ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of("format", "unix");
+    Map<String, Object> optionsHash = Map.of("format", "unix");
 
     Date date = new Date();
     Object output = render(date, optionsHash);
@@ -115,10 +112,7 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney");
+    Map<String, Object> optionsHash = Map.of("offset", "3 days", "timezone", "Australia/Sydney");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
@@ -128,11 +122,9 @@ public class HandlebarsCurrentDateHelperTest {
 
   @Test
   public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
-    ImmutableMap<String, Object> optionsHash =
-        ImmutableMap.<String, Object>of(
-            "offset", "3 days",
-            "timezone", "Australia/Sydney",
-            "format", "yyyy-MM-dd HH:mm:ssZ");
+    Map<String, Object> optionsHash =
+        Map.of(
+            "offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
 
     Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
     Object output = render(inputDate, optionsHash);
@@ -143,11 +135,10 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void helperIsIncludedInTemplateTransformerWithNowTagName() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/random-value"),
-            aResponse().withBody("{{now offset='6 days'}}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{now offset='6 days'}}"));
 
     String body = responseDefinition.getBody().trim();
     assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
@@ -156,11 +147,10 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void helperIsIncludedInTemplateTransformerWithDateTagName() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/random-value"),
-            aResponse().withBody("{{date offset='6 days'}}").build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{date offset='6 days'}}"));
 
     String body = responseDefinition.getBody().trim();
     assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
@@ -169,23 +159,20 @@ public class HandlebarsCurrentDateHelperTest {
   @Test
   public void acceptsDateParameterwithDateTagName() {
     final ResponseDefinition responseDefinition =
-        this.transformer.transform(
+        transform(
+            transformer,
             mockRequest().url("/parsed-date"),
-            aResponse()
-                .withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}")
-                .build(),
-            noFileSource(),
-            Parameters.empty());
+            aResponse().withBody("{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"));
 
     String body = responseDefinition.getBody().trim();
     assertThat(body, is("2018-05-04T10:11:12Z"));
   }
 
-  private Object render(ImmutableMap<String, Object> optionsHash) throws IOException {
+  private Object render(Map<String, Object> optionsHash) throws IOException {
     return render(null, optionsHash);
   }
 
-  private Object render(Date context, ImmutableMap<String, Object> optionsHash) throws IOException {
+  private Object render(Date context, Map<String, Object> optionsHash) throws IOException {
     return helper.apply(
         context, new Options.Builder(null, null, null, null, null).setHash(optionsHash).build());
   }

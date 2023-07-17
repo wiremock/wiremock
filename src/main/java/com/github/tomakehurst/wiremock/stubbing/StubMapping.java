@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.List;
@@ -49,6 +50,8 @@ public class StubMapping {
   private String newScenarioState;
 
   private List<PostServeActionDefinition> postServeActions;
+
+  private List<ServeEventListenerDefinition> serveEventListeners;
 
   private Metadata metadata;
 
@@ -112,11 +115,11 @@ public class StubMapping {
   }
 
   public RequestPattern getRequest() {
-    return firstNonNull(request, RequestPattern.ANYTHING);
+    return getFirstNonNull(request, RequestPattern.ANYTHING);
   }
 
   public ResponseDefinition getResponse() {
-    return firstNonNull(response, ResponseDefinition.ok());
+    return getFirstNonNull(response, ResponseDefinition.ok());
   }
 
   public void setRequest(RequestPattern request) {
@@ -208,6 +211,10 @@ public class StubMapping {
     return postServeActions;
   }
 
+  public List<ServeEventListenerDefinition> getServeEventListeners() {
+    return serveEventListeners;
+  }
+
   public void setPostServeActions(List<PostServeActionDefinition> postServeActions) {
     this.postServeActions = postServeActions;
   }
@@ -234,6 +241,27 @@ public class StubMapping {
           ((List<Map<String, Object>>) postServeActions)
               .stream()
                   .map(item -> Json.mapToObject(item, PostServeActionDefinition.class))
+                  .collect(Collectors.toList());
+    }
+  }
+
+  public void setServeEventListenerDefinitions(
+      List<ServeEventListenerDefinition> serveEventListeners) {
+    this.serveEventListeners = serveEventListeners;
+  }
+
+  @SuppressWarnings("unchecked")
+  @JsonProperty("serveEventListeners")
+  public void setServeEventListeners(Object serveEventListeners) {
+    if (serveEventListeners == null) {
+      return;
+    }
+
+    if (List.class.isAssignableFrom(serveEventListeners.getClass())) {
+      this.serveEventListeners =
+          ((List<Map<String, Object>>) serveEventListeners)
+              .stream()
+                  .map(item -> Json.mapToObject(item, ServeEventListenerDefinition.class))
                   .collect(Collectors.toList());
     }
   }

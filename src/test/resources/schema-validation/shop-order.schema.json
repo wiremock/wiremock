@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "required": [
+    "itemCatalogueId",
+    "quantity"
+  ],
+  "properties": {
+    "itemCatalogueId": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer"
+    },
+    "fastDelivery": {
+      "type": "boolean"
+    }
+  }
+}

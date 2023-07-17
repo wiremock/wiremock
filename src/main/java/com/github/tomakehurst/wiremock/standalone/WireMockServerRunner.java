@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static java.lang.System.err;
 import static java.lang.System.out;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -29,22 +30,29 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import java.io.PrintStream;
 
 public class WireMockServerRunner {
 
   private static final String BANNER =
-      " /$$      /$$ /$$                     /$$      /$$                     /$$      \n"
-          + "| $$  /$ | $$|__/                    | $$$    /$$$                    | $$      \n"
-          + "| $$ /$$$| $$ /$$  /$$$$$$   /$$$$$$ | $$$$  /$$$$  /$$$$$$   /$$$$$$$| $$   /$$\n"
-          + "| $$/$$ $$ $$| $$ /$$__  $$ /$$__  $$| $$ $$/$$ $$ /$$__  $$ /$$_____/| $$  /$$/\n"
-          + "| $$$$_  $$$$| $$| $$  \\__/| $$$$$$$$| $$  $$$| $$| $$  \\ $$| $$      | $$$$$$/ \n"
-          + "| $$$/ \\  $$$| $$| $$      | $$_____/| $$\\  $ | $$| $$  | $$| $$      | $$_  $$ \n"
-          + "| $$/   \\  $$| $$| $$      |  $$$$$$$| $$ \\/  | $$|  $$$$$$/|  $$$$$$$| $$ \\  $$\n"
-          + "|__/     \\__/|__/|__/       \\_______/|__/     |__/ \\______/  \\_______/|__/  \\__/";
+      "\n"
+          + "\u001B[34m██     ██ ██ ██████  ███████ \u001B[33m███    ███  ██████   ██████ ██   ██ \n"
+          + "\u001B[34m██     ██ ██ ██   ██ ██      \u001B[33m████  ████ ██    ██ ██      ██  ██  \n"
+          + "\u001B[34m██  █  ██ ██ ██████  █████   \u001B[33m██ ████ ██ ██    ██ ██      █████   \n"
+          + "\u001B[34m██ ███ ██ ██ ██   ██ ██      \u001B[33m██  ██  ██ ██    ██ ██      ██  ██  \n"
+          + "\u001B[34m ███ ███  ██ ██   ██ ███████ \u001B[33m██      ██  ██████   ██████ ██   ██ \n"
+          + "\n\u001B[0m"
+          + "----------------------------------------------------------------\n"
+          + "|               Cloud: https://wiremock.io/cloud               |\n"
+          + "|                                                              |\n"
+          + "|               Slack: https://slack.wiremock.org              |\n"
+          + "----------------------------------------------------------------";
 
   private WireMockServer wireMockServer;
 
   public void run(String... args) {
+    suppressSlf4jWarnings();
+
     CommandLineOptions options = new CommandLineOptions(args);
     if (options.help()) {
       out.println(options.helpText());
@@ -94,6 +102,32 @@ public class WireMockServerRunner {
     }
   }
 
+  private static void suppressSlf4jWarnings() {
+    System.setErr(
+        new PrintStream(err) {
+          @Override
+          public void println(String s) {
+            if (!s.startsWith("SLF4J")) {
+              super.println(s);
+            }
+          }
+
+          @Override
+          public void println(char[] chars) {
+            if (!new String(chars).startsWith("SLF4J")) {
+              super.println(chars);
+            }
+          }
+
+          @Override
+          public void println(Object o) {
+            if (!o.toString().startsWith("SLF4J")) {
+              super.println(o);
+            }
+          }
+        });
+  }
+
   private void addProxyMapping(final String baseUrl) {
     wireMockServer.loadMappingsUsing(
         stubMappings -> {
@@ -123,9 +157,5 @@ public class WireMockServerRunner {
 
   public int port() {
     return wireMockServer.port();
-  }
-
-  public static void main(String... args) {
-    new WireMockServerRunner().run(args);
   }
 }

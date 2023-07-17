@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ public class Base64EncoderTest {
   public static final String OUTPUT = "MTIzNA==";
 
   @Test
-  public void testGuavaEncoder() {
-    Base64Encoder encoder = new GuavaBase64Encoder();
+  void testEncoder() {
+    var encoder = new JdkBase64Encoder();
 
     String encoded = encoder.encode(INPUT.getBytes());
     assertThat(encoded, is(OUTPUT));

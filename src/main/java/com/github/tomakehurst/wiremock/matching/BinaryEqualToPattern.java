@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.io.BaseEncoding;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Objects;
 
 public class BinaryEqualToPattern extends ContentPattern<byte[]> {
 
@@ -29,7 +30,7 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
 
   @JsonCreator
   public BinaryEqualToPattern(@JsonProperty("binaryEqualTo") String expected) {
-    this(BaseEncoding.base64().decode(expected));
+    this(Base64.getDecoder().decode(expected));
   }
 
   @Override
@@ -46,7 +47,7 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
   @Override
   @JsonIgnore
   public String getExpected() {
-    return BaseEncoding.base64().encode(expectedValue);
+    return Base64.getEncoder().encodeToString(expectedValue);
   }
 
   public String getBinaryEqualTo() {
@@ -56,5 +57,20 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
   @Override
   public String toString() {
     return getName() + " " + getExpected();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    BinaryEqualToPattern that = (BinaryEqualToPattern) o;
+
+    return Objects.equals(getExpected(), that.getExpected());
+  }
+
+  @Override
+  public int hashCode() {
+    return getExpected() != null ? getExpected().hashCode() : 0;
   }
 }

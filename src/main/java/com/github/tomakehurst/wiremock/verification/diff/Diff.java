@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
-import static com.google.common.base.MoreObjects.firstNonNull;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.MultiValue;
@@ -133,7 +134,7 @@ public class Diff {
             requestPattern.getMethod().getName());
     builder.add(methodSection);
 
-    UrlPattern urlPattern = firstNonNull(requestPattern.getUrlMatcher(), anyUrl());
+    UrlPattern urlPattern = getFirstNonNull(requestPattern.getUrlMatcher(), anyUrl());
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
     DiffLine<String> urlSection =
         new DiffLine<>("URL", urlPattern, request.getUrl(), printedUrlPattern);
@@ -152,7 +153,8 @@ public class Diff {
       final UrlPathTemplatePattern urlPathTemplatePattern =
           (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
-      final PathParams requestPathParameterValues = pathTemplate.parse(request.getUrl());
+      final PathParams requestPathParameterValues =
+          pathTemplate.parse(Urls.getPath(request.getUrl()));
 
       for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
         String parameterName = entry.getKey();
@@ -181,7 +183,7 @@ public class Diff {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         QueryParameter queryParameter =
-            firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
+            getFirstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
@@ -199,13 +201,40 @@ public class Diff {
       builder.add(SPACER);
     }
 
+    boolean anyFormParams = false;
+    if (requestPattern.getFormParameters() != null) {
+      Map<String, FormParameter> requestFormParameters = request.formParameters();
+
+      for (Map.Entry<String, MultiValuePattern> entry :
+          requestPattern.getFormParameters().entrySet()) {
+        String key = entry.getKey();
+        MultiValuePattern pattern = entry.getValue();
+        FormParameter formParameter =
+            getFirstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
+
+        String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
+        DiffLine<MultiValue> section =
+            new DiffLine<>(
+                "Form data",
+                pattern,
+                formParameter,
+                "Form: " + key + operator + pattern.getExpected());
+        builder.add(section);
+        anyFormParams = true;
+      }
+    }
+
+    if (anyFormParams) {
+      builder.add(SPACER);
+    }
+
     boolean anyCookieSections = false;
     if (requestPattern.getCookies() != null) {
-      Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.emptyMap());
+      Map<String, Cookie> cookies = getFirstNonNull(request.getCookies(), Collections.emptyMap());
       for (Map.Entry<String, StringValuePattern> entry : requestPattern.getCookies().entrySet()) {
         String key = entry.getKey();
         StringValuePattern pattern = entry.getValue();
-        Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
+        Cookie cookie = getFirstNonNull(cookies.get(key), Cookie.absent());
 
         String operator = generateOperatorString(pattern, "=");
         DiffLine<String> section =
@@ -275,7 +304,7 @@ public class Diff {
       }
     }
 
-    if (scenarioName != null) {
+    if (scenarioName != null && expectedScenarioState != null) {
       builder.add(
           new DiffLine<>(
               "Scenario",
@@ -355,8 +384,10 @@ public class Diff {
           }
         } else if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
           StringValuePattern stringValuePattern = (StringValuePattern) pattern;
+          String printedPatternValue = "[" + pattern.getName() + "]\n" + pattern.getExpected();
           builder.add(
-              new DiffLine<>("Body", stringValuePattern, formattedBody, pattern.getExpected()));
+              new DiffLine<>(
+                  "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue));
         } else {
           BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
           builder.add(
