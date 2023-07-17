@@ -38,11 +38,7 @@ import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractStubMappings implements StubMappings {
@@ -54,16 +50,16 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final StubMappingStore store;
-  protected final boolean failIfMultipleMappingsMatch;
+  private boolean failIfMultipleMappingsMatch;
 
   public AbstractStubMappings(
-      final StubMappingStore store,
-      final Scenarios scenarios,
-      final Map<String, RequestMatcherExtension> customMatchers,
-      final Map<String, ResponseDefinitionTransformer> transformers,
-      final Map<String, ResponseDefinitionTransformerV2> v2transformers,
-      final BlobStore filesBlobStore,
-      final List<StubLifecycleListener> stubLifecycleListeners,
+      StubMappingStore store,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers,
+      Map<String, ResponseDefinitionTransformer> transformers,
+      Map<String, ResponseDefinitionTransformerV2> v2transformers,
+      BlobStore filesBlobStore,
+      List<StubLifecycleListener> stubLifecycleListeners,
       final boolean failIfMultipleMappingsMatch) {
 
     this.store = store;
@@ -77,22 +73,20 @@ public abstract class AbstractStubMappings implements StubMappings {
   }
 
   @Override
-  public ServeEvent serveFor(final ServeEvent initialServeEvent) {
+  public ServeEvent serveFor(ServeEvent initialServeEvent) {
     final LoggedRequest request = initialServeEvent.getRequest();
 
     final List<SubEvent> subEvents = new LinkedList<>();
 
-    final StubMapping matchingMapping = this.getMatchingMapping(request, subEvents);
+    StubMapping matchingMapping = getMatchingMapping(request, subEvents);
 
     subEvents.forEach(initialServeEvent::appendSubEvent);
 
-    this.scenarios.onStubServed(matchingMapping);
+    scenarios.onStubServed(matchingMapping);
 
     ResponseDefinition responseDefinition =
-        this.applyV1Transformations(
-            request,
-            matchingMapping.getResponse(),
-            ImmutableList.copyOf(this.transformers.values()));
+        applyV1Transformations(
+            request, matchingMapping.getResponse(), ImmutableList.copyOf(transformers.values()));
 
     ServeEvent serveEvent =
         initialServeEvent
@@ -100,7 +94,7 @@ public abstract class AbstractStubMappings implements StubMappings {
             .withResponseDefinition(responseDefinition);
 
     final Pair<ServeEvent, ResponseDefinition> transformed =
-        this.applyV2Transformations(serveEvent, ImmutableList.copyOf(this.v2transformers.values()));
+        applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
     serveEvent = transformed.a;
     responseDefinition = transformed.b;
 
@@ -133,30 +127,30 @@ public abstract class AbstractStubMappings implements StubMappings {
   }
 
   private ResponseDefinition applyV1Transformations(
-      final Request request,
-      final ResponseDefinition responseDefinition,
-      final List<ResponseDefinitionTransformer> transformers) {
+      Request request,
+      ResponseDefinition responseDefinition,
+      List<ResponseDefinitionTransformer> transformers) {
 
     if (transformers.isEmpty()) {
       return responseDefinition;
     }
 
-    final ResponseDefinitionTransformer transformer = transformers.get(0);
-    final ResponseDefinition newResponseDef =
+    ResponseDefinitionTransformer transformer = transformers.get(0);
+    ResponseDefinition newResponseDef =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(
                 request,
                 responseDefinition,
-                this.filesFileSource,
+                filesFileSource,
                 getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty()))
             : responseDefinition;
 
-    return this.applyV1Transformations(
+    return applyV1Transformations(
         request, newResponseDef, transformers.subList(1, transformers.size()));
   }
 
   private Pair<ServeEvent, ResponseDefinition> applyV2Transformations(
-      final ServeEvent serveEvent, final List<ResponseDefinitionTransformerV2> transformers) {
+      ServeEvent serveEvent, List<ResponseDefinitionTransformerV2> transformers) {
 
     final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
@@ -164,112 +158,112 @@ public abstract class AbstractStubMappings implements StubMappings {
       return pair(serveEvent, responseDefinition);
     }
 
-    final ResponseDefinitionTransformerV2 transformer = transformers.get(0);
-    final ResponseDefinition newResponseDef =
+    ResponseDefinitionTransformerV2 transformer = transformers.get(0);
+    ResponseDefinition newResponseDef =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(serveEvent)
             : responseDefinition;
 
-    return this.applyV2Transformations(
+    return applyV2Transformations(
         serveEvent.withResponseDefinition(newResponseDef),
         transformers.subList(1, transformers.size()));
   }
 
   @Override
-  public void addMapping(final StubMapping mapping) {
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+  public void addMapping(StubMapping mapping) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubCreated(mapping);
     }
 
-    this.store.add(mapping);
-    this.scenarios.onStubMappingAdded(mapping);
+    store.add(mapping);
+    scenarios.onStubMappingAdded(mapping);
 
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubCreated(mapping);
     }
   }
 
   @Override
-  public void removeMapping(final StubMapping mapping) {
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+  public void removeMapping(StubMapping mapping) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubRemoved(mapping);
     }
 
-    this.store.remove(mapping);
-    this.scenarios.onStubMappingRemoved(mapping);
+    store.remove(mapping);
+    scenarios.onStubMappingRemoved(mapping);
 
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubRemoved(mapping);
     }
   }
 
   @Override
-  public void editMapping(final StubMapping stubMapping) {
-    final Optional<StubMapping> optionalExistingMapping = this.store.get(stubMapping.getId());
+  public void editMapping(StubMapping stubMapping) {
+    final Optional<StubMapping> optionalExistingMapping = store.get(stubMapping.getId());
 
     if (optionalExistingMapping.isEmpty()) {
-      final String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
+      String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
       notifier().error(msg);
       throw new NotFoundException(msg);
     }
 
     final StubMapping existingMapping = optionalExistingMapping.get();
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubEdited(existingMapping, stubMapping);
     }
 
     stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
     stubMapping.setDirty(true);
 
-    this.store.replace(existingMapping, stubMapping);
-    this.scenarios.onStubMappingUpdated(existingMapping, stubMapping);
+    store.replace(existingMapping, stubMapping);
+    scenarios.onStubMappingUpdated(existingMapping, stubMapping);
 
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubEdited(existingMapping, stubMapping);
     }
   }
 
   @Override
   public void reset() {
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubsReset();
     }
 
-    this.store.clear();
-    this.scenarios.clear();
+    store.clear();
+    scenarios.clear();
 
-    for (final StubLifecycleListener listener : this.stubLifecycleListeners) {
+    for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.afterStubsReset();
     }
   }
 
   @Override
   public void resetScenarios() {
-    this.scenarios.reset();
+    scenarios.reset();
   }
 
   @Override
   public List<StubMapping> getAll() {
-    return ImmutableList.copyOf(this.store.getAll().collect(toList()));
+    return ImmutableList.copyOf(store.getAll().collect(toList()));
   }
 
   @Override
   public Optional<StubMapping> get(final UUID id) {
-    return this.store.get(id);
+    return store.get(id);
   }
 
   @Override
   public List<Scenario> getAllScenarios() {
-    return this.scenarios.getAll();
+    return scenarios.getAll();
   }
 
   @Override
   public List<StubMapping> findByMetadata(final StringValuePattern pattern) {
-    return this.store
+    return store
         .getAll()
         .filter(
             stubMapping -> {
-              final String metadataJson = Json.write(stubMapping.getMetadata());
+              String metadataJson = Json.write(stubMapping.getMetadata());
               return pattern.match(metadataJson).isExactMatch();
             })
         .collect(toList());
