@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class StubMappingJsonRecorderTest {
@@ -380,14 +382,15 @@ public class StubMappingJsonRecorderTest {
           + "	}												             \n"
           + "}													               ";
 
-  @Test
-  public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader() {
+  @ParameterizedTest
+  @ValueSource(strings = {"gzip", "deflate", "br"})
+  public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader(String acceptEncodingHeaders) {
     when(admin.countRequestsMatching((any(RequestPattern.class))))
         .thenReturn(VerificationResult.withCount(0));
 
     Request request =
         new MockRequestBuilder()
-            .withHeader("Accept-Encoding", "gzip")
+            .withHeader("Accept-Encoding", acceptEncodingHeaders)
             .withMethod(RequestMethod.GET)
             .withUrl("/gzipped/content")
             .build();
@@ -398,7 +401,7 @@ public class StubMappingJsonRecorderTest {
             .fromProxy(true)
             .headers(
                 new HttpHeaders(
-                    httpHeader("Content-Encoding", "gzip"), httpHeader("Content-Length", "123")))
+                    httpHeader("Content-Encoding", acceptEncodingHeaders), httpHeader("Content-Length", "123")))
             .body(gzip("Recorded body content"))
             .build();
 
