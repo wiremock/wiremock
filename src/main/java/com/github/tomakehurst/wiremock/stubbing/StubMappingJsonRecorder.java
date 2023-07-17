@@ -33,6 +33,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * @deprecated this is the legacy recorder and will be removed before 3.x is out of beta
+ */
+@Deprecated
 public class StubMappingJsonRecorder implements RequestListener {
 
   private final BlobStore mappingsBlobStore;
