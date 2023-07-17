@@ -1,0 +1,50 @@
+{"mappings": [
+  {
+    "request": {
+      "method": "POST",
+      "bodyPatterns": [{
+        "enablePlaceholders": true,
+        "equalToXml": "<items><item>${xmlunit.ignore}<\/item><\/items>"
+      }],
+      "url": "/dynamic/process"
+    },
+    "newScenarioState": "Created",
+    "response": {"status": 201},
+    "scenarioKeyPattern": {"matchesXPath": "//items/item/text()"},
+    "scenarioPrefix": "Dynamic process"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "/dynamic/process"
+    },
+    "newScenarioState": "After-Created",
+    "response": {
+      "bodyFileName": "dynamic-xml-body.xml",
+      "status": 200
+    },
+    "requiredScenarioState": "Created",
+    "scenarioPrefix": "Dynamic process"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "bodyPatterns": [{
+        "equalToJson": "{ \"item\": \"${json-unit.ignore}\" }",
+        "enablePlaceholders": true
+      }],
+      "url": "/dynamic/process"
+    },
+    "newScenarioState": "Finished",
+    "response": {
+      "bodyFileName": "dynamic-json-body.json",
+      "status": 200
+    },
+    "scenarioKeyPattern": {"matchesJsonPath": {
+      "expression": "$.item",
+      "anything": ""
+    }},
+    "requiredScenarioState": "After-Created",
+    "scenarioPrefix": "Dynamic process"
+  }
+]}

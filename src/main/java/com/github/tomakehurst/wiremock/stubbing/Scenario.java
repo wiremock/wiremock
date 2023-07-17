@@ -93,6 +93,10 @@ public class Scenario {
     return new Scenario(id, newState, stubMappings);
   }
 
+  Scenario setName(String newName) {
+    return new Scenario(newName, state, stubMappings);
+  }
+
   Scenario reset() {
     return new Scenario(id, STARTED, stubMappings);
   }

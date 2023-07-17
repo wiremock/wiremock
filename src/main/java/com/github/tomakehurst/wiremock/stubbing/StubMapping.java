@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeActionDefinition;
 import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.PathPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,8 @@ public class StubMapping {
   private String scenarioName;
   private String requiredScenarioState;
   private String newScenarioState;
+  private String scenarioPrefix;
+  private PathPattern scenarioKeyPattern;
 
   private List<PostServeActionDefinition> postServeActions;
 
@@ -191,6 +194,27 @@ public class StubMapping {
     return scenarioName != null;
   }
 
+  public String getScenarioPrefix() {
+    return scenarioPrefix;
+  }
+
+  public void setScenarioPrefix(String scenarioPrefix) {
+    this.scenarioPrefix = scenarioPrefix;
+  }
+
+  public PathPattern getScenarioKeyPattern() {
+    return scenarioKeyPattern;
+  }
+
+  public void setScenarioKeyPattern(PathPattern scenarioKeyPattern) {
+    this.scenarioKeyPattern = scenarioKeyPattern;
+  }
+
+  @JsonIgnore
+  public boolean isInDynamicScenario() {
+    return scenarioPrefix != null;
+  }
+
   @JsonIgnore
   public boolean modifiesScenarioState() {
     return newScenarioState != null;
@@ -198,7 +222,7 @@ public class StubMapping {
 
   @JsonIgnore
   public boolean isIndependentOfScenarioState() {
-    return !isInScenario() || requiredScenarioState == null;
+    return (!isInScenario() && !isInDynamicScenario()) || requiredScenarioState == null;
   }
 
   public int comparePriorityWith(StubMapping otherMapping) {
@@ -287,6 +311,8 @@ public class StubMapping {
         && Objects.equals(scenarioName, that.scenarioName)
         && Objects.equals(requiredScenarioState, that.requiredScenarioState)
         && Objects.equals(newScenarioState, that.newScenarioState)
+        && Objects.equals(scenarioPrefix, that.scenarioPrefix)
+        && Objects.equals(scenarioKeyPattern, that.scenarioKeyPattern)
         && Objects.equals(postServeActions, that.postServeActions)
         && Objects.equals(metadata, that.metadata);
   }
@@ -301,6 +327,8 @@ public class StubMapping {
         scenarioName,
         requiredScenarioState,
         newScenarioState,
+        scenarioPrefix,
+        scenarioKeyPattern,
         postServeActions,
         metadata,
         isDirty);

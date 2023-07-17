@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.http.Request;
 import java.util.List;
 
 public interface Scenarios {
@@ -28,7 +29,7 @@ public interface Scenarios {
 
   void onStubMappingRemoved(StubMapping mapping);
 
-  void onStubServed(StubMapping mapping);
+  void onStubServed(StubMapping mapping, Request request);
 
   void reset();
 
@@ -38,5 +39,7 @@ public interface Scenarios {
 
   void clear();
 
-  boolean mappingMatchesScenarioState(StubMapping mapping);
+  boolean mappingMatchesScenarioState(StubMapping mapping, Request request);
+
+  boolean canHandle(StubMapping mapping);
 }

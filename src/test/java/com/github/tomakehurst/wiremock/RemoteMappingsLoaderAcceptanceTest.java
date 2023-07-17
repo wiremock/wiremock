@@ -106,4 +106,33 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
         testClient.get("/todo/items").content(),
         is("<items><item>Buy milk</item><item>Cancel newspaper subscription</item></items>"));
   }
+
+  @Test
+  public void loadDynamicScenarioFromOneFile() {
+    wmClient.loadMappingsFrom(rootDir);
+
+    assertThat(
+        testClient
+            .postWithBody(
+                "/dynamic/process",
+                "<items><item>IDDQD</item></items>",
+                "application/json",
+                "UTF-8")
+            .statusCode(),
+        is(201));
+    assertThat(
+        testClient
+            .postWithBody(
+                "/dynamic/process",
+                "{\"subscription\": \"Reject car shopping\"}",
+                "application/json",
+                "UTF-8")
+            .content(),
+        is("<response>IDDQD</response>\r\n"));
+    assertThat(
+        testClient
+            .postWithBody("/dynamic/process", "{\"item\": \"IDDQD\"}", "application/json", "UTF-8")
+            .content(),
+        is("{\"result\": \"IDDQD\"}\n"));
+  }
 }

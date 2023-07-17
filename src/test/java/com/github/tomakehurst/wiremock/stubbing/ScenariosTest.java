@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2022 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -183,6 +183,7 @@ public class ScenariosTest {
     assertThat(scenarios.getByName("one"), nullValue());
   }
 
+  // TODO:: Make the same with dynamic
   @Test
   public void modifiesScenarioStateWhenStubServed() {
     StubMapping mapping1 =
@@ -205,13 +206,14 @@ public class ScenariosTest {
 
     assertThat(scenarios.getByName("one").getState(), is(STARTED));
 
-    scenarios.onStubServed(mapping1);
+    scenarios.onStubServed(mapping1, null);
     assertThat(scenarios.getByName("one").getState(), is("step_2"));
 
-    scenarios.onStubServed(mapping2);
+    scenarios.onStubServed(mapping2, null);
     assertThat(scenarios.getByName("one").getState(), is("step_3"));
   }
 
+  // TODO:: Make the same with dynamic
   @Test
   public void doesNotModifyScenarioStateWhenStubServedInNonMatchingState() {
     StubMapping mapping1 =
@@ -234,10 +236,11 @@ public class ScenariosTest {
 
     assertThat(scenarios.getByName("one").getState(), is(STARTED));
 
-    scenarios.onStubServed(mapping2);
+    scenarios.onStubServed(mapping2, null);
     assertThat(scenarios.getByName("one").getState(), is(STARTED));
   }
 
+  // TODO:: Make the same with dynamic
   @Test
   public void resetsAllScenarios() {
     StubMapping mapping1 =
@@ -267,8 +270,8 @@ public class ScenariosTest {
             .build();
     scenarios.onStubMappingAdded(mapping3);
 
-    scenarios.onStubServed(mapping1);
-    scenarios.onStubServed(mapping3);
+    scenarios.onStubServed(mapping1, null);
+    scenarios.onStubServed(mapping3, null);
 
     assertThat(scenarios.getByName("one").getState(), is("step_2"));
     assertThat(scenarios.getByName("two").getState(), is("2_step_2"));
@@ -335,8 +338,8 @@ public class ScenariosTest {
             .build();
     scenarios.onStubMappingAdded(mapping2);
 
-    assertThat(scenarios.mappingMatchesScenarioState(mapping1), is(true));
-    assertThat(scenarios.mappingMatchesScenarioState(mapping2), is(false));
+    assertThat(scenarios.mappingMatchesScenarioState(mapping1, null), is(true));
+    assertThat(scenarios.mappingMatchesScenarioState(mapping2, null), is(false));
   }
 
   @Test
@@ -375,6 +378,7 @@ public class ScenariosTest {
     assertThat(possibleStates, hasItems("Started", "step two"));
   }
 
+  // TODO:: Make the same with dynamic
   @Test
   public void supportsNewScenarioStateWhenRequiredStateIsNull() {
     StubMapping mapping =
@@ -382,7 +386,7 @@ public class ScenariosTest {
 
     scenarios.onStubMappingAdded(mapping);
 
-    scenarios.onStubServed(mapping);
+    scenarios.onStubServed(mapping, null);
 
     assertThat(scenarios.getByName("one").getState(), is("step two"));
   }

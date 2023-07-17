@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ public class DefaultStores implements Stores {
   private final SettingsStore settingsStore;
 
   private final ScenariosStore scenariosStore;
+  private final ScenariosStore dynamicScenariosStore;
 
   public DefaultStores(FileSource fileRoot) {
     this.fileRoot = fileRoot;
@@ -35,6 +36,7 @@ public class DefaultStores implements Stores {
     this.requestJournalStore = new InMemoryRequestJournalStore();
     this.settingsStore = new InMemorySettingsStore();
     this.scenariosStore = new InMemoryScenariosStore();
+    this.dynamicScenariosStore = new InMemoryScenariosStore();
   }
 
   @Override
@@ -55,6 +57,11 @@ public class DefaultStores implements Stores {
   @Override
   public ScenariosStore getScenariosStore() {
     return scenariosStore;
+  }
+
+  @Override
+  public ScenariosStore getDynamicScenariosStore() {
+    return dynamicScenariosStore;
   }
 
   @Override

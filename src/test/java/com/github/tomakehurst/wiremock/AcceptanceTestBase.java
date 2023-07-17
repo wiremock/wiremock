@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
@@ -62,7 +63,11 @@ public class AcceptanceTestBase {
   }
 
   public static void setupServerWithTempFileRoot() {
-    setupServer(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
+    setupServer(
+        wireMockConfig()
+            .withRootDirectory(setupTempFileRoot().getAbsolutePath())
+            // TODO:: It should be as default for dynamic scenarios
+            .extensions(new ResponseTemplateTransformer(false)));
   }
 
   public static File setupTempFileRoot() {

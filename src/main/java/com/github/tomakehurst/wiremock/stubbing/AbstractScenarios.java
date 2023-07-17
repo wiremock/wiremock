@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.store.ScenariosStore;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -31,90 +32,99 @@ public abstract class AbstractScenarios implements Scenarios {
     this.store = store;
   }
 
+  ScenariosStore getStore() {
+    return store;
+  }
+
   @Override
   public Scenario getByName(String name) {
-    return store.get(name).orElse(null);
+    return getStore().get(name).orElse(null);
   }
 
   @Override
   public List<Scenario> getAll() {
-    return ImmutableList.copyOf(store.getAll().collect(toList()));
+    return ImmutableList.copyOf(getStore().getAll().collect(toList()));
   }
 
   @Override
   public void onStubMappingAdded(StubMapping mapping) {
-    if (mapping.isInScenario()) {
-      String scenarioName = mapping.getScenarioName();
+    if (canHandle(mapping)) {
+      String scenarioName = getScenarioName(mapping);
       Scenario scenario =
           getFirstNonNull(
                   store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
               .withStubMapping(mapping);
-      store.put(scenarioName, scenario);
+      getStore().put(scenarioName, scenario);
     }
   }
 
   @Override
   public void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
-    if (oldMapping.isInScenario()
-        && !oldMapping.getScenarioName().equals(newMapping.getScenarioName())) {
+    String oldScenarioName = oldMapping.getScenarioName();
+    String newScenarioName = newMapping.getScenarioName();
+    if (canHandle(oldMapping) && !oldScenarioName.equals(newScenarioName)) {
       Scenario scenarioForOldMapping =
-          store
-              .get(oldMapping.getScenarioName())
+          getStore()
+              .get(oldScenarioName)
               .map(scenario -> scenario.withoutStubMapping(oldMapping))
               .orElseThrow(IllegalStateException::new);
 
       if (scenarioForOldMapping.getMappings().isEmpty()) {
-        store.remove(scenarioForOldMapping.getId());
+        getStore().remove(scenarioForOldMapping.getId());
       } else {
-        store.put(oldMapping.getScenarioName(), scenarioForOldMapping);
+        getStore().put(oldScenarioName, scenarioForOldMapping);
       }
     }
 
-    if (newMapping.isInScenario()) {
-      String scenarioName = newMapping.getScenarioName();
+    if (canHandle(newMapping)) {
       Scenario scenario =
           getFirstNonNull(
                   store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
               .withStubMapping(newMapping);
-      store.put(scenarioName, scenario);
+      getStore().put(newScenarioName, scenario);
     }
   }
 
   @Override
   public void onStubMappingRemoved(StubMapping mapping) {
-    if (mapping.isInScenario()) {
-      final String scenarioName = mapping.getScenarioName();
+    if (canHandle(mapping)) {
+      final String scenarioName = getScenarioName(mapping);
       Scenario scenario =
-          store
+          getStore()
               .get(scenarioName)
               .orElseThrow(IllegalStateException::new)
               .withoutStubMapping(mapping);
 
       if (scenario.getMappings().isEmpty()) {
-        store.remove(scenarioName);
+        getStore().remove(scenarioName);
       } else {
-        store.put(scenarioName, scenario);
+        getStore().put(scenarioName, scenario);
       }
     }
   }
 
   @Override
-  public void onStubServed(StubMapping mapping) {
-    if (mapping.isInScenario()) {
-      final String scenarioName = mapping.getScenarioName();
-      Scenario scenario = store.get(scenarioName).orElseThrow(IllegalStateException::new);
-      if (mapping.modifiesScenarioState()
-          && (mapping.getRequiredScenarioState() == null
-              || scenario.getState().equals(mapping.getRequiredScenarioState()))) {
-        Scenario newScenario = scenario.setState(mapping.getNewScenarioState());
-        store.put(scenarioName, newScenario);
-      }
+  public void onStubServed(StubMapping mapping, Request request) {
+    if (!canHandle(mapping)) {
+      return;
+    }
+
+    final String scenarioName = getScenarioName(mapping);
+    Scenario scenario = getStore().get(scenarioName).orElseThrow(IllegalStateException::new);
+    if (mapping.modifiesScenarioState()
+        && (mapping.getRequiredScenarioState() == null
+            || scenario.getState().equals(mapping.getRequiredScenarioState()))) {
+      Scenario newScenario = scenario.setState(mapping.getNewScenarioState());
+      getStore().put(scenarioName, newScenario);
     }
   }
 
   @Override
   public void reset() {
-    store.getAll().map(Scenario::reset).forEach(scenario -> store.put(scenario.getId(), scenario));
+    getStore()
+        .getAll()
+        .map(Scenario::reset)
+        .forEach(scenario -> getStore().put(scenario.getId(), scenario));
   }
 
   @Override
@@ -129,22 +139,27 @@ public abstract class AbstractScenarios implements Scenarios {
 
   private void setSingleScenarioState(
       String name, java.util.function.Function<Scenario, Scenario> fn) {
-    Scenario scenario =
-        store
-            .get(name)
-            .orElseThrow(() -> new NotFoundException("Scenario " + name + " does not exist"));
+    Scenario scenario = getByName(name);
 
-    store.put(name, fn.apply(scenario));
+    if (scenario == null) {
+      throw new NotFoundException("Scenario " + name + " does not exist");
+    }
+
+    getStore().put(name, fn.apply(scenario));
   }
 
   @Override
   public void clear() {
-    store.clear();
+    getStore().clear();
   }
 
   @Override
-  public boolean mappingMatchesScenarioState(StubMapping mapping) {
-    String currentScenarioState = getByName(mapping.getScenarioName()).getState();
+  public boolean mappingMatchesScenarioState(StubMapping mapping, Request request) {
+    String currentScenarioState = getByName(getScenarioName(mapping)).getState();
     return mapping.getRequiredScenarioState().equals(currentScenarioState);
+  }
+
+  String getScenarioName(StubMapping mapping) {
+    return mapping.getScenarioName();
   }
 }

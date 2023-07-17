@@ -80,13 +80,14 @@ public abstract class AbstractStubMappings implements StubMappings {
             .filter(
                 stubMapping ->
                     stubMapping.isIndependentOfScenarioState()
-                        || scenarios.mappingMatchesScenarioState(stubMapping))
+                        || scenarios.mappingMatchesScenarioState(stubMapping, request))
             .findFirst()
             .orElse(StubMapping.NOT_CONFIGURED);
 
     subEvents.forEach(initialServeEvent::appendSubEvent);
 
     scenarios.onStubServed(matchingMapping);
+    scenarios.onStubServed(matchingMapping, request);
 
     ResponseDefinition responseDefinition =
         applyV1Transformations(
