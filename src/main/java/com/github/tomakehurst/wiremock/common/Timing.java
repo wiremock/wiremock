@@ -44,28 +44,35 @@ public class Timing {
   }
 
   /** The delay added to the response via the stub or global configuration */
-  public int getAddedDelay() {
+  public Integer getAddedDelay() {
     return addedDelay;
   }
 
   /** The amount of time spent handling the stub request */
-  public int getProcessTime() {
+  public Integer getProcessTime() {
     return processTime;
   }
 
   /** The amount of time taken to send the response to the client */
-  public int getResponseSendTime() {
+  public Integer getResponseSendTime() {
     return responseSendTime;
   }
 
   /** The total request time from start to finish, minus added delay */
-  public int getServeTime() {
+  public Integer getServeTime() {
+    if (processTime == null || responseSendTime == null) {
+      return null;
+    }
     return processTime + responseSendTime;
   }
 
   /** The total request time including added delay */
-  public int getTotalTime() {
-    return getServeTime() + addedDelay;
+  public Integer getTotalTime() {
+    Integer serveTime = getServeTime();
+    if (serveTime == null || addedDelay == null) {
+      return null;
+    }
+    return serveTime + addedDelay;
   }
 
   public void setAddedTime(int addedDelayMillis) {
