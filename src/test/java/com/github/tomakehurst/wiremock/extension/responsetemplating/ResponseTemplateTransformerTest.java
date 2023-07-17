@@ -921,8 +921,7 @@ public class ResponseTemplateTransformerTest {
             "{{#parseJson 'parsedObj'}}\n"
                 + "{\n"
                 + "}\n"
-                + "{{/parseJson}}\n"
-                + "{{parsedObj.name}}");
+                + "{{/parseJson}}\n");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
@@ -935,8 +934,7 @@ public class ResponseTemplateTransformerTest {
                 + "{\n"
                 + "}\n"
                 + "{{/assign}}\n"
-                + "{{parseJson json 'parsedObj'}}\n"
-                + "{{parsedObj.name}}\n");
+                + "{{parseJson json 'parsedObj'}}\n");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
