@@ -33,8 +33,7 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
-      List<StubLifecycleListener> stubLifecycleListeners,
-      boolean failIfMultipleMappingsMatch) {
+      List<StubLifecycleListener> stubLifecycleListeners) {
     super(
         store,
         scenarios,
@@ -42,7 +41,6 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
         transformers,
         v2transformers,
         filesBlobStore,
-        stubLifecycleListeners,
-        failIfMultipleMappingsMatch);
+        stubLifecycleListeners);
   }
 }

@@ -22,7 +22,7 @@ import java.util.Collections;
 
 public class InMemoryStubMappings extends StoreBackedStubMappings {
 
-  public InMemoryStubMappings(boolean failIfMultipleMappingsMatch) {
+  public InMemoryStubMappings() {
     super(
         new InMemoryStubMappingStore(),
         new InMemoryScenarios(),
@@ -30,7 +30,6 @@ public class InMemoryStubMappings extends StoreBackedStubMappings {
         Collections.emptyMap(),
         Collections.emptyMap(),
         new FileSourceBlobStore(new SingleRootFileSource(".")),
-        Collections.emptyList(),
-        failIfMultipleMappingsMatch);
+        Collections.emptyList());
   }
 }

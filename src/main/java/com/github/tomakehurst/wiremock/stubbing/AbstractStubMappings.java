@@ -59,8 +59,7 @@ public abstract class AbstractStubMappings implements StubMappings {
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
-      List<StubLifecycleListener> stubLifecycleListeners,
-      final boolean failIfMultipleMappingsMatch) {
+      List<StubLifecycleListener> stubLifecycleListeners) {
 
     this.store = store;
     this.scenarios = scenarios;
@@ -69,7 +68,6 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.v2transformers = v2transformers;
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
-    this.failIfMultipleMappingsMatch = failIfMultipleMappingsMatch;
   }
 
   @Override
@@ -267,5 +265,11 @@ public abstract class AbstractStubMappings implements StubMappings {
               return pattern.match(metadataJson).isExactMatch();
             })
         .collect(toList());
+  }
+
+  @Override
+  public AbstractStubMappings withFailIfMultipleMappingsMatch(boolean failIfMultipleMappingsMatch) {
+    this.failIfMultipleMappingsMatch = failIfMultipleMappingsMatch;
+    return this;
   }
 }

@@ -118,8 +118,8 @@ public class WireMockApp implements StubServer, Admin {
             extensions.ofType(ResponseDefinitionTransformer.class),
             extensions.ofType(ResponseDefinitionTransformerV2.class),
             stores.getFilesBlobStore(),
-            ImmutableList.copyOf(extensions.ofType(StubLifecycleListener.class).values()),
-            options.failIfMultipleMappingsMatch());
+            ImmutableList.copyOf(extensions.ofType(StubLifecycleListener.class).values()));
+    stubMappings.withFailIfMultipleMappingsMatch(options.failIfMultipleMappingsMatch());
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
@@ -140,8 +140,7 @@ public class WireMockApp implements StubServer, Admin {
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       Map<String, RequestMatcherExtension> requestMatchers,
       FileSource rootFileSource,
-      Container container,
-      boolean failIfMultipleMappingsMatch) {
+      Container container) {
 
     this.stores = new DefaultStores(rootFileSource);
 
@@ -163,14 +162,18 @@ public class WireMockApp implements StubServer, Admin {
             transformers,
             v2transformers,
             stores.getFilesBlobStore(),
-            Collections.emptyList(),
-            failIfMultipleMappingsMatch);
+            Collections.emptyList());
     this.container = container;
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = Collections.emptyList();
     loadDefaultMappings();
+  }
+
+  public WireMockApp withFailIfMultipleMappingsMatch(boolean failIfMultipleMappingsMatch) {
+    this.stubMappings.withFailIfMultipleMappingsMatch(failIfMultipleMappingsMatch);
+    return this;
   }
 
   public AdminRequestHandler buildAdminRequestHandler() {

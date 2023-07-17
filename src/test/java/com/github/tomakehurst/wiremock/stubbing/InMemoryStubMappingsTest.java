@@ -36,7 +36,7 @@ public class InMemoryStubMappingsTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    inMemoryStubMappings = new InMemoryStubMappings(false);
+    inMemoryStubMappings = new InMemoryStubMappings();
   }
 
   @Test
