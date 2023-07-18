@@ -21,14 +21,14 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
+ *
  * <ol>
- *     <li>Run any applicable StubMappingTransformers against the stub mappings.</li>
- *     <li>Detect duplicate requests and either discard them or turn them into scenarios.</li>
- *     <li>Extract response bodies to a separate file, if applicable.</li>
+ *   <li>Run any applicable StubMappingTransformers against the stub mappings.
+ *   <li>Detect duplicate requests and either discard them or turn them into scenarios.
+ *   <li>Extract response bodies to a separate file, if applicable.
  * </ol>
  */
 public class SnapshotStubMappingPostProcessor {
@@ -54,7 +54,7 @@ public class SnapshotStubMappingPostProcessor {
     for (StubMapping stubMapping : stubMappings) {
       transformedStubMappings.add(transformerRunner.apply(stubMapping));
     }
-    
+
     // 2. Detect duplicate requests and either discard them or turn them into scenarios.
     Multiset<RequestPattern> requestCounts = HashMultiset.create();
     List<StubMapping> processedStubMappings = new ArrayList<>();
@@ -62,7 +62,8 @@ public class SnapshotStubMappingPostProcessor {
       requestCounts.add(transformedStubMapping.getRequest());
 
       // Skip duplicate requests if shouldRecordRepeatsAsScenarios is not enabled
-      if (requestCounts.count(transformedStubMapping.getRequest()) > 1 && !shouldRecordRepeatsAsScenarios) {
+      if (requestCounts.count(transformedStubMapping.getRequest()) > 1
+          && !shouldRecordRepeatsAsScenarios) {
         continue;
       }
 
@@ -76,15 +77,14 @@ public class SnapshotStubMappingPostProcessor {
     // 3. Extract response bodies to a separate file, if applicable.
     extractStubMappingBodies(processedStubMappings);
 
-    // Run any stub mapping transformer extensions
-    return processedStubMappings.stream().map(transformerRunner).collect(Collectors.toList());
+    return processedStubMappings;
   }
-  
+
   private void extractStubMappingBodies(List<StubMapping> stubMappings) {
     if (bodyExtractMatcher == null) {
       return;
     }
-    
+
     for (StubMapping stubMapping : stubMappings) {
       if (bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
         bodyExtractor.extractInPlace(stubMapping);
