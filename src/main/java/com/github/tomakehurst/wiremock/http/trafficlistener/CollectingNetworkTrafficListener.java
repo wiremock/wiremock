@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.StandardCharsets;
 
 public class CollectingNetworkTrafficListener implements WiremockNetworkTrafficListener {
 
