@@ -128,7 +128,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
                 "application/json",
                 "UTF-8")
             .content(),
-        is("<response>IDDQD</response>\r\n"));
+        is("<response>IDDQD</response>\n"));
     assertThat(
         testClient
             .postWithBody("/dynamic/process", "{\"item\": \"IDDQD\"}", "application/json", "UTF-8")

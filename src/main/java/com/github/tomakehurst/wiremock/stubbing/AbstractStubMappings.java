@@ -86,7 +86,6 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     subEvents.forEach(initialServeEvent::appendSubEvent);
 
-    scenarios.onStubServed(matchingMapping);
     scenarios.onStubServed(matchingMapping, request);
 
     ResponseDefinition responseDefinition =

@@ -52,7 +52,7 @@ public abstract class AbstractScenarios implements Scenarios {
       String scenarioName = getScenarioName(mapping);
       Scenario scenario =
           getFirstNonNull(
-                  store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
+                  getStore().get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
               .withStubMapping(mapping);
       getStore().put(scenarioName, scenario);
     }
@@ -62,6 +62,7 @@ public abstract class AbstractScenarios implements Scenarios {
   public void onStubMappingUpdated(StubMapping oldMapping, StubMapping newMapping) {
     String oldScenarioName = oldMapping.getScenarioName();
     String newScenarioName = newMapping.getScenarioName();
+
     if (canHandle(oldMapping) && !oldScenarioName.equals(newScenarioName)) {
       Scenario scenarioForOldMapping =
           getStore()
@@ -79,7 +80,8 @@ public abstract class AbstractScenarios implements Scenarios {
     if (canHandle(newMapping)) {
       Scenario scenario =
           getFirstNonNull(
-                  store.get(scenarioName).orElse(null), Scenario.inStartedState(scenarioName))
+                  getStore().get(newScenarioName).orElse(null),
+                  Scenario.inStartedState(newScenarioName))
               .withStubMapping(newMapping);
       getStore().put(newScenarioName, scenario);
     }

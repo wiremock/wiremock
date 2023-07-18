@@ -19,18 +19,21 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildExtension;
+import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.buildTemplateTransformer;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Locale;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -67,7 +70,10 @@ public class AcceptanceTestBase {
         wireMockConfig()
             .withRootDirectory(setupTempFileRoot().getAbsolutePath())
             // TODO:: It should be as default for dynamic scenarios
-            .extensions(new ResponseTemplateTransformer(false)));
+            .extensions(
+                buildExtension(
+                    new MockWireMockServices(),
+                    services -> List.of(buildTemplateTransformer(false)))));
   }
 
   public static File setupTempFileRoot() {
