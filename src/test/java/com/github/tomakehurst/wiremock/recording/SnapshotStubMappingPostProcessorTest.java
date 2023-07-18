@@ -18,22 +18,22 @@ package com.github.tomakehurst.wiremock.recording;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 public class SnapshotStubMappingPostProcessorTest {
 
-  // NOTE: testStubMappings is not deeply immutable, as StubMappings are mutable, and to preserve hermeticity must be
-  // an instance rather than a class variable.
-  private static final List<StubMapping> TEST_STUB_MAPPINGS =
+  // NOTE: testStubMappings is not deeply immutable, as StubMappings are mutable, and to preserve
+  // hermeticity must be an instance rather than a class variable.
+  private final List<StubMapping> testStubMappings =
       ImmutableList.of(
           WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
 
@@ -70,32 +70,33 @@ public class SnapshotStubMappingPostProcessorTest {
     assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar/transformed"));
   }
 
-    @Test
-    public void process_withShouldRecordRepeatsAsScenariosAndTransformer_runsTransformerBeforeScenarioProcessor() {
-        SnapshotStubMappingTransformerRunner transformerRunner =
-                new SnapshotStubMappingTransformerRunner(null) {
-                    @Override
-                    public StubMapping apply(StubMapping stubMapping) {
-                        // Return StubMapping with "/transformed" at the end of the original URL
-                        String url = stubMapping.getRequest().getUrl();
-                        return new StubMapping(
-                                newRequestPattern().withUrl(url + "/transformed").build(), ResponseDefinition.ok());
-                    }
-                };
+  @Test
+  public void
+      process_withShouldRecordRepeatsAsScenariosAndTransformer_runsTransformerBeforeScenarioProcessor() {
+    SnapshotStubMappingTransformerRunner transformerRunner =
+        new SnapshotStubMappingTransformerRunner(null) {
+          @Override
+          public StubMapping apply(StubMapping stubMapping) {
+            // Return StubMapping with "/transformed" at the end of the original URL
+            String url = stubMapping.getRequest().getUrl();
+            return new StubMapping(
+                newRequestPattern().withUrl(url + "/transformed").build(), ResponseDefinition.ok());
+          }
+        };
 
-        final List<StubMapping> actual =
-                new SnapshotStubMappingPostProcessor(true, transformerRunner, null, null)
-                        .process(testStubMappings);
+    final List<StubMapping> actual =
+        new SnapshotStubMappingPostProcessor(true, transformerRunner, null, null)
+            .process(testStubMappings);
 
-        assertThat(actual, hasSize(3));
-        assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
-        assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar/transformed"));
-        assertThat(actual.get(2).getRequest().getUrl(), equalTo("/foo/transformed"));
+    assertThat(actual, hasSize(3));
+    assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo/transformed"));
+    assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar/transformed"));
+    assertThat(actual.get(2).getRequest().getUrl(), equalTo("/foo/transformed"));
 
-        assertTrue(actual.get(0).isInScenario());
-        assertFalse(actual.get(1).isInScenario());
-        assertTrue(actual.get(2).isInScenario());
-    }
+    assertTrue(actual.get(0).isInScenario());
+    assertFalse(actual.get(1).isInScenario());
+    assertTrue(actual.get(2).isInScenario());
+  }
 
   @Test
   public void process_withBodyExtractMatcherAndBodyExtractor_extractsBodiesWhenMatched() {
