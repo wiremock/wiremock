@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
-import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
 import static com.google.common.collect.Iterables.contains;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
@@ -397,8 +395,8 @@ public class WireMockApp implements StubServer, Admin {
     try {
       List<LoggedRequest> requests =
           requestJournal.getAllServeEvents().stream()
-              .filter(NOT_MATCHED)
-              .map(TO_LOGGED_REQUEST)
+              .filter(ServeEvent::isNoExactMatch)
+              .map(ServeEvent::getRequest)
               .collect(Collectors.toList());
       return FindRequestsResult.withRequests(requests);
     } catch (RequestJournalDisabledException e) {
