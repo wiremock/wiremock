@@ -86,7 +86,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     subEvents.forEach(initialServeEvent::appendSubEvent);
 
-    scenarios.onStubServed(matchingMapping, request);
+    Scenario scenario = scenarios.onStubServed(matchingMapping, request);
 
     ResponseDefinition responseDefinition =
         applyV1Transformations(
@@ -95,6 +95,7 @@ public abstract class AbstractStubMappings implements StubMappings {
     ServeEvent serveEvent =
         initialServeEvent
             .withStubMapping(matchingMapping)
+            .withScenario(scenario)
             .withResponseDefinition(responseDefinition);
 
     final Pair<ServeEvent, ResponseDefinition> transformed =

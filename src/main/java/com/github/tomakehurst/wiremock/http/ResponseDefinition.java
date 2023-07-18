@@ -29,9 +29,12 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 
 public class ResponseDefinition {
@@ -50,6 +53,7 @@ public class ResponseDefinition {
   private final Fault fault;
   private final List<String> transformers;
   private final Parameters transformerParameters;
+  private final Map<String, Function<ServeEvent, Object>> transformerParameterResolvers;
 
   private String browserProxyUrl;
   private Boolean wasConfigured = true;
@@ -89,6 +93,7 @@ public class ResponseDefinition {
         fault,
         transformers,
         transformerParameters,
+        Map.of(),
         wasConfigured);
   }
 
@@ -109,6 +114,7 @@ public class ResponseDefinition {
       Fault fault,
       List<String> transformers,
       Parameters transformerParameters,
+      Map<String, Function<ServeEvent, Object>> transformerParameterResolvers,
       Boolean wasConfigured) {
     this(
         status,
@@ -125,6 +131,7 @@ public class ResponseDefinition {
         fault,
         transformers,
         transformerParameters,
+        transformerParameterResolvers,
         wasConfigured);
   }
 
@@ -143,6 +150,7 @@ public class ResponseDefinition {
       Fault fault,
       List<String> transformers,
       Parameters transformerParameters,
+      Map<String, Function<ServeEvent, Object>> transformerParameterResolvers,
       Boolean wasConfigured) {
     this.status = status > 0 ? status : 200;
     this.statusMessage = statusMessage;
@@ -160,6 +168,7 @@ public class ResponseDefinition {
     this.fault = fault;
     this.transformers = transformers;
     this.transformerParameters = transformerParameters;
+    this.transformerParameterResolvers = transformerParameterResolvers;
     this.wasConfigured = wasConfigured == null ? true : wasConfigured;
   }
 
@@ -179,6 +188,7 @@ public class ResponseDefinition {
         null,
         Collections.<String>emptyList(),
         Parameters.empty(),
+        Map.of(),
         true);
   }
 
@@ -198,6 +208,7 @@ public class ResponseDefinition {
         null,
         Collections.<String>emptyList(),
         Parameters.empty(),
+        Map.of(),
         true);
   }
 
@@ -217,6 +228,7 @@ public class ResponseDefinition {
         null,
         Collections.<String>emptyList(),
         Parameters.empty(),
+        Map.of(),
         true);
   }
 
@@ -312,6 +324,7 @@ public class ResponseDefinition {
             this.fault,
             this.transformers,
             this.transformerParameters,
+            this.transformerParameterResolvers,
             this.wasConfigured);
     return newResponseDef;
   }
@@ -452,6 +465,11 @@ public class ResponseDefinition {
   @JsonInclude(NON_EMPTY)
   public Parameters getTransformerParameters() {
     return transformerParameters;
+  }
+
+  @JsonIgnore
+  public Map<String, Function<ServeEvent, Object>> getTransformerParameterResolvers() {
+    return transformerParameterResolvers;
   }
 
   public boolean hasTransformer(Extension transformer) {

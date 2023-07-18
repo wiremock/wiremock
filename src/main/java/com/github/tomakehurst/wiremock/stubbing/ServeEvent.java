@@ -42,6 +42,7 @@ public class ServeEvent {
   private final UUID id;
   private final LoggedRequest request;
   private final StubMapping stubMapping;
+  private final Scenario scenario;
   private final ResponseDefinition responseDefinition;
   private final LoggedResponse response;
   private final Timing timing;
@@ -54,6 +55,7 @@ public class ServeEvent {
       UUID id,
       LoggedRequest request,
       StubMapping stubMapping,
+      Scenario scenario,
       ResponseDefinition responseDefinition,
       LoggedResponse response,
       Timing timing,
@@ -62,6 +64,7 @@ public class ServeEvent {
     this.id = id;
     this.request = request;
     this.stubMapping = stubMapping;
+    this.scenario = scenario;
     this.responseDefinition = responseDefinition;
     this.response = response;
     this.timing = timing;
@@ -74,6 +77,7 @@ public class ServeEvent {
       @JsonProperty("id") UUID id,
       @JsonProperty("request") LoggedRequest request,
       @JsonProperty("mapping") StubMapping stubMapping,
+      @JsonProperty("scenario") Scenario scenario,
       @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
       @JsonProperty("response") LoggedResponse response,
       @JsonProperty("wasMatched") boolean ignoredReadOnly,
@@ -83,6 +87,7 @@ public class ServeEvent {
         id,
         request,
         stubMapping,
+        scenario,
         responseDefinition,
         response,
         timing != null ? timing : Timing.create(),
@@ -92,7 +97,8 @@ public class ServeEvent {
 
   protected ServeEvent(
       LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
-    this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false, null, null);
+    this(
+        UUID.randomUUID(), request, stubMapping, null, responseDefinition, null, false, null, null);
   }
 
   public static ServeEvent of(Request request) {
@@ -109,6 +115,7 @@ public class ServeEvent {
         id,
         LoggedRequest.createFrom(request),
         stubMapping,
+        scenario,
         responseDefinition,
         response,
         timing,
@@ -118,12 +125,17 @@ public class ServeEvent {
 
   public ServeEvent withStubMapping(StubMapping stubMapping) {
     return new ServeEvent(
-        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
+        id, request, stubMapping, scenario, responseDefinition, response, false, timing, subEvents);
+  }
+
+  public ServeEvent withScenario(Scenario scenario) {
+    return new ServeEvent(
+        id, request, stubMapping, scenario, responseDefinition, response, false, timing, subEvents);
   }
 
   public ServeEvent withResponseDefinition(ResponseDefinition responseDefinition) {
     return new ServeEvent(
-        id, request, stubMapping, responseDefinition, response, false, timing, subEvents);
+        id, request, stubMapping, scenario, responseDefinition, response, false, timing, subEvents);
   }
 
   public ServeEvent complete(Response response, DataTruncationSettings dataTruncationSettings) {
@@ -134,6 +146,7 @@ public class ServeEvent {
         id,
         request,
         stubMapping,
+        scenario,
         responseDefinition,
         LoggedResponse.from(response, dataTruncationSettings.getMaxResponseBodySize()),
         false,
@@ -172,6 +185,10 @@ public class ServeEvent {
 
   public StubMapping getStubMapping() {
     return stubMapping;
+  }
+
+  public Scenario getScenario() {
+    return scenario;
   }
 
   public LoggedResponse getResponse() {

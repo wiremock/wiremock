@@ -29,7 +29,7 @@ public interface Scenarios {
 
   void onStubMappingRemoved(StubMapping mapping);
 
-  void onStubServed(StubMapping mapping, Request request);
+  Scenario onStubServed(StubMapping mapping, Request request);
 
   void reset();
 

@@ -106,9 +106,9 @@ public abstract class AbstractScenarios implements Scenarios {
   }
 
   @Override
-  public void onStubServed(StubMapping mapping, Request request) {
+  public Scenario onStubServed(StubMapping mapping, Request request) {
     if (!canHandle(mapping)) {
-      return;
+      return null;
     }
 
     final String scenarioName = getScenarioName(mapping);
@@ -118,7 +118,10 @@ public abstract class AbstractScenarios implements Scenarios {
             || scenario.getState().equals(mapping.getRequiredScenarioState()))) {
       Scenario newScenario = scenario.setState(mapping.getNewScenarioState());
       getStore().put(scenarioName, newScenario);
+      return newScenario;
     }
+
+    return null;
   }
 
   @Override

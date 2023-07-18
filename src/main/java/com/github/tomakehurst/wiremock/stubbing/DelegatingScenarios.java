@@ -65,8 +65,10 @@ public class DelegatingScenarios implements Scenarios {
   }
 
   @Override
-  public void onStubServed(StubMapping mapping, Request request) {
-    findDelegate(mapping).ifPresent(scenarios -> scenarios.onStubServed(mapping, request));
+  public Scenario onStubServed(StubMapping mapping, Request request) {
+    return findDelegate(mapping)
+        .map(scenarios -> scenarios.onStubServed(mapping, request))
+        .orElse(null);
   }
 
   @Override

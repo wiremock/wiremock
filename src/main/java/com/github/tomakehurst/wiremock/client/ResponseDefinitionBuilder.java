@@ -22,11 +22,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class ResponseDefinitionBuilder {
 
@@ -43,6 +45,8 @@ public class ResponseDefinitionBuilder {
   protected Fault fault;
   protected List<String> responseTransformerNames;
   protected Map<String, Object> transformerParameters = new HashMap<>();
+  protected Map<String, Function<ServeEvent, Object>> transformerParameterResolvers =
+      new HashMap<>();
   protected Boolean wasConfigured = true;
 
   public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
@@ -66,6 +70,10 @@ public class ResponseDefinitionBuilder {
         responseDefinition.getTransformerParameters() != null
             ? Parameters.from(responseDefinition.getTransformerParameters())
             : Parameters.empty();
+    builder.transformerParameterResolvers =
+        responseDefinition.getTransformerParameterResolvers() != null
+            ? new HashMap<>(responseDefinition.getTransformerParameterResolvers())
+            : Map.of();
     builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 
     if (builder.proxyBaseUrl != null) {
@@ -175,6 +183,12 @@ public class ResponseDefinitionBuilder {
     return this;
   }
 
+  public ResponseDefinitionBuilder withTransformerParameterResolver(
+      String name, Function<ServeEvent, Object> parameterResolver) {
+    transformerParameterResolvers.put(name, parameterResolver);
+    return this;
+  }
+
   public ResponseDefinitionBuilder withTransformer(
       String transformerName, String parameterKey, Object parameterValue) {
     withTransformers(transformerName);
@@ -276,6 +290,12 @@ public class ResponseDefinitionBuilder {
         this.transformerParameters == null || this.transformerParameters.isEmpty()
             ? null
             : Parameters.from(this.transformerParameters);
+
+    Map<String, Function<ServeEvent, Object>> transformerParameterProviders =
+        this.transformerParameterResolvers != null
+            ? new HashMap<>(this.transformerParameterResolvers)
+            : Map.of();
+
     return new ResponseDefinition(
         status,
         statusMessage,
@@ -291,6 +311,7 @@ public class ResponseDefinitionBuilder {
         fault,
         responseTransformerNames,
         transformerParameters,
+        transformerParameterProviders,
         wasConfigured);
   }
 }

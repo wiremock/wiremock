@@ -32,21 +32,30 @@ public class DynamicScenarios extends AbstractScenarios {
 
   @Override
   public void onStubMappingAdded(StubMapping mapping) {
-    super.onStubMappingAdded(mapping);
+    if (canHandle(mapping)) {
+      super.onStubMappingAdded(mapping);
 
-    ResponseDefinition responseDefinition =
-        ResponseDefinitionBuilder.like(mapping.getResponse())
-            .but()
-            .withTransformer(ResponseTemplateTransformer.NAME, "dynamicScenarioKey", "IDDQD")
-            .build();
+      ResponseDefinition responseDefinition =
+          ResponseDefinitionBuilder.like(mapping.getResponse())
+              .but()
+              .withTransformers(ResponseTemplateTransformer.NAME)
+              .withTransformerParameterResolver(
+                  "dynamicScenarioKey",
+                  serveEvent ->
+                      serveEvent
+                          .getScenario()
+                          .getName()
+                          .replace(serveEvent.getStubMapping().getScenarioPrefix() + "-", ""))
+              .build();
 
-    mapping.setResponse(responseDefinition);
+      mapping.setResponse(responseDefinition);
+    }
   }
 
   @Override
-  public void onStubServed(StubMapping mapping, Request request) {
+  public Scenario onStubServed(StubMapping mapping, Request request) {
     if (!canHandle(mapping)) {
-      return;
+      return null;
     }
 
     String scenarioPrefix = mapping.getScenarioPrefix();
@@ -62,6 +71,8 @@ public class DynamicScenarios extends AbstractScenarios {
         Scenario newScenario =
             scenario.setState(mapping.getNewScenarioState()).setName(scenarioName);
         getStore().put(scenarioName, newScenario);
+
+        return newScenario;
       } else {
         final Scenario dynamicScenario;
 
@@ -78,9 +89,12 @@ public class DynamicScenarios extends AbstractScenarios {
         if (dynamicScenario.getState().equals(mapping.getRequiredScenarioState())) {
           Scenario newScenario = dynamicScenario.setState(mapping.getNewScenarioState());
           getStore().put(dynamicScenario.getName(), newScenario);
+          return newScenario;
         }
       }
     }
+
+    return null;
   }
 
   @Override

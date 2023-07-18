@@ -32,10 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResponseTemplateTransformer
@@ -75,8 +72,14 @@ public class ResponseTemplateTransformer
     try {
       final Request request = serveEvent.getRequest();
       final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-      final Parameters parameters =
+
+      final Parameters originalParameters =
           getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
+      final Map<String, Object> resolvedParameters =
+          Optional.ofNullable(responseDefinition.getTransformerParameterResolvers())
+              .orElse(Map.of()).entrySet().stream()
+              .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().apply(serveEvent)));
+      final Parameters parameters = originalParameters.merge(Parameters.from(resolvedParameters));
 
       ResponseDefinitionBuilder newResponseDefBuilder =
           ResponseDefinitionBuilder.like(responseDefinition);

@@ -100,6 +100,7 @@ public class SnapshotStubMappingGeneratorTest {
         LoggedRequest.createFrom(aRequest().build()),
         null,
         null,
+        null,
         LoggedResponse.from(Response.notConfigured(), UNLIMITED),
         false,
         Timing.UNTIMED,

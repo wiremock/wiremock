@@ -116,6 +116,7 @@ public class ProxiedServeEventFiltersTest {
         id,
         request != null ? request.asLoggedRequest() : null,
         null,
+        null,
         responseDefinition,
         null,
         true,
