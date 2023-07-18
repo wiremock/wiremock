@@ -153,7 +153,8 @@ public class Diff {
       final UrlPathTemplatePattern urlPathTemplatePattern =
           (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
-      final PathParams requestPathParameterValues = pathTemplate.parse(request.getUrl());
+      final PathParams requestPathParameterValues =
+          pathTemplate.parse(Urls.getPath(request.getUrl()));
 
       for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
         String parameterName = entry.getKey();

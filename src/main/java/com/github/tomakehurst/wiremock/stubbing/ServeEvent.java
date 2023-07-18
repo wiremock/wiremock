@@ -31,8 +31,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -226,9 +224,4 @@ public class ServeEvent {
         ? stubMapping.getResponse().getTransformerParameters()
         : Parameters.empty();
   }
-
-  public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST =
-      ServeEvent::getRequest;
-
-  public static final Predicate<ServeEvent> NOT_MATCHED = ServeEvent::isNoExactMatch;
 }
