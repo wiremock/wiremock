@@ -265,7 +265,7 @@ public class WarConfiguration implements Options {
   }
 
   @Override
-  public boolean failIfMultipleMappingsMatch() {
+  public boolean getFailIfMultipleMappingsMatch() {
     return false;
   }
 }

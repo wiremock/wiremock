@@ -137,7 +137,7 @@ public interface Options {
 
   boolean getTemplateEscapingDisabled();
 
-  default boolean failIfMultipleMappingsMatch() {
+  default boolean getFailIfMultipleMappingsMatch() {
     return false;
   }
 }

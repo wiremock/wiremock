@@ -970,7 +970,7 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
-  public boolean failIfMultipleMappingsMatch() {
+  public boolean getFailIfMultipleMappingsMatch() {
     return optionSet.has(FAIL_IF_MULTIPLE_MAPPINGS_MATCH);
   }
 }
