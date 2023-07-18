@@ -192,6 +192,11 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder withoutFormParam(String key) {
+    formParams.put(key, MultiValuePattern.absent());
+    return this;
+  }
+
   public RequestPatternBuilder withoutQueryParam(String key) {
     queryParams.put(key, MultiValuePattern.absent());
     return this;
