@@ -46,6 +46,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+/**
+ * @deprecated this test is for the legacy recorder which will be removed before 3.x is out of beta
+ */
+@Deprecated
 class StubMappingJsonRecorderTest {
 
   private StubMappingJsonRecorder listener;

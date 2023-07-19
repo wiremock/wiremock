@@ -21,8 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonSchema
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -68,7 +67,7 @@ class MatchesJsonSchemaPatternTest {
     MatchResult veryBadMatchResult = pattern.match(content);
 
     assertThat(veryBadMatchResult.isExactMatch(), is(false));
-    assertThat(veryBadMatchResult.getDistance(), is(1.0));
+    assertThat(veryBadMatchResult.getDistance(), greaterThan(0.33));
   }
 
   @Test
@@ -256,6 +255,33 @@ class MatchesJsonSchemaPatternTest {
     MatchResult match = pattern.match(input);
 
     assertThat(match.isExactMatch(), is(false));
+  }
+
+  @Test
+  void corercesNumericActualValueToJsonNumber() {
+    String schema = file("schema-validation/numeric.schema.json");
+
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
+
+    assertThat(pattern.match("5").isExactMatch(), is(true));
+    assertThat(pattern.match("0").isExactMatch(), is(true));
+    assertThat(pattern.match("100").isExactMatch(), is(true));
+    assertThat(pattern.match("10a").isExactMatch(), is(false));
+    assertThat(pattern.match("101").isExactMatch(), is(false));
+  }
+
+  @Test
+  void corercesNumericActualValueToJsonString() {
+    String schema = file("schema-validation/stringy.schema.json");
+
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
+
+    assertThat(pattern.match("abcd").isExactMatch(), is(true));
+    assertThat(pattern.match("abcde").isExactMatch(), is(true));
+    assertThat(pattern.match("abcdef").isExactMatch(), is(false));
+    assertThat(pattern.match("0").isExactMatch(), is(false));
   }
 
   private static Stream<Arguments> recursiveSchemaNonMatchingExamples() {

@@ -13,8 +13,9 @@ POST                                                       | POST
                                                            |
 [matchesJsonSchema]                                        |                                                     <<<<< Body does not match
 {                                                          | {
-  "required" : [ "name" ],                                 |   "handle": "Rex"
-  "properties" : {                                         | }
+  "type" : "object",                                       |   "handle": "Rex"
+  "required" : [ "name" ],                                 | }
+  "properties" : {                                         |
     "name" : {                                             |
       "type" : "string"                                    |
     },                                                     |

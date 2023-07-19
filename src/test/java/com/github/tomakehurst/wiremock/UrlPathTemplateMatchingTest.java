@@ -65,6 +65,17 @@ class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
   }
 
   @Test
+  void correctly_matches_when_query_parameters_present_in_request() {
+    stubFor(
+        get(urlPathTemplate("/contacts/{contactId}"))
+            .withPathParam("contactId", equalTo("123"))
+            .willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/contacts/123?detail=summary");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
   void static_dsl_throws_error_when_attempting_to_use_path_param_matchers_without_path_template() {
     assertThrows(
         InvalidInputException.class,
