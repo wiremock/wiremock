@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,44 +16,62 @@
 package com.github.tomakehurst.wiremock.http.trafficlistener;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
 public class ConsoleNotifyingWiremockNetworkTrafficListener
     implements WiremockNetworkTrafficListener {
-  private static final ConsoleNotifier CONSOLE_NOTIFIER = new ConsoleNotifier(true);
+  private static final ConsoleNotifier DEFAULT_CONSOLE_NOTIFIER = new ConsoleNotifier(true);
+  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private final Charset charset = Charset.forName("UTF-8");
-  private final CharsetDecoder decoder = charset.newDecoder();
+  private final Notifier notifier;
+  private final Charset charset;
+  private final CharsetDecoder charsetDecoder;
+
+  ConsoleNotifyingWiremockNetworkTrafficListener(Notifier notifier, Charset charset) {
+    this.notifier = notifier;
+    this.charset = charset;
+    this.charsetDecoder = charset.newDecoder();
+  }
+
+  public ConsoleNotifyingWiremockNetworkTrafficListener(Charset charset) {
+    this(DEFAULT_CONSOLE_NOTIFIER, charset);
+  }
+
+  public ConsoleNotifyingWiremockNetworkTrafficListener() {
+    this(DEFAULT_CONSOLE_NOTIFIER, DEFAULT_CHARSET);
+  }
 
   @Override
   public void opened(Socket socket) {
-    CONSOLE_NOTIFIER.info("Opened " + socket);
+    notifier.info("Opened " + socket);
   }
 
   @Override
   public void incoming(Socket socket, ByteBuffer bytes) {
     try {
-      CONSOLE_NOTIFIER.info("Incoming bytes: " + decoder.decode(bytes));
+      notifier.info("Incoming bytes: " + charsetDecoder.decode(bytes));
     } catch (CharacterCodingException e) {
-      CONSOLE_NOTIFIER.error("Problem decoding network traffic", e);
+      notifier.error("Incoming bytes omitted. Could not decode with charset: " + charset);
     }
   }
 
   @Override
   public void outgoing(Socket socket, ByteBuffer bytes) {
     try {
-      CONSOLE_NOTIFIER.info("Outgoing bytes: " + decoder.decode(bytes));
+      notifier.info("Outgoing bytes: " + charsetDecoder.decode(bytes));
     } catch (CharacterCodingException e) {
-      CONSOLE_NOTIFIER.error("Problem decoding network traffic", e);
+      notifier.error("Outgoing bytes omitted. Could not decode with charset: " + charset);
     }
   }
 
   @Override
   public void closed(Socket socket) {
-    CONSOLE_NOTIFIER.info("Closed " + socket);
+    notifier.info("Closed " + socket);
   }
 }
