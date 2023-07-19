@@ -915,6 +915,26 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  public void parsesEmptyJsonLiteralToAnEmptyMap() {
+    String result = transform("{{#parseJson 'parsedObj'}}\n" + "{\n" + "}\n" + "{{/parseJson}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace(""));
+  }
+
+  @Test
+  public void parsesEmptyJsonVariableToAnEmptyMap() {
+    String result =
+        transform(
+            "{{#assign 'json'}}\n"
+                + "{\n"
+                + "}\n"
+                + "{{/assign}}\n"
+                + "{{parseJson json 'parsedObj'}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace(""));
+  }
+
+  @Test
   public void conditionalBranchingOnStringMatchesRegexInline() {
     assertThat(transform("{{#if (matches '123' '[0-9]+')}}YES{{/if}}"), is("YES"));
     assertThat(transform("{{#if (matches 'abc' '[0-9]+')}}YES{{/if}}"), is(""));
