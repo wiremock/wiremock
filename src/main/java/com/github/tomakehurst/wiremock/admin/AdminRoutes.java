@@ -59,14 +59,12 @@ public class AdminRoutes {
     router.add(POST, "/mappings", new CreateStubMappingTask());
     router.add(DELETE, "/mappings", new ResetStubMappingsTask());
 
-    router.add(POST, "/mappings/new", new OldCreateStubMappingTask()); // Deprecated
-    router.add(POST, "/mappings/remove", new OldRemoveStubMappingTask()); // Deprecated
-    router.add(POST, "/mappings/edit", new OldEditStubMappingTask()); // Deprecated
     router.add(POST, "/mappings/save", new SaveMappingsTask());
     router.add(POST, "/mappings/reset", new ResetToDefaultMappingsTask());
     router.add(GET, "/mappings/{id}", new GetStubMappingTask());
     router.add(PUT, "/mappings/{id}", new EditStubMappingTask());
-    router.add(DELETE, "/mappings/{id}", new RemoveStubMappingTask());
+    router.add(POST, "/mappings/remove", new RemoveMatchingStubMappingTask());
+    router.add(DELETE, "/mappings/{id}", new RemoveStubMappingByIdTask());
     router.add(POST, "/mappings/find-by-metadata", new FindStubMappingsByMetadataTask());
     router.add(POST, "/mappings/remove-by-metadata", new RemoveStubMappingsByMetadataTask());
     router.add(POST, "/mappings/import", new ImportStubMappingsTask());
@@ -81,7 +79,6 @@ public class AdminRoutes {
 
     router.add(GET, "/requests", new GetAllRequestsTask());
     router.add(DELETE, "/requests", new ResetRequestsTask());
-    router.add(POST, "/requests/reset", new OldResetRequestsTask()); // Deprecated
     router.add(POST, "/requests/count", new GetRequestCountTask());
     router.add(POST, "/requests/find", new FindRequestsTask());
     router.add(GET, "/requests/unmatched", new FindUnmatchedRequestsTask());
