@@ -91,7 +91,7 @@ public class AdminRequestHandlerTest {
 
   @Test
   public void shouldClearJournalWhenResetRequestsCalled() {
-    Request request = aRequest().withUrl("/requests/reset").withMethod(POST).build();
+    Request request = aRequest().withUrl("/requests").withMethod(DELETE).build();
 
     handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;

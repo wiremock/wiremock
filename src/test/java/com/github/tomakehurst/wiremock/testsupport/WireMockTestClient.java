@@ -19,17 +19,19 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
 import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -56,9 +58,8 @@ import org.apache.hc.core5.ssl.SSLContexts;
 public class WireMockTestClient {
 
   private static final String LOCAL_WIREMOCK_ROOT = "http://%s:%d%s";
-  private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
-  private static final String LOCAL_WIREMOCK_EDIT_RESPONSE_URL =
-      "http://%s:%d/__admin/mappings/edit";
+  private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings";
+  private static final String LOCAL_WIREMOCK_EDIT_RESPONSE_URL = "http://%s:%d/__admin/mappings/%s";
   private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL =
       "http://%s:%d/__admin/mappings/reset";
   private static final String LOCAL_WIREMOCK_SNAPSHOT_PATH = "/__admin/recordings/snapshot";
@@ -87,8 +88,8 @@ public class WireMockTestClient {
     return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, address, port);
   }
 
-  private String editMappingUrl() {
-    return String.format(LOCAL_WIREMOCK_EDIT_RESPONSE_URL, address, port);
+  private String editMappingUrl(UUID stubId) {
+    return String.format(LOCAL_WIREMOCK_EDIT_RESPONSE_URL, address, port, stubId);
   }
 
   private String resetDefaultMappingsUrl() {
@@ -242,8 +243,9 @@ public class WireMockTestClient {
   }
 
   public void editMapping(String mappingSpecJson) {
-    int status = postJsonAndReturnStatus(editMappingUrl(), mappingSpecJson);
-    if (status != HTTP_NO_CONTENT) {
+    StubMapping stubMapping = Json.read(mappingSpecJson, StubMapping.class);
+    int status = putJsonAndReturnStatus(editMappingUrl(stubMapping.getId()), mappingSpecJson);
+    if (status != HTTP_OK) {
       throw new RuntimeException("Returned status code was " + status);
     }
   }
@@ -269,6 +271,25 @@ public class WireMockTestClient {
 
   private int postJsonAndReturnStatus(String url, String json, String charset) {
     HttpPost post = new HttpPost(url);
+    try {
+      if (json != null) {
+        post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
+      }
+      ClassicHttpResponse httpResponse = httpClient().execute(post);
+      return httpResponse.getCode();
+    } catch (RuntimeException re) {
+      throw re;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private int putJsonAndReturnStatus(String url, String json) {
+    return putJsonAndReturnStatus(url, json, "utf-8");
+  }
+
+  private int putJsonAndReturnStatus(String url, String json, String charset) {
+    HttpPut post = new HttpPut(url);
     try {
       if (json != null) {
         post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
