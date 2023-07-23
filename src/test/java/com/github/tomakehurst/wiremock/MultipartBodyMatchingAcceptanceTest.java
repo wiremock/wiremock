@@ -37,12 +37,12 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
+public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
   @Test
-  void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
+  public void acceptsAMultipartRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
@@ -65,7 +65,7 @@ class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void handlesAbsenceOfPartsInAMultipartRequest() throws Exception {
+  public void handlesAbsenceOfPartsInAMultipartRequest() throws Exception {
     stubFor(
         post("/empty-multipart")
             .withMultipartRequestBody(aMultipart().withName("bits").withBody(matching(".*")))
@@ -86,7 +86,7 @@ class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   /** @see <a href="https://github.com/tomakehurst/wiremock/issues/1047">#1047</a> */
   @Test
-  void acceptsAMultipartMixedRequestContainingATextAndAFilePart() throws Exception {
+  public void acceptsAMultipartMixedRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart-mixed")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
@@ -111,7 +111,7 @@ class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   /** @see <a href="https://github.com/tomakehurst/wiremock/issues/1047">#1047</a> */
   @Test
-  void acceptsAMultipartRelatedRequestContainingATextAndAFilePart() throws Exception {
+  public void acceptsAMultipartRelatedRequestContainingATextAndAFilePart() throws Exception {
     stubFor(
         post("/multipart-related")
             .withMultipartRequestBody(aMultipart().withName("text").withBody(containing("hello")))
@@ -136,7 +136,7 @@ class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   // https://github.com/tomakehurst/wiremock/issues/1179
   @Test
-  void multipartBodiesCanBeMatchedWhenStubsWithOtherBodyMatchTypesArePresent() {
+  public void multipartBodiesCanBeMatchedWhenStubsWithOtherBodyMatchTypesArePresent() {
     stubFor(
         post("/multipart")
             .withMultipartRequestBody(
