@@ -45,8 +45,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class AdminRequestHandlerTest {
-  private final Admin admin = mock(Admin.class);
+public class AdminRequestHandlerTest {
+  private Admin admin = mock(Admin.class);
   private MockHttpResponder httpResponder;
 
   private AdminRequestHandler handler;
@@ -68,7 +68,7 @@ class AdminRequestHandlerTest {
   }
 
   @Test
-  void shouldSaveMappingsWhenSaveCalled() {
+  public void shouldSaveMappingsWhenSaveCalled() {
     Request request = aRequest().withUrl("/mappings/save").withMethod(POST).build();
 
     handler.handle(request, httpResponder, null);
@@ -79,7 +79,7 @@ class AdminRequestHandlerTest {
   }
 
   @Test
-  void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
+  public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
     Request request = aRequest().withUrl("/reset").withMethod(POST).build();
 
     handler.handle(request, httpResponder, null);
@@ -90,8 +90,8 @@ class AdminRequestHandlerTest {
   }
 
   @Test
-  void shouldClearJournalWhenResetRequestsCalled() {
-    Request request = aRequest().withUrl("/requests/reset").withMethod(POST).build();
+  public void shouldClearJournalWhenResetRequestsCalled() {
+    Request request = aRequest().withUrl("/requests").withMethod(DELETE).build();
 
     handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
@@ -107,7 +107,7 @@ class AdminRequestHandlerTest {
           + "}												";
 
   @Test
-  void shouldReturnCountOfMatchingRequests() {
+  public void shouldReturnCountOfMatchingRequests() {
     RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
     Mockito.when(admin.countRequestsMatching(requestPattern))
         .thenReturn(VerificationResult.withCount(5));
@@ -132,7 +132,7 @@ class AdminRequestHandlerTest {
       "{												\n" + "	\"fixedDelay\": 2000						\n" + "}												";
 
   @Test
-  void shouldUpdateGlobalSettings() {
+  public void shouldUpdateGlobalSettings() {
     handler.handle(
         aRequest().withUrl("/settings").withMethod(POST).withBody(GLOBAL_SETTINGS_JSON).build(),
         httpResponder,
