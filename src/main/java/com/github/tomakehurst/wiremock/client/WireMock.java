@@ -656,6 +656,10 @@ public class WireMock {
     return delete(urlEqualTo(url));
   }
 
+  public static MappingBuilder patch(String url) {
+    return patch(urlEqualTo(url));
+  }
+
   public static ResponseDefinitionBuilder created() {
     return aResponse().withStatus(201);
   }

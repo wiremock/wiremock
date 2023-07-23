@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
@@ -432,7 +433,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return MatchResult.noMatch();
       }
 
-      final PathParams requestPathParams = pathTemplate.parse(request.getUrl());
+      final PathParams requestPathParams = pathTemplate.parse(Urls.getPath(request.getUrl()));
       return MatchResult.aggregate(
           pathParams.entrySet().stream()
               .map(entry -> entry.getValue().match(requestPathParams.get(entry.getKey())))

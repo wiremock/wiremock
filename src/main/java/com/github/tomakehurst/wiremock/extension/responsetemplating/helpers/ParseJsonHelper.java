@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,13 +57,13 @@ public class ParseJsonHelper extends HandlebarsHelper<Object> {
       // Edge case if JSON object is empty {}
       String jsonAsStringWithoutSpace = jsonAsString.replaceAll("\\s", "");
       if (jsonAsStringWithoutSpace.equals("{}") || jsonAsStringWithoutSpace.equals("")) {
-        return result;
-      }
-
-      if (jsonAsString.startsWith("[") && jsonAsString.endsWith("]")) {
-        result = Json.read(jsonAsString, new TypeReference<List<Object>>() {});
+        result = new HashMap<String, Object>();
       } else {
-        result = Json.read(jsonAsString, new TypeReference<Map<String, Object>>() {});
+        if (jsonAsString.startsWith("[") && jsonAsString.endsWith("]")) {
+          result = Json.read(jsonAsString, new TypeReference<List<Object>>() {});
+        } else {
+          result = Json.read(jsonAsString, new TypeReference<Map<String, Object>>() {});
+        }
       }
     }
 

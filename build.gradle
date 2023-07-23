@@ -15,9 +15,9 @@ plugins {
   id 'idea'
   id 'eclipse'
   id 'project-report'
-  id 'com.diffplug.spotless' version '6.17.0'
+  id 'com.diffplug.spotless' version '6.20.0'
   id 'com.github.johnrengelman.shadow' version '8.1.0'
-  id "org.sonarqube" version "4.2.1.3168"
+  id "org.sonarqube" version "4.3.0.3225"
   id 'jacoco'
 }
 
@@ -128,7 +128,7 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.94.Final"
+  testImplementation "io.netty:netty-all:4.1.95.Final"
 
   testImplementation files('test-extension/test-extension.jar')
 
@@ -144,7 +144,7 @@ allprojects {
   spotless {
     java {
       target 'src/**/*.java'
-      googleJavaFormat('1.7')
+      googleJavaFormat('1.17.0')
       licenseHeaderFile "${rootDir}/gradle/spotless.java.license.txt"
       ratchetFrom 'origin/master'
       trimTrailingWhitespace()
@@ -204,7 +204,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.0.0-beta-11'
+  version = '3.0.0-beta-12'
 
 
   sourceCompatibility = 11
