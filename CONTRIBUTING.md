@@ -32,7 +32,7 @@ If you want to contribute to WireMock Java codebase, do the following:
 To run all of WireMock's tests:
 
 ```bash
-./gradlew clean test
+./gradlew check
 ```
 
 To build both JARs (thin and standalone), the JARs will be placed under ``build/libs``.:
