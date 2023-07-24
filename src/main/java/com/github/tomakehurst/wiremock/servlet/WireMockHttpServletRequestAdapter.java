@@ -269,12 +269,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
       return false;
     }
 
-    if (request instanceof org.eclipse.jetty.server.Request) {
-      org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-      return JettyUtils.uriIsAbsolute(jettyRequest);
-    }
-
-    return false;
+    return JettyUtils.isBrowserProxyRequest(request);
   }
 
   @Override

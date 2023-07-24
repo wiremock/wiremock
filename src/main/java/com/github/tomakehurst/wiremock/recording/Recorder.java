@@ -19,8 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.collect.Iterables.indexOf;
 
-import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Extensions;
@@ -57,13 +55,11 @@ public class Recorder {
       return;
     }
 
-    if (spec.getTargetBaseUrl() == null || spec.getTargetBaseUrl().isEmpty()) {
-      throw new InvalidInputException(
-          Errors.validation("/targetBaseUrl", "targetBaseUrl is required"));
+    StubMapping proxyMapping = null;
+    if (spec.getTargetBaseUrl() != null && !spec.getTargetBaseUrl().isEmpty()) {
+      proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
+      admin.addStubMapping(proxyMapping);
     }
-
-    StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
-    admin.addStubMapping(proxyMapping);
 
     List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
     UUID initialId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
@@ -84,7 +80,10 @@ public class Recorder {
     UUID lastId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
     state = state.stop(lastId);
     stateStore.set(state);
-    admin.removeStubMapping(state.getProxyMapping());
+
+    if (state.getProxyMapping() != null) {
+      admin.removeStubMapping(state.getProxyMapping());
+    }
 
     if (serveEvents.isEmpty()) {
       return SnapshotRecordResult.empty();

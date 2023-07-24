@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.IOException;
@@ -44,14 +45,27 @@ public class HttpClientUtils {
 
   public static byte[] getEntityAsByteArrayAndCloseStream(ClassicHttpResponse httpResponse) {
     HttpEntity entity = httpResponse.getEntity();
-    if (entity != null) {
-      try {
-        byte[] content = EntityUtils.toByteArray(entity);
-        entity.getContent().close();
-        return content;
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
+    try {
+      if (entity != null) {
+        return EntityUtils.toByteArray(entity);
       }
+    } catch (IOException ioe) {
+      return throwUnchecked(ioe, byte[].class);
+    } finally {
+      Exceptions.uncheck(httpResponse::close);
+    }
+
+    return null;
+  }
+
+  public static byte[] getEntityAsByteArray(ClassicHttpResponse httpResponse) {
+    HttpEntity entity = httpResponse.getEntity();
+    try {
+      if (entity != null) {
+        return EntityUtils.toByteArray(entity);
+      }
+    } catch (IOException ioe) {
+      return throwUnchecked(ioe, byte[].class);
     }
 
     return null;
