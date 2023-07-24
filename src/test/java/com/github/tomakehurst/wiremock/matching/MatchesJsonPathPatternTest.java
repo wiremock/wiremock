@@ -35,10 +35,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class MatchesJsonPathPatternTest {
+public class MatchesJsonPathPatternTest {
 
   @Test
-  void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
+  public void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.one");
     assertTrue(
         pattern.match("{ \"one\": 1 }").isExactMatch(),
@@ -46,7 +46,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void doesNotMatchABasicJsonPathWhenTheExpectedElementIsNotPresent() {
+  public void doesNotMatchABasicJsonPathWhenTheExpectedElementIsNotPresent() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.one");
     assertFalse(
         pattern.match("{ \"two\": 2 }").isExactMatch(),
@@ -54,7 +54,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesOnJsonPathsWithFilters() {
+  public void matchesOnJsonPathsWithFilters() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number == '2')]");
 
     assertTrue(
@@ -66,7 +66,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesOnJsonPathsWithRegexFilter() {
+  public void matchesOnJsonPathsWithRegexFilter() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number =~ /2/i)]");
 
     assertTrue(
@@ -78,7 +78,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesOnJsonPathsWithSizeFilter() {
+  public void matchesOnJsonPathsWithSizeFilter() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$[?(@.numbers.size() == 2)]");
 
     assertTrue(
@@ -90,7 +90,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesOnJsonPathsWithFiltersOnNestedObjects() {
+  public void matchesOnJsonPathsWithFiltersOnNestedObjects() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$..thingOne[?(@.innerOne == 11)]");
     assertTrue(
         pattern
@@ -100,16 +100,14 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void providesSensibleNotificationWhenJsonMatchFailsDueToInvalidJson() {
-    Notifier notifier = setMockNotifier();
-
+  public void providesEventMessageWhenJsonMatchFailsDueToInvalidJson() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
     MatchResult match = pattern.match("Not a JSON document");
 
     assertFalse(match.isExactMatch(), "Expected the match to fail");
-    checkWarningMessageAndEvent(
-        notifier,
+    checkMessage(
         match,
+        WARNING,
         "Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
   }
 
@@ -120,16 +118,14 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void providesSensibleNotificationWhenJsonMatchFailsDueToMissingAttributeJson() {
-    Notifier notifier = setMockNotifier();
-
+  public void providesEventMessageWhenJsonMatchFailsDueToMissingAttributeJson() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
     MatchResult matchResult = pattern.match("{ \"nothing\": 1 }");
 
     assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
-    checkWarningMessageAndEvent(
-        notifier,
+    checkMessage(
         matchResult,
+        WARNING,
         "Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
   }
 
@@ -160,7 +156,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void doesNotMatchWhenJsonPathWouldResolveToEmptyArray() {
+  public void doesNotMatchWhenJsonPathWouldResolveToEmptyArray() {
     String json =
         "{\n" + "  \"RequestDetail\" : {\n" + "    \"ClientTag\" : \"test111\"\n" + "  }\n" + "}";
 
@@ -170,12 +166,12 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void noMatchOnNullValue() {
+  public void noMatchOnNullValue() {
     assertThat(WireMock.matchingJsonPath("$..*").match(null).isExactMatch(), is(false));
   }
 
   @Test
-  void matchesNumericExpressionResultAgainstValuePatternWhenSpecified() {
+  public void matchesNumericExpressionResultAgainstValuePatternWhenSpecified() {
     String json = "{\n" + "    \"volumeControl\": {\n" + "        \"max\": 11\n" + "    }\n" + "}";
 
     StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", equalTo("11"));
@@ -184,7 +180,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesStringExpressionResultAgainstValuePatternWhenSpecified() {
+  public void matchesStringExpressionResultAgainstValuePatternWhenSpecified() {
     String json =
         "{\n" + "    \"volumeControl\": {\n" + "        \"max\": \"eleven\"\n" + "    }\n" + "}";
 
@@ -195,7 +191,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesBooleanExpressionResultAgainstValuePatternWhenSpecified() {
+  public void matchesBooleanExpressionResultAgainstValuePatternWhenSpecified() {
     String json =
         "{\n" + "    \"volumeControl\": {\n" + "        \"max\": true\n" + "    }\n" + "}";
 
@@ -205,7 +201,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesObjectExpressionResultAgainstValuePatternWhenSpecified() {
+  public void matchesObjectExpressionResultAgainstValuePatternWhenSpecified() {
     String json = "{\n" + "    \"volumeControl\": {\n" + "        \"max\": 11\n" + "    }\n" + "}";
 
     StringValuePattern pattern =
@@ -216,7 +212,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesArrayExpressionResultAgainstValuePatternWhenSpecified() {
+  public void matchesArrayExpressionResultAgainstValuePatternWhenSpecified() {
     String json =
         "{\n" + "    \"volumeControl\": {\n" + "        \"max\": [1, 2, 3, 11]\n" + "    }\n" + "}";
 
@@ -227,7 +223,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesNotPresentExpressionResultAgainstAbsentValuePattern() {
+  public void matchesNotPresentExpressionResultAgainstAbsentValuePattern() {
     String json =
         "{\n" + "    \"volumeControl\": {\n" + "        \"max\": true\n" + "    }\n" + "}";
 
@@ -237,7 +233,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesNullExpressionResultAgainstAbsentValuePattern() {
+  public void matchesNullExpressionResultAgainstAbsentValuePattern() {
     String json =
         "{\n" + "    \"volumeControl\": {\n" + "        \"max\": null\n" + "    }\n" + "}";
 
@@ -247,7 +243,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void returnsTheDistanceFromTheValueMatcherWhenNotAMatch() {
+  public void returnsTheDistanceFromTheValueMatcherWhenNotAMatch() {
     String json =
         "{\n" + "    \"volumeControl\": {\n" + "        \"max\": \"eleven\"\n" + "    }\n" + "}";
 
@@ -258,7 +254,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlySerialises() {
+  public void correctlySerialises() {
     assertThat(
         Json.write(WireMock.matchingJsonPath("$..thing")),
         equalToJson(
@@ -268,7 +264,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlySerialisesWithValuePattern() {
+  public void correctlySerialisesWithValuePattern() {
     assertThat(
         Json.write(WireMock.matchingJsonPath("$..thing", containing("123"))),
         equalToJson(
@@ -281,7 +277,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlyDeserialises() {
+  public void correctlyDeserialises() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                                         \n"
@@ -294,7 +290,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlyDeserialisesWithValuePattern() {
+  public void correctlyDeserialisesWithValuePattern() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                                      \n"
@@ -314,7 +310,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlyDeserialisesWithAbsentValuePattern() {
+  public void correctlyDeserialisesWithAbsentValuePattern() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                                      \n"
@@ -334,7 +330,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlyDeserialisesWhenSubMatcherHasExtraParameters() {
+  public void correctlyDeserialisesWhenSubMatcherHasExtraParameters() {
     StringValuePattern stringValuePattern =
         Json.read(
             "{                                       \n"
@@ -357,7 +353,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void correctlySerialisesWhenSubMatcherHasExtraParameters() {
+  public void correctlySerialisesWhenSubMatcherHasExtraParameters() {
     StringValuePattern matcher =
         new MatchesJsonPathPattern("$..thing", WireMock.equalToJson("{}", true, true));
 
@@ -377,7 +373,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithMissingExpression() {
+  public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithMissingExpression() {
     assertThrows(
         JsonException.class,
         () -> {
@@ -393,7 +389,8 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithBadValuePatternName() {
+  public void
+      throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithBadValuePatternName() {
     assertThrows(
         JsonException.class,
         () -> {
@@ -409,7 +406,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void equalsIncludesValuePattern() {
+  public void equalsIncludesValuePattern() {
     StringValuePattern pattern1 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1000"));
     StringValuePattern pattern2 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1001"));
     StringValuePattern pattern3 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1000"));
@@ -422,7 +419,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void treatsAnEmptyArrayExpressionResultAsAbsent() {
+  public void treatsAnEmptyArrayExpressionResultAsAbsent() {
     String json =
         "{\n"
             + "  \"Books\": [\n"
@@ -441,7 +438,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void matchesCorrectlyWhenSubMatcherIsUsedAndExpressionReturnsASingleItemArray() {
+  public void matchesCorrectlyWhenSubMatcherIsUsedAndExpressionReturnsASingleItemArray() {
     String json =
         "{\n"
             + "   \"searchCriteria\": {\n"
@@ -460,7 +457,7 @@ class MatchesJsonPathPatternTest {
   }
 
   @Test
-  void objectsShouldBeEqualOnSameExpectedValue() {
+  public void objectsShouldBeEqualOnSameExpectedValue() {
     MatchesJsonPathPattern a =
         new MatchesJsonPathPattern("$.searchCriteria[?(@.customerId == '104903')].date");
     MatchesJsonPathPattern b =
