@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
@@ -62,7 +61,11 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     fileRoot = setupTempFileRoot();
     proxyingService =
         new WireMockServer(
-            wireMockConfig().dynamicPort().withRootDirectory(fileRoot.getAbsolutePath()));
+            wireMockConfig()
+                .dynamicPort()
+                .withRootDirectory(fileRoot.getAbsolutePath())
+                .enableBrowserProxying(true)
+                .trustAllProxyTargets(true));
     proxyingService.start();
 
     targetService = wireMockServer;
@@ -369,6 +372,21 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void recordsViaBrowserProxyingWhenNoTargetUrlSpecified() {
+    targetService.stubFor(get(urlPathMatching("/record-this/.*")).willReturn(ok("Via proxy")));
+
+    startRecording();
+
+    String url = targetService.baseUrl() + "/record-this/123";
+    client.getViaProxy(url, proxyingService.port());
+
+    List<StubMapping> mappings = stopRecording().getStubMappings();
+
+    StubMapping mapping = mappings.get(0);
+    assertThat(mapping.getRequest().getUrl(), is("/record-this/123"));
+  }
+
+  @Test
   public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, WireMock::stopRecording);
   }
@@ -381,23 +399,5 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, proxyingService::stopRecording);
-  }
-
-  @Test
-  public void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
-    assertThrows(
-        InvalidInputException.class,
-        () -> {
-          startRecording(recordSpec());
-        });
-  }
-
-  @Test
-  public void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
-    assertThrows(
-        InvalidInputException.class,
-        () -> {
-          proxyingService.startRecording(recordSpec());
-        });
   }
 }
