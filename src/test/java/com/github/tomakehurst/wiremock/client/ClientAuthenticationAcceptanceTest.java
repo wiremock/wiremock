@@ -19,10 +19,12 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -147,8 +149,28 @@ public class ClientAuthenticationAcceptanceTest {
   }
 
   @Test
+  public void responds404WhenRequireHttpsOnAdminApiAndNonAdminUrlWithNoStubMatch() {
+    server =
+        new WireMockServer(
+            wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .basicAdminAuthenticator("user", "password")
+                .requireHttpsForAdminApi()
+    );
+    server.start();
+    WireMockTestClient client = new WireMockTestClient(server.port());
+
+    WireMockResponse response = client.get("/resource/11?abc");
+
+    assertThat(response.statusCode(), is(404));
+    assertThat(response.firstHeader(CONTENT_TYPE), startsWith("text/plain"));
+    assertThat(response.content(), is("No response could be served as there are no stub mappings in this WireMock instance."));
+  }
+
+  @Test
   public void supportsTokenAuthenticatorViaStaticDsl() {
-    final String TOKEN = "my_token_123";
+      final String TOKEN = "my_token_123";
 
     initialise(new TokenAuthenticator(TOKEN), new ClientTokenAuthenticator(TOKEN));
     WireMockTestClient client = new WireMockTestClient(server.port());
