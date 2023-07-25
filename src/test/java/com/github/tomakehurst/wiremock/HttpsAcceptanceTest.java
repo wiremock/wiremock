@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.io.Resources;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -297,6 +298,29 @@ public class HttpsAcceptanceTest {
     HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
     HttpResponse response = httpClient.execute(get);
     assertThat(response.getCode(), is(500));
+  }
+
+  @Test
+  void doesNotTreatPlainHttpsRequestAsBrowserProxyRequest() throws Exception {
+    proxy =
+        new WireMockServer(
+            wireMockConfig().dynamicPort().dynamicHttpsPort().enableBrowserProxying(true));
+    proxy.start();
+    proxy.stubFor(get("/no-proxying-thanks").willReturn(ok("proxyless")));
+
+    httpClient = HttpClientFactory.createClient();
+
+    String url = "https://localhost:" + proxy.httpsPort() + "/no-proxying-thanks";
+    HttpGet get = new HttpGet(url);
+    int status = httpClient.execute(get, HttpResponse::getCode);
+    assertThat(status, is(200));
+
+    ServeEvent serveEvent =
+        proxy.getAllServeEvents().stream()
+            .filter(event -> event.getRequest().getUrl().equals("/no-proxying-thanks"))
+            .findFirst()
+            .get();
+    assertThat(serveEvent.getRequest().isBrowserProxyRequest(), is(false));
   }
 
   private String url(String path) {

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.jetty11.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -82,7 +83,7 @@ public class JettyUtils {
   public static boolean isBrowserProxyRequest(HttpServletRequest request) {
     if (request instanceof Request) {
       Request jettyRequest = (Request) request;
-      return "https".equals(jettyRequest.getHttpURI().getScheme())
+      return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
           || "http".equals(jettyRequest.getMetaData().getURI().getScheme());
     }
 
