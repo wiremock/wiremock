@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.jetty11.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
-import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
-import java.util.Map;
-import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
@@ -33,7 +31,6 @@ import org.eclipse.jetty.server.Response;
 
 public class JettyUtils {
 
-  private static final Map<Class<?>, Method> URI_METHOD_BY_CLASS_CACHE = new HashMap<>();
   private static final boolean IS_JETTY;
 
   static {
@@ -83,30 +80,13 @@ public class JettyUtils {
     }
   }
 
-  public static boolean uriIsAbsolute(Request request) {
-    HttpURI uri = getHttpUri(request);
-    return uri.getScheme() != null;
-  }
+  public static boolean isBrowserProxyRequest(HttpServletRequest request) {
+    if (request instanceof Request) {
+      Request jettyRequest = (Request) request;
+      return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
+          || "http".equals(jettyRequest.getMetaData().getURI().getScheme());
+    }
 
-  private static HttpURI getHttpUri(Request request) {
-    try {
-      return (HttpURI) getURIMethodFromClass(request.getClass()).invoke(request);
-    } catch (Exception e) {
-      throw new IllegalArgumentException(request + " does not have a getUri or getHttpURI method");
-    }
-  }
-
-  private static Method getURIMethodFromClass(Class<?> requestClass) throws NoSuchMethodException {
-    if (URI_METHOD_BY_CLASS_CACHE.containsKey(requestClass)) {
-      return URI_METHOD_BY_CLASS_CACHE.get(requestClass);
-    }
-    Method method;
-    try {
-      method = requestClass.getDeclaredMethod("getUri");
-    } catch (NoSuchMethodException ignored) {
-      method = requestClass.getDeclaredMethod("getHttpURI");
-    }
-    URI_METHOD_BY_CLASS_CACHE.put(requestClass, method);
-    return method;
+    return false;
   }
 }

@@ -25,6 +25,7 @@ import static org.apache.hc.core5.http.ContentType.APPLICATION_JSON;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
 import static org.apache.hc.core5.http.ContentType.DEFAULT_BINARY;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.ByteArrayInputStream;
@@ -34,11 +35,11 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicScheme;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
@@ -67,9 +68,13 @@ public class WireMockTestClient {
   private int port;
   private String address;
 
+  private final CloseableHttpClient client;
+
   public WireMockTestClient(int port, String address) {
     this.port = port;
     this.address = address;
+
+    this.client = httpClient();
   }
 
   public WireMockTestClient(int port) {
@@ -113,7 +118,17 @@ public class WireMockTestClient {
   public WireMockResponse getViaProxy(String url, int proxyPort, String scheme) {
     URI targetUri = URI.create(url);
     HttpHost proxy = new HttpHost(scheme, address, proxyPort);
-    HttpClient httpClientUsingProxy =
+
+    HttpHost target = new HttpHost(targetUri.getScheme(), targetUri.getHost(), targetUri.getPort());
+    HttpGet req =
+        new HttpGet(
+            targetUri.getPath()
+                + (isNullOrEmpty(targetUri.getQuery()) ? "" : "?" + targetUri.getQuery()));
+    req.removeHeaders("Host");
+
+    System.out.println("executing request to " + targetUri + "(" + target + ") via " + proxy);
+
+    try (CloseableHttpClient httpClientUsingProxy =
         HttpClientBuilder.create()
             .disableAuthCaching()
             .disableAutomaticRetries()
@@ -128,22 +143,13 @@ public class WireMockTestClient {
                             .build())
                     .build())
             .setProxy(proxy)
-            .build();
+            .build()) {
 
-    try {
-      HttpHost target =
-          new HttpHost(targetUri.getScheme(), targetUri.getHost(), targetUri.getPort());
-      HttpGet req =
-          new HttpGet(
-              targetUri.getPath()
-                  + (isNullOrEmpty(targetUri.getQuery()) ? "" : "?" + targetUri.getQuery()));
-      req.removeHeaders("Host");
-
-      System.out.println("executing request to " + targetUri + "(" + target + ") via " + proxy);
-      ClassicHttpResponse httpResponse = httpClientUsingProxy.execute(target, req);
-      return new WireMockResponse(httpResponse);
+      try (CloseableHttpResponse httpResponse = httpClientUsingProxy.execute(target, req)) {
+        return new WireMockResponse(httpResponse);
+      }
     } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
+      return Exceptions.throwUnchecked(ioe, WireMockResponse.class);
     }
   }
 
@@ -275,7 +281,7 @@ public class WireMockTestClient {
       if (json != null) {
         post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
       }
-      ClassicHttpResponse httpResponse = httpClient().execute(post);
+      ClassicHttpResponse httpResponse = client.execute(post);
       return httpResponse.getCode();
     } catch (RuntimeException re) {
       throw re;
@@ -294,7 +300,7 @@ public class WireMockTestClient {
       if (json != null) {
         post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
       }
-      ClassicHttpResponse httpResponse = httpClient().execute(post);
+      ClassicHttpResponse httpResponse = client.execute(post);
       return httpResponse.getCode();
     } catch (RuntimeException re) {
       throw re;
@@ -313,8 +319,9 @@ public class WireMockTestClient {
       for (TestHttpHeader header : headers) {
         httpRequest.addHeader(header.getName(), header.getValue());
       }
-      ClassicHttpResponse httpResponse = httpClient().execute(httpRequest);
-      return new WireMockResponse(httpResponse);
+      try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
+        return new WireMockResponse(httpResponse);
+      }
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -322,7 +329,6 @@ public class WireMockTestClient {
 
   public WireMockResponse getWithPreemptiveCredentials(
       String url, int port, String username, String password) {
-    CloseableHttpClient httpClient = HttpClients.createDefault();
 
     BasicScheme basicAuth = new BasicScheme();
     basicAuth.initPreemptive(new UsernamePasswordCredentials(username, password.toCharArray()));
@@ -331,9 +337,9 @@ public class WireMockTestClient {
     HttpHost target = new HttpHost("localhost", port);
     localContext.resetAuthExchange(target, basicAuth);
 
-    try {
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       HttpGet httpget = new HttpGet(url);
-      ClassicHttpResponse response = httpClient.execute(target, httpget, localContext);
+      CloseableHttpResponse response = httpClient.execute(target, httpget, localContext);
       return new WireMockResponse(response);
     } catch (IOException e) {
       return throwUnchecked(e, WireMockResponse.class);
@@ -363,6 +369,8 @@ public class WireMockTestClient {
         .disableContentCompression()
         .setConnectionManager(
             PoolingHttpClientConnectionManagerBuilder.create()
+                .setMaxConnPerRoute(1000)
+                .setMaxConnTotal(1000)
                 .setConnectionFactory(
                     new ManagedHttpClientConnectionFactory(
                         null, CharCodingConfig.custom().setCharset(UTF_8).build(), null))
