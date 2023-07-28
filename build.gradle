@@ -81,7 +81,7 @@ dependencies {
   compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
   compileOnly("org.junit.jupiter:junit-jupiter")
 
-  api 'org.apache.commons:commons-lang3:3.12.0'
+  api 'org.apache.commons:commons-lang3:3.13.0'
   api "com.github.jknack:handlebars:$versions.handlebars", {
     exclude group: 'org.mozilla', module: 'rhino'
   }
