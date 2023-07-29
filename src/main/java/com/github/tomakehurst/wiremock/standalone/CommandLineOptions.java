@@ -120,6 +120,7 @@ public class CommandLineOptions implements Options {
   private static final String ALLOW_PROXY_TARGETS = "allow-proxy-targets";
   private static final String DENY_PROXY_TARGETS = "deny-proxy-targets";
   private static final String PROXY_TIMEOUT = "proxy-timeout";
+  private static final String FAIL_IF_MULTIPLE_MAPPINGS_MATCH = "fail-if-multiple-mappings-match";
 
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
 
@@ -366,6 +367,9 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
+    optionParser.accepts(
+        FAIL_IF_MULTIPLE_MAPPINGS_MATCH,
+        "Fail the request if several mappings match the request. If not set, the first found mapping will be used.");
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -963,5 +967,10 @@ public class CommandLineOptions implements Options {
 
   private int getAsynchronousResponseThreads() {
     return Integer.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+  }
+
+  @Override
+  public boolean getFailIfMultipleMappingsMatch() {
+    return optionSet.has(FAIL_IF_MULTIPLE_MAPPINGS_MATCH);
   }
 }

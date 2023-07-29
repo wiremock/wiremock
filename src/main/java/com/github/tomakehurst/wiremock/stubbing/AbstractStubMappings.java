@@ -39,6 +39,7 @@ import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
@@ -49,6 +50,7 @@ public abstract class AbstractStubMappings implements StubMappings {
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
   protected final StubMappingStore store;
+  private boolean failIfMultipleMappingsMatch;
 
   public AbstractStubMappings(
       StubMappingStore store,
@@ -74,15 +76,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     final List<SubEvent> subEvents = new LinkedList<>();
 
-    StubMapping matchingMapping =
-        store
-            .findAllMatchingRequest(request, customMatchers, subEvents::add)
-            .filter(
-                stubMapping ->
-                    stubMapping.isIndependentOfScenarioState()
-                        || scenarios.mappingMatchesScenarioState(stubMapping))
-            .findFirst()
-            .orElse(StubMapping.NOT_CONFIGURED);
+    StubMapping matchingMapping = getMatchingMapping(request, subEvents);
 
     subEvents.forEach(initialServeEvent::appendSubEvent);
 
@@ -103,6 +97,31 @@ public abstract class AbstractStubMappings implements StubMappings {
     responseDefinition = transformed.b;
 
     return serveEvent.withResponseDefinition(copyOf(responseDefinition));
+  }
+
+  private StubMapping getMatchingMapping(
+      final LoggedRequest request, final List<SubEvent> subEvents) {
+    final List<StubMapping> stubMappings =
+        this.store
+            .findAllMatchingRequest(request, this.customMatchers, subEvents::add)
+            .filter(
+                stubMapping ->
+                    stubMapping.isIndependentOfScenarioState()
+                        || this.scenarios.mappingMatchesScenarioState(stubMapping))
+            .collect(Collectors.toList());
+
+    if (stubMappings.size() == 1 || !this.failIfMultipleMappingsMatch && stubMappings.size() > 1) {
+      return stubMappings.get(0);
+    } else if (this.failIfMultipleMappingsMatch && stubMappings.size() > 1) {
+      final String found =
+          stubMappings.stream()
+              .map(StubMapping::getUuid)
+              .map(UUID::toString)
+              .sorted()
+              .collect(Collectors.joining(", "));
+      throw new IllegalStateException("Several mappings matched the request: " + found);
+    }
+    return StubMapping.NOT_CONFIGURED;
   }
 
   private ResponseDefinition applyV1Transformations(
@@ -246,5 +265,11 @@ public abstract class AbstractStubMappings implements StubMappings {
               return pattern.match(metadataJson).isExactMatch();
             })
         .collect(toList());
+  }
+
+  @Override
+  public AbstractStubMappings withFailIfMultipleMappingsMatch(boolean failIfMultipleMappingsMatch) {
+    this.failIfMultipleMappingsMatch = failIfMultipleMappingsMatch;
+    return this;
   }
 }

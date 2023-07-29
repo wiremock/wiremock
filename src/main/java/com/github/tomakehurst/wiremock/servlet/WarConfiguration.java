@@ -263,4 +263,9 @@ public class WarConfiguration implements Options {
   public boolean getTemplateEscapingDisabled() {
     return false;
   }
+
+  @Override
+  public boolean getFailIfMultipleMappingsMatch() {
+    return false;
+  }
 }

@@ -151,6 +151,7 @@ public class WireMockConfiguration implements Options {
   private Set<String> permittedSystemKeys = null;
   private Long maxTemplateCacheEntries = null;
   private boolean templateEscapingDisabled = true;
+  private boolean failIfMultipleMappingsMatch = false;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -795,5 +796,15 @@ public class WireMockConfiguration implements Options {
   @Override
   public boolean getTemplateEscapingDisabled() {
     return templateEscapingDisabled;
+  }
+
+  public WireMockConfiguration failIfMultipleMappingsMatch(boolean failIfMultipleMappingsMatch) {
+    this.failIfMultipleMappingsMatch = failIfMultipleMappingsMatch;
+    return this;
+  }
+
+  @Override
+  public boolean getFailIfMultipleMappingsMatch() {
+    return failIfMultipleMappingsMatch;
   }
 }

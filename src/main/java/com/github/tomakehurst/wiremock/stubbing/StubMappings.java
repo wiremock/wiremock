@@ -41,4 +41,8 @@ public interface StubMappings {
   List<Scenario> getAllScenarios();
 
   List<StubMapping> findByMetadata(StringValuePattern pattern);
+
+  default StubMappings withFailIfMultipleMappingsMatch(boolean failIfMultipleMappingsMatch) {
+    return this;
+  }
 }
