@@ -22,11 +22,7 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RequestPatternBuilder {
 
@@ -34,7 +30,7 @@ public class RequestPatternBuilder {
   private StringValuePattern hostPattern;
   private Integer port;
   private UrlPattern url = UrlPattern.ANY;
-  private List<RequestMethod> methods = new ArrayList<>();
+  private Set<RequestMethod> methods = new HashSet<>();
   private RequestMethod method = RequestMethod.ANY;
   private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
   private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
@@ -62,9 +58,9 @@ public class RequestPatternBuilder {
     this.url = url;
   }
 
-  public RequestPatternBuilder(List<RequestMethod> methods, UrlPattern url) {
+  public RequestPatternBuilder(Set<RequestMethod> methods, UrlPattern url) {
     this.methods = methods;
-    this.method = methods.get(0);
+    this.method = methods.iterator().next();
     this.url = url;
   }
 
@@ -271,7 +267,7 @@ public class RequestPatternBuilder {
         hostPattern,
         port,
         url,
-        methods.isEmpty() ? List.of(method) : methods,
+        methods.isEmpty() ? Set.of(method) : methods,
         headers.isEmpty() ? null : headers,
         pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,

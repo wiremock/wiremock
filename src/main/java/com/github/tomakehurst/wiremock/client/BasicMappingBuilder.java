@@ -45,6 +45,9 @@ import java.util.UUID;
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   private final RequestPatternBuilder requestPatternBuilder;
+  private final List<PostServeActionDefinition> postServeActions = new ArrayList<>();
+  private final List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
+
   private ResponseDefinitionBuilder responseDefBuilder;
   private Integer priority;
   private String scenarioName;
@@ -53,15 +56,13 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
-  private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
-  private List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
-    requestPatternBuilder = new RequestPatternBuilder(List.of(method), urlPattern);
+    requestPatternBuilder = new RequestPatternBuilder(Set.of(method), urlPattern);
   }
 
-  BasicMappingBuilder(List<RequestMethod> methods, UrlPattern urlPattern) {
+  BasicMappingBuilder(Set<RequestMethod> methods, UrlPattern urlPattern) {
     requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);
   }
 

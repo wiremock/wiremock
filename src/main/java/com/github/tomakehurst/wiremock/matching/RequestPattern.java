@@ -50,7 +50,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   private final Integer port;
   private final UrlPattern url;
   private final RequestMethod method;
-  private final List<RequestMethod> methods;
+  private final Set<RequestMethod> methods;
   private final Map<String, MultiValuePattern> headers;
 
   private final Map<String, StringValuePattern> pathParams;
@@ -86,7 +86,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.port = port;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = getFirstNonNull(method, RequestMethod.ANY);
-    this.methods = new ArrayList<>();
+    this.methods = new HashSet<>();
     methods.add(method);
     this.headers = headers;
     this.pathParams = pathParams;
@@ -138,7 +138,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final StringValuePattern host,
       final Integer port,
       final UrlPattern url,
-      final List<RequestMethod> methods,
+      final Set<RequestMethod> methods,
       final Map<String, MultiValuePattern> headers,
       final Map<String, StringValuePattern> pathParams,
       final Map<String, MultiValuePattern> queryParams,
@@ -154,7 +154,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.port = port;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.methods = methods;
-    this.method = methods.get(0);
+    this.method = methods.iterator().next();
     this.headers = headers;
     this.pathParams = pathParams;
     this.formParams = formParams;
@@ -211,7 +211,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       @JsonProperty("urlPathPattern") String urlPathPattern,
       @JsonProperty("urlPathTemplate") String urlPathTemplate,
       @JsonProperty("method") RequestMethod method,
-      @JsonProperty("methods") List<RequestMethod> methods,
+      @JsonProperty("methods") Set<RequestMethod> methods,
       @JsonProperty("headers") Map<String, MultiValuePattern> headers,
       @JsonProperty("pathParameters") Map<String, StringValuePattern> pathParams,
       @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
@@ -227,7 +227,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         host,
         port,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
-        getFirstNonNull(methods, List.of(getFirstNonNull(method, RequestMethod.ANY))),
+        getFirstNonNull(methods, Set.of(getFirstNonNull(method, RequestMethod.ANY))),
         headers,
         pathParams,
         queryParams,
@@ -246,7 +246,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
           null,
           null,
           anyUrl(),
-          List.of(RequestMethod.ANY),
+          Set.of(RequestMethod.ANY),
           null,
           null,
           null,
@@ -264,7 +264,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         UrlPattern.ANY,
-        List.of(RequestMethod.ANY),
+        Set.of(RequestMethod.ANY),
         null,
         null,
         null,
@@ -283,7 +283,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         UrlPattern.ANY,
-        List.of(RequestMethod.ANY),
+        Set.of(RequestMethod.ANY),
         null,
         null,
         null,
@@ -533,7 +533,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     return method;
   }
 
-  public List<RequestMethod> getMethods() {
+  public Set<RequestMethod> getMethods() {
     return methods;
   }
 

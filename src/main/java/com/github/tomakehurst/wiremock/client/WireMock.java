@@ -56,10 +56,7 @@ import com.networknt.schema.SpecVersion;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -538,51 +535,51 @@ public class WireMock {
   }
 
   public static MappingBuilder get(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.GET), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.GET), urlPattern);
   }
 
   public static MappingBuilder post(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.POST), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.POST), urlPattern);
   }
 
   public static MappingBuilder put(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.PUT), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.PUT), urlPattern);
   }
 
   public static MappingBuilder delete(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.DELETE), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.DELETE), urlPattern);
   }
 
   public static MappingBuilder patch(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.PATCH), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.PATCH), urlPattern);
   }
 
   public static MappingBuilder head(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.HEAD), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.HEAD), urlPattern);
   }
 
   public static MappingBuilder options(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.OPTIONS), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.OPTIONS), urlPattern);
   }
 
   public static MappingBuilder trace(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.TRACE), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.TRACE), urlPattern);
   }
 
   public static MappingBuilder any(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.ANY), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.ANY), urlPattern);
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(List.of(RequestMethod.fromString(method)), urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.fromString(method)), urlPattern);
   }
 
-  public static MappingBuilder isOneOf(List<String> methods, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.fromList(methods), urlPattern);
+  public static MappingBuilder isOneOf(Set<String> methods, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.fromSet(methods), urlPattern);
   }
 
-  public static MappingBuilder request(List<String> methods, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.fromList(methods), urlPattern);
+  public static MappingBuilder request(Set<String> methods, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.fromSet(methods), urlPattern);
   }
 
   public static MappingBuilder requestMatching(String customRequestMatcherName) {

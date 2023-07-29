@@ -49,10 +49,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
@@ -1227,7 +1224,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithMultipleRequestMethods() {
     stubFor(
-        isOneOf(List.of("PUT", "POST"), urlEqualTo("/some/url"))
+        isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");
@@ -1240,7 +1237,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithInvalidRequestMethods() {
     stubFor(
-        isOneOf(List.of("PUT", "POST"), urlEqualTo("/some/url"))
+        isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response = testClient.request("GET", "/some/url");
@@ -1250,7 +1247,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   @Test
   void testStubWithAnyRequestMethod() {
     stubFor(
-        isOneOf(List.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+        isOneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
 
     WireMockResponse response1 = testClient.request("PUT", "/some/url");

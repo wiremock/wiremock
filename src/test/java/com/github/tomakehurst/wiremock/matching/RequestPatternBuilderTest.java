@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class RequestPatternBuilderTest {
@@ -57,7 +58,7 @@ class RequestPatternBuilderTest {
             WireMock.equalTo("my.wiremock.org"),
             1234,
             WireMock.urlEqualTo("/foo"),
-            List.of(RequestMethod.POST),
+            Set.of(RequestMethod.POST),
             Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
             Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
@@ -117,7 +118,7 @@ class RequestPatternBuilderTest {
             WireMock.equalTo("my.wiremock.org"),
             1234,
             WireMock.urlEqualTo("/foo"),
-            List.of(RequestMethod.POST),
+            Set.of(RequestMethod.POST),
             Map.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
             emptyMap(),
             Map.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
