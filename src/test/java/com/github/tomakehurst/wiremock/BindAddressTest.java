@@ -65,7 +65,7 @@ public class BindAddressTest {
             wireMockConfig()
                 .bindAddress(localhost)
                 .port(Network.findFreePort())
-                .dynamicHttpsPort());
+                .httpsPort(Network.findFreePort()));
     wireMockServer.start();
 
     wireMockServer.stubFor(

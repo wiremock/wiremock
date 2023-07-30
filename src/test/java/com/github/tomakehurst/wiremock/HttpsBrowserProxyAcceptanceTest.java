@@ -93,7 +93,7 @@ public class HttpsBrowserProxyAcceptanceTest {
               options()
                   .httpDisabled(true)
                   .keystorePath(TARGET_KEYSTORE_WITH_CUSTOM_CERT)
-                  .dynamicHttpsPort())
+                  .httpsPort(Network.findFreePort()))
           .build();
 
   @RegisterExtension
@@ -102,7 +102,7 @@ public class HttpsBrowserProxyAcceptanceTest {
           .options(
               options()
                   .port(Network.findFreePort())
-                  .dynamicHttpsPort()
+                  .httpsPort(Network.findFreePort())
                   .fileSource(new SingleRootFileSource(setupTempFileRoot()))
                   .caKeystorePath(NO_PREEXISTING_KEYSTORE_PATH)
                   .enableBrowserProxying(true)

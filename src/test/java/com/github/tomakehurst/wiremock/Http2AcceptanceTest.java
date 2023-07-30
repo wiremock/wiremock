@@ -38,7 +38,7 @@ public class Http2AcceptanceTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort())
+          .options(wireMockConfig().port(Network.findFreePort()).httpsPort(Network.findFreePort()))
           .build();
 
   @Test

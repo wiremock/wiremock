@@ -96,7 +96,8 @@ public class HttpsAcceptanceTest {
             IllegalStateException.class,
             () -> {
               // HTTPS
-              WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
+              WireMockConfiguration config =
+                  wireMockConfig().httpDisabled(true).httpsPort(Network.findFreePort());
               wireMockServer = new WireMockServer(config);
               wireMockServer.start();
               WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
@@ -307,7 +308,7 @@ public class HttpsAcceptanceTest {
         new WireMockServer(
             wireMockConfig()
                 .port(Network.findFreePort())
-                .dynamicHttpsPort()
+                .httpsPort(Network.findFreePort())
                 .enableBrowserProxying(true));
     proxy.start();
     proxy.stubFor(get("/no-proxying-thanks").willReturn(ok("proxyless")));
@@ -359,7 +360,8 @@ public class HttpsAcceptanceTest {
 
   private void startServerEnforcingClientCert(
       String keystorePath, String truststorePath, String trustStorePassword) {
-    WireMockConfiguration config = wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort();
+    WireMockConfiguration config =
+        wireMockConfig().port(Network.findFreePort()).httpsPort(Network.findFreePort());
     if (keystorePath != null) {
       config.keystorePath(keystorePath);
     }
@@ -379,7 +381,8 @@ public class HttpsAcceptanceTest {
 
   private void startServerWithKeystore(
       String keystorePath, String keystorePassword, String keyManagerPassword) {
-    WireMockConfiguration config = wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort();
+    WireMockConfiguration config =
+        wireMockConfig().port(Network.findFreePort()).httpsPort(Network.findFreePort());
     if (keystorePath != null) {
       config
           .keystorePath(keystorePath)

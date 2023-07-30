@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -53,11 +54,11 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
 
     CertificateSpecification certificateSpecification =
         new X509CertificateSpecification(
-            /* version = */ V3,
-            /* subject = */ "CN=" + certificateCN,
-            /* issuer = */ "CN=wiremock.org",
-            /* notBefore = */ new Date(),
-            /* notAfter = */ new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000)));
+            /* version= */ V3,
+            /* subject= */ "CN=" + certificateCN,
+            /* issuer= */ "CN=wiremock.org",
+            /* notBefore= */ new Date(),
+            /* notAfter= */ new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000)));
 
     Certificate certificate = certificateSpecification.certificateFor(keyPair);
 
@@ -71,7 +72,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
         new WireMockServer(
             options()
                 .httpDisabled(true)
-                .dynamicHttpsPort()
+                .httpsPort(Network.findFreePort())
                 .keystorePath(serverKeyStoreFile.getAbsolutePath()));
     server.start();
 
@@ -90,7 +91,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
             5 * 1000 * 60,
             NO_PROXY,
             clientTrustStoreSettings,
-            /* trustSelfSignedCertificates = */ false,
+            /* trustSelfSignedCertificates= */ false,
             trustedHosts,
             false);
   }

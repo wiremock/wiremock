@@ -43,7 +43,7 @@ public class JUnitJupiterExtensionStaticMultiInstanceTest {
   @RegisterExtension
   static WireMockExtension wm1 =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort())
+          .options(wireMockConfig().port(Network.findFreePort()).httpsPort(Network.findFreePort()))
           .configureStaticDsl(true)
           .build();
 

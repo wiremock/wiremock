@@ -58,7 +58,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
           .options(
               options()
                   .httpDisabled(true)
-                  .dynamicHttpsPort()
+                  .httpsPort(Network.findFreePort())
                   .needClientAuth(true)
                   .trustStorePath(TRUST_STORE_PATH)
                   .trustStorePassword(TRUST_STORE_PASSWORD))

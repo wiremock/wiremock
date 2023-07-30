@@ -422,7 +422,7 @@ public class Examples extends AcceptanceTestBase {
         .port(Network.findFreePort())
 
         // Randomly asssign the HTTPS port on startup
-        .dynamicHttpsPort()
+        .httpsPort(Network.findFreePort())
 
         // Bind the WireMock server to this IP address locally. Defaults to the loopback adaptor.
         .bindAddress("192.168.1.111")

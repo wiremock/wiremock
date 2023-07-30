@@ -290,7 +290,7 @@ public class WireMockJUnitRuleTest {
 
     @Rule
     public WireMockRule wireMockRule =
-        new WireMockRule(wireMockConfig().dynamicHttpsPort().httpDisabled(true));
+        new WireMockRule(wireMockConfig().httpsPort(Network.findFreePort()).httpDisabled(true));
 
     @Test
     public void exposesHttpsOnly() throws Exception {

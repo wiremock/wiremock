@@ -38,7 +38,7 @@ public class JUnitJupiterExtensionJvmProxyNonStaticProgrammaticTest {
   @RegisterExtension
   WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort())
+          .options(wireMockConfig().port(Network.findFreePort()).httpsPort(Network.findFreePort()))
           .configureStaticDsl(true)
           .proxyMode(true)
           .build();

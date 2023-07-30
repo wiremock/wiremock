@@ -45,7 +45,9 @@ public class DeadlockTest {
 
   @BeforeAll
   public static void setUp() {
-    wireMockServer = new WireMockServer(options().port(Network.findFreePort()).dynamicHttpsPort());
+    wireMockServer =
+        new WireMockServer(
+            options().port(Network.findFreePort()).httpsPort(Network.findFreePort()));
     wireMockServer.start();
   }
 

@@ -38,7 +38,8 @@ public class JupiterExtensionTestClass {
   static JUnitJupiterExtensionSubclassingTest.MyWireMockExtension wm =
       new JUnitJupiterExtensionSubclassingTest.MyWireMockExtension(
           extensionOptions()
-              .options(wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort())
+              .options(
+                  wireMockConfig().port(Network.findFreePort()).httpsPort(Network.findFreePort()))
               .configureStaticDsl(true));
 
   @Test

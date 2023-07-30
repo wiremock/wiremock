@@ -113,7 +113,7 @@ public class ClientAuthenticationAcceptanceTest {
         new WireMockServer(
             wireMockConfig()
                 .port(Network.findFreePort())
-                .dynamicHttpsPort()
+                .httpsPort(Network.findFreePort())
                 .basicAdminAuthenticator("user", "password"));
     server.start();
 
@@ -133,7 +133,7 @@ public class ClientAuthenticationAcceptanceTest {
         new WireMockServer(
             wireMockConfig()
                 .port(Network.findFreePort())
-                .dynamicHttpsPort()
+                .httpsPort(Network.findFreePort())
                 .basicAdminAuthenticator("user", "password")
                 .requireHttpsForAdminApi());
     server.start();

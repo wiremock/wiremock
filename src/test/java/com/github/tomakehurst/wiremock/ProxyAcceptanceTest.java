@@ -77,7 +77,7 @@ public class ProxyAcceptanceTest {
         new WireMockServer(
             wireMockConfig()
                 .port(Network.findFreePort())
-                .dynamicHttpsPort()
+                .httpsPort(Network.findFreePort())
                 .bindAddress("127.0.0.1")
                 .stubCorsEnabled(true));
     targetService.start();
