@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class ServeEventListenerExtensionTest {
     final CompletableFuture<Void> completed = new CompletableFuture<>();
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
 
@@ -103,7 +104,7 @@ public class ServeEventListenerExtensionTest {
     final CompletableFuture<Void> completed = new CompletableFuture<>();
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
 
@@ -135,7 +136,7 @@ public class ServeEventListenerExtensionTest {
     final CompletableFuture<Void> completed = new CompletableFuture<>();
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
 
@@ -164,7 +165,7 @@ public class ServeEventListenerExtensionTest {
 
   @Test
   void eventTriggeredWhenAppliedToAStubMapping() {
-    initWithOptions(options().dynamicPort().extensions(new NamedCounterAction()));
+    initWithOptions(options().port(Network.findFreePort()).extensions(new NamedCounterAction()));
 
     StubMapping stubMapping =
         wm.stubFor(
@@ -200,7 +201,7 @@ public class ServeEventListenerExtensionTest {
 
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
 
@@ -243,7 +244,7 @@ public class ServeEventListenerExtensionTest {
 
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
 
@@ -275,7 +276,7 @@ public class ServeEventListenerExtensionTest {
 
   @Test
   void continuesWithNoEffectIfANonExistentActionIsReferenced() {
-    initWithOptions(options().dynamicPort());
+    initWithOptions(options().port(Network.findFreePort()));
 
     wm.stubFor(
         get(urlPathEqualTo("/as-normal"))
@@ -290,7 +291,7 @@ public class ServeEventListenerExtensionTest {
     final AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
                   @Override
@@ -322,7 +323,7 @@ public class ServeEventListenerExtensionTest {
   public void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .notifier(new ConsoleNotifier(true))
             .extensions(new NamedCounterAction()));
 
@@ -368,7 +369,7 @@ public class ServeEventListenerExtensionTest {
   void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .notifier(new ConsoleNotifier(true))
             .extensions(new NamedCounterAction()));
 

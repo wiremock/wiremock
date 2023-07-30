@@ -43,6 +43,7 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
@@ -1021,7 +1022,7 @@ public class VerificationAcceptanceTest {
     @RegisterExtension
     public WireMockExtension wireMockRule =
         WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort().disableRequestJournal())
+            .options(wireMockConfig().port(Network.findFreePort()).disableRequestJournal())
             .configureStaticDsl(true)
             .failOnUnmatchedRequests(false)
             .build();
@@ -1050,7 +1051,7 @@ public class VerificationAcceptanceTest {
     @RegisterExtension
     public WireMockExtension wireMockRule =
         WireMockExtension.newInstance()
-            .options(options().dynamicPort().maxRequestJournalEntries(2))
+            .options(options().port(Network.findFreePort()).maxRequestJournalEntries(2))
             .configureStaticDsl(true)
             .failOnUnmatchedRequests(false)
             .build();

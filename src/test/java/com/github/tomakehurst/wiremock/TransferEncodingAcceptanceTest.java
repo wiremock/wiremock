@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.StringUtils;
@@ -147,7 +148,7 @@ public class TransferEncodingAcceptanceTest {
     wm =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .withRootDirectory(filePath("test-file-root"))
                 .useChunkedTransferEncoding(chunkedEncodingPolicy));
     wm.start();

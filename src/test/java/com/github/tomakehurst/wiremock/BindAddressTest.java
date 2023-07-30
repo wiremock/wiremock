@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.net.Inet4Address;
@@ -61,7 +62,10 @@ public class BindAddressTest {
 
     wireMockServer =
         new WireMockServer(
-            wireMockConfig().bindAddress(localhost).dynamicPort().dynamicHttpsPort());
+            wireMockConfig()
+                .bindAddress(localhost)
+                .port(Network.findFreePort())
+                .dynamicHttpsPort());
     wireMockServer.start();
 
     wireMockServer.stubFor(

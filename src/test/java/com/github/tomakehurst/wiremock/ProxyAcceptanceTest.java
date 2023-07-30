@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -75,7 +76,7 @@ public class ProxyAcceptanceTest {
     targetService =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .dynamicHttpsPort()
                 .bindAddress("127.0.0.1")
                 .stubCorsEnabled(true));
@@ -84,7 +85,7 @@ public class ProxyAcceptanceTest {
 
     targetServiceBaseUrl = "http://localhost:" + targetService.port();
 
-    proxyingServiceOptions.dynamicPort().bindAddress("127.0.0.1");
+    proxyingServiceOptions.port(Network.findFreePort()).bindAddress("127.0.0.1");
     proxyingService = new WireMockServer(proxyingServiceOptions);
     proxyingService.start();
     proxy = WireMock.create().port(proxyingService.port()).build();
@@ -434,7 +435,8 @@ public class ProxyAcceptanceTest {
   @Test
   public void canProxyViaAForwardProxy() {
     WireMockServer forwardProxy =
-        new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).enableBrowserProxying(true));
     forwardProxy.start();
     init(wireMockConfig().proxyVia(new ProxySettings("localhost", forwardProxy.port())));
 

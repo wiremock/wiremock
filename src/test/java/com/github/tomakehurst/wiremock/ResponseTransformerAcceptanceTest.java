@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.Test;
 
@@ -83,7 +84,9 @@ public class ResponseTransformerAcceptanceTest {
 
   @SuppressWarnings("unchecked")
   private void startWithExtensions(Class<? extends Extension> extensionClasses) {
-    wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionClasses));
+    wm =
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).extensions(extensionClasses));
     wm.start();
     client = new WireMockTestClient(wm.port());
   }

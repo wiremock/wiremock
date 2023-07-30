@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.extension.GlobalSettingsListener;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ public class GlobalSettingsListenerExtensionTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(options().dynamicPort().extensions(listener))
+            .options(options().port(Network.findFreePort()).extensions(listener))
             .build();
 
     @BeforeEach
@@ -101,7 +102,10 @@ public class GlobalSettingsListenerExtensionTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(options().dynamicPort().extensions(new VetoingTestGlobalSettingsListener()))
+            .options(
+                options()
+                    .port(Network.findFreePort())
+                    .extensions(new VetoingTestGlobalSettingsListener()))
             .build();
 
     @Test

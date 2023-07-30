@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class MassiveNearMissTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort())
+          .options(options().port(Network.findFreePort()))
           .failOnUnmatchedRequests(false)
           .build();
 

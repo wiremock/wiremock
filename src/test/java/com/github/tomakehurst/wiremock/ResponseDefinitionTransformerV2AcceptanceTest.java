@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.AfterEach;
@@ -66,7 +67,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .extensions(ExampleTransformer.class, MultiTransformer1.class));
     wm.start();
     client = new WireMockTestClient(wm.port());
@@ -82,7 +83,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .extensions(new ExampleTransformer(), new MultiTransformer2()));
     wm.start();
     client = new WireMockTestClient(wm.port());
@@ -98,7 +99,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .extensions(new ExampleTransformer(), new NonGlobalTransformer()));
     wm.start();
     client = new WireMockTestClient(wm.port());
@@ -110,7 +111,9 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
 
   @Test
   public void appliesNonGlobalExtensionsWhenSpecifiedByStub() {
-    wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(new NonGlobalTransformer()));
+    wm =
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).extensions(new NonGlobalTransformer()));
     wm.start();
     client = new WireMockTestClient(wm.port());
 
@@ -134,7 +137,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
         () -> {
           new WireMockServer(
                   wireMockConfig()
-                      .dynamicPort()
+                      .port(Network.findFreePort())
                       .extensions(ExampleTransformer.class)
                       .extensions(
                           "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$AnotherExampleTransformer"))
@@ -169,7 +172,7 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
     wm =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .withRootDirectory(defaultTestFilesRoot())
                 .extensions(extensions));
     wm.start();

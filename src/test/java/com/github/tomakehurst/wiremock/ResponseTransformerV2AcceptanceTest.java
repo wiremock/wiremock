@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -86,13 +87,17 @@ public class ResponseTransformerV2AcceptanceTest {
 
   @SuppressWarnings("unchecked")
   private void startWithExtensions(Class<? extends Extension> extensionClasses) {
-    wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionClasses));
+    wm =
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).extensions(extensionClasses));
     wm.start();
     client = new WireMockTestClient(wm.port());
   }
 
   private void startWithExtensions(ExtensionFactory... extensionFactories) {
-    wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionFactories));
+    wm =
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).extensions(extensionFactories));
     wm.start();
     client = new WireMockTestClient(wm.port());
   }

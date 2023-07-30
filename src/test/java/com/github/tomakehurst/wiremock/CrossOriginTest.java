@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,7 @@ public class CrossOriginTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort().stubCorsEnabled(true))
+            .options(wireMockConfig().port(Network.findFreePort()).stubCorsEnabled(true))
             .build();
 
     WireMockTestClient testClient;
@@ -88,7 +89,9 @@ public class CrossOriginTest {
 
     @RegisterExtension
     public WireMockExtension wm =
-        WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
+        WireMockExtension.newInstance()
+            .options(wireMockConfig().port(Network.findFreePort()))
+            .build();
 
     WireMockTestClient testClient;
 

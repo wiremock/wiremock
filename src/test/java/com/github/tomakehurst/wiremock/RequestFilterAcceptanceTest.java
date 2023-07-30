@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Collections;
@@ -128,7 +129,7 @@ public class RequestFilterAcceptanceTest {
 
   @Test
   public void wrappedRequestsAreUsedWhenProxying() {
-    WireMockServer proxyTarget = new WireMockServer(wireMockConfig().dynamicPort());
+    WireMockServer proxyTarget = new WireMockServer(wireMockConfig().port(Network.findFreePort()));
     proxyTarget.start();
     initialise(new PathModifyingStubFilter());
 
@@ -153,7 +154,7 @@ public class RequestFilterAcceptanceTest {
   }
 
   private void initialise(RequestFilter... filters) {
-    wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(filters));
+    wm = new WireMockServer(wireMockConfig().port(Network.findFreePort()).extensions(filters));
     wm.start();
     client = new WireMockTestClient(wm.port());
   }

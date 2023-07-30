@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.List;
@@ -418,7 +419,7 @@ public class Examples extends AcceptanceTestBase {
         .httpsPort(8001)
 
         // Randomly assign the HTTP port on startup
-        .dynamicPort()
+        .port(Network.findFreePort())
 
         // Randomly asssign the HTTPS port on startup
         .dynamicHttpsPort()

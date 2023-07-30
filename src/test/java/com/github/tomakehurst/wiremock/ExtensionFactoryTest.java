@@ -91,7 +91,10 @@ public class ExtensionFactoryTest {
   @Test
   void usesExtensionFactoryLoadedViaServiceLoader() {
     initialiseWireMockServer(
-        options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).templatingEnabled(false));
+        options()
+            .port(Network.findFreePort())
+            .withRootDirectory(defaultTestFilesRoot())
+            .templatingEnabled(false));
 
     wm.stubFor(get("/transform-this").willReturn(noContent().withTransformers("loader-test")));
 
@@ -103,7 +106,10 @@ public class ExtensionFactoryTest {
   @Test
   void usesExtensionInstanceLoadedViaServiceLoader() {
     initialiseWireMockServer(
-        options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).templatingEnabled(false));
+        options()
+            .port(Network.findFreePort())
+            .withRootDirectory(defaultTestFilesRoot())
+            .templatingEnabled(false));
 
     wm.stubFor(
         get("/transform-this").willReturn(noContent().withTransformers("instance-loader-test")));

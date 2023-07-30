@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -44,7 +45,7 @@ public class DeadlockTest {
 
   @BeforeAll
   public static void setUp() {
-    wireMockServer = new WireMockServer(options().dynamicPort().dynamicHttpsPort());
+    wireMockServer = new WireMockServer(options().port(Network.findFreePort()).dynamicHttpsPort());
     wireMockServer.start();
   }
 

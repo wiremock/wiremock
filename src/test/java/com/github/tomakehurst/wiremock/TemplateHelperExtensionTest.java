@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.extension.TemplateHelperProviderExtension;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class TemplateHelperExtensionTest {
       WireMockExtension.newInstance()
           .options(
               wireMockConfig()
-                  .dynamicPort()
+                  .port(Network.findFreePort())
                   .templatingEnabled(true)
                   .globalTemplating(true)
                   .extensions(

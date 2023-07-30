@@ -22,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +37,17 @@ public class ConcurrentProxyingTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort())
+          .options(options().port(Network.findFreePort()))
           .failOnUnmatchedRequests(false)
           .build();
 
   @RegisterExtension
   public WireMockExtension target =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().usingFilesUnderDirectory(defaultTestFilesRoot()))
+          .options(
+              options()
+                  .port(Network.findFreePort())
+                  .usingFilesUnderDirectory(defaultTestFilesRoot()))
           .failOnUnmatchedRequests(false)
           .build();
 

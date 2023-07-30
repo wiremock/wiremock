@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,7 +60,8 @@ public class StubMappingPersistenceAcceptanceTest {
     FileSource mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
     mappingsFileSource.createIfNecessary();
 
-    wireMockServer = new WireMockServer(wireMockConfig().fileSource(fileSource).dynamicPort());
+    wireMockServer =
+        new WireMockServer(wireMockConfig().fileSource(fileSource).port(Network.findFreePort()));
     wireMockServer.start();
     testClient = new WireMockTestClient(wireMockServer.port());
     WireMock.configureFor(wireMockServer.port());

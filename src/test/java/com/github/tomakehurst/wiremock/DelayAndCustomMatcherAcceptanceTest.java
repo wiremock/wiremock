@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Stopwatch;
@@ -41,7 +42,7 @@ public class DelayAndCustomMatcherAcceptanceTest {
   public WireMockExtension wireMockRule =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
-          .options(options().dynamicPort().extensions(BodyChanger.class))
+          .options(options().port(Network.findFreePort()).extensions(BodyChanger.class))
           .build();
 
   @Test

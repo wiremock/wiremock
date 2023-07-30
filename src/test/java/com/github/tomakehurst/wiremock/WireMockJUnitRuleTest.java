@@ -46,7 +46,9 @@ public class WireMockJUnitRuleTest {
 
   public static class BasicWireMockRule {
 
-    @Rule public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    @Rule
+    public WireMockRule wireMockRule =
+        new WireMockRule(wireMockConfig().port(Network.findFreePort()));
 
     @Test
     public void canRegisterStubAndFetchOnCorrectPort() {
@@ -65,7 +67,9 @@ public class WireMockJUnitRuleTest {
    */
   public static class WireMockJournalIsResetBetweenMultipleTests {
 
-    @Rule public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+    @Rule
+    public WireMockRule wireMockRule =
+        new WireMockRule(wireMockConfig().port(Network.findFreePort()));
 
     @Before
     public void init() {
@@ -89,7 +93,7 @@ public class WireMockJUnitRuleTest {
 
     @ClassRule
     public static WireMockClassRule classRule =
-        new WireMockClassRule(wireMockConfig().dynamicPort());
+        new WireMockClassRule(wireMockConfig().port(Network.findFreePort()));
 
     @Rule public WireMockClassRule instanceRule = classRule;
 
@@ -122,13 +126,13 @@ public class WireMockJUnitRuleTest {
 
     @ClassRule
     public static WireMockClassRule wireMockRule1 =
-        new WireMockClassRule(wireMockConfig().dynamicPort());
+        new WireMockClassRule(wireMockConfig().port(Network.findFreePort()));
 
     @Rule public WireMockClassRule instancewireMockRule1 = wireMockRule1;
 
     @ClassRule
     public static WireMockClassRule wireMockRule2 =
-        new WireMockClassRule(wireMockConfig().dynamicPort());
+        new WireMockClassRule(wireMockConfig().port(Network.findFreePort()));
 
     @Rule public WireMockClassRule instancewireMockRule2 = wireMockRule2;
 
@@ -262,7 +266,8 @@ public class WireMockJUnitRuleTest {
 
     @Rule
     public WireMockRule wireMockRule =
-        new WireMockRule(wireMockConfig().dynamicPort().notifier(new ConsoleNotifier(true)));
+        new WireMockRule(
+            wireMockConfig().port(Network.findFreePort()).notifier(new ConsoleNotifier(true)));
 
     @Test
     public void requestReceivedByListener() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.apache.hc.client5.http.DnsResolver;
@@ -48,7 +49,7 @@ public class StubbingWithBrowserProxyAcceptanceTest {
       WireMockExtension.newInstance()
           .options(
               options()
-                  .dynamicPort()
+                  .port(Network.findFreePort())
                   .enableBrowserProxying(true)
                   .notifier(new ConsoleNotifier(true)))
           .configureStaticDsl(true)

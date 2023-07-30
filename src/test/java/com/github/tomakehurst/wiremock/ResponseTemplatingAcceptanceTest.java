@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -44,7 +45,11 @@ public class ResponseTemplatingAcceptanceTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(options().dynamicPort().templatingEnabled(true).globalTemplating(false))
+            .options(
+                options()
+                    .port(Network.findFreePort())
+                    .templatingEnabled(true)
+                    .globalTemplating(false))
             .build();
 
     @BeforeEach
@@ -98,7 +103,7 @@ public class ResponseTemplatingAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 options()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .withRootDirectory(defaultTestFilesRoot())
                     .templatingEnabled(true)
                     .globalTemplating(true))
@@ -343,7 +348,7 @@ public class ResponseTemplatingAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 options()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .withRootDirectory(defaultTestFilesRoot())
                     .withPermittedSystemKeys("allowed.*")
                     .globalTemplating(true))
@@ -409,7 +414,7 @@ public class ResponseTemplatingAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 options()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .withRootDirectory(defaultTestFilesRoot())
                     .templatingEnabled(true)
                     .globalTemplating(true))
@@ -442,7 +447,7 @@ public class ResponseTemplatingAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 options()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .withRootDirectory(defaultTestFilesRoot())
                     .templatingEnabled(true)
                     .globalTemplating(true)

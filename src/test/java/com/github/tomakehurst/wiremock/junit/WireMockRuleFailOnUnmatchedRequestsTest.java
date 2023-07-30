@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static org.hamcrest.Matchers.containsString;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +36,9 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   public WireMockRule wm =
-      new WireMockRule(options().dynamicPort().withRootDirectory("src/main/resources/empty"), true);
+      new WireMockRule(
+          options().port(Network.findFreePort()).withRootDirectory("src/main/resources/empty"),
+          true);
 
   @Rule public TestRule chain = RuleChain.outerRule(expectedException).around(wm);
 

@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.http.ssl.HostVerifyingSSLSocketFactory;
 import com.github.tomakehurst.wiremock.http.ssl.SSLContextBuilder;
 import com.github.tomakehurst.wiremock.http.ssl.X509KeyStore;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -100,7 +101,7 @@ public class HttpsBrowserProxyAcceptanceTest {
       WireMockExtension.newInstance()
           .options(
               options()
-                  .dynamicPort()
+                  .port(Network.findFreePort())
                   .dynamicHttpsPort()
                   .fileSource(new SingleRootFileSource(setupTempFileRoot()))
                   .caKeystorePath(NO_PREEXISTING_KEYSTORE_PATH)
@@ -192,7 +193,8 @@ public class HttpsBrowserProxyAcceptanceTest {
   public void rejectsUntrustedTarget() {
 
     WireMockServer scepticalProxy =
-        new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).enableBrowserProxying(true));
 
     try {
       scepticalProxy.start();
@@ -214,7 +216,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     WireMockServer scepticalProxy =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .enableBrowserProxying(true)
                 .trustStorePath(TRUST_STORE_PATH)
                 .trustStorePassword(TRUST_STORE_PASSWORD));
@@ -240,7 +242,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     WireMockServer scepticalProxy =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .enableBrowserProxying(true)
                 .trustedProxyTargets("localhost"));
 
@@ -267,7 +269,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     WireMockServer proxyWithCustomCaKeyStore =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .enableBrowserProxying(true)
                 .trustAllProxyTargets(true)
                 .caKeystorePath(PROXY_KEYSTORE_WITH_CUSTOM_CA_CERT));

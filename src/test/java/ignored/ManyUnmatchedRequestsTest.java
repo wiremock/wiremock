@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,8 @@ public class ManyUnmatchedRequestsTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().withRootDirectory("src/main/resources/empty"))
+          .options(
+              options().port(Network.findFreePort()).withRootDirectory("src/main/resources/empty"))
           .failOnUnmatchedRequests(true)
           .build();
 

@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.google.common.io.Resources;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -304,7 +305,10 @@ public class HttpsAcceptanceTest {
   void doesNotTreatPlainHttpsRequestAsBrowserProxyRequest() throws Exception {
     proxy =
         new WireMockServer(
-            wireMockConfig().dynamicPort().dynamicHttpsPort().enableBrowserProxying(true));
+            wireMockConfig()
+                .port(Network.findFreePort())
+                .dynamicHttpsPort()
+                .enableBrowserProxying(true));
     proxy.start();
     proxy.stubFor(get("/no-proxying-thanks").willReturn(ok("proxyless")));
 
@@ -355,7 +359,7 @@ public class HttpsAcceptanceTest {
 
   private void startServerEnforcingClientCert(
       String keystorePath, String truststorePath, String trustStorePassword) {
-    WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
+    WireMockConfiguration config = wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort();
     if (keystorePath != null) {
       config.keystorePath(keystorePath);
     }
@@ -375,7 +379,7 @@ public class HttpsAcceptanceTest {
 
   private void startServerWithKeystore(
       String keystorePath, String keystorePassword, String keyManagerPassword) {
-    WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
+    WireMockConfiguration config = wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort();
     if (keystorePath != null) {
       config
           .keystorePath(keystorePath)

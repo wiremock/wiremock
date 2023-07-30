@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,8 @@ public class CustomMatchingAcceptanceTest {
   @RegisterExtension
   public WireMockExtension wmRule =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().extensions(MyExtensionRequestMatcher.class))
+          .options(
+              options().port(Network.findFreePort()).extensions(MyExtensionRequestMatcher.class))
           .failOnUnmatchedRequests(false)
           .build();
 

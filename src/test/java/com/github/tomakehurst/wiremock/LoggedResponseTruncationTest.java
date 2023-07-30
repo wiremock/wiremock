@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,7 @@ public class LoggedResponseTruncationTest {
   @RegisterExtension
   static WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().maxLoggedResponseSize(MAX_SIZE))
+          .options(wireMockConfig().port(Network.findFreePort()).maxLoggedResponseSize(MAX_SIZE))
           .build();
 
   WireMockTestClient client;

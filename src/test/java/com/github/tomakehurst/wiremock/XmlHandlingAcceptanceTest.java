@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,13 +34,13 @@ public class XmlHandlingAcceptanceTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().templatingEnabled(true))
+          .options(options().port(Network.findFreePort()).templatingEnabled(true))
           .build();
 
   @RegisterExtension
   public WireMockExtension externalDtdServer =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().notifier(new ConsoleNotifier(true)))
+          .options(options().port(Network.findFreePort()).notifier(new ConsoleNotifier(true)))
           .build();
 
   WireMockTestClient client;

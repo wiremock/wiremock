@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.UnsupportedEncodingException;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -35,7 +36,9 @@ public class AdminRequestHandlerTest {
 
   @RegisterExtension
   private WireMockExtension wm =
-      WireMockExtension.newInstance().options(options().dynamicPort().notifier(notifier)).build();
+      WireMockExtension.newInstance()
+          .options(options().port(Network.findFreePort()).notifier(notifier))
+          .build();
 
   @Test
   public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {

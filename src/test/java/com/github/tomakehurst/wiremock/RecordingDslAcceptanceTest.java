@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.util.List;
@@ -62,7 +63,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     proxyingService =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .withRootDirectory(fileRoot.getAbsolutePath())
                 .enableBrowserProxying(true)
                 .trustAllProxyTargets(true));

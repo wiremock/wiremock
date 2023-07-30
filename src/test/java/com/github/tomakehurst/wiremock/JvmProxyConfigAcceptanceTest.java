@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -48,7 +49,9 @@ public class JvmProxyConfigAcceptanceTest {
 
   @Test
   public void configuresHttpProxyingOnlyFromAWireMockServer() throws Exception {
-    wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+    wireMockServer =
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).enableBrowserProxying(true));
     wireMockServer.start();
 
     JvmProxyConfigurer.configureFor(wireMockServer);
@@ -64,7 +67,9 @@ public class JvmProxyConfigAcceptanceTest {
   public void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
     CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
-    wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+    wireMockServer =
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).enableBrowserProxying(true));
     wireMockServer.start();
 
     JvmProxyConfigurer.configureFor(wireMockServer);
@@ -91,7 +96,7 @@ public class JvmProxyConfigAcceptanceTest {
     System.setProperty("https.proxyPort", previousHttpsProxyPort);
     System.setProperty("http.nonProxyHosts", previousNonProxyHosts);
 
-    wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
+    wireMockServer = new WireMockServer(wireMockConfig().port(Network.findFreePort()));
     wireMockServer.start();
 
     JvmProxyConfigurer.configureFor(wireMockServer);

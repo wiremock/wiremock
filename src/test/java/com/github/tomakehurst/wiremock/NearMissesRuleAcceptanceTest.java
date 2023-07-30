@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import ignored.ManyUnmatchedRequestsTest;
@@ -63,7 +64,7 @@ public class NearMissesRuleAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 options()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .notifier(testNotifier)
                     .withRootDirectory("src/main/resources/empty"))
             .build();
@@ -159,7 +160,7 @@ public class NearMissesRuleAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 options()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .withRootDirectory("src/main/resources/empty")
                     .extensions(
                         new RequestMatcherExtension() {

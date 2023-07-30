@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,7 +69,7 @@ public class HttpsBrowserProxyClientAuthAcceptanceTest {
       WireMockExtension.newInstance()
           .options(
               options()
-                  .dynamicPort()
+                  .port(Network.findFreePort())
                   .enableBrowserProxying(true)
                   .caKeystorePath(NO_PREEXISTING_KEYSTORE_PATH)
                   .trustedProxyTargets("localhost")

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,8 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
   @Test
   public void logsEventsToNotifierWhenNotDisabled() {
     TestNotifier notifier = new TestNotifier();
-    WireMockServer wm = new WireMockServer(wireMockConfig().dynamicPort().notifier(notifier));
+    WireMockServer wm =
+        new WireMockServer(wireMockConfig().port(Network.findFreePort()).notifier(notifier));
     wm.start();
     testClient = new WireMockTestClient(wm.port());
 
@@ -53,7 +55,10 @@ public class StubRequestLoggingAcceptanceTest extends AcceptanceTestBase {
     TestNotifier notifier = new TestNotifier();
     WireMockServer wm =
         new WireMockServer(
-            wireMockConfig().dynamicPort().stubRequestLoggingDisabled(true).notifier(notifier));
+            wireMockConfig()
+                .port(Network.findFreePort())
+                .stubRequestLoggingDisabled(true)
+                .notifier(notifier));
     wm.start();
     testClient = new WireMockTestClient(wm.port());
 

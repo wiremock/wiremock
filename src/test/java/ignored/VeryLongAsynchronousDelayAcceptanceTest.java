@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.io.IOException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ParseException;
@@ -43,7 +44,7 @@ public class VeryLongAsynchronousDelayAcceptanceTest {
     wireMockConfiguration.jettyAcceptors(1).containerThreads(4);
     wireMockConfiguration.asynchronousResponseEnabled(true);
     wireMockConfiguration.asynchronousResponseThreads(10);
-    wireMockConfiguration.dynamicPort();
+    wireMockConfiguration.port(Network.findFreePort());
     return wireMockConfiguration;
   }
 

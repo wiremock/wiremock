@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.concurrent.Callable;
@@ -65,7 +66,7 @@ public class PostServeActionExtensionTest {
 
   @Test
   public void triggersActionWhenAppliedToAStubMapping() throws Exception {
-    initWithOptions(options().dynamicPort().extensions(new NamedCounterAction()));
+    initWithOptions(options().port(Network.findFreePort()).extensions(new NamedCounterAction()));
 
     StubMapping stubMapping =
         wm.stubFor(
@@ -97,7 +98,7 @@ public class PostServeActionExtensionTest {
 
   @Test
   public void continuesWithNoEffectIfANonExistentActionIsReferenced() {
-    initWithOptions(options().dynamicPort());
+    initWithOptions(options().port(Network.findFreePort()));
 
     wm.stubFor(
         get(urlPathEqualTo("/as-normal"))
@@ -112,7 +113,7 @@ public class PostServeActionExtensionTest {
     final AtomicInteger finalStatus = new AtomicInteger();
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new PostServeAction() {
                   @Override
@@ -139,7 +140,7 @@ public class PostServeActionExtensionTest {
   public void canBeSpecifiedAsAJsonObject() {
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .notifier(new ConsoleNotifier(true))
             .extensions(new NamedCounterAction()));
 
@@ -173,7 +174,7 @@ public class PostServeActionExtensionTest {
   public void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSL() {
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .notifier(new ConsoleNotifier(true))
             .extensions(new NamedCounterAction()));
 
@@ -196,7 +197,7 @@ public class PostServeActionExtensionTest {
   public void multipleActionsOfTheSameNameCanBeSpecifiedAsAJsonArray() {
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .notifier(new ConsoleNotifier(true))
             .extensions(new NamedCounterAction()));
 

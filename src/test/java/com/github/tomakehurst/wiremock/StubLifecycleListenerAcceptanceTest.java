@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.common.NotPermittedException;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class StubLifecycleListenerAcceptanceTest {
       WireMockExtension.newInstance()
           .options(
               options()
-                  .dynamicPort()
+                  .port(Network.findFreePort())
                   .withRootDirectory(tempDir.getAbsolutePath())
                   .extensions(loggingListener, exceptionThrowingListener))
           .build();

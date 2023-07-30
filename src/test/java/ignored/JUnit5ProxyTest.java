@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -39,7 +40,7 @@ public class JUnit5ProxyTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().enableBrowserProxying(true))
+          .options(options().port(Network.findFreePort()).enableBrowserProxying(true))
           .build();
 
   CloseableHttpClient httpClient =
@@ -76,7 +77,7 @@ public class JUnit5ProxyTest {
   @Test
   public void testViaProxyUsingServer() throws Exception {
     WireMockServer wireMockServer =
-        new WireMockServer(options().dynamicPort().enableBrowserProxying(true));
+        new WireMockServer(options().port(Network.findFreePort()).enableBrowserProxying(true));
     wireMockServer.start();
     JvmProxyConfigurer.configureFor(wireMockServer);
 

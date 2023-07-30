@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.security.*;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.AfterEach;
@@ -111,7 +112,7 @@ public class ClientAuthenticationAcceptanceTest {
     server =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .dynamicHttpsPort()
                 .basicAdminAuthenticator("user", "password"));
     server.start();
@@ -131,7 +132,7 @@ public class ClientAuthenticationAcceptanceTest {
     server =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .dynamicHttpsPort()
                 .basicAdminAuthenticator("user", "password")
                 .requireHttpsForAdminApi());
@@ -162,7 +163,8 @@ public class ClientAuthenticationAcceptanceTest {
   private void initialise(
       Authenticator adminAuthenticator, ClientAuthenticator clientAuthenticator) {
     server =
-        new WireMockServer(wireMockConfig().dynamicPort().adminAuthenticator(adminAuthenticator));
+        new WireMockServer(
+            wireMockConfig().port(Network.findFreePort()).adminAuthenticator(adminAuthenticator));
     server.start();
 
     goodClient = WireMock.create().port(server.port()).authenticator(clientAuthenticator).build();

@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
@@ -273,11 +274,11 @@ public class NotMatchedPageAcceptanceTest {
   }
 
   private void configure() {
-    configure(wireMockConfig().dynamicPort());
+    configure(wireMockConfig().port(Network.findFreePort()));
   }
 
   private void configure(WireMockConfiguration options) {
-    options.dynamicPort().withRootDirectory("src/test/resources/empty");
+    options.port(Network.findFreePort()).withRootDirectory("src/test/resources/empty");
     wm = new WireMockServer(options);
     wm.start();
     testClient = new WireMockTestClient(wm.port());

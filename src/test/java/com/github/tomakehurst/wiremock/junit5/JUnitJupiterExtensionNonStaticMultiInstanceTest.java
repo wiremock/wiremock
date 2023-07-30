@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -45,14 +46,18 @@ public class JUnitJupiterExtensionNonStaticMultiInstanceTest {
   @RegisterExtension
   WireMockExtension wm1 =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+          .options(wireMockConfig().port(Network.findFreePort()).dynamicHttpsPort())
           .configureStaticDsl(true)
           .build();
 
   @RegisterExtension
   WireMockExtension wm2 =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().templatingEnabled(true).globalTemplating(true))
+          .options(
+              wireMockConfig()
+                  .port(Network.findFreePort())
+                  .templatingEnabled(true)
+                  .globalTemplating(true))
           .build();
 
   @BeforeEach
