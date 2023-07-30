@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
