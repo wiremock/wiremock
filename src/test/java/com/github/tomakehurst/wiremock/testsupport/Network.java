@@ -29,12 +29,12 @@ public class Network {
       ports = new HashSet<>();
     }
     int port = 0;
-    do {
+    while (port == 0 || ports.contains(port)) {
       try (ServerSocket serverSocket = new ServerSocket(0)) {
         port = serverSocket.getLocalPort();
       } catch (IOException ignored) {
       }
-    } while (port != 0 && ports.contains(port));
+    }
     ports.add(port);
     return port;
   }
