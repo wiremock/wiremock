@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import com.google.common.base.Preconditions;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -50,7 +50,7 @@ public class ProxySettings {
         throw new IllegalArgumentException(
             "Proxy via does not support any other protocol than http");
       }
-      Preconditions.checkArgument(
+      checkParameter(
           !proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
       ProxySettings proxySettings =
           new ProxySettings(

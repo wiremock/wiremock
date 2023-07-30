@@ -15,13 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 
 public class Metadata extends LinkedHashMap<String, Object> {
 
@@ -62,7 +63,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
   @SuppressWarnings("unchecked")
   public Metadata getMetadata(String key) {
     checkKeyPresent(key);
-    checkArgument(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+    checkParameter(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
     return new Metadata((Map<String, ?>) get(key));
   }
 
@@ -71,14 +72,14 @@ public class Metadata extends LinkedHashMap<String, Object> {
       return defaultValue;
     }
 
-    checkArgument(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+    checkParameter(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
     return new Metadata((Map<String, ?>) get(key));
   }
 
   @SuppressWarnings("unchecked")
   private <T> T checkPresenceValidityAndCast(String key, Class<T> type) {
     checkKeyPresent(key);
-    checkArgument(
+    checkParameter(
         type.isAssignableFrom(get(key).getClass()),
         key + " is not of type " + type.getSimpleName());
     return (T) get(key);
@@ -94,7 +95,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
   }
 
   private void checkKeyPresent(String key) {
-    checkArgument(containsKey(key), key + "' not present");
+    checkParameter(containsKey(key), key + "' not present");
   }
 
   public static <T> Metadata from(T myData) {
