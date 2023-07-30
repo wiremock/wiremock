@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-import com.google.common.io.ByteStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
 public class BinaryFile implements InputStreamSource {
 
-  private URI uri;
+  private final URI uri;
 
   public BinaryFile(URI uri) {
     this.uri = uri;
@@ -32,7 +31,7 @@ public class BinaryFile implements InputStreamSource {
 
   public byte[] readContents() {
     try (InputStream stream = getStream()) {
-      return ByteStreams.toByteArray(stream);
+      return stream.readAllBytes();
     } catch (final IOException ioe) {
       return throwUnchecked(ioe, byte[].class);
     }
