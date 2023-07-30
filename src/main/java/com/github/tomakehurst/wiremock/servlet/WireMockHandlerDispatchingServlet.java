@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
@@ -22,7 +23,6 @@ import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
-import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;

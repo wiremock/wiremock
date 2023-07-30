@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.admin.tasks;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.url.PathParams;

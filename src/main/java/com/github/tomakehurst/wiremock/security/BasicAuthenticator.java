@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.security;
 
-import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static java.util.Arrays.asList;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
