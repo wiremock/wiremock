@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.store.Stores;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.util.List;
@@ -58,7 +59,7 @@ public class ExtensionFactoryTest {
   void injectsCoreServicesOnConstructionByFactory() {
     initialiseWireMockServer(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .withRootDirectory(defaultTestFilesRoot())
             .stubCorsEnabled(true)
             .templatingEnabled(false)

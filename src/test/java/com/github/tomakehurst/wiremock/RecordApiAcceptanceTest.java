@@ -29,10 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
-import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.testsupport.*;
 import java.util.UUID;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +44,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
   private String proxyTargetUrl;
 
   private void proxyServerStart(WireMockConfiguration config) {
-    proxyingService = new WireMockServer(config.dynamicPort());
+    proxyingService = new WireMockServer(config.port(Network.findFreePort()));
     proxyingService.start();
     proxyTargetUrl = "http://localhost:" + wireMockServer.port();
     proxyingService.stubFor(

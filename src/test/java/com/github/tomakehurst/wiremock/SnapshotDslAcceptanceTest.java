@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
@@ -58,7 +59,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     proxyingService =
         new WireMockServer(
             wireMockConfig()
-                .dynamicPort()
+                .port(Network.findFreePort())
                 .extensions(new TestParameterisedTransformer())
                 .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
     proxyingService.start();

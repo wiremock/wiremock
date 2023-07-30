@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class AcceptanceTestBase {
     System.out.println(
         "Configuring WireMockServer with root directory: " + options.filesRoot().getPath());
     if (options.portNumber() == Options.DEFAULT_PORT) {
-      options.dynamicPort();
+      options.port(Network.findFreePort());
     }
 
     wireMockServer = new WireMockServer(options);

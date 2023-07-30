@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -102,7 +103,7 @@ public class GzipAcceptanceTest {
         WireMockExtension.newInstance()
             .options(
                 wireMockConfig()
-                    .dynamicPort()
+                    .port(Network.findFreePort())
                     .useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER))
             .build();
 
@@ -145,7 +146,7 @@ public class GzipAcceptanceTest {
     @RegisterExtension
     public WireMockExtension wm =
         WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort().gzipDisabled(true))
+            .options(wireMockConfig().port(Network.findFreePort()).gzipDisabled(true))
             .build();
 
     WireMockTestClient testClient;

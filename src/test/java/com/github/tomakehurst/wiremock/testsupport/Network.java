@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Network {
 
-  public static int findFreePort() {
-    try {
-      ServerSocket socket = new ServerSocket(0);
-      int result = socket.getLocalPort();
-      socket.close();
+  private static Set<Integer> ports;
 
-      return result;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+  public static synchronized int findFreePort() {
+    if (ports == null) {
+      ports = new HashSet<>();
     }
+    int port = 0;
+    do {
+      try (ServerSocket serverSocket = new ServerSocket(0)) {
+        port = serverSocket.getLocalPort();
+      } catch (IOException ignored) {
+      }
+    } while (port != 0 && ports.contains(port));
+    ports.add(port);
+    return port;
   }
 }

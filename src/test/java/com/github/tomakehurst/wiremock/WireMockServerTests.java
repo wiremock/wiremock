@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -27,6 +26,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,9 @@ public class WireMockServerTests {
   @Test
   public void instantiationWithEmptyFileSource() throws IOException {
     Options options =
-        new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir));
+        new WireMockConfiguration()
+            .port(Network.findFreePort())
+            .fileSource(new SingleRootFileSource(tempDir));
 
     WireMockServer wireMockServer = null;
     try {
@@ -70,7 +72,7 @@ public class WireMockServerTests {
 
   @Test
   public void buildsQualifiedHttpUrlFromPath() {
-    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+    WireMockServer wireMockServer = new WireMockServer(options().port(Network.findFreePort()));
     wireMockServer.start();
     int port = wireMockServer.port();
 
@@ -82,7 +84,9 @@ public class WireMockServerTests {
 
   @Test
   public void buildsQualifiedHttpsUrlFromPath() {
-    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort().dynamicHttpsPort());
+    WireMockServer wireMockServer =
+        new WireMockServer(
+            options().port(Network.findFreePort()).httpsPort(Network.findFreePort()));
     wireMockServer.start();
     int port = wireMockServer.httpsPort();
 
@@ -95,7 +99,7 @@ public class WireMockServerTests {
 
   @Test
   public void buildsBaseHttpUrl() {
-    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+    WireMockServer wireMockServer = new WireMockServer(options().port(Network.findFreePort()));
     wireMockServer.start();
     int port = wireMockServer.port();
 
@@ -104,7 +108,9 @@ public class WireMockServerTests {
 
   @Test
   public void buildsBaseHttpsUrl() {
-    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort().dynamicHttpsPort());
+    WireMockServer wireMockServer =
+        new WireMockServer(
+            options().port(Network.findFreePort()).httpsPort(Network.findFreePort()));
     wireMockServer.start();
     int port = wireMockServer.httpsPort();
 
@@ -116,10 +122,10 @@ public class WireMockServerTests {
   public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
     WireMockServer wireMockServer =
         new WireMockServer(
-            DYNAMIC_PORT,
+            Network.findFreePort(),
             new SingleRootFileSource(tempDir),
             false,
-            new ProxySettings("proxy.company.com", DYNAMIC_PORT));
+            new ProxySettings("proxy.company.com", Network.findFreePort()));
     wireMockServer.start();
     wireMockServer.enableRecordMappings(
         new SingleRootFileSource(tempDir + "/mappings"),

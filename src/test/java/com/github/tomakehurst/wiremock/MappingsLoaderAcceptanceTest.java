@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.List;
@@ -43,7 +44,7 @@ public class MappingsLoaderAcceptanceTest {
 
   @BeforeEach
   public void init() {
-    configuration = wireMockConfig().dynamicPort();
+    configuration = wireMockConfig().port(Network.findFreePort());
   }
 
   @AfterEach
