@@ -292,10 +292,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public Part getPart(final String name) {
-    if (name == null || name.isEmpty()) {
-      return null;
-    }
-    if (cachedMultiparts == null && getParts() == null) {
+    if (isNullOrEmpty(name) || (cachedMultiparts == null && getParts() == null)) {
       return null;
     }
 
