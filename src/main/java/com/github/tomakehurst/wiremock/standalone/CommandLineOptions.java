@@ -667,7 +667,9 @@ public class CommandLineOptions implements Options {
     return optionSet.has(ADMIN_API_REQUIRE_HTTPS);
   }
 
-  /** @deprecated use {@link BrowserProxySettings#enabled()} */
+  /**
+   * @deprecated use {@link BrowserProxySettings#enabled()}
+   */
   @Deprecated
   @Override
   public boolean browserProxyingEnabled() {
