@@ -38,7 +38,7 @@ To run all of WireMock's tests:
 To build both JARs (thin and standalone), the JARs will be placed under ``build/libs``.:
 
 ```bash
-./gradlew jar shadowJar 
+./gradlew jar shadowJar
 ```
 
 To publish both JARs to your local Maven repository:
@@ -46,6 +46,8 @@ To publish both JARs to your local Maven repository:
 ```bash
 ./gradlew publishToMavenLocal
 ```
+
+If you use IntelliJ, you can also use the corresponding run configurations, **Run Tests**, **Build WireMock** and **Publish to Maven local** respectively.
 
 ## Contributing Code
 
@@ -80,7 +82,8 @@ When running pre-commit checks, if there are any formatting failures the Spotles
 ./gradlew spotlessApply
 ```
 
-There's also an [IntelliJ plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format) for the same purpose.
+If you use IntelliJ, you can also use the run configuration called **Run Spotless**,
+or there's also an [IntelliJ plugin](https://plugins.jetbrains.com/plugin/8527-google-java-format) for the same purpose.
 
 ## Testing
 
