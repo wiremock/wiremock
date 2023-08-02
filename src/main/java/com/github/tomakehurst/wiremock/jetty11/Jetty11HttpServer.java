@@ -109,6 +109,7 @@ public class Jetty11HttpServer extends JettyHttpServer {
         super.createHandler(options, adminRequestHandler, stubRequestHandler);
 
     if (options.browserProxySettings().enabled()) {
+      handler.prependHandler(new HttpsProxyDetectingHandler(mitmProxyConnector));
       handler.prependHandler(new ManInTheMiddleSslConnectHandler(mitmProxyConnector));
     }
 

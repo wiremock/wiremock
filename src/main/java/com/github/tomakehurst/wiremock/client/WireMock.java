@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
@@ -966,12 +967,20 @@ public class WireMock {
     defaultInstance.get().startStubRecording(targetBaseUrl);
   }
 
+  public static void startRecording() {
+    defaultInstance.get().startStubRecording();
+  }
+
   public static void startRecording(RecordSpecBuilder spec) {
     defaultInstance.get().startStubRecording(spec);
   }
 
   public void startStubRecording(String targetBaseUrl) {
     admin.startRecording(targetBaseUrl);
+  }
+
+  public void startStubRecording() {
+    admin.startRecording(RecordSpec.DEFAULTS);
   }
 
   public void startStubRecording(RecordSpecBuilder spec) {

@@ -100,16 +100,14 @@ public class MatchesJsonPathPatternTest {
   }
 
   @Test
-  public void providesSensibleNotificationWhenJsonMatchFailsDueToInvalidJson() {
-    Notifier notifier = setMockNotifier();
-
+  public void providesEventMessageWhenJsonMatchFailsDueToInvalidJson() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
     MatchResult match = pattern.match("Not a JSON document");
 
     assertFalse(match.isExactMatch(), "Expected the match to fail");
-    checkWarningMessageAndEvent(
-        notifier,
+    checkMessage(
         match,
+        WARNING,
         "Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
   }
 
@@ -120,16 +118,14 @@ public class MatchesJsonPathPatternTest {
   }
 
   @Test
-  public void providesSensibleNotificationWhenJsonMatchFailsDueToMissingAttributeJson() {
-    Notifier notifier = setMockNotifier();
-
+  public void providesEventMessageWhenJsonMatchFailsDueToMissingAttributeJson() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
     MatchResult matchResult = pattern.match("{ \"nothing\": 1 }");
 
     assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
-    checkWarningMessageAndEvent(
-        notifier,
+    checkMessage(
         matchResult,
+        WARNING,
         "Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
   }
 

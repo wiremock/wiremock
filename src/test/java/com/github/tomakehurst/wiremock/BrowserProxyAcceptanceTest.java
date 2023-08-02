@@ -43,7 +43,7 @@ class BrowserProxyAcceptanceTest {
   public void init() {
     testClient = new WireMockTestClient(target.getPort());
 
-    proxy = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
+    proxy = new WireMockServer(wireMockConfig().port(8111).enableBrowserProxying(true));
     proxy.start();
   }
 

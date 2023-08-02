@@ -81,7 +81,6 @@ public class MatchesJsonPathPattern extends PathPattern {
               "Warning: JSON path expression '%s' failed to match document '%s' because %s",
               expectedValue, value, error);
 
-      notifier().info(message);
       return MatchResult.noMatch(SubEvent.warning(message));
     }
   }
@@ -108,7 +107,6 @@ public class MatchesJsonPathPattern extends PathPattern {
           .min(Comparator.comparingDouble(MatchResult::getDistance))
           .orElse(MatchResult.noMatch(subEvents));
     } catch (SubExpressionException e) {
-      notifier().info(e.getMessage());
       return MatchResult.noMatch(SubEvent.warning(e.getMessage()));
     }
   }
