@@ -35,7 +35,7 @@ dependencies {
   implementation "org.apache.httpcomponents.client5:httpclient5:5.2.1"
 
   testImplementation project(":")
-  testImplementation(platform('org.junit:junit-bom:5.9.3'))
+  testImplementation(platform('org.junit:junit-bom:5.10.0'))
   testImplementation "org.junit.jupiter:junit-jupiter"
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"

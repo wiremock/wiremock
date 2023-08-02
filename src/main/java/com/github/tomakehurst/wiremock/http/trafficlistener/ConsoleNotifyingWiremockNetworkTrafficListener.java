@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,45 +15,41 @@
  */
 package com.github.tomakehurst.wiremock.http.trafficlistener;
 
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 
 public class ConsoleNotifyingWiremockNetworkTrafficListener
     implements WiremockNetworkTrafficListener {
-  private static final ConsoleNotifier CONSOLE_NOTIFIER = new ConsoleNotifier(true);
 
-  private final Charset charset = Charset.forName("UTF-8");
-  private final CharsetDecoder decoder = charset.newDecoder();
+  private final WiremockNetworkTrafficListener wiremockNetworkTrafficListener;
+
+  public ConsoleNotifyingWiremockNetworkTrafficListener(Charset charset) {
+    this.wiremockNetworkTrafficListener =
+        WiremockNetworkTrafficListeners.createConsoleNotifying(charset);
+  }
+
+  public ConsoleNotifyingWiremockNetworkTrafficListener() {
+    this.wiremockNetworkTrafficListener = WiremockNetworkTrafficListeners.createConsoleNotifying();
+  }
 
   @Override
   public void opened(Socket socket) {
-    CONSOLE_NOTIFIER.info("Opened " + socket);
+    wiremockNetworkTrafficListener.opened(socket);
   }
 
   @Override
   public void incoming(Socket socket, ByteBuffer bytes) {
-    try {
-      CONSOLE_NOTIFIER.info("Incoming bytes: " + decoder.decode(bytes));
-    } catch (CharacterCodingException e) {
-      CONSOLE_NOTIFIER.error("Problem decoding network traffic", e);
-    }
+    wiremockNetworkTrafficListener.incoming(socket, bytes);
   }
 
   @Override
   public void outgoing(Socket socket, ByteBuffer bytes) {
-    try {
-      CONSOLE_NOTIFIER.info("Outgoing bytes: " + decoder.decode(bytes));
-    } catch (CharacterCodingException e) {
-      CONSOLE_NOTIFIER.error("Problem decoding network traffic", e);
-    }
+    wiremockNetworkTrafficListener.outgoing(socket, bytes);
   }
 
   @Override
   public void closed(Socket socket) {
-    CONSOLE_NOTIFIER.info("Closed " + socket);
+    wiremockNetworkTrafficListener.closed(socket);
   }
 }
