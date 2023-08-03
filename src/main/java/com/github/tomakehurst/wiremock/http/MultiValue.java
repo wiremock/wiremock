@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;

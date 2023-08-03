@@ -22,6 +22,7 @@ public interface ServeEventListener extends Extension {
   enum RequestPhase {
     BEFORE_MATCH,
     AFTER_MATCH,
+    BEFORE_RESPONSE_SENT,
     AFTER_COMPLETE
   }
 
@@ -33,6 +34,9 @@ public interface ServeEventListener extends Extension {
       case AFTER_MATCH:
         afterMatch(serveEvent, parameters);
         break;
+      case BEFORE_RESPONSE_SENT:
+        beforeResponseSent(serveEvent, parameters);
+        break;
       case AFTER_COMPLETE:
         afterComplete(serveEvent, parameters);
         break;
@@ -42,6 +46,8 @@ public interface ServeEventListener extends Extension {
   default void beforeMatch(ServeEvent serveEvent, Parameters parameters) {}
 
   default void afterMatch(ServeEvent serveEvent, Parameters parameters) {}
+
+  default void beforeResponseSent(ServeEvent serveEvent, Parameters parameters) {}
 
   default void afterComplete(ServeEvent serveEvent, Parameters parameters) {}
 

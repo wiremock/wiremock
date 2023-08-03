@@ -30,6 +30,15 @@ import java.util.Map;
 
 public class ContentTypes {
 
+  private ContentTypes() {}
+
+  public static final String CONTENT_TYPE = "Content-Type";
+  public static final String CONTENT_LENGTH = "Content-Length";
+  public static final String CONTENT_ENCODING = "Content-Encoding";
+  public static final String LOCATION = "Location";
+  public static final String AUTHORIZATION = "Authorization";
+  public static final String COOKIE = "Cookie";
+
   private static final Map<String, String> COMMON_MIME_TYPES =
       ImmutableMap.<String, String>builder()
           .put("image/jpeg", "jpeg")
