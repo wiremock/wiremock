@@ -27,6 +27,7 @@ import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.admin.Router;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -68,8 +70,8 @@ public class ServeEventListenerExtensionTest {
   }
 
   @Test
-  void eventTriggeredBeforeMatching() throws Exception {
-    final CompletableFuture<Void> completed = new CompletableFuture<>();
+  void eventSynchronouslyTriggeredBeforeMatching() {
+    AtomicBoolean completed = new AtomicBoolean(false);
     initWithOptions(
         options()
             .port(Network.findFreePort())
@@ -83,7 +85,7 @@ public class ServeEventListenerExtensionTest {
                     assertThat(serveEvent.getStubMapping(), nullValue());
                     assertThat(serveEvent.getResponse(), nullValue());
 
-                    completed.complete(null);
+                    completed.set(true);
                   }
 
                   @Override
@@ -96,12 +98,12 @@ public class ServeEventListenerExtensionTest {
 
     client.get("/get-this");
 
-    completed.get(2, SECONDS);
+    assertTrue(completed.get());
   }
 
   @Test
-  void eventTriggeredAfterMatching() throws Exception {
-    final CompletableFuture<Void> completed = new CompletableFuture<>();
+  void eventSynchronouslyTriggeredAfterMatching() {
+    AtomicBoolean completed = new AtomicBoolean(false);
     initWithOptions(
         options()
             .port(Network.findFreePort())
@@ -115,7 +117,7 @@ public class ServeEventListenerExtensionTest {
                     assertThat(serveEvent.getStubMapping(), notNullValue());
                     assertThat(serveEvent.getResponse(), nullValue());
 
-                    completed.complete(null);
+                    completed.set(true);
                   }
 
                   @Override
@@ -128,11 +130,43 @@ public class ServeEventListenerExtensionTest {
 
     client.get("/get-this");
 
-    completed.get(2, SECONDS);
+    assertTrue(completed.get());
   }
 
   @Test
-  void eventTriggeredAfterCompletion() throws Exception {
+  void eventSynchronouslyTriggeredBeforeResponseSent() {
+    AtomicBoolean completed = new AtomicBoolean(false);
+    initWithOptions(
+        options()
+            .dynamicPort()
+            .extensions(
+                new ServeEventListener() {
+
+                  @Override
+                  public void beforeResponseSent(ServeEvent serveEvent, Parameters parameters) {
+                    assertThat(serveEvent.getRequest().getUrl(), is("/get-this"));
+                    assertThat(serveEvent.getResponseDefinition(), notNullValue());
+                    assertThat(serveEvent.getStubMapping(), notNullValue());
+                    assertThat(serveEvent.getResponse().getStatus(), is(200));
+
+                    completed.set(true);
+                  }
+
+                  @Override
+                  public String getName() {
+                    return "before-resposnse-sent";
+                  }
+                }));
+
+    wm.stubFor(any(anyUrl()).willReturn(ok()));
+
+    client.get("/get-this");
+
+    assertTrue(completed.get());
+  }
+
+  @Test
+  void eventAsynchronouslyTriggeredAfterCompletion() throws Exception {
     final CompletableFuture<Void> completed = new CompletableFuture<>();
     initWithOptions(
         options()

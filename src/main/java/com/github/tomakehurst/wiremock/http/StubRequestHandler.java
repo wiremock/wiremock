@@ -86,6 +86,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
     }
 
     requestJournal.requestReceived(serveEvent);
+
+    triggerListeners(BEFORE_RESPONSE_SENT, serveEvent);
   }
 
   private void appendNonMatchSubEvent(ServeEvent serveEvent) {
