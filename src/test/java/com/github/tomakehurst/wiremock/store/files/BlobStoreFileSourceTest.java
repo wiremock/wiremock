@@ -23,7 +23,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.store.BlobStore;
-import com.google.common.io.ByteStreams;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -72,7 +71,7 @@ public class BlobStoreFileSourceTest {
   void get_single_stream() throws Exception {
     byte[] expected = "{}".getBytes();
     byte[] actual =
-        ByteStreams.toByteArray(fileSource.getBinaryFileNamed("subdir/deepfile.json").getStream());
+        fileSource.getBinaryFileNamed("subdir/deepfile.json").getStream().readAllBytes();
     assertThat(actual, is(expected));
   }
 

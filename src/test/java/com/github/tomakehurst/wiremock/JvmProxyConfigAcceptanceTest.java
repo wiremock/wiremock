@@ -24,8 +24,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
-import com.github.tomakehurst.wiremock.testsupport.Network;
-import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -49,9 +47,7 @@ public class JvmProxyConfigAcceptanceTest {
 
   @Test
   public void configuresHttpProxyingOnlyFromAWireMockServer() throws Exception {
-    wireMockServer =
-        new WireMockServer(
-            wireMockConfig().port(Network.findFreePort()).enableBrowserProxying(true));
+    wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
     wireMockServer.start();
 
     JvmProxyConfigurer.configureFor(wireMockServer);
@@ -67,9 +63,7 @@ public class JvmProxyConfigAcceptanceTest {
   public void configuresHttpsProxyingOnlyFromAWireMockServer() throws Exception {
     CloseableHttpClient httpClient = HttpClientFactory.createClient();
 
-    wireMockServer =
-        new WireMockServer(
-            wireMockConfig().port(Network.findFreePort()).enableBrowserProxying(true));
+    wireMockServer = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
     wireMockServer.start();
 
     JvmProxyConfigurer.configureFor(wireMockServer);
@@ -96,7 +90,7 @@ public class JvmProxyConfigAcceptanceTest {
     System.setProperty("https.proxyPort", previousHttpsProxyPort);
     System.setProperty("http.nonProxyHosts", previousNonProxyHosts);
 
-    wireMockServer = new WireMockServer(wireMockConfig().port(Network.findFreePort()));
+    wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
     wireMockServer.start();
 
     JvmProxyConfigurer.configureFor(wireMockServer);
@@ -119,7 +113,7 @@ public class JvmProxyConfigAcceptanceTest {
   private String getContentUsingDefaultJvmHttpClient(String url) throws Exception {
     final HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
     try (InputStream in = urlConnection.getInputStream()) {
-      return new String(ByteStreams.toByteArray(in));
+      return new String(in.readAllBytes());
     }
   }
 }

@@ -44,7 +44,6 @@ import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import com.google.common.io.Resources;
 import java.io.IOException;
@@ -668,7 +667,9 @@ public class CommandLineOptions implements Options {
     return optionSet.has(ADMIN_API_REQUIRE_HTTPS);
   }
 
-  /** @deprecated use {@link BrowserProxySettings#enabled()} */
+  /**
+   * @deprecated use {@link BrowserProxySettings#enabled()}
+   */
   @Deprecated
   @Override
   public boolean browserProxyingEnabled() {
@@ -813,7 +814,7 @@ public class CommandLineOptions implements Options {
       int paddingLength = 29 - param.getKey().length();
       sb.append(param.getKey())
           .append(":")
-          .append(Strings.repeat(" ", paddingLength))
+          .append(" ".repeat(Math.max(0, paddingLength)))
           .append(nullToString(param.getValue()))
           .append("\n");
     }

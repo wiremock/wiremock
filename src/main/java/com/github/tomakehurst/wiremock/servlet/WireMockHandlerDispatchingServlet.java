@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_LENGTH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
@@ -22,7 +23,6 @@ import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
-import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -36,7 +36,6 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.io.ByteStreams;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -290,7 +289,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
   private static void writeAndTranslateExceptions(
       HttpServletResponse httpServletResponse, InputStream content) {
     try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
-      ByteStreams.copy(content, out);
+      content.transferTo(out);
       out.flush();
     } catch (IOException e) {
       throwUnchecked(e);
@@ -308,7 +307,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
       InputStream bodyStream,
       ChunkedDribbleDelay chunkedDribbleDelay) {
     try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
-      byte[] body = ByteStreams.toByteArray(bodyStream);
+      byte[] body = bodyStream.readAllBytes();
 
       if (body.length < 1) {
         notifier.error("Cannot chunk dribble delay when no body set");
