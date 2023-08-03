@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.verification.notmatched;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
