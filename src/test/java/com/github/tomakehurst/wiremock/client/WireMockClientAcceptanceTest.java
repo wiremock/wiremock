@@ -33,7 +33,7 @@ public class WireMockClientAcceptanceTest {
 
   @BeforeEach
   public void init() {
-    wireMockServer = new WireMockServer(Options.DYNAMIC_PORT).p;
+    wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
     wireMockServer.start();
     WireMock.configureFor(wireMockServer.port());
     testClient = new WireMockTestClient(wireMockServer.port());
