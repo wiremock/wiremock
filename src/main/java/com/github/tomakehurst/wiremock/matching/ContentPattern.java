@@ -15,9 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkNotNull;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Preconditions;
 import java.util.Objects;
 
 @JsonDeserialize(using = ContentPatternDeserialiser.class)
@@ -27,8 +28,7 @@ public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
 
   public ContentPattern(T expectedValue) {
     if (!isNullValuePermitted()) {
-      Preconditions.checkNotNull(
-          expectedValue, "'" + getName() + "' expected value cannot be null");
+      checkNotNull(expectedValue, "'" + getName() + "' expected value cannot be null");
     }
     this.expectedValue = expectedValue;
   }

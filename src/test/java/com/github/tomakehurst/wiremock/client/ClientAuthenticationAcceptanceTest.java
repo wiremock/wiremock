@@ -15,14 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -32,7 +33,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-public class ClientAuthenticationAcceptanceTest {
+class ClientAuthenticationAcceptanceTest {
 
   private WireMockServer server;
   private WireMock goodClient;
@@ -44,7 +45,7 @@ public class ClientAuthenticationAcceptanceTest {
   }
 
   @Test
-  public void supportsCustomAuthenticator() {
+  void supportsCustomAuthenticator() {
     initialise(
         request -> request.containsHeader("X-Magic-Header"),
         () -> singletonList(httpHeader("X-Magic-Header", "blah")));
@@ -62,38 +63,33 @@ public class ClientAuthenticationAcceptanceTest {
   }
 
   @Test
-  public void supportsBasicAuthenticator() {
+  void supportsBasicAuthenticator() {
     initialise(
         new BasicAuthenticator(
             new BasicCredentials("user1", "password1"), new BasicCredentials("user2", "password2")),
         new ClientBasicAuthenticator("user1", "password1"));
 
-    goodClient.getServeEvents(); // Expect no exception thrown
+    assertDoesNotThrow(() -> goodClient.getServeEvents());
   }
 
   @Test
-  public void throwsNotAuthorisedExceptionWhenWrongBasicCredentialsProvided() {
-    assertThrows(
-        NotAuthorisedException.class,
-        () -> {
-          initialise(
-              new BasicAuthenticator(
-                  new BasicCredentials("user1", "password1"),
-                  new BasicCredentials("user2", "password2")),
-              new ClientBasicAuthenticator("user1", "password1"));
+  void throwsNotAuthorisedExceptionWhenWrongBasicCredentialsProvided() {
+    initialise(
+        new BasicAuthenticator(
+            new BasicCredentials("user1", "password1"), new BasicCredentials("user2", "password2")),
+        new ClientBasicAuthenticator("user1", "password1"));
 
-          badClient =
-              WireMock.create()
-                  .port(server.port())
-                  .authenticator(new ClientBasicAuthenticator("user1", "wrong_password"))
-                  .build();
+    badClient =
+        WireMock.create()
+            .port(server.port())
+            .authenticator(new ClientBasicAuthenticator("user1", "wrong_password"))
+            .build();
 
-          badClient.getServeEvents();
-        });
+    assertThrows(NotAuthorisedException.class, () -> badClient.getServeEvents());
   }
 
   @Test
-  public void supportsBasicAuthenticatorViaStaticDsl() {
+  void supportsBasicAuthenticatorViaStaticDsl() {
     initialise(
         new BasicAuthenticator(
             new BasicCredentials("user1", "password1"), new BasicCredentials("user2", "password2")),
@@ -107,7 +103,7 @@ public class ClientAuthenticationAcceptanceTest {
   }
 
   @Test
-  public void supportsShorthandBasicAuthWithHttps() {
+  void supportsShorthandBasicAuthWithHttps() {
     server =
         new WireMockServer(
             wireMockConfig()
@@ -123,11 +119,11 @@ public class ClientAuthenticationAcceptanceTest {
             .basicAuthenticator("user", "password")
             .build();
 
-    goodClient.getServeEvents();
+    assertDoesNotThrow(() -> goodClient.getServeEvents());
   }
 
   @Test
-  public void canRequireHttpsOnAdminApi() {
+  void canRequireHttpsOnAdminApi() {
     server =
         new WireMockServer(
             wireMockConfig()
@@ -147,7 +143,7 @@ public class ClientAuthenticationAcceptanceTest {
   }
 
   @Test
-  public void supportsTokenAuthenticatorViaStaticDsl() {
+  void supportsTokenAuthenticatorViaStaticDsl() {
     final String TOKEN = "my_token_123";
 
     initialise(new TokenAuthenticator(TOKEN), new ClientTokenAuthenticator(TOKEN));

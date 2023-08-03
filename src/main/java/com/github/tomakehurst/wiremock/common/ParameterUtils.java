@@ -34,4 +34,17 @@ public class ParameterUtils {
       throw new IllegalArgumentException(errorMessage);
     }
   }
+
+  public static void checkState(boolean expression, String errorMessage) {
+    if (!expression) {
+      throw new IllegalStateException(errorMessage);
+    }
+  }
+
+  public static <T> T checkNotNull(T value, String errorMessage) {
+    if (value == null) {
+      throw new NullPointerException(errorMessage);
+    }
+    return value;
+  }
 }

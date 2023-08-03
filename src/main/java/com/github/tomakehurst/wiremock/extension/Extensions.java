@@ -27,14 +27,13 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemp
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Streams;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Extensions implements WireMockServices {
 
-  public static Extensions NONE =
+  public static final Extensions NONE =
       new Extensions(new ExtensionDeclarations(), null, null, null, null);
 
   private final ExtensionDeclarations extensionDeclarations;
@@ -48,7 +47,6 @@ public class Extensions implements WireMockServices {
 
   private final Map<String, Extension> loadedExtensions;
 
-  @SuppressWarnings("unchecked")
   public Extensions(
       ExtensionDeclarations extensionDeclarations,
       Admin admin,
@@ -65,7 +63,7 @@ public class Extensions implements WireMockServices {
   }
 
   public void load() {
-    Streams.concat(
+    Stream.concat(
             extensionDeclarations.getClassNames().stream().map(Extensions::loadClass),
             extensionDeclarations.getClasses().stream())
         .map(Extensions::load)
@@ -84,7 +82,7 @@ public class Extensions implements WireMockServices {
         loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
 
     final Stream<ExtensionFactory> allFactories =
-        Streams.concat(
+        Stream.concat(
             extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices());
     loadedExtensions.putAll(
         allFactories

@@ -88,4 +88,8 @@ public class Strings {
   public static String normaliseLineBreaks(String s) {
     return s.replace("\r\n", "\n").replace("\n", lineSeparator());
   }
+
+  public static boolean isNullOrEmpty(String s) {
+    return s == null || s.isEmpty();
+  }
 }
