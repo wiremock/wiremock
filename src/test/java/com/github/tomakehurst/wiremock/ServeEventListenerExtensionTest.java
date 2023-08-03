@@ -138,7 +138,7 @@ public class ServeEventListenerExtensionTest {
     AtomicBoolean completed = new AtomicBoolean(false);
     initWithOptions(
         options()
-            .dynamicPort()
+            .port(Network.findFreePort())
             .extensions(
                 new ServeEventListener() {
 
