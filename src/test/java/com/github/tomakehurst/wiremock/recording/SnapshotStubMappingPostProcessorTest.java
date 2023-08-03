@@ -38,7 +38,7 @@ public class SnapshotStubMappingPostProcessorTest {
           WireMock.get("/foo").build(), WireMock.get("/bar").build(), WireMock.get("/foo").build());
 
   @Test
-  public void process_notRecordingScenarios_filtersRepeatedRequests() {
+  public void processWithRecordRepeatsAsScenariosFalseShouldFilterRepeatedRequests() {
     final List<StubMapping> actual =
         new SnapshotStubMappingPostProcessor(false, noopTransformerRunner(), null, null)
             .process(testStubMappings);
@@ -49,7 +49,7 @@ public class SnapshotStubMappingPostProcessorTest {
   }
 
   @Test
-  public void process_withTransformer() {
+  public void processWithTransformerShouldTransformStubMappingRequestUrls() {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
@@ -72,7 +72,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
   @Test
   public void
-      process_withShouldRecordRepeatsAsScenariosAndTransformer_runsTransformerBeforeScenarioProcessor() {
+      processWithShouldRecordRepeatsAsScenariosAndTransformerShouldRunTransformerBeforeScenarioProcessor() {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
@@ -99,7 +99,7 @@ public class SnapshotStubMappingPostProcessorTest {
   }
 
   @Test
-  public void process_withBodyExtractMatcherAndBodyExtractor_extractsBodiesWhenMatched() {
+  public void processWithBodyExtractMatcherAndBodyExtractorShouldExtractsBodiesWhenMatched() {
     final ResponseDefinitionBodyMatcher bodyMatcher =
         new ResponseDefinitionBodyMatcher(0, 0) {
           @Override
