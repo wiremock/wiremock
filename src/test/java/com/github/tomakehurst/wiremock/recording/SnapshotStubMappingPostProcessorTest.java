@@ -72,7 +72,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
   @Test
   public void
-      processWithShouldRecordRepeatsAsScenariosAndTransformerShouldRunTransformerBeforeScenarioProcessor() {
+      processWithRecordRepeatsAsScenariosAndTransformerShouldRunTransformerBeforeScenarioProcessor() {
     SnapshotStubMappingTransformerRunner transformerRunner =
         new SnapshotStubMappingTransformerRunner(null) {
           @Override
