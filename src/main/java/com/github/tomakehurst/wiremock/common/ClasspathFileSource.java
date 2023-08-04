@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonN
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 
-import com.google.common.collect.Iterators;
 import com.google.common.io.Resources;
 import java.io.File;
 import java.net.URI;
@@ -31,7 +30,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -153,7 +151,7 @@ public class ClasspathFileSource implements FileSource {
       return toTextFileList(fileList);
     }
 
-    return StreamSupport.stream(toIterable(zipFile.entries()).spliterator(), false)
+    return zipFile.stream()
         .filter(jarEntry -> !jarEntry.isDirectory() && jarEntry.getName().startsWith(path))
         .map(jarEntry -> new TextFile(getUriFor(jarEntry)))
         .collect(Collectors.toList());
@@ -196,10 +194,6 @@ public class ClasspathFileSource implements FileSource {
 
   @Override
   public void deleteFile(String name) {}
-
-  private static <T> Iterable<T> toIterable(final Enumeration<T> e) {
-    return () -> Iterators.forEnumeration(e);
-  }
 
   private void assertExistsAndIsDirectory() {
     if (rootDirectory.exists() && !rootDirectory.isDirectory()) {

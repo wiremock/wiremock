@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.recording;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -26,14 +25,19 @@ public class ResponseDefinitionBodyMatcherDeserializerTest {
   @Test
   public void correctlyParsesFileSize() {
     final Map<String, Long> testCases =
-        ImmutableMap.<String, Long>builder()
-            .put("100", 100L)
-            .put("1KB", 1024L)
-            .put("1 kb", 1024L)
-            .put("1024 K", 1024L * 1024)
-            .put("10 Mb", 10L * 1024 * 1024)
-            .put("10.5 GB", Math.round(10.5 * 1024 * 1024 * 1024))
-            .build();
+        Map.of(
+            "100",
+            100L,
+            "1KB",
+            1024L,
+            "1 kb",
+            1024L,
+            "1024 K",
+            1024L * 1024,
+            "10 Mb",
+            10L * 1024 * 1024,
+            "10.5 GB",
+            Math.round(10.5 * 1024 * 1024 * 1024));
 
     for (String input : testCases.keySet()) {
       Long expected = testCases.get(input);

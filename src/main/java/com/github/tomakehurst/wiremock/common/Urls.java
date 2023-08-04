@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableListMultimap.Builder;
 import com.google.common.collect.Maps;
@@ -27,10 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Urls {
@@ -71,8 +67,7 @@ public class Urls {
     }
 
     return Maps.transformEntries(
-        builder.build().asMap(),
-        (key, values) -> new QueryParameter(key, ImmutableList.copyOf(values)));
+        builder.build().asMap(), (key, values) -> new QueryParameter(key, new ArrayList<>(values)));
   }
 
   public static String getPath(String url) {
@@ -80,7 +75,7 @@ public class Urls {
   }
 
   public static List<String> getPathSegments(String path) {
-    return ImmutableList.copyOf(path.split("/"));
+    return List.of(path.split("/"));
   }
 
   public static String urlToPathParts(URI uri) {

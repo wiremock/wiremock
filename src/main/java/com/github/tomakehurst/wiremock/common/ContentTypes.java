@@ -18,12 +18,13 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.TextType.JSON;
 import static java.util.Arrays.asList;
+import static java.util.Map.entry;
+import static java.util.Map.ofEntries;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.google.common.collect.ImmutableMap;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -38,22 +39,22 @@ public class ContentTypes {
   public static final String LOCATION = "Location";
   public static final String AUTHORIZATION = "Authorization";
   public static final String COOKIE = "Cookie";
+  public static final String APPLICATION_JSON = "application/json";
 
   private static final Map<String, String> COMMON_MIME_TYPES =
-      ImmutableMap.<String, String>builder()
-          .put("image/jpeg", "jpeg")
-          .put("image/gif", "gif")
-          .put("image/tiff", "tiff")
-          .put("image/png", "png")
-          .put("image/x-icon", "ico")
-          .put("image/svg+xml", "svg")
-          .put("audio/x-aiff", "aiff")
-          .put("video/x-ms-asf", "asf")
-          .put("video/mpeg", "mp2")
-          .put("audio/mpeg", "mp3")
-          .put("video/quicktime", "mov")
-          .put("application/pdf", "pdf")
-          .build();
+      ofEntries(
+          entry("image/jpeg", "jpeg"),
+          entry("image/gif", "gif"),
+          entry("image/tiff", "tiff"),
+          entry("image/png", "png"),
+          entry("image/x-icon", "ico"),
+          entry("image/svg+xml", "svg"),
+          entry("audio/x-aiff", "aiff"),
+          entry("video/x-ms-asf", "asf"),
+          entry("video/mpeg", "mp2"),
+          entry("audio/mpeg", "mp3"),
+          entry("video/quicktime", "mov"),
+          entry("application/pdf", "pdf"));
 
   public static final List<String> TEXT_FILE_EXTENSIONS =
       asList("txt", "json", "xml", "html", "htm", "yaml", "csv");

@@ -17,8 +17,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,10 +109,10 @@ public class Metadata extends LinkedHashMap<String, Object> {
 
   public static class Builder {
 
-    private final ImmutableMap.Builder<String, Object> mapBuilder;
+    private final Map<String, Object> mapBuilder;
 
     public Builder() {
-      this.mapBuilder = ImmutableMap.builder();
+      this.mapBuilder = new LinkedHashMap<>();
     }
 
     public Builder attr(String key, Object value) {
@@ -123,7 +121,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
     }
 
     public Builder list(String key, Object... values) {
-      mapBuilder.put(key, ImmutableList.copyOf(values));
+      mapBuilder.put(key, List.of(values));
       return this;
     }
 
@@ -133,7 +131,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
     }
 
     public Metadata build() {
-      return new Metadata(mapBuilder.build());
+      return new Metadata(mapBuilder);
     }
   }
 }
