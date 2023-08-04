@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 
@@ -22,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +93,7 @@ public class ResponseDefinitionBuilder {
     return new ResponseDefinitionBuilder()
         .withBody(Json.write(body))
         .withStatus(status)
-        .withHeader("Content-Type", "application/json")
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
         .build();
   }
 
@@ -195,18 +196,18 @@ public class ResponseDefinitionBuilder {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody(Json.write(body))
-        .withHeader("Content-Type", "application/json");
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 
   public static <T> ResponseDefinitionBuilder okForEmptyJson() {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody("{}")
-        .withHeader("Content-Type", "application/json");
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 
   public ResponseDefinitionBuilder withHeaders(HttpHeaders headers) {
-    this.headers = ImmutableList.copyOf(headers.all());
+    this.headers = new ArrayList<>(headers.all());
     return this;
   }
 

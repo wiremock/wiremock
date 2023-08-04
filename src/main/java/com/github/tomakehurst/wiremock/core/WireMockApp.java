@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.google.common.collect.Iterables.contains;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
@@ -39,11 +38,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.collect.ImmutableList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
@@ -116,12 +111,11 @@ public class WireMockApp implements StubServer, Admin {
             extensions.ofType(ResponseDefinitionTransformer.class),
             extensions.ofType(ResponseDefinitionTransformerV2.class),
             stores.getFilesBlobStore(),
-            ImmutableList.copyOf(extensions.ofType(StubLifecycleListener.class).values()));
+            List.copyOf(extensions.ofType(StubLifecycleListener.class).values()));
     nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal, scenarios);
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
-    globalSettingsListeners =
-        ImmutableList.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
+    globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
 
     this.container = container;
     loadDefaultMappings();
@@ -203,8 +197,8 @@ public class WireMockApp implements StubServer, Admin {
                 options.getStubCorsEnabled(),
                 options.getProxyTargetRules(),
                 options.proxyTimeout()),
-            ImmutableList.copyOf(extensions.ofType(ResponseTransformer.class).values()),
-            ImmutableList.copyOf(extensions.ofType(ResponseTransformerV2.class).values())),
+            List.copyOf(extensions.ofType(ResponseTransformer.class).values()),
+            List.copyOf(extensions.ofType(ResponseTransformerV2.class).values())),
         this,
         postServeActions,
         serveEventListeners,
@@ -252,13 +246,12 @@ public class WireMockApp implements StubServer, Admin {
   public ServeEvent serveStubFor(ServeEvent initialServeEvent) {
     ServeEvent serveEvent = stubMappings.serveFor(initialServeEvent);
 
-    if (serveEvent.isNoExactMatch()) {
-      if (browserProxyingEnabled
-          && serveEvent.getRequest().isBrowserProxyRequest()
-          && getGlobalSettings().getSettings().getProxyPassThrough()) {
-        return ServeEvent.ofUnmatched(
-            serveEvent.getRequest(), ResponseDefinition.browserProxy(serveEvent.getRequest()));
-      }
+    if (serveEvent.isNoExactMatch()
+        && browserProxyingEnabled
+        && serveEvent.getRequest().isBrowserProxyRequest()
+        && getGlobalSettings().getSettings().getProxyPassThrough()) {
+      return ServeEvent.ofUnmatched(
+          serveEvent.getRequest(), ResponseDefinition.browserProxy(serveEvent.getRequest()));
     }
 
     return serveEvent;
@@ -423,7 +416,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public FindNearMissesResult findNearMissesForUnmatchedRequests() {
-    ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
+    List<NearMiss> listBuilder = new ArrayList<>();
     List<ServeEvent> unmatchedServeEvents =
         requestJournal.getAllServeEvents().stream()
             .filter(ServeEvent::isNoExactMatch)
@@ -433,7 +426,7 @@ public class WireMockApp implements StubServer, Admin {
       listBuilder.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
     }
 
-    return new FindNearMissesResult(listBuilder.build());
+    return new FindNearMissesResult(listBuilder);
   }
 
   @Override
@@ -566,9 +559,9 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     if (importOptions.getDeleteAllNotInImport()) {
-      Iterable<UUID> ids = mappings.stream().map(StubMapping::getId).collect(Collectors.toList());
+      List<UUID> ids = mappings.stream().map(StubMapping::getId).collect(Collectors.toList());
       for (StubMapping mapping : listAllStubMappings().getMappings()) {
-        if (!contains(ids, mapping.getId())) {
+        if (!ids.contains(mapping.getId())) {
           removeStubMapping(mapping);
         }
       }
