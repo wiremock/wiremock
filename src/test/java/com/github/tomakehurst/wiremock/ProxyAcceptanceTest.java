@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.google.common.collect.Iterables.getFirst;
 import static com.google.common.collect.Iterables.getLast;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
@@ -407,7 +408,7 @@ public class ProxyAcceptanceTest {
     testClient.get("/duplicate/cookies", withHeader("Cookie", "session=1234"));
 
     LoggedRequest lastRequest =
-        getLast(target.find(getRequestedFor(urlEqualTo("/duplicate/cookies"))));
+        getFirst(target.find(getRequestedFor(urlEqualTo("/duplicate/cookies"))), null);
     assertThat(lastRequest.getHeaders().getHeader("Cookie").values().size(), is(1));
   }
 
