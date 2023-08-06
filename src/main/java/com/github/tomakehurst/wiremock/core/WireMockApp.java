@@ -416,17 +416,17 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public FindNearMissesResult findNearMissesForUnmatchedRequests() {
-    List<NearMiss> listBuilder = new ArrayList<>();
+    List<NearMiss> nearMisses = new ArrayList<>();
     List<ServeEvent> unmatchedServeEvents =
         requestJournal.getAllServeEvents().stream()
             .filter(ServeEvent::isNoExactMatch)
             .collect(Collectors.toList());
 
     for (ServeEvent serveEvent : unmatchedServeEvents) {
-      listBuilder.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
+      nearMisses.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
     }
 
-    return new FindNearMissesResult(listBuilder);
+    return new FindNearMissesResult(nearMisses);
   }
 
   @Override
