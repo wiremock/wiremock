@@ -18,8 +18,6 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.TextType.JSON;
 import static java.util.Arrays.asList;
-import static java.util.Map.entry;
-import static java.util.Map.ofEntries;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,19 +40,19 @@ public class ContentTypes {
   public static final String APPLICATION_JSON = "application/json";
 
   private static final Map<String, String> COMMON_MIME_TYPES =
-      ofEntries(
-          entry("image/jpeg", "jpeg"),
-          entry("image/gif", "gif"),
-          entry("image/tiff", "tiff"),
-          entry("image/png", "png"),
-          entry("image/x-icon", "ico"),
-          entry("image/svg+xml", "svg"),
-          entry("audio/x-aiff", "aiff"),
-          entry("video/x-ms-asf", "asf"),
-          entry("video/mpeg", "mp2"),
-          entry("audio/mpeg", "mp3"),
-          entry("video/quicktime", "mov"),
-          entry("application/pdf", "pdf"));
+      Map.ofEntries(
+          Map.entry("image/jpeg", "jpeg"),
+          Map.entry("image/gif", "gif"),
+          Map.entry("image/tiff", "tiff"),
+          Map.entry("image/png", "png"),
+          Map.entry("image/x-icon", "ico"),
+          Map.entry("image/svg+xml", "svg"),
+          Map.entry("audio/x-aiff", "aiff"),
+          Map.entry("video/x-ms-asf", "asf"),
+          Map.entry("video/mpeg", "mp2"),
+          Map.entry("audio/mpeg", "mp3"),
+          Map.entry("video/quicktime", "mov"),
+          Map.entry("application/pdf", "pdf"));
 
   public static final List<String> TEXT_FILE_EXTENSIONS =
       asList("txt", "json", "xml", "html", "htm", "yaml", "csv");
