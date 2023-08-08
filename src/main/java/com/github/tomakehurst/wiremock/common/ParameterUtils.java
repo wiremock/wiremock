@@ -15,6 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Predicate;
+
 public class ParameterUtils {
 
   private ParameterUtils() {}
@@ -52,5 +56,32 @@ public class ParameterUtils {
     return iterable != null && iterable.iterator().hasNext()
         ? iterable.iterator().next()
         : defaultValue;
+  }
+
+  public static <T> T getLast(Iterable<T> iterable) {
+    if (iterable == null || !iterable.iterator().hasNext()) {
+      throw new NoSuchElementException();
+    }
+    Iterator<T> iterator = iterable.iterator();
+    while (true) {
+      T current = iterator.next();
+      if (!iterator.hasNext()) {
+        return current;
+      }
+    }
+  }
+
+  public static <T> int indexOf(Iterable<T> iterable, Predicate<? super T> predicate) {
+    checkNotNull(iterable, "iterable");
+    checkNotNull(predicate, "predicate");
+    Iterator<T> iterator = iterable.iterator();
+    for (int i = 0; iterator.hasNext(); i++) {
+      T current = iterator.next();
+      if (predicate.test(current)) {
+        return i;
+      }
+    }
+
+    return -1;
   }
 }

@@ -19,9 +19,9 @@ import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemHeaders;
@@ -42,20 +42,22 @@ public class FileItemPartAdapter implements Request.Part {
   @Override
   public HttpHeader getHeader(String name) {
     Iterator<String> headerValues = fileItem.getHeaders().getHeaders(name);
-    return new HttpHeader(name, Iterators.toArray(headerValues, String.class));
+    List<String> values = new ArrayList<>();
+    headerValues.forEachRemaining(values::add);
+    return new HttpHeader(name, values);
   }
 
   @Override
   public HttpHeaders getHeaders() {
     FileItemHeaders headers = fileItem.getHeaders();
     Iterator<String> i = headers.getHeaderNames();
-    ImmutableList.Builder<HttpHeader> builder = ImmutableList.builder();
+    List<HttpHeader> headersList = new ArrayList<>();
     while (i.hasNext()) {
       String name = i.next();
-      builder.add(getHeader(name));
+      headersList.add(getHeader(name));
     }
 
-    return new HttpHeaders(builder.build());
+    return new HttpHeaders(headersList);
   }
 
   @Override
