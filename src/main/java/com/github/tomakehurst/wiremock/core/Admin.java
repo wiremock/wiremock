@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.util.UUID;
 
-public interface Admin {
+public interface Admin extends HealthChecker {
 
   void addStubMapping(StubMapping stubMapping);
 
