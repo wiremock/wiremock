@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2022 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.util.UUID;
 
-public interface Admin {
+public interface Admin extends HealthChecker {
 
   void addStubMapping(StubMapping stubMapping);
 
