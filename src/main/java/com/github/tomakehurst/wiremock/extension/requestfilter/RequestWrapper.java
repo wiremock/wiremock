@@ -21,7 +21,6 @@ import static org.apache.commons.lang3.StringUtils.countMatches;
 import static org.apache.commons.lang3.StringUtils.ordinalIndexOf;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.collect.ImmutableMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,7 +179,7 @@ public class RequestWrapper implements Request {
 
   @Override
   public Map<String, Cookie> getCookies() {
-    ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
+    Map<String, Cookie> cookieMap = new HashMap<>();
     for (Map.Entry<String, Cookie> entry : delegate.getCookies().entrySet()) {
       Cookie newCookie =
           cookieTransformers.containsKey(entry.getKey())
@@ -188,13 +187,13 @@ public class RequestWrapper implements Request {
               : entry.getValue();
 
       if (!cookiesToRemove.contains(entry.getKey())) {
-        builder.put(entry.getKey(), newCookie);
+        cookieMap.put(entry.getKey(), newCookie);
       }
     }
 
-    builder.putAll(additionalCookies);
+    cookieMap.putAll(additionalCookies);
 
-    return builder.build();
+    return cookieMap;
   }
 
   @Override
