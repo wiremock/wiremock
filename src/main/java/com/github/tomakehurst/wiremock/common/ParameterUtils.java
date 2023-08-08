@@ -47,4 +47,10 @@ public class ParameterUtils {
     }
     return value;
   }
+
+  public static <T> T getFirst(Iterable<T> iterable, T defaultValue) {
+    return iterable != null && iterable.iterator().hasNext()
+        ? iterable.iterator().next()
+        : defaultValue;
+  }
 }
