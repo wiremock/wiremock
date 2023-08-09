@@ -24,12 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
@@ -59,10 +54,8 @@ public class MatchesXPathPattern extends PathPattern {
 
   public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
     Map<String, String> namespaceMap =
-        ImmutableMap.<String, String>builder()
-            .putAll(getFirstNonNull(xpathNamespaces, Collections.emptyMap()))
-            .put(name, namespaceUri)
-            .build();
+        new HashMap<>(getFirstNonNull(xpathNamespaces, Collections.emptyMap()));
+    namespaceMap.put(name, namespaceUri);
     return new MatchesXPathPattern(expectedValue, namespaceMap);
   }
 
@@ -79,14 +72,14 @@ public class MatchesXPathPattern extends PathPattern {
   protected MatchResult isSimpleMatch(String value) {
     final XmlNodeFindResult xmlNodeFindResult = findXmlNodes(value);
     ListOrSingle<XmlNode> nodeList = xmlNodeFindResult.nodes;
-    return MatchResult.of(nodeList != null && nodeList.size() > 0, xmlNodeFindResult.subEvents);
+    return MatchResult.of(nodeList != null && !nodeList.isEmpty(), xmlNodeFindResult.subEvents);
   }
 
   @Override
   protected MatchResult isAdvancedMatch(String value) {
     final XmlNodeFindResult xmlNodeFindResult = findXmlNodes(value);
     ListOrSingle<XmlNode> nodeList = xmlNodeFindResult.nodes;
-    if (nodeList == null || nodeList.size() == 0) {
+    if (nodeList == null || nodeList.isEmpty()) {
       return MatchResult.noMatch(xmlNodeFindResult.subEvents);
     }
 
@@ -101,7 +94,7 @@ public class MatchesXPathPattern extends PathPattern {
   @Override
   public ListOrSingle<String> getExpressionResult(String value) {
     ListOrSingle<XmlNode> nodeList = findXmlNodes(value).nodes;
-    if (nodeList == null || nodeList.size() == 0) {
+    if (nodeList == null || nodeList.isEmpty()) {
       return ListOrSingle.of();
     }
 
