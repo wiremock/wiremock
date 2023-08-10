@@ -19,26 +19,36 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.*;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ScenarioProcessor {
 
   public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
-    ImmutableListMultimap<RequestPattern, StubMapping> stubsGroupedByRequest =
-        Multimaps.index(stubMappings, StubMapping::getRequest);
+    Map<RequestPattern, List<StubMapping>> stubsGroupedByRequest =
+        stubMappings.stream()
+            .collect(
+                Collectors.groupingBy(
+                    StubMapping::getRequest,
+                    LinkedHashMap::new,
+                    Collectors.toCollection(LinkedList::new)));
 
     Map<RequestPattern, Collection<StubMapping>> groupsWithMoreThanOneStub =
-        Maps.filterEntries(stubsGroupedByRequest.asMap(), input -> input.getValue().size() > 1);
+        stubsGroupedByRequest.entrySet().stream()
+            .filter(entry -> entry.getValue().size() > 1)
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (entry1, entry2) -> entry1,
+                    LinkedHashMap::new));
 
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :
         groupsWithMoreThanOneStub.entrySet()) {
       scenarioIndex++;
-      putStubsInScenario(scenarioIndex, ImmutableList.copyOf(entry.getValue()));
+      putStubsInScenario(scenarioIndex, List.copyOf(entry.getValue()));
     }
   }
 
