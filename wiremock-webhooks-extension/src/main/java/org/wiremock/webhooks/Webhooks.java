@@ -29,9 +29,7 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTempl
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -215,17 +213,9 @@ public class Webhooks extends PostServeAction {
     return requestBuilder.build();
   }
 
-  // TODO this is duplicated in com.github.tomakehurst.wiremock.http.ProxyResponseRenderer - should
-  // it be on NetworkAddressRules ?
   private boolean targetAddressProhibited(String url) {
     String host = URI.create(url).getHost();
-    try {
-      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
-      return !Arrays.stream(resolvedAddresses)
-          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
-    } catch (UnknownHostException e) {
-      return true;
-    }
+    return targetAddressRules.isHostProhibited(host);
   }
 
   public static WebhookDefinition webhook() {
