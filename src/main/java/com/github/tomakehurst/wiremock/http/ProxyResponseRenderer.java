@@ -122,7 +122,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       httpRequest.setEntity(buildEntityFrom(originalRequest));
     }
 
-    CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
+    CloseableHttpClient client = chooseClient(serveEvent.getRequest().isBrowserProxyRequest());
 
     try {
       return client.execute(
@@ -178,7 +178,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     return request.getRequestUri();
   }
 
-  private CloseableHttpClient buildClient(boolean browserProxyRequest) {
+  private CloseableHttpClient chooseClient(boolean browserProxyRequest) {
     if (browserProxyRequest) {
       return forwardProxyClient;
     } else {
