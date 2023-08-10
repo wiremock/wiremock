@@ -146,7 +146,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
   private boolean targetAddressProhibited(String proxyUrl) {
     String host = URI.create(proxyUrl).getHost();
-    return targetAddressRules.isHostProhibited(host);
+    return !targetAddressRules.isHostAllowed(host);
   }
 
   private Response proxyResponseError(String type, HttpUriRequest request, Exception e) {

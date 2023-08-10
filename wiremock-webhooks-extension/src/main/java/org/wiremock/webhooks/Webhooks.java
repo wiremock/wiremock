@@ -215,7 +215,7 @@ public class Webhooks extends PostServeAction {
 
   private boolean targetAddressProhibited(String url) {
     String host = URI.create(url).getHost();
-    return targetAddressRules.isHostProhibited(host);
+    return !targetAddressRules.isHostAllowed(host);
   }
 
   public static WebhookDefinition webhook() {

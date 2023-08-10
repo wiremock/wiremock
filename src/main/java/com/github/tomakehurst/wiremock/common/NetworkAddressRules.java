@@ -65,6 +65,10 @@ public class NetworkAddressRules {
     }
   }
 
+  public boolean isHostAllowed(String host) {
+    return !isHostProhibited(host);
+  }
+
   public static class Builder {
     private final ImmutableSet.Builder<NetworkAddressRange> allowed = ImmutableSet.builder();
     private final ImmutableSet.Builder<NetworkAddressRange> denied = ImmutableSet.builder();
