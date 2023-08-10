@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,11 @@ package com.github.tomakehurst.wiremock.common;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class NetworkAddressRulesTest {
 
@@ -91,5 +95,93 @@ public class NetworkAddressRulesTest {
     assertThat(rules.isAllowed("10.1.1.2"), is(false));
     assertThat(rules.isAllowed("10.1.1.3"), is(false));
     assertThat(rules.isAllowed("10.1.1.4"), is(false));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"10.1.1.1,true", "10.1.1.2,false"})
+  void isHostProhibitedReturnsExpectedValueForIpv4AddressWithIpv4DenyRule(
+      String host, boolean expectation) {
+    FakeDns dns = new FakeDns();
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
+
+    assertThat(rules.isHostProhibited(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,true"})
+  void isHostProhibitedReturnsExpectedValueForHostnameWithIpv4DenyRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
+
+    assertThat(rules.isHostProhibited(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,true"})
+  void isHostProhibitedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithIpv4DenyRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register(
+                "1.example.com",
+                InetAddress.getByName("10.1.1.0"),
+                InetAddress.getByName("10.1.1.1"))
+            .register(
+                "2.example.com",
+                InetAddress.getByName("10.1.1.2"),
+                InetAddress.getByName("10.1.1.3"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
+
+    assertThat(rules.isHostProhibited(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"10.1.1.1,false", "10.1.1.2,true", "3.example.com,true"})
+  void isHostProhibitedReturnsExpectedValueForIpv4AddressWithIpv4AllowRule(
+      String host, boolean expectation) {
+    FakeDns dns = new FakeDns();
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
+
+    assertThat(rules.isHostProhibited(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,false", "2.example.com,true", "3.example.com,true"})
+  void isHostProhibitedReturnsExpectedValueForHostnameWithIpv4AllowRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
+
+    assertThat(rules.isHostProhibited(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,true", "2.example.com,true", "3.example.com,true"})
+  void isHostProhibitedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithIpv4AllowRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register(
+                "1.example.com",
+                InetAddress.getByName("10.1.1.0"),
+                InetAddress.getByName("10.1.1.1"))
+            .register(
+                "2.example.com",
+                InetAddress.getByName("10.1.1.2"),
+                InetAddress.getByName("10.1.1.3"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
+
+    assertThat(rules.isHostProhibited(host), is(expectation));
   }
 }
