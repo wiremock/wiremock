@@ -19,6 +19,9 @@ import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static java.util.Collections.emptySet;
 
 import com.google.common.collect.ImmutableSet;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Set;
 
 public class NetworkAddressRules {
@@ -40,6 +43,16 @@ public class NetworkAddressRules {
   public boolean isAllowed(String testValue) {
     return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
         && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+  }
+
+  public boolean isHostProhibited(String host) {
+    try {
+      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
+      return !Arrays.stream(resolvedAddresses)
+          .allMatch(address -> isAllowed(address.getHostAddress()));
+    } catch (UnknownHostException e) {
+      return true;
+    }
   }
 
   public static class Builder {

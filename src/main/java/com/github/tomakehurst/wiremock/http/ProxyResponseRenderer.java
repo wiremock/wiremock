@@ -27,11 +27,8 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -149,17 +146,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
   private boolean targetAddressProhibited(String proxyUrl) {
     String host = URI.create(proxyUrl).getHost();
-    return isHostProhibited(host);
-  }
-
-  private boolean isHostProhibited(String host) {
-    try {
-      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
-      return !Arrays.stream(resolvedAddresses)
-          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
-    } catch (UnknownHostException e) {
-      return true;
-    }
+    return targetAddressRules.isHostProhibited(host);
   }
 
   private Response proxyResponseError(String type, HttpUriRequest request, Exception e) {
