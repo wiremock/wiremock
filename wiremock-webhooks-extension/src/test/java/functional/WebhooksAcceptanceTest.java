@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,6 +31,7 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -84,7 +86,15 @@ public class WebhooksAcceptanceTest {
   @RegisterExtension
   public WireMockExtension rule =
       WireMockExtension.newInstance()
-          .options(options().dynamicPort().notifier(notifier).extensions(new Webhooks()))
+          .options(
+              options()
+                  .dynamicPort()
+                  .notifier(notifier)
+                  .extensions(
+                      new Webhooks(
+                          NetworkAddressRules.builder()
+                              .deny("169.254.0.0-169.254.255.255")
+                              .build())))
           .configureStaticDsl(true)
           .build();
 
@@ -353,6 +363,36 @@ public class WebhooksAcceptanceTest {
     assertThat(elapsedMilliseconds, lessThanOrEqualTo(1500L));
 
     verify(1, getRequestedFor(urlEqualTo("/callback")));
+  }
+
+  @Test
+  public void doesNotFireAWebhookWhenRequestedForDeniedTarget() throws Exception {
+    rule.stubFor(
+        post(urlPathEqualTo("/webhook"))
+            .willReturn(aResponse().withStatus(200))
+            .withPostServeAction(
+                "webhook",
+                webhook()
+                    .withMethod(POST)
+                    .withUrl("http://169.254.2.34/foo")
+                    .withHeader("Content-Type", "application/json")
+                    .withHeader("X-Multi", "one", "two")
+                    .withBody("{ \"result\": \"SUCCESS\" }")));
+
+    client.post("/webhook", new StringEntity("", TEXT_PLAIN));
+
+    System.out.println(
+        "All info notifications:\n"
+            + testNotifier.getInfoMessages().stream()
+                .map(message -> message.replace("\n", "\n>>> "))
+                .collect(Collectors.joining("\n>>> ")));
+
+    await()
+        .until(
+            () -> testNotifier.getErrorMessages(),
+            hasItem(
+                containsString(
+                    "The target webhook address is denied in WireMock's configuration.")));
   }
 
   private void waitForRequestToTargetServer() throws Exception {
