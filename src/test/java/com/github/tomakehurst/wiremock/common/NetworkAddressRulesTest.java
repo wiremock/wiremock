@@ -98,18 +98,18 @@ public class NetworkAddressRulesTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"10.1.1.1,true", "10.1.1.2,false"})
-  void isHostProhibitedReturnsExpectedValueForIpv4AddressWithIpv4DenyRule(
+  @CsvSource({"10.1.1.1,false", "10.1.1.2,true"})
+  void isHostAllowedReturnsExpectedValueForIpv4AddressWithIpv4DenyRule(
       String host, boolean expectation) {
     FakeDns dns = new FakeDns();
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
 
-    assertThat(rules.isHostProhibited(host), is(expectation));
+    assertThat(rules.isHostAllowed(host), is(expectation));
   }
 
   @ParameterizedTest
-  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,true"})
-  void isHostProhibitedReturnsExpectedValueForHostnameWithIpv4DenyRule(
+  @CsvSource({"1.example.com,false", "2.example.com,true", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameWithIpv4DenyRule(
       String host, boolean expectation) throws UnknownHostException {
     FakeDns dns =
         new FakeDns()
@@ -118,12 +118,12 @@ public class NetworkAddressRulesTest {
 
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
 
-    assertThat(rules.isHostProhibited(host), is(expectation));
+    assertThat(rules.isHostAllowed(host), is(expectation));
   }
 
   @ParameterizedTest
-  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,true"})
-  void isHostProhibitedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithIpv4DenyRule(
+  @CsvSource({"1.example.com,false", "2.example.com,true", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithIpv4DenyRule(
       String host, boolean expectation) throws UnknownHostException {
     FakeDns dns =
         new FakeDns()
@@ -138,22 +138,22 @@ public class NetworkAddressRulesTest {
 
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
 
-    assertThat(rules.isHostProhibited(host), is(expectation));
+    assertThat(rules.isHostAllowed(host), is(expectation));
   }
 
   @ParameterizedTest
-  @CsvSource({"10.1.1.1,false", "10.1.1.2,true", "3.example.com,true"})
-  void isHostProhibitedReturnsExpectedValueForIpv4AddressWithIpv4AllowRule(
+  @CsvSource({"10.1.1.1,true", "10.1.1.2,false", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForIpv4AddressWithIpv4AllowRule(
       String host, boolean expectation) {
     FakeDns dns = new FakeDns();
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
 
-    assertThat(rules.isHostProhibited(host), is(expectation));
+    assertThat(rules.isHostAllowed(host), is(expectation));
   }
 
   @ParameterizedTest
-  @CsvSource({"1.example.com,false", "2.example.com,true", "3.example.com,true"})
-  void isHostProhibitedReturnsExpectedValueForHostnameWithIpv4AllowRule(
+  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameWithIpv4AllowRule(
       String host, boolean expectation) throws UnknownHostException {
     FakeDns dns =
         new FakeDns()
@@ -162,12 +162,12 @@ public class NetworkAddressRulesTest {
 
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
 
-    assertThat(rules.isHostProhibited(host), is(expectation));
+    assertThat(rules.isHostAllowed(host), is(expectation));
   }
 
   @ParameterizedTest
-  @CsvSource({"1.example.com,true", "2.example.com,true", "3.example.com,true"})
-  void isHostProhibitedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithIpv4AllowRule(
+  @CsvSource({"1.example.com,false", "2.example.com,false", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithIpv4AllowRule(
       String host, boolean expectation) throws UnknownHostException {
     FakeDns dns =
         new FakeDns()
@@ -182,6 +182,6 @@ public class NetworkAddressRulesTest {
 
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
 
-    assertThat(rules.isHostProhibited(host), is(expectation));
+    assertThat(rules.isHostAllowed(host), is(expectation));
   }
 }

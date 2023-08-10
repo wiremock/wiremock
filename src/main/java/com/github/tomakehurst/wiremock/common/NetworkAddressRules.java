@@ -55,7 +55,7 @@ public class NetworkAddressRules {
         && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
   }
 
-  public boolean isHostProhibited(String host) {
+  private boolean isHostProhibited(String host) {
     try {
       final InetAddress[] resolvedAddresses = dns.getAllByName(host);
       return !Arrays.stream(resolvedAddresses)
