@@ -55,18 +55,14 @@ public class NetworkAddressRules {
         && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
   }
 
-  private boolean isHostProhibited(String host) {
+  public boolean isHostAllowed(String host) {
     try {
       final InetAddress[] resolvedAddresses = dns.getAllByName(host);
-      return !Arrays.stream(resolvedAddresses)
+      return Arrays.stream(resolvedAddresses)
           .allMatch(address -> isAllowed(address.getHostAddress()));
     } catch (UnknownHostException e) {
-      return true;
+      return false;
     }
-  }
-
-  public boolean isHostAllowed(String host) {
-    return !isHostProhibited(host);
   }
 
   public static class Builder {
