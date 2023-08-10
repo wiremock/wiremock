@@ -100,8 +100,12 @@ public class NetworkAddressRulesTest {
   @ParameterizedTest
   @CsvSource({"10.1.1.1,false", "10.1.1.2,true"})
   void isHostAllowedReturnsExpectedValueForIpv4AddressWithIpv4DenyRule(
-      String host, boolean expectation) {
-    FakeDns dns = new FakeDns();
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+    ;
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("10.1.1.1").build();
 
     assertThat(rules.isHostAllowed(host), is(expectation));
@@ -144,8 +148,12 @@ public class NetworkAddressRulesTest {
   @ParameterizedTest
   @CsvSource({"10.1.1.1,true", "10.1.1.2,false", "3.example.com,false"})
   void isHostAllowedReturnsExpectedValueForIpv4AddressWithIpv4AllowRule(
-      String host, boolean expectation) {
-    FakeDns dns = new FakeDns();
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+    ;
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
 
     assertThat(rules.isHostAllowed(host), is(expectation));
@@ -181,6 +189,101 @@ public class NetworkAddressRulesTest {
                 InetAddress.getByName("10.1.1.3"));
 
     NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("10.1.1.1").build();
+
+    assertThat(rules.isHostAllowed(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"10.1.1.1,true", "10.1.1.2,true"})
+  void isHostAllowedReturnsExpectedValueForIpv4AddressWithHostnameDenyRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("1.example.com").build();
+
+    assertThat(rules.isHostAllowed(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,false", "2.example.com,true", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameWithHostnameDenyRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("1.example.com").build();
+
+    assertThat(rules.isHostAllowed(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,false", "2.example.com,true", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithHostnameDenyRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register(
+                "1.example.com",
+                InetAddress.getByName("10.1.1.0"),
+                InetAddress.getByName("10.1.1.1"))
+            .register(
+                "2.example.com",
+                InetAddress.getByName("10.1.1.2"),
+                InetAddress.getByName("10.1.1.3"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).deny("1.example.com").build();
+
+    assertThat(rules.isHostAllowed(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"10.1.1.1,false", "10.1.1.2,false", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForIpv4AddressWithHostnameAllowRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("1.example.com").build();
+
+    assertThat(rules.isHostAllowed(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,false"})
+  void isHostAllowedReturnsExpectedValueForHostnameWithHostnameAllowRule(
+      String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register("1.example.com", InetAddress.getByName("10.1.1.1"))
+            .register("2.example.com", InetAddress.getByName("10.1.1.2"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("1.example.com").build();
+
+    assertThat(rules.isHostAllowed(host), is(expectation));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"1.example.com,true", "2.example.com,false", "3.example.com,false"})
+  void
+      isHostAllowedReturnsExpectedValueForHostnameResolvingToMultipleAddressesWithHostnameAllowRule(
+          String host, boolean expectation) throws UnknownHostException {
+    FakeDns dns =
+        new FakeDns()
+            .register(
+                "1.example.com",
+                InetAddress.getByName("10.1.1.0"),
+                InetAddress.getByName("10.1.1.1"))
+            .register(
+                "2.example.com",
+                InetAddress.getByName("10.1.1.2"),
+                InetAddress.getByName("10.1.1.3"));
+
+    NetworkAddressRules rules = NetworkAddressRules.builder(dns).allow("1.example.com").build();
 
     assertThat(rules.isHostAllowed(host), is(expectation));
   }
