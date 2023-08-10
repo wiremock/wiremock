@@ -30,14 +30,24 @@ public class NetworkAddressRules {
     return new Builder();
   }
 
+  public static Builder builder(Dns dns) {
+    return new Builder(dns);
+  }
+
   private final Set<NetworkAddressRange> allowed;
   private final Set<NetworkAddressRange> denied;
+  private final Dns dns;
 
   public static NetworkAddressRules ALLOW_ALL = new NetworkAddressRules(Set.of(ALL), emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
+    this(allowed, denied, SystemDns.INSTANCE);
+  }
+
+  NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied, Dns dns) {
     this.allowed = allowed;
     this.denied = denied;
+    this.dns = dns;
   }
 
   public boolean isAllowed(String testValue) {
@@ -47,7 +57,7 @@ public class NetworkAddressRules {
 
   public boolean isHostProhibited(String host) {
     try {
-      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
+      final InetAddress[] resolvedAddresses = dns.getAllByName(host);
       return !Arrays.stream(resolvedAddresses)
           .allMatch(address -> isAllowed(address.getHostAddress()));
     } catch (UnknownHostException e) {
@@ -58,14 +68,23 @@ public class NetworkAddressRules {
   public static class Builder {
     private final ImmutableSet.Builder<NetworkAddressRange> allowed = ImmutableSet.builder();
     private final ImmutableSet.Builder<NetworkAddressRange> denied = ImmutableSet.builder();
+    private final Dns dns;
+
+    public Builder() {
+      this(SystemDns.INSTANCE);
+    }
+
+    public Builder(Dns dns) {
+      this.dns = dns;
+    }
 
     public Builder allow(String expression) {
-      allowed.add(NetworkAddressRange.of(expression));
+      allowed.add(NetworkAddressRange.of(expression, dns));
       return this;
     }
 
     public Builder deny(String expression) {
-      denied.add(NetworkAddressRange.of(expression));
+      denied.add(NetworkAddressRange.of(expression, dns));
       return this;
     }
 
@@ -74,7 +93,7 @@ public class NetworkAddressRules {
       if (allowedRanges.isEmpty()) {
         allowedRanges = Set.of(ALL);
       }
-      return new NetworkAddressRules(allowedRanges, denied.build());
+      return new NetworkAddressRules(allowedRanges, denied.build(), dns);
     }
   }
 }

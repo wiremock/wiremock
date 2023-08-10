@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.common;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
@@ -32,12 +34,16 @@ public abstract class NetworkAddressRange {
       Pattern.compile(SINGLE_IP.pattern() + "-" + SINGLE_IP.pattern());
 
   public static NetworkAddressRange of(String value) {
+    return NetworkAddressRange.of(value, SystemDns.INSTANCE);
+  }
+
+  public static NetworkAddressRange of(String value, Dns dns) {
     if (SINGLE_IP.matcher(value).matches()) {
-      return new SingleIp(value);
+      return new SingleIp(value, dns);
     }
 
     if (IP_RANGE.matcher(value).matches()) {
-      return new IpRange(value);
+      return new IpRange(value, dns);
     }
 
     return new DomainNameWildcard(value);
@@ -48,14 +54,16 @@ public abstract class NetworkAddressRange {
   private static class SingleIp extends NetworkAddressRange {
 
     private final InetAddress inetAddress;
+    private final Dns dns;
 
-    private SingleIp(String ipAddress) {
+    private SingleIp(String ipAddress, Dns dns) {
       this.inetAddress = parseIpAddress(ipAddress);
+      this.dns = dns;
     }
 
     @Override
     public boolean isIncluded(String testValue) {
-      return lookup(testValue).equals(inetAddress);
+      return lookup(testValue, dns).equals(inetAddress);
     }
 
     @Override
@@ -76,19 +84,21 @@ public abstract class NetworkAddressRange {
 
     private final BigInteger start;
     private final BigInteger end;
+    private final Dns dns;
 
-    private IpRange(String ipRange) {
+    private IpRange(String ipRange, Dns dns) {
       String[] parts = ipRange.split("-");
       if (parts.length != 2) {
         throw new InvalidInputException(Errors.single(18, ipRange + " is not a valid IP range"));
       }
       this.start = InetAddresses.toBigInteger(parseIpAddress(parts[0]));
       this.end = InetAddresses.toBigInteger(parseIpAddress(parts[1]));
+      this.dns = dns;
     }
 
     @Override
     public boolean isIncluded(String testValue) {
-      InetAddress testValueAddress = lookup(testValue);
+      InetAddress testValueAddress = lookup(testValue, dns);
       BigInteger intVal = InetAddresses.toBigInteger(testValueAddress);
       return intVal.compareTo(start) >= 0 && intVal.compareTo(end) <= 0;
     }
@@ -148,12 +158,16 @@ public abstract class NetworkAddressRange {
       throw new InvalidInputException(Errors.single(16, ipAddress + " is not a valid IP address"));
     }
 
-    return lookup(ipAddress);
+    try {
+      return InetAddress.getByName(ipAddress);
+    } catch (UnknownHostException e) {
+      return throwUnchecked(e, null); // should be impossible given above check!
+    }
   }
 
-  private static InetAddress lookup(String host) {
+  private static InetAddress lookup(String host, Dns dns) {
     try {
-      return InetAddress.getByName(host);
+      return dns.getByName(host);
     } catch (UnknownHostException e) {
       throw new InvalidInputException(
           e, Errors.single(17, host + " is not a valid network address"));
