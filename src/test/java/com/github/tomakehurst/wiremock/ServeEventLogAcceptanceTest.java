@@ -208,7 +208,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
   }
 
   private Matcher<LoggedRequest> withUrl(final String url) {
-    return new TypeSafeMatcher<LoggedRequest>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public boolean matchesSafely(LoggedRequest loggedRequest) {
         return loggedRequest.getUrl().equals(url);
