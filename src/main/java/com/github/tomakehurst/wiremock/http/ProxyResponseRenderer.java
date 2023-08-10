@@ -149,6 +149,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
   private boolean targetAddressProhibited(String proxyUrl) {
     String host = URI.create(proxyUrl).getHost();
+    return isHostProhibited(host);
+  }
+
+  private boolean isHostProhibited(String host) {
     try {
       final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
       return !Arrays.stream(resolvedAddresses)
