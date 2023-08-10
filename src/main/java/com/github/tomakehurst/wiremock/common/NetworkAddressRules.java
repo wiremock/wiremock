@@ -19,9 +19,6 @@ import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static java.util.Collections.emptySet;
 
 import com.google.common.collect.ImmutableSet;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Set;
 
 public class NetworkAddressRules {
@@ -36,18 +33,12 @@ public class NetworkAddressRules {
 
   private final Set<NetworkAddressRange> allowed;
   private final Set<NetworkAddressRange> denied;
-  private final Dns dns;
 
   public static NetworkAddressRules ALLOW_ALL = new NetworkAddressRules(Set.of(ALL), emptySet());
 
-  public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
-    this(allowed, denied, SystemDns.INSTANCE);
-  }
-
-  NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied, Dns dns) {
+  NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
     this.allowed = allowed;
     this.denied = denied;
-    this.dns = dns;
   }
 
   public boolean isAllowed(String testValue) {
@@ -56,13 +47,7 @@ public class NetworkAddressRules {
   }
 
   public boolean isHostAllowed(String host) {
-    try {
-      final InetAddress[] resolvedAddresses = dns.getAllByName(host);
-      return Arrays.stream(resolvedAddresses)
-          .allMatch(address -> isAllowed(address.getHostAddress()));
-    } catch (UnknownHostException e) {
-      return false;
-    }
+    return isAllowed(host);
   }
 
   public static class Builder {
@@ -93,7 +78,7 @@ public class NetworkAddressRules {
       if (allowedRanges.isEmpty()) {
         allowedRanges = Set.of(ALL);
       }
-      return new NetworkAddressRules(allowedRanges, denied.build(), dns);
+      return new NetworkAddressRules(allowedRanges, denied.build());
     }
   }
 }

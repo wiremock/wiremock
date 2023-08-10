@@ -21,6 +21,7 @@ import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,12 @@ public abstract class NetworkAddressRange {
 
     @Override
     public boolean isIncluded(String testValue) {
-      return lookup(testValue, dns).equals(inetAddress);
+      try {
+        InetAddress[] addresses = dns.getAllByName(testValue);
+        return addresses.length == 1 && addresses[0].equals(inetAddress);
+      } catch (UnknownHostException e) {
+        return false;
+      }
     }
 
     @Override
@@ -98,7 +104,15 @@ public abstract class NetworkAddressRange {
 
     @Override
     public boolean isIncluded(String testValue) {
-      InetAddress testValueAddress = lookup(testValue, dns);
+      try {
+        InetAddress[] testValueAddresses = dns.getAllByName(testValue);
+        return Arrays.stream(testValueAddresses).anyMatch(this::isIncluded);
+      } catch (UnknownHostException e) {
+        return false;
+      }
+    }
+
+    private boolean isIncluded(InetAddress testValueAddress) {
       BigInteger intVal = InetAddresses.toBigInteger(testValueAddress);
       return intVal.compareTo(start) >= 0 && intVal.compareTo(end) <= 0;
     }
@@ -162,15 +176,6 @@ public abstract class NetworkAddressRange {
       return InetAddress.getByName(ipAddress);
     } catch (UnknownHostException e) {
       return throwUnchecked(e, null); // should be impossible given above check!
-    }
-  }
-
-  private static InetAddress lookup(String host, Dns dns) {
-    try {
-      return dns.getByName(host);
-    } catch (UnknownHostException e) {
-      throw new InvalidInputException(
-          e, Errors.single(17, host + " is not a valid network address"));
     }
   }
 }
