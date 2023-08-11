@@ -37,7 +37,6 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.StubMappingStore;
 import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.collect.ImmutableList;
 import java.util.*;
 
 public abstract class AbstractStubMappings implements StubMappings {
@@ -90,7 +89,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     ResponseDefinition responseDefinition =
         applyV1Transformations(
-            request, matchingMapping.getResponse(), ImmutableList.copyOf(transformers.values()));
+            request, matchingMapping.getResponse(), List.copyOf(transformers.values()));
 
     ServeEvent serveEvent =
         initialServeEvent
@@ -98,7 +97,7 @@ public abstract class AbstractStubMappings implements StubMappings {
             .withResponseDefinition(responseDefinition);
 
     final Pair<ServeEvent, ResponseDefinition> transformed =
-        applyV2Transformations(serveEvent, ImmutableList.copyOf(v2transformers.values()));
+        applyV2Transformations(serveEvent, List.copyOf(v2transformers.values()));
     serveEvent = transformed.a;
     responseDefinition = transformed.b;
 
@@ -223,7 +222,7 @@ public abstract class AbstractStubMappings implements StubMappings {
 
   @Override
   public List<StubMapping> getAll() {
-    return ImmutableList.copyOf(store.getAll().collect(toList()));
+    return store.getAll().collect(toList());
   }
 
   @Override
