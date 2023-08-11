@@ -44,7 +44,6 @@ import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.google.common.collect.*;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -742,75 +741,74 @@ public class CommandLineOptions implements Options {
 
   @Override
   public String toString() {
-    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+    Map<String, Object> map = new LinkedHashMap<>();
 
     if (actualHttpPort != null) {
-      builder.put(PORT, actualHttpPort);
+      map.put(PORT, actualHttpPort);
     }
 
     if (actualHttpsPort != null) {
-      builder.put(HTTPS_PORT, actualHttpsPort);
+      map.put(HTTPS_PORT, actualHttpsPort);
     }
 
     if (httpsSettings().enabled()) {
-      builder.put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
+      map.put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
     }
 
-    if (!(proxyVia() == NO_PROXY)) {
-      builder.put(PROXY_VIA, proxyVia());
+    if (proxyVia() != NO_PROXY) {
+      map.put(PROXY_VIA, proxyVia());
     }
     if (proxyUrl() != null) {
-      builder
-          .put(PROXY_ALL, nullToString(proxyUrl()))
-          .put(PRESERVE_HOST_HEADER, shouldPreserveHostHeader());
+      map.put(PROXY_ALL, nullToString(proxyUrl()));
+      map.put(PRESERVE_HOST_HEADER, shouldPreserveHostHeader());
     }
 
     BrowserProxySettings browserProxySettings = browserProxySettings();
 
-    builder.put(ENABLE_BROWSER_PROXYING, browserProxySettings.enabled());
+    map.put(ENABLE_BROWSER_PROXYING, browserProxySettings.enabled());
     if (browserProxySettings.enabled()) {
       KeyStoreSettings keyStoreSettings = browserProxySettings.caKeyStore();
-      builder.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
+      map.put(TRUST_ALL_PROXY_TARGETS, browserProxySettings.trustAllProxyTargets());
       List<String> trustedProxyTargets = browserProxySettings.trustedProxyTargets();
       if (!trustedProxyTargets.isEmpty()) {
-        builder.put(TRUST_PROXY_TARGET, String.join(", ", trustedProxyTargets));
+        map.put(TRUST_PROXY_TARGET, String.join(", ", trustedProxyTargets));
       }
-      builder.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
-      builder.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());
+      map.put(HTTPS_CA_KEYSTORE, keyStoreSettings.path());
+      map.put(HTTPS_CA_KEYSTORE_TYPE, keyStoreSettings.type());
     }
 
-    builder.put(DISABLE_BANNER, bannerDisabled());
+    map.put(DISABLE_BANNER, bannerDisabled());
 
     if (recordMappingsEnabled()) {
-      builder.put(RECORD_MAPPINGS, recordMappingsEnabled()).put(MATCH_HEADERS, matchingHeaders());
+      map.put(RECORD_MAPPINGS, recordMappingsEnabled());
+      map.put(MATCH_HEADERS, matchingHeaders());
     }
 
-    builder
-        .put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())
-        .put(VERBOSE, verboseLoggingEnabled());
+    map.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled());
+    map.put(VERBOSE, verboseLoggingEnabled());
 
     if (jettySettings().getAcceptQueueSize().isPresent()) {
-      builder.put(JETTY_ACCEPT_QUEUE_SIZE, jettySettings().getAcceptQueueSize().get());
+      map.put(JETTY_ACCEPT_QUEUE_SIZE, jettySettings().getAcceptQueueSize().get());
     }
 
     if (jettySettings().getAcceptors().isPresent()) {
-      builder.put(JETTY_ACCEPTOR_THREAD_COUNT, jettySettings().getAcceptors().get());
+      map.put(JETTY_ACCEPTOR_THREAD_COUNT, jettySettings().getAcceptors().get());
     }
 
     if (jettySettings().getRequestHeaderSize().isPresent()) {
-      builder.put(JETTY_HEADER_BUFFER_SIZE, jettySettings().getRequestHeaderSize().get());
+      map.put(JETTY_HEADER_BUFFER_SIZE, jettySettings().getRequestHeaderSize().get());
     }
 
     if (!(getAdminAuthenticator() instanceof NoAuthenticator)) {
-      builder.put(ADMIN_API_BASIC_AUTH, "enabled");
+      map.put(ADMIN_API_BASIC_AUTH, "enabled");
     }
 
     if (getHttpsRequiredForAdminApi()) {
-      builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
+      map.put(ADMIN_API_REQUIRE_HTTPS, "true");
     }
 
     StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, Object> param : builder.build().entrySet()) {
+    for (Map.Entry<String, Object> param : map.entrySet()) {
       int paddingLength = 29 - param.getKey().length();
       sb.append(param.getKey())
           .append(":")
@@ -947,8 +945,8 @@ public class CommandLineOptions implements Options {
   @Override
   public Set<String> getTemplatePermittedSystemKeys() {
     return optionSet.has(PERMITTED_SYSTEM_KEYS)
-        ? ImmutableSet.copyOf((List<String>) optionSet.valuesOf(PERMITTED_SYSTEM_KEYS))
-        : Collections.<String>emptySet();
+        ? Set.copyOf((List<String>) optionSet.valuesOf(PERMITTED_SYSTEM_KEYS))
+        : Collections.emptySet();
   }
 
   @Override
