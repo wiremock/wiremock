@@ -15,8 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTextFromMimeType;
-import static com.google.common.net.HttpHeaders.*;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.*;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Gzip;
