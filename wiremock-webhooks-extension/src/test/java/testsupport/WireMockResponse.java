@@ -16,7 +16,7 @@
 package testsupport;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.google.common.collect.Iterables.getFirst;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirst;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableListMultimap;
