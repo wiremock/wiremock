@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
+public class ContentPatternDeserializer extends JsonDeserializer<ContentPattern<?>> {
 
   @Override
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException, JsonProcessingException {
+      throws IOException {
     JsonNode rootNode = parser.readValueAsTree();
 
     if (isAbsent(rootNode)) {
@@ -43,20 +42,15 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
     return new StringValuePatternJsonDeserializer().buildStringValuePattern(rootNode);
   }
 
-  private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode)
-      throws JsonMappingException {
+  private BinaryEqualToPattern deserializeBinaryEqualTo(JsonNode rootNode) {
     String operand = rootNode.findValue("binaryEqualTo").textValue();
 
     return new BinaryEqualToPattern(operand);
   }
 
   private static boolean isAbsent(JsonNode rootNode) {
-    for (Map.Entry<String, JsonNode> node : ImmutableList.copyOf(rootNode.fields())) {
-      if (node.getKey().equals("absent")) {
-        return true;
-      }
-    }
-
-    return false;
+    List<Map.Entry<String, JsonNode>> list = new LinkedList<>();
+    rootNode.fields().forEachRemaining(list::add);
+    return list.stream().anyMatch(node -> node.getKey().equals("absent"));
   }
 }

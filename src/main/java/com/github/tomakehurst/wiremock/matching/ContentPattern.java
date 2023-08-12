@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Objects;
 
-@JsonDeserialize(using = ContentPatternDeserialiser.class)
+@JsonDeserialize(using = ContentPatternDeserializer.class)
 public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
 
   protected final T expectedValue;

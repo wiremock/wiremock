@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.store.ScenariosStore;
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public abstract class AbstractScenarios implements Scenarios {
@@ -38,7 +37,7 @@ public abstract class AbstractScenarios implements Scenarios {
 
   @Override
   public List<Scenario> getAll() {
-    return ImmutableList.copyOf(store.getAll().collect(toList()));
+    return store.getAll().collect(toList());
   }
 
   @Override
