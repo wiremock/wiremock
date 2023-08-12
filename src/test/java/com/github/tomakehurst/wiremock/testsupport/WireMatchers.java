@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.Iterables.size;
 import static java.util.Arrays.asList;
 import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.MULTILINE;
@@ -60,7 +59,7 @@ import org.xmlunit.diff.Diff;
 public class WireMatchers {
 
   public static Matcher<String> equalToJson(final String expectedJson) {
-    return new TypeSafeMatcher<String>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -124,7 +123,7 @@ public class WireMatchers {
 
   public static Matcher<byte[]> equalToBinaryJson(
       final String expectedJson, final JSONCompareMode jsonCompareMode) {
-    return new TypeSafeMatcher<byte[]>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -145,7 +144,7 @@ public class WireMatchers {
   }
 
   public static Matcher<String> equalToXml(final String expected) {
-    return new TypeSafeMatcher<String>() {
+    return new TypeSafeMatcher<>() {
       @Override
       protected boolean matchesSafely(String value) {
         Diff diff =
@@ -167,7 +166,7 @@ public class WireMatchers {
   }
 
   public static Matcher<String> matches(final String regex) {
-    return new TypeSafeMatcher<String>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description description) {
@@ -182,7 +181,7 @@ public class WireMatchers {
   }
 
   public static Matcher<String> matchesMultiLine(final String regex) {
-    return new TypeSafeMatcher<String>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description description) {
@@ -197,7 +196,7 @@ public class WireMatchers {
   }
 
   public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
-    return new TypeSafeMatcher<Iterable<T>>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -219,7 +218,7 @@ public class WireMatchers {
   }
 
   public static <T> Matcher<Iterable<T>> hasExactlyIgnoringOrder(final Matcher<T>... items) {
-    return new TypeSafeMatcher<Iterable<T>>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -228,7 +227,7 @@ public class WireMatchers {
 
       @Override
       public boolean matchesSafely(Iterable<T> actual) {
-        if (size(actual) != items.length) {
+        if (StreamSupport.stream(actual.spliterator(), false).count() != items.length) {
           return false;
         }
 
@@ -252,7 +251,7 @@ public class WireMatchers {
   }
 
   public static Matcher<TextFile> fileNamed(final String name) {
-    return new TypeSafeMatcher<TextFile>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -267,7 +266,7 @@ public class WireMatchers {
   }
 
   public static Matcher<Date> isAfter(final String dateString) {
-    return new TypeSafeMatcher<Date>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public boolean matchesSafely(Date date) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -287,7 +286,7 @@ public class WireMatchers {
   }
 
   public static Matcher<Date> isToday() {
-    return new TypeSafeMatcher<Date>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public boolean matchesSafely(Date date) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -303,7 +302,7 @@ public class WireMatchers {
   }
 
   public static Matcher<HttpHeader> header(final String key, final String value) {
-    return new TypeSafeMatcher<HttpHeader>() {
+    return new TypeSafeMatcher<>() {
       @Override
       public boolean matchesSafely(HttpHeader httpHeader) {
         return httpHeader.key().equals(key) && httpHeader.containsValue(value);
@@ -317,7 +316,7 @@ public class WireMatchers {
   }
 
   public static Matcher<Path> hasFileContaining(final String... contents) {
-    return new TypeSafeDiagnosingMatcher<Path>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       protected boolean matchesSafely(Path path, Description mismatchDescription) {
         List<File> files = asList(Objects.requireNonNull(path.toFile().listFiles()));
@@ -330,7 +329,7 @@ public class WireMatchers {
                       return Arrays.stream(contents).allMatch(fileContents::contains);
                     });
 
-        if (files.size() == 0) {
+        if (files.isEmpty()) {
           mismatchDescription.appendText("there were no files in " + path);
         }
 
@@ -353,7 +352,7 @@ public class WireMatchers {
 
   public static Matcher<String> equalsMultiLine(final String expected) {
     String normalisedExpected = Strings.normaliseLineBreaks(expected);
-    return new IsEqual<String>(normalisedExpected) {
+    return new IsEqual<>(normalisedExpected) {
       @Override
       public boolean matches(Object actualValue) {
         return super.matches(actualValue.toString());
@@ -379,7 +378,7 @@ public class WireMatchers {
 
   public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(
       final UrlPattern urlPattern) {
-    return new TypeSafeDiagnosingMatcher<StubMapping>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       public void describeTo(Description description) {
         description.appendText("a stub mapping with a request URL matching " + urlPattern);
@@ -412,7 +411,7 @@ public class WireMatchers {
   }
 
   public static TypeSafeDiagnosingMatcher<StubMapping> isInAScenario() {
-    return new TypeSafeDiagnosingMatcher<StubMapping>() {
+    return new TypeSafeDiagnosingMatcher<>() {
       @Override
       public void describeTo(Description description) {
         description.appendText("a stub mapping with a scenario name");

@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.collect.Iterables.any;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -625,13 +624,13 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        return !any(asList(dir.list()), contains(namePart)::test);
+        return Arrays.stream(Objects.requireNonNull(dir.list())).noneMatch(contains(namePart));
       }
     };
   }
 
   private Matcher<File> containsExactlyOneFileWithNameContaining(final String namePart) {
-    return new TypeSafeMatcher<File>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
