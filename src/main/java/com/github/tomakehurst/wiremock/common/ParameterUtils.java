@@ -52,6 +52,20 @@ public class ParameterUtils {
     return value;
   }
 
+  public static <T> int indexOf(Iterable<T> iterable, Predicate<? super T> predicate) {
+    checkNotNull(iterable, "iterable");
+    checkNotNull(predicate, "predicate");
+    Iterator<T> iterator = iterable.iterator();
+    for (int i = 0; iterator.hasNext(); i++) {
+      T current = iterator.next();
+      if (predicate.test(current)) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
   public static <T> T getFirst(Iterable<T> iterable, T defaultValue) {
     return iterable != null && iterable.iterator().hasNext()
         ? iterable.iterator().next()
@@ -69,19 +83,5 @@ public class ParameterUtils {
         return current;
       }
     }
-  }
-
-  public static <T> int indexOf(Iterable<T> iterable, Predicate<? super T> predicate) {
-    checkNotNull(iterable, "iterable");
-    checkNotNull(predicate, "predicate");
-    Iterator<T> iterator = iterable.iterator();
-    for (int i = 0; iterator.hasNext(); i++) {
-      T current = iterator.next();
-      if (predicate.test(current)) {
-        return i;
-      }
-    }
-
-    return -1;
   }
 }
