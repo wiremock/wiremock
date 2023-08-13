@@ -17,14 +17,16 @@ package com.github.tomakehurst.wiremock.extension;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-import com.google.common.collect.Maps;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ExtensionLoader {
+
+  private ExtensionLoader() {}
 
   @SuppressWarnings("unchecked")
   public static <T> Map<String, T> loadExtension(String... classNames) {
@@ -40,8 +42,10 @@ public class ExtensionLoader {
     return loadExtension(classNames);
   }
 
-  public static Map<String, Extension> asMap(Iterable<Extension> extensions) {
-    return Maps.uniqueIndex(extensions, Extension::getName);
+  public static Map<String, Extension> asMap(List<Extension> extensions) {
+    return extensions.stream()
+        .map(extension -> Map.entry(extension.getName(), extension))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   @SafeVarargs

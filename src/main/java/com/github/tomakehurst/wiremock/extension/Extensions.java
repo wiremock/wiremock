@@ -26,9 +26,9 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.store.Stores;
-import com.google.common.collect.Maps;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Extensions implements WireMockServices {
@@ -186,6 +186,13 @@ public class Extensions implements WireMockServices {
   @SuppressWarnings("unchecked")
   public <T extends Extension> Map<String, T> ofType(Class<T> extensionType) {
     return (Map<String, T>)
-        Maps.filterEntries(loadedExtensions, valueAssignableFrom(extensionType)::test);
+        loadedExtensions.entrySet().stream()
+            .filter(valueAssignableFrom(extensionType))
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (entry1, entry2) -> entry1,
+                    LinkedHashMap::new));
   }
 }
