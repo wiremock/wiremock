@@ -22,16 +22,15 @@ import static java.util.stream.Collectors.toList;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.NetworkAddressRulesAdheringDnsResolver;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -54,24 +53,20 @@ public class Webhooks extends PostServeAction {
   private final CloseableHttpClient httpClient;
   private final List<WebhookTransformer> transformers;
   private final TemplateEngine templateEngine;
-  private final NetworkAddressRules targetAddressRules;
 
   private Webhooks(
       ScheduledExecutorService scheduler,
       CloseableHttpClient httpClient,
-      List<WebhookTransformer> transformers,
-      NetworkAddressRules targetAddressRules) {
+      List<WebhookTransformer> transformers) {
     this.scheduler = scheduler;
     this.httpClient = httpClient;
     this.transformers = transformers;
 
     this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
-    this.targetAddressRules = targetAddressRules;
   }
 
   private Webhooks(List<WebhookTransformer> transformers, NetworkAddressRules targetAddressRules) {
-    this(
-        Executors.newScheduledThreadPool(10), createHttpClient(), transformers, targetAddressRules);
+    this(Executors.newScheduledThreadPool(10), createHttpClient(targetAddressRules), transformers);
   }
 
   public Webhooks(NetworkAddressRules targetAddressRules) {
@@ -87,7 +82,7 @@ public class Webhooks extends PostServeAction {
     this(Arrays.asList(transformers), NetworkAddressRules.ALLOW_ALL);
   }
 
-  private static CloseableHttpClient createHttpClient() {
+  private static CloseableHttpClient createHttpClient(NetworkAddressRules targetAddressRules) {
     return HttpClientBuilder.create()
         .disableAuthCaching()
         .disableAutomaticRetries()
@@ -96,6 +91,7 @@ public class Webhooks extends PostServeAction {
         .disableContentCompression()
         .setConnectionManager(
             PoolingHttpClientConnectionManagerBuilder.create()
+                .setDnsResolver(new NetworkAddressRulesAdheringDnsResolver(targetAddressRules))
                 .setDefaultSocketConfig(
                     SocketConfig.custom().setSoTimeout(Timeout.ofMilliseconds(30000)).build())
                 .setMaxConnPerRoute(1000)
@@ -125,10 +121,6 @@ public class Webhooks extends PostServeAction {
         definition = transformer.transform(serveEvent, definition);
       }
       definition = applyTemplating(definition, serveEvent);
-      if (targetAddressProhibited(definition.getUrl())) {
-        notifier().error("The target webhook address is denied in WireMock's configuration.");
-        return;
-      }
       request = buildRequest(definition);
     } catch (Exception e) {
       notifier().error("Exception thrown while configuring webhook", e);
@@ -146,13 +138,14 @@ public class Webhooks extends PostServeAction {
                     finalDefinition.getUrl(),
                     response.getCode(),
                     EntityUtils.toString(response.getEntity())));
+          } catch (ProhibitedNetworkAddressException e) {
+            notifier.error("The target webhook address is denied in WireMock's configuration.");
           } catch (Exception e) {
-            notifier()
-                .error(
-                    String.format(
-                        "Failed to fire webhook %s %s",
-                        finalDefinition.getMethod(), finalDefinition.getUrl()),
-                    e);
+            notifier.error(
+                String.format(
+                    "Failed to fire webhook %s %s",
+                    finalDefinition.getMethod(), finalDefinition.getUrl()),
+                e);
           }
         },
         finalDefinition.getDelaySampleMillis(),
@@ -213,19 +206,6 @@ public class Webhooks extends PostServeAction {
     }
 
     return requestBuilder.build();
-  }
-
-  // TODO this is duplicated in com.github.tomakehurst.wiremock.http.ProxyResponseRenderer - should
-  // it be on NetworkAddressRules ?
-  private boolean targetAddressProhibited(String url) {
-    String host = URI.create(url).getHost();
-    try {
-      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
-      return !Arrays.stream(resolvedAddresses)
-          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
-    } catch (UnknownHostException e) {
-      return true;
-    }
   }
 
   public static WebhookDefinition webhook() {
