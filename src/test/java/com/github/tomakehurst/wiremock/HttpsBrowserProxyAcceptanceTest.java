@@ -140,7 +140,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
     HttpProxy httpProxy =
         new HttpProxy(new Origin.Address("localhost", proxy.getHttpsPort()), true);
-    proxyConfig.getProxies().add(httpProxy);
+    proxyConfig.addProxy(httpProxy);
 
     target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
