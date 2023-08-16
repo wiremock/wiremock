@@ -33,7 +33,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServeEvent {
 
@@ -46,7 +46,7 @@ public class ServeEvent {
   private final LoggedResponse response;
   private final Timing timing;
 
-  private final ConcurrentLinkedDeque<SubEvent> subEvents;
+  private final ConcurrentLinkedQueue<SubEvent> subEvents;
 
   private final Stopwatch stopwatch;
 
@@ -57,7 +57,7 @@ public class ServeEvent {
       ResponseDefinition responseDefinition,
       LoggedResponse response,
       Timing timing,
-      ConcurrentLinkedDeque<SubEvent> subEvents,
+      ConcurrentLinkedQueue<SubEvent> subEvents,
       Stopwatch stopwatch) {
     this.id = id;
     this.request = request;
@@ -78,7 +78,7 @@ public class ServeEvent {
       @JsonProperty("response") LoggedResponse response,
       @JsonProperty("wasMatched") boolean ignoredReadOnly,
       @JsonProperty("timing") Timing timing,
-      @JsonProperty("subEvents") Deque<SubEvent> subEvents) {
+      @JsonProperty("subEvents") Queue<SubEvent> subEvents) {
     this(
         id,
         request,
@@ -86,7 +86,7 @@ public class ServeEvent {
         responseDefinition,
         response,
         timing != null ? timing : Timing.create(),
-        subEvents != null ? new ConcurrentLinkedDeque<>(subEvents) : new ConcurrentLinkedDeque<>(),
+        subEvents != null ? new ConcurrentLinkedQueue<>(subEvents) : new ConcurrentLinkedQueue<>(),
         Stopwatch.createStarted());
   }
 
@@ -182,7 +182,7 @@ public class ServeEvent {
     return timing;
   }
 
-  public Deque<? extends SubEvent> getSubEvents() {
+  public Queue<? extends SubEvent> getSubEvents() {
     return subEvents;
   }
 
@@ -192,7 +192,7 @@ public class ServeEvent {
   }
 
   public void appendSubEvent(SubEvent subEvent) {
-    subEvents.addFirst(subEvent);
+    subEvents.add(subEvent);
   }
 
   @JsonIgnore
