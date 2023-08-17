@@ -28,14 +28,9 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResponseTemplateTransformer
@@ -125,23 +120,24 @@ public class ResponseTemplateTransformer
       }
 
       if (responseDefinition.getHeaders() != null) {
-        Iterable<HttpHeader> newResponseHeaders =
-            Iterables.transform(
-                responseDefinition.getHeaders().all(),
-                header -> {
-                  ImmutableList.Builder<String> valueListBuilder = ImmutableList.builder();
-                  int index = 0;
-                  for (String headerValue : header.values()) {
-                    HandlebarsOptimizedTemplate template =
-                        templateEngine.getTemplate(
-                            HttpTemplateCacheKey.forHeader(
-                                responseDefinition, header.key(), index++),
-                            headerValue);
-                    valueListBuilder.add(uncheckedApplyTemplate(template, model));
-                  }
+        List<HttpHeader> newResponseHeaders =
+            responseDefinition.getHeaders().all().stream()
+                .map(
+                    header -> {
+                      ArrayList<String> valueListBuilder = new ArrayList<>();
+                      int index = 0;
+                      for (String headerValue : header.values()) {
+                        HandlebarsOptimizedTemplate template =
+                            templateEngine.getTemplate(
+                                HttpTemplateCacheKey.forHeader(
+                                    responseDefinition, header.key(), index++),
+                                headerValue);
+                        valueListBuilder.add(uncheckedApplyTemplate(template, model));
+                      }
 
-                  return new HttpHeader(header.key(), valueListBuilder.build());
-                });
+                      return new HttpHeader(header.key(), valueListBuilder);
+                    })
+                .collect(Collectors.toList());
         newResponseDefBuilder.withHeaders(new HttpHeaders(newResponseHeaders));
       }
 
@@ -156,22 +152,23 @@ public class ResponseTemplateTransformer
             newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
 
         if (responseDefinition.getAdditionalProxyRequestHeaders() != null) {
-          Iterable<HttpHeader> newResponseHeaders =
-              Iterables.transform(
-                  responseDefinition.getAdditionalProxyRequestHeaders().all(),
-                  header -> {
-                    ImmutableList.Builder<String> valueListBuilder = ImmutableList.builder();
-                    int index = 0;
-                    for (String headerValue : header.values()) {
-                      HandlebarsOptimizedTemplate template =
-                          templateEngine.getTemplate(
-                              HttpTemplateCacheKey.forHeader(
-                                  responseDefinition, header.key(), index++),
-                              headerValue);
-                      valueListBuilder.add(uncheckedApplyTemplate(template, model));
-                    }
-                    return new HttpHeader(header.key(), valueListBuilder.build());
-                  });
+          List<HttpHeader> newResponseHeaders =
+              responseDefinition.getAdditionalProxyRequestHeaders().all().stream()
+                  .map(
+                      header -> {
+                        ArrayList<String> valueListBuilder = new ArrayList<>();
+                        int index = 0;
+                        for (String headerValue : header.values()) {
+                          HandlebarsOptimizedTemplate template =
+                              templateEngine.getTemplate(
+                                  HttpTemplateCacheKey.forHeader(
+                                      responseDefinition, header.key(), index++),
+                                  headerValue);
+                          valueListBuilder.add(uncheckedApplyTemplate(template, model));
+                        }
+                        return new HttpHeader(header.key(), valueListBuilder);
+                      })
+                  .collect(Collectors.toList());
           HttpHeaders proxyHttpHeaders = new HttpHeaders(newResponseHeaders);
           for (String key : proxyHttpHeaders.keys()) {
             newProxyResponseDefBuilder.withAdditionalRequestHeader(
