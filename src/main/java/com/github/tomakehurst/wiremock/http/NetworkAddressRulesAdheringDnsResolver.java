@@ -20,13 +20,21 @@ import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.stream.Stream;
+import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 
-public class NetworkAddressRulesAdheringDnsResolver extends SystemDefaultDnsResolver {
+public class NetworkAddressRulesAdheringDnsResolver implements DnsResolver {
 
+  private final DnsResolver delegate;
   private final NetworkAddressRules networkAddressRules;
 
   public NetworkAddressRulesAdheringDnsResolver(NetworkAddressRules networkAddressRules) {
+    this(SystemDefaultDnsResolver.INSTANCE, networkAddressRules);
+  }
+
+  public NetworkAddressRulesAdheringDnsResolver(
+      DnsResolver delegate, NetworkAddressRules networkAddressRules) {
+    this.delegate = delegate;
     this.networkAddressRules = networkAddressRules;
   }
 
@@ -36,12 +44,17 @@ public class NetworkAddressRulesAdheringDnsResolver extends SystemDefaultDnsReso
       throw new ProhibitedNetworkAddressException();
     }
 
-    final InetAddress[] resolved = super.resolve(host);
+    final InetAddress[] resolved = delegate.resolve(host);
     if (Stream.of(resolved)
         .anyMatch(address -> !networkAddressRules.isAllowed(address.getHostAddress()))) {
       throw new ProhibitedNetworkAddressException();
     }
 
     return resolved;
+  }
+
+  @Override
+  public String resolveCanonicalHostname(String host) throws UnknownHostException {
+    return delegate.resolveCanonicalHostname(host);
   }
 }
