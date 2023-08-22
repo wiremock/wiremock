@@ -107,7 +107,7 @@ public abstract class NetworkAddressRange {
     }
   }
 
-  private static class DomainNameWildcard extends NetworkAddressRange {
+  static class DomainNameWildcard extends NetworkAddressRange {
 
     private final Pattern namePattern;
 

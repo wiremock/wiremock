@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.InetAddresses;
 import java.util.Set;
 
 public class NetworkAddressRules {
@@ -28,19 +30,62 @@ public class NetworkAddressRules {
   }
 
   private final Set<NetworkAddressRange> allowed;
+  private final Set<NetworkAddressRange> allowedHostPatterns;
   private final Set<NetworkAddressRange> denied;
+  private final Set<NetworkAddressRange> deniedHostPatterns;
 
   public static NetworkAddressRules ALLOW_ALL =
       new NetworkAddressRules(ImmutableSet.of(ALL), emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
-    this.allowed = allowed;
-    this.denied = denied;
+    this.allowed =
+        defaultIfEmpty(
+            allowed.stream()
+                .filter(
+                    networkAddressRange ->
+                        !(networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
+                .collect(toSet()),
+            ImmutableSet.of(ALL));
+    this.allowedHostPatterns =
+        defaultIfEmpty(
+            allowed.stream()
+                .filter(
+                    networkAddressRange ->
+                        (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
+                .collect(toSet()),
+            ImmutableSet.of(ALL));
+    this.denied =
+        denied.stream()
+            .filter(
+                networkAddressRange ->
+                    !(networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
+            .collect(toSet());
+    this.deniedHostPatterns =
+        denied.stream()
+            .filter(
+                networkAddressRange ->
+                    (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
+            .map(
+                networkAddressRange -> (NetworkAddressRange.DomainNameWildcard) networkAddressRange)
+            .collect(toSet());
+  }
+
+  private static <T> Set<T> defaultIfEmpty(Set<T> original, Set<T> ifEmpty) {
+    if (original.isEmpty()) {
+      return ifEmpty;
+    } else {
+      return original;
+    }
   }
 
   public boolean isAllowed(String testValue) {
-    return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
-        && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+    if (InetAddresses.isInetAddress(testValue)) {
+      return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
+          && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+    } else {
+      return allowedHostPatterns.stream().anyMatch(rule -> rule.isIncluded(testValue))
+          && deniedHostPatterns.stream().noneMatch(rule -> rule.isIncluded(testValue));
+    }
   }
 
   public static class Builder {
