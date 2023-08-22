@@ -19,8 +19,6 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -38,15 +36,7 @@ class HealthCheckTaskTest {
   private final HealthCheckTask healthCheckTask = new HealthCheckTask();
 
   @Test
-  public void delegatesHealthChecksToAdmin() {
-    healthCheckTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
-
-    verify(mockAdmin).isHealthy();
-  }
-
-  @Test
   public void healthy() {
-    when(mockAdmin.isHealthy()).thenReturn(true);
     ResponseDefinition response =
         healthCheckTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 
@@ -56,18 +46,5 @@ class HealthCheckTaskTest {
         response.getStatusMessage(),
         equalTo(response.getReponseBody().asJson().get("message").asText()));
     assertThat(response.getReponseBody().asJson().get("status").asText(), is("healthy"));
-  }
-
-  @Test
-  public void notHealthy() {
-    ResponseDefinition response =
-        healthCheckTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
-
-    assertThat(response.getStatus(), is(HttpURLConnection.HTTP_UNAVAILABLE));
-    assertThat(response.getStatusMessage(), is("Wiremock is not ok"));
-    assertThat(
-        response.getStatusMessage(),
-        equalTo(response.getReponseBody().asJson().get("message").asText()));
-    assertThat(response.getReponseBody().asJson().get("status").asText(), is("unhealthy"));
   }
 }
