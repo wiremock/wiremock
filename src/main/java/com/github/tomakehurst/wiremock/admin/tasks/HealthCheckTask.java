@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.HealthCheckResult;
@@ -31,25 +30,15 @@ public class HealthCheckTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
 
-    return admin.isHealthy()
-        ? responseDefinition()
-            .withStatus(HTTP_OK)
-            .withStatusMessage("Wiremock is ok")
-            .withBody(
-                Json.write(
-                    new HealthCheckResult(
-                        HealthCheckStatus.HEALTHY.name().toLowerCase(), "Wiremock is ok")))
-            .withHeader("Content-Type", "application/json")
-            .build()
-        : responseDefinition()
-            .withStatus(HTTP_UNAVAILABLE)
-            .withStatusMessage("Wiremock is not ok")
-            .withBody(
-                Json.write(
-                    new HealthCheckResult(
-                        HealthCheckStatus.UNHEALTHY.name().toLowerCase(), "Wiremock is not ok")))
-            .withHeader("Content-Type", "application/json")
-            .build();
+    return responseDefinition()
+        .withStatus(HTTP_OK)
+        .withStatusMessage("Wiremock is ok")
+        .withBody(
+            Json.write(
+                new HealthCheckResult(
+                    HealthCheckStatus.HEALTHY.name().toLowerCase(), "Wiremock is ok")))
+        .withHeader("Content-Type", "application/json")
+        .build();
   }
 
   protected enum HealthCheckStatus {
