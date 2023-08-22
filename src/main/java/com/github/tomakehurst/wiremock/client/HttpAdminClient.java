@@ -432,11 +432,6 @@ public class HttpAdminClient implements Admin {
         adminRoutes.requestSpecForTask(GetGlobalSettingsTask.class), GetGlobalSettingsResult.class);
   }
 
-  @Override
-  public boolean isHealthy() {
-    return executeRequest(adminRoutes.requestSpecForTask(HealthCheckTask.class), Boolean.class);
-  }
-
   public int port() {
     return port;
   }
