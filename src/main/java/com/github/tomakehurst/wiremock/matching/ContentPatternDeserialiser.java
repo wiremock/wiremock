@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class ContentPatternDeserializer extends JsonDeserializer<ContentPattern<?>> {
+public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
 
   @Override
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
