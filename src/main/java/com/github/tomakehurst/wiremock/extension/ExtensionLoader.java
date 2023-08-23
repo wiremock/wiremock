@@ -45,7 +45,7 @@ public class ExtensionLoader {
   public static Map<String, Extension> asMap(List<Extension> extensions) {
     return extensions.stream()
         .map(extension -> Map.entry(extension.getName(), extension))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   @SafeVarargs
