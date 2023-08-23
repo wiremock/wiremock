@@ -111,6 +111,8 @@ public class AdminRoutes {
     router.add(GET, "/docs", new GetDocIndexTask());
 
     router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
+
+    router.add(GET, "/health", new HealthCheckTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {
