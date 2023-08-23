@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.store.RequestJournalStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.ImmutableList;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -59,7 +58,10 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-    return getRequests().filter(thatMatch(requestPattern, customMatchers)).collect(toList());
+    List<LoggedRequest> loggedRequests =
+        getRequests().filter(thatMatch(requestPattern, customMatchers)).collect(toList());
+    Collections.reverse(loggedRequests);
+    return loggedRequests;
   }
 
   @Override
@@ -101,7 +103,7 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public List<ServeEvent> getAllServeEvents() {
-    return ImmutableList.copyOf(store.getAll().collect(toList())).reverse();
+    return store.getAll().collect(toList());
   }
 
   @Override
