@@ -120,7 +120,7 @@ public class ServeEventLogAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(
         requests,
-        hasExactly(withUrl("/use/4"), withUrl("/use/3"), withUrl("/use/2"), withUrl("/use/1")));
+        hasExactly(withUrl("/use/1"), withUrl("/use/2"), withUrl("/use/3"), withUrl("/use/4")));
   }
 
   @Test

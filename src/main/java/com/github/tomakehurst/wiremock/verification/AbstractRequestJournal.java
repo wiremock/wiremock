@@ -58,7 +58,10 @@ public abstract class AbstractRequestJournal implements RequestJournal {
 
   @Override
   public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-    return getRequests().filter(thatMatch(requestPattern, customMatchers)).collect(toList());
+    List<LoggedRequest> loggedRequests =
+        getRequests().filter(thatMatch(requestPattern, customMatchers)).collect(toList());
+    Collections.reverse(loggedRequests);
+    return loggedRequests;
   }
 
   @Override
