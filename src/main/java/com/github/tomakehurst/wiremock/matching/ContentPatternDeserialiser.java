@@ -20,9 +20,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.StreamSupport;
 
 public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
 
@@ -49,8 +48,8 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
   }
 
   private static boolean isAbsent(JsonNode rootNode) {
-    List<Map.Entry<String, JsonNode>> list = new LinkedList<>();
-    rootNode.fields().forEachRemaining(list::add);
-    return list.stream().anyMatch(node -> node.getKey().equals("absent"));
+    return StreamSupport.stream(
+            Spliterators.spliteratorUnknownSize(rootNode.fields(), Spliterator.ORDERED), false)
+        .anyMatch(node -> node.getKey().equals("absent"));
   }
 }
