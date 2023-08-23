@@ -107,7 +107,7 @@ public class XmlNode {
       map.put(node.getNodeName(), node.getNodeValue());
     }
 
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   public Map<String, String> getAttributes() {

@@ -193,7 +193,7 @@ public class RequestWrapper implements Request {
 
     cookieMap.putAll(additionalCookies);
 
-    return cookieMap;
+    return Collections.unmodifiableMap(cookieMap);
   }
 
   @Override

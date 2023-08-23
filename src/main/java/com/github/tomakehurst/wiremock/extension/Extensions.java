@@ -186,13 +186,14 @@ public class Extensions implements WireMockServices {
   @SuppressWarnings("unchecked")
   public <T extends Extension> Map<String, T> ofType(Class<T> extensionType) {
     return (Map<String, T>)
-        loadedExtensions.entrySet().stream()
-            .filter(valueAssignableFrom(extensionType))
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    (entry1, entry2) -> entry1,
-                    LinkedHashMap::new));
+        Collections.unmodifiableMap(
+            loadedExtensions.entrySet().stream()
+                .filter(valueAssignableFrom(extensionType))
+                .collect(
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (entry1, entry2) -> entry1,
+                        LinkedHashMap::new)));
   }
 }
