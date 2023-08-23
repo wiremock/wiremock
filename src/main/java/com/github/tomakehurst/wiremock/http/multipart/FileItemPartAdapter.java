@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -57,7 +58,7 @@ public class FileItemPartAdapter implements Request.Part {
       headersList.add(getHeader(name));
     }
 
-    return new HttpHeaders(headersList);
+    return new HttpHeaders(Collections.unmodifiableList(headersList));
   }
 
   @Override
