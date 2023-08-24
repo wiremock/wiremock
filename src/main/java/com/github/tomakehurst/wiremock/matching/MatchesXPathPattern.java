@@ -54,9 +54,9 @@ public class MatchesXPathPattern extends PathPattern {
 
   public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
     Map<String, String> namespaceMap =
-        new HashMap<>(getFirstNonNull(xpathNamespaces, Collections.emptyMap()));
+        new HashMap<>(getFirstNonNull(xpathNamespaces, new HashMap<>()));
     namespaceMap.put(name, namespaceUri);
-    return new MatchesXPathPattern(expectedValue, namespaceMap);
+    return new MatchesXPathPattern(expectedValue, Collections.unmodifiableMap(namespaceMap));
   }
 
   public String getMatchesXPath() {

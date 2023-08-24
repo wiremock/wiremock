@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,7 +28,7 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
 
   @Override
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException {
+      throws IOException, JsonProcessingException {
     JsonNode rootNode = parser.readValueAsTree();
 
     if (isAbsent(rootNode)) {
