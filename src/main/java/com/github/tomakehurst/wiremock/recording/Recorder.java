@@ -27,7 +27,6 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -109,7 +108,7 @@ public class Recorder {
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
     final List<StubMapping> stubMappings =
         serveEventsToStubMappings(
-            Lists.reverse(serveEvents),
+            serveEvents,
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),
