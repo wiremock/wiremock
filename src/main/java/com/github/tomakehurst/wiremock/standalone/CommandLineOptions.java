@@ -45,7 +45,6 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.collect.*;
-import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
@@ -195,7 +194,7 @@ public class CommandLineOptions implements Options {
             "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.")
         .requiredIf(HTTPS_KEYSTORE_PASSWORD)
         .withRequiredArg()
-        .defaultsTo(Resources.getResource("keystore").toString());
+        .defaultsTo(ResourceUtil.getResourceURL(CommandLineOptions.class, "keystore").toString());
     optionParser
         .accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL")
         .withRequiredArg();

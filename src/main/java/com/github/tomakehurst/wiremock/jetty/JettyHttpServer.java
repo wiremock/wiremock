@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.servlet.*;
-import com.google.common.io.Resources;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -347,10 +346,10 @@ public abstract class JettyHttpServer implements HttpServer {
     } else {
       adminContext.setInitParameter(
           "org.eclipse.jetty.servlet.Default.resourceBase",
-          Resources.getResource("assets").toString());
+          ResourceUtil.getResourceURI(JettyHttpServer.class, "assets").toString());
     }
 
-    Resources.getResource("assets/swagger-ui/index.html");
+    ResourceUtil.getResourceURI(JettyHttpServer.class, "assets/swagger-ui/index.html");
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
     ServletHolder swaggerUiServletHolder =

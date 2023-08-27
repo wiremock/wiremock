@@ -16,14 +16,10 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 
-import com.google.common.io.Resources;
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -83,8 +79,7 @@ public class ClasspathFileSource implements FileSource {
 
   private ClassLoader getClassLoader() {
     if (classLoader != null) return classLoader;
-    return getFirstNonNull(
-        currentThread().getContextClassLoader(), Resources.class.getClassLoader());
+    return ResourceUtil.loader(ClasspathFileSource.class);
   }
 
   private boolean isFileSystem() {
@@ -158,11 +153,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private URI getUriFor(ZipEntry jarEntry) {
-    try {
-      return Resources.getResource(jarEntry.getName()).toURI();
-    } catch (URISyntaxException e) {
-      return throwUnchecked(e, URI.class);
-    }
+    return ResourceUtil.getResourceURI(ClasspathFileSource.class, jarEntry.getName());
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
