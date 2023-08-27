@@ -1,0 +1,12 @@
+{
+  "request": {
+    "method": "POST",
+    "bodyPatterns": [{
+      "equalToJson": "body.json",
+      "source": "file"
+    }],
+    "url": "/json-request"
+  },
+  "response": {"status": 200},
+  "id": "59179b2b-ce01-49cf-8381-280dcd559572"
+}

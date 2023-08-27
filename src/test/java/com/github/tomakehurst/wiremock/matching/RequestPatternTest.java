@@ -615,7 +615,7 @@ public class RequestPatternTest {
           + "    \"method\" : \"PUT\",                              \n"
           + "    \"bodyPatterns\" : [                               \n"
           + "        { \"equalTo\": \"thing\" },                    \n"
-          + "        { \"equalToJson\": \"{ \\\"thing\\\": 1 }\" }, \n"
+          + "        { \"equalToJson\": \"{ \\\"thing\\\": 1 }\", \"source\": \"RAW\" }, \n"
           + "        { \"matchesJsonPath\": \"@.*\" },              \n"
           + "        { \"equalToXml\": \"<thing />\" },             \n"
           + "        { \"matchesXPath\": \"//thing\" },             \n"

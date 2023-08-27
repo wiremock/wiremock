@@ -367,7 +367,8 @@ public class MatchesJsonPathPatternTest {
                 + "        \"expression\": \"$..thing\",   \n"
                 + "        \"equalToJson\": \"{}\",        \n"
                 + "        \"ignoreExtraElements\": true,  \n"
-                + "        \"ignoreArrayOrder\": true      \n"
+                + "        \"ignoreArrayOrder\": true,     \n"
+                + "        \"source\": \"RAW\"             \n"
                 + "    }                                   \n"
                 + "}"));
   }

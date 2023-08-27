@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.google.common.io.Resources;
 import java.io.File;
 import java.util.UUID;
@@ -86,6 +87,23 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
         wmClient.getStubMapping(UUID.fromString("59179b2b-ce01-49cf-8381-280dcd559484"));
 
     assertThat(stubMapping.getItem().getResponse().specifiesBinaryBodyContent(), is(true));
+  }
+
+  @Test
+  public void convertsRequestFileToStringBodyForJson() {
+    wmClient.loadMappingsFrom(rootDir);
+
+    SingleStubMappingResult stubMapping =
+        wmClient.getStubMapping(UUID.fromString("59179b2b-ce01-49cf-8381-280dcd559572"));
+
+    assertThat(stubMapping.getItem().getRequest().getBodyPatterns().size(), is(1));
+    assertThat(
+        stubMapping.getItem().getRequest().getBodyPatterns().get(0).getClass(),
+        is(EqualToJsonPattern.class));
+
+    EqualToJsonPattern equalToJsonPattern =
+        (EqualToJsonPattern) stubMapping.getItem().getRequest().getBodyPatterns().get(0);
+    assertThat(equalToJsonPattern.getEqualToJson(), is("{\"result\": \"ok\"}\n"));
   }
 
   @Test

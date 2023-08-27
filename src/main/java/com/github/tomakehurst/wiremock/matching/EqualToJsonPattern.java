@@ -29,7 +29,7 @@ import net.javacrumbs.jsonunit.core.listener.Difference;
 import net.javacrumbs.jsonunit.core.listener.DifferenceContext;
 import net.javacrumbs.jsonunit.core.listener.DifferenceListener;
 
-public class EqualToJsonPattern extends StringValuePattern {
+public class EqualToJsonPattern extends RequestBodyEqualToPattern<JsonNode> {
 
   private final JsonNode expected;
   private final Boolean ignoreArrayOrder;
@@ -38,22 +38,38 @@ public class EqualToJsonPattern extends StringValuePattern {
 
   public EqualToJsonPattern(
       @JsonProperty("equalToJson") String json,
+      @JsonProperty("source") ExpectedSource source,
       @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
       @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
-    super(json);
-    expected = Json.read(json, JsonNode.class);
-    this.ignoreArrayOrder = ignoreArrayOrder;
-    this.ignoreExtraElements = ignoreExtraElements;
-    this.serializeAsString = true;
+    this(json, source, ignoreArrayOrder, ignoreExtraElements, true);
+  }
+
+  public EqualToJsonPattern(String json, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
+    this(json, ExpectedSource.RAW, ignoreExtraElements, ignoreExtraElements, true);
   }
 
   public EqualToJsonPattern(
       JsonNode jsonNode, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
-    super(Json.write(jsonNode));
-    expected = jsonNode;
+    this(Json.write(jsonNode), null, ignoreExtraElements, ignoreExtraElements, false);
+  }
+
+  private EqualToJsonPattern(
+      String json,
+      ExpectedSource source,
+      Boolean ignoreArrayOrder,
+      Boolean ignoreExtraElements,
+      Boolean serializeAsString) {
+    super(json, source);
+
+    if (ExpectedSource.FILE == source) {
+      expected = null;
+    } else {
+      expected = Json.read(json, JsonNode.class);
+    }
+
     this.ignoreArrayOrder = ignoreArrayOrder;
     this.ignoreExtraElements = ignoreExtraElements;
-    this.serializeAsString = false;
+    this.serializeAsString = serializeAsString;
   }
 
   @Override
@@ -129,7 +145,24 @@ public class EqualToJsonPattern extends StringValuePattern {
 
   @Override
   public String getExpected() {
-    return Json.prettyPrint(getValue());
+    // TODO:: Add READY CHECK ???
+    if (expected != null) {
+      return Json.prettyPrint(getValue());
+    } else {
+      return expectedValue;
+    }
+  }
+
+  @Override
+  public EqualToJsonPattern withExpected(String json) {
+    return new EqualToJsonPattern(
+        json, this.getSource(), ignoreExtraElements, ignoreExtraElements, true);
+  }
+
+  @Override
+  public RequestBodyEqualToPattern<JsonNode> withSource(ExpectedSource source) {
+    return new EqualToJsonPattern(
+        this.getExpected(), source, ignoreExtraElements, ignoreExtraElements, true);
   }
 
   private static class CountingDiffListener implements DifferenceListener {
