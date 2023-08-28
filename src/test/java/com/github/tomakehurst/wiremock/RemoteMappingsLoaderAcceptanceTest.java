@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.ResourceUtil;
 import java.io.File;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,9 +36,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
   public static void initWithTempDir() throws Exception {
     setupServerWithTempFileRoot();
     wmClient = WireMock.create().port(wireMockServer.port()).build();
-    rootDir =
-        new File(
-            ResourceUtil.getResourceURI(RemoteMappingsLoaderAcceptanceTest.class, "remoteloader"));
+    rootDir = new File(getResourceURI(RemoteMappingsLoaderAcceptanceTest.class, "remoteloader"));
   }
 
   @Test

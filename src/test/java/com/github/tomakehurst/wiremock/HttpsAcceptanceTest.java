@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
-import com.github.tomakehurst.wiremock.common.ResourceUtil;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -174,15 +174,14 @@ public class HttpsAcceptanceTest {
         Exception.class,
         () -> {
           String testKeystorePath =
-              ResourceUtil.getResourceURI(HttpsAcceptanceTest.class, "bad-keystore").toString();
+              getResourceURI(HttpsAcceptanceTest.class, "bad-keystore").toString();
           startServerWithKeystore(testKeystorePath);
         });
   }
 
   @Test
   public void acceptsAlternativeKeystore() throws Exception {
-    String testKeystorePath =
-        ResourceUtil.getResourceURI(HttpsAcceptanceTest.class, "test-keystore").toString();
+    String testKeystorePath = getResourceURI(HttpsAcceptanceTest.class, "test-keystore").toString();
     startServerWithKeystore(testKeystorePath);
     stubFor(
         get(urlEqualTo("/https-test"))
@@ -194,7 +193,7 @@ public class HttpsAcceptanceTest {
   @Test
   public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
     String testKeystorePath =
-        ResourceUtil.getResourceURI(HttpsAcceptanceTest.class, "test-keystore-pwd").toString();
+        getResourceURI(HttpsAcceptanceTest.class, "test-keystore-pwd").toString();
     startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
     stubFor(
         get(urlEqualTo("/https-test"))
@@ -206,8 +205,7 @@ public class HttpsAcceptanceTest {
   @Test
   public void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
     String keystorePath =
-        ResourceUtil.getResourceURI(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd")
-            .toString();
+        getResourceURI(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
     startServerWithKeystore(keystorePath, "password", "anotherpassword");
     stubFor(
         get(urlEqualTo("/alt-password-https"))
@@ -220,8 +218,7 @@ public class HttpsAcceptanceTest {
   public void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
     try {
       String keystorePath =
-          ResourceUtil.getResourceURI(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd")
-              .toString();
+          getResourceURI(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
       startServerWithKeystore(keystorePath, "password", "wrongpassword");
       fail("Expected a SocketException or SSLHandshakeException to be thrown");
     } catch (Exception e) {

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
@@ -346,10 +347,10 @@ public abstract class JettyHttpServer implements HttpServer {
     } else {
       adminContext.setInitParameter(
           "org.eclipse.jetty.servlet.Default.resourceBase",
-          ResourceUtil.getResourceURI(JettyHttpServer.class, "assets").toString());
+          getResourceURI(JettyHttpServer.class, "assets").toString());
     }
 
-    ResourceUtil.getResourceURI(JettyHttpServer.class, "assets/swagger-ui/index.html");
+    getResourceURI(JettyHttpServer.class, "assets/swagger-ui/index.html");
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
     ServletHolder swaggerUiServletHolder =

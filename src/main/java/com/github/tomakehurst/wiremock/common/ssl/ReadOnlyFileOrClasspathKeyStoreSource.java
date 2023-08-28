@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.common.ssl;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURL;
 
-import com.github.tomakehurst.wiremock.common.ResourceUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,7 +37,6 @@ public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
     this.path = path;
   }
 
-  @SuppressWarnings("UnstableApiUsage")
   @Override
   protected InputStream createInputStream() {
     try {
@@ -48,7 +47,7 @@ public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
           URL pathUrl = new URL(path);
           return pathUrl.openStream();
         } catch (MalformedURLException ignored) {
-          return ResourceUtil.getResourceURL(KeyStoreSource.class, path).openStream();
+          return getResourceURL(KeyStoreSource.class, path).openStream();
         }
       }
     } catch (IOException e) {

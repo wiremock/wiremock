@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.core;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURL;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static java.util.Arrays.asList;
@@ -67,8 +68,7 @@ public class WireMockConfiguration implements Options {
   private int containerThreads = DEFAULT_CONTAINER_THREADS;
 
   private int httpsPort = -1;
-  private String keyStorePath =
-      ResourceUtil.getResourceURL(WireMockConfiguration.class, "keystore").toString();
+  private String keyStorePath = getResourceURL(WireMockConfiguration.class, "keystore").toString();
   private String keyStorePassword = "password";
   private String keyManagerPassword = "password";
   private String keyStoreType = "JKS";

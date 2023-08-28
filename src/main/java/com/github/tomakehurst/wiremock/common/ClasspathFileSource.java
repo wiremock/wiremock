@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.loader;
 import static java.util.Arrays.asList;
 
 import java.io.File;
@@ -79,7 +81,7 @@ public class ClasspathFileSource implements FileSource {
 
   private ClassLoader getClassLoader() {
     if (classLoader != null) return classLoader;
-    return ResourceUtil.loader(ClasspathFileSource.class);
+    return loader(ClasspathFileSource.class);
   }
 
   private boolean isFileSystem() {
@@ -153,7 +155,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private URI getUriFor(ZipEntry jarEntry) {
-    return ResourceUtil.getResourceURI(ClasspathFileSource.class, jarEntry.getName());
+    return getResourceURI(ClasspathFileSource.class, jarEntry.getName());
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
