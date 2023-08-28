@@ -24,6 +24,10 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+/**
+ * Note: BETA This interface and everything else under the stores package is in beta so breaking
+ * changes may occur between minor releases.
+ */
 public interface StubMappingStore {
 
   Stream<StubMapping> getAll();
