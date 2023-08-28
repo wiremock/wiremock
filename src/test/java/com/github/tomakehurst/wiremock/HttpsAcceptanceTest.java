@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -194,7 +193,7 @@ public class HttpsAcceptanceTest {
   @Test
   public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
     String testKeystorePath =
-        getResourceURI(HttpsAcceptanceTest.class, "test-keystore-pwd").toString();
+        getResource(HttpsAcceptanceTest.class, "test-keystore-pwd").toString();
     startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
     stubFor(
         get(urlEqualTo("/https-test"))
@@ -206,7 +205,7 @@ public class HttpsAcceptanceTest {
   @Test
   public void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
     String keystorePath =
-        getResourceURI(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
+        getResource(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
     startServerWithKeystore(keystorePath, "password", "anotherpassword");
     stubFor(
         get(urlEqualTo("/alt-password-https"))
