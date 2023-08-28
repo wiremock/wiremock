@@ -19,6 +19,10 @@ import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import java.io.InputStream;
 import java.util.Optional;
 
+/**
+ * Note: BETA This interface and everything else under the stores package is in beta so breaking
+ * changes may occur between minor releases.
+ */
 public interface BlobStore extends Store<String, byte[]> {
 
   Optional<InputStream> getStream(String key);
