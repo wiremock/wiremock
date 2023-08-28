@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.common.ssl;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURL;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +47,7 @@ public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
           URL pathUrl = new URL(path);
           return pathUrl.openStream();
         } catch (MalformedURLException ignored) {
-          return getResourceURL(KeyStoreSource.class, path).openStream();
+          return getResource(KeyStoreSource.class, path).openStream();
         }
       }
     } catch (IOException e) {

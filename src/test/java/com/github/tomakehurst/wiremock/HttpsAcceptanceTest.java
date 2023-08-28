@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
@@ -174,14 +175,14 @@ public class HttpsAcceptanceTest {
         Exception.class,
         () -> {
           String testKeystorePath =
-              getResourceURI(HttpsAcceptanceTest.class, "bad-keystore").toString();
+              getResource(HttpsAcceptanceTest.class, "bad-keystore").toString();
           startServerWithKeystore(testKeystorePath);
         });
   }
 
   @Test
   public void acceptsAlternativeKeystore() throws Exception {
-    String testKeystorePath = getResourceURI(HttpsAcceptanceTest.class, "test-keystore").toString();
+    String testKeystorePath = getResource(HttpsAcceptanceTest.class, "test-keystore").toString();
     startServerWithKeystore(testKeystorePath);
     stubFor(
         get(urlEqualTo("/https-test"))
@@ -218,7 +219,7 @@ public class HttpsAcceptanceTest {
   public void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
     try {
       String keystorePath =
-          getResourceURI(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
+          getResource(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
       startServerWithKeystore(keystorePath, "password", "wrongpassword");
       fail("Expected a SocketException or SSLHandshakeException to be thrown");
     } catch (Exception e) {

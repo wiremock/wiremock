@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURL;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 
@@ -131,7 +131,7 @@ public class HttpsSettings {
   public static class Builder {
 
     private int port;
-    private String keyStorePath = getResourceURL(Builder.class, "keystore").toString();
+    private String keyStorePath = getResource(Builder.class, "keystore").toString();
     private String keyStorePassword = "password";
     private String keyManagerPassword = "password";
     private String keyStoreType = "JKS";

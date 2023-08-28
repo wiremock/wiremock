@@ -28,13 +28,13 @@ public class ResourceUtil {
 
   private ResourceUtil() {}
 
-  public static <T> ClassLoader loader(Class<T> className) {
+  public static <T> ClassLoader getLoader(Class<T> className) {
     return getFirstNonNull(
         Thread.currentThread().getContextClassLoader(), className.getClassLoader());
   }
 
-  public static <T> URL getResourceURL(Class<T> className, String resourceName) {
-    ClassLoader loader = loader(className);
+  public static <T> URL getResource(Class<T> className, String resourceName) {
+    ClassLoader loader = getLoader(className);
     URL url = loader.getResource(resourceName);
     checkParameter(url != null, String.format("resource %s not found.", resourceName));
     return loader.getResource(resourceName);
@@ -42,7 +42,7 @@ public class ResourceUtil {
 
   public static <T> URI getResourceURI(Class<T> className, String resourceName) {
     try {
-      return getResourceURL(className, resourceName).toURI();
+      return getResource(className, resourceName).toURI();
     } catch (URISyntaxException e) {
       return throwUnchecked(e, URI.class);
     }
