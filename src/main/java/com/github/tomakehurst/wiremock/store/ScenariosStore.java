@@ -18,6 +18,10 @@ package com.github.tomakehurst.wiremock.store;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import java.util.stream.Stream;
 
+/**
+ * Note: BETA This interface and everything else under the stores package is in beta so breaking
+ * changes may occur between minor releases.
+ */
 public interface ScenariosStore extends Store<String, Scenario> {
 
   Stream<Scenario> getAll();
