@@ -1,0 +1,7 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/extension/resource/1"
+  },
+  "response": {"status": 200}
+}

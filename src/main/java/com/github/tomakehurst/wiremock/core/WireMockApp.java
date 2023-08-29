@@ -61,6 +61,7 @@ public class WireMockApp implements StubServer, Admin {
   private final NearMissCalculator nearMissCalculator;
   private final Recorder recorder;
   private final List<GlobalSettingsListener> globalSettingsListeners;
+  private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
 
   private Options options;
 
@@ -116,6 +117,7 @@ public class WireMockApp implements StubServer, Admin {
     recorder =
         new Recorder(this, extensions, stores.getFilesBlobStore(), stores.getRecorderStateStore());
     globalSettingsListeners = List.copyOf(extensions.ofType(GlobalSettingsListener.class).values());
+    this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
 
     this.container = container;
     loadDefaultMappings();
@@ -124,6 +126,7 @@ public class WireMockApp implements StubServer, Admin {
   public WireMockApp(
       boolean browserProxyingEnabled,
       MappingsLoader defaultMappingsLoader,
+      Map<String, MappingsLoaderExtension> mappingsLoaderExtensions,
       MappingsSaver mappingsSaver,
       boolean requestJournalDisabled,
       Integer maxRequestJournalEntries,
@@ -137,6 +140,7 @@ public class WireMockApp implements StubServer, Admin {
 
     this.browserProxyingEnabled = browserProxyingEnabled;
     this.defaultMappingsLoader = defaultMappingsLoader;
+    this.mappingsLoaderExtensions = mappingsLoaderExtensions;
     this.mappingsSaver = mappingsSaver;
     this.settingsStore = stores.getSettingsStore();
     requestJournal =
@@ -236,6 +240,8 @@ public class WireMockApp implements StubServer, Admin {
 
   private void loadDefaultMappings() {
     loadMappingsUsing(defaultMappingsLoader);
+    if (mappingsLoaderExtensions != null)
+      mappingsLoaderExtensions.values().forEach(e -> loadMappingsUsing(e));
   }
 
   public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
