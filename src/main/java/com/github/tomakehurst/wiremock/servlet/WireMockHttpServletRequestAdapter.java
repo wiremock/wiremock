@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
@@ -242,7 +241,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     return Maps.transformValues(
-        builder.build().asMap(), input -> new Cookie(null, ImmutableList.copyOf(input)));
+        builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
   }
 
   @Override

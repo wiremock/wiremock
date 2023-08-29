@@ -16,18 +16,18 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class StringValuePatternTest {
 
   @Test
   public void allSubclassesHaveWorkingToString() throws Exception {
-    ImmutableSet<ClassPath.ClassInfo> allClasses =
+    Set<ClassPath.ClassInfo> allClasses =
         ClassPath.from(Thread.currentThread().getContextClassLoader()).getAllClasses();
 
     allClasses.stream()
