@@ -948,7 +948,7 @@ public class CommandLineOptions implements Options {
   public Set<String> getTemplatePermittedSystemKeys() {
     return optionSet.has(PERMITTED_SYSTEM_KEYS)
         ? Set.copyOf((List<String>) optionSet.valuesOf(PERMITTED_SYSTEM_KEYS))
-        : Collections.emptySet();
+        : Collections.<String>emptySet();
   }
 
   @Override
