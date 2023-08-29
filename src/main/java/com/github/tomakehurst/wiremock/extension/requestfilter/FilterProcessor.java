@@ -34,7 +34,11 @@ public class FilterProcessor {
   public RequestFilterAction processFilters(Request request, ServeEvent serveEvent) {
     RequestFilterAction requestFilterAction =
         processV1Filters(request, v1RequestFilters, RequestFilterAction.continueWith(request));
-    return processV2Filters(request, serveEvent, v2RequestFilters, requestFilterAction);
+    if (requestFilterAction instanceof ContinueAction) {
+      return processV2Filters(request, serveEvent, v2RequestFilters, requestFilterAction);
+    } else {
+      return requestFilterAction;
+    }
   }
 
   private RequestFilterAction processV1Filters(
