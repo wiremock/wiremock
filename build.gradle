@@ -52,7 +52,9 @@ dependencies {
   api "org.eclipse.jetty:jetty-alpn-java-client"
   api "org.eclipse.jetty:jetty-alpn-client"
 
-  api "com.google.guava:guava:$versions.guava"
+  api "com.google.guava:guava:$versions.guava", {
+    exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
   api platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
   api "com.fasterxml.jackson.core:jackson-core",
       "com.fasterxml.jackson.core:jackson-annotations",
@@ -306,6 +308,10 @@ shadowJar {
   relocate "org.checkerframework", "wiremock.org.checkerframework"
   relocate "org.hamcrest", "wiremock.org.hamcrest"
   relocate "org.slf4j", "wiremock.org.slf4j"
+  relocate "joptsimple", "wiremock.joptsimple"
+  relocate "org.yaml", "wiremock.org.yaml"
+  relocate "com.ethlo", "wiremock.com.ethlo"
+  relocate "com.networknt", "wiremock.com.networknt"
 
   dependencies {
     exclude(dependency('junit:junit'))

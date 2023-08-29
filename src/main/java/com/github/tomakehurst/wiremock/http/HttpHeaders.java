@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import java.util.*;
@@ -37,7 +36,7 @@ public class HttpHeaders {
   }
 
   public HttpHeaders(HttpHeader... headers) {
-    this(ImmutableList.copyOf(headers));
+    this(Arrays.asList(headers));
   }
 
   public HttpHeaders(Iterable<HttpHeader> headers) {
@@ -97,11 +96,9 @@ public class HttpHeaders {
   }
 
   public HttpHeaders plus(HttpHeader... additionalHeaders) {
-    return new HttpHeaders(
-        ImmutableList.<HttpHeader>builder()
-            .addAll(all())
-            .addAll(asList(additionalHeaders))
-            .build());
+    List<HttpHeader> httpHeaders = new ArrayList<>(all());
+    httpHeaders.addAll(asList(additionalHeaders));
+    return new HttpHeaders(httpHeaders);
   }
 
   @Override

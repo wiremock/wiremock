@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -98,8 +97,8 @@ public class Scenario {
   }
 
   Scenario withStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings =
-        ImmutableSet.<StubMapping>builder().addAll(stubMappings).add(stubMapping).build();
+    Set<StubMapping> newMappings = new LinkedHashSet<>(stubMappings);
+    newMappings.add(stubMapping);
 
     return new Scenario(id, state, newMappings);
   }
