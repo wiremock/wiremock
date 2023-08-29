@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.store;
+package org.wiremock.annotations;
 
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import java.io.InputStream;
-import java.util.Optional;
-import org.wiremock.annotations.Beta;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public interface BlobStore extends Store<String, byte[]> {
+/**
+ * Indicates that the class or a method represent preview Beta API that might change in the future
+ * as a part of the minor release.
+ *
+ * @since 3.0.0
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface Beta {
 
-  Optional<InputStream> getStream(String key);
-
-  InputStreamSource getStreamSource(String key);
+  public String justification() default "";
 }

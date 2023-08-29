@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,9 @@ package com.github.tomakehurst.wiremock.store;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
-/**
- * Note: BETA This interface and everything else under the stores package is in beta so breaking
- * changes may occur between minor releases.
- */
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface RequestJournalStore extends Store<UUID, ServeEvent> {
 
   Stream<ServeEvent> getAll();

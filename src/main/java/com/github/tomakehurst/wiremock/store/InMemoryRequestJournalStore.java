@@ -20,7 +20,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemoryRequestJournalStore implements RequestJournalStore {
 
   private final Deque<UUID> deque = new ConcurrentLinkedDeque<>();
