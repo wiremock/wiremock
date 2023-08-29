@@ -21,12 +21,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This item, while being declared as public or protected,
- * is shared only for internal needs and not supposed to be used outside the project.
- * The API may change in minor and patch releases without advance notice.
+ * This item, while being declared as public or protected, is shared only for internal needs and not
+ * supposed to be used outside the project. The API may change in minor and patch releases without
+ * advance notice.
  *
- * The annotation will be replaced by sealed classes after updating to Java 17.
- * It is not expected to be used outside the project on its own.
+ * <p>The annotation will be replaced by sealed classes after updating to Java 17. It is not
+ * expected to be used outside the project on its own.
  *
  * @since 3.0.0
  */
@@ -34,6 +34,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
 public @interface InternalAPI {
 
-    public String justification() default "";
-
+  public String justification() default "";
 }

@@ -16,10 +16,9 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import org.wiremock.annotations.Beta;
-
 import java.io.InputStream;
 import java.util.Optional;
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface BlobStore extends Store<String, byte[]> {

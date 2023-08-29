@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import org.wiremock.annotations.Beta;
-
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface Stores extends StoresLifecycle {

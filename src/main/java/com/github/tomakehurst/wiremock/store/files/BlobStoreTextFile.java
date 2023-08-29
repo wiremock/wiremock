@@ -20,9 +20,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.store.BlobStore;
-import org.wiremock.annotations.Beta;
-
 import java.io.InputStream;
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class BlobStoreTextFile extends TextFile {

@@ -15,10 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
-import org.wiremock.annotations.Beta;
-
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface Store<K, V> {

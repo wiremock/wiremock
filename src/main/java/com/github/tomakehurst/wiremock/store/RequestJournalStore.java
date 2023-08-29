@@ -16,10 +16,9 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.wiremock.annotations.Beta;
-
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface RequestJournalStore extends Store<UUID, ServeEvent> {

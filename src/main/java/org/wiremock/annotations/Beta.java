@@ -21,8 +21,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the class or a method represent preview Beta API
- * that might change in the future as a part of the minor release.
+ * Indicates that the class or a method represent preview Beta API that might change in the future
+ * as a part of the minor release.
  *
  * @since 3.0.0
  */
@@ -30,6 +30,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Beta {
 
-    public String justification() default "";
-
+  public String justification() default "";
 }

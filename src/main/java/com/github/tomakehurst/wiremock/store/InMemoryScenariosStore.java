@@ -16,11 +16,10 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import org.wiremock.annotations.Beta;
-
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemoryScenariosStore implements ScenariosStore {
