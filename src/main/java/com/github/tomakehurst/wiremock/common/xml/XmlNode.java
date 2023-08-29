@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import static javax.xml.transform.OutputKeys.INDENT;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.google.common.collect.ImmutableMap;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
@@ -40,7 +40,7 @@ import org.xml.sax.XMLReader;
 public class XmlNode {
 
   protected static final InheritableThreadLocal<XPath> XPATH_CACHE =
-      new InheritableThreadLocal<XPath>() {
+      new InheritableThreadLocal<>() {
         @Override
         protected XPath initialValue() {
           final XPathFactory xPathfactory = XPathFactory.newInstance();
@@ -49,7 +49,7 @@ public class XmlNode {
       };
 
   protected static final InheritableThreadLocal<Transformer> TRANSFORMER_CACHE =
-      new InheritableThreadLocal<Transformer>() {
+      new InheritableThreadLocal<>() {
         @Override
         protected Transformer initialValue() {
           TransformerFactory transformerFactory;
@@ -97,17 +97,17 @@ public class XmlNode {
     attributes =
         domNode.hasAttributes()
             ? convertAttributeMap(domNode.getAttributes())
-            : Collections.<String, String>emptyMap();
+            : Collections.emptyMap();
   }
 
   private static Map<String, String> convertAttributeMap(NamedNodeMap namedNodeMap) {
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    Map<String, String> map = new HashMap<>();
     for (int i = 0; i < namedNodeMap.getLength(); i++) {
       Node node = namedNodeMap.item(i);
-      builder.put(node.getNodeName(), node.getNodeValue());
+      map.put(node.getNodeName(), node.getNodeValue());
     }
 
-    return builder.build();
+    return Collections.unmodifiableMap(map);
   }
 
   public Map<String, String> getAttributes() {

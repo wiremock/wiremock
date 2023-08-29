@@ -33,7 +33,6 @@ import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemp
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.MockWireMockServices;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,8 +118,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "}"),
             aResponse()
                 .withBody(
-                    ""
-                        + "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
+                    "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
   }
@@ -142,8 +140,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                         + "}"),
             aResponse()
                 .withBody(
-                    ""
-                        + "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
+                    "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n"
                         + "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}"));
 
     assertThat(responseDefinition.getBody(), containsString("One"));
@@ -289,8 +286,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
                               ResponseDefinition responseDefinition,
                               FileSource files,
                               Parameters parameters) {
-                            return ImmutableMap.<String, Object>of(
-                                "mapData", ImmutableMap.of("things", "abc"));
+                            return Map.of("mapData", Map.of("things", "abc"));
                           }
                         }));
 
@@ -351,7 +347,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
             null,
             new Object[] {"$.stuff"},
             null,
-            new ArrayList<String>(0));
+            new ArrayList<>(0));
 
     Object result = helper.apply("{\"stuff\":1}", options);
 

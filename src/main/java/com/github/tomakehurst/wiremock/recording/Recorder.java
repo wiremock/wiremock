@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.collect.Iterables.indexOf;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.indexOf;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -91,8 +91,8 @@ public class Recorder {
     int startIndex =
         state.getStartingServeEventId() == null
             ? serveEvents.size()
-            : indexOf(serveEvents, withId(state.getStartingServeEventId())::test);
-    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId())::test);
+            : indexOf(serveEvents, withId(state.getStartingServeEventId()));
+    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId()));
     List<ServeEvent> eventsToSnapshot = serveEvents.subList(endIndex, startIndex);
 
     SnapshotRecordResult result = takeSnapshot(eventsToSnapshot, state.getSpec());
