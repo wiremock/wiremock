@@ -15,6 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+/**
+ * Note: BETA This interface and everything else under the stores package is in beta so breaking
+ * changes may occur between minor releases.
+ */
 public interface StoresLifecycle {
 
   void start();

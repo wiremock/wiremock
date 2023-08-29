@@ -17,6 +17,10 @@ package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 
+/**
+ * Note: BETA This interface and everything else under the stores package is in beta so breaking
+ * changes may occur between minor releases.
+ */
 public interface SettingsStore {
 
   GlobalSettings get();
