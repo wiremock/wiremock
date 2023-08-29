@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.recording.RecorderState;
+import org.wiremock.annotations.Beta;
+
 import java.util.concurrent.atomic.AtomicReference;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemoryRecorderStateStore implements RecorderStateStore {
 
   private final AtomicReference<RecorderState> store;

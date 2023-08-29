@@ -20,14 +20,13 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import org.wiremock.annotations.Beta;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-/**
- * Note: BETA This interface and everything else under the stores package is in beta so breaking
- * changes may occur between minor releases.
- */
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface StubMappingStore {
 
   Stream<StubMapping> getAll();

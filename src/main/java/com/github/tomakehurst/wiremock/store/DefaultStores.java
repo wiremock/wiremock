@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class DefaultStores implements Stores {
 
   private final FileSource fileRoot;

@@ -15,13 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import org.wiremock.annotations.Beta;
+
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 
-/**
- * Note: BETA This interface and everything else under the stores package is in beta so breaking
- * changes may occur between minor releases.
- */
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface Stores extends StoresLifecycle {
 
   StubMappingStore getStubStore();

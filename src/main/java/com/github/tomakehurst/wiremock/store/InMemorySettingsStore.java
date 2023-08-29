@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import org.wiremock.annotations.Beta;
+
 import java.util.concurrent.atomic.AtomicReference;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemorySettingsStore implements SettingsStore {
 
   private AtomicReference<GlobalSettings> holder = new AtomicReference<>(GlobalSettings.defaults());

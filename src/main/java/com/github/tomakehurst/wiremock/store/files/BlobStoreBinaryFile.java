@@ -18,8 +18,11 @@ package com.github.tomakehurst.wiremock.store.files;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import org.wiremock.annotations.Beta;
+
 import java.io.InputStream;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class BlobStoreBinaryFile extends BinaryFile {
 
   private final BlobStore blobStore;

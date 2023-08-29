@@ -20,10 +20,13 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import org.wiremock.annotations.Beta;
+
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class BlobStoreFileSource implements FileSource {
 
   private final BlobStore blobStore;
