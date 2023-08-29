@@ -61,7 +61,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-public class HttpsAcceptanceTest {
+class HttpsAcceptanceTest {
 
   private WireMockServer wireMockServer;
   private WireMockServer proxy;
