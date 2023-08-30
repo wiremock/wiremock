@@ -79,7 +79,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void shouldReturnStubOnSpecifiedPort() throws Exception {
+  void shouldReturnStubOnSpecifiedPort() throws Exception {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/https-test"))
@@ -89,7 +89,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
+  void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
     Throwable exception =
         assertThrows(
             IllegalStateException.class,
@@ -120,7 +120,7 @@ class HttpsAcceptanceTest {
       value = OS.WINDOWS,
       disabledReason =
           "This feature does not work on Windows " + "because of differing native socket behaviour")
-  public void connectionResetByPeerFault() throws IOException {
+  void connectionResetByPeerFault() throws IOException {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/connection/reset"))
@@ -137,7 +137,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void emptyResponseFault() {
+  void emptyResponseFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
@@ -147,7 +147,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void malformedResponseChunkFault() {
+  void malformedResponseChunkFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/malformed/response"))
@@ -158,7 +158,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void randomDataOnSocketFault() {
+  void randomDataOnSocketFault() {
     startServerWithDefaultKeystore();
     stubFor(
         get(urlEqualTo("/random/data"))
@@ -169,7 +169,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void throwsExceptionWhenBadAlternativeKeystore() {
+  void throwsExceptionWhenBadAlternativeKeystore() {
     assertThrows(
         Exception.class,
         () -> {
@@ -180,7 +180,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptsAlternativeKeystore() throws Exception {
+  void acceptsAlternativeKeystore() throws Exception {
     String testKeystorePath = getResource(HttpsAcceptanceTest.class, "test-keystore").toString();
     startServerWithKeystore(testKeystorePath);
     stubFor(
@@ -191,7 +191,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
+  void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
     String testKeystorePath =
         getResource(HttpsAcceptanceTest.class, "test-keystore-pwd").toString();
     startServerWithKeystore(testKeystorePath, "nondefaultpass", "password");
@@ -203,7 +203,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
+  void acceptsAlternativeKeystoreWithNonDefaultKeyManagerPassword() throws Exception {
     String keystorePath =
         getResource(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
     startServerWithKeystore(keystorePath, "password", "anotherpassword");
@@ -215,7 +215,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
+  void failsToStartWithAlternativeKeystoreWithWrongKeyManagerPassword() {
     try {
       String keystorePath =
           getResource(HttpsAcceptanceTest.class, "test-keystore-key-man-pwd").toString();
@@ -227,7 +227,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void rejectsWithoutClientCertificate() {
+  void rejectsWithoutClientCertificate() {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
         get(urlEqualTo("/https-test"))
@@ -248,7 +248,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void acceptWithClientCertificate() throws Exception {
+  void acceptWithClientCertificate() throws Exception {
     String testTrustStorePath = TRUST_STORE_PATH;
     String testClientCertPath = TRUST_STORE_PATH;
 
@@ -263,7 +263,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
+  void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
         get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().withStatus(200)));
@@ -286,7 +286,7 @@ class HttpsAcceptanceTest {
   }
 
   @Test
-  public void proxyingFailsWhenTargetServiceRequiresClientCertificatesAndProxyDoesNotSend()
+  void proxyingFailsWhenTargetServiceRequiresClientCertificatesAndProxyDoesNotSend()
       throws Exception {
     startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
     wireMockServer.stubFor(
