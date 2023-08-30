@@ -36,8 +36,6 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -385,11 +383,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     Map<String, MultiValuePattern> combinedHeaders = headers;
-    Builder<String, MultiValuePattern> allHeadersBuilder =
-        ImmutableMap.<String, MultiValuePattern>builder()
-            .putAll(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
+    Map<String, MultiValuePattern> allHeadersBuilder =
+        new HashMap<>(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
     allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
-    combinedHeaders = allHeadersBuilder.build();
+    combinedHeaders = allHeadersBuilder;
     return combinedHeaders;
   }
 

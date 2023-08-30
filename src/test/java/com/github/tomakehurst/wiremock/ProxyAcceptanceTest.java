@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getLast;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.collect.Iterables.getLast;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;

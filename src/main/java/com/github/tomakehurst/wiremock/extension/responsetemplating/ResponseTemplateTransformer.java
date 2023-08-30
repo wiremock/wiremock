@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import com.google.common.collect.ImmutableMap;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -85,13 +84,11 @@ public class ResponseTemplateTransformer
               .flatMap(Set::stream)
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-      final ImmutableMap<String, Object> model =
-          ImmutableMap.<String, Object>builder()
-              .put("parameters", parameters)
-              .put("request", RequestTemplateModel.from(request, pathTemplate))
-              .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
-              .putAll(additionalModelData)
-              .build();
+      final Map<String, Object> model = new HashMap<>();
+      model.put("parameters", parameters);
+      model.put("request", RequestTemplateModel.from(request, pathTemplate));
+      model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
+      model.putAll(additionalModelData);
 
       if (responseDefinition.specifiesTextBodyContent()) {
         boolean isJsonBody = responseDefinition.getReponseBody().isJson();
@@ -204,7 +201,7 @@ public class ResponseTemplateTransformer
 
   private void applyTemplatedResponseBody(
       ResponseDefinitionBuilder newResponseDefBuilder,
-      ImmutableMap<String, Object> model,
+      Map<String, Object> model,
       HandlebarsOptimizedTemplate bodyTemplate,
       boolean isJsonBody) {
     String bodyString = uncheckedApplyTemplate(bodyTemplate, model);
