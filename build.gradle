@@ -255,6 +255,8 @@ allprojects {
       property "sonar.host.url", "https://sonarcloud.io"
     }
   }
+
+  shadowJar.dependsOn jar
 }
 
 java {
