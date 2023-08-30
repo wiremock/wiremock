@@ -31,7 +31,9 @@ dependencies {
   implementation("com.github.jknack:handlebars-helpers:$versions.handlebars") {
     exclude group: 'org.mozilla', module: 'rhino'
   }
-  implementation "com.google.guava:guava:$versions.guava"
+  implementation "com.google.guava:guava:$versions.guava", {
+    exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
   implementation "org.apache.httpcomponents.client5:httpclient5:5.2.1"
 
   testImplementation project(":")
@@ -47,10 +49,11 @@ shadowJar {
   archiveClassifier.set('')
 
   relocate "org.apache", 'wiremock.webhooks.org.apache'
-
-  dependencies {
-    exclude(dependency('org.slf4j:slf4j-api'))
-  }
+  relocate "org.slf4j",  "wiremock.webhooks.org.slf4j"
+  relocate "com.google", 'wiremock.webhooks.com.google'
+  relocate "com.fasterxml.jackson", 'wiremock.webhooks.com.fasterxml.jackson'
+  relocate "org.checkerframework", "wiremock.webhooks.org.checkerframework"
+  relocate "com.github.jknack", "wiremock.webhooks.com.github.jknack"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
