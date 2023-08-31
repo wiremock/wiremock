@@ -15,26 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
-import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import java.util.UUID;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class RemoveStubMappingByIdTask implements AdminTask {
+public class RemoveStubMappingByIdTask extends AbstractSingleStubTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    SingleStubMappingResult stubMappingResult =
-        admin.getStubMapping(UUID.fromString(pathParams.get("id")));
-
-    if (!stubMappingResult.isPresent()) {
-      return ResponseDefinition.notFound();
-    }
-
-    admin.removeStubMapping(stubMappingResult.getItem());
+  protected ResponseDefinition processStubMapping(
+      Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
+    admin.removeStubMapping(stubMapping);
     return ResponseDefinition.okEmptyJson();
   }
 }

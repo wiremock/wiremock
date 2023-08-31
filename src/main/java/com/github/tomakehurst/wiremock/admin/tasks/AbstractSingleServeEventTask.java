@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,30 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 
-public class GetServedStubTask extends AbstractSingleServeEventTask {
+public abstract class AbstractSingleServeEventTask implements AdminTask {
 
   @Override
-  protected ResponseDefinition processServeEvent(Admin admin, ServeEvent adminServeEvent, UUID id) {
-    final SingleServedStubResult result = admin.getServedStub(id);
-    return result.isPresent()
-        ? ResponseDefinition.okForJson(result.getItem())
-        : ResponseDefinition.notFound();
+  public ResponseDefinition execute(
+      Admin admin, ServeEvent adminServeEvent, PathParams pathParams) {
+    String idString = pathParams.get("id");
+    UUID id;
+    try {
+      id = UUID.fromString(idString);
+    } catch (IllegalArgumentException e) {
+      return ResponseDefinition.badRequest(Errors.single(10, idString + " is not a valid UUID"));
+    }
+
+    return processServeEvent(admin, adminServeEvent, id);
   }
+
+  protected abstract ResponseDefinition processServeEvent(
+      Admin admin, ServeEvent adminServeEvent, UUID id);
 }

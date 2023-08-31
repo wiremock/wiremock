@@ -210,6 +210,10 @@ public class WireMockTestClient {
     return executeMethodAndConvertExceptions(httpPost, headers);
   }
 
+  public WireMockResponse putJson(String url, String body, TestHttpHeader... headers) {
+    return putWithBody(url, body, APPLICATION_JSON.getMimeType(), headers);
+  }
+
   public WireMockResponse postXml(String url, String body, TestHttpHeader... headers) {
     HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
     httpPost.setEntity(new StringEntity(body, APPLICATION_XML));

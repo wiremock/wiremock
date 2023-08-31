@@ -312,7 +312,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestById() throws Exception {
+  public void getLoggedRequestById() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -1280,6 +1280,57 @@ public class AdminApiTest extends AcceptanceTestBase {
     String data = serveEventsResponse.content();
     assertThat(data, jsonPartEquals("requests[0].stubMapping.id", "\"${json-unit.any-string}\""));
     assertThat(data, jsonPartEquals("requests[0].stubMapping.response.status", 404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToGetByNonUuid() {
+    WireMockResponse response = testClient.get("/__admin/mappings/not-a-uuid");
+    assertThat(response.statusCode(), is(400));
+    assertThat(
+        response.content(), jsonPartEquals("errors[0].title", "not-a-uuid is not a valid UUID"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToGetNonExistentStub() {
+    assertThat(testClient.get("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToEditByNonUuid() {
+    assertThat(testClient.putJson("/__admin/mappings/not-a-uuid", "{}").statusCode(), is(400));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToEditNonExistentStub() {
+    assertThat(testClient.put("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToRemoveByNonUuid() {
+    assertThat(testClient.delete("/__admin/mappings/not-a-uuid").statusCode(), is(400));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToRemoveNonExistentStub() {
+    assertThat(testClient.put("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToGetServeEventByNonUuid() {
+    WireMockResponse response = testClient.get("/__admin/requests/not-a-uuid");
+    assertThat(response.statusCode(), is(400));
+    assertThat(
+        response.content(), jsonPartEquals("errors[0].title", "not-a-uuid is not a valid UUID"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToGetServeEventByNonExistentId() {
+    assertThat(testClient.get("/__admin/requests/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToRemoveServeEventByNonUuid() {
+    assertThat(testClient.delete("/__admin/requests/not-a-uuid").statusCode(), is(400));
   }
 
   public static class TestExtendedSettingsData {
