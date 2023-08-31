@@ -122,13 +122,14 @@ public class Extensions implements WireMockServices {
         new ArrayList<>(ofType(TemplateModelDataProviderExtension.class).values());
 
     if (options.getResponseTemplatingEnabled()) {
-      final ResponseTemplateTransformer responseTemplateTransformer =
-          new ResponseTemplateTransformer(
-              getTemplateEngine(),
-              options.getResponseTemplatingGlobal(),
-              getFiles(),
-              templateModelProviders);
-      loadedExtensions.put(responseTemplateTransformer.getName(), responseTemplateTransformer);
+      loadedExtensions.computeIfAbsent(
+          ResponseTemplateTransformer.NAME,
+          rtt ->
+              new ResponseTemplateTransformer(
+                  getTemplateEngine(),
+                  options.getResponseTemplatingGlobal(),
+                  getFiles(),
+                  templateModelProviders));
     }
   }
 
