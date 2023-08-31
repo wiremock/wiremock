@@ -357,12 +357,7 @@ public class Diff {
         if (PathPattern.class.isAssignableFrom(pattern.getClass())) {
           PathPattern pathPattern = (PathPattern) pattern;
           if (!pathPattern.isSimple()) {
-            ListOrSingle<String> expressionResult =
-                pathPattern.getExpressionResult(body.asString());
-            String expressionResultString =
-                expressionResult != null && !expressionResult.isEmpty()
-                    ? expressionResult.toString()
-                    : null;
+            String expressionResultString = getExpressionResultString(body, pathPattern);
             String printedExpectedValue =
                 pathPattern.getExpected()
                     + " ["
@@ -394,6 +389,22 @@ public class Diff {
               new DiffLine<>(
                   "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected()));
         }
+      }
+    }
+  }
+
+  private static String getExpressionResultString(Body body, PathPattern pathPattern) {
+    String bodyStr = body.asString();
+    if (StringUtils.isEmpty(bodyStr)) {
+      return null;
+    } else {
+      try {
+        ListOrSingle<String> expressionResult = pathPattern.getExpressionResult(bodyStr);
+        return expressionResult != null && !expressionResult.isEmpty()
+            ? expressionResult.toString()
+            : null;
+      } catch (Exception e) {
+        return null;
       }
     }
   }
