@@ -429,7 +429,6 @@ task 'bump-beta-version' {
     def filesWithVersion = [
       'build.gradle'                                      : { "version = '${it}" },
       'ui/package.json'                                   : { "\"version\": \"${it}\"" },
-      'ui/package-lock.json'                              : { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
         "version: ${it}"
@@ -458,7 +457,6 @@ task 'bump-patch-version' {
     def filesWithVersion = [
       'build.gradle'                                      : { "version = '${it}" },
       'ui/package.json'                                   : { "\"version\": \"${it}\"" },
-      'ui/package-lock.json'                              : { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
         "version: ${it}"
@@ -487,7 +485,6 @@ task 'bump-minor-version' {
     def filesWithVersion = [
       'build.gradle'                                      : { "version = '${it}" },
       'ui/package.json'                                   : { "\"version\": \"${it}\"" },
-      'ui/package-lock.json'                              : { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.json': { "\"version\": \"${it}\"" },
       'src/main/resources/swagger/wiremock-admin-api.yaml': {
         "version: ${it}"
