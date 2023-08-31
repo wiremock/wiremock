@@ -114,7 +114,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllStubMappingsWithLimitedResults() throws Exception {
+  void getAllStubMappingsWithLimitedResults() {
     for (int i = 1; i <= 20; i++) {
       dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
