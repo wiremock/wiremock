@@ -26,7 +26,7 @@ group = 'org.wiremock'
 project.ext {
   versions = [
     handlebars     : '4.3.1',
-    jetty          : '11.0.15',
+    jetty          : '11.0.16',
     guava          : '32.1.2-jre',
     jackson        : '2.15.2',
     xmlUnit        : '2.9.1',
