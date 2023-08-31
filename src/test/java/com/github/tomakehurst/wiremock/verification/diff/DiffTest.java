@@ -524,4 +524,38 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "https\n" + "ANY\n" + "/thing\n", "http\n" + "ANY\n" + "/thing\n")));
   }
+
+  @Test
+  public void handleExceptionGettingExpressionResultDueToEmptyBody() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(matchingJsonPath("$.accountNum", equalTo("1234")))
+                .build(),
+            mockRequest().url("/thing").body(""));
+
+    assertThat(
+        diff.toString(),
+        is(
+            junitStyleDiffMessage(
+                "ANY\n" + "/thing\n" + "\n" + "$.accountNum [equalTo] 1234",
+                "ANY\n" + "/thing\n" + "\n")));
+  }
+
+  @Test
+  public void handleExceptionGettingExpressionResultDueToNonJson() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(matchingJsonPath("$.accountNum", equalTo("1234")))
+                .build(),
+            mockRequest().url("/thing").body("not json"));
+
+    assertThat(
+        diff.toString(),
+        is(
+            junitStyleDiffMessage(
+                "ANY\n" + "/thing\n" + "\n" + "$.accountNum [equalTo] 1234",
+                "ANY\n" + "/thing\n" + "\n" + "not json")));
+  }
 }
