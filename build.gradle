@@ -536,9 +536,7 @@ int getMinorVersion() {
 }
 
 int getPatchVersion() {
-  Integer.valueOf(
-      project.version.substring(project.version.lastIndexOf('.') + 1, project.version.indexOf('-'))
-      )
+  Integer.valueOf(project.version.substring(project.version.lastIndexOf('.') + 1))
 }
 
 int getBetaVersion() {
