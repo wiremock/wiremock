@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import com.google.common.base.Preconditions;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -50,8 +50,7 @@ public class ProxySettings {
         throw new IllegalArgumentException(
             "Proxy via does not support any other protocol than http");
       }
-      Preconditions.checkArgument(
-          !proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
+      checkParameter(!proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
       ProxySettings proxySettings =
           new ProxySettings(
               proxyUrl.getHost(), proxyUrl.getPort() == -1 ? DEFAULT_PORT : proxyUrl.getPort());

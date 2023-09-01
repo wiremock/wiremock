@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
+import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArray;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
@@ -39,7 +39,6 @@ import javax.net.ssl.SSLException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
@@ -122,20 +121,25 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         || originalRequest.containsHeader(CONTENT_LENGTH)) {
       httpRequest.setEntity(buildEntityFrom(originalRequest));
     }
-    CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
-    try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
-      return response()
-          .status(httpResponse.getCode())
-          .headers(headersFrom(httpResponse, responseDefinition))
-          .body(getEntityAsByteArrayAndCloseStream(httpResponse))
-          .fromProxy(true)
-          .configureDelay(
-              settings.getFixedDelay(),
-              settings.getDelayDistribution(),
-              responseDefinition.getFixedDelayMilliseconds(),
-              responseDefinition.getDelayDistribution())
-          .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
-          .build();
+
+    CloseableHttpClient client = chooseClient(serveEvent.getRequest().isBrowserProxyRequest());
+
+    try {
+      return client.execute(
+          httpRequest,
+          httpResponse ->
+              response()
+                  .status(httpResponse.getCode())
+                  .headers(headersFrom(httpResponse, responseDefinition))
+                  .body(getEntityAsByteArray(httpResponse))
+                  .fromProxy(true)
+                  .configureDelay(
+                      settings.getFixedDelay(),
+                      settings.getDelayDistribution(),
+                      responseDefinition.getFixedDelayMilliseconds(),
+                      responseDefinition.getDelayDistribution())
+                  .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
+                  .build());
     } catch (SSLException e) {
       return proxyResponseError("SSL", httpRequest, e);
     } catch (IOException e) {
@@ -174,7 +178,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     return request.getRequestUri();
   }
 
-  private CloseableHttpClient buildClient(boolean browserProxyRequest) {
+  private CloseableHttpClient chooseClient(boolean browserProxyRequest) {
     if (browserProxyRequest) {
       return forwardProxyClient;
     } else {

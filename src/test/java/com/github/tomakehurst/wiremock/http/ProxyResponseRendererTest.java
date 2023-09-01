@@ -52,11 +52,13 @@ import java.util.Date;
 import java.util.List;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 @DisabledForJreRange(
@@ -167,7 +169,7 @@ public class ProxyResponseRendererTest {
     ServeEvent serveEvent = reverseProxyServeEvent("/proxied");
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null));
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null), ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -178,7 +180,7 @@ public class ProxyResponseRendererTest {
     ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null));
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null), ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -190,7 +192,7 @@ public class ProxyResponseRendererTest {
         serveEvent("/proxied", false, "Text body".getBytes(StandardCharsets.UTF_8));
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -202,7 +204,7 @@ public class ProxyResponseRendererTest {
         serveEvent("/proxied", true, "Text body".getBytes(StandardCharsets.UTF_8));
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -223,7 +225,7 @@ public class ProxyResponseRendererTest {
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
     List<LoggedRequest> requests =
         origin.findAll(postRequestedFor(urlPathMatching("/proxied/empty-post")));
     Assertions.assertThat(requests)
@@ -250,7 +252,7 @@ public class ProxyResponseRendererTest {
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null));
+    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
     List<LoggedRequest> requests =
         origin.findAll(getRequestedFor(urlPathMatching("/proxied/empty-get")));
     Assertions.assertThat(requests)

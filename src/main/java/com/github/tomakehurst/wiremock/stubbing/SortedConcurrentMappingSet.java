@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.google.common.collect.Iterables.removeIf;
-
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -60,8 +58,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
   public boolean remove(final StubMapping mappingToRemove) {
     boolean removedByUuid =
-        removeIf(
-            mappingSet,
+        mappingSet.removeIf(
             mapping ->
                 mappingToRemove.getUuid() != null
                     && mapping.getUuid() != null
@@ -69,8 +66,8 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
     boolean removedByRequestPattern =
         !removedByUuid
-            && removeIf(
-                mappingSet, mapping -> mappingToRemove.getRequest().equals(mapping.getRequest()));
+            && mappingSet.removeIf(
+                mapping -> mappingToRemove.getRequest().equals(mapping.getRequest()));
 
     return removedByUuid || removedByRequestPattern;
   }

@@ -16,11 +16,12 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.google.common.collect.Iterables.getFirst;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirst;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 
@@ -29,7 +30,7 @@ public class WireMockResponse {
   private final ClassicHttpResponse httpResponse;
   private final byte[] content;
 
-  public WireMockResponse(ClassicHttpResponse httpResponse) {
+  public WireMockResponse(CloseableHttpResponse httpResponse) {
     this.httpResponse = httpResponse;
     content = getEntityAsByteArrayAndCloseStream(httpResponse);
   }

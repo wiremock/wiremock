@@ -17,10 +17,9 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.io.ByteStreams.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
@@ -29,7 +28,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
@@ -120,7 +118,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public String getClientIp() {
     String forwardedForHeader = this.getHeader("X-Forwarded-For");
 
-    if (forwardedForHeader != null && forwardedForHeader.length() > 0) {
+    if (forwardedForHeader != null && !forwardedForHeader.isEmpty()) {
       return forwardedForHeader;
     }
 
@@ -131,7 +129,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public byte[] getBody() {
     if (cachedBody == null) {
       try {
-        byte[] body = toByteArray(request.getInputStream());
+        byte[] body = request.getInputStream().readAllBytes();
         boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
         cachedBody = isGzipped ? Gzip.unGzip(body) : body;
       } catch (IOException ioe) {
@@ -243,7 +241,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     return Maps.transformValues(
-        builder.build().asMap(), input -> new Cookie(null, ImmutableList.copyOf(input)));
+        builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
   }
 
   @Override
@@ -269,12 +267,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
       return false;
     }
 
-    if (request instanceof org.eclipse.jetty.server.Request) {
-      org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-      return JettyUtils.uriIsAbsolute(jettyRequest);
-    }
-
-    return false;
+    return JettyUtils.isBrowserProxyRequest(request);
   }
 
   @Override
@@ -298,10 +291,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public Part getPart(final String name) {
-    if (name == null || name.length() == 0) {
-      return null;
-    }
-    if (cachedMultiparts == null && getParts() == null) {
+    if (isNullOrEmpty(name) || (cachedMultiparts == null && getParts() == null)) {
       return null;
     }
 

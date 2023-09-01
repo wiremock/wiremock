@@ -16,14 +16,12 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.*;
@@ -211,7 +209,9 @@ public class EqualToXmlPattern extends StringValuePattern {
     public IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
       finalCountedComparisons =
           exemptedComparisons != null
-              ? Sets.difference(COUNTED_COMPARISONS, exemptedComparisons)
+              ? COUNTED_COMPARISONS.stream()
+                  .filter(e -> !exemptedComparisons.contains(e))
+                  .collect(Collectors.toSet())
               : COUNTED_COMPARISONS;
     }
 
@@ -232,7 +232,7 @@ public class EqualToXmlPattern extends StringValuePattern {
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
-        ImmutableSet.copyOf(comparisons));
+        new HashSet<>(Arrays.asList(comparisons)));
   }
 
   private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {

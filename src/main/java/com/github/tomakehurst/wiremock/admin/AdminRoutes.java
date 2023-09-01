@@ -59,6 +59,9 @@ public class AdminRoutes {
     router.add(POST, "/mappings", new CreateStubMappingTask());
     router.add(DELETE, "/mappings", new ResetStubMappingsTask());
 
+    // Deprecated but kept so that 2.x client will still be compatible
+    router.add(POST, "/mappings/edit", new OldEditStubMappingTask());
+
     router.add(POST, "/mappings/save", new SaveMappingsTask());
     router.add(POST, "/mappings/reset", new ResetToDefaultMappingsTask());
     router.add(GET, "/mappings/{id}", new GetStubMappingTask());
@@ -108,6 +111,8 @@ public class AdminRoutes {
     router.add(GET, "/docs", new GetDocIndexTask());
 
     router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
+
+    router.add(GET, "/health", new HealthCheckTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {

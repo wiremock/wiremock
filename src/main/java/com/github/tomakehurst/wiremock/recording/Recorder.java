@@ -17,10 +17,8 @@ package com.github.tomakehurst.wiremock.recording;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.collect.Iterables.indexOf;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.indexOf;
 
-import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Extensions;
@@ -29,7 +27,6 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.store.RecorderStateStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -57,13 +54,11 @@ public class Recorder {
       return;
     }
 
-    if (spec.getTargetBaseUrl() == null || spec.getTargetBaseUrl().isEmpty()) {
-      throw new InvalidInputException(
-          Errors.validation("/targetBaseUrl", "targetBaseUrl is required"));
+    StubMapping proxyMapping = null;
+    if (spec.getTargetBaseUrl() != null && !spec.getTargetBaseUrl().isEmpty()) {
+      proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
+      admin.addStubMapping(proxyMapping);
     }
-
-    StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
-    admin.addStubMapping(proxyMapping);
 
     List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
     UUID initialId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
@@ -84,7 +79,10 @@ public class Recorder {
     UUID lastId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
     state = state.stop(lastId);
     stateStore.set(state);
-    admin.removeStubMapping(state.getProxyMapping());
+
+    if (state.getProxyMapping() != null) {
+      admin.removeStubMapping(state.getProxyMapping());
+    }
 
     if (serveEvents.isEmpty()) {
       return SnapshotRecordResult.empty();
@@ -93,8 +91,8 @@ public class Recorder {
     int startIndex =
         state.getStartingServeEventId() == null
             ? serveEvents.size()
-            : indexOf(serveEvents, withId(state.getStartingServeEventId())::test);
-    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId())::test);
+            : indexOf(serveEvents, withId(state.getStartingServeEventId()));
+    int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId()));
     List<ServeEvent> eventsToSnapshot = serveEvents.subList(endIndex, startIndex);
 
     SnapshotRecordResult result = takeSnapshot(eventsToSnapshot, state.getSpec());
@@ -110,7 +108,7 @@ public class Recorder {
   public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
     final List<StubMapping> stubMappings =
         serveEventsToStubMappings(
-            Lists.reverse(serveEvents),
+            serveEvents,
             recordSpec.getFilters(),
             new SnapshotStubMappingGenerator(
                 recordSpec.getCaptureHeaders(), recordSpec.getRequestBodyPatternFactory()),

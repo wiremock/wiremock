@@ -15,22 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
-import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 
-public class GetServedStubTask implements AdminTask {
+public class GetServedStubTask extends AbstractSingleServeEventTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    String idString = pathParams.get("id");
-    UUID id = UUID.fromString(idString);
-
-    SingleServedStubResult result = admin.getServedStub(id);
+  protected ResponseDefinition processServeEvent(Admin admin, ServeEvent adminServeEvent, UUID id) {
+    final SingleServedStubResult result = admin.getServedStub(id);
     return result.isPresent()
         ? ResponseDefinition.okForJson(result.getItem())
         : ResponseDefinition.notFound();

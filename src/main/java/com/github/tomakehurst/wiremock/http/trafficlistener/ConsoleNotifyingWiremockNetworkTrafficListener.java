@@ -15,63 +15,41 @@
  */
 package com.github.tomakehurst.wiremock.http.trafficlistener;
 
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.StandardCharsets;
 
 public class ConsoleNotifyingWiremockNetworkTrafficListener
     implements WiremockNetworkTrafficListener {
-  private static final ConsoleNotifier DEFAULT_CONSOLE_NOTIFIER = new ConsoleNotifier(true);
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-  private final Notifier notifier;
-  private final Charset charset;
-  private final CharsetDecoder charsetDecoder;
-
-  ConsoleNotifyingWiremockNetworkTrafficListener(Notifier notifier, Charset charset) {
-    this.notifier = notifier;
-    this.charset = charset;
-    this.charsetDecoder = charset.newDecoder();
-  }
+  private final WiremockNetworkTrafficListener wiremockNetworkTrafficListener;
 
   public ConsoleNotifyingWiremockNetworkTrafficListener(Charset charset) {
-    this(DEFAULT_CONSOLE_NOTIFIER, charset);
+    this.wiremockNetworkTrafficListener =
+        WiremockNetworkTrafficListeners.createConsoleNotifying(charset);
   }
 
   public ConsoleNotifyingWiremockNetworkTrafficListener() {
-    this(DEFAULT_CONSOLE_NOTIFIER, DEFAULT_CHARSET);
+    this.wiremockNetworkTrafficListener = WiremockNetworkTrafficListeners.createConsoleNotifying();
   }
 
   @Override
   public void opened(Socket socket) {
-    notifier.info("Opened " + socket);
+    wiremockNetworkTrafficListener.opened(socket);
   }
 
   @Override
   public void incoming(Socket socket, ByteBuffer bytes) {
-    try {
-      notifier.info("Incoming bytes: " + charsetDecoder.decode(bytes));
-    } catch (CharacterCodingException e) {
-      notifier.error("Incoming bytes omitted. Could not decode with charset: " + charset);
-    }
+    wiremockNetworkTrafficListener.incoming(socket, bytes);
   }
 
   @Override
   public void outgoing(Socket socket, ByteBuffer bytes) {
-    try {
-      notifier.info("Outgoing bytes: " + charsetDecoder.decode(bytes));
-    } catch (CharacterCodingException e) {
-      notifier.error("Outgoing bytes omitted. Could not decode with charset: " + charset);
-    }
+    wiremockNetworkTrafficListener.outgoing(socket, bytes);
   }
 
   @Override
   public void closed(Socket socket) {
-    notifier.info("Closed " + socket);
+    wiremockNetworkTrafficListener.closed(socket);
   }
 }

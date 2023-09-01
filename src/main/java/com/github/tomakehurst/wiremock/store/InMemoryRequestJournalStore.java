@@ -16,33 +16,32 @@
 package com.github.tomakehurst.wiremock.store;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public class InMemoryRequestJournalStore implements RequestJournalStore {
 
-  private final Queue<UUID> queue = new ConcurrentLinkedQueue<>();
+  private final Deque<UUID> deque = new ConcurrentLinkedDeque<>();
   private final Map<UUID, ServeEvent> serveEvents = new ConcurrentHashMap<>();
 
   @Override
   public void add(ServeEvent event) {
     serveEvents.put(event.getId(), event);
-    queue.add(event.getId());
+    deque.addFirst(event.getId());
   }
 
   @Override
   public Stream<ServeEvent> getAll() {
-    return queue.stream().map(serveEvents::get);
+    return deque.stream().map(serveEvents::get);
   }
 
   @Override
   public void removeLast() {
-    final UUID id = queue.poll();
+    final UUID id = deque.pollLast();
     if (id != null) {
       serveEvents.remove(id);
     }
@@ -60,20 +59,20 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
 
   @Override
   public void put(UUID id, ServeEvent event) {
-    if (queue.contains(id)) {
+    if (deque.contains(id)) {
       serveEvents.put(id, event);
     }
   }
 
   @Override
   public void remove(UUID id) {
-    queue.stream().filter(eventId -> eventId.equals(id)).forEach(queue::remove);
+    deque.stream().filter(eventId -> eventId.equals(id)).forEach(deque::remove);
     serveEvents.remove(id);
   }
 
   @Override
   public void clear() {
-    queue.clear();
+    deque.clear();
     serveEvents.clear();
   }
 }

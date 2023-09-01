@@ -97,19 +97,19 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         "All of the returned mappings should be present in the server");
     assertThat(returnedMappings.size(), is(3));
 
-    assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/one"));
-    assertThat(returnedMappings.get(0).getRequest().getHeaders(), nullValue());
-    assertThat(returnedMappings.get(0).getRequest().getMethod(), is(RequestMethod.GET));
+    assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/one"));
+    assertThat(returnedMappings.get(2).getRequest().getHeaders(), nullValue());
+    assertThat(returnedMappings.get(2).getRequest().getMethod(), is(RequestMethod.GET));
     assertThat(
-        returnedMappings.get(0).getResponse().getHeaders().getHeader("Content-Type").firstValue(),
+        returnedMappings.get(2).getResponse().getHeaders().getHeader("Content-Type").firstValue(),
         is("text/plain"));
-    assertThat(returnedMappings.get(0).getResponse().getBody(), is("Number one"));
+    assertThat(returnedMappings.get(2).getResponse().getBody(), is("Number one"));
 
     assertThat(returnedMappings.get(1).getRequest().getUrl(), is("/two"));
 
-    assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/three"));
+    assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/three"));
 
-    ContentPattern bodyPattern = returnedMappings.get(2).getRequest().getBodyPatterns().get(0);
+    ContentPattern bodyPattern = returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
     assertThat(bodyPattern, instanceOf(EqualToJsonPattern.class));
     JSONAssert.assertEquals("{ \"counter\": 55 }", bodyPattern.getExpected(), true);
 
@@ -179,14 +179,14 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         snapshotRecord(recordSpec().captureHeader("Yes").captureHeader("Also-Yes", true));
 
     StringValuePattern yesValuePattern =
-        ((SingleMatchMultiValuePattern) mappings.get(0).getRequest().getHeaders().get("Yes"))
+        ((SingleMatchMultiValuePattern) mappings.get(1).getRequest().getHeaders().get("Yes"))
             .getValuePattern();
     assertThat(yesValuePattern, instanceOf(EqualToPattern.class));
     assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), nullValue());
     assertFalse(mappings.get(0).getRequest().getHeaders().containsKey("No"));
 
     StringValuePattern alsoYesValuePattern =
-        ((SingleMatchMultiValuePattern) mappings.get(1).getRequest().getHeaders().get("Also-Yes"))
+        ((SingleMatchMultiValuePattern) mappings.get(0).getRequest().getHeaders().get("Also-Yes"))
             .getValuePattern();
     assertThat(alsoYesValuePattern, instanceOf(EqualToPattern.class));
     assertThat(((EqualToPattern) alsoYesValuePattern).getCaseInsensitive(), is(true));
@@ -262,14 +262,14 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     // Scenario creation is the default
     List<StubMapping> mappings = snapshotRecord();
 
-    assertThat(client.get("/stateful").content(), is("One"));
-    assertThat(client.get("/stateful").content(), is("Two"));
     assertThat(client.get("/stateful").content(), is("Three"));
+    assertThat(client.get("/stateful").content(), is("Two"));
+    assertThat(client.get("/stateful").content(), is("One"));
 
     assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
-    assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
-    assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-1-stateful-2"));
     assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-1-stateful-3"));
+    assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-1-stateful-2"));
+    assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
   }
 
   @Test
@@ -297,7 +297,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         snapshotRecord(recordSpec().chooseBodyMatchTypeAutomatically(false, false, true));
 
     EqualToJsonPattern jsonBodyPattern =
-        (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        (EqualToJsonPattern) mappings.get(2).getRequest().getBodyPatterns().get(0);
     assertThat(jsonBodyPattern.getEqualToJson(), is("{}"));
     assertThat(jsonBodyPattern.isIgnoreArrayOrder(), is(false));
     assertThat(jsonBodyPattern.isIgnoreExtraElements(), is(false));
@@ -307,7 +307,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     assertThat(xmlBodyPattern.getEqualToXml(), is("<foo/>"));
 
     EqualToPattern textBodyPattern =
-        (EqualToPattern) mappings.get(2).getRequest().getBodyPatterns().get(0);
+        (EqualToPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
     assertThat(textBodyPattern.getEqualTo(), is("foo"));
     assertThat(textBodyPattern.getCaseInsensitive(), is(true));
   }

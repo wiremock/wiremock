@@ -23,7 +23,9 @@ import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface StubMappingStore {
 
   Stream<StubMapping> getAll();

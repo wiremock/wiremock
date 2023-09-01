@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -77,6 +78,22 @@ public class RequestFilterV2AcceptanceTest {
 
     WireMockResponse response = client.get(url, withHeader("X-Modify-Me", "_"));
     assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  public void v1FilterCanStillStopExecution() {
+    initialise(
+        new RequestFilterAcceptanceTest.StubAuthenticatingFilter(),
+        new RequestHeaderAppendingFilter("A"));
+
+    wm.stubFor(get(url).withHeader("X-Modify-Me", equalTo("_A")).willReturn(ok()));
+
+    WireMockResponse good =
+        client.get(url, withHeader("Authorization", "Token 123"), withHeader("X-Modify-Me", "_"));
+    assertThat(good.statusCode(), is(200));
+
+    WireMockResponse bad = client.get(url, withHeader("X-Modify-Me", "_"));
+    assertThat(bad.statusCode(), is(401));
   }
 
   @Test
@@ -182,7 +199,7 @@ public class RequestFilterV2AcceptanceTest {
     wm.stop();
   }
 
-  private void initialise(RequestFilterV2... filters) {
+  private void initialise(Extension... filters) {
     wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(filters));
     wm.start();
     client = new WireMockTestClient(wm.port());

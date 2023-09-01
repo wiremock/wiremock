@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
-import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -114,7 +113,7 @@ public class JvmProxyConfigAcceptanceTest {
   private String getContentUsingDefaultJvmHttpClient(String url) throws Exception {
     final HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
     try (InputStream in = urlConnection.getInputStream()) {
-      return new String(ByteStreams.toByteArray(in));
+      return new String(in.readAllBytes());
     }
   }
 }

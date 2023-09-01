@@ -15,18 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.github.tomakehurst.wiremock.common.url.PathParams;
+import com.github.tomakehurst.wiremock.admin.tasks.AbstractSingleServeEventTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.UUID;
 
-public class RemoveServeEventTask implements AdminTask {
+public class RemoveServeEventTask extends AbstractSingleServeEventTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    String idString = pathParams.get("id");
-    UUID id = UUID.fromString(idString);
+  protected ResponseDefinition processServeEvent(Admin admin, ServeEvent adminServeEvent, UUID id) {
     admin.removeServeEvent(id);
     return ResponseDefinition.okEmptyJson();
   }

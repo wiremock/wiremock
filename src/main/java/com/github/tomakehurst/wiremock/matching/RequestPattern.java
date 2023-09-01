@@ -16,11 +16,11 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
@@ -36,8 +36,6 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -309,11 +307,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     Map<String, MultiValuePattern> combinedHeaders = headers;
-    Builder<String, MultiValuePattern> allHeadersBuilder =
-        ImmutableMap.<String, MultiValuePattern>builder()
-            .putAll(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
+    Map<String, MultiValuePattern> allHeadersBuilder =
+        new HashMap<>(getFirstNonNull(combinedHeaders, Collections.emptyMap()));
     allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
-    combinedHeaders = allHeadersBuilder.build();
+    combinedHeaders = allHeadersBuilder;
     return combinedHeaders;
   }
 
