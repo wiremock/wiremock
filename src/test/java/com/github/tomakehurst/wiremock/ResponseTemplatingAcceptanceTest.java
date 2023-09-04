@@ -33,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junitpioneer.jupiter.ClearSystemProperty;
 
 public class ResponseTemplatingAcceptanceTest {
 
@@ -365,6 +366,7 @@ public class ResponseTemplatingAcceptanceTest {
     }
 
     @Test
+    @ClearSystemProperty(key = "allowed.thing")
     public void rendersPermittedSystemProperty() {
       System.setProperty("allowed.thing", "123");
 
@@ -377,6 +379,7 @@ public class ResponseTemplatingAcceptanceTest {
     }
 
     @Test
+    @ClearSystemProperty(key = "forbidden.thing")
     public void refusesToRenderForbiddenSystemProperty() {
       System.setProperty("forbidden.thing", "456");
 
