@@ -499,8 +499,10 @@ public class HttpAdminClient implements Admin {
     ClassicRequestBuilder requestBuilder =
         ClassicRequestBuilder.create(requestSpec.method().getName()).setUri(url);
 
-    requestBuilder.setEntity(
-        jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
+    if (requestSpec.method().hasEntity()) {
+      requestBuilder.setEntity(
+          jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
+    }
 
     String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
 
