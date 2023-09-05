@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.ClearSystemProperty;
 
 public class SystemValueHelperTest {
 
@@ -71,6 +72,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
+  @ClearSystemProperty(key = "test.key")
   public void getAllowedPropertyShouldSuccess() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(Set.of("test.*")));
     System.setProperty("test.key", "aaa");
@@ -81,6 +83,7 @@ public class SystemValueHelperTest {
   }
 
   @Test
+  @ClearSystemProperty(key = "test.key")
   public void getForbiddenPropertyShouldReturnError() throws Exception {
     helper = new SystemValueHelper(new SystemKeyAuthoriser(Set.of("JAVA.*")));
     System.setProperty("test.key", "aaa");

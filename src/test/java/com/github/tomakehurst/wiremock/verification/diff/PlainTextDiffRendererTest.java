@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
@@ -585,6 +586,38 @@ public class PlainTextDiffRendererTest {
     assertThat(
         normaliseLineBreaks(output),
         equalsMultiLine(file("not-found-diff-sample_json-schema.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenBodyIsEmptyAndPathExpressionResult() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(matchingJsonPath("$.accountNum", equalTo("1234")))
+                .build(),
+            mockRequest().url("/thing").body(""));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        normaliseLineBreaks(output),
+        equalsMultiLine(file("not-found-diff-sample_json-path-no-body.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenBodyIsNotJsonAndPathExpressionResult() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(matchingJsonPath("$.accountNum", equalTo("1234")))
+                .build(),
+            mockRequest().url("/thing").body("not json"));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        normaliseLineBreaks(output),
+        equalsMultiLine(file("not-found-diff-sample_json-path-body-not-json.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {
