@@ -150,7 +150,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deprecatedGetAllStubMappings() throws Exception {
+  void deprecatedGetAllStubMappings() throws Exception {
     dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
 
     String body = testClient.get("/__admin/").content();
@@ -204,7 +204,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequests() {
+  void getLoggedRequests() {
     dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
 
     for (int i = 1; i <= 5; i++) {
@@ -228,7 +228,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimit() throws Exception {
+  void getLoggedRequestsWithLimit() throws Exception {
     dsl.stubFor(
         get(urlPathEqualTo("/received-request/7"))
             .willReturn(aResponse().withStatus(200).withBody("This was matched")));
@@ -257,7 +257,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
+  void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
     for (int i = 1; i <= 5; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -288,7 +288,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+  void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
     WireMockResponse response = testClient.get("/__admin/requests?since=foo");
 
     assertThat(response.statusCode(), is(400));
@@ -301,7 +301,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
+  void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -314,7 +314,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestById() {
+  void getLoggedRequestById() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -333,7 +333,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deleteStubMappingById() throws Exception {
+  void deleteStubMappingById() throws Exception {
     StubMapping stubMapping =
         dsl.stubFor(get(urlPathEqualTo("/delete/this")).willReturn(aResponse().withStatus(200)));
 
