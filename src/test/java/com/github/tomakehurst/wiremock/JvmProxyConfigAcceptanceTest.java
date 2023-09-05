@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -33,7 +31,13 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.ClearSystemProperty;
 
+@ClearSystemProperty(key = "http.proxyHost")
+@ClearSystemProperty(key = "http.proxyPort")
+@ClearSystemProperty(key = "https.proxyHost")
+@ClearSystemProperty(key = "https.proxyPort")
+@ClearSystemProperty(key = "http.nonProxyHosts")
 public class JvmProxyConfigAcceptanceTest {
 
   WireMockServer wireMockServer;
