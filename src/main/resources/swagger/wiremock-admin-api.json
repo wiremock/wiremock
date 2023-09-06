@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "WireMock",
-    "version": "2.33.2"
+    "version": "2.35.1"
   },
   "externalDocs": {
     "description": "WireMock user documentation",
