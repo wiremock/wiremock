@@ -42,7 +42,8 @@ public class FilenameMaker {
 
   public FilenameMaker(String filenameTemplate) {
     this.templateEngine = defaultTemplateEngine();
-    this.filenameTemplate = filenameTemplate != null ? filenameTemplate : DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
+    this.filenameTemplate =
+        filenameTemplate != null ? filenameTemplate : DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
   }
 
   public FilenameMaker(String filenameTemplate, String extension) {
