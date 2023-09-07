@@ -44,7 +44,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
@@ -355,10 +354,12 @@ public class StandaloneAcceptanceTest {
     testClient.get("/record-this");
     stopRecording();
 
-    assertThat(Arrays.stream(requireNonNull(tempFileRoot.resolve("mappings").toFile().list()))
+    assertThat(
+        Arrays.stream(requireNonNull(tempFileRoot.resolve("mappings").toFile().list()))
             .filter(name -> name.contains("record-this"))
             .findFirst()
-            .get(), endsWith(".json"));
+            .get(),
+        endsWith(".json"));
   }
 
   @Test
@@ -656,8 +657,7 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        return (int)
-                Arrays.stream(requireNonNull(dir.list())).filter(contains(namePart)).count()
+        return (int) Arrays.stream(requireNonNull(dir.list())).filter(contains(namePart)).count()
             == 1;
       }
     };
