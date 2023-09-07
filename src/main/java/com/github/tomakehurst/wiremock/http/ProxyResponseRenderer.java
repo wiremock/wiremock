@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -27,11 +28,8 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,7 +81,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
             trustStoreSettings,
             true,
             Collections.emptyList(),
-            true);
+            true,
+            targetAddressRules);
     forwardProxyClient =
         HttpClientFactory.createClient(
             1000,
@@ -92,7 +91,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
             trustStoreSettings,
             trustAllProxyTargets,
             trustAllProxyTargets ? Collections.emptyList() : trustedProxyTargets,
-            false);
+            false,
+            targetAddressRules);
 
     this.preserveHostHeader = preserveHostHeader;
     this.hostHeaderValue = hostHeaderValue;
@@ -103,13 +103,13 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-    if (targetAddressProhibited(responseDefinition.getProxyUrl())) {
-      return response()
-          .status(500)
-          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
-          .body("The target proxy address is denied in WireMock's configuration.")
-          .build();
-    }
+    //    if (targetAddressProhibited(responseDefinition.getProxyUrl())) {
+    //      return response()
+    //          .status(500)
+    //          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+    //          .body("The target proxy address is denied in WireMock's configuration.")
+    //          .build();
+    //    }
 
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
@@ -140,21 +140,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                       responseDefinition.getDelayDistribution())
                   .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
                   .build());
+    } catch (ProhibitedNetworkAddressException e) {
+      return response()
+          .status(HTTP_INTERNAL_ERROR)
+          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+          .body("The target proxy address is denied in WireMock's configuration.")
+          .build();
     } catch (SSLException e) {
       return proxyResponseError("SSL", httpRequest, e);
     } catch (IOException e) {
       return proxyResponseError("Network", httpRequest, e);
-    }
-  }
-
-  private boolean targetAddressProhibited(String proxyUrl) {
-    String host = URI.create(proxyUrl).getHost();
-    try {
-      final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
-      return !Arrays.stream(resolvedAddresses)
-          .allMatch(address -> targetAddressRules.isAllowed(address.getHostAddress()));
-    } catch (UnknownHostException e) {
-      return true;
     }
   }
 

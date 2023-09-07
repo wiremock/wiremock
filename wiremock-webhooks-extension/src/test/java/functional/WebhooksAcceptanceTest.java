@@ -387,12 +387,11 @@ public class WebhooksAcceptanceTest {
                 .map(message -> message.replace("\n", "\n>>> "))
                 .collect(Collectors.joining("\n>>> ")));
 
-    await()
-        .until(
-            () -> testNotifier.getErrorMessages(),
-            hasItem(
-                containsString(
-                    "The target webhook address is denied in WireMock's configuration.")));
+    List<String> errorMessages =
+        await().until(() -> testNotifier.getErrorMessages(), hasSize(greaterThanOrEqualTo(1)));
+    assertThat(
+        errorMessages.get(0),
+        is("The target webhook address is denied in WireMock's configuration."));
   }
 
   private void waitForRequestToTargetServer() throws Exception {
