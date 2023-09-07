@@ -1,2 +1,3 @@
 rootProject.name = 'wiremock'
 include 'wiremock-webhooks-extension'
+include 'wiremock-grpc-extension'

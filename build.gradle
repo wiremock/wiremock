@@ -55,6 +55,7 @@ dependencies {
   api "com.google.guava:guava:$versions.guava", {
     exclude group: 'com.google.code.findbugs', module: 'jsr305'
   }
+
   api platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
   api "com.fasterxml.jackson.core:jackson-core",
       "com.fasterxml.jackson.core:jackson-annotations",
