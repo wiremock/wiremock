@@ -32,6 +32,11 @@ public abstract class NetworkAddressRange {
       Pattern.compile(SINGLE_IP.pattern() + "-" + SINGLE_IP.pattern());
 
   public static NetworkAddressRange of(String value) {
+
+    if (value == null || value.isEmpty()) {
+      throw new InvalidInputException(Errors.single(17, value + " is not a valid network address"));
+    }
+
     if (SINGLE_IP.matcher(value).matches()) {
       return new SingleIp(value);
     }
@@ -70,12 +75,18 @@ public abstract class NetworkAddressRange {
     public int hashCode() {
       return Objects.hash(inetAddress);
     }
+
+    @Override
+    public String toString() {
+      return inetAddress.toString();
+    }
   }
 
   private static class IpRange extends NetworkAddressRange {
 
     private final BigInteger start;
     private final BigInteger end;
+    private final String asString;
 
     private IpRange(String ipRange) {
       String[] parts = ipRange.split("-");
@@ -84,6 +95,7 @@ public abstract class NetworkAddressRange {
       }
       this.start = InetAddresses.toBigInteger(parseIpAddress(parts[0]));
       this.end = InetAddresses.toBigInteger(parseIpAddress(parts[1]));
+      this.asString = ipRange;
     }
 
     @Override
@@ -104,6 +116,11 @@ public abstract class NetworkAddressRange {
     @Override
     public int hashCode() {
       return Objects.hash(start, end);
+    }
+
+    @Override
+    public String toString() {
+      return asString;
     }
   }
 
@@ -126,12 +143,17 @@ public abstract class NetworkAddressRange {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       DomainNameWildcard that = (DomainNameWildcard) o;
-      return namePattern.equals(that.namePattern);
+      return namePattern.pattern().equals(that.namePattern.pattern());
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(namePattern);
+      return Objects.hash(namePattern.pattern());
+    }
+
+    @Override
+    public String toString() {
+      return namePattern.pattern();
     }
   }
 
