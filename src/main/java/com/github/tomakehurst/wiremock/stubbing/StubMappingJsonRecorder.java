@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,34 +20,36 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.google.common.collect.Iterables.filter;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+/** @deprecated this is the legacy recorder and will be removed before 3.x is out of beta */
+@Deprecated
 public class StubMappingJsonRecorder implements RequestListener {
 
-  private final FileSource mappingsFileSource;
-  private final FileSource filesFileSource;
+  private final BlobStore mappingsBlobStore;
+  private final BlobStore filesBlobStore;
   private final Admin admin;
   private final List<CaseInsensitiveKey> headersToMatch;
   private IdGenerator idGenerator;
 
   public StubMappingJsonRecorder(
-      FileSource mappingsFileSource,
-      FileSource filesFileSource,
+      BlobStore mappingsBlobStore,
+      BlobStore filesBlobStore,
       Admin admin,
       List<CaseInsensitiveKey> headersToMatch) {
-    this.mappingsFileSource = mappingsFileSource;
-    this.filesFileSource = filesFileSource;
+    this.mappingsBlobStore = mappingsBlobStore;
+    this.filesBlobStore = filesBlobStore;
     this.admin = admin;
     this.headersToMatch = headersToMatch;
     idGenerator = new VeryShortIdGenerator();
@@ -81,7 +83,7 @@ public class StubMappingJsonRecorder implements RequestListener {
       }
     }
 
-    if (request.isMultipart()) {
+    if (request.isMultipart() && request.getParts() != null) {
       for (Request.Part part : request.getParts()) {
         builder.withRequestBodyPart(valuePatternForPart(part));
       }
@@ -165,19 +167,17 @@ public class StubMappingJsonRecorder implements RequestListener {
     StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
     mapping.setUuid(UUID.nameUUIDFromBytes(fileId.getBytes()));
 
-    filesFileSource.writeBinaryFile(bodyFileName, body);
-    mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+    filesBlobStore.put(bodyFileName, body);
+    mappingsBlobStore.put(mappingFileName, Strings.bytesFromString(write(mapping)));
   }
 
   private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
     return new HttpHeaders(
-        filter(
-            httpHeaders.all(),
-            new Predicate<HttpHeader>() {
-              public boolean apply(HttpHeader header) {
-                return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
-              }
-            }));
+        httpHeaders.all().stream()
+            .filter(
+                header ->
+                    !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length"))
+            .collect(Collectors.toList()));
   }
 
   private byte[] bodyDecompressedIfRequired(Response response) {

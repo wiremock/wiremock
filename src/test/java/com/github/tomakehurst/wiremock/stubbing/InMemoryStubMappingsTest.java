@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 
 public class InMemoryStubMappingsTest {
 
-  private InMemoryStubMappings inMemoryStubMappings;
+  private StoreBackedStubMappings inMemoryStubMappings;
 
   @BeforeEach
   public void setUp() throws Exception {

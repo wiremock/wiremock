@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParam;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -40,6 +39,12 @@ public class MultiValuePatternTest {
   public void returnsNonMatchForPresentHeaderWhenRequiredAbsent() {
     assertFalse(
         MultiValuePattern.absent().match(httpHeader("the-key", "the value")).isExactMatch());
+  }
+
+  @Test
+  public void returnsNonMatchForAbsentHeaderWhenRequiredBeforeNow() {
+    assertFalse(
+        MultiValuePattern.of(beforeNow()).match(HttpHeader.absent("any-key")).isExactMatch());
   }
 
   @Test

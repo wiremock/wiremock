@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import static org.hamcrest.Matchers.is;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,15 +39,14 @@ public class InMemoryRequestJournalTest {
 
   @BeforeEach
   public void createTestRequests() {
-    serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()), null);
-    serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()), null);
-    serveEvent3 = ServeEvent.of(createFrom(aRequest("log3").withUrl("/logging3").build()), null);
+    serveEvent1 = ServeEvent.of(createFrom(aRequest("log1").withUrl("/logging1").build()));
+    serveEvent2 = ServeEvent.of(createFrom(aRequest("log2").withUrl("/logging2").build()));
+    serveEvent3 = ServeEvent.of(createFrom(aRequest("log3").withUrl("/logging3").build()));
   }
 
   @Test
   public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
-    RequestJournal journal =
-        new InMemoryRequestJournal(Optional.<Integer>absent(), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(null, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent1);
@@ -65,8 +62,8 @@ public class InMemoryRequestJournalTest {
   public void resettingTheJournalClearsAllEntries() throws Exception {
     LoggedRequest loggedRequest = createFrom(aRequest().withUrl("/for/logging").build());
 
-    RequestJournal journal = new InMemoryRequestJournal(Optional.of(1), NO_CUSTOM_MATCHERS);
-    journal.requestReceived(ServeEvent.of(loggedRequest, null));
+    RequestJournal journal = new InMemoryRequestJournal(1, NO_CUSTOM_MATCHERS);
+    journal.requestReceived(ServeEvent.of(loggedRequest));
     assertThat(journal.countRequestsMatching(everything()), is(1));
     journal.reset();
     assertThat(journal.countRequestsMatching(everything()), is(0));
@@ -74,7 +71,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
-    RequestJournal journal = new InMemoryRequestJournal(Optional.of(2), NO_CUSTOM_MATCHERS);
+    RequestJournal journal = new InMemoryRequestJournal(2, NO_CUSTOM_MATCHERS);
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);
@@ -91,9 +88,7 @@ public class InMemoryRequestJournalTest {
 
   @Test
   public void matchesRequestWithCustomMatcherDefinition() throws Exception {
-    RequestJournal journal =
-        new InMemoryRequestJournal(
-            Optional.<Integer>absent(), ImmutableMap.of(ALWAYS.getName(), ALWAYS));
+    RequestJournal journal = new InMemoryRequestJournal(null, Map.of(ALWAYS.getName(), ALWAYS));
 
     journal.requestReceived(serveEvent1);
     journal.requestReceived(serveEvent2);

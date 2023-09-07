@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@ package com.github.tomakehurst.wiremock.testsupport;
 import com.github.tomakehurst.wiremock.http.HttpResponder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
+import java.util.Map;
 
 public class MockHttpResponder implements HttpResponder {
 
   public Response response;
 
   @Override
-  public void respond(Request request, Response response) {
+  public void respond(Request request, Response response, Map<String, Object> attributes) {
     this.response = response;
   }
 }

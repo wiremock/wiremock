@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import java.util.concurrent.LinkedBlockingDeque;
 import org.junit.jupiter.api.Test;
 
 public class SnapshotStubMappingGeneratorTest {
@@ -43,6 +45,25 @@ public class SnapshotStubMappingGeneratorTest {
             responseDefinitionTransformer(responseDefinition));
 
     StubMapping actual = stubMappingTransformer.apply(serveEvent());
+    StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
+    expected.setId(actual.getId());
+
+    assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void applyWithStrangePathAndCheckSanitizedState() {
+    final RequestPatternBuilder requestPatternBuilder =
+        newRequestPattern().withUrl("hello_1_2_3___ace--ace___and");
+    final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+
+    SnapshotStubMappingGenerator stubMappingTransformer =
+        new SnapshotStubMappingGenerator(
+            requestPatternTransformer(requestPatternBuilder),
+            responseDefinitionTransformer(responseDefinition));
+
+    StubMapping actual =
+        stubMappingTransformer.apply(serveEventWithPath("/hello/1/2/3__!/ẮČĖ--ace/¥$$/$/and/¿?"));
     StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
     expected.setId(actual.getId());
 
@@ -69,14 +90,19 @@ public class SnapshotStubMappingGeneratorTest {
     };
   }
 
+  private static ServeEvent serveEventWithPath(String path) {
+    return ServeEvent.of(LoggedRequest.createFrom(aRequest().withUrl(path).build()));
+  }
+
   private static ServeEvent serveEvent() {
     return new ServeEvent(
         null,
         LoggedRequest.createFrom(aRequest().build()),
         null,
         null,
-        LoggedResponse.from(Response.notConfigured()),
+        LoggedResponse.from(Response.notConfigured(), UNLIMITED),
         false,
-        Timing.UNTIMED);
+        Timing.UNTIMED,
+        new LinkedBlockingDeque<>());
   }
 }

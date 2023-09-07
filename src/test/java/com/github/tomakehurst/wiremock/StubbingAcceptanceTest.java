@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.FIRST_MINUTE_OF_HOUR;
 import static com.github.tomakehurst.wiremock.common.DateTimeUnit.HOURS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -32,7 +30,11 @@ import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_XML;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,6 +42,7 @@ import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -49,6 +52,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.NoHttpResponseException;
@@ -59,6 +63,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
@@ -286,6 +293,19 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void matchesOnQueryParametersNotContaining() {
+    stubFor(
+        get(urlPathEqualTo("/query/match"))
+            .withQueryParam("search", notContaining("WireMock"))
+            .willReturn(aResponse().withStatus(200)));
+
+    assertThat(
+        testClient.get("/query/match?search=WireMock%20stubbing").statusCode(), is(HTTP_NOT_FOUND));
+
+    assertThat(testClient.get("/query/match?search=Other%20stubbing").statusCode(), is(HTTP_OK));
+  }
+
+  @Test
   public void responseBodyLoadedFromFile() {
     stubFor(
         get(urlEqualTo("/my/file"))
@@ -325,6 +345,21 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response =
         testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
+    assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+    response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
+    assertThat(response.statusCode(), is(HTTP_OK));
+  }
+
+  @Test
+  public void matchingOnRequestBodyWithNotContaining() {
+    stubFor(
+        put(urlEqualTo("/match/this/body/too"))
+            .withRequestBody(notContaining("OtherBody"))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+
+    WireMockResponse response =
+        testClient.putWithBody("/match/this/body/too", "BlahOtherBody12345", "text/plain");
     assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
     response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
@@ -576,6 +611,38 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void matchesFormParamUnencoded() {
+    stubFor(
+        put(urlPathEqualTo("/form"))
+            .withFormParam("key-one", equalTo("one two three ?"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/form",
+            "key-one=one%20two%20three%20%3F",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  public void matchesFormParamWithKeyInArrayStyle() {
+    stubFor(
+        put(urlPathEqualTo("/form"))
+            .withFormParam("key[one]", equalTo("firstValue"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/form",
+            "key[one]=firstValue",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
   public void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
     stubFor(
         get(urlPathEqualTo("/empty-header"))
@@ -668,6 +735,27 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     response =
         testClient.postWithMultiparts(
             "/match/this/part/too", singletonList(part("part-name", "BlahBlahBlah", TEXT_PLAIN)));
+    assertThat(response.statusCode(), is(HTTP_OK));
+  }
+
+  @Test
+  public void matchingOnMultipartRequestBodyWithNotContaining() {
+    stubFor(
+        post(urlEqualTo("/match/this/part/too"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withHeader("Content-Type", notContaining("application/json"))
+                    .withBody(notContaining("OtherStuff")))
+            .willReturn(aResponse().withStatus(HTTP_OK).withBodyFile("plain-example.txt")));
+
+    WireMockResponse response =
+        testClient.postWithMultiparts(
+            "/match/this/part/too", singletonList(part("part", "BlahOtherStuff12345", TEXT_PLAIN)));
+    assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+    response =
+        testClient.postWithMultiparts(
+            "/match/this/part/too", singletonList(part("part", "BlahBlahBlah", TEXT_PLAIN)));
     assertThat(response.statusCode(), is(HTTP_OK));
   }
 
@@ -817,7 +905,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesOnLiteralZonedDate() {
+  public void matchesInRequestBodyOnLiteralZonedDate() {
     stubFor(
         post("/date")
             .withRequestBody(matchingJsonPath("$.date", before("2021-10-11T00:00:00Z")))
@@ -834,6 +922,24 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
             .postJson("/date", "{\n" + "  \"date\": \"2121-06-22T23:59:59Z\"\n" + "}")
             .statusCode(),
         is(404));
+  }
+
+  @Test
+  public void matchesQueryParameterOnLiteralZonedDate() {
+    stubFor(
+        get(urlPathEqualTo("/match-query-parameter"))
+            .withQueryParam("date", before("2021-10-11T00:00:00Z"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient.get("/match-query-parameter?date=2021-06-22T23%3A59%3A59Z").statusCode(),
+        is(200));
+
+    assertThat(
+        testClient.get("/match-query-parameter?date=2121-06-22T23%3A59%3A59Z").statusCode(),
+        is(404));
+
+    assertThat(testClient.get("/match-query-parameter").statusCode(), is(404));
   }
 
   @Test
@@ -900,6 +1006,152 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(testClient.get("/or?q=wrong").statusCode(), is(404));
   }
 
+  @ParameterizedTest
+  @MethodSource("provideInputsForMultiValueQueryParamsForExactMatch")
+  public void matchesMultipleQueryParametersUsingExactMatch(
+      final String queryParams, final int statusCode) {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withQueryParam("q", havingExactly("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(testClient.get("/match" + queryParams).statusCode(), is(statusCode));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingExactMatch() {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withHeader("q", havingExactly("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get("/match", withHeader("q", "1"), withHeader("q", "2"), withHeader("q", "3"))
+            .statusCode(),
+        is(200));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingIncludesMatch() {
+    stubFor(
+        get(urlPathEqualTo("/match")).withHeader("q", including("1", "2", "3")).willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get(
+                "/match",
+                withHeader("q", "1"),
+                withHeader("q", "2"),
+                withHeader("q", "3"),
+                withHeader("q", "4"),
+                withHeader("q", "5"))
+            .statusCode(),
+        is(200));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingIncludesMatchReturnsNotFound() {
+    stubFor(
+        get(urlPathEqualTo("/match")).withHeader("q", including("1", "8", "3")).willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get(
+                "/match",
+                withHeader("q", "1"),
+                withHeader("q", "2"),
+                withHeader("q", "3"),
+                withHeader("q", "4"),
+                withHeader("q", "5"))
+            .statusCode(),
+        is(404));
+  }
+
+  @Test
+  public void matchesMultipleValuesForHeaderUsingExactMatchReturnsNotFound() {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withHeader("q", havingExactly("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(
+        testClient
+            .get(
+                "/match",
+                withHeader("q", "1"),
+                withHeader("q", "4"),
+                withHeader("q", "5"),
+                withHeader("q", "6"),
+                withHeader("q", "5"))
+            .statusCode(),
+        is(404));
+  }
+
+  @Test
+  public void matchesNoValuesForHeaders() {
+    stubFor(get(urlPathEqualTo("/match")).withHeader("q", noValues()).willReturn(ok()));
+    assertThat(testClient.get("/match").statusCode(), is(200));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideInputsForMultiValueQueryParamsForExactMatch")
+  public void matchesMultipleQueryParametersUsingExactMatchWithMultipleValuePatterns(
+      final String queryParams, final int statusCode) {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withQueryParam("q", havingExactly(equalTo("1"), notContaining("7"), equalTo("3")))
+            .willReturn(ok()));
+
+    assertThat(testClient.get("/match" + queryParams).statusCode(), is(statusCode));
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideInputsForMultiValueQueryParamsForIncludeMatch")
+  public void matchesMultipleQueryParametersUsingIncludeMatch(
+      final String queryParams, final int statusCode) {
+    stubFor(
+        get(urlPathEqualTo("/match"))
+            .withQueryParam("q", including("1", "2", "3"))
+            .willReturn(ok()));
+
+    assertThat(testClient.get("/match" + queryParams).statusCode(), is(statusCode));
+  }
+
+  public static Stream<Arguments> provideInputsForMultiValueQueryParamsForExactMatch() {
+
+    return Stream.of(
+        Arguments.of("?q=1&q=2&q=3", 200),
+        Arguments.of("?q=1&q=3&q=2", 200),
+        Arguments.of("?q=2&q=3&q=1", 200),
+        Arguments.of("?q=2&q=1&q=3", 200),
+        Arguments.of("?q=3&q=1&q=2", 200),
+        Arguments.of("?q=3&q=2&q=1", 200),
+        Arguments.of("?q=3&q=1&q=2", 200),
+        Arguments.of("", 404),
+        Arguments.of("?q=wrong", 404),
+        Arguments.of("?q=1&q=2&q=3&q=4", 404),
+        Arguments.of("?q=1&q=4&q=5&q=6", 404),
+        Arguments.of("?q=1&q=1&q=1&q=1", 404));
+  }
+
+  public static Stream<Arguments> provideInputsForMultiValueQueryParamsForIncludeMatch() {
+
+    return Stream.of(
+        Arguments.of("?q=1&q=2&q=3", 200),
+        Arguments.of("?q=1&q=3&q=2", 200),
+        Arguments.of("?q=2&q=3&q=1", 200),
+        Arguments.of("?q=2&q=1&q=3", 200),
+        Arguments.of("?q=3&q=1&q=2", 200),
+        Arguments.of("?q=3&q=2&q=1", 200),
+        Arguments.of("?q=3&q=1&q=2", 200),
+        Arguments.of("?q=1&q=2&q=3&q=4", 200),
+        Arguments.of("", 404),
+        Arguments.of("?q=wrong", 404),
+        Arguments.of("?q=1&q=4&q=5&q=6", 404),
+        Arguments.of("?q=1&q=1&q=1&q=1", 404));
+  }
+
   @Test
   public void matchesHeadersWithLogicalOr() {
     stubFor(
@@ -940,6 +1192,37 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.content(), containsString("\"Json From Object\""));
   }
 
+  @Test
+  public void removesASingleStubMapping() {
+    final UUID id = UUID.randomUUID();
+    stubFor(get("/stub-to-remove").withId(id).willReturn(aResponse()));
+
+    assertThat(testClient.get("/stub-to-remove").statusCode(), is(200));
+
+    StubMapping stub = wireMockServer.getSingleStubMapping(id);
+    wireMockServer.removeStubMapping(stub);
+    assertThat(testClient.get("/stub-to-remove").statusCode(), is(404));
+  }
+
+  @Test
+  public void removesASingleStubMappingById() {
+    final UUID id = UUID.randomUUID();
+    stubFor(get("/stub-to-remove-by-id").withId(id).willReturn(aResponse()));
+
+    assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(200));
+
+    wireMockServer.removeStubMapping(id);
+    assertThat(testClient.get("/stub-to-remove-by-id").statusCode(), is(404));
+  }
+
+  @Test
+  void queryParamCanBeMatchedAsNotAbsent() {
+    stubFor(get(urlPathEqualTo("/search")).withQueryParam("q", not(absent())).willReturn(ok()));
+
+    assertThat(testClient.get("/search?q=something").statusCode(), is(200));
+    assertThat(testClient.get("/search").statusCode(), is(404));
+  }
+
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
     connection.setRequestMethod("GET");
@@ -977,6 +1260,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   public static class MockResponse {
+
     private final String message;
 
     public MockResponse(String message) {

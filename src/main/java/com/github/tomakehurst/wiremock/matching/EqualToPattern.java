@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static org.apache.commons.lang3.StringUtils.getLevenshteinDistance;
+import static com.github.tomakehurst.wiremock.common.Strings.normalisedLevenshteinDistance;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
@@ -62,15 +62,5 @@ public class EqualToPattern extends StringValuePattern {
 
   private boolean shouldMatchCaseInsensitive() {
     return caseInsensitive != null && caseInsensitive;
-  }
-
-  private double normalisedLevenshteinDistance(String one, String two) {
-    if (one == null || two == null) {
-      return 1.0;
-    }
-
-    double maxDistance = Math.max(one.length(), two.length());
-    double actualDistance = getLevenshteinDistance(one, two);
-    return (actualDistance / maxDistance);
   }
 }

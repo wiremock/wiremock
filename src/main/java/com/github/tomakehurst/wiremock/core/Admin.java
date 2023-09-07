@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ public interface Admin {
   void editStubMapping(StubMapping stubMapping);
 
   void removeStubMapping(StubMapping stubbMapping);
+
+  void removeStubMapping(UUID id);
 
   ListStubMappingsResult listAllStubMappings();
 
@@ -77,6 +79,10 @@ public interface Admin {
   FindNearMissesResult findNearMissesForUnmatchedRequests();
 
   GetScenariosResult getAllScenarios();
+
+  void resetScenario(String name);
+
+  void setScenarioState(String name, String state);
 
   void updateGlobalSettings(GlobalSettings settings);
 

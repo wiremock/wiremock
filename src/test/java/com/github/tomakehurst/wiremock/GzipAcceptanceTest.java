@@ -54,6 +54,7 @@ public class GzipAcceptanceTest {
       assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
       assertThat(response.firstHeader("Transfer-Encoding"), is("chunked"));
       assertThat(response.headers().containsKey("Content-Length"), is(false));
+      assertThat(response.headers().containsKey("Vary"), is(false));
 
       byte[] gzippedContent = response.binaryContent();
 
@@ -62,7 +63,7 @@ public class GzipAcceptanceTest {
     }
 
     @Test
-    public void servesGzippedResponseForPost() throws Exception {
+    public void servesGzippedResponseForPost() {
       wireMockServer.stubFor(post("/gzip-response").willReturn(ok("body text")));
 
       WireMockResponse response =

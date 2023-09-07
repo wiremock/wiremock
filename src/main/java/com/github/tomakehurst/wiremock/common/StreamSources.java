@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,43 +15,52 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.io.*;
-import java.net.URI;
+import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
 public class StreamSources {
   private StreamSources() {}
 
   public static InputStreamSource forString(final String string, final Charset charset) {
-    return new InputStreamSource() {
-      @Override
-      public InputStream getStream() {
-        return string == null
-            ? null
-            : new ByteArrayInputStream(Strings.bytesFromString(string, charset));
-      }
-    };
+    return new StringInputStreamSource(string, charset);
   }
 
   public static InputStreamSource forBytes(final byte[] bytes) {
-    return new InputStreamSource() {
-      @Override
-      public InputStream getStream() {
-        return bytes == null ? null : new ByteArrayInputStream(bytes);
-      }
-    };
+    return new ByteArrayInputStreamSource(bytes);
   }
 
-  public static InputStreamSource forURI(final URI uri) {
-    return new InputStreamSource() {
-      @Override
-      public InputStream getStream() {
-        try {
-          return uri == null ? null : new BufferedInputStream(uri.toURL().openStream());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    };
+  public static InputStreamSource forBlobStoreItem(BlobStore blobStore, String key) {
+    return () ->
+        blobStore
+            .getStream(key)
+            .orElseThrow(() -> new NotFoundException("Not found in blob store: " + key));
+  }
+
+  public static class StringInputStreamSource extends ByteArrayInputStreamSource {
+
+    public StringInputStreamSource(String string, Charset charset) {
+      super(Strings.bytesFromString(string, charset));
+    }
+  }
+
+  public static class ByteArrayInputStreamSource implements InputStreamSource {
+
+    private final byte[] bytes;
+
+    public ByteArrayInputStreamSource(byte[] bytes) {
+      this.bytes = bytes;
+    }
+
+    @Override
+    public InputStream getStream() {
+      return bytes == null ? null : new ByteArrayInputStream(bytes);
+    }
+  }
+
+  public static InputStreamSource empty() {
+    return forBytes(new byte[0]);
   }
 }

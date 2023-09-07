@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ public class HttpsBrowserProxyAcceptanceTest {
     ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
     HttpProxy httpProxy =
         new HttpProxy(new Origin.Address("localhost", proxy.getHttpsPort()), true);
-    proxyConfig.getProxies().add(httpProxy);
+    proxyConfig.addProxy(httpProxy);
 
     target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
@@ -346,10 +346,9 @@ public class HttpsBrowserProxyAcceptanceTest {
         IOException.class,
         () -> {
           new WireMockServer(
-                  options()
-                      .enableBrowserProxying(true)
-                      .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString()))
-              .start();
+              options()
+                  .enableBrowserProxying(true)
+                  .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString()));
         });
   }
 
@@ -357,11 +356,9 @@ public class HttpsBrowserProxyAcceptanceTest {
   public void failsIfCaKeystoreDoesNotContainACaCertificate() throws Exception {
     assertThrows(
         FatalStartupException.class,
-        () -> {
-          new WireMockServer(
-                  options().enableBrowserProxying(true).caKeystorePath(emptyKeyStore().toString()))
-              .start();
-        });
+        new WireMockServer(
+                options().enableBrowserProxying(true).caKeystorePath(emptyKeyStore().toString()))
+            ::start);
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
@@ -74,6 +73,12 @@ public class BeforeDateTimePatternTest {
   }
 
   @Test
+  public void doesNotMatchWhenActualValueIsNull() {
+    StringValuePattern matcher = WireMock.before("2021-06-14T15:15:15");
+    assertFalse(matcher.match(null).isExactMatch());
+  }
+
+  @Test
   public void doesNotMatchWhenExpectedValueUnparseable() {
     StringValuePattern matcher = WireMock.before("2021-06-wrongstuff:15:15");
     assertFalse(matcher.match("2021-06-01T15:15:15Z").isExactMatch());
@@ -84,6 +89,7 @@ public class BeforeDateTimePatternTest {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 
@@ -92,6 +98,7 @@ public class BeforeDateTimePatternTest {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 
@@ -100,6 +107,7 @@ public class BeforeDateTimePatternTest {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
     assertThat(matcher.match("2071-01-01T00:00:00").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00").getDistance(), is(0.01));
   }
 
@@ -319,5 +327,21 @@ public class BeforeDateTimePatternTest {
   public void acceptsJavaLocalDateTimeAsExpected() {
     BeforeDateTimePattern matcher = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
     assertTrue(matcher.match("2019-01-01T00:00:00").isExactMatch());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    BeforeDateTimePattern a = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
+    BeforeDateTimePattern b = WireMock.before(LocalDateTime.parse("2020-08-29T00:00:00"));
+    BeforeDateTimePattern c = WireMock.before(LocalDateTime.parse("2022-01-01T10:10:10"));
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

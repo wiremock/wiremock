@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public abstract class KeyStoreSource implements Source<KeyStore> {
   public KeyStore load() {
     InputStream instream = null;
     try {
-      KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      KeyStore trustStore = KeyStore.getInstance(keyStoreType);
       instream = createInputStream();
       trustStore.load(instream, keyStorePassword);
       return trustStore;

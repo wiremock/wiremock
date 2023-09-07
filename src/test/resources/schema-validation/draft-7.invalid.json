@@ -1,0 +1,9 @@
+{
+  "required": "level",
+  "properties": {
+    "level": {
+      "type": "integer",
+      "exclusiveMaximum": 10
+    }
+  }
+}

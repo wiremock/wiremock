@@ -14,13 +14,14 @@ POST                                                       | POST
                                                            |
 Accept: text/plain                                         | Accept: text/plain
                                                            |
-{                                                          | {                                                   <<<<< Body does not match
+[equalToJson]                                              |                                                     <<<<< Body does not match
+{                                                          | {
   "one" : {                                                |   "one" : {
     "two" : {                                              |     "two" : {
-      "three" : {                                          |       "three" : {
-"four" : {                                                 |         "four" : {
+"three" : {                                                |       "three" : {
+        "four" : {                                         |         "four" : {
           "five" : {                                       |           "five" : {
-            "six" :                                        |             "six" : "totally_the_wrong_value"
+"six" :                                                    |             "six" : "totally_the_wrong_value"
 "superduperlongvaluethatshouldwrapokregardless_superduper  |           }
 longvaluethatshouldwrapokregardless_superduperlongvalueth  |         }
 atshouldwrapokregardless_superduperlongvaluethatshouldwra  |       }

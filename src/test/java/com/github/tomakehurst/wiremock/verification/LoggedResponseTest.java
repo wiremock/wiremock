@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +31,7 @@ public class LoggedResponseTest {
 
   @Test
   public void returnsEmptyStringForBodyWhenNotConfigured() {
-    LoggedResponse loggedResponse = LoggedResponse.from(Response.notConfigured());
+    LoggedResponse loggedResponse = LoggedResponse.from(Response.notConfigured(), UNLIMITED);
     assertEquals(loggedResponse.getBodyAsString(), "");
   }
 
@@ -42,14 +43,15 @@ public class LoggedResponseTest {
                 .body(ISO_8859_1_RESPONSE_BODY)
                 .headers(
                     new HttpHeaders(httpHeader("Content-Type", "text/plain; charset=iso-8859-1")))
-                .build());
+                .build(),
+            UNLIMITED);
     assertThat(ISO_8859_1_RESPONSE_BODY, is(equalTo(loggedResponse.getBodyAsString())));
   }
 
   @Test
   public void returnsUtf8StringForBodyWhenContentTypeHeaderAbsent() {
     LoggedResponse loggedResponse =
-        LoggedResponse.from(Response.response().body(UTF8_RESPONSE_BODY).build());
+        LoggedResponse.from(Response.response().body(UTF8_RESPONSE_BODY).build(), UNLIMITED);
     assertThat(UTF8_RESPONSE_BODY, is(equalTo(loggedResponse.getBodyAsString())));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -103,9 +102,7 @@ public class LoggedRequestTest {
   public void jsonRepresentation() throws Exception {
     HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
     Map<String, Cookie> cookies =
-        ImmutableMap.of(
-            "first_cookie", new Cookie("yum"),
-            "monster_cookie", new Cookie("COOKIIIEESS"));
+        Map.of("first_cookie", new Cookie("yum"), "monster_cookie", new Cookie("COOKIIIEESS"));
 
     Date loggedDate = Dates.parse(DATE);
 
@@ -121,7 +118,8 @@ public class LoggedRequestTest {
             loggedDate,
             REQUEST_BODY_AS_BASE64,
             null,
-            null);
+            null,
+            "HTTP/1.1");
 
     String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
 
@@ -142,7 +140,8 @@ public class LoggedRequestTest {
             null,
             REQUEST_BODY_AS_BASE64,
             null,
-            null);
+            null,
+            "HTTP/1.1");
 
     assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
   }
@@ -182,7 +181,8 @@ public class LoggedRequestTest {
             new Date(0),
             null,
             null,
-            null);
+            null,
+            "HTTP/1.1");
 
     Map<String, Object> reqMap = Json.objectToMap(req);
 

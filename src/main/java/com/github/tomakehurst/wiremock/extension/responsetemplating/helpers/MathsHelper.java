@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,11 +75,11 @@ public class MathsHelper extends HandlebarsHelper<Object> {
       return BigDecimal.valueOf((float) value);
     }
 
-    if (value instanceof CharSequence) {
+    try {
       return new BigDecimal(value.toString());
+    } catch (NumberFormatException e) {
+      return new BigDecimal(0);
     }
-
-    return new BigDecimal(0);
   }
 
   private static Object reduceToPrimitiveNumber(BigDecimal value) {

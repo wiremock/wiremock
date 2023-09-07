@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.google.common.base.Objects;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
+import java.util.Objects;
 
 public class UrlPattern implements NamedValueMatcher<String> {
 
@@ -32,7 +33,11 @@ public class UrlPattern implements NamedValueMatcher<String> {
   }
 
   public static UrlPattern fromOneOf(
-      String url, String urlPattern, String urlPath, String urlPathPattern) {
+      String url,
+      String urlPattern,
+      String urlPath,
+      String urlPathPattern,
+      String urlPathTemplate) {
     if (url != null) {
       return WireMock.urlEqualTo(url);
     } else if (urlPattern != null) {
@@ -41,6 +46,8 @@ public class UrlPattern implements NamedValueMatcher<String> {
       return WireMock.urlPathEqualTo(urlPath);
     } else if (urlPathPattern != null) {
       return WireMock.urlPathMatching(urlPathPattern);
+    } else if (urlPathTemplate != null) {
+      return WireMock.urlPathTemplate(urlPathTemplate);
     } else {
       return WireMock.anyUrl();
     }
@@ -65,6 +72,10 @@ public class UrlPattern implements NamedValueMatcher<String> {
     return pattern;
   }
 
+  public PathTemplate getPathTemplate() {
+    return null;
+  }
+
   @Override
   public String getExpected() {
     return pattern.expectedValue;
@@ -80,12 +91,12 @@ public class UrlPattern implements NamedValueMatcher<String> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     UrlPattern that = (UrlPattern) o;
-    return regex == that.regex && Objects.equal(pattern, that.pattern);
+    return regex == that.regex && Objects.equals(pattern, that.pattern);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(pattern, regex);
+    return Objects.hash(pattern, regex);
   }
 
   public boolean isSpecified() {

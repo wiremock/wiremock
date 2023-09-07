@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 
@@ -24,8 +24,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,19 +33,17 @@ public class ResponseDefinitionBuilder {
 
   protected int status = HTTP_OK;
   protected String statusMessage;
-  protected byte[] binaryBody;
-  protected JsonNode jsonBody;
-  protected String stringBody;
-  protected String base64Body;
+  protected Body body = Body.none();
   protected String bodyFileName;
-  protected List<HttpHeader> headers = newArrayList();
+  protected List<HttpHeader> headers = new ArrayList<>();
   protected Integer fixedDelayMilliseconds;
   protected DelayDistribution delayDistribution;
   protected ChunkedDribbleDelay chunkedDribbleDelay;
   protected String proxyBaseUrl;
+  protected String proxyUrlPrefixToRemove;
   protected Fault fault;
   protected List<String> responseTransformerNames;
-  protected Map<String, Object> transformerParameters = newHashMap();
+  protected Map<String, Object> transformerParameters = new HashMap<>();
   protected Boolean wasConfigured = true;
 
   public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
@@ -54,17 +52,15 @@ public class ResponseDefinitionBuilder {
     builder.statusMessage = responseDefinition.getStatusMessage();
     builder.headers =
         responseDefinition.getHeaders() != null
-            ? newArrayList(responseDefinition.getHeaders().all())
-            : Lists.<HttpHeader>newArrayList();
-    builder.binaryBody = responseDefinition.getByteBodyIfBinary();
-    builder.stringBody = responseDefinition.getBody();
-    builder.base64Body = responseDefinition.getBase64Body();
-    builder.jsonBody = responseDefinition.getJsonBody();
+            ? new ArrayList<>(responseDefinition.getHeaders().all())
+            : new ArrayList<>();
+    builder.body = responseDefinition.getReponseBody();
     builder.bodyFileName = responseDefinition.getBodyFileName();
     builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
     builder.delayDistribution = responseDefinition.getDelayDistribution();
     builder.chunkedDribbleDelay = responseDefinition.getChunkedDribbleDelay();
     builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
+    builder.proxyUrlPrefixToRemove = responseDefinition.getProxyUrlPrefixToRemove();
     builder.fault = responseDefinition.getFault();
     builder.responseTransformerNames = responseDefinition.getTransformers();
     builder.transformerParameters =
@@ -72,6 +68,20 @@ public class ResponseDefinitionBuilder {
             ? Parameters.from(responseDefinition.getTransformerParameters())
             : Parameters.empty();
     builder.wasConfigured = responseDefinition.isFromConfiguredStub();
+
+    if (builder.proxyBaseUrl != null) {
+      ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder =
+          new ProxyResponseDefinitionBuilder(builder);
+      proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove =
+          responseDefinition.getProxyUrlPrefixToRemove();
+      proxyResponseDefinitionBuilder.additionalRequestHeaders =
+          responseDefinition.getAdditionalProxyRequestHeaders() != null
+              ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
+              : new ArrayList<>();
+
+      return proxyResponseDefinitionBuilder;
+    }
+
     return builder;
   }
 
@@ -83,7 +93,7 @@ public class ResponseDefinitionBuilder {
     return new ResponseDefinitionBuilder()
         .withBody(Json.write(body))
         .withStatus(status)
-        .withHeader("Content-Type", "application/json")
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
         .build();
   }
 
@@ -107,17 +117,22 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder withBody(String body) {
-    this.stringBody = body;
+    this.body = Body.fromOneOf(null, body, null, null);
     return this;
   }
 
   public ResponseDefinitionBuilder withBody(byte[] body) {
-    this.binaryBody = body;
+    this.body = Body.fromOneOf(body, null, null, null);
+    return this;
+  }
+
+  public ResponseDefinitionBuilder withResponseBody(Body body) {
+    this.body = body;
     return this;
   }
 
   public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
-    this.jsonBody = jsonBody;
+    this.body = Body.fromOneOf(null, null, jsonBody, null);
     return this;
   }
 
@@ -181,23 +196,23 @@ public class ResponseDefinitionBuilder {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody(Json.write(body))
-        .withHeader("Content-Type", "application/json");
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 
   public static <T> ResponseDefinitionBuilder okForEmptyJson() {
     return responseDefinition()
         .withStatus(HTTP_OK)
         .withBody("{}")
-        .withHeader("Content-Type", "application/json");
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
   }
 
   public ResponseDefinitionBuilder withHeaders(HttpHeaders headers) {
-    this.headers = ImmutableList.copyOf(headers.all());
+    this.headers = new ArrayList<>(headers.all());
     return this;
   }
 
   public ResponseDefinitionBuilder withBase64Body(String base64Body) {
-    this.base64Body = base64Body;
+    this.body = Body.fromOneOf(null, null, null, base64Body);
     return this;
   }
 
@@ -208,23 +223,20 @@ public class ResponseDefinitionBuilder {
 
   public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
-    private List<HttpHeader> additionalRequestHeaders = newArrayList();
-    private String proxyUrlPrefixToRemove;
+    private List<HttpHeader> additionalRequestHeaders = new ArrayList<>();
 
     public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
       this.status = from.status;
       this.statusMessage = from.statusMessage;
       this.headers = from.headers;
-      this.binaryBody = from.binaryBody;
-      this.stringBody = from.stringBody;
-      this.jsonBody = from.jsonBody;
-      this.base64Body = from.base64Body;
+      this.body = from.body;
       this.bodyFileName = from.bodyFileName;
       this.fault = from.fault;
       this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
       this.delayDistribution = from.delayDistribution;
       this.chunkedDribbleDelay = from.chunkedDribbleDelay;
       this.proxyBaseUrl = from.proxyBaseUrl;
+      this.proxyUrlPrefixToRemove = from.proxyUrlPrefixToRemove;
       this.responseTransformerNames = from.responseTransformerNames;
       this.transformerParameters = from.transformerParameters;
     }
@@ -257,14 +269,6 @@ public class ResponseDefinitionBuilder {
     return build(null, null);
   }
 
-  private boolean isBinaryBody() {
-    return binaryBody != null;
-  }
-
-  private boolean isJsonBody() {
-    return jsonBody != null;
-  }
-
   protected ResponseDefinition build(
       HttpHeaders additionalProxyRequestHeaders, String proxyUrlPrefixToRemove) {
     HttpHeaders httpHeaders =
@@ -273,63 +277,21 @@ public class ResponseDefinitionBuilder {
         this.transformerParameters == null || this.transformerParameters.isEmpty()
             ? null
             : Parameters.from(this.transformerParameters);
-    if (isBinaryBody()) {
-      return new ResponseDefinition(
-          status,
-          statusMessage,
-          binaryBody,
-          null,
-          base64Body,
-          bodyFileName,
-          httpHeaders,
-          additionalProxyRequestHeaders,
-          fixedDelayMilliseconds,
-          delayDistribution,
-          chunkedDribbleDelay,
-          proxyBaseUrl,
-          proxyUrlPrefixToRemove,
-          fault,
-          responseTransformerNames,
-          transformerParameters,
-          wasConfigured);
-    } else if (isJsonBody()) {
-      return new ResponseDefinition(
-          status,
-          statusMessage,
-          binaryBody,
-          jsonBody,
-          null,
-          bodyFileName,
-          httpHeaders,
-          additionalProxyRequestHeaders,
-          fixedDelayMilliseconds,
-          delayDistribution,
-          chunkedDribbleDelay,
-          proxyBaseUrl,
-          proxyUrlPrefixToRemove,
-          fault,
-          responseTransformerNames,
-          transformerParameters,
-          wasConfigured);
-    } else {
-      return new ResponseDefinition(
-          status,
-          statusMessage,
-          stringBody,
-          null,
-          base64Body,
-          bodyFileName,
-          httpHeaders,
-          additionalProxyRequestHeaders,
-          fixedDelayMilliseconds,
-          delayDistribution,
-          chunkedDribbleDelay,
-          proxyBaseUrl,
-          proxyUrlPrefixToRemove,
-          fault,
-          responseTransformerNames,
-          transformerParameters,
-          wasConfigured);
-    }
+    return new ResponseDefinition(
+        status,
+        statusMessage,
+        body,
+        bodyFileName,
+        httpHeaders,
+        additionalProxyRequestHeaders,
+        fixedDelayMilliseconds,
+        delayDistribution,
+        chunkedDribbleDelay,
+        proxyBaseUrl,
+        proxyUrlPrefixToRemove,
+        fault,
+        responseTransformerNames,
+        transformerParameters,
+        wasConfigured);
   }
 }

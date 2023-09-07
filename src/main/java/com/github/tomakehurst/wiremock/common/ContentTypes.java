@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,44 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.TextType.JSON;
-import static com.google.common.collect.Iterables.any;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
 public class ContentTypes {
 
+  private ContentTypes() {}
+
+  public static final String CONTENT_TYPE = "Content-Type";
+  public static final String CONTENT_LENGTH = "Content-Length";
+  public static final String CONTENT_ENCODING = "Content-Encoding";
+  public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+  public static final String OCTET_STREAM = "application/octet-stream";
+  public static final String LOCATION = "Location";
+  public static final String AUTHORIZATION = "Authorization";
+  public static final String COOKIE = "Cookie";
+  public static final String APPLICATION_JSON = "application/json";
+
   private static final Map<String, String> COMMON_MIME_TYPES =
-      ImmutableMap.<String, String>builder()
-          .put("image/jpeg", "jpeg")
-          .put("image/gif", "gif")
-          .put("image/tiff", "tiff")
-          .put("image/png", "png")
-          .put("image/x-icon", "ico")
-          .put("image/svg+xml", "svg")
-          .put("audio/x-aiff", "aiff")
-          .put("video/x-ms-asf", "asf")
-          .put("video/mpeg", "mp2")
-          .put("audio/mpeg", "mp3")
-          .put("video/quicktime", "mov")
-          .put("application/pdf", "pdf")
-          .build();
+      Map.ofEntries(
+          Map.entry("image/jpeg", "jpeg"),
+          Map.entry("image/gif", "gif"),
+          Map.entry("image/tiff", "tiff"),
+          Map.entry("image/png", "png"),
+          Map.entry("image/x-icon", "ico"),
+          Map.entry("image/svg+xml", "svg"),
+          Map.entry("audio/x-aiff", "aiff"),
+          Map.entry("video/x-ms-asf", "asf"),
+          Map.entry("video/mpeg", "mp2"),
+          Map.entry("audio/mpeg", "mp3"),
+          Map.entry("video/quicktime", "mov"),
+          Map.entry("application/pdf", "pdf"));
 
   public static final List<String> TEXT_FILE_EXTENSIONS =
       asList("txt", "json", "xml", "html", "htm", "yaml", "csv");
@@ -120,14 +128,8 @@ public class ContentTypes {
   }
 
   public static boolean determineIsTextFromMimeType(final String mimeType) {
-    return any(
-        TEXT_MIME_TYPE_PATTERNS,
-        new Predicate<String>() {
-          @Override
-          public boolean apply(String pattern) {
-            return mimeType != null && mimeType.matches(pattern);
-          }
-        });
+    return TEXT_MIME_TYPE_PATTERNS.stream()
+        .anyMatch(pattern -> mimeType != null && mimeType.matches(pattern));
   }
 
   public static boolean determineIsText(String extension, String mimeType) {

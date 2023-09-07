@@ -15,11 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.direct;
 
+import java.util.concurrent.*;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 class SleepFacade {
+
+  private final ScheduledExecutorService executorService;
+
+  public SleepFacade() {
+    this.executorService = Executors.newSingleThreadScheduledExecutor();
+  }
+
   void sleep(long millis) {
     try {
-      Thread.sleep(millis);
-    } catch (InterruptedException e) {
+      executorService.schedule(() -> {}, millis, MILLISECONDS).get();
+    } catch (Exception e) {
       Thread.currentThread().interrupt();
     }
   }

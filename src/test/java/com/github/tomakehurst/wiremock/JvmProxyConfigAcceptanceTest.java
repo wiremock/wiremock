@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,13 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
-import com.google.common.io.ByteStreams;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -34,7 +31,13 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.ClearSystemProperty;
 
+@ClearSystemProperty(key = "http.proxyHost")
+@ClearSystemProperty(key = "http.proxyPort")
+@ClearSystemProperty(key = "https.proxyHost")
+@ClearSystemProperty(key = "https.proxyPort")
+@ClearSystemProperty(key = "http.nonProxyHosts")
 public class JvmProxyConfigAcceptanceTest {
 
   WireMockServer wireMockServer;
@@ -114,7 +117,7 @@ public class JvmProxyConfigAcceptanceTest {
   private String getContentUsingDefaultJvmHttpClient(String url) throws Exception {
     final HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
     try (InputStream in = urlConnection.getInputStream()) {
-      return new String(ByteStreams.toByteArray(in));
+      return new String(in.readAllBytes());
     }
   }
 }

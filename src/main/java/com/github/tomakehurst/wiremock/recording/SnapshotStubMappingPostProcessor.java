@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import static java.util.stream.Collectors.toList;
+
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
- * Performs stateful post-processing tasks on stub mappings generated from ServeEvents: 1. Detect
- * duplicate requests and either discard them or turn them into scenarios 2. Extract response bodies
- * to a separate file, if applicable 3. Run any applicable StubMappingTransformers against the stub
- * mappings
+ * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
+ *
+ * <ol>
+ *   <li>Run any applicable StubMappingTransformers against the stub mappings.
+ *   <li>Detect duplicate requests and either discard them or turn them into scenarios.
+ *   <li>Extract response bodies to a separate file, if applicable.
+ * </ol>
  */
 public class SnapshotStubMappingPostProcessor {
   private final boolean shouldRecordRepeatsAsScenarios;
@@ -46,31 +51,45 @@ public class SnapshotStubMappingPostProcessor {
     this.bodyExtractor = bodyExtractor;
   }
 
-  public List<StubMapping> process(Iterable<StubMapping> stubMappings) {
-    final Multiset<RequestPattern> requestCounts = HashMultiset.create();
-    final List<StubMapping> processedStubMappings = new ArrayList<>();
+  public List<StubMapping> process(Collection<StubMapping> stubMappings) {
+    // 1. Run any applicable StubMappingTransformers against the stub mappings.
+    List<StubMapping> transformedStubMappings =
+        stubMappings.stream().map(transformerRunner).collect(toList());
 
-    for (StubMapping stubMapping : stubMappings) {
-      requestCounts.add(stubMapping.getRequest());
+    // 2. Detect duplicate requests and either discard them or turn them into scenarios.
+    Multiset<RequestPattern> requestCounts = HashMultiset.create();
+    List<StubMapping> processedStubMappings = new ArrayList<>();
+    for (StubMapping transformedStubMapping : transformedStubMappings) {
+      requestCounts.add(transformedStubMapping.getRequest());
 
       // Skip duplicate requests if shouldRecordRepeatsAsScenarios is not enabled
-      if (requestCounts.count(stubMapping.getRequest()) > 1 && !shouldRecordRepeatsAsScenarios) {
+      if (requestCounts.count(transformedStubMapping.getRequest()) > 1
+          && !shouldRecordRepeatsAsScenarios) {
         continue;
       }
 
-      if (bodyExtractMatcher != null
-          && bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
-        bodyExtractor.extractInPlace(stubMapping);
-      }
-
-      processedStubMappings.add(stubMapping);
+      processedStubMappings.add(transformedStubMapping);
     }
 
     if (shouldRecordRepeatsAsScenarios) {
       new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
     }
 
-    // Run any stub mapping transformer extensions
-    return Lists.transform(processedStubMappings, transformerRunner);
+    // 3. Extract response bodies to a separate file, if applicable.
+    extractStubMappingBodies(processedStubMappings);
+
+    return processedStubMappings;
+  }
+
+  private void extractStubMappingBodies(List<StubMapping> stubMappings) {
+    if (bodyExtractMatcher == null) {
+      return;
+    }
+
+    for (StubMapping stubMapping : stubMappings) {
+      if (bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
+        bodyExtractor.extractInPlace(stubMapping);
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,11 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-import static com.google.common.io.Files.asCharSink;
-import static com.google.common.io.Files.createParentDirs;
-import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -43,12 +39,15 @@ import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Predicate;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
@@ -197,7 +196,7 @@ public class StandaloneAcceptanceTest {
     WireMockResponse response = testClient.get("/json/34567/");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("<blob>BLAB</blob>"));
-    assertThat(response.firstHeader("Content-Type"), is("application/xml"));
+    assertThat(response.firstHeader("Content-Type"), is("application/xml;charset=utf-8"));
   }
 
   @Test
@@ -459,7 +458,7 @@ public class StandaloneAcceptanceTest {
   public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
     writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-    MappingFileException exception = assertThrows(MappingFileException.class, () -> startRunner());
+    MappingFileException exception = assertThrows(MappingFileException.class, this::startRunner);
     assertThat(
         exception.getMessage(),
         allOf(
@@ -468,6 +467,19 @@ public class StandaloneAcceptanceTest {
             containsString("Unrecognized field \"requesttttt\""),
             containsString("class com.github.tomakehurst.wiremock.stubbing.StubMapping"),
             containsString("not marked as ignorable")));
+  }
+
+  @Test
+  void savesMappingFileOnCreationOfPersistentStub() {
+    startRunner();
+
+    stubFor(
+        get(urlPathEqualTo("/one/two/three"))
+            .withName("Named stuff here __$$ things!")
+            .persistent()
+            .willReturn(ok()));
+
+    assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("named-stuff-here"));
   }
 
   private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
@@ -486,12 +498,7 @@ public class StandaloneAcceptanceTest {
   }
 
   private FilenameFilter namedLike(final String namePart) {
-    return new FilenameFilter() {
-      @Override
-      public boolean accept(File file, String name) {
-        return name.contains(namePart);
-      }
-    };
+    return (file, name) -> name.contains(namePart);
   }
 
   private WireMock startOtherServerAndClient() {
@@ -507,9 +514,9 @@ public class StandaloneAcceptanceTest {
   private void writeFileToFilesDir(String name, byte[] contents) {
     try {
       String filePath = underFileSourceRoot(underFiles(name));
-      File file = new File(filePath);
-      createParentDirs(file);
-      write(contents, file);
+      Path file = Paths.get(filePath);
+      createDirectories(file.getParent());
+      write(file, contents);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -521,9 +528,9 @@ public class StandaloneAcceptanceTest {
 
   private void writeFile(String absolutePath, String contents) {
     try {
-      File file = new File(absolutePath);
-      createParentDirs(file);
-      asCharSink(file, StandardCharsets.UTF_8).write(contents);
+      Path file = Paths.get(absolutePath);
+      createDirectories(file.getParent());
+      write(file, contents.getBytes(UTF_8));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -594,8 +601,7 @@ public class StandaloneAcceptanceTest {
       public boolean matchesSafely(File dir) {
         for (File file : dir.listFiles()) {
           try {
-            if (FileUtils.readFileToString(file, StandardCharsets.UTF_8)
-                .contains(expectedContents)) {
+            if (FileUtils.readFileToString(file, UTF_8).contains(expectedContents)) {
               return true;
             }
           } catch (IOException e) {
@@ -618,13 +624,13 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        return !any(asList(dir.list()), contains(namePart));
+        return Arrays.stream(Objects.requireNonNull(dir.list())).noneMatch(contains(namePart));
       }
     };
   }
 
   private Matcher<File> containsExactlyOneFileWithNameContaining(final String namePart) {
-    return new TypeSafeMatcher<File>() {
+    return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
@@ -633,19 +639,15 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        Iterable<String> fileNames = filter(asList(dir.list()), contains(namePart));
-        return size(fileNames) == 1;
+        return (int)
+                Arrays.stream(Objects.requireNonNull(dir.list())).filter(contains(namePart)).count()
+            == 1;
       }
     };
   }
 
   private static Predicate<String> contains(final String part) {
-    return new Predicate<String>() {
-      @Override
-      public boolean apply(String s) {
-        return s.contains(part);
-      }
-    };
+    return s -> s.contains(part);
   }
 
   /**

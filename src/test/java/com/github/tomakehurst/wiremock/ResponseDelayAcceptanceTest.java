@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
@@ -30,6 +31,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -185,9 +188,7 @@ public class ResponseDelayAcceptanceTest {
 
   @Test
   public void requestIsRecordedInJournalBeforePerformingDelay() throws Exception {
-    stubFor(
-        get(urlEqualTo("/delayed"))
-            .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
+    stubFor(get("/delayed").willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     final AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
@@ -203,8 +204,7 @@ public class ResponseDelayAcceptanceTest {
   @Test
   public void inFlightDelayedRequestsAreNotRecordedInJournalAfterReset() throws Exception {
     stubFor(
-        get(urlEqualTo("/delayed"))
-            .willReturn(aResponse().withStatus(200).withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
+        get(urlEqualTo("/delayed")).willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     final AtomicBoolean callSucceeded = callDelayedEndpointAsynchronously(executorService);
@@ -221,18 +221,14 @@ public class ResponseDelayAcceptanceTest {
 
   private AtomicBoolean callDelayedEndpointAsynchronously(ExecutorService executorService) {
     final AtomicBoolean success = new AtomicBoolean(false);
+    HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
     executorService.submit(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              HttpGet request = new HttpGet(wireMockRule.url("/delayed"));
-              final HttpResponse execute = httpClient.execute(request);
-              assertThat(execute.getCode(), is(200));
-              success.set(true);
-            } catch (Throwable e) {
-              e.printStackTrace();
-            }
+        () -> {
+          try (final CloseableHttpResponse response = httpClient.execute(request)) {
+            assertThat(response.getCode(), is(200));
+            success.set(true);
+          } catch (IOException e) {
+            Exceptions.throwUnchecked(e, AtomicBoolean.class);
           }
         });
     return success;

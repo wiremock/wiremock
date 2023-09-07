@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface Request {
@@ -58,9 +58,13 @@ public interface Request {
 
   Set<String> getAllHeaderKeys();
 
-  Map<String, Cookie> getCookies();
-
   QueryParameter queryParameter(String key);
+
+  FormParameter formParameter(String key);
+
+  Map<String, FormParameter> formParameters();
+
+  Map<String, Cookie> getCookies();
 
   byte[] getBody();
 
@@ -77,4 +81,6 @@ public interface Request {
   boolean isBrowserProxyRequest();
 
   Optional<Request> getOriginalRequest();
+
+  String getProtocol();
 }

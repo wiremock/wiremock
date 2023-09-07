@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,24 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult;
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class GlobalSettingsUpdateTask implements AdminTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     GlobalSettings newSettings;
     try {
-      newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
+      newSettings = Json.read(serveEvent.getRequest().getBodyAsString(), GlobalSettings.class);
     } catch (Exception e) {
       newSettings =
-          Json.read(request.getBodyAsString(), GetGlobalSettingsResult.class).getSettings();
+          Json.read(serveEvent.getRequest().getBodyAsString(), GetGlobalSettingsResult.class)
+              .getSettings();
     }
 
     admin.updateGlobalSettings(newSettings);

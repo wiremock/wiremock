@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,15 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
@@ -37,8 +35,8 @@ import org.xmlunit.placeholder.PlaceholderDifferenceEvaluator;
 
 public class EqualToXmlPattern extends StringValuePattern {
 
-  private static Set<ComparisonType> COUNTED_COMPARISONS =
-      ImmutableSet.of(
+  private static final Set<ComparisonType> COUNTED_COMPARISONS =
+      Set.of(
           ELEMENT_TAG_NAME,
           SCHEMA_LOCATION,
           NO_NAMESPACE_SCHEMA_LOCATION,
@@ -138,6 +136,8 @@ public class EqualToXmlPattern extends StringValuePattern {
 
           return !diff.hasDifferences();
         } catch (XMLUnitException e) {
+          appendSubEvent(SubEvent.warning(e.getMessage()));
+
           notifier()
               .info(
                   "Failed to process XML. "
@@ -168,16 +168,12 @@ public class EqualToXmlPattern extends StringValuePattern {
                   .ignoreComments()
                   .withDifferenceEvaluator(diffEvaluator)
                   .withComparisonListeners(
-                      new ComparisonListener() {
-                        @Override
-                        public void comparisonPerformed(
-                            Comparison comparison, ComparisonResult outcome) {
-                          if (COUNTED_COMPARISONS.contains(comparison.getType())
-                              && comparison.getControlDetails().getValue() != null) {
-                            totalComparisons.incrementAndGet();
-                            if (outcome == ComparisonResult.DIFFERENT) {
-                              differences.incrementAndGet();
-                            }
+                      (comparison, outcome) -> {
+                        if (COUNTED_COMPARISONS.contains(comparison.getType())
+                            && comparison.getControlDetails().getValue() != null) {
+                          totalComparisons.incrementAndGet();
+                          if (outcome == ComparisonResult.DIFFERENT) {
+                            differences.incrementAndGet();
                           }
                         }
                       })
@@ -195,7 +191,11 @@ public class EqualToXmlPattern extends StringValuePattern {
           return 1.0;
         }
 
-        notifier().info(Joiner.on("\n").join(diff.getDifferences()));
+        notifier()
+            .info(
+                StreamSupport.stream(diff.getDifferences().spliterator(), false)
+                    .map(Object::toString)
+                    .collect(Collectors.joining("\n")));
 
         return differences.doubleValue() / totalComparisons.doubleValue();
       }
@@ -209,7 +209,9 @@ public class EqualToXmlPattern extends StringValuePattern {
     public IgnoreUncountedDifferenceEvaluator(Set<ComparisonType> exemptedComparisons) {
       finalCountedComparisons =
           exemptedComparisons != null
-              ? Sets.difference(COUNTED_COMPARISONS, exemptedComparisons)
+              ? COUNTED_COMPARISONS.stream()
+                  .filter(e -> !exemptedComparisons.contains(e))
+                  .collect(Collectors.toSet())
               : COUNTED_COMPARISONS;
     }
 
@@ -230,7 +232,7 @@ public class EqualToXmlPattern extends StringValuePattern {
         enablePlaceholders,
         placeholderOpeningDelimiterRegex,
         placeholderClosingDelimiterRegex,
-        ImmutableSet.copyOf(comparisons));
+        new HashSet<>(Arrays.asList(comparisons)));
   }
 
   private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
@@ -242,15 +244,11 @@ public class EqualToXmlPattern extends StringValuePattern {
     }
 
     private static Iterable<Node> sort(Iterable<Node> nodes) {
-      return FluentIterable.from(nodes).toSortedList(COMPARATOR);
+      return StreamSupport.stream(nodes.spliterator(), false)
+          .sorted(COMPARATOR)
+          .collect(Collectors.toList());
     }
 
-    private static final Comparator<Node> COMPARATOR =
-        new Comparator<Node>() {
-          @Override
-          public int compare(Node node1, Node node2) {
-            return node1.getLocalName().compareTo(node2.getLocalName());
-          }
-        };
+    private static final Comparator<Node> COMPARATOR = Comparator.comparing(Node::getLocalName);
   }
 }

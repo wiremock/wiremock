@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.verification.notmatched;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
@@ -34,14 +35,19 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
 
   public static final String CONSOLE_WIDTH_HEADER_KEY = "X-WireMock-Console-Width";
 
+  private final Extensions extensions;
+
+  public PlainTextStubNotMatchedRenderer(Extensions extensions) {
+    this.extensions = extensions;
+  }
+
   @Override
-  public ResponseDefinition render(Admin admin, Request request) {
-    LoggedRequest loggedRequest =
-        LoggedRequest.createFrom(request.getOriginalRequest().or(request));
+  public ResponseDefinition render(Admin admin, ServeEvent serveEvent) {
+    LoggedRequest loggedRequest = serveEvent.getRequest();
     List<NearMiss> nearMisses = admin.findTopNearMissesFor(loggedRequest).getNearMisses();
 
     Map<String, RequestMatcherExtension> customMatcherExtensions =
-        admin.getOptions().extensionsOfType(RequestMatcherExtension.class);
+        extensions.ofType(RequestMatcherExtension.class);
 
     PlainTextDiffRenderer diffRenderer =
         loggedRequest.containsHeader(CONSOLE_WIDTH_HEADER_KEY)

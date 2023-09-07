@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.Sets.newTreeSet;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
-import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Map;
-import java.util.SortedSet;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
@@ -57,11 +54,9 @@ public class MatchesXPathPattern extends PathPattern {
 
   public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
     Map<String, String> namespaceMap =
-        ImmutableMap.<String, String>builder()
-            .putAll(firstNonNull(xpathNamespaces, Collections.<String, String>emptyMap()))
-            .put(name, namespaceUri)
-            .build();
-    return new MatchesXPathPattern(expectedValue, namespaceMap);
+        new HashMap<>(getFirstNonNull(xpathNamespaces, new HashMap<>()));
+    namespaceMap.put(name, namespaceUri);
+    return new MatchesXPathPattern(expectedValue, Collections.unmodifiableMap(namespaceMap));
   }
 
   public String getMatchesXPath() {
@@ -75,18 +70,20 @@ public class MatchesXPathPattern extends PathPattern {
 
   @Override
   protected MatchResult isSimpleMatch(String value) {
-    ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
-    return MatchResult.of(nodeList != null && nodeList.size() > 0);
+    final XmlNodeFindResult xmlNodeFindResult = findXmlNodes(value);
+    ListOrSingle<XmlNode> nodeList = xmlNodeFindResult.nodes;
+    return MatchResult.of(nodeList != null && !nodeList.isEmpty(), xmlNodeFindResult.subEvents);
   }
 
   @Override
   protected MatchResult isAdvancedMatch(String value) {
-    ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
-    if (nodeList == null || nodeList.size() == 0) {
-      return MatchResult.noMatch();
+    final XmlNodeFindResult xmlNodeFindResult = findXmlNodes(value);
+    ListOrSingle<XmlNode> nodeList = xmlNodeFindResult.nodes;
+    if (nodeList == null || nodeList.isEmpty()) {
+      return MatchResult.noMatch(xmlNodeFindResult.subEvents);
     }
 
-    SortedSet<MatchResult> results = newTreeSet();
+    SortedSet<MatchResult> results = new TreeSet<>();
     for (XmlNode node : nodeList) {
       results.add(valuePattern.match(node.toString()));
     }
@@ -96,34 +93,47 @@ public class MatchesXPathPattern extends PathPattern {
 
   @Override
   public ListOrSingle<String> getExpressionResult(String value) {
-    ListOrSingle<XmlNode> nodeList = findXmlNodes(value);
-    if (nodeList == null || nodeList.size() == 0) {
+    ListOrSingle<XmlNode> nodeList = findXmlNodes(value).nodes;
+    if (nodeList == null || nodeList.isEmpty()) {
       return ListOrSingle.of();
     }
 
     return ListOrSingle.of(nodeList.stream().map(XmlNode::toString).collect(Collectors.toList()));
   }
 
-  private ListOrSingle<XmlNode> findXmlNodes(String value) {
+  private XmlNodeFindResult findXmlNodes(String value) {
     // For performance reason, don't try to parse non XML value
     if (value == null || !value.trim().startsWith("<")) {
-      notifier().info(String.format("Warning: failed to parse the XML document\nXML: %s", value));
-      return null;
+      final String message =
+          String.format("Warning: failed to parse the XML document\nXML: %s", value);
+      notifier().info(message);
+      return new XmlNodeFindResult(null, SubEvent.warning(message));
     }
 
     try {
       XmlDocument xmlDocument = Xml.parse(value);
-      return xmlDocument.findNodes(expectedValue, xpathNamespaces);
+      return new XmlNodeFindResult(xmlDocument.findNodes(expectedValue, xpathNamespaces));
     } catch (XmlException e) {
-      notifier()
-          .info(
-              String.format(
-                  "Warning: failed to parse the XML document. Reason: %s\nXML: %s",
-                  e.getMessage(), value));
-      return null;
+      final String message =
+          String.format(
+              "Warning: failed to parse the XML document. Reason: %s\nXML: %s",
+              e.getMessage(), value);
+      notifier().info(message);
+      return new XmlNodeFindResult(null, SubEvent.warning(message));
     } catch (XPathException e) {
-      notifier().info("Warning: failed to evaluate the XPath expression " + expectedValue);
-      return null;
+      final String message = "Warning: failed to evaluate the XPath expression " + expectedValue;
+      notifier().info(message);
+      return new XmlNodeFindResult(null, SubEvent.warning(message));
+    }
+  }
+
+  private static class XmlNodeFindResult {
+    final ListOrSingle<XmlNode> nodes;
+    final List<SubEvent> subEvents;
+
+    public XmlNodeFindResult(ListOrSingle<XmlNode> nodes, SubEvent... subEvents) {
+      this.nodes = nodes;
+      this.subEvents = List.of(subEvents);
     }
   }
 }

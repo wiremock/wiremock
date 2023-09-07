@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ public class MultipartValuePatternTest {
     MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
 
     StringValuePattern headerPattern =
-        pattern.getHeaders().get("Content-Disposition").getValuePattern();
+        ((SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Disposition"))
+            .getValuePattern();
     assertThat(headerPattern, instanceOf(ContainsPattern.class));
     assertThat(headerPattern.getValue(), is("name=\"part1\""));
 
@@ -117,7 +118,8 @@ public class MultipartValuePatternTest {
     assertThat(
         pattern.getBodyPatterns().get(0).getExpected(), WireMatchers.equalToJson(expectedJson));
 
-    MultiValuePattern contentTypeHeaderPattern = pattern.getHeaders().get("Content-Type");
+    SingleMatchMultiValuePattern contentTypeHeaderPattern =
+        (SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Type");
     assertThat(contentTypeHeaderPattern.getValuePattern(), instanceOf(ContainsPattern.class));
     assertThat(contentTypeHeaderPattern.getValuePattern().getExpected(), is("application/json"));
     assertTrue(pattern.isMatchAny());
@@ -157,7 +159,9 @@ public class MultipartValuePatternTest {
     assertThat(pattern.getName(), is("my_part_name"));
     assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedBinary);
     assertThat(
-        pattern.getHeaders().get("Content-Type").getValuePattern().getExpected(),
+        ((SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Type"))
+            .getValuePattern()
+            .getExpected(),
         is("application/octet-stream"));
     assertTrue(pattern.isMatchAll());
     assertFalse(pattern.isMatchAny());
@@ -196,5 +200,97 @@ public class MultipartValuePatternTest {
                 + "    \"equalToJson\" : \"{ \\\"thing\\\": 123 }\"\n"
                 + "  } ]\n"
                 + "}"));
+  }
+
+  @Test
+  public void equalsShouldReturnTrueOnSameObject() {
+    MultipartValuePattern pattern =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
+            .build();
+
+    assertThat(pattern.equals(pattern), is(true));
+    assertEquals(pattern.hashCode(), pattern.hashCode());
+  }
+
+  @Test
+  public void equalsShouldReturnTrueOnIdenticalButNotSameObjects() {
+    MultipartValuePattern patternA =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
+            .build();
+
+    MultipartValuePattern patternB =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
+            .build();
+
+    assertThat(patternA.equals(patternB), is(true));
+    assertEquals(patternA.hashCode(), patternB.hashCode());
+  }
+
+  @Test
+  public void equalsShouldReturnFalseOnDifferentObjects() {
+    MultipartValuePattern patternA =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
+            .build();
+
+    MultipartValuePattern patternB =
+        aMultipart()
+            .withName("anotherTitle")
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(equalToJson("{ \"thing\": \"abc\" }"))
+            .build();
+
+    assertThat(patternA.equals(patternB), is(false));
+    assertNotEquals(patternA.hashCode(), patternB.hashCode());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    MultipartValuePattern patternA =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(binaryEqualTo("RG9jdW1lbnQgYm9keSBjb250ZW50cw=="))
+            .build();
+
+    MultipartValuePattern patternB =
+        aMultipart()
+            .withName("title")
+            .withHeader("X-First-Header", equalTo("One"))
+            .withHeader("X-Second-Header", matching(".*2"))
+            .withBody(binaryEqualTo("RG9jdW1lbnQgYm9keSBjb250ZW50cw=="))
+            .build();
+
+    MultipartValuePattern patternC =
+        aMultipart()
+            .withName("Description")
+            .withHeader("X-First-Header", equalTo("Second"))
+            .withBody(binaryEqualTo("SGVsbG9Xb3JsZA=="))
+            .build();
+
+    assertEquals(patternA, patternB);
+    assertEquals(patternA.hashCode(), patternB.hashCode());
+    assertEquals(patternB, patternA);
+    assertEquals(patternB.hashCode(), patternA.hashCode());
+    assertNotEquals(patternA, patternC);
+    assertNotEquals(patternA.hashCode(), patternC.hashCode());
+    assertNotEquals(patternB, patternC);
+    assertNotEquals(patternB.hashCode(), patternC.hashCode());
   }
 }

@@ -8,6 +8,15 @@ example:
   method: POST
   url: /some/thing
 properties:
+  scheme:
+    type: string
+    description: The URI scheme
+  host:
+    type: object
+    description: 'URI host pattern to match against in the "<predicate>": "<value>" form'
+  port:
+    type: integer
+    description: The HTTP port number
   method:
     type: string
     description: The HTTP request method e.g. GET
@@ -48,3 +57,32 @@ properties:
     description: 'Request body patterns to match against in the <key>: { "<predicate>": "<value>" } form'
     items:
       type: object
+  customMatcher:
+    type: object
+    description: Custom request matcher to match against
+    properties:
+      name:
+        type: string
+        description: The matcher's name specified in the implementation of the matcher.
+      parameters:
+        type: object
+  multipartPatterns:
+    type: array
+    description: Multipart patterns to match against headers and body
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        matchingType:
+          type: string
+          default: ANY
+          enum:
+            - ALL
+            - ANY
+        headers:
+          type: object
+        bodyPatterns:
+          type: array
+          items:
+            type: object

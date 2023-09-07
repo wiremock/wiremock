@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class EmptyToStringRequestWrapper implements Request {
@@ -105,6 +105,16 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
+  public FormParameter formParameter(String key) {
+    return target.formParameter(key);
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return target.formParameters();
+  }
+
+  @Override
   public byte[] getBody() {
     return target.getBody();
   }
@@ -142,6 +152,11 @@ public class EmptyToStringRequestWrapper implements Request {
   @Override
   public Optional<Request> getOriginalRequest() {
     return target.getOriginalRequest();
+  }
+
+  @Override
+  public String getProtocol() {
+    return target.getProtocol();
   }
 
   @Override

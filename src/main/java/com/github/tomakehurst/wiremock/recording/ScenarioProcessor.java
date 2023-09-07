@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,42 +19,36 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.*;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ScenarioProcessor {
 
   public void putRepeatedRequestsInScenarios(List<StubMapping> stubMappings) {
-    ImmutableListMultimap<RequestPattern, StubMapping> stubsGroupedByRequest =
-        Multimaps.index(
-            stubMappings,
-            new Function<StubMapping, RequestPattern>() {
-              @Override
-              public RequestPattern apply(StubMapping mapping) {
-                return mapping.getRequest();
-              }
-            });
+    Map<RequestPattern, List<StubMapping>> stubsGroupedByRequest =
+        stubMappings.stream()
+            .collect(
+                Collectors.groupingBy(
+                    StubMapping::getRequest,
+                    LinkedHashMap::new,
+                    Collectors.toCollection(LinkedList::new)));
 
     Map<RequestPattern, Collection<StubMapping>> groupsWithMoreThanOneStub =
-        Maps.filterEntries(
-            stubsGroupedByRequest.asMap(),
-            new Predicate<Map.Entry<RequestPattern, Collection<StubMapping>>>() {
-              @Override
-              public boolean apply(Map.Entry<RequestPattern, Collection<StubMapping>> input) {
-                return input.getValue().size() > 1;
-              }
-            });
+        stubsGroupedByRequest.entrySet().stream()
+            .filter(entry -> entry.getValue().size() > 1)
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (entry1, entry2) -> entry1,
+                    LinkedHashMap::new));
 
     int scenarioIndex = 0;
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :
         groupsWithMoreThanOneStub.entrySet()) {
       scenarioIndex++;
-      putStubsInScenario(scenarioIndex, ImmutableList.copyOf(entry.getValue()));
+      putStubsInScenario(scenarioIndex, List.copyOf(entry.getValue()));
     }
   }
 
@@ -62,7 +56,7 @@ public class ScenarioProcessor {
     StubMapping firstScenario = stubMappings.get(0);
     String scenarioName =
         "scenario-"
-            + Integer.toString(scenarioIndex)
+            + scenarioIndex
             + "-"
             + Urls.urlToPathParts(URI.create(firstScenario.getRequest().getUrl()));
 

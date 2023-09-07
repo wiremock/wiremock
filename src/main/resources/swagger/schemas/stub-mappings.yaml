@@ -12,3 +12,4 @@ properties:
         example: 4
     required:
       - total
+additionalProperties: false

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 public class SingleServedStubResult extends SingleItemResult<ServeEvent> {
 
@@ -27,6 +27,6 @@ public class SingleServedStubResult extends SingleItemResult<ServeEvent> {
   }
 
   public static SingleServedStubResult fromOptional(Optional<ServeEvent> servedStub) {
-    return new SingleServedStubResult(servedStub.orNull());
+    return new SingleServedStubResult(servedStub.orElse(null));
   }
 }

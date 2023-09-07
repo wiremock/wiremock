@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.FindServeEventsResult;
 
 public class RemoveServeEventsByStubMetadataTask implements AdminTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+  public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StringValuePattern metadataPattern =
-        Json.read(request.getBodyAsString(), StringValuePattern.class);
+        Json.read(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
     FindServeEventsResult findServeEventsResult =
         admin.removeServeEventsForStubsMatchingMetadata(metadataPattern);
     return ResponseDefinition.okForJson(findServeEventsResult);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,15 @@ public class KeyStoreSettingsTest {
   public void loadsTrustStoreFromClasspath() {
     KeyStoreSettings trustStoreSettings =
         new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jks");
+
+    KeyStore keyStore = trustStoreSettings.loadStore();
+    assertNotNull(keyStore);
+  }
+
+  @Test
+  public void loadsTrustStoreOfTypeJCEKS() {
+    KeyStoreSettings trustStoreSettings =
+        new KeyStoreSettings(JCEKS_TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jceks");
 
     KeyStore keyStore = trustStoreSettings.loadStore();
     assertNotNull(keyStore);

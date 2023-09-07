@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
 import static java.net.HttpURLConnection.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.Collections;
 import java.util.List;
@@ -128,7 +129,7 @@ public class ResponseDefinition {
         wasConfigured);
   }
 
-  private ResponseDefinition(
+  public ResponseDefinition(
       int status,
       String statusMessage,
       Body body,
@@ -262,7 +263,7 @@ public class ResponseDefinition {
 
   public static ResponseDefinition redirectTo(String path) {
     return new ResponseDefinitionBuilder()
-        .withHeader("Location", path)
+        .withHeader(LOCATION, path)
         .withStatus(HTTP_MOVED_TEMP)
         .build();
   }
@@ -353,6 +354,11 @@ public class ResponseDefinition {
 
   public String getBase64Body() {
     return body.isBinary() ? body.asBase64() : null;
+  }
+
+  @JsonIgnore
+  public Body getReponseBody() {
+    return body;
   }
 
   public JsonNode getJsonBody() {
@@ -449,7 +455,7 @@ public class ResponseDefinition {
     return transformerParameters;
   }
 
-  public boolean hasTransformer(AbstractTransformer transformer) {
+  public boolean hasTransformer(Extension transformer) {
     return transformers != null && transformers.contains(transformer.getName());
   }
 

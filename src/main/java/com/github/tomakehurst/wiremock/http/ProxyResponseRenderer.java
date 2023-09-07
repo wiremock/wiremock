@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArray;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -38,83 +37,114 @@ import javax.net.ssl.SSLException;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
-  private static final int MINUTES = 1000 * 60;
-  private static final int DEFAULT_SO_TIMEOUT = 5 * MINUTES;
-
   private static final String TRANSFER_ENCODING = "transfer-encoding";
   private static final String CONTENT_ENCODING = "content-encoding";
   private static final String CONTENT_LENGTH = "content-length";
   private static final String HOST_HEADER = "host";
-  public static final ImmutableList<String> FORBIDDEN_RESPONSE_HEADERS =
-      ImmutableList.of(TRANSFER_ENCODING, "connection");
-  public static final ImmutableList<String> FORBIDDEN_REQUEST_HEADERS =
-      ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection");
+  public static final List<String> FORBIDDEN_RESPONSE_HEADERS =
+      List.of(TRANSFER_ENCODING, "connection");
+  public static final List<String> FORBIDDEN_REQUEST_HEADERS =
+      List.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection");
 
   private final CloseableHttpClient reverseProxyClient;
   private final CloseableHttpClient forwardProxyClient;
   private final boolean preserveHostHeader;
   private final String hostHeaderValue;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final SettingsStore settingsStore;
+  private final boolean stubCorsEnabled;
+
+  private final NetworkAddressRules targetAddressRules;
 
   public ProxyResponseRenderer(
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
       boolean preserveHostHeader,
       String hostHeaderValue,
-      GlobalSettingsHolder globalSettingsHolder,
+      SettingsStore settingsStore,
       boolean trustAllProxyTargets,
-      List<String> trustedProxyTargets) {
-    this.globalSettingsHolder = globalSettingsHolder;
+      List<String> trustedProxyTargets,
+      boolean stubCorsEnabled,
+      NetworkAddressRules targetAddressRules,
+      int proxyTimeout) {
+    this.settingsStore = settingsStore;
     reverseProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             true,
-            Collections.<String>emptyList(),
-            true);
+            Collections.emptyList(),
+            true,
+            targetAddressRules);
     forwardProxyClient =
         HttpClientFactory.createClient(
             1000,
-            DEFAULT_SO_TIMEOUT,
+            proxyTimeout,
             proxySettings,
             trustStoreSettings,
             trustAllProxyTargets,
             trustAllProxyTargets ? Collections.emptyList() : trustedProxyTargets,
-            false);
+            false,
+            targetAddressRules);
 
     this.preserveHostHeader = preserveHostHeader;
     this.hostHeaderValue = hostHeaderValue;
+    this.stubCorsEnabled = stubCorsEnabled;
+    this.targetAddressRules = targetAddressRules;
   }
 
   @Override
   public Response render(ServeEvent serveEvent) {
     ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    //    if (targetAddressProhibited(responseDefinition.getProxyUrl())) {
+    //      return response()
+    //          .status(500)
+    //          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+    //          .body("The target proxy address is denied in WireMock's configuration.")
+    //          .build();
+    //    }
+
     HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
     addRequestHeaders(httpRequest, responseDefinition);
 
-    addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
-    CloseableHttpClient client = buildClient(serveEvent.getRequest().isBrowserProxyRequest());
-    try (CloseableHttpResponse httpResponse = client.execute(httpRequest)) {
+    GlobalSettings settings = settingsStore.get();
+
+    Request originalRequest = responseDefinition.getOriginalRequest();
+    if ((originalRequest.getBody() != null && originalRequest.getBody().length > 0)
+        || originalRequest.containsHeader(CONTENT_LENGTH)) {
+      httpRequest.setEntity(buildEntityFrom(originalRequest));
+    }
+
+    CloseableHttpClient client = chooseClient(serveEvent.getRequest().isBrowserProxyRequest());
+
+    try {
+      return client.execute(
+          httpRequest,
+          httpResponse ->
+              response()
+                  .status(httpResponse.getCode())
+                  .headers(headersFrom(httpResponse, responseDefinition))
+                  .body(getEntityAsByteArray(httpResponse))
+                  .fromProxy(true)
+                  .configureDelay(
+                      settings.getFixedDelay(),
+                      settings.getDelayDistribution(),
+                      responseDefinition.getFixedDelayMilliseconds(),
+                      responseDefinition.getDelayDistribution())
+                  .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
+                  .build());
+    } catch (ProhibitedNetworkAddressException e) {
       return response()
-          .status(httpResponse.getCode())
-          .headers(headersFrom(httpResponse, responseDefinition))
-          .body(getEntityAsByteArrayAndCloseStream(httpResponse))
-          .fromProxy(true)
-          .configureDelay(
-              globalSettingsHolder.get().getFixedDelay(),
-              globalSettingsHolder.get().getDelayDistribution(),
-              responseDefinition.getFixedDelayMilliseconds(),
-              responseDefinition.getDelayDistribution())
-          .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
+          .status(HTTP_INTERNAL_ERROR)
+          .headers(new HttpHeaders(new HttpHeader("Content-Type", "text/plain")))
+          .body("The target proxy address is denied in WireMock's configuration.")
           .build();
     } catch (SSLException e) {
       return proxyResponseError("SSL", httpRequest, e);
@@ -138,12 +168,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private static String extractUri(HttpUriRequest request) {
     try {
       return request.getUri().toString();
-    } catch (URISyntaxException e1) {
+    } catch (URISyntaxException ignored) {
     }
     return request.getRequestUri();
   }
 
-  private CloseableHttpClient buildClient(boolean browserProxyRequest) {
+  private CloseableHttpClient chooseClient(boolean browserProxyRequest) {
     if (browserProxyRequest) {
       return forwardProxyClient;
     } else {
@@ -204,25 +234,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     return !FORBIDDEN_REQUEST_HEADERS.contains(key.toLowerCase());
   }
 
-  private static boolean responseHeaderShouldBeTransferred(String key) {
+  private boolean responseHeaderShouldBeTransferred(String key) {
     final String lowerCaseKey = key.toLowerCase();
     return !FORBIDDEN_RESPONSE_HEADERS.contains(lowerCaseKey)
-        && !lowerCaseKey.startsWith("access-control");
-  }
-
-  private static void addBodyIfPostPutOrPatch(
-      ClassicHttpRequest httpRequest, ResponseDefinition response) {
-    Request originalRequest = response.getOriginalRequest();
-    if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
-      httpRequest.setEntity(buildEntityFrom(originalRequest));
-    }
+        && (!stubCorsEnabled || !lowerCaseKey.startsWith("access-control"));
   }
 
   private static HttpEntity buildEntityFrom(Request originalRequest) {
     ContentTypeHeader contentTypeHeader = originalRequest.contentTypeHeader().or("text/plain");
     ContentType contentType =
         ContentType.create(
-            contentTypeHeader.mimeTypePart(), contentTypeHeader.encodingPart().or("utf-8"));
+            contentTypeHeader.mimeTypePart(), contentTypeHeader.encodingPart().orElse("utf-8"));
 
     if (originalRequest.containsHeader(TRANSFER_ENCODING)
         && originalRequest.header(TRANSFER_ENCODING).firstValue().equals("chunked")) {
@@ -234,7 +256,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     return applyGzipWrapperIfRequired(
         originalRequest,
-        new ByteArrayEntity(originalRequest.getBody(), ContentType.DEFAULT_BINARY));
+        new ByteArrayEntity(
+            originalRequest.getBody(),
+            originalRequest.contentTypeHeader().isPresent() ? contentType : null));
   }
 
   private static HttpEntity applyGzipWrapperIfRequired(

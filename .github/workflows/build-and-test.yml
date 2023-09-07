@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        jdk: [8, 11, 17]
+        jdk: [11, 17]
     runs-on: ${{ matrix.os }}
     env:
       JDK_VERSION:  ${{ matrix.jdk }}
@@ -28,16 +28,14 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: ${{ matrix.jdk }}
-        distribution: 'adopt'
+        distribution: 'temurin'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Set up node using nvm
       uses: dcodeIO/setup-node-nvm@v4
       with:
         node-version: 8.12.0
-    - name: Pre-generate API docs
-      run: ./gradlew classes testClasses -x generateApiDocs
-
+    
     - name: Cache SonarCloud packages
       uses: actions/cache@v1
       with:

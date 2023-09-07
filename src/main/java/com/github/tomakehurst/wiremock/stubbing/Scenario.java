@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,56 +15,52 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.google.common.collect.FluentIterable.from;
+import static java.util.stream.Collectors.toSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Scenario {
 
   public static final String STARTED = "Started";
 
-  private final UUID id;
-  private final String name;
+  private final String id;
   private final String state;
   private final Set<StubMapping> stubMappings;
 
   @JsonCreator
   public Scenario(
-      @JsonProperty("id") UUID id,
-      @JsonProperty("name") String name,
+      @JsonProperty("id") String id,
+      @JsonProperty("name") String ignored,
       @JsonProperty("state") String currentState,
-      @JsonProperty("possibleStates") Set<String> ignored,
+      @JsonProperty("possibleStates") Set<String> ignored2,
       @JsonProperty("mappings") Set<StubMapping> stubMappings) {
     this.id = id;
-    this.name = name;
     this.state = currentState;
     this.stubMappings = stubMappings;
   }
 
-  public static Scenario inStartedState(String name) {
-    return new Scenario(
-        UUID.randomUUID(),
-        name,
-        STARTED,
-        ImmutableSet.of(STARTED),
-        Collections.<StubMapping>emptySet());
+  private Scenario(String id, String state, Set<StubMapping> stubMappings) {
+    this(id, null, state, null, stubMappings);
   }
 
-  public UUID getId() {
+  public static Scenario inStartedState(String name) {
+    return new Scenario(name, STARTED, Collections.emptySet());
+  }
+
+  public String getId() {
     return id;
   }
 
+  // For JSON backwards compatibility
   public String getName() {
-    return name;
+    return id;
   }
 
   public String getState() {
@@ -72,27 +68,15 @@ public class Scenario {
   }
 
   public Set<String> getPossibleStates() {
-    FluentIterable<String> requiredStates =
-        from(stubMappings)
-            .transform(
-                new Function<StubMapping, String>() {
-                  @Override
-                  public String apply(StubMapping mapping) {
-                    return mapping.getRequiredScenarioState();
-                  }
-                });
+    List<String> requiredStates =
+        stubMappings.stream()
+            .map(StubMapping::getRequiredScenarioState)
+            .collect(Collectors.toList());
 
-    return from(stubMappings)
-        .transform(
-            new Function<StubMapping, String>() {
-              @Override
-              public String apply(StubMapping mapping) {
-                return mapping.getNewScenarioState();
-              }
-            })
-        .append(requiredStates)
-        .filter(Predicates.notNull())
-        .toSet();
+    requiredStates.addAll(
+        stubMappings.stream().map(StubMapping::getNewScenarioState).collect(Collectors.toList()));
+
+    return requiredStates.stream().filter(Objects::nonNull).collect(Collectors.toSet());
   }
 
   public Set<StubMapping> getMappings() {
@@ -100,23 +84,31 @@ public class Scenario {
   }
 
   Scenario setState(String newState) {
-    return new Scenario(id, name, newState, null, stubMappings);
+    if (!getPossibleStates().contains(newState)) {
+      throw new InvalidInputException(
+          Errors.single(11, "Scenario my-scenario does not support state " + newState));
+    }
+
+    return new Scenario(id, newState, stubMappings);
   }
 
   Scenario reset() {
-    return new Scenario(id, name, STARTED, null, stubMappings);
+    return new Scenario(id, STARTED, stubMappings);
   }
 
   Scenario withStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings =
-        ImmutableSet.<StubMapping>builder().addAll(stubMappings).add(stubMapping).build();
+    Set<StubMapping> newMappings = new LinkedHashSet<>(stubMappings);
+    newMappings.add(stubMapping);
 
-    return new Scenario(id, name, state, null, newMappings);
+    return new Scenario(id, state, newMappings);
   }
 
   Scenario withoutStubMapping(StubMapping stubMapping) {
-    Set<StubMapping> newMappings = Sets.difference(stubMappings, ImmutableSet.of(stubMapping));
-    return new Scenario(id, name, state, null, newMappings);
+    Set<StubMapping> newMappings =
+        stubMappings.stream()
+            .filter(stub -> !stub.getId().equals(stubMapping.getId()))
+            .collect(toSet());
+    return new Scenario(id, state, newMappings);
   }
 
   @Override
@@ -130,22 +122,16 @@ public class Scenario {
     if (o == null || getClass() != o.getClass()) return false;
     Scenario scenario = (Scenario) o;
     return Objects.equals(getId(), scenario.getId())
-        && Objects.equals(getName(), scenario.getName())
         && Objects.equals(getState(), scenario.getState())
         && Objects.equals(getMappings(), scenario.getMappings());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getId(), getName(), getState(), getMappings());
+    return Objects.hash(getId(), getState(), getMappings());
   }
 
-  public static final Predicate<Scenario> withName(final String name) {
-    return new Predicate<Scenario>() {
-      @Override
-      public boolean apply(Scenario input) {
-        return input.getName().equals(name);
-      }
-    };
+  public static Predicate<Scenario> withName(final String name) {
+    return input -> input.getId().equals(name);
   }
 }

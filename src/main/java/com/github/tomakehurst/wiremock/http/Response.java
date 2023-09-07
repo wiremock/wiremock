@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-import com.github.tomakehurst.wiremock.common.BinaryFile;
-import com.github.tomakehurst.wiremock.common.InputStreamSource;
-import com.github.tomakehurst.wiremock.common.StreamSources;
-import com.github.tomakehurst.wiremock.common.Strings;
-import com.google.common.base.Optional;
-import com.google.common.io.ByteStreams;
+import com.github.tomakehurst.wiremock.common.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 public class Response {
 
@@ -39,77 +36,47 @@ public class Response {
   private final boolean fromProxy;
   private final long initialDelay;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
+  private final String protocol;
 
   public static Response notConfigured() {
     return new Response(
-        HTTP_NOT_FOUND, null, (byte[]) null, noHeaders(), false, null, 0, null, false);
+        HTTP_NOT_FOUND,
+        null,
+        StreamSources.empty(),
+        noHeaders(),
+        false,
+        null,
+        0,
+        null,
+        false,
+        null);
   }
 
   public static Builder response() {
     return new Builder();
   }
 
-  public Response(
+  private Response(
       int status,
       String statusMessage,
-      byte[] body,
+      InputStreamSource bodyStreamSource,
       HttpHeaders headers,
       boolean configured,
       Fault fault,
       long initialDelay,
       ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
+      boolean fromProxy,
+      String protocol) {
     this.status = status;
     this.statusMessage = statusMessage;
-    this.bodyStreamSource = StreamSources.forBytes(body);
+    this.bodyStreamSource = bodyStreamSource;
     this.headers = headers;
     this.configured = configured;
     this.fault = fault;
     this.initialDelay = initialDelay;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
     this.fromProxy = fromProxy;
-  }
-
-  public Response(
-      int status,
-      String statusMessage,
-      InputStreamSource streamSource,
-      HttpHeaders headers,
-      boolean configured,
-      Fault fault,
-      long initialDelay,
-      ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
-    this.status = status;
-    this.statusMessage = statusMessage;
-    this.bodyStreamSource = streamSource;
-    this.headers = headers;
-    this.configured = configured;
-    this.fault = fault;
-    this.initialDelay = initialDelay;
-    this.chunkedDribbleDelay = chunkedDribbleDelay;
-    this.fromProxy = fromProxy;
-  }
-
-  public Response(
-      int status,
-      String statusMessage,
-      String body,
-      HttpHeaders headers,
-      boolean configured,
-      Fault fault,
-      long initialDelay,
-      ChunkedDribbleDelay chunkedDribbleDelay,
-      boolean fromProxy) {
-    this.status = status;
-    this.statusMessage = statusMessage;
-    this.headers = headers;
-    this.bodyStreamSource = StreamSources.forString(body, headers.getContentTypeHeader().charset());
-    this.configured = configured;
-    this.fault = fault;
-    this.initialDelay = initialDelay;
-    this.chunkedDribbleDelay = chunkedDribbleDelay;
-    this.fromProxy = fromProxy;
+    this.protocol = protocol;
   }
 
   public int getStatus() {
@@ -121,10 +88,23 @@ public class Response {
   }
 
   public byte[] getBody() {
-    try (InputStream stream = bodyStreamSource == null ? null : getBodyStream()) {
-      return stream == null ? null : ByteStreams.toByteArray(stream);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    return getBody(UNLIMITED);
+  }
+
+  public byte[] getBody(Limit sizeLimit) {
+    return Exceptions.uncheck(() -> getBytesFromStream(bodyStreamSource, sizeLimit), byte[].class);
+  }
+
+  private static byte[] getBytesFromStream(InputStreamSource streamSource, Limit limit)
+      throws IOException {
+    try (InputStream stream = streamSource == null ? null : streamSource.getStream()) {
+      if (stream == null) {
+        return null;
+      }
+
+      return limit != null && !limit.isUnlimited()
+          ? stream.readNBytes(limit.getValue())
+          : stream.readAllBytes();
     }
   }
 
@@ -137,7 +117,8 @@ public class Response {
   }
 
   public boolean hasInlineBody() {
-    return !BinaryFile.class.isAssignableFrom(bodyStreamSource.getClass());
+    return StreamSources.ByteArrayInputStreamSource.class.isAssignableFrom(
+        bodyStreamSource.getClass());
   }
 
   public HttpHeaders getHeaders() {
@@ -170,11 +151,7 @@ public class Response {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("HTTP/1.1 ").append(status).append("\n");
-    sb.append(headers).append("\n");
-    // no longer printing body
-    return sb.toString();
+    return protocol + " " + status + "\n" + headers;
   }
 
   public static class Builder {
@@ -189,6 +166,7 @@ public class Response {
     private boolean fromProxy;
     private long initialDelay;
     private ChunkedDribbleDelay chunkedDribbleDelay;
+    private String protocol;
 
     public static Builder like(Response response) {
       Builder responseBuilder = new Builder();
@@ -267,16 +245,14 @@ public class Response {
     private void addDelayIfSpecifiedGloballyOrIn(Integer fixedDelay, Integer globalFixedDelay) {
       Optional<Integer> optionalDelay =
           getDelayFromResponseOrGlobalSetting(fixedDelay, globalFixedDelay);
-      if (optionalDelay.isPresent()) {
-        incrementInitialDelay(optionalDelay.get());
-      }
+      optionalDelay.ifPresent(this::incrementInitialDelay);
     }
 
     private Optional<Integer> getDelayFromResponseOrGlobalSetting(
         Integer fixedDelay, Integer globalFixedDelay) {
       Integer delay = fixedDelay != null ? fixedDelay : globalFixedDelay;
 
-      return Optional.fromNullable(delay);
+      return Optional.ofNullable(delay);
     }
 
     private void addRandomDelayIfSpecifiedGloballyOrIn(
@@ -310,51 +286,33 @@ public class Response {
     }
 
     public Response build() {
+      InputStreamSource bodyStream;
       if (bodyBytes != null) {
-        return new Response(
-            status,
-            statusMessage,
-            bodyBytes,
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+        bodyStream = StreamSources.forBytes(bodyBytes);
       } else if (bodyString != null) {
-        return new Response(
-            status,
-            statusMessage,
-            bodyString,
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
-      } else if (bodyStream != null) {
-        return new Response(
-            status,
-            statusMessage,
-            bodyStream,
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+        bodyStream = StreamSources.forString(bodyString, headers.getContentTypeHeader().charset());
+      } else if (this.bodyStream != null) {
+        bodyStream = this.bodyStream;
       } else {
-        return new Response(
-            status,
-            statusMessage,
-            new byte[0],
-            headers,
-            configured,
-            fault,
-            initialDelay,
-            chunkedDribbleDelay,
-            fromProxy);
+        bodyStream = StreamSources.empty();
       }
+
+      return new Response(
+          status,
+          statusMessage,
+          bodyStream,
+          headers,
+          configured,
+          fault,
+          initialDelay,
+          chunkedDribbleDelay,
+          fromProxy,
+          protocol);
+    }
+
+    public Builder protocol(final String protocol) {
+      this.protocol = protocol;
+      return this;
     }
   }
 }

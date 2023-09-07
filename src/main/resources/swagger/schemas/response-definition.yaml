@@ -1,5 +1,4 @@
 allOf:
-  - $ref: "delay-distribution.yaml"
   - type: object
     properties:
       status:
@@ -37,6 +36,9 @@ allOf:
       fixedDelayMilliseconds:
         type: integer
         description: Number of milliseconds to delay be before sending the response.
+      delayDistribution:
+        description: The delay distribution. Valid property configuration is either median/sigma/type or lower/type/upper.
+        $ref: "delay-distribution.yaml"
       fromConfiguredStub:
         type: boolean
         description: Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.
@@ -51,4 +53,3 @@ allOf:
         description: List of names of transformers to apply to this response.
         items:
           type: string
-

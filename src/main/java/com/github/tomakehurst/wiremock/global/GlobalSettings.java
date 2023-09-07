@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ public class GlobalSettings {
   private final DelayDistribution delayDistribution;
   private final Parameters extended;
 
+  private final boolean proxyPassThrough;
+
   public static GlobalSettings.Builder builder() {
     return new Builder();
   }
@@ -37,10 +39,12 @@ public class GlobalSettings {
   public GlobalSettings(
       @JsonProperty("fixedDelay") Integer fixedDelay,
       @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
-      @JsonProperty("extended") Parameters extended) {
+      @JsonProperty("extended") Parameters extended,
+      @JsonProperty("proxyPassThrough") boolean proxyPassThrough) {
     this.fixedDelay = fixedDelay;
     this.delayDistribution = delayDistribution;
     this.extended = extended;
+    this.proxyPassThrough = proxyPassThrough;
   }
 
   public Integer getFixedDelay() {
@@ -53,6 +57,10 @@ public class GlobalSettings {
 
   public Parameters getExtended() {
     return extended;
+  }
+
+  public boolean getProxyPassThrough() {
+    return proxyPassThrough;
   }
 
   public GlobalSettings.Builder copy() {
@@ -82,6 +90,8 @@ public class GlobalSettings {
     private DelayDistribution delayDistribution;
     private Parameters extended;
 
+    private boolean proxyPassThrough = true;
+
     public Builder fixedDelay(Integer fixedDelay) {
       this.fixedDelay = fixedDelay;
       return this;
@@ -97,8 +107,13 @@ public class GlobalSettings {
       return this;
     }
 
+    public Builder proxyPassThrough(boolean proxyPassThrough) {
+      this.proxyPassThrough = proxyPassThrough;
+      return this;
+    }
+
     public GlobalSettings build() {
-      return new GlobalSettings(fixedDelay, delayDistribution, extended);
+      return new GlobalSettings(fixedDelay, delayDistribution, extended, proxyPassThrough);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,11 @@ package com.github.tomakehurst.wiremock.servlet;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.io.ByteStreams;
+import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.util.Collection;
-import javax.servlet.http.Part;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WireMockHttpServletMultipartAdapter implements Request.Part {
 
@@ -32,18 +31,15 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
 
   public WireMockHttpServletMultipartAdapter(final Part servletPart) {
     mPart = servletPart;
-    Iterable<HttpHeader> httpHeaders =
-        FluentIterable.from(mPart.getHeaderNames())
-            .transform(
-                new Function<String, HttpHeader>() {
-                  @Override
-                  public HttpHeader apply(String name) {
-                    Collection<String> headerValues = servletPart.getHeaders(name);
-                    return HttpHeader.httpHeader(
-                        name, headerValues.toArray(new String[headerValues.size()]));
-                  }
-                });
-
+    List<HttpHeader> httpHeaders =
+        mPart.getHeaderNames().stream()
+            .map(
+                name -> {
+                  Collection<String> headerValues = servletPart.getHeaders(name);
+                  return HttpHeader.httpHeader(
+                      name, headerValues.toArray(new String[headerValues.size()]));
+                })
+            .collect(Collectors.toList());
     headers = new HttpHeaders(httpHeaders);
   }
 
@@ -69,7 +65,7 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
   @Override
   public Body getBody() {
     try {
-      byte[] bytes = ByteStreams.toByteArray(mPart.getInputStream());
+      byte[] bytes = mPart.getInputStream().readAllBytes();
       HttpHeader header = getHeader(ContentTypeHeader.KEY);
       ContentTypeHeader contentTypeHeader =
           header.isPresent()

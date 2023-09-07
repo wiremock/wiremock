@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,5 +86,24 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
         wmClient.getStubMapping(UUID.fromString("59179b2b-ce01-49cf-8381-280dcd559484"));
 
     assertThat(stubMapping.getItem().getResponse().specifiesBinaryBodyContent(), is(true));
+  }
+
+  @Test
+  public void loadMultipleMappingsFromOneFile() {
+    wmClient.loadMappingsFrom(rootDir);
+
+    assertThat(testClient.get("/todo/items").content(), is("<items><item>Buy milk</item></items>"));
+    assertThat(
+        testClient
+            .postWithBody(
+                "/todo/items",
+                "{\"subscription\": \"Cancel newspaper subscription\"}",
+                "application/json",
+                "UTF-8")
+            .statusCode(),
+        is(201));
+    assertThat(
+        testClient.get("/todo/items").content(),
+        is("<items><item>Buy milk</item><item>Cancel newspaper subscription</item></items>"));
   }
 }

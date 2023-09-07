@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,19 +37,25 @@ public class Body {
     this(content, true);
   }
 
-  private Body(byte[] content, boolean binary) {
-    this.content = content;
-    this.binary = binary;
-    json = false;
-  }
-
   public Body(String content) {
     this.content = Strings.bytesFromString(content);
     binary = false;
     json = false;
   }
 
-  public Body(JsonNode content) {
+  private Body(byte[] content, boolean binary) {
+    this.content = content;
+    this.binary = binary;
+    json = false;
+  }
+
+  private Body(byte[] content, boolean binary, boolean json) {
+    this.content = content;
+    this.binary = binary;
+    this.json = json;
+  }
+
+  private Body(JsonNode content) {
     this.content = Json.toByteArray(content);
     binary = false;
     json = true;
@@ -57,6 +63,10 @@ public class Body {
 
   static Body fromBytes(byte[] bytes) {
     return bytes != null ? new Body(bytes) : none();
+  }
+
+  public static Body fromJsonBytes(byte[] bytes) {
+    return bytes != null ? new Body(bytes, false, true) : none();
   }
 
   static Body fromString(String str) {
@@ -77,8 +87,10 @@ public class Body {
     return none();
   }
 
+  private static final Body EMPTY_BODY = new Body((byte[]) null);
+
   public static Body none() {
-    return new Body((byte[]) null);
+    return EMPTY_BODY;
   }
 
   public String asString() {
@@ -123,7 +135,7 @@ public class Body {
 
   @Override
   public int hashCode() {
-    return Objects.hash(content, binary);
+    return Objects.hash(Arrays.hashCode(content), binary);
   }
 
   @Override

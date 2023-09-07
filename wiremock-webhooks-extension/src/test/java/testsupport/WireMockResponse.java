@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 package testsupport;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.getFirst;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirst;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
-import java.nio.charset.Charset;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 
@@ -43,7 +42,7 @@ public class WireMockResponse {
     if (content == null) {
       return null;
     }
-    return new String(content, Charset.forName(UTF_8.name()));
+    return new String(content, UTF_8);
   }
 
   public byte[] binaryContent() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
+import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -27,15 +30,23 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMul
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 
 public class PlainTextDiffRendererTest {
 
@@ -124,6 +135,36 @@ public class PlainTextDiffRendererTest {
   }
 
   @Test
+  public void rendersWithDifferingFormParameters() {
+    Diff diff =
+        new Diff(
+            put(urlPathEqualTo("/thing"))
+                .withName("Query params diff")
+                .withFormParam("one", equalTo("1"))
+                .withFormParam("two", containing("two things"))
+                .withFormParam("three", matching("[a-z]{5}"))
+                .build(),
+            mockRequest()
+                .method(PUT)
+                .url("/thing")
+                .formParameters(getFormParameters())
+                .header("Content-Type", "application/x-www-form-urlencoded"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_form.txt")));
+  }
+
+  private Map<String, FormParameter> getFormParameters() {
+    Map<String, FormParameter> formParameters = new HashMap<>();
+    formParameters.put("one", new FormParameter("one", List.of("2")));
+    formParameters.put("two", new FormParameter("two", List.of("wrong things")));
+    formParameters.put("three", new FormParameter("three", List.of("abcde")));
+    return formParameters;
+  }
+
+  @Test
   public void wrapsLargeJsonBodiesAppropriately() {
     Diff diff =
         new Diff(
@@ -168,14 +209,17 @@ public class PlainTextDiffRendererTest {
                             + "}")));
 
     String output = diffRenderer.render(diff);
-    System.out.println(output);
 
     // Ugh. The joys of Microsoft's line ending innovations.
     String expected =
         SystemUtils.IS_OS_WINDOWS
             ? file("not-found-diff-sample_large_json_windows.txt")
             : file("not-found-diff-sample_large_json.txt");
-    assertThat(output, equalsMultiLine(expected));
+
+    System.out.println("expected:\n" + expected);
+    System.out.println("actual:\n" + output);
+
+    assertThat(normaliseLineBreaks(output), equalsMultiLine(expected));
   }
 
   @Test
@@ -198,7 +242,11 @@ public class PlainTextDiffRendererTest {
   @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
   public void wrapsLargeXmlBodiesAppropriatelyJre11Windows() {
     String output = wrapsLargeXmlBodiesAppropriately();
-    assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11_windows.txt")));
+
+    String expected = file("not-found-diff-sample_large_xml_jre11_windows.txt");
+    System.out.println("expected:\n" + expected);
+    System.out.println("output:\n" + output);
+    assertThat(output, equalsMultiLine(expected));
   }
 
   private String wrapsLargeXmlBodiesAppropriately() {
@@ -330,6 +378,34 @@ public class PlainTextDiffRendererTest {
   }
 
   @Test
+  public void showsUrlTemplateNonMatchMessage() {
+    Diff diff =
+        new Diff(
+            get(urlPathTemplate("/contacts/{contactId}")).build(),
+            mockRequest().method(GET).url("/contracts/12345"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-template.txt")));
+  }
+
+  @Test
+  public void showsUrlPathParametersNonMatchMessage() {
+    Diff diff =
+        new Diff(
+            get(urlPathTemplate("/contacts/{contactId}"))
+                .withPathParam("contactId", equalTo("123"))
+                .build(),
+            mockRequest().method(GET).url("/contacts/345"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-path-parameters.txt")));
+  }
+
+  @Test
   public void showsMultipartDifference() {
     Diff diff =
         new Diff(
@@ -387,13 +463,7 @@ public class PlainTextDiffRendererTest {
         new Diff(
             post("/thing")
                 .withName("Standard and custom matched stub")
-                .andMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
+                .andMatching(value -> MatchResult.noMatch())
                 .build(),
             mockRequest().method(POST).url("/thing"));
 
@@ -421,17 +491,64 @@ public class PlainTextDiffRendererTest {
   }
 
   @Test
+  public void showsErrorInDiffWhenExactMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withQueryParam("q", havingExactly("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing?q=2"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(
+            file("not-found-diff-sample_exactmatch-for-multiple-values-query-param.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenIncludesMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withQueryParam("q", including("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing?q=1"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(
+            file("not-found-diff-sample_includematch-for-multiple-values-query-param.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenExactMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withHeader("q", havingExactly("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing").header("q", "1"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(file("not-found-diff-sample_exactmatch-for-multiple-values-header.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenIncludesMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
+    Diff diff =
+        new Diff(
+            get(urlPathEqualTo("/thing")).withHeader("q", including("1", "2", "3")).build(),
+            mockRequest().method(GET).url("/thing").header("q", "1"));
+
+    String output = diffRenderer.render(diff);
+    assertThat(
+        output,
+        equalsMultiLine(file("not-found-diff-sample_includematch-for-multiple-values-header.txt")));
+  }
+
+  @Test
   public void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
     Diff diff =
         new Diff(
-            requestMatching(
-                    new ValueMatcher<Request>() {
-                      @Override
-                      public MatchResult match(Request value) {
-                        return MatchResult.noMatch();
-                      }
-                    })
-                .build(),
+            requestMatching(value -> MatchResult.noMatch()).build(),
             mockRequest().method(POST).url("/thing"));
 
     String output = diffRenderer.render(diff);
@@ -449,6 +566,58 @@ public class PlainTextDiffRendererTest {
 
     String output = diffRenderer.render(diff);
     System.out.println(output);
+  }
+
+  @Test
+  void showsErrorInDiffWhenBodyDoesNotMatchJsonSchema() {
+    Diff diff =
+        new Diff(
+            post("/thing")
+                .withName("JSON schema stub")
+                .withRequestBody(matchingJsonSchema(file("schema-validation/new-pet.schema.json")))
+                .build(),
+            mockRequest()
+                .url("/thing")
+                .method(POST)
+                .body(file("schema-validation/new-pet.invalid.json")));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        normaliseLineBreaks(output),
+        equalsMultiLine(file("not-found-diff-sample_json-schema.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenBodyIsEmptyAndPathExpressionResult() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(matchingJsonPath("$.accountNum", equalTo("1234")))
+                .build(),
+            mockRequest().url("/thing").body(""));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        normaliseLineBreaks(output),
+        equalsMultiLine(file("not-found-diff-sample_json-path-no-body.txt")));
+  }
+
+  @Test
+  public void showsErrorInDiffWhenBodyIsNotJsonAndPathExpressionResult() {
+    Diff diff =
+        new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(matchingJsonPath("$.accountNum", equalTo("1234")))
+                .build(),
+            mockRequest().url("/thing").body("not json"));
+
+    String output = diffRenderer.render(diff);
+
+    assertThat(
+        normaliseLineBreaks(output),
+        equalsMultiLine(file("not-found-diff-sample_json-path-body-not-json.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {

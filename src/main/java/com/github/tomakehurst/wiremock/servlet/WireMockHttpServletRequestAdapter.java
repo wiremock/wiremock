@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,44 +16,38 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.isNullOrEmpty;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.io.ByteStreams.toByteArray;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.list;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
-import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
-import com.google.common.base.*;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+import com.github.tomakehurst.wiremock.jetty.JettyUtils;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import javax.servlet.http.HttpServletRequest;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.UrlEncoded;
 
 public class WireMockHttpServletRequestAdapter implements Request {
 
   public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
   private final HttpServletRequest request;
-  private final MultipartRequestConfigurer multipartRequestConfigurer;
   private byte[] cachedBody;
   private final Supplier<Map<String, QueryParameter>> cachedQueryParams;
+
+  private final Map<String, FormParameter> cachedFormParameters;
   private final boolean browserProxyingEnabled;
   private final String urlPrefixToRemove;
   private Collection<Part> cachedMultiparts;
@@ -64,18 +58,16 @@ public class WireMockHttpServletRequestAdapter implements Request {
       String urlPrefixToRemove,
       boolean browserProxyingEnabled) {
     this.request = request;
-    this.multipartRequestConfigurer = multipartRequestConfigurer;
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
 
-    cachedQueryParams =
-        Suppliers.memoize(
-            new Supplier<Map<String, QueryParameter>>() {
-              @Override
-              public Map<String, QueryParameter> get() {
-                return splitQuery(request.getQueryString());
-              }
-            });
+    cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
+
+    this.cachedFormParameters = getFormParameters(request);
+
+    if (multipartRequestConfigurer != null) {
+      multipartRequestConfigurer.configure(request);
+    }
   }
 
   @Override
@@ -126,7 +118,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public String getClientIp() {
     String forwardedForHeader = this.getHeader("X-Forwarded-For");
 
-    if (forwardedForHeader != null && forwardedForHeader.length() > 0) {
+    if (forwardedForHeader != null && !forwardedForHeader.isEmpty()) {
       return forwardedForHeader;
     }
 
@@ -137,7 +129,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public byte[] getBody() {
     if (cachedBody == null) {
       try {
-        byte[] body = toByteArray(request.getInputStream());
+        byte[] body = request.getInputStream().readAllBytes();
         boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
         cachedBody = isGzipped ? Gzip.unGzip(body) : body;
       } catch (IOException ioe) {
@@ -171,40 +163,29 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return encodeBase64(getBody());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public String getHeader(String key) {
-    List<String> headerNames = list(request.getHeaderNames());
-    for (String currentKey : headerNames) {
-      if (currentKey.equalsIgnoreCase(key)) {
-        return request.getHeader(currentKey);
-      }
-    }
-
-    return null;
+    return request.getHeader(key); // case-insensitive per javadoc
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public HttpHeader header(String key) {
-    List<String> headerNames = list(request.getHeaderNames());
-    for (String currentKey : headerNames) {
-      if (currentKey.equalsIgnoreCase(key)) {
-        List<String> valueList = list(request.getHeaders(currentKey));
-        if (valueList.isEmpty()) {
-          return HttpHeader.empty(key);
-        }
-
-        return new HttpHeader(key, valueList);
+    if (request.getHeader(key) == null) {
+      return HttpHeader.absent(key);
+    } else {
+      List<String> valueList = list(request.getHeaders(key));
+      if (valueList.isEmpty()) {
+        return HttpHeader.empty(key);
       }
-    }
 
-    return HttpHeader.absent(key);
+      return new HttpHeader(key, valueList);
+    }
   }
 
   @Override
   public ContentTypeHeader contentTypeHeader() {
-    return getHeaders().getContentTypeHeader();
+    String firstValue = getHeader(ContentTypeHeader.KEY);
+    return firstValue == null ? ContentTypeHeader.absent() : new ContentTypeHeader(firstValue);
   }
 
   @Override
@@ -214,7 +195,23 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public HttpHeaders getHeaders() {
-    List<HttpHeader> headerList = newArrayList();
+    if (request instanceof org.eclipse.jetty.server.Request) {
+      return getHeadersLinear((org.eclipse.jetty.server.Request) request);
+    } else {
+      return getHeadersQuadratic();
+    }
+  }
+
+  private static HttpHeaders getHeadersLinear(org.eclipse.jetty.server.Request request) {
+    List<HttpHeader> headers =
+        request.getHttpFields().stream()
+            .map(field -> HttpHeader.httpHeader(field.getName(), field.getValue()))
+            .collect(Collectors.toList());
+    return new HttpHeaders(headers);
+  }
+
+  private HttpHeaders getHeadersQuadratic() {
+    List<HttpHeader> headerList = new ArrayList<>();
     for (String key : getAllHeaderKeys()) {
       headerList.add(header(key));
     }
@@ -222,7 +219,6 @@ public class WireMockHttpServletRequestAdapter implements Request {
     return new HttpHeaders(headerList);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<String> getAllHeaderKeys() {
     LinkedHashSet<String> headerKeys = new LinkedHashSet<>();
@@ -238,20 +234,30 @@ public class WireMockHttpServletRequestAdapter implements Request {
   public Map<String, Cookie> getCookies() {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
-    javax.servlet.http.Cookie[] cookies =
-        firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
-    for (javax.servlet.http.Cookie cookie : cookies) {
+    jakarta.servlet.http.Cookie[] cookies =
+        getFirstNonNull(request.getCookies(), new jakarta.servlet.http.Cookie[0]);
+    for (jakarta.servlet.http.Cookie cookie : cookies) {
       builder.put(cookie.getName(), cookie.getValue());
     }
 
     return Maps.transformValues(
-        builder.build().asMap(), input -> new Cookie(null, ImmutableList.copyOf(input)));
+        builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
   }
 
   @Override
   public QueryParameter queryParameter(String key) {
     Map<String, QueryParameter> queryParams = cachedQueryParams.get();
-    return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+  }
+
+  @Override
+  public FormParameter formParameter(String key) {
+    return getFirstNonNull(cachedFormParameters.get(key), FormParameter.absent(key));
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return cachedFormParameters;
   }
 
   @Override
@@ -261,12 +267,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
       return false;
     }
 
-    if (request instanceof org.eclipse.jetty.server.Request) {
-      org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-      return JettyUtils.uriIsAbsolute(jettyRequest);
-    }
-
-    return false;
+    return JettyUtils.isBrowserProxyRequest(request);
   }
 
   @Override
@@ -279,7 +280,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
       cachedMultiparts = PartParser.parseFrom(this);
     }
 
-    return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
+    return (cachedMultiparts.isEmpty()) ? null : cachedMultiparts;
   }
 
   @Override
@@ -290,33 +291,48 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
   @Override
   public Part getPart(final String name) {
-    if (name == null || name.length() == 0) {
+    if (isNullOrEmpty(name) || (cachedMultiparts == null && getParts() == null)) {
       return null;
     }
-    if (cachedMultiparts == null) {
-      if (getParts() == null) {
-        return null;
-      }
-    }
-    return from(cachedMultiparts)
-        .firstMatch(
-            new Predicate<Part>() {
-              @Override
-              public boolean apply(Part input) {
-                return name.equals(input.getName());
-              }
-            })
-        .get();
+
+    return cachedMultiparts.stream()
+        .filter(part -> name.equals(part.getName()))
+        .findFirst()
+        .orElse(null);
   }
 
   @Override
   public Optional<Request> getOriginalRequest() {
     Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
-    return Optional.fromNullable(originalRequest);
+    return Optional.ofNullable(originalRequest);
   }
 
   @Override
   public String toString() {
     return request.toString() + getBodyAsString();
+  }
+
+  @Override
+  public String getProtocol() {
+    return request.getProtocol();
+  }
+
+  private Map<String, FormParameter> getFormParameters(HttpServletRequest request) {
+
+    final String contentType = request.getContentType();
+    if (contentType == null || !contentType.contains("application/x-www-form-urlencoded")) {
+      return Collections.emptyMap();
+    }
+
+    final MultiMap<String> formParameterMultimap = new MultiMap<>();
+    final String characterEncoding = request.getCharacterEncoding();
+    final Charset charset =
+        characterEncoding != null ? Charset.forName(characterEncoding) : Charset.defaultCharset();
+    UrlEncoded.decodeTo(getBodyAsString(), formParameterMultimap, charset);
+
+    return formParameterMultimap.entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, entry -> new FormParameter(entry.getKey(), entry.getValue())));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,39 +17,57 @@ package com.github.tomakehurst.wiremock.core;
 
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KESTORE_PASSWORD;
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
+import static com.github.tomakehurst.wiremock.common.Limit.UNLIMITED;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.google.common.collect.Lists.transform;
-import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
+import com.github.tomakehurst.wiremock.common.BrowserProxySettings;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Limit;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
+import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
+import com.github.tomakehurst.wiremock.extension.Extensions;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
-import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
+import com.github.tomakehurst.wiremock.store.DefaultStores;
+import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class WireMockConfiguration implements Options {
 
@@ -81,11 +99,13 @@ public class WireMockConfiguration implements Options {
 
   private ProxySettings proxySettings = ProxySettings.NO_PROXY;
   private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
+  private Stores stores;
   private MappingsSource mappingsSource;
+  private FilenameMaker filenameMaker;
 
   private Notifier notifier = new Slf4jNotifier(false);
   private boolean requestJournalDisabled = false;
-  private Optional<Integer> maxRequestJournalEntries = Optional.absent();
+  private Optional<Integer> maxRequestJournalEntries = Optional.empty();
   private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
   private boolean preserveHostHeader;
@@ -100,27 +120,42 @@ public class WireMockConfiguration implements Options {
   private Long jettyStopTimeout;
   private Long jettyIdleTimeout;
 
-  private Map<String, Extension> extensions = newLinkedHashMap();
+  private ExtensionDeclarations extensions = new ExtensionDeclarations();
   private WiremockNetworkTrafficListener networkTrafficListener =
       new DoNothingWiremockNetworkTrafficListener();
 
   private Authenticator adminAuthenticator = new NoAuthenticator();
   private boolean requireHttpsForAdminApi = false;
 
-  private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
+  private Function<Extensions, NotMatchedRenderer> notMatchedRendererFactory =
+      PlainTextStubNotMatchedRenderer::new;
   private boolean asynchronousResponseEnabled;
   private int asynchronousResponseThreads;
   private ChunkedEncodingPolicy chunkedEncodingPolicy;
   private boolean gzipDisabled = false;
   private boolean stubLoggingDisabled = false;
-  private String permittedSystemKeys = null;
 
   private boolean stubCorsEnabled = false;
   private boolean disableStrictHttpHeaders;
 
+  private boolean proxyPassThrough = true;
+
+  private Limit responseBodySizeLimit = UNLIMITED;
+
+  private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
+
+  private int proxyTimeout = DEFAULT_TIMEOUT;
+
+  private boolean templatingEnabled = true;
+  private boolean globalTemplating = false;
+  private Set<String> permittedSystemKeys = null;
+  private Long maxTemplateCacheEntries = null;
+  private boolean templateEscapingDisabled = true;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
-      mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+      mappingsSource =
+          new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT), getFilenameMaker());
     }
 
     return mappingsSource;
@@ -134,6 +169,14 @@ public class WireMockConfiguration implements Options {
     return wireMockConfig();
   }
 
+  public WireMockConfiguration proxyPassThrough(boolean proxyPassThrough) {
+    this.proxyPassThrough = proxyPassThrough;
+    GlobalSettings newSettings =
+        getStores().getSettingsStore().get().copy().proxyPassThrough(proxyPassThrough).build();
+    getStores().getSettingsStore().set(newSettings);
+    return this;
+  }
+
   public WireMockConfiguration timeout(int timeout) {
     this.asyncResponseTimeout = timeout;
     return this;
@@ -141,6 +184,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration port(int portNumber) {
     this.portNumber = portNumber;
+    return this;
+  }
+
+  public WireMockConfiguration filenameTemplate(String filenameTemplate) {
+    this.filenameMaker = new FilenameMaker(filenameTemplate);
     return this;
   }
 
@@ -280,6 +328,11 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration withStores(Stores stores) {
+    this.stores = stores;
+    return this;
+  }
+
   public WireMockConfiguration withRootDirectory(String path) {
     this.filesRoot = new SingleRootFileSource(path);
     return this;
@@ -333,7 +386,8 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
+    this.matchingHeaders =
+        headers.stream().map(TO_CASE_INSENSITIVE_KEYS).collect(Collectors.toUnmodifiableList());
     return this;
   }
 
@@ -348,17 +402,22 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration extensions(String... classNames) {
-    extensions.putAll(ExtensionLoader.load(classNames));
+    extensions.add(classNames);
     return this;
   }
 
   public WireMockConfiguration extensions(Extension... extensionInstances) {
-    extensions.putAll(ExtensionLoader.asMap(asList(extensionInstances)));
+    extensions.add(extensionInstances);
+    return this;
+  }
+
+  public WireMockConfiguration extensions(ExtensionFactory... extensionFactories) {
+    extensions.add(extensionFactories);
     return this;
   }
 
   public WireMockConfiguration extensions(Class<? extends Extension>... classes) {
-    extensions.putAll(ExtensionLoader.load(classes));
+    extensions.add(classes);
     return this;
   }
 
@@ -392,8 +451,9 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  public WireMockConfiguration notMatchedRenderer(NotMatchedRenderer notMatchedRenderer) {
-    this.notMatchedRenderer = notMatchedRenderer;
+  public WireMockConfiguration notMatchedRendererFactory(
+      Function<Extensions, NotMatchedRenderer> notMatchedRendererFactory) {
+    this.notMatchedRendererFactory = notMatchedRendererFactory;
     return this;
   }
 
@@ -438,6 +498,47 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration trustedProxyTargets(List<String> trustedProxyTargets) {
     this.trustedProxyTargets.addAll(trustedProxyTargets);
+    return this;
+  }
+
+  public WireMockConfiguration disableOptimizeXmlFactoriesLoading(
+      boolean disableOptimizeXmlFactoriesLoading) {
+    this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
+    return this;
+  }
+
+  public WireMockConfiguration maxLoggedResponseSize(int maxSize) {
+    this.responseBodySizeLimit = new Limit(maxSize);
+    return this;
+  }
+
+  public WireMockConfiguration limitProxyTargets(NetworkAddressRules proxyTargetRules) {
+    this.proxyTargetRules = proxyTargetRules;
+    return this;
+  }
+
+  public WireMockConfiguration proxyTimeout(int proxyTimeout) {
+    this.proxyTimeout = proxyTimeout;
+    return this;
+  }
+
+  public WireMockConfiguration templatingEnabled(boolean templatingEnabled) {
+    this.templatingEnabled = templatingEnabled;
+    return this;
+  }
+
+  public WireMockConfiguration globalTemplating(boolean globalTemplating) {
+    this.globalTemplating = globalTemplating;
+    return this;
+  }
+
+  public WireMockConfiguration withPermittedSystemKeys(String... systemKeys) {
+    this.permittedSystemKeys = Set.of(systemKeys);
+    return this;
+  }
+
+  public WireMockConfiguration withTemplateEscapingDisabled(boolean templateEscapingDisabled) {
+    this.templateEscapingDisabled = templateEscapingDisabled;
     return this;
   }
 
@@ -495,6 +596,15 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
+  public Stores getStores() {
+    if (stores == null) {
+      stores = new DefaultStores(filesRoot);
+    }
+
+    return stores;
+  }
+
+  @Override
   public FileSource filesRoot() {
     return filesRoot;
   }
@@ -530,6 +640,11 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
+  public FilenameMaker getFilenameMaker() {
+    return filenameMaker;
+  }
+
+  @Override
   public List<CaseInsensitiveKey> matchingHeaders() {
     return matchingHeaders;
   }
@@ -555,9 +670,8 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-    return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
+  public ExtensionDeclarations getDeclaredExtensions() {
+    return extensions;
   }
 
   @Override
@@ -576,8 +690,8 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public NotMatchedRenderer getNotMatchedRenderer() {
-    return notMatchedRenderer;
+  public Function<Extensions, NotMatchedRenderer> getNotMatchedRendererFactory() {
+    return notMatchedRendererFactory;
   }
 
   @Override
@@ -616,15 +730,14 @@ public class WireMockConfiguration implements Options {
     return disableOptimizeXmlFactoriesLoading;
   }
 
-  public WireMockConfiguration disableOptimizeXmlFactoriesLoading(
-      boolean disableOptimizeXmlFactoriesLoading) {
-    this.disableOptimizeXmlFactoriesLoading = disableOptimizeXmlFactoriesLoading;
-    return this;
-  }
-
   @Override
   public boolean getDisableStrictHttpHeaders() {
     return disableStrictHttpHeaders;
+  }
+
+  @Override
+  public DataTruncationSettings getDataTruncationSettings() {
+    return new DataTruncationSettings(responseBodySizeLimit);
   }
 
   public WireMockConfiguration disableStrictHttpHeaders(boolean disableStrictHttpHeaders) {
@@ -647,5 +760,40 @@ public class WireMockConfiguration implements Options {
         .trustedProxyTargets(trustedProxyTargets)
         .caKeyStoreSettings(keyStoreSettings)
         .build();
+  }
+
+  @Override
+  public NetworkAddressRules getProxyTargetRules() {
+    return proxyTargetRules;
+  }
+
+  @Override
+  public int proxyTimeout() {
+    return proxyTimeout;
+  }
+
+  @Override
+  public boolean getResponseTemplatingEnabled() {
+    return templatingEnabled;
+  }
+
+  @Override
+  public boolean getResponseTemplatingGlobal() {
+    return globalTemplating;
+  }
+
+  @Override
+  public Long getMaxTemplateCacheEntries() {
+    return maxTemplateCacheEntries;
+  }
+
+  @Override
+  public Set<String> getTemplatePermittedSystemKeys() {
+    return permittedSystemKeys;
+  }
+
+  @Override
+  public boolean getTemplateEscapingDisabled() {
+    return templateEscapingDisabled;
   }
 }

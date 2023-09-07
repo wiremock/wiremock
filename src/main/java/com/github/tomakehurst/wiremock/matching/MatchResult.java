@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,65 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.google.common.collect.Iterables.all;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 public abstract class MatchResult implements Comparable<MatchResult> {
+
+  private final Queue<SubEvent> subEvents;
+
+  public MatchResult() {
+    this.subEvents = new LinkedBlockingQueue<>();
+  }
+
+  public MatchResult(List<SubEvent> subEvents) {
+    this.subEvents = new LinkedBlockingQueue<>(subEvents);
+  }
+
+  protected void appendSubEvent(SubEvent subEvent) {
+    subEvents.add(subEvent);
+  }
+
+  public List<SubEvent> getSubEvents() {
+    return subEvents.stream().collect(toUnmodifiableList());
+  }
 
   @JsonCreator
   public static MatchResult partialMatch(@JsonProperty("distance") double distance) {
     return new EagerMatchResult(distance);
   }
 
-  public static MatchResult exactMatch() {
-    return new EagerMatchResult(0);
+  public static MatchResult exactMatch(SubEvent... subEvents) {
+    return exactMatch(List.of(subEvents));
   }
 
-  public static MatchResult noMatch() {
-    return new EagerMatchResult(1);
+  public static MatchResult exactMatch(List<SubEvent> subEvents) {
+    return new EagerMatchResult(0, subEvents);
   }
 
-  public static MatchResult of(boolean isMatch) {
-    return isMatch ? exactMatch() : noMatch();
+  public static MatchResult noMatch(SubEvent... subEvents) {
+    return noMatch(List.of(subEvents));
+  }
+
+  public static MatchResult noMatch(List<SubEvent> subEvents) {
+    return new EagerMatchResult(1, subEvents);
+  }
+
+  public static MatchResult of(boolean isMatch, SubEvent... subEvents) {
+    return of(isMatch, List.of(subEvents));
+  }
+
+  public static MatchResult of(boolean isMatch, List<SubEvent> subEvents) {
+    return isMatch ? exactMatch(subEvents) : noMatch(subEvents);
   }
 
   public static MatchResult aggregate(MatchResult... matches) {
@@ -51,14 +82,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   public static MatchResult aggregate(final List<MatchResult> matchResults) {
     return aggregateWeighted(
-        Lists.transform(
-            matchResults,
-            new Function<MatchResult, WeightedMatchResult>() {
-              @Override
-              public WeightedMatchResult apply(MatchResult matchResult) {
-                return new WeightedMatchResult(matchResult);
-              }
-            }));
+        matchResults.stream().map(WeightedMatchResult::new).collect(Collectors.toList()));
   }
 
   public static MatchResult aggregateWeighted(WeightedMatchResult... matchResults) {
@@ -66,10 +90,16 @@ public abstract class MatchResult implements Comparable<MatchResult> {
   }
 
   public static MatchResult aggregateWeighted(final List<WeightedMatchResult> matchResults) {
-    return new MatchResult() {
+
+    final List<SubEvent> allSubEvents =
+        matchResults.stream()
+            .flatMap(weightedResult -> weightedResult.getMatchResult().getSubEvents().stream())
+            .collect(Collectors.toList());
+
+    return new MatchResult(allSubEvents) {
       @Override
       public boolean isExactMatch() {
-        return all(matchResults, ARE_EXACT_MATCH);
+        return matchResults.stream().allMatch(ARE_EXACT_MATCH);
       }
 
       @Override
@@ -96,11 +126,6 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     return Double.compare(other.getDistance(), getDistance());
   }
 
-  public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
-      new Predicate<WeightedMatchResult>() {
-        @Override
-        public boolean apply(WeightedMatchResult matchResult) {
-          return matchResult.isExactMatch();
-        }
-      };
+  public static final java.util.function.Predicate<WeightedMatchResult> ARE_EXACT_MATCH =
+      WeightedMatchResult::isExactMatch;
 }

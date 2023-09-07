@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import java.util.UUID;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class GetStubMappingTask implements AdminTask {
+public class GetStubMappingTask extends AbstractSingleStubTask {
 
   @Override
-  public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-    String idString = pathParams.get("id");
-    UUID id = UUID.fromString(idString);
-
-    SingleStubMappingResult stubMappingResult = admin.getStubMapping(id);
-    return stubMappingResult.isPresent()
-        ? ResponseDefinition.okForJson(stubMappingResult.getItem())
-        : ResponseDefinition.notFound();
+  protected ResponseDefinition processStubMapping(
+      Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
+    return ResponseDefinition.okForJson(stubMapping);
   }
 }

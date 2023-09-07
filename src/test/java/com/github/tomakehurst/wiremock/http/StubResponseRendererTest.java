@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,24 +37,27 @@ import org.mockito.Mockito;
 public class StubResponseRendererTest {
   private static final int TEST_TIMEOUT = 500;
 
-  private FileSource fileSource;
-  private GlobalSettingsHolder globalSettingsHolder;
+  private BlobStore filesBlobStore;
+  private SettingsStore settingsStore;
   private List<ResponseTransformer> responseTransformers;
+  private List<ResponseTransformerV2> v2ResponseTransformers;
   private StubResponseRenderer stubResponseRenderer;
 
   @BeforeEach
   public void init() {
-    fileSource = Mockito.mock(FileSource.class);
-    globalSettingsHolder = new GlobalSettingsHolder();
+    filesBlobStore = Mockito.mock(BlobStore.class);
+    settingsStore = new InMemorySettingsStore();
     responseTransformers = new ArrayList<>();
+    v2ResponseTransformers = new ArrayList<>();
     stubResponseRenderer =
-        new StubResponseRenderer(fileSource, globalSettingsHolder, null, responseTransformers);
+        new StubResponseRenderer(
+            filesBlobStore, settingsStore, null, responseTransformers, v2ResponseTransformers);
   }
 
   @Test
   @Timeout(TEST_TIMEOUT)
   public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
-    globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(100));
 
@@ -62,7 +67,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
-    globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -72,7 +77,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
-    globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
+    settingsStore.set(GlobalSettings.builder().fixedDelay(1000).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -89,16 +94,7 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
-    globalSettingsHolder.replaceWith(
-        GlobalSettings.builder()
-            .delayDistribution(
-                new DelayDistribution() {
-                  @Override
-                  public long sampleMillis() {
-                    return 123;
-                  }
-                })
-            .build());
+    settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
 
     Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -108,23 +104,14 @@ public class StubResponseRendererTest {
   @Test
   @Timeout(TEST_TIMEOUT)
   public void shouldCombineFixedDelayDistributionDelay() throws Exception {
-    globalSettingsHolder.replaceWith(
-        GlobalSettings.builder()
-            .delayDistribution(
-                new DelayDistribution() {
-                  @Override
-                  public long sampleMillis() {
-                    return 123;
-                  }
-                })
-            .build());
+    settingsStore.set(GlobalSettings.builder().delayDistribution(() -> 123).build());
     Response response = stubResponseRenderer.render(createServeEvent(2000));
     assertThat(response.getInitialDelay(), is(2123L));
   }
 
   private ServeEvent createServeEvent(Integer fixedDelayMillis) {
-    return ServeEvent.of(
-        LoggedRequest.createFrom(mockRequest()),
+    return newPostMatchServeEvent(
+        mockRequest(),
         new ResponseDefinition(
             0,
             "",

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.net.MediaType.OCTET_STREAM;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.OCTET_STREAM;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Encoding;
+import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.common.Strings;
 import java.nio.charset.Charset;
 
@@ -46,13 +47,13 @@ public class LoggedResponse {
     this.fault = fault;
   }
 
-  public static LoggedResponse from(Response response) {
+  public static LoggedResponse from(Response response, Limit responseBodySizeLimit) {
     return new LoggedResponse(
         response.getStatus(),
         response.getHeaders() == null || response.getHeaders().all().isEmpty()
             ? null
             : response.getHeaders(),
-        response.getBody(),
+        response.getBody(responseBodySizeLimit),
         response.getFault());
   }
 
@@ -82,7 +83,7 @@ public class LoggedResponse {
   @JsonIgnore
   public String getMimeType() {
     return headers == null || headers.getContentTypeHeader() == null
-        ? OCTET_STREAM.toString()
+        ? OCTET_STREAM
         : headers.getContentTypeHeader().mimeTypePart();
   }
 

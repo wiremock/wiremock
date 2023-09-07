@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.servlet;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import javax.servlet.http.HttpServletResponse;
 
 public class NoFaultInjector implements FaultInjector {
 

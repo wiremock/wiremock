@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,22 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 public class SystemKeyAuthoriser {
 
-  private final ImmutableSet<Pattern> regexes;
+  private final Set<Pattern> regexes = new HashSet<>();
 
   public SystemKeyAuthoriser(Set<String> patterns) {
     if (patterns == null || patterns.isEmpty()) {
-      patterns = ImmutableSet.of("wiremock.*");
+      patterns = Set.of("wiremock.*");
     }
 
-    ImmutableSet.Builder<Pattern> builder = ImmutableSet.builder();
     for (String pattern : patterns) {
-      builder.add(Pattern.compile(pattern, CASE_INSENSITIVE));
+      regexes.add(Pattern.compile(pattern, CASE_INSENSITIVE));
     }
-
-    regexes = builder.build();
   }
 
   public boolean isPermitted(String key) {

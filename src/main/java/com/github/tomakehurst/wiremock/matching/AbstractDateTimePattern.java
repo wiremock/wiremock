@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,7 +240,7 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
 
   private static ZonedDateTime parseZonedOrNull(
       String dateTimeString, List<DateTimeParser> parsers) {
-    if (parsers.isEmpty()) {
+    if (parsers.isEmpty() || dateTimeString == null) {
       return null;
     }
 
@@ -256,6 +256,10 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
   }
 
   private static LocalDateTime parseLocalOrNull(String dateTimeString, DateTimeParser parser) {
+    if (dateTimeString == null) {
+      return null;
+    }
+
     try {
       return parser != null
           ? parser.parseLocalDateTime(dateTimeString)

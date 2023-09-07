@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.requestfilter.FieldTransformer;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
 import com.github.tomakehurst.wiremock.extension.requestfilter.StubRequestFilter;
@@ -45,8 +44,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -164,6 +163,17 @@ public class Examples extends AcceptanceTestBase {
         VerificationException.class,
         () -> {
           verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
+        });
+  }
+
+  @Test
+  public void verifyWithoutQueryParam() {
+    assertThrows(
+        VerificationException.class,
+        () -> {
+          verify(
+              getRequestedFor(urlPathEqualTo("without/queryParam"))
+                  .withoutQueryParam("test-param"));
         });
   }
 
@@ -297,14 +307,14 @@ public class Examples extends AcceptanceTestBase {
             .willReturn(
                 aResponse()
                     .withTransformerParameter("newValue", 66)
-                    .withTransformerParameter("inner", ImmutableMap.of("thing", "value"))));
+                    .withTransformerParameter("inner", Map.of("thing", "value"))));
 
     System.out.println(
         get(urlEqualTo("/transform"))
             .willReturn(
                 aResponse()
                     .withTransformerParameter("newValue", 66)
-                    .withTransformerParameter("inner", ImmutableMap.of("thing", "value")))
+                    .withTransformerParameter("inner", Map.of("thing", "value")))
             .build());
   }
 
@@ -706,13 +716,7 @@ public class Examples extends AcceptanceTestBase {
     public RequestFilterAction filter(Request request) {
       Request wrappedRequest =
           RequestWrapper.create()
-              .transformAbsoluteUrl(
-                  new FieldTransformer<String>() {
-                    @Override
-                    public String transform(String url) {
-                      return url + "extraparam=123";
-                    }
-                  })
+              .transformAbsoluteUrl(url -> url + "extraparam=123")
               .addHeader("X-Custom-Header", "headerval")
               .wrap(request);
 

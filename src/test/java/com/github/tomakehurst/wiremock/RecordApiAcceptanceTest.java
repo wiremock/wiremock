@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.find;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +33,6 @@ import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Predicate;
 import java.util.UUID;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.AfterEach;
@@ -80,7 +78,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "    \"mappings\": [                                         \n"
           + "        {                                                   \n"
           + "            \"request\" : {                                 \n"
-          + "                \"url\" : \"/foo/bar\",                     \n"
+          + "                \"url\" : \"/foo/bar/baz\",                 \n"
           + "                \"method\" : \"GET\"                        \n"
           + "            },                                              \n"
           + "            \"response\" : {                                \n"
@@ -89,13 +87,13 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "        },                                                  \n"
           + "        {                                                   \n"
           + "            \"request\" : {                                 \n"
-          + "                \"url\" : \"/foo/bar/baz\",                 \n"
+          + "                \"url\" : \"/foo/bar\",                     \n"
           + "                \"method\" : \"GET\"                        \n"
           + "            },                                              \n"
           + "            \"response\" : {                                \n"
           + "                \"status\" : 200                            \n"
           + "            }                                               \n"
-          + "        },                                                  \n"
+          + "        }                                                   \n"
           + "    ]                                                       \n"
           + "}                                                             ";
 
@@ -130,22 +128,22 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "    \"mappings\": [                                         \n"
           + "        {                                                   \n"
           + "            \"request\" : {                                 \n"
-          + "                \"url\" : \"/foo/bar\",                     \n"
-          + "                \"method\" : \"GET\"                        \n"
-          + "            },                                              \n"
-          + "            \"response\" : {                                \n"
-          + "                \"status\" : 200                            \n"
-          + "            }                                               \n"
-          + "        },                                                  \n"
-          + "        {                                                   \n"
-          + "            \"request\" : {                                 \n"
           + "                \"url\" : \"/foo/bar/baz\",                 \n"
           + "                \"method\" : \"GET\"                        \n"
           + "            },                                              \n"
           + "            \"response\" : {                                \n"
           + "                \"status\" : 200                            \n"
           + "            }                                               \n"
-          + "        }                                                   \n"
+          + "        },                                                   \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/foo/bar\",                     \n"
+          + "                \"method\" : \"GET\"                        \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                  \n"
           + "    ]                                                       \n"
           + "}                                                             ";
 
@@ -253,14 +251,10 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
   }
 
   private ServeEvent findServeEventWithRequestUrl(final String url) {
-    return find(
-        proxyingService.getAllServeEvents(),
-        new Predicate<ServeEvent>() {
-          @Override
-          public boolean apply(ServeEvent input) {
-            return url.equals(input.getRequest().getUrl());
-          }
-        });
+    return proxyingService.getAllServeEvents().stream()
+        .filter(input -> url.equals(input.getRequest().getUrl()))
+        .findFirst()
+        .orElse(null);
   }
 
   private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
@@ -374,7 +368,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "    \"mappings\": [                                         \n"
           + "        {                                                   \n"
           + "            \"request\" : {                                 \n"
-          + "                \"url\" : \"/?transformed=global\",         \n"
+          + "                \"url\" : \"/foo?transformed=global\",      \n"
           + "                \"method\" : \"GET\"                        \n"
           + "            },                                              \n"
           + "            \"response\" : {                                \n"
@@ -383,13 +377,13 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "        },                                                  \n"
           + "        {                                                   \n"
           + "            \"request\" : {                                 \n"
-          + "                \"url\" : \"/foo?transformed=global\",      \n"
+          + "                \"url\" : \"/?transformed=global\",         \n"
           + "                \"method\" : \"GET\"                        \n"
           + "            },                                              \n"
           + "            \"response\" : {                                \n"
           + "                \"status\" : 200                            \n"
           + "            }                                               \n"
-          + "        },                                                  \n"
+          + "        }                                                  \n"
           + "    ]                                                       \n"
           + "}                                                             ";
 
@@ -425,20 +419,6 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "    \"mappings\": [                                         \n"
           + "        {                                                   \n"
           + "            \"request\" : {                                 \n"
-          + "                \"url\" : \"/?transformed=nonglobal\",      \n"
-          + "                \"method\" : \"GET\",                       \n"
-          + "                \"headers\": {                              \n"
-          + "                    \"Accept\": {                           \n"
-          + "                        \"equalTo\": \"B\"                  \n"
-          + "                    }                                       \n"
-          + "                }                                           \n"
-          + "            },                                              \n"
-          + "            \"response\" : {                                \n"
-          + "                \"status\" : 200                            \n"
-          + "            }                                               \n"
-          + "        },                                                  \n"
-          + "        {                                                   \n"
-          + "            \"request\" : {                                 \n"
           + "                \"url\" : \"/foo?transformed=nonglobal\",   \n"
           + "                \"method\" : \"GET\",                       \n"
           + "                \"headers\": {                              \n"
@@ -450,7 +430,21 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
           + "            \"response\" : {                                \n"
           + "                \"status\" : 200                            \n"
           + "            }                                               \n"
-          + "        }                                                   \n"
+          + "        },                                                   \n"
+          + "        {                                                   \n"
+          + "            \"request\" : {                                 \n"
+          + "                \"url\" : \"/?transformed=nonglobal\",      \n"
+          + "                \"method\" : \"GET\",                       \n"
+          + "                \"headers\": {                              \n"
+          + "                    \"Accept\": {                           \n"
+          + "                        \"equalTo\": \"B\"                  \n"
+          + "                    }                                       \n"
+          + "                }                                           \n"
+          + "            },                                              \n"
+          + "            \"response\" : {                                \n"
+          + "                \"status\" : 200                            \n"
+          + "            }                                               \n"
+          + "        }                                                  \n"
           + "    ]                                                       \n"
           + "}                                                             ";
 

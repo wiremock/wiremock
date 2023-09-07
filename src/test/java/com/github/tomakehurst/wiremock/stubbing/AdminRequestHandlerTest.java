@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
+import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
@@ -56,19 +57,21 @@ public class AdminRequestHandlerTest {
 
     handler =
         new AdminRequestHandler(
-            AdminRoutes.defaults(),
+            AdminRoutes.forClient(),
             admin,
             new BasicResponseRenderer(),
             new NoAuthenticator(),
             false,
-            Collections.<RequestFilter>emptyList());
+            Collections.emptyList(),
+            Collections.emptyList(),
+            new DataTruncationSettings(Limit.UNLIMITED));
   }
 
   @Test
   public void shouldSaveMappingsWhenSaveCalled() {
     Request request = aRequest().withUrl("/mappings/save").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -79,7 +82,7 @@ public class AdminRequestHandlerTest {
   public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
     Request request = aRequest().withUrl("/reset").withMethod(POST).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -88,9 +91,9 @@ public class AdminRequestHandlerTest {
 
   @Test
   public void shouldClearJournalWhenResetRequestsCalled() {
-    Request request = aRequest().withUrl("/requests/reset").withMethod(POST).build();
+    Request request = aRequest().withUrl("/requests").withMethod(DELETE).build();
 
-    handler.handle(request, httpResponder);
+    handler.handle(request, httpResponder, null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -115,7 +118,8 @@ public class AdminRequestHandlerTest {
             .withMethod(POST)
             .withBody(REQUEST_PATTERN_SAMPLE)
             .build(),
-        httpResponder);
+        httpResponder,
+        null);
     Response response = httpResponder.response;
 
     assertThat(response.getStatus(), is(HTTP_OK));
@@ -131,7 +135,8 @@ public class AdminRequestHandlerTest {
   public void shouldUpdateGlobalSettings() {
     handler.handle(
         aRequest().withUrl("/settings").withMethod(POST).withBody(GLOBAL_SETTINGS_JSON).build(),
-        httpResponder);
+        httpResponder,
+        null);
 
     GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
     verify(admin).updateGlobalSettings(expectedSettings);

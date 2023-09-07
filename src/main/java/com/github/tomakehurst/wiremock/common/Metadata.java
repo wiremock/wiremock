@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +60,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
   @SuppressWarnings("unchecked")
   public Metadata getMetadata(String key) {
     checkKeyPresent(key);
-    checkArgument(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+    checkParameter(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
     return new Metadata((Map<String, ?>) get(key));
   }
 
@@ -71,14 +69,14 @@ public class Metadata extends LinkedHashMap<String, Object> {
       return defaultValue;
     }
 
-    checkArgument(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
+    checkParameter(Map.class.isAssignableFrom(get(key).getClass()), key + " is not a map");
     return new Metadata((Map<String, ?>) get(key));
   }
 
   @SuppressWarnings("unchecked")
   private <T> T checkPresenceValidityAndCast(String key, Class<T> type) {
     checkKeyPresent(key);
-    checkArgument(
+    checkParameter(
         type.isAssignableFrom(get(key).getClass()),
         key + " is not of type " + type.getSimpleName());
     return (T) get(key);
@@ -94,7 +92,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
   }
 
   private void checkKeyPresent(String key) {
-    checkArgument(containsKey(key), key + "' not present");
+    checkParameter(containsKey(key), key + "' not present");
   }
 
   public static <T> Metadata from(T myData) {
@@ -111,10 +109,10 @@ public class Metadata extends LinkedHashMap<String, Object> {
 
   public static class Builder {
 
-    private final ImmutableMap.Builder<String, Object> mapBuilder;
+    private final Map<String, Object> mapBuilder;
 
     public Builder() {
-      this.mapBuilder = ImmutableMap.builder();
+      this.mapBuilder = new LinkedHashMap<>();
     }
 
     public Builder attr(String key, Object value) {
@@ -123,7 +121,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
     }
 
     public Builder list(String key, Object... values) {
-      mapBuilder.put(key, ImmutableList.copyOf(values));
+      mapBuilder.put(key, List.of(values));
       return this;
     }
 
@@ -133,7 +131,7 @@ public class Metadata extends LinkedHashMap<String, Object> {
     }
 
     public Metadata build() {
-      return new Metadata(mapBuilder.build());
+      return new Metadata(mapBuilder);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,20 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.github.tomakehurst.wiremock.common.Urls.*;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
+import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
+import static com.github.tomakehurst.wiremock.common.Urls.splitQueryFromUrl;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
@@ -52,13 +45,18 @@ public class LoggedRequest implements Request {
   private final HttpHeaders headers;
   private final Map<String, Cookie> cookies;
   private final Map<String, QueryParameter> queryParams;
+  private final Map<String, FormParameter> formParameters;
   private final byte[] body;
   private final boolean isBrowserProxyRequest;
   private final Date loggedDate;
   private final Collection<Part> multiparts;
+  private final String protocol;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
+        request.getScheme(),
+        request.getHost(),
+        request.getPort(),
         request.getUrl(),
         request.getAbsoluteUrl(),
         request.getMethod(),
@@ -68,11 +66,13 @@ public class LoggedRequest implements Request {
         request.isBrowserProxyRequest(),
         new Date(),
         request.getBody(),
-        request.getParts());
+        request.getParts(),
+        request.getProtocol(),
+        request.formParameters());
   }
 
   @JsonCreator
-  public LoggedRequest(
+  LoggedRequest(
       @JsonProperty("url") String url,
       @JsonProperty("absoluteUrl") String absoluteUrl,
       @JsonProperty("method") RequestMethod method,
@@ -83,8 +83,12 @@ public class LoggedRequest implements Request {
       @JsonProperty("loggedDate") Date loggedDate,
       @JsonProperty("bodyAsBase64") String bodyAsBase64,
       @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
-      @JsonProperty("multiparts") Collection<Part> multiparts) {
+      @JsonProperty("multiparts") Collection<Part> multiparts,
+      @JsonProperty("protocol") String protocol) {
     this(
+        null,
+        null,
+        null,
         url,
         absoluteUrl,
         method,
@@ -94,10 +98,15 @@ public class LoggedRequest implements Request {
         isBrowserProxyRequest,
         loggedDate,
         decodeBase64(bodyAsBase64),
-        multiparts);
+        multiparts,
+        protocol,
+        new HashMap<>());
   }
 
-  public LoggedRequest(
+  private LoggedRequest(
+      String scheme,
+      String host,
+      Integer port,
       String url,
       String absoluteUrl,
       RequestMethod method,
@@ -107,19 +116,21 @@ public class LoggedRequest implements Request {
       boolean isBrowserProxyRequest,
       Date loggedDate,
       byte[] body,
-      Collection<Part> multiparts) {
+      Collection<Part> multiparts,
+      String protocol,
+      Map<String, FormParameter> formParameters) {
     this.url = url;
 
     this.absoluteUrl = absoluteUrl;
     if (absoluteUrl == null) {
-      this.scheme = null;
-      this.host = null;
-      this.port = -1;
+      this.scheme = scheme;
+      this.host = host;
+      this.port = port != null ? port : -1;
     } else {
       URL fullUrl = safelyCreateURL(absoluteUrl);
       this.scheme = fullUrl.getProtocol();
       this.host = fullUrl.getHost();
-      this.port = fullUrl.getPort();
+      this.port = Urls.getPort(fullUrl);
     }
 
     this.clientIp = clientIp;
@@ -127,10 +138,12 @@ public class LoggedRequest implements Request {
     this.body = body;
     this.headers = headers;
     this.cookies = cookies;
-    this.queryParams = splitQueryFromUrl(url);
+    this.queryParams = url != null ? splitQueryFromUrl(url) : Collections.emptyMap();
+    this.formParameters = formParameters;
     this.isBrowserProxyRequest = isBrowserProxyRequest;
     this.loggedDate = loggedDate;
     this.multiparts = multiparts;
+    this.protocol = protocol;
   }
 
   @Override
@@ -235,7 +248,22 @@ public class LoggedRequest implements Request {
 
   @Override
   public QueryParameter queryParameter(String key) {
-    return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+  }
+
+  @Override
+  public FormParameter formParameter(String key) {
+    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
+  }
+
+  @Override
+  public Map<String, FormParameter> formParameters() {
+    return formParameters;
+  }
+
+  @JsonProperty("formParams")
+  public Map<String, FormParameter> getFormParameters() {
+    return formParameters;
   }
 
   @JsonProperty("queryParams")
@@ -255,9 +283,15 @@ public class LoggedRequest implements Request {
   @JsonIgnore
   @Override
   public Optional<Request> getOriginalRequest() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
+  @Override
+  public String getProtocol() {
+    return protocol;
+  }
+
+  @JsonFormat(shape = JsonFormat.Shape.NUMBER)
   public Date getLoggedDate() {
     return loggedDate;
   }
@@ -274,7 +308,7 @@ public class LoggedRequest implements Request {
   @JsonIgnore
   @Override
   public boolean isMultipart() {
-    return (multiparts != null && multiparts.size() > 0);
+    return (multiparts != null && !multiparts.isEmpty());
   }
 
   @JsonIgnore
@@ -287,15 +321,10 @@ public class LoggedRequest implements Request {
   @Override
   public Part getPart(final String name) {
     return (multiparts != null && name != null)
-        ? from(multiparts)
-            .firstMatch(
-                new Predicate<Part>() {
-                  @Override
-                  public boolean apply(Part input) {
-                    return (name.equals(input.getName()));
-                  }
-                })
-            .get()
+        ? multiparts.stream()
+            .filter(input -> (name.equals(input.getName())))
+            .findFirst()
+            .orElse(null)
         : null;
   }
 }

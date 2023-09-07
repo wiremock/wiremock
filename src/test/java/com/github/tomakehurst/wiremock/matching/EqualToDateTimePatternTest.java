@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import static java.time.temporal.ChronoUnit.HOURS;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
@@ -106,10 +105,17 @@ public class EqualToDateTimePatternTest {
   }
 
   @Test
+  public void doesNotMatchWhenActualValueIsNull() {
+    StringValuePattern matcher = WireMock.equalToDateTime("2021-06-14T12:13:14Z");
+    assertFalse(matcher.match(null).isExactMatch());
+  }
+
+  @Test
   public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.equalToDateTime("2021-01-01T00:00:00Z");
     assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
     assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match(null).getDistance(), is(1.0));
     assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
   }
 
@@ -161,5 +167,21 @@ public class EqualToDateTimePatternTest {
     EqualToDateTimePattern matcher =
         WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
     assertTrue(matcher.match("2020-08-29T00:00:00").isExactMatch());
+  }
+
+  @Test
+  public void objectsShouldBeEqualOnSameExpectedValue() {
+    EqualToDateTimePattern a = WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
+    EqualToDateTimePattern b = WireMock.equalToDateTime(LocalDateTime.parse("2020-08-29T00:00:00"));
+    EqualToDateTimePattern c = WireMock.equalToDateTime(LocalDateTime.parse("2022-01-10T10:10:10"));
+
+    assertEquals(a, b);
+    assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(b, a);
+    assertEquals(b.hashCode(), a.hashCode());
+    assertNotEquals(a, c);
+    assertNotEquals(a.hashCode(), c.hashCode());
+    assertNotEquals(b, c);
+    assertNotEquals(b.hashCode(), c.hashCode());
   }
 }

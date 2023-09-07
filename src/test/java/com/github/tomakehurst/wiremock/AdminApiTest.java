@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
+import static java.util.Arrays.asList;
+import static net.javacrumbs.jsonunit.JsonMatchers.*;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -41,7 +41,6 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import java.io.File;
@@ -313,7 +312,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestById() throws Exception {
+  public void getLoggedRequestById() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -462,6 +461,84 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.content(), is("{}"));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
     assertThat(testClient.get("/stateful").content(), is("Initial"));
+  }
+
+  @Test
+  void getScenarios() {
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs("2")
+            .willSetStateTo("3")
+            .willReturn(ok("2")));
+    stubFor(get("/one").inScenario("my-scenario").whenScenarioStateIs("3").willReturn(ok("3")));
+
+    testClient.get("/one");
+
+    String body = testClient.get("/__admin/scenarios").content();
+    assertThat(body, jsonPartEquals("scenarios[0].id", "my-scenario"));
+    assertThat(body, jsonPartEquals("scenarios[0].name", "my-scenario"));
+    assertThat(body, jsonPartEquals("scenarios[0].state", "\"2\""));
+    assertThat(body, jsonPartEquals("scenarios[0].possibleStates", asList("Started", "2", "3")));
+    assertThat(body, jsonPartEquals("scenarios[0].mappings[0].request.url", "/one"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToResetNonExistentScenario() {
+    WireMockResponse response = testClient.put("/__admin/scenarios/i-dont-exist/state");
+    assertThat(response.statusCode(), is(404));
+    assertThat(
+        response.content(),
+        jsonPartEquals("errors[0].title", "Scenario i-dont-exist does not exist"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToSetNonExistentScenarioState() {
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/scenarios/i-dont-exist/state",
+            "{\"state\":\"newstate\"}",
+            "application/json");
+    assertThat(response.statusCode(), is(404));
+    assertThat(
+        response.content(),
+        jsonPartEquals("errors[0].title", "Scenario i-dont-exist does not exist"));
+  }
+
+  @Test
+  void returnsBadEntityWhenAttemptingToSetNonExistentScenarioState() {
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("2")
+            .willReturn(ok("started")));
+
+    dsl.stubFor(
+        get("/one")
+            .inScenario("my-scenario")
+            .whenScenarioStateIs("2")
+            .willSetStateTo(STARTED)
+            .willReturn(ok("2")));
+
+    WireMockResponse response =
+        testClient.putWithBody(
+            "/__admin/scenarios/my-scenario/state",
+            "{\"state\":\"non-existent-state\"}",
+            "application/json");
+
+    assertThat(response.statusCode(), is(422));
+    assertThat(
+        response.content(),
+        jsonPartEquals(
+            "errors[0].title", "Scenario my-scenario does not support state non-existent-state"));
   }
 
   @Test
@@ -856,15 +933,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         get("/with-metadata")
             .withId(id)
             .withMetadata(
-                ImmutableMap.<String, Object>of(
-                    "one",
-                    1,
-                    "two",
-                    "2",
-                    "three",
-                    true,
-                    "four",
-                    ImmutableMap.of("five", "55555"))));
+                Map.of("one", 1, "two", "2", "three", true, "four", Map.of("five", "55555"))));
 
     WireMockResponse response = testClient.get("/__admin/mappings/" + id);
 
@@ -1200,6 +1269,68 @@ public class AdminApiTest extends AcceptanceTestBase {
         response.content(),
         jsonPartEquals(
             "errors[0].title", "Query parameter matchingStub value '' is not a valid UUID"));
+  }
+
+  @Test
+  void returnsDefaultStubMappingInServeEventWhenRequestNotMatched() {
+    testClient.get("/wrong-request/1");
+
+    WireMockResponse serveEventsResponse = testClient.get("/__admin/requests");
+
+    String data = serveEventsResponse.content();
+    assertThat(data, jsonPartEquals("requests[0].stubMapping.id", "\"${json-unit.any-string}\""));
+    assertThat(data, jsonPartEquals("requests[0].stubMapping.response.status", 404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToGetByNonUuid() {
+    WireMockResponse response = testClient.get("/__admin/mappings/not-a-uuid");
+    assertThat(response.statusCode(), is(400));
+    assertThat(
+        response.content(), jsonPartEquals("errors[0].title", "not-a-uuid is not a valid UUID"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToGetNonExistentStub() {
+    assertThat(testClient.get("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToEditByNonUuid() {
+    assertThat(testClient.putJson("/__admin/mappings/not-a-uuid", "{}").statusCode(), is(400));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToEditNonExistentStub() {
+    assertThat(testClient.put("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToRemoveByNonUuid() {
+    assertThat(testClient.delete("/__admin/mappings/not-a-uuid").statusCode(), is(400));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToRemoveNonExistentStub() {
+    assertThat(testClient.put("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToGetServeEventByNonUuid() {
+    WireMockResponse response = testClient.get("/__admin/requests/not-a-uuid");
+    assertThat(response.statusCode(), is(400));
+    assertThat(
+        response.content(), jsonPartEquals("errors[0].title", "not-a-uuid is not a valid UUID"));
+  }
+
+  @Test
+  void returnsNotFoundWhenAttemptingToGetServeEventByNonExistentId() {
+    assertThat(testClient.get("/__admin/requests/" + UUID.randomUUID()).statusCode(), is(404));
+  }
+
+  @Test
+  void returnsBadRequestWhenAttemptingToRemoveServeEventByNonUuid() {
+    assertThat(testClient.delete("/__admin/requests/not-a-uuid").statusCode(), is(400));
   }
 
   public static class TestExtendedSettingsData {

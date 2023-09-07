@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ScenarioMappingBuilder extends MappingBuilder {
@@ -34,7 +37,15 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
 
   ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
 
+  ScenarioMappingBuilder withHeader(String key, MultiValuePattern headerPattern);
+
   ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+
+  ScenarioMappingBuilder withQueryParam(String key, MultiValuePattern queryParamPattern);
+
+  ScenarioMappingBuilder withFormParam(String key, StringValuePattern formParamPattern);
+
+  ScenarioMappingBuilder withFormParam(String key, MultiValuePattern formParamPattern);
 
   ScenarioMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
 
@@ -56,6 +67,11 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
   ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
   <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
 
   ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
 

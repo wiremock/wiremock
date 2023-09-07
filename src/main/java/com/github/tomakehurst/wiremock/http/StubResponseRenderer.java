@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,43 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.google.common.base.MoreObjects.firstNonNull;
 
-import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformerV2;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.store.BlobStore;
+import com.github.tomakehurst.wiremock.store.SettingsStore;
+import com.github.tomakehurst.wiremock.store.files.BlobStoreFileSource;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
-  private final FileSource fileSource;
-  private final GlobalSettingsHolder globalSettingsHolder;
+  private final BlobStore filesBlobStore;
+  private final FileSource filesFileSource;
+  private final SettingsStore settingsStore;
   private final ProxyResponseRenderer proxyResponseRenderer;
   private final List<ResponseTransformer> responseTransformers;
+  private final List<ResponseTransformerV2> v2ResponseTransformers;
 
   public StubResponseRenderer(
-      FileSource fileSource,
-      GlobalSettingsHolder globalSettingsHolder,
+      BlobStore filesBlobStore,
+      SettingsStore settingsStore,
       ProxyResponseRenderer proxyResponseRenderer,
-      List<ResponseTransformer> responseTransformers) {
-    this.fileSource = fileSource;
-    this.globalSettingsHolder = globalSettingsHolder;
+      List<ResponseTransformer> responseTransformers,
+      List<ResponseTransformerV2> v2ResponseTransformers) {
+    this.filesBlobStore = filesBlobStore;
+    this.settingsStore = settingsStore;
     this.proxyResponseRenderer = proxyResponseRenderer;
     this.responseTransformers = responseTransformers;
+    this.v2ResponseTransformers = v2ResponseTransformers;
+
+    filesFileSource = new BlobStoreFileSource(filesBlobStore);
   }
 
   @Override
@@ -52,11 +62,17 @@ public class StubResponseRenderer implements ResponseRenderer {
     }
 
     Response response = buildResponse(serveEvent);
-    return applyTransformations(
-        responseDefinition.getOriginalRequest(),
-        responseDefinition,
-        response,
-        responseTransformers);
+
+    response =
+        applyTransformations(
+            responseDefinition.getOriginalRequest(),
+            responseDefinition,
+            response,
+            responseTransformers);
+
+    response = applyV2Transformations(response, serveEvent, v2ResponseTransformers);
+
+    return response;
   }
 
   private Response buildResponse(ServeEvent serveEvent) {
@@ -81,11 +97,30 @@ public class StubResponseRenderer implements ResponseRenderer {
     Response newResponse =
         transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
             ? transformer.transform(
-                request, response, fileSource, responseDefinition.getTransformerParameters())
+                request, response, filesFileSource, responseDefinition.getTransformerParameters())
             : response;
 
     return applyTransformations(
         request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
+  }
+
+  private Response applyV2Transformations(
+      Response response, ServeEvent serveEvent, List<ResponseTransformerV2> transformers) {
+
+    if (transformers.isEmpty()) {
+      return response;
+    }
+
+    final ResponseTransformerV2 transformer = transformers.get(0);
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+    Response newResponse =
+        transformer.applyGlobally() || responseDefinition.hasTransformer(transformer)
+            ? transformer.transform(response, serveEvent)
+            : response;
+
+    return applyV2Transformations(
+        newResponse, serveEvent, transformers.subList(1, transformers.size()));
   }
 
   private Response.Builder renderDirectly(ServeEvent serveEvent) {
@@ -95,7 +130,7 @@ public class StubResponseRenderer implements ResponseRenderer {
     StubMapping stubMapping = serveEvent.getStubMapping();
     if (serveEvent.getWasMatched() && stubMapping != null) {
       headers =
-          firstNonNull(headers, new HttpHeaders())
+          getFirstNonNull(headers, new HttpHeaders())
               .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
 
       if (stubMapping.getName() != null) {
@@ -103,6 +138,7 @@ public class StubResponseRenderer implements ResponseRenderer {
       }
     }
 
+    GlobalSettings settings = settingsStore.get();
     Response.Builder responseBuilder =
         response()
             .status(responseDefinition.getStatus())
@@ -110,21 +146,18 @@ public class StubResponseRenderer implements ResponseRenderer {
             .headers(headers)
             .fault(responseDefinition.getFault())
             .configureDelay(
-                globalSettingsHolder.get().getFixedDelay(),
-                globalSettingsHolder.get().getDelayDistribution(),
+                settings.getFixedDelay(),
+                settings.getDelayDistribution(),
                 responseDefinition.getFixedDelayMilliseconds(),
                 responseDefinition.getDelayDistribution())
             .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
     if (responseDefinition.specifiesBodyFile()) {
-      BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-      responseBuilder.body(bodyFile);
+      final InputStreamSource bodyStreamSource =
+          filesBlobStore.getStreamSource(responseDefinition.getBodyFileName());
+      responseBuilder.body(bodyStreamSource);
     } else if (responseDefinition.specifiesBodyContent()) {
-      if (responseDefinition.specifiesBinaryBodyContent()) {
-        responseBuilder.body(responseDefinition.getByteBody());
-      } else {
-        responseBuilder.body(responseDefinition.getByteBody());
-      }
+      responseBuilder.body(responseDefinition.getByteBody());
     }
 
     return responseBuilder;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -28,13 +27,14 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.codec.binary.Base64;
+import java.util.Arrays;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
-public class ResponseDefinitionBuilderTest {
+class ResponseDefinitionBuilderTest {
 
   @Test
-  public void withTransformerParameterShouldNotChangeOriginalTransformerParametersValue() {
+  void withTransformerParameterShouldNotChangeOriginalTransformerParametersValue() {
     ResponseDefinition originalResponseDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .withTransformerParameter("name", "original")
@@ -53,13 +53,14 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void likeShouldCreateCompleteResponseDefinitionCopy() throws Exception {
+  void likeShouldCreateCompleteResponseDefinitionCopy() {
     ResponseDefinition originalResponseDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .withStatus(200)
             .withStatusMessage("OK")
             .withBody("some body")
-            .withBase64Body(Base64.encodeBase64String("some body".getBytes(StandardCharsets.UTF_8)))
+            .withBase64Body(
+                Base64.getEncoder().encodeToString("some body".getBytes(StandardCharsets.UTF_8)))
             .withBodyFile("some_body.json")
             .withHeader("some header", "some value")
             .withFixedDelay(100)
@@ -77,7 +78,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinition() {
+  void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinition() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.domain").build();
 
@@ -86,8 +87,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void
-      proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithJsonBody() {
+  void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithJsonBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -99,8 +99,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void
-      proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithBinaryBody() {
+  void proxyResponseDefinitionWithoutProxyInformationIsNotInResponseDefinitionWithBinaryBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -112,7 +111,7 @@ public class ResponseDefinitionBuilderTest {
   }
 
   @Test
-  public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinition() {
+  void proxyResponseDefinitionWithExtraInformationIsInResponseDefinition() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -122,12 +121,12 @@ public class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
   @Test
-  public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithJsonBody() {
+  void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithJsonBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -138,12 +137,12 @@ public class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
   @Test
-  public void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithBinaryBody() {
+  void proxyResponseDefinitionWithExtraInformationIsInResponseDefinitionWithBinaryBody() {
     ResponseDefinition proxyDefinition =
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
@@ -154,7 +153,7 @@ public class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(newArrayList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 }

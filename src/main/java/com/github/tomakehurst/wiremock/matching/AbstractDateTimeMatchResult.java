@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2022 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
 
   @Override
   public double getDistance() {
-    double distance = -1;
+    double distance = 1;
     if (isZoned && zonedActual != null) {
       distance = calculateDistance(zonedExpected, zonedActual);
     } else if (isLocal && localActual != null) {

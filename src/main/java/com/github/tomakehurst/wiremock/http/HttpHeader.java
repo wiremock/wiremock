@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Arrays.asList;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class HttpHeader extends MultiValue {
 
@@ -29,11 +29,11 @@ public class HttpHeader extends MultiValue {
   }
 
   public HttpHeader(CaseInsensitiveKey key, Collection<String> values) {
-    super(key.value(), ImmutableList.copyOf(values));
+    super(key.value(), List.copyOf(values));
   }
 
   public HttpHeader(String key, Collection<String> values) {
-    super(key, ImmutableList.copyOf(firstNonNull(values, Collections.<String>emptyList())));
+    super(key, List.copyOf(getFirstNonNull(values, Collections.emptyList())));
   }
 
   public static HttpHeader httpHeader(CaseInsensitiveKey key, String... values) {

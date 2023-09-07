@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public abstract class AbstractFileSource implements FileSource {
 
   protected final File rootDirectory;
 
-  public AbstractFileSource(File rootDirectory) {
+  protected AbstractFileSource(File rootDirectory) {
     this.rootDirectory = rootDirectory;
   }
 
@@ -74,13 +75,13 @@ public abstract class AbstractFileSource implements FileSource {
   @Override
   public List<TextFile> listFilesRecursively() {
     assertExistsAndIsDirectory();
-    List<File> fileList = newArrayList();
+    List<File> fileList = new ArrayList<>();
     recursivelyAddFilesToList(rootDirectory, fileList);
     return toTextFileList(fileList);
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
-    File[] files = root.listFiles();
+    File[] files = Optional.ofNullable(root.listFiles()).orElse(new File[0]);
     for (File file : files) {
       if (file.isDirectory()) {
         recursivelyAddFilesToList(file, fileList);
@@ -91,14 +92,7 @@ public abstract class AbstractFileSource implements FileSource {
   }
 
   private List<TextFile> toTextFileList(List<File> fileList) {
-    return newArrayList(
-        transform(
-            fileList,
-            new Function<File, TextFile>() {
-              public TextFile apply(File input) {
-                return new TextFile(input.toURI());
-              }
-            }));
+    return fileList.stream().map(input -> new TextFile(input.toURI())).collect(Collectors.toList());
   }
 
   @Override
@@ -159,8 +153,11 @@ public abstract class AbstractFileSource implements FileSource {
               ? new File(path).getCanonicalPath()
               : new File(rootDirectory, path).getCanonicalPath();
 
-      if (!filePath.startsWith(rootPath)) {
-        throw new NotAuthorisedException("Access to file " + path + " is not permitted");
+      if (!Paths.get(filePath).normalize().startsWith(rootPath)) {
+        throw new NotAuthorisedException(
+            "Access to file "
+                + path
+                + " is not permitted. An absolute path from the filesystem root might be specified");
       }
     } catch (IOException ioe) {
       throw new NotAuthorisedException("File " + path + " cannot be accessed", ioe);
@@ -178,7 +175,7 @@ public abstract class AbstractFileSource implements FileSource {
   private void writeTextFileAndTranslateExceptions(String contents, File toFile) {
     try {
       ensureDirectoryExists(toFile);
-      Files.asCharSink(toFile, UTF_8).write(contents);
+      Files.write(toFile.toPath(), contents.getBytes(UTF_8));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -187,17 +184,13 @@ public abstract class AbstractFileSource implements FileSource {
   private void writeBinaryFileAndTranslateExceptions(byte[] contents, File toFile) {
     try {
       ensureDirectoryExists(toFile);
-      Files.write(contents, toFile);
+      Files.write(toFile.toPath(), contents);
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
   }
 
   public static Predicate<BinaryFile> byFileExtension(final String extension) {
-    return new Predicate<BinaryFile>() {
-      public boolean apply(BinaryFile input) {
-        return input.name().endsWith("." + extension);
-      }
-    };
+    return input -> input.name().endsWith("." + extension);
   }
 }

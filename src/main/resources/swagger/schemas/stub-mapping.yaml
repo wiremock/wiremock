@@ -32,6 +32,25 @@ properties:
   postServeActions:
     type: object
     description: A map of the names of post serve action extensions to trigger and their parameters.
+  serveEventListeners:
+    type: array
+    description: The list of serve event listeners
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        requestPhases:
+          type: array
+          items:
+            type: string
+            enum:
+              - BEFORE_MATCH
+              - AFTER_MATCH
+              - AFTER_COMPLETE
+        parameters:
+          type: object
   metadata:
     type: object
     description: Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs.
+additionalProperties: false

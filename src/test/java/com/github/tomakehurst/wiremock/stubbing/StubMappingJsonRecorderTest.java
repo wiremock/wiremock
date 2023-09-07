@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Lists.transform;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,42 +31,53 @@ import static org.mockito.Mockito.*;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 import static org.skyscreamer.jsonassert.JSONCompareMode.STRICT_ORDER;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
+/**
+ * @deprecated this test is for the legacy recorder which will be removed before 3.x is out of beta
+ */
+@Deprecated
 public class StubMappingJsonRecorderTest {
 
   private StubMappingJsonRecorder listener;
-  private FileSource mappingsFileSource;
-  private FileSource filesFileSource;
+
+  private BlobStore mappingsBlobStore;
+  private BlobStore filesBlobStore;
+
   private Admin admin;
 
   @BeforeEach
   public void init() {
-    mappingsFileSource = mock(FileSource.class, "mappingsFileSource");
-    filesFileSource = mock(FileSource.class, "filesFileSource");
+    mappingsBlobStore = mock(BlobStore.class, "mappingsBlobStore");
+    filesBlobStore = mock(BlobStore.class, "filesBlobStore");
+
     admin = mock(Admin.class);
 
-    constructRecordingListener(Collections.<String>emptyList());
+    constructRecordingListener(Collections.emptyList());
   }
 
   private void constructRecordingListener(List<String> headersToRecord) {
     listener =
         new StubMappingJsonRecorder(
-            mappingsFileSource,
-            filesFileSource,
+            mappingsBlobStore,
+            filesBlobStore,
             admin,
-            transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+            headersToRecord.stream()
+                .map(TO_CASE_INSENSITIVE_KEYS)
+                .collect(Collectors.toUnmodifiableList()));
     listener.setIdGenerator(fixedIdGenerator("1$2!3"));
   }
 
@@ -96,12 +106,12 @@ public class StubMappingJsonRecorderTest {
 
     listener.requestReceived(request, response);
 
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             (eq("mapping-recorded-content-1$2!3.json")),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
-    verify(filesFileSource)
-        .writeBinaryFile(
+            argThat(equalToBinaryJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
+    verify(filesBlobStore)
+        .put(
             (eq("body-recorded-content-1$2!3.txt")), (eq("Recorded body content".getBytes(UTF_8))));
   }
 
@@ -142,13 +152,12 @@ public class StubMappingJsonRecorderTest {
 
     listener.requestReceived(request, response);
 
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             (eq("mapping-headered-content-1$2!3.json")),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
-    verify(filesFileSource)
-        .writeBinaryFile(
-            "body-headered-content-1$2!3.txt", "Recorded body content".getBytes(UTF_8));
+            argThat(equalToBinaryJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
+    verify(filesBlobStore)
+        .put("body-headered-content-1$2!3.txt", "Recorded body content".getBytes(UTF_8));
   }
 
   @Test
@@ -160,8 +169,8 @@ public class StubMappingJsonRecorderTest {
         new MockRequestBuilder().withMethod(RequestMethod.GET).withUrl("/headered/content").build(),
         response().fromProxy(true).status(200).build());
 
-    verifyNoInteractions(mappingsFileSource);
-    verifyNoInteractions(filesFileSource);
+    verifyNoInteractions(mappingsBlobStore);
+    verifyNoInteractions(mappingsBlobStore);
   }
 
   @Test
@@ -175,8 +184,8 @@ public class StubMappingJsonRecorderTest {
         new MockRequestBuilder().withMethod(RequestMethod.GET).withUrl("/headered/content").build(),
         response);
 
-    verifyNoInteractions(mappingsFileSource);
-    verifyNoInteractions(filesFileSource);
+    verifyNoInteractions(mappingsBlobStore);
+    verifyNoInteractions(filesBlobStore);
   }
 
   private static final String SAMPLE_REQUEST_MAPPING_WITH_BODY =
@@ -210,10 +219,10 @@ public class StubMappingJsonRecorderTest {
     listener.requestReceived(
         request, response().status(200).body("anything").fromProxy(true).build());
 
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             (any(String.class)),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY, STRICT_ORDER)));
+            argThat(equalToBinaryJson(SAMPLE_REQUEST_MAPPING_WITH_BODY, STRICT_ORDER)));
   }
 
   private static final String SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1 =
@@ -249,7 +258,7 @@ public class StubMappingJsonRecorderTest {
           + "}													               ";
 
   private static final List<String> MATCHING_REQUEST_HEADERS =
-      new ArrayList<String>(Arrays.asList("Accept"));
+      new ArrayList<>(Collections.singletonList("Accept"));
 
   @Test
   public void includesHeadersInRequestPatternIfHeaderMatchingEnabled() {
@@ -275,14 +284,16 @@ public class StubMappingJsonRecorderTest {
     listener.requestReceived(request1, response().status(200).fromProxy(true).build());
     listener.requestReceived(request2, response().status(200).fromProxy(true).build());
 
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             (any(String.class)),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1, STRICT_ORDER)));
-    verify(mappingsFileSource)
-        .writeTextFile(
+            argThat(
+                equalToBinaryJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1, STRICT_ORDER)));
+    verify(mappingsBlobStore)
+        .put(
             (any(String.class)),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_2, STRICT_ORDER)));
+            argThat(
+                equalToBinaryJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_2, STRICT_ORDER)));
   }
 
   private static final String SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY =
@@ -317,10 +328,10 @@ public class StubMappingJsonRecorderTest {
 
     listener.requestReceived(
         request, response().status(200).body("anything").fromProxy(true).build());
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             (any(String.class)),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY, STRICT_ORDER)));
+            argThat(equalToBinaryJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY, STRICT_ORDER)));
   }
 
   private static final String SAMPLE_REQUEST_MAPPING_WITH_XML_BODY =
@@ -353,10 +364,10 @@ public class StubMappingJsonRecorderTest {
     listener.requestReceived(
         request, response().status(200).body("anything").fromProxy(true).build());
 
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             (any(String.class)),
-            argThat(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY, STRICT_ORDER)));
+            argThat(equalToBinaryJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY, STRICT_ORDER)));
   }
 
   private static final String GZIP_REQUEST_MAPPING =
@@ -397,12 +408,12 @@ public class StubMappingJsonRecorderTest {
 
     listener.requestReceived(request, response);
 
-    verify(mappingsFileSource)
-        .writeTextFile(
-            (eq("mapping-gzipped-content-1$2!3.json")), argThat(equalToJson(GZIP_REQUEST_MAPPING)));
-    verify(filesFileSource)
-        .writeBinaryFile(
-            (eq("body-gzipped-content-1$2!3.txt")), (eq("Recorded body content".getBytes(UTF_8))));
+    verify(mappingsBlobStore)
+        .put(
+            (eq("mapping-gzipped-content-1$2!3.json")),
+            argThat(equalToBinaryJson(GZIP_REQUEST_MAPPING, JSONCompareMode.STRICT)));
+    verify(filesBlobStore)
+        .put((eq("body-gzipped-content-1$2!3.txt")), (eq("Recorded body content".getBytes(UTF_8))));
   }
 
   private static final String MULTIPART_REQUEST_MAPPING =
@@ -478,44 +489,82 @@ public class StubMappingJsonRecorderTest {
     listener.requestReceived(
         request, response().status(200).body("anything").fromProxy(true).build());
 
-    verify(mappingsFileSource)
-        .writeTextFile(
+    verify(mappingsBlobStore)
+        .put(
             eq("mapping-multipart-content-1$2!3.json"),
-            argThat(equalToJson(MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
+            argThat(equalToBinaryJson(MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
+  }
+
+  private static final String BAD_MULTIPART_REQUEST_MAPPING =
+      "{ 													             \n"
+          + "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+          + "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n"
+          + "	\"request\": {									             \n"
+          + "		\"url\": \"/multipart/content\",                         \n"
+          + "		\"method\": \"POST\" 						             \n"
+          + "	},												             \n"
+          + "	\"response\": {									             \n"
+          + "		\"status\": 200, 							             \n"
+          + "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"        \n"
+          + "	}												             \n"
+          + "}";
+
+  @Test
+  public void multipartRequestProcessingWithNonFileMultipart() {
+    when(admin.countRequestsMatching((any(RequestPattern.class))))
+        .thenReturn(VerificationResult.withCount(0));
+
+    Request request =
+        new MockRequestBuilder()
+            .withMethod(RequestMethod.POST)
+            .withHeader("Content-Type", "multipart/form-data; boundary=aBoundary")
+            .withUrl("/multipart/content")
+            .withBody("--aBoundary\r\nContent")
+            .withMultiparts(null) // this is what request.getParts returns when parsing doesn't work
+            .build();
+    doReturn(true).when(request).isMultipart();
+
+    listener.requestReceived(
+        request, response().status(200).body("anything").fromProxy(true).build());
+
+    verify(mappingsBlobStore)
+        .put(
+            eq("mapping-multipart-content-1$2!3.json"),
+            argThat(bytesEqualToJson(BAD_MULTIPART_REQUEST_MAPPING, STRICT_ORDER)));
   }
 
   @Test
-  public void detectsJsonExtensionFromFileExtension() throws Exception {
+  public void detectsJsonExtensionFromFileExtension() {
     assertResultingFileExtension("/my/file.json", "json");
   }
 
   @Test
-  public void detectsGifExtensionFromFileExtension() throws Exception {
+  public void detectsGifExtensionFromFileExtension() {
     assertResultingFileExtension("/my/file.gif", "gif");
   }
 
   @Test
-  public void detectsXmlExtensionFromResponseContentTypeHeader() throws Exception {
+  public void detectsXmlExtensionFromResponseContentTypeHeader() {
     assertResultingFileExtension("/noext", "xml", "application/xml");
   }
 
   @Test
-  public void detectsJsonExtensionFromResponseContentTypeHeader() throws Exception {
+  public void detectsJsonExtensionFromResponseContentTypeHeader() {
     assertResultingFileExtension("/noext", "json", "application/json");
   }
 
   @Test
-  public void detectsJsonExtensionFromCustomResponseContentTypeHeader() throws Exception {
+  public void detectsJsonExtensionFromCustomResponseContentTypeHeader() {
     assertResultingFileExtension("/noext", "json", "application/vnd.api+json");
   }
 
   @Test
-  public void detectsJpegExtensionFromResponseContentTypeHeader() throws Exception {
+  public void detectsJpegExtensionFromResponseContentTypeHeader() {
     assertResultingFileExtension("/noext", "jpeg", "image/jpeg");
   }
 
   @Test
-  public void detectsIcoExtensionFromResponseContentTypeHeader() throws Exception {
+  public void detectsIcoExtensionFromResponseContentTypeHeader() {
     assertResultingFileExtension("/noext", "ico", "image/x-icon");
   }
 
@@ -536,18 +585,16 @@ public class StubMappingJsonRecorderTest {
 
     listener.requestReceived(request, response);
 
-    verify(filesFileSource)
-        .writeBinaryFile(
-            argThat(containsString("body-my_oddly__named_file-url")), (any(byte[].class)));
+    verify(filesBlobStore)
+        .put(argThat(containsString("body-my_oddly__named_file-url")), (any(byte[].class)));
   }
 
-  private void assertResultingFileExtension(String url, final String expectedExension)
-      throws Exception {
+  private void assertResultingFileExtension(String url, final String expectedExension) {
     assertResultingFileExtension(url, expectedExension, null);
   }
 
   private void assertResultingFileExtension(
-      String url, final String expectedExension, String contentTypeHeader) throws Exception {
+      String url, final String expectedExension, String contentTypeHeader) {
     when(admin.countRequestsMatching((any(RequestPattern.class))))
         .thenReturn(VerificationResult.withCount(0));
     Request request = new MockRequestBuilder().withMethod(RequestMethod.GET).withUrl(url).build();
@@ -565,16 +612,11 @@ public class StubMappingJsonRecorderTest {
 
     listener.requestReceived(request, response);
 
-    verify(filesFileSource)
-        .writeBinaryFile(argThat(endsWith("." + expectedExension)), (any(byte[].class)));
+    verify(filesBlobStore).put(argThat(endsWith("." + expectedExension)), (any(byte[].class)));
   }
 
   private IdGenerator fixedIdGenerator(final String id) {
-    return new IdGenerator() {
-      public String generate() {
-        return id;
-      }
-    };
+    return () -> id;
   }
 
   private static Request.Part createPart(
