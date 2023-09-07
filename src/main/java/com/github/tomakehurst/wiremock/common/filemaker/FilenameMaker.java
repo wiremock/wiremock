@@ -37,13 +37,12 @@ public class FilenameMaker {
   private final String filenameTemplate;
 
   public FilenameMaker() {
-    this.templateEngine = defaultTemplateEngine();
-    this.filenameTemplate = DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
+    this(null);
   }
 
   public FilenameMaker(String filenameTemplate) {
     this.templateEngine = defaultTemplateEngine();
-    this.filenameTemplate = filenameTemplate;
+    this.filenameTemplate = filenameTemplate != null ? filenameTemplate : DEFAULT_FILENAME_TEMPLATE + DEFAULT_EXTENSION;
   }
 
   public FilenameMaker(String filenameTemplate, String extension) {
