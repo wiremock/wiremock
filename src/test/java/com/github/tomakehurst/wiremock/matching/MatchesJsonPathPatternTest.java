@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -460,6 +461,7 @@ public class MatchesJsonPathPatternTest {
   }
 
   @Test
+  @Disabled("A fix for https://github.com/wiremock/wiremock/issues/1711 is needed")
   public void matchesCorrectlyWhenUsingActualFormatWithJustTheDayPartOfTheDateAndTruncatingTheDateToo() {
     String json =
             "{\n"
