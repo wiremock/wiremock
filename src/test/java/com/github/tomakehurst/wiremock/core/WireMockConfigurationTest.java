@@ -80,4 +80,10 @@ public class WireMockConfigurationTest {
         WireMockConfiguration.wireMockConfig().proxyPassThrough(false);
     assertFalse(wireMockConfiguration.getStores().getSettingsStore().get().getProxyPassThrough());
   }
+
+  @Test
+  void setsMaxTemplateCacheEntries() {
+    Options config = WireMockConfiguration.wireMockConfig().withMaxTemplateCacheEntries(11L);
+    assertThat(config.getMaxTemplateCacheEntries(), is(11L));
+  }
 }
