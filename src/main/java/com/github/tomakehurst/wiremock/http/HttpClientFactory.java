@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.http.ssl.*;
@@ -64,7 +65,11 @@ public class HttpClientFactory {
       KeyStoreSettings trustStoreSettings,
       boolean trustSelfSignedCertificates,
       final List<String> trustedHosts,
-      boolean useSystemProperties) {
+      boolean useSystemProperties,
+      NetworkAddressRules networkAddressRules) {
+
+    NetworkAddressRulesAdheringDnsResolver dnsResolver =
+        new NetworkAddressRulesAdheringDnsResolver(networkAddressRules);
 
     HttpClientBuilder builder =
         HttpClientBuilder.create()
@@ -75,6 +80,7 @@ public class HttpClientFactory {
             .disableContentCompression()
             .setConnectionManager(
                 PoolingHttpClientConnectionManagerBuilder.create()
+                    .setDnsResolver(dnsResolver)
                     .setMaxConnPerRoute(maxConnections)
                     .setMaxConnTotal(maxConnections)
                     .setValidateAfterInactivity(TimeValue.ofSeconds(5)) // TODO Verify duration
@@ -113,6 +119,7 @@ public class HttpClientFactory {
     PoolingHttpClientConnectionManager connectionManager =
         PoolingHttpClientConnectionManagerBuilder.create()
             .setSSLSocketFactory(sslSocketFactory)
+            .setDnsResolver(dnsResolver)
             .build();
     builder.setConnectionManager(connectionManager);
 
@@ -168,7 +175,8 @@ public class HttpClientFactory {
       int timeoutMilliseconds,
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
-      boolean useSystemProperties) {
+      boolean useSystemProperties,
+      NetworkAddressRules networkAddressRules) {
     return createClient(
         maxConnections,
         timeoutMilliseconds,
@@ -176,7 +184,8 @@ public class HttpClientFactory {
         trustStoreSettings,
         true,
         Collections.<String>emptyList(),
-        useSystemProperties);
+        useSystemProperties,
+        networkAddressRules);
   }
 
   private static SSLContext buildSSLContextWithTrustStore(
@@ -226,7 +235,13 @@ public class HttpClientFactory {
   }
 
   public static CloseableHttpClient createClient(int maxConnections, int timeoutMilliseconds) {
-    return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE, true);
+    return createClient(
+        maxConnections,
+        timeoutMilliseconds,
+        NO_PROXY,
+        NO_STORE,
+        true,
+        NetworkAddressRules.ALLOW_ALL);
   }
 
   public static CloseableHttpClient createClient(int timeoutMilliseconds) {
@@ -234,7 +249,13 @@ public class HttpClientFactory {
   }
 
   public static CloseableHttpClient createClient(ProxySettings proxySettings) {
-    return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE, true);
+    return createClient(
+        DEFAULT_MAX_CONNECTIONS,
+        DEFAULT_TIMEOUT,
+        proxySettings,
+        NO_STORE,
+        true,
+        NetworkAddressRules.ALLOW_ALL);
   }
 
   public static CloseableHttpClient createClient() {
