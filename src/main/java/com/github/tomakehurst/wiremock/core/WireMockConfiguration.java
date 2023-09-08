@@ -532,6 +532,11 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration withMaxTemplateCacheEntries(Long maxTemplateCacheEntries) {
+    this.maxTemplateCacheEntries = maxTemplateCacheEntries;
+    return this;
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
