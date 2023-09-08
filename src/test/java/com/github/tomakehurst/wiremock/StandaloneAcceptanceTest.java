@@ -24,11 +24,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -46,7 +44,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.io.FileUtils;
@@ -56,6 +53,7 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class StandaloneAcceptanceTest {
   private static final String FILES = "__files";
@@ -291,7 +289,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
+  public void recordsProxiedRequestsWhenSpecifiedOnCommandLineViaLegacyRecorder() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -310,7 +308,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
+  public void recordsRequestHeadersWhenSpecifiedOnCommandLineViaLegacyRecorder() throws Exception {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings", "--match-headers", "Accept");
     givenThat(
@@ -328,7 +326,7 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
-  public void recordsGzippedResponseBodiesDecompressed() throws Exception {
+  public void recordsGzippedResponseBodiesDecompressedViaLegacyRecorder() {
     WireMock otherServerClient = startOtherServerAndClient();
     startRunner("--record-mappings");
     givenThat(
@@ -342,6 +340,26 @@ public class StandaloneAcceptanceTest {
 
     assertThat(mappingsDirectory, containsAFileContaining("/record-zip"));
     assertThat(filesDirectory, containsAFileContaining("gzipped body"));
+  }
+
+  @Test
+  void recordsGzippedResponseBodiesDecompressedViaNewRecorder(@TempDir Path tempFileRoot) {
+    WireMock target = startOtherServerAndClient();
+
+    startRunner("--root-dir", tempFileRoot.toString());
+
+    target.register(get("/record-this").willReturn(ok("Recorded")));
+
+    startRecording(otherServer.baseUrl());
+    testClient.get("/record-this");
+    stopRecording();
+
+    assertThat(
+        Arrays.stream(requireNonNull(tempFileRoot.resolve("mappings").toFile().list()))
+            .filter(name -> name.contains("record-this"))
+            .findFirst()
+            .get(),
+        endsWith(".json"));
   }
 
   @Test
@@ -624,7 +642,7 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        return Arrays.stream(Objects.requireNonNull(dir.list())).noneMatch(contains(namePart));
+        return Arrays.stream(requireNonNull(dir.list())).noneMatch(contains(namePart));
       }
     };
   }
@@ -639,8 +657,7 @@ public class StandaloneAcceptanceTest {
 
       @Override
       public boolean matchesSafely(File dir) {
-        return (int)
-                Arrays.stream(Objects.requireNonNull(dir.list())).filter(contains(namePart)).count()
+        return (int) Arrays.stream(requireNonNull(dir.list())).filter(contains(namePart)).count()
             == 1;
       }
     };
