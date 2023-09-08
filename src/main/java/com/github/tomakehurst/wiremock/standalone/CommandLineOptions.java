@@ -19,8 +19,6 @@ import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAUL
 import static com.github.tomakehurst.wiremock.common.BrowserProxySettings.DEFAULT_CA_KEYSTORE_PATH;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
-import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
-import static com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker.DEFAULT_FILENAME_TEMPLATE;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
@@ -45,6 +43,7 @@ import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.store.DefaultStores;
 import com.github.tomakehurst.wiremock.store.Stores;
+import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
@@ -194,7 +193,7 @@ public class CommandLineOptions implements Options {
             "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.")
         .requiredIf(HTTPS_KEYSTORE_PASSWORD)
         .withRequiredArg()
-        .defaultsTo(getResource(CommandLineOptions.class, "keystore").toString());
+        .defaultsTo(Resources.getResource("keystore").toString());
     optionParser
         .accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL")
         .withRequiredArg();
@@ -415,7 +414,8 @@ public class CommandLineOptions implements Options {
       validateFilenameTemplate(filenameTemplate);
       return filenameTemplate;
     }
-    return DEFAULT_FILENAME_TEMPLATE;
+
+    return null;
   }
 
   private void validateFilenameTemplate(String filenameTemplate) {
