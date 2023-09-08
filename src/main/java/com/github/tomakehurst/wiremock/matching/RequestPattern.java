@@ -79,56 +79,22 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       final CustomMatcherDefinition customMatcherDefinition,
       final ValueMatcher<Request> customMatcher,
       final List<MultipartValuePattern> multiPattern) {
-    this.scheme = scheme;
-    this.host = host;
-    this.port = port;
-    this.url = getFirstNonNull(url, UrlPattern.ANY);
-    this.method = getFirstNonNull(method, RequestMethod.ANY);
-    this.methods = new HashSet<>();
-    methods.add(method);
-    this.headers = headers;
-    this.pathParams = pathParams;
-    this.formParams = formParams;
-    this.queryParams = queryParams;
-    this.cookies = cookies;
-    this.basicAuthCredentials = basicAuthCredentials;
-    this.bodyPatterns = bodyPatterns;
-    this.customMatcherDefinition = customMatcherDefinition;
-    this.multipartPatterns = multiPattern;
-    this.hasInlineCustomMatcher = customMatcher != null;
-
-    this.matcher =
-        new RequestMatcher() {
-          @Override
-          public MatchResult match(Request request) {
-            List<WeightedMatchResult> matchResults =
-                new ArrayList<>(
-                    asList(
-                        weight(schemeMatches(request), 3.0),
-                        weight(hostMatches(request), 10.0),
-                        weight(portMatches(request), 10.0),
-                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
-                        weight(allPathParamsMatch(request)),
-                        weight(allHeadersMatchResult(request)),
-                        weight(allQueryParamsMatch(request)),
-                        weight(allFormParamsMatch(request)),
-                        weight(allCookiesMatch(request)),
-                        weight(allBodyPatternsMatch(request)),
-                        weight(allMultipartPatternsMatch(request))));
-
-            if (hasInlineCustomMatcher) {
-              matchResults.add(weight(customMatcher.match(request)));
-            }
-
-            return MatchResult.aggregateWeighted(matchResults);
-          }
-
-          @Override
-          public String getName() {
-            return "request-matcher";
-          }
-        };
+    this(
+        scheme,
+        host,
+        port,
+        url,
+        Set.of(getFirstNonNull(method, RequestMethod.ANY)),
+        headers,
+        pathParams,
+        queryParams,
+        formParams,
+        cookies,
+        basicAuthCredentials,
+        bodyPatterns,
+        customMatcherDefinition,
+        customMatcher,
+        multiPattern);
   }
 
   public RequestPattern(
