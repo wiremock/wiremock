@@ -30,7 +30,7 @@ public class ResourceUtil {
 
   public static <T> ClassLoader getLoader(Class<T> className) {
     return getFirstNonNull(
-        Thread.currentThread().getContextClassLoader(), className.getClassLoader());
+        className.getClassLoader(), Thread.currentThread().getContextClassLoader());
   }
 
   public static <T> URL getResource(Class<T> className, String resourceName) {
