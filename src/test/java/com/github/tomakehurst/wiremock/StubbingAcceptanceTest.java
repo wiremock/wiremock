@@ -643,6 +643,44 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void matchesFormParamForGet() {
+    stubFor(
+        get(urlPathEqualTo("/form"))
+            .withFormParam("key", equalTo("value"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.getWithBody(
+            "/form",
+            "key=value",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
+    assertThat(response.statusCode(), is(200));
+
+    response = testClient.get("/form");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
+  public void matchesFormParamForDelete() {
+    stubFor(
+        delete(urlPathEqualTo("/form"))
+            .withFormParam("key", equalTo("value"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response =
+        testClient.deleteWithBody(
+            "/form",
+            "key=value",
+            "application/x-www-form-urlencoded",
+            TestHttpHeader.withHeader("Content-Type", "application/x-www-form-urlencoded"));
+    assertThat(response.statusCode(), is(200));
+
+    response = testClient.delete("/form");
+    assertThat(response.statusCode(), is(404));
+  }
+
+  @Test
   public void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
     stubFor(
         get(urlPathEqualTo("/empty-header"))
