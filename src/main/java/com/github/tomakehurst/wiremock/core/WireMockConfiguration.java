@@ -373,7 +373,9 @@ public class WireMockConfiguration implements Options {
   }
 
   @Deprecated
-  /** @deprecated use {@link #maxRequestJournalEntries(int)} instead */
+  /**
+   * @deprecated use {@link #maxRequestJournalEntries(int)} instead
+   */
   public WireMockConfiguration maxRequestJournalEntries(
       Optional<Integer> maxRequestJournalEntries) {
     this.maxRequestJournalEntries = maxRequestJournalEntries;
@@ -539,6 +541,11 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration withTemplateEscapingDisabled(boolean templateEscapingDisabled) {
     this.templateEscapingDisabled = templateEscapingDisabled;
+    return this;
+  }
+
+  public WireMockConfiguration withMaxTemplateCacheEntries(Long maxTemplateCacheEntries) {
+    this.maxTemplateCacheEntries = maxTemplateCacheEntries;
     return this;
   }
 
