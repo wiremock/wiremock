@@ -32,8 +32,12 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class MatchesJsonPathPatternTest {
 
@@ -456,6 +460,28 @@ public class MatchesJsonPathPatternTest {
     assertTrue(result.isExactMatch());
   }
 
+  @Test
+  @Disabled("A fix for https://github.com/wiremock/wiremock/issues/1711 is needed")
+  public void matchesCorrectlyWhenUsingActualFormatWithJustTheDayPartOfTheDateAndTruncatingTheDateToo() {
+    String json =
+            "{\n"
+                    + "   \"searchCriteria\": {\n"
+                    + "      \"customerId\": \"104903\",\n"
+                    + "      \"day\": " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd")) + ",\n"
+                    + "      \"month\": " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("MM")) + ",\n"
+                    + "       \"year\": " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy")) + "\n"
+                    + "   }\n"
+                    + "}";
+
+    MatchResult result =
+            matchingJsonPath(
+                    "$.searchCriteria.day",
+                    equalToDateTime("now +1 days").truncateActual(DateTimeTruncation.FIRST_HOUR_OF_DAY).actualFormat("dd"))
+                    .match(json);
+
+    assertTrue(result.isExactMatch());
+  }
+  
   @Test
   public void objectsShouldBeEqualOnSameExpectedValue() {
     MatchesJsonPathPattern a =
