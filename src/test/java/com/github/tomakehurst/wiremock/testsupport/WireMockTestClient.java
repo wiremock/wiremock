@@ -47,6 +47,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -54,6 +55,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 
 public class WireMockTestClient {
@@ -105,6 +107,11 @@ public class WireMockTestClient {
     String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
     HttpUriRequest httpRequest = new HttpGet(actualUrl);
     return executeMethodAndConvertExceptions(httpRequest, headers);
+  }
+
+  public WireMockResponse getWithBody(
+      String url, String body, String contentType, TestHttpHeader... headers) {
+    return requestWithBody("GET", url, body, contentType, headers);
   }
 
   public WireMockResponse getViaProxy(String url) {
@@ -171,7 +178,7 @@ public class WireMockTestClient {
   }
 
   private WireMockResponse requestWithBody(
-      HttpUriRequestBase request, String body, String contentType, TestHttpHeader... headers) {
+      ClassicHttpRequest request, String body, String contentType, TestHttpHeader... headers) {
     request.setEntity(new StringEntity(body, ContentType.create(contentType, "utf-8")));
     return executeMethodAndConvertExceptions(request, headers);
   }
@@ -236,9 +243,21 @@ public class WireMockTestClient {
     return executeMethodAndConvertExceptions(httpDelete);
   }
 
+  public WireMockResponse deleteWithBody(
+      String url, String body, String contentType, TestHttpHeader... headers) {
+    return requestWithBody("DELETE", url, body, contentType, headers);
+  }
+
   public WireMockResponse options(String url, TestHttpHeader... headers) {
     HttpOptions httpOptions = new HttpOptions(mockServiceUrlFor(url));
     return executeMethodAndConvertExceptions(httpOptions, headers);
+  }
+
+  private WireMockResponse requestWithBody(
+      String method, String url, String body, String contentType, TestHttpHeader[] headers) {
+    String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
+    ClassicHttpRequest httpRequest = ClassicRequestBuilder.create(method).setUri(actualUrl).build();
+    return requestWithBody(httpRequest, body, contentType, headers);
   }
 
   public void addResponse(String responseSpecJson) {
@@ -318,7 +337,7 @@ public class WireMockTestClient {
   }
 
   private WireMockResponse executeMethodAndConvertExceptions(
-      HttpUriRequest httpRequest, TestHttpHeader... headers) {
+      ClassicHttpRequest httpRequest, TestHttpHeader... headers) {
     try {
       for (TestHttpHeader header : headers) {
         httpRequest.addHeader(header.getName(), header.getValue());
