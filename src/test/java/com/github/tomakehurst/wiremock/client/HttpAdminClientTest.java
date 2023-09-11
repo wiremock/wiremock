@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,68 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import java.util.List;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 public class HttpAdminClientTest {
+  private static final String ADMIN_TEST_PREFIX = "/admin-test";
 
   @Test
   public void returnsOptionsWhenCallingGetOptions() {
-    Options options = new WireMockConfiguration().port(8080).bindAddress("localhost");
-    HttpAdminClient client = new HttpAdminClient("localhost", 8080);
-    assertThat(client.getOptions().portNumber(), is(8080));
-    assertThat(client.getOptions().bindAddress(), is("localhost"));
+    var client = new HttpAdminClient("localhost", 8080);
+    assertThat(client.getOptions().portNumber()).isEqualTo(8080);
+    assertThat(client.getOptions().bindAddress()).isEqualTo("localhost");
+  }
+
+  @Test
+  public void shouldSendEmptyRequestForResetToDefaultMappings() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    server.addStubMapping(
+        server.stubFor(
+            post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/mappings/reset"))
+                .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
+                .willReturn(ok())));
+    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+
+    client.resetToDefaultMappings();
+  }
+
+  @Test
+  public void shouldSendEmptyRequestForResetAll() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    server.addStubMapping(
+        server.stubFor(
+            post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
+                .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
+                .willReturn(ok())));
+    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+
+    client.resetAll();
+  }
+
+  @Test
+  public void shouldNotSendEntityForGetAllScenarios() {
+    var server = new WireMockServer(options().dynamicPort());
+    server.start();
+    var expectedResponse = new GetScenariosResult(List.of(Scenario.inStartedState("scn1")));
+    server.addStubMapping(
+        server.stubFor(
+            get(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/scenarios"))
+                .withHeader(HttpHeaders.CONTENT_LENGTH, absent())
+                .willReturn(jsonResponse(expectedResponse, HttpStatus.SC_OK))));
+    var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
+
+    assertThat(client.getAllScenarios()).usingRecursiveComparison().isEqualTo(expectedResponse);
   }
 }

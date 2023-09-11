@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -445,20 +446,14 @@ public class HttpAdminClient implements Admin {
 
   private String postJsonAssertOkAndReturnBody(String url, String json) {
     HttpPost post = new HttpPost(url);
-    if (json != null) {
-      post.setEntity(jsonStringEntity(json));
-    }
-
+    post.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
     return safelyExecuteRequest(url, post);
   }
 
   private String putJsonAssertOkAndReturnBody(String url, String json) {
-    HttpPut post = new HttpPut(url);
-    if (json != null) {
-      post.setEntity(jsonStringEntity(json));
-    }
-
-    return safelyExecuteRequest(url, post);
+    HttpPut put = new HttpPut(url);
+    put.setEntity(jsonStringEntity(Optional.ofNullable(json).orElse("")));
+    return safelyExecuteRequest(url, put);
   }
 
   protected String getJsonAssertOkAndReturnBody(String url) {
@@ -504,8 +499,9 @@ public class HttpAdminClient implements Admin {
     ClassicRequestBuilder requestBuilder =
         ClassicRequestBuilder.create(requestSpec.method().getName()).setUri(url);
 
-    if (requestBody != null) {
-      requestBuilder.setEntity(jsonStringEntity(Json.write(requestBody)));
+    if (requestSpec.method().hasEntity()) {
+      requestBuilder.setEntity(
+          jsonStringEntity(Optional.ofNullable(requestBody).map(Json::write).orElse("")));
     }
 
     String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
