@@ -115,13 +115,13 @@ public class Diff {
       diffLineList.add(schemeSection);
     }
 
-    DiffLine<Set<RequestMethod>> setDiffLine =
+    DiffLine<Set<RequestMethod>> methodSection =
         new DiffLine<>(
             "HTTP method",
             new RequestMethodMatcher(requestPattern.getMethods()),
             Set.of(request.getMethod()),
             String.valueOf(requestPattern.getMethods()));
-    diffLineList.add(setDiffLine);
+    diffLineList.add(methodSection);
 
     UrlPattern urlPattern = getFirstNonNull(requestPattern.getUrlMatcher(), anyUrl());
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);

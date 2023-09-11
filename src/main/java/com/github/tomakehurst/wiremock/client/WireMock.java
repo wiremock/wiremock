@@ -575,7 +575,7 @@ public class WireMock {
   }
 
   public static MappingBuilder isOneOf(Set<String> methods, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.fromSet(methods), urlPattern);
+    return request(methods, urlPattern);
   }
 
   public static MappingBuilder request(Set<String> methods, UrlPattern urlPattern) {
