@@ -44,6 +44,8 @@ dependencies {
   testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
+jar.enabled = false
+
 shadowJar {
   archiveBaseName.set('wiremock-webhooks-extension')
   archiveClassifier.set('')
