@@ -19,12 +19,10 @@ import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class RequestMethod implements NamedValueMatcher<RequestMethod> {
+public class RequestMethod  {
 
   public static final RequestMethod GET = new RequestMethod("GET");
   public static final RequestMethod POST = new RequestMethod("POST");
@@ -58,18 +56,8 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     return name;
   }
 
-  public MatchResult match(RequestMethod method) {
-    return MatchResult.of(this.equals(ANY) || this.equals(method));
-  }
-
-  @Override
   public String getName() {
     return name;
-  }
-
-  @Override
-  public String getExpected() {
-    return getName();
   }
 
   @Override

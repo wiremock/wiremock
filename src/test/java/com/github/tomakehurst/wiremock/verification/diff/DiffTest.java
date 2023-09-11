@@ -36,7 +36,7 @@ class DiffTest {
   public void correctlyRendersJUnitStyleDiffMessage() {
     String diff = junitStyleDiffMessage("expected", "actual");
 
-    assertThat(diff, is(" expected:<\r\nexpected> but was:<\r\nactual>"));
+    assertThat(diff, is(String.format(" expected:<%nexpected> but was:<%nactual>")));
   }
 
   @Test
