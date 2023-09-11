@@ -197,7 +197,8 @@ public class MultipartValuePatternTest {
                 + "    }\n"
                 + "  },\n"
                 + "  \"bodyPatterns\" : [ {\n"
-                + "    \"equalToJson\" : \"{ \\\"thing\\\": 123 }\"\n"
+                + "    \"equalToJson\" : \"{ \\\"thing\\\": 123 }\",\n"
+                + "    \"source\" : \"RAW\"\n"
                 + "  } ]\n"
                 + "}"));
   }

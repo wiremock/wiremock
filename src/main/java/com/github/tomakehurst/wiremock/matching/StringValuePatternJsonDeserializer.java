@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.RequestBodyEqualToPattern.ExpectedSource;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -136,13 +137,20 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     }
 
     JsonNode operand = rootNode.findValue("equalToJson");
+    ExpectedSource source =
+        Optional.ofNullable(rootNode.findValue("source"))
+            .map(JsonNode::textValue)
+            .map(String::toUpperCase)
+            .map(ExpectedSource::valueOf)
+            .orElse(ExpectedSource.RAW);
 
     Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
     Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
     // Allow either a JSON value or a string containing JSON
     if (operand.isTextual()) {
-      return new EqualToJsonPattern(operand.textValue(), ignoreArrayOrder, ignoreExtraElements);
+      return new EqualToJsonPattern(
+          operand.textValue(), source, ignoreArrayOrder, ignoreExtraElements);
     } else {
       return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
     }

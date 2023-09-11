@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,10 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
     if (mimeType != null) {
       if (mimeType.contains("json")) {
         return new EqualToJsonPattern(
-            request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
+            request.getBodyAsString(),
+            RequestBodyEqualToPattern.ExpectedSource.RAW,
+            ignoreArrayOrder,
+            ignoreExtraElements);
       } else if (mimeType.contains("xml")) {
         return new EqualToXmlPattern(request.getBodyAsString());
       } else if (mimeType.equals("multipart/form-data")) {

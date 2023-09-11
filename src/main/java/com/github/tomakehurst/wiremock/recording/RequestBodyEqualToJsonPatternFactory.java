@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.RequestBodyEqualToPattern;
 
 public class RequestBodyEqualToJsonPatternFactory implements RequestBodyPatternFactory {
 
@@ -43,6 +44,10 @@ public class RequestBodyEqualToJsonPatternFactory implements RequestBodyPatternF
 
   @Override
   public EqualToJsonPattern forRequest(Request request) {
-    return new EqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
+    return new EqualToJsonPattern(
+        request.getBodyAsString(),
+        RequestBodyEqualToPattern.ExpectedSource.RAW,
+        ignoreArrayOrder,
+        ignoreExtraElements);
   }
 }

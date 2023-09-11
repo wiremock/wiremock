@@ -30,6 +30,8 @@ import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.RequestBodyEqualToPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import java.util.List;
@@ -57,7 +59,8 @@ public class RemoteMappingsLoader {
         StubMappingCollection stubCollection =
             Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
-          convertBodyFromFileIfNecessary(mapping);
+          convertRequestBodyFromFileIfNecessary(mapping);
+          convertResponseBodyFromFileIfNecessary(mapping);
           wireMock.register(mapping);
         }
       } catch (JsonException e) {
@@ -66,7 +69,38 @@ public class RemoteMappingsLoader {
     }
   }
 
-  private void convertBodyFromFileIfNecessary(StubMapping mapping) {
+  private void convertRequestBodyFromFileIfNecessary(StubMapping mapping) {
+
+    List<ContentPattern<?>> bodyPatterns = mapping.getRequest().getBodyPatterns();
+
+    if (bodyPatterns == null) {
+      return;
+    }
+
+    RequestBodyEqualToPattern originalPattern =
+        bodyPatterns.stream()
+            .filter(pattern -> pattern instanceof RequestBodyEqualToPattern)
+            .map(RequestBodyEqualToPattern.class::cast)
+            .filter(pattern -> pattern.getSource() == RequestBodyEqualToPattern.ExpectedSource.FILE)
+            .findFirst()
+            .orElse(null);
+
+    if (originalPattern == null) {
+      return;
+    }
+
+    String bodyFileName = originalPattern.getExpected();
+
+    TextFile bodyFile = filesFileSource.getTextFileNamed(bodyFileName);
+    RequestBodyEqualToPattern resultPattern =
+        originalPattern
+            .withExpected(bodyFile.readContentsAsString())
+            .withSource(RequestBodyEqualToPattern.ExpectedSource.RAW);
+
+    bodyPatterns.set(bodyPatterns.indexOf(originalPattern), resultPattern);
+  }
+
+  private void convertResponseBodyFromFileIfNecessary(StubMapping mapping) {
     String bodyFileName = mapping.getResponse().getBodyFileName();
     if (bodyFileName != null) {
       ResponseDefinitionBuilder responseDefinitionBuilder =

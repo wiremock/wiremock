@@ -220,12 +220,13 @@ public class WireMock {
   }
 
   public static StringValuePattern equalToJson(String value) {
-    return new EqualToJsonPattern(value, null, null);
+    return new EqualToJsonPattern(value, RequestBodyEqualToPattern.ExpectedSource.RAW, null, null);
   }
 
   public static StringValuePattern equalToJson(
       String value, boolean ignoreArrayOrder, boolean ignoreExtraElements) {
-    return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements);
+    return new EqualToJsonPattern(
+        value, RequestBodyEqualToPattern.ExpectedSource.RAW, ignoreArrayOrder, ignoreExtraElements);
   }
 
   public static StringValuePattern matchingJsonPath(String value) {
