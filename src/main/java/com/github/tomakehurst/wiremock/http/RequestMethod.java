@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class RequestMethod  {
+public class RequestMethod {
 
   public static final RequestMethod GET = new RequestMethod("GET");
   public static final RequestMethod POST = new RequestMethod("POST");
