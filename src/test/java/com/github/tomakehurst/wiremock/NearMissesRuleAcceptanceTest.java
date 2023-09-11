@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,9 +100,10 @@ public class NearMissesRuleAcceptanceTest {
 
       assertThat(message, containsString("2 requests were unmatched by any stub mapping"));
       assertThat(
-          message, containsString(junitStyleDiffMessage("GET\n/hit\n", "GET\n/near-misssss\n")));
+          message,
+          containsString(junitStyleDiffMessage("[GET]\n/hit\n", "[GET]\n/near-misssss\n")));
       assertThat(
-          message, containsString(junitStyleDiffMessage("GET\n/hit\n", "GET\n/a-near-mis\n")));
+          message, containsString(junitStyleDiffMessage("[GET]\n/hit\n", "[GET]\n/a-near-mis\n")));
     }
 
     @Test
@@ -112,7 +113,8 @@ public class NearMissesRuleAcceptanceTest {
           message,
           containsString("A request was unmatched by any stub mapping. Closest stub mapping was:"));
       assertThat(
-          message, containsString(junitStyleDiffMessage("GET\n/hit\n", "GET\n/near-misssss\n")));
+          message,
+          containsString(junitStyleDiffMessage("[GET]\n/hit\n", "[GET]\n/near-misssss\n")));
     }
 
     @Test

@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-ANY                                                        | POST
+[ANY]                                                      | [POST]
 (always)                                                   | /thing
                                                            |
 [custom matcher]                                           |                                                     <<<<< custom matcher does not match

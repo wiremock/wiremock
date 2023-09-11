@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-GET                                                        | GET
+[GET]                                                      | [GET]
 [path] /thing                                              | /thing?q=1
                                                            |
 Query: q including [equalTo 1 AND equalTo 2 AND equalTo    | q: 1                                                <<<<< Query does not match

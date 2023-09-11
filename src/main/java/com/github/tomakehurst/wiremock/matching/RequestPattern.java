@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.RequestMethodMatcher;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
 import java.util.function.Function;
@@ -141,7 +142,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                         weight(hostMatches(request), 10.0),
                         weight(portMatches(request), 10.0),
                         weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(isOneOf(request), 3.0),
+                        weight(new RequestMethodMatcher(methods).match(request.getMethod()), 3.0),
                         weight(allPathParamsMatch(request)),
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
@@ -263,11 +264,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   @Override
   public MatchResult match(Request request) {
     return match(request, Collections.emptyMap());
-  }
-
-  public MatchResult isOneOf(Request request) {
-    return MatchResult.of(
-        this.methods.contains(RequestMethod.ANY) || this.methods.contains(request.getMethod()));
   }
 
   public static RequestPattern everything() {

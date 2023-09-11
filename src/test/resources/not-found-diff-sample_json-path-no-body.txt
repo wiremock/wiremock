@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-ANY                                                        | ANY
+[ANY]                                                      | [ANY]
 /thing                                                     | /thing
                                                            |
 $.accountNum [equalTo] 1234                                |                                                     <<<<< Body is not present

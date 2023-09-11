@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-GET                                                        | GET
+[GET]                                                      | [GET]
 [path] /or                                                 | /or
                                                            |
 X-Maybe [or] : equalTo one OR absent (absent)              | X-Maybe: wrong                                      <<<<< Header does not match

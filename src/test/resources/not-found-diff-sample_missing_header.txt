@@ -8,7 +8,7 @@
                                                            |
 Missing header stub                                        |
                                                            |
-POST                                                       | POST
+[POST]                                                     | [POST]
 /thing                                                     | /thing
                                                            |
 X-My-Header: correct value                                 |                                                     <<<<< Header is not present

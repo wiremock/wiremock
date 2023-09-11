@@ -121,7 +121,7 @@ public class PlainTextDiffRenderer {
   }
 
   private void writeSingleLine(StringBuilder sb, String left, String right, String message) {
-    sb.append("").append(rightPad(left, getMiddle() + 1, " ")).append("|");
+    sb.append(rightPad(left, getMiddle() + 1, " ")).append("|");
 
     if (isNotEmpty(right)) {
       sb.append(" ");

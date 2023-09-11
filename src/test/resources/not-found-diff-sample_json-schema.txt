@@ -8,7 +8,7 @@
                                                            |
 JSON schema stub                                           |
                                                            |
-POST                                                       | POST
+[POST]                                                     | [POST]
 /thing                                                     | /thing
                                                            |
 [matchesJsonSchema]                                        |                                                     <<<<< Body does not match

@@ -8,7 +8,7 @@
                                                            |
 Multipart request body stub                                |
                                                            |
-POST                                                       | POST
+[POST]                                                     | [POST]
 /thing                                                     | /thing
                                                            |
 [Multipart request body]                                   |                                                     <<<<< [Multipart request body] is not present
