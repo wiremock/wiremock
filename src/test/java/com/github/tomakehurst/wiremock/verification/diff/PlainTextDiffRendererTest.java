@@ -34,10 +34,7 @@ import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +45,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
-public class PlainTextDiffRendererTest {
+class PlainTextDiffRendererTest {
 
   PlainTextDiffRenderer diffRenderer;
 
@@ -618,6 +615,45 @@ public class PlainTextDiffRendererTest {
     assertThat(
         normaliseLineBreaks(output),
         equalsMultiLine(file("not-found-diff-sample_json-path-body-not-json.txt")));
+  }
+
+  @Test
+  void showsMissingMethodMessage() {
+    Diff diff =
+        new Diff(
+            isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(POST).url("/url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_method.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsOneOfVersion1() {
+    Diff diff =
+        new Diff(
+            isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_url_version_1.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsOneOfVersion2() {
+    Diff diff =
+        new Diff(
+            isOneOf(Set.of("ANY", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_url_version_2.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {
