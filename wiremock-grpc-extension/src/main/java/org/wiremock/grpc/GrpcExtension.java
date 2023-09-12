@@ -28,6 +28,6 @@ public class GrpcExtension implements HttpServerFactory {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    return null;
+    return new GrpcHttpServer(options, adminRequestHandler, stubRequestHandler);
   }
 }
