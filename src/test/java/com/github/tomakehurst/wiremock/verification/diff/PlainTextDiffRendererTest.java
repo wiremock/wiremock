@@ -57,7 +57,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void rendersWithDifferingUrlHeaderAndJsonBody() {
+  void rendersWithDifferingUrlHeaderAndJsonBody() {
     Diff diff =
         new Diff(
             post("/thing")
