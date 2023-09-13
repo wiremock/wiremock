@@ -15,9 +15,15 @@
  */
 package org.wiremock.webhooks;
 
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
-public interface WebhookTransformer {
+public interface WebhookTransformer extends Extension {
 
   WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition);
+
+  // Defaulting this for backwards compatibility
+  default String getName() {
+    return "webhook-transformer-" + this.getClass().getSimpleName();
+  }
 }

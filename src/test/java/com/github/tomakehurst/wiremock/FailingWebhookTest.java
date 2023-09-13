@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.wiremock.webhooks.Webhooks;
 
 public class FailingWebhookTest {
 
@@ -64,9 +63,6 @@ public class FailingWebhookTest {
           .build();
 
   CountDownLatch latch;
-
-  Webhooks webhooks = new Webhooks(new ThrowingWebhookTransformer());
-
   TestNotifier notifier = new TestNotifier();
   WireMockTestClient client;
 
@@ -74,7 +70,11 @@ public class FailingWebhookTest {
   public WireMockExtension extension =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
-          .options(options().dynamicPort().notifier(notifier).extensions(webhooks))
+          .options(
+              options()
+                  .dynamicPort()
+                  .notifier(notifier)
+                  .extensions(new ThrowingWebhookTransformer()))
           .build();
 
   @BeforeEach

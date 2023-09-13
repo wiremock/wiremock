@@ -49,7 +49,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.wiremock.webhooks.Webhooks;
 
 public class WebhooksAcceptanceTest {
 
@@ -90,11 +89,8 @@ public class WebhooksAcceptanceTest {
               options()
                   .dynamicPort()
                   .notifier(notifier)
-                  .extensions(
-                      new Webhooks(
-                          NetworkAddressRules.builder()
-                              .deny("169.254.0.0-169.254.255.255")
-                              .build())))
+                  .limitProxyTargets(
+                      NetworkAddressRules.builder().deny("169.254.0.0-169.254.255.255").build()))
           .configureStaticDsl(true)
           .build();
 

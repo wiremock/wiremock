@@ -65,7 +65,7 @@ public class Webhooks extends PostServeAction {
     this.templateEngine = TemplateEngine.defaultTemplateEngine();
   }
 
-  private Webhooks(List<WebhookTransformer> transformers, NetworkAddressRules targetAddressRules) {
+  public Webhooks(List<WebhookTransformer> transformers, NetworkAddressRules targetAddressRules) {
     this(Executors.newScheduledThreadPool(10), createHttpClient(targetAddressRules), transformers);
   }
 
