@@ -262,14 +262,14 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     // Scenario creation is the default
     List<StubMapping> mappings = snapshotRecord();
 
-    assertThat(client.get("/stateful").content(), is("Three"));
-    assertThat(client.get("/stateful").content(), is("Two"));
     assertThat(client.get("/stateful").content(), is("One"));
+    assertThat(client.get("/stateful").content(), is("Two"));
+    assertThat(client.get("/stateful").content(), is("Three"));
 
     assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
-    assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-1-stateful-3"));
+    assertThat(mappings.get(2).getRequiredScenarioState(), is(Scenario.STARTED));
     assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-1-stateful-2"));
-    assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
+    assertThat(mappings.get(0).getRequiredScenarioState(), is("scenario-1-stateful-3"));
   }
 
   @Test
