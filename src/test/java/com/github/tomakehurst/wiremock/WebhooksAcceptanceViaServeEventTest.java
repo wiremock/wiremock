@@ -234,6 +234,9 @@ public class WebhooksAcceptanceViaServeEventTest {
 
     waitForRequestToTargetServer();
 
+    // Ensure we only call it once, not once per API interface
+    verify(1, postRequestedFor(anyUrl()));
+
     LoggedRequest request =
         targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
 
@@ -285,6 +288,9 @@ public class WebhooksAcceptanceViaServeEventTest {
 
     waitForRequestToTargetServer();
 
+    // Ensure we only call it once, not once per API interface
+    verify(1, postRequestedFor(anyUrl()));
+
     LoggedRequest request =
         targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
 
@@ -314,6 +320,9 @@ public class WebhooksAcceptanceViaServeEventTest {
     Stopwatch stopwatch = Stopwatch.createStarted();
     waitForRequestToTargetServer();
     stopwatch.stop();
+
+    // Ensure we only call it once, not once per API interface
+    verify(1, getRequestedFor(anyUrl()));
 
     double elapsedMilliseconds = stopwatch.elapsed(MILLISECONDS);
     assertThat(elapsedMilliseconds, closeTo(DELAY_MILLISECONDS, 500.0));
