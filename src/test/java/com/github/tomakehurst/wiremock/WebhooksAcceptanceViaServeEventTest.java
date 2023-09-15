@@ -24,7 +24,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -147,14 +146,13 @@ public class WebhooksAcceptanceViaServeEventTest {
                 .map(message -> message.replace("\n", "\n>>> "))
                 .collect(Collectors.joining("\n>>> ")));
 
-    waitAtMost(5, SECONDS)
-        .until(
-            () -> testNotifier.getInfoMessages(),
-            hasItem(
-                allOf(
-                    containsString("Webhook POST request to"),
-                    containsString("/callback returned status"),
-                    containsString("200"))));
+    assertThat(
+        testNotifier.getInfoMessages(),
+        hasItem(
+            allOf(
+                containsString("Webhook POST request to"),
+                containsString("/callback returned status"),
+                containsString("200"))));
   }
 
   @Test
