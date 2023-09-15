@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TestNotifier implements Notifier {
@@ -31,8 +32,8 @@ public class TestNotifier implements Notifier {
   private final ConsoleNotifier consoleNotifier = new ConsoleNotifier(true);
 
   public TestNotifier() {
-    this.info = new ArrayList<>();
-    this.error = new ArrayList<>();
+    this.info = Collections.synchronizedList(new ArrayList<>());
+    this.error = Collections.synchronizedList(new ArrayList<>());
   }
 
   public static TestNotifier createAndSet() {
