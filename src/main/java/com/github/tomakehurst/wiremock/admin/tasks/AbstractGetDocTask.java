@@ -17,13 +17,13 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.io.Resources;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,7 +31,8 @@ public abstract class AbstractGetDocTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    try (InputStream inputStream = Resources.getResource(getFilePath()).openStream()) {
+    try (InputStream inputStream =
+        getResource(AbstractGetDocTask.class, getFilePath()).openStream()) {
       byte[] content = inputStream.readAllBytes();
       return responseDefinition()
           .withStatus(200)

@@ -16,12 +16,12 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.file.Files;
 import org.apache.commons.lang3.SystemUtils;
 
 public class TestFiles {
@@ -45,7 +45,7 @@ public class TestFiles {
 
   public static String file(String path) {
     try {
-      String text = Resources.toString(Resources.getResource(path), UTF_8);
+      String text = Files.readString(getResourcePath(TestFiles.class, path), UTF_8);
       if (SystemUtils.IS_OS_WINDOWS) {
         text = text.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
       }
@@ -57,11 +57,7 @@ public class TestFiles {
   }
 
   public static String filePath(String path) {
-    try {
-      return new File(Resources.getResource(path).toURI()).getAbsolutePath();
-    } catch (URISyntaxException e) {
-      return throwUnchecked(e, String.class);
-    }
+    return new File(getResourceURI(TestFiles.class, path)).getAbsolutePath();
   }
 
   public static String sampleWarRootDir() {

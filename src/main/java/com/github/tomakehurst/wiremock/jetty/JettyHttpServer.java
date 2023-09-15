@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
@@ -28,7 +29,6 @@ import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.servlet.*;
-import com.google.common.io.Resources;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -347,10 +347,10 @@ public abstract class JettyHttpServer implements HttpServer {
     } else {
       adminContext.setInitParameter(
           "org.eclipse.jetty.servlet.Default.resourceBase",
-          Resources.getResource("assets").toString());
+          getResource(JettyHttpServer.class, "assets").toString());
     }
 
-    Resources.getResource("assets/swagger-ui/index.html");
+    getResource(JettyHttpServer.class, "assets/swagger-ui/index.html");
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
     ServletHolder swaggerUiServletHolder =
