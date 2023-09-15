@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package functional;
+package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
@@ -24,6 +24,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.waitAtMost;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,6 +38,9 @@ import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.CompositeNotifier;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 import java.util.List;
@@ -46,12 +50,8 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.wiremock.webhooks.Webhooks;
-import testsupport.CompositeNotifier;
-import testsupport.TestNotifier;
-import testsupport.WireMockTestClient;
 
-public class WebhooksAcceptanceTest {
+public class WebhooksAcceptanceViaServeEventTest {
 
   CountDownLatch latch;
 
@@ -90,11 +90,8 @@ public class WebhooksAcceptanceTest {
               options()
                   .dynamicPort()
                   .notifier(notifier)
-                  .extensions(
-                      new Webhooks(
-                          NetworkAddressRules.builder()
-                              .deny("169.254.0.0-169.254.255.255")
-                              .build())))
+                  .limitProxyTargets(
+                      NetworkAddressRules.builder().deny("169.254.0.0-169.254.255.255").build()))
           .configureStaticDsl(true)
           .build();
 
@@ -115,7 +112,7 @@ public class WebhooksAcceptanceTest {
     rule.stubFor(
         post(urlPathEqualTo("/something-async"))
             .willReturn(aResponse().withStatus(200))
-            .withPostServeAction(
+            .withServeEventListener(
                 "webhook",
                 webhook()
                     .withMethod(POST)
@@ -150,13 +147,14 @@ public class WebhooksAcceptanceTest {
                 .map(message -> message.replace("\n", "\n>>> "))
                 .collect(Collectors.joining("\n>>> ")));
 
-    assertThat(
-        testNotifier.getInfoMessages(),
-        hasItem(
-            allOf(
-                containsString("Webhook POST request to"),
-                containsString("/callback returned status"),
-                containsString("200"))));
+    waitAtMost(5, SECONDS)
+        .until(
+            () -> testNotifier.getInfoMessages(),
+            hasItem(
+                allOf(
+                    containsString("Webhook POST request to"),
+                    containsString("/callback returned status"),
+                    containsString("200"))));
   }
 
   @Test
@@ -173,7 +171,7 @@ public class WebhooksAcceptanceTest {
             + "  \"response\": {\n"
             + "    \"status\": 204\n"
             + "  },\n"
-            + "  \"postServeActions\": [\n"
+            + "  \"serveEventListeners\": [\n"
             + "    {\n"
             + "      \"name\": \"webhook\",\n"
             + "      \"parameters\": {\n"
@@ -214,7 +212,7 @@ public class WebhooksAcceptanceTest {
     rule.stubFor(
         post(urlPathEqualTo("/templating"))
             .willReturn(ok())
-            .withPostServeAction(
+            .withServeEventListener(
                 "webhook",
                 webhook()
                     .withMethod("{{jsonPath originalRequest.body '$.method'}}")
@@ -238,6 +236,9 @@ public class WebhooksAcceptanceTest {
 
     waitForRequestToTargetServer();
 
+    // Ensure we only call it once, not once per API interface
+    verify(1, postRequestedFor(anyUrl()));
+
     LoggedRequest request =
         targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
 
@@ -260,7 +261,7 @@ public class WebhooksAcceptanceTest {
             + "    \"status\" : 200\n"
             + "  },\n"
             + "  \"uuid\" : \"8a58e190-4a83-4244-a064-265fcca46884\",\n"
-            + "  \"postServeActions\" : [{\n"
+            + "  \"serveEventListeners\" : [{\n"
             + "    \"name\" : \"webhook\",\n"
             + "    \"parameters\" : {\n"
             + "      \"method\" : \"{{jsonPath originalRequest.body '$.method'}}\",\n"
@@ -289,6 +290,9 @@ public class WebhooksAcceptanceTest {
 
     waitForRequestToTargetServer();
 
+    // Ensure we only call it once, not once per API interface
+    verify(1, postRequestedFor(anyUrl()));
+
     LoggedRequest request =
         targetServer.findAll(postRequestedFor(urlEqualTo("/callback/123"))).get(0);
 
@@ -304,7 +308,7 @@ public class WebhooksAcceptanceTest {
     rule.stubFor(
         post(urlPathEqualTo("/delayed"))
             .willReturn(ok())
-            .withPostServeAction(
+            .withServeEventListener(
                 "webhook",
                 webhook()
                     .withFixedDelay(DELAY_MILLISECONDS)
@@ -318,6 +322,9 @@ public class WebhooksAcceptanceTest {
     Stopwatch stopwatch = Stopwatch.createStarted();
     waitForRequestToTargetServer();
     stopwatch.stop();
+
+    // Ensure we only call it once, not once per API interface
+    verify(1, getRequestedFor(anyUrl()));
 
     double elapsedMilliseconds = stopwatch.elapsed(MILLISECONDS);
     assertThat(elapsedMilliseconds, closeTo(DELAY_MILLISECONDS, 500.0));
@@ -334,7 +341,7 @@ public class WebhooksAcceptanceTest {
             + "    \"urlPath\" : \"/delayed\",\n"
             + "    \"method\" : \"POST\"\n"
             + "  },\n"
-            + "  \"postServeActions\" : [{\n"
+            + "  \"serveEventListeners\" : [{\n"
             + "    \"name\" : \"webhook\",\n"
             + "    \"parameters\" : {\n"
             + "      \"method\" : \"GET\",\n"
@@ -370,7 +377,7 @@ public class WebhooksAcceptanceTest {
     rule.stubFor(
         post(urlPathEqualTo("/webhook"))
             .willReturn(aResponse().withStatus(200))
-            .withPostServeAction(
+            .withServeEventListener(
                 "webhook",
                 webhook()
                     .withMethod(POST)

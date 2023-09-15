@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package functional;
+package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -29,15 +29,14 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+import com.github.tomakehurst.wiremock.testsupport.ThrowingWebhookTransformer;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.util.concurrent.CountDownLatch;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.wiremock.webhooks.Webhooks;
-import testsupport.TestNotifier;
-import testsupport.ThrowingWebhookTransformer;
-import testsupport.WireMockTestClient;
 
 public class FailingWebhookTest {
 
@@ -64,9 +63,6 @@ public class FailingWebhookTest {
           .build();
 
   CountDownLatch latch;
-
-  Webhooks webhooks = new Webhooks(new ThrowingWebhookTransformer());
-
   TestNotifier notifier = new TestNotifier();
   WireMockTestClient client;
 
@@ -74,7 +70,11 @@ public class FailingWebhookTest {
   public WireMockExtension extension =
       WireMockExtension.newInstance()
           .configureStaticDsl(true)
-          .options(options().dynamicPort().notifier(notifier).extensions(webhooks))
+          .options(
+              options()
+                  .dynamicPort()
+                  .notifier(notifier)
+                  .extensions(new ThrowingWebhookTransformer()))
           .build();
 
   @BeforeEach
