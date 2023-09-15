@@ -66,12 +66,12 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
 
   ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
-  <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+  ScenarioMappingBuilder withPostServeAction(String extensionName, Object parameters);
 
-  <P> MappingBuilder withServeEventListener(
-      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+  MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, Object parameters);
 
-  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+  MappingBuilder withServeEventListener(String extensionName, Object parameters);
 
   ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
 

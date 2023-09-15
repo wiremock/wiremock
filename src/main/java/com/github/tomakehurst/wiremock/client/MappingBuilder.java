@@ -73,17 +73,17 @@ public interface MappingBuilder {
 
   MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
-  <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
+  MappingBuilder withPostServeAction(String extensionName, Object parameters);
 
-  default <P> MappingBuilder withServeEventListener(
-      ServeEventListener.RequestPhase requestPhase, String extensionName, P parameters) {
+  default MappingBuilder withServeEventListener(
+      ServeEventListener.RequestPhase requestPhase, String extensionName, Object parameters) {
     return withServeEventListener(Set.of(requestPhase), extensionName, parameters);
   }
 
-  <P> MappingBuilder withServeEventListener(
-      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
+  MappingBuilder withServeEventListener(
+      Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, Object parameters);
 
-  <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+  MappingBuilder withServeEventListener(String extensionName, Object parameters);
 
   MappingBuilder withMetadata(Map<String, ?> metadata);
 
