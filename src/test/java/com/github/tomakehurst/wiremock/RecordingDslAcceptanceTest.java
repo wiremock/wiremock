@@ -387,6 +387,22 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  void whenRepeatsAsScenariosIsEnabledResponsesAreReturnedInRecordedOrder() {
+    proxyingService.startRecording(targetService.baseUrl());
+    targetService.stubFor(get("/sequence").willReturn(ok("1")));
+    client.get("/sequence");
+    targetService.stubFor(get("/sequence").willReturn(ok("2")));
+    client.get("/sequence");
+    targetService.stubFor(get("/sequence").willReturn(ok("3")));
+    client.get("/sequence");
+    proxyingService.stopRecording();
+
+    assertThat(client.get("/sequence").content(), is("1"));
+    assertThat(client.get("/sequence").content(), is("2"));
+    assertThat(client.get("/sequence").content(), is("3"));
+  }
+
+  @Test
   public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
     assertThrows(NotRecordingException.class, WireMock::stopRecording);
   }

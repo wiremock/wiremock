@@ -48,7 +48,9 @@ public class ScenarioProcessor {
     for (Map.Entry<RequestPattern, Collection<StubMapping>> entry :
         groupsWithMoreThanOneStub.entrySet()) {
       scenarioIndex++;
-      putStubsInScenario(scenarioIndex, List.copyOf(entry.getValue()));
+      final List<StubMapping> stubsInScenario = new LinkedList<>(entry.getValue());
+      Collections.reverse(stubsInScenario);
+      putStubsInScenario(scenarioIndex, stubsInScenario);
     }
   }
 
