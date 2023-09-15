@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.common.ssl;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResource;
 
-import com.google.common.io.Resources;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,7 +37,6 @@ public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
     this.path = path;
   }
 
-  @SuppressWarnings("UnstableApiUsage")
   @Override
   protected InputStream createInputStream() {
     try {
@@ -48,7 +47,7 @@ public class ReadOnlyFileOrClasspathKeyStoreSource extends KeyStoreSource {
           URL pathUrl = new URL(path);
           return pathUrl.openStream();
         } catch (MalformedURLException ignored) {
-          return Resources.getResource(path).openStream();
+          return getResource(KeyStoreSource.class, path).openStream();
         }
       }
     } catch (IOException e) {
