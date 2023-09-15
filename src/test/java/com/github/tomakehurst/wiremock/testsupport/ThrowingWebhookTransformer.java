@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package testsupport;
+package com.github.tomakehurst.wiremock.testsupport;
 
-public class TestHttpHeader {
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import org.wiremock.webhooks.WebhookDefinition;
+import org.wiremock.webhooks.WebhookTransformer;
 
-  private String name;
-  private String value;
+public class ThrowingWebhookTransformer implements WebhookTransformer {
 
-  public static TestHttpHeader withHeader(String name, String value) {
-    return new TestHttpHeader(name, value);
-  }
-
-  public TestHttpHeader(String name, String value) {
-    this.name = name;
-    this.value = value;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getValue() {
-    return value;
+  @Override
+  public WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition) {
+    throw new RuntimeException("oh no");
   }
 }
