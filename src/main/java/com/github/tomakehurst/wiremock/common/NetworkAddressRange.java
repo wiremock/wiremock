@@ -102,8 +102,8 @@ public abstract class NetworkAddressRange {
     @Override
     public boolean isIncluded(String testValue) {
       InetAddress testValueAddress = lookup(testValue);
-      long intVal = ipToLong(testValueAddress);
-      return (intVal >= start && intVal <= end);
+      long longValue = ipToLong(testValueAddress);
+      return (longValue >= start && longValue <= end);
     }
 
     @Override
