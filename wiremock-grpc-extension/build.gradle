@@ -25,7 +25,7 @@ group 'org.wiremock'
 
 ext {
   versions = [
-      grpc: "1.58.0"
+    grpc: "1.58.0"
   ]
 }
 
@@ -44,6 +44,8 @@ dependencies {
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
   testImplementation 'org.awaitility:awaitility:4.2.0'
+
+  testImplementation "io.grpc:grpc-okhttp:$versions.grpc"
 }
 
 shadowJar {
@@ -131,6 +133,11 @@ protobuf {
   generateProtoTasks {
     ofSourceSet("main")*.plugins {
       grpc {}
+    }
+
+    all().each { task ->
+      task.generateDescriptorSet = true
+      task.descriptorSetOptions.path = "$projectDir/src/test/resources/wiremock/grpc/${task.sourceSet.name}.dsc"
     }
   }
 }

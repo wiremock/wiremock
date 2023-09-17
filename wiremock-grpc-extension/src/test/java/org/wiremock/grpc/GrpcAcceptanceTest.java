@@ -1,27 +1,36 @@
 package org.wiremock.grpc;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
+import org.wiremock.grpc.client.GreetingsClient;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class GrpcAcceptanceTest {
 
     @RegisterExtension
     public static WireMockExtension wm = WireMockExtension.newInstance()
         .options(wireMockConfig()
-                .port(8080)
-                .httpsPort(8433)
-                .httpServerFactory(new GrpcExtension()))
+                .dynamicPort()
+                .withRootDirectory("src/test/resources/wiremock")
+                .extensions(new GrpcExtensionFactory()))
         .build();
 
     @Test
-    void shouldReturnGreeting() throws Exception {
-        System.out.println(wm.getPort());
+    void shouldReturnGreeting() {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", wm.getPort())
+                .usePlaintext()
+                .build();
+        GreetingsClient client = new GreetingsClient(channel);
 
-        while (true) {
-            Thread.sleep(1000);
-        }
+        String greeting = client.greet("Tom");
+
+        assertThat(greeting, is("Hi Tom"));
     }
 }

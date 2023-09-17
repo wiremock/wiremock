@@ -265,6 +265,21 @@ public class WireMatchers {
     };
   }
 
+  public static Matcher<TextFile> fileWithPath(final String path) {
+    return new TypeSafeMatcher<>() {
+
+      @Override
+      public void describeTo(Description desc) {
+        desc.appendText("a text file with path " + path);
+      }
+
+      @Override
+      public boolean matchesSafely(TextFile textFile) {
+        return textFile.getPath().equals(path);
+      }
+    };
+  }
+
   public static Matcher<Date> isAfter(final String dateString) {
     return new TypeSafeMatcher<>() {
       @Override

@@ -4,6 +4,7 @@ import com.example.grpc.GreetingServiceGrpc;
 import com.example.grpc.HelloRequest;
 import com.example.grpc.HelloResponse;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.google.protobuf.Descriptors;
 import io.grpc.servlet.jakarta.GrpcServlet;
 import io.grpc.servlet.jakarta.ServletAdapter;
 import io.grpc.stub.StreamObserver;
@@ -14,24 +15,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 public class GrpcFilter extends HttpFilter {
 
     private final GrpcServlet grpcServlet;
     private final StubRequestHandler stubRequestHandler;
+    private final List<Descriptors.FileDescriptor> fileDescriptors;
 
-    public GrpcFilter(StubRequestHandler stubRequestHandler) {
+    public GrpcFilter(StubRequestHandler stubRequestHandler, List<Descriptors.FileDescriptor> fileDescriptors) {
         this.stubRequestHandler = stubRequestHandler;
-        grpcServlet = new GrpcServlet(List.of(new GreetingServiceGrpc.GreetingServiceImplBase() {
+        this.fileDescriptors = fileDescriptors;
+        final List<GreetingServiceGrpc.GreetingServiceImplBase> services = List.of(new GreetingServiceGrpc.GreetingServiceImplBase() {
             @Override
             public void greeting(HelloRequest request, StreamObserver<HelloResponse> responseObserver) {
                 String name = request.getName();
                 responseObserver.onNext(HelloResponse.newBuilder().setGreeting("Hi " + name).build());
                 responseObserver.onCompleted();
             }
-        }));
+        });
+        grpcServlet = new GrpcServlet(services);
     }
 
     @Override
