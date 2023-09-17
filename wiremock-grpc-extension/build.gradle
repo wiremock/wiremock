@@ -25,7 +25,8 @@ group 'org.wiremock'
 
 ext {
   versions = [
-    grpc: "1.58.0"
+    grpc: "1.58.0",
+    protobuf: "3.24.0"
   ]
 }
 
@@ -35,6 +36,7 @@ dependencies {
   implementation "io.grpc:grpc-protobuf:$versions.grpc"
   implementation "io.grpc:grpc-stub:$versions.grpc"
   implementation "io.grpc:grpc-servlet-jakarta:$versions.grpc"
+  implementation "com.google.protobuf:protobuf-java-util:$versions.protobuf"
 
   implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
