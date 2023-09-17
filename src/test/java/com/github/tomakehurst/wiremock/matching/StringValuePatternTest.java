@@ -15,40 +15,60 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.reflect.ClassPath;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-public class StringValuePatternTest {
+class StringValuePatternTest {
 
   @Test
-  public void allSubclassesHaveWorkingToString() throws Exception {
+  void allSubclassesHaveWorkingToString() throws Exception {
     Set<ClassPath.ClassInfo> allClasses =
         ClassPath.from(Thread.currentThread().getContextClassLoader()).getAllClasses();
 
-    allClasses.stream()
-        .filter(
-            classInfo ->
-                classInfo.getPackageName().startsWith("com.github.tomakehurst.wiremock.matching"))
-        .map(
-            input -> {
-              try {
-                return input.load();
-              } catch (Throwable e) {
-                return Object.class;
-              }
-            })
-        .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
-        .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-        .forEach(this::findConstructorWithStringParamInFirstPosition);
+    var allClassesAfterFilter01 =
+        allClasses.stream()
+            .filter(
+                classInfo ->
+                    classInfo
+                        .getPackageName()
+                        .startsWith("com.github.tomakehurst.wiremock.matching"))
+            .collect(Collectors.toSet());
+
+    var allClassesAfterMap =
+        allClassesAfterFilter01.stream()
+            .map(
+                input -> {
+                  try {
+                    return input.load();
+                  } catch (Throwable e) {
+                    return Object.class;
+                  }
+                })
+            .collect(Collectors.toSet());
+
+    var allClassesAfterFilter02 =
+        allClassesAfterMap.stream()
+            .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
+            .collect(Collectors.toSet());
+
+    var allClassesAfterFilter03 =
+        allClassesAfterFilter02.stream()
+            .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+            .collect(Collectors.toSet());
+
+    assertDoesNotThrow(
+        () -> allClassesAfterFilter03.forEach(this::findConstructorWithStringParamInFirstPosition));
   }
 
-  private Constructor<?> findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
-    return Arrays.stream(clazz.getConstructors())
+  private void findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
+    Arrays.stream(clazz.getConstructors())
         .filter(
             constructor ->
                 constructor.getParameterTypes().length > 0
