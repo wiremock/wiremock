@@ -1,12 +1,10 @@
 package org.wiremock.grpc;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.api.io.TempDir;
 import org.wiremock.grpc.client.GreetingsClient;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;

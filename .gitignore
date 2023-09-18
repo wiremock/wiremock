@@ -62,3 +62,5 @@ scripts/client-cert.*
 !scripts/client-cert.conf
 
 notes.txt
+/wiremock-grpc-extension/src/test/resources/wiremock/grpc/*.dsc
+/wiremock-grpc-extension/src/test/resources/wiremock/grpc/*.desc

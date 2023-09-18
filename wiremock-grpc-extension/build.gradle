@@ -133,13 +133,15 @@ protobuf {
     }
   }
   generateProtoTasks {
-    ofSourceSet("main")*.plugins {
-      grpc {}
+    all()*.plugins {
+      grpc {
+        outputSubDir = 'java'
+      }
     }
 
     all().each { task ->
       task.generateDescriptorSet = true
-      task.descriptorSetOptions.path = "$projectDir/src/test/resources/wiremock/grpc/${task.sourceSet.name}.dsc"
+      task.descriptorSetOptions.path = "$projectDir/src/test/resources/wiremock/grpc/services.dsc"
     }
   }
 }
