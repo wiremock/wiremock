@@ -15,8 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.net.InetAddresses;
-import java.math.BigInteger;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.ipToLong;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValidInet4Address;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -84,8 +85,8 @@ public abstract class NetworkAddressRange {
 
   private static class IpRange extends NetworkAddressRange {
 
-    private final BigInteger start;
-    private final BigInteger end;
+    private final Long start;
+    private final Long end;
     private final String asString;
 
     private IpRange(String ipRange) {
@@ -93,16 +94,16 @@ public abstract class NetworkAddressRange {
       if (parts.length != 2) {
         throw new InvalidInputException(Errors.single(18, ipRange + " is not a valid IP range"));
       }
-      this.start = InetAddresses.toBigInteger(parseIpAddress(parts[0]));
-      this.end = InetAddresses.toBigInteger(parseIpAddress(parts[1]));
+      this.start = ipToLong(parseIpAddress(parts[0]));
+      this.end = ipToLong(parseIpAddress(parts[1]));
       this.asString = ipRange;
     }
 
     @Override
     public boolean isIncluded(String testValue) {
       InetAddress testValueAddress = lookup(testValue);
-      BigInteger intVal = InetAddresses.toBigInteger(testValueAddress);
-      return intVal.compareTo(start) >= 0 && intVal.compareTo(end) <= 0;
+      long longValue = ipToLong(testValueAddress);
+      return (longValue >= start && longValue <= end);
     }
 
     @Override
@@ -166,7 +167,7 @@ public abstract class NetworkAddressRange {
   }
 
   private static InetAddress parseIpAddress(String ipAddress) {
-    if (!InetAddresses.isInetAddress(ipAddress)) {
+    if (!isValidInet4Address(ipAddress)) {
       throw new InvalidInputException(Errors.single(16, ipAddress + " is not a valid IP address"));
     }
 
