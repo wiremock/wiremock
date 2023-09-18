@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package testsupport;
+package org.wiremock.webhooks;
 
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import org.wiremock.webhooks.WebhookDefinition;
-import org.wiremock.webhooks.WebhookTransformer;
 
-public class ConstantHttpHeaderWebhookTransformer implements WebhookTransformer {
+public interface WebhookTransformer extends Extension {
 
-  public static final String key = "X-customer-header";
-  public static final String value = "foo";
+  WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition);
 
-  @Override
-  public WebhookDefinition transform(ServeEvent serveEvent, WebhookDefinition webhookDefinition) {
-    return webhookDefinition.withHeader(key, value);
+  // Defaulting this for backwards compatibility
+  default String getName() {
+    return "webhook-transformer-" + this.getClass().getSimpleName();
   }
 }

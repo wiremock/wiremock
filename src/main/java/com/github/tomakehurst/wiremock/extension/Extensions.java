@@ -30,6 +30,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.wiremock.webhooks.WebhookTransformer;
+import org.wiremock.webhooks.Webhooks;
 
 public class Extensions implements WireMockServices {
 
@@ -91,6 +93,7 @@ public class Extensions implements WireMockServices {
             .collect(toMap(Extension::getName, Function.identity())));
 
     configureTemplating();
+    configureWebhooks();
   }
 
   private Stream<Extension> loadExtensionsAsServices() {
@@ -130,6 +133,14 @@ public class Extensions implements WireMockServices {
               templateModelProviders);
       loadedExtensions.put(responseTemplateTransformer.getName(), responseTemplateTransformer);
     }
+  }
+
+  private void configureWebhooks() {
+    final List<WebhookTransformer> webhookTransformers =
+        ofType(WebhookTransformer.class).values().stream().collect(Collectors.toUnmodifiableList());
+
+    final Webhooks webhooks = new Webhooks(webhookTransformers, options.getProxyTargetRules());
+    loadedExtensions.put(webhooks.getName(), webhooks);
   }
 
   @Override

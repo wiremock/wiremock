@@ -16,11 +16,11 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValidInet4Address;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.net.InetAddresses;
+import java.util.HashSet;
 import java.util.Set;
 
 public class NetworkAddressRules {
@@ -34,7 +34,8 @@ public class NetworkAddressRules {
   private final Set<NetworkAddressRange> denied;
   private final Set<NetworkAddressRange> deniedHostPatterns;
 
-  public static NetworkAddressRules ALLOW_ALL = new NetworkAddressRules(Set.of(ALL), emptySet());
+  public static final NetworkAddressRules ALLOW_ALL =
+      new NetworkAddressRules(Set.of(ALL), emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
     this.allowed =
@@ -78,7 +79,7 @@ public class NetworkAddressRules {
   }
 
   public boolean isAllowed(String testValue) {
-    if (InetAddresses.isInetAddress(testValue)) {
+    if (isValidInet4Address(testValue)) {
       return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
           && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
     } else {
@@ -88,8 +89,8 @@ public class NetworkAddressRules {
   }
 
   public static class Builder {
-    private final ImmutableSet.Builder<NetworkAddressRange> allowed = ImmutableSet.builder();
-    private final ImmutableSet.Builder<NetworkAddressRange> denied = ImmutableSet.builder();
+    private final Set<NetworkAddressRange> allowed = new HashSet<>();
+    private final Set<NetworkAddressRange> denied = new HashSet<>();
 
     public Builder allow(String expression) {
       allowed.add(NetworkAddressRange.of(expression));
@@ -102,11 +103,11 @@ public class NetworkAddressRules {
     }
 
     public NetworkAddressRules build() {
-      Set<NetworkAddressRange> allowedRanges = allowed.build();
+      Set<NetworkAddressRange> allowedRanges = allowed;
       if (allowedRanges.isEmpty()) {
         allowedRanges = Set.of(ALL);
       }
-      return new NetworkAddressRules(allowedRanges, denied.build());
+      return new NetworkAddressRules(Set.copyOf(allowedRanges), Set.copyOf(denied));
     }
   }
 }
