@@ -49,6 +49,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class WireMockServer implements Container, Stubbing, Admin {
@@ -550,5 +551,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
         throw VerificationException.forUnmatchedNearMisses(nearMisses);
       }
     }
+  }
+
+  public Set<String> getLoadedExtensionNames() {
+    return wireMockApp.getLoadedExtensionNames();
   }
 }

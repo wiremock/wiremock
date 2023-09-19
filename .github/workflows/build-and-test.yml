@@ -31,10 +31,6 @@ jobs:
         distribution: 'temurin'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Set up node using nvm
-      uses: dcodeIO/setup-node-nvm@v4
-      with:
-        node-version: 8.12.0
     
     - name: Cache SonarCloud packages
       uses: actions/cache@v1

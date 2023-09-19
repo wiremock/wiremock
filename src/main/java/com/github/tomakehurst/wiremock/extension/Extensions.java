@@ -177,6 +177,10 @@ public class Extensions implements WireMockServices {
     return loadedExtensions.size();
   }
 
+  public Set<String> getAllExtensionNames() {
+    return loadedExtensions.keySet();
+  }
+
   @SuppressWarnings("unchecked")
   private static Class<? extends Extension> loadClass(String className) {
     try {
