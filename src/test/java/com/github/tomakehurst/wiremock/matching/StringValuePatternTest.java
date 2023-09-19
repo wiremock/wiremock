@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 class StringValuePatternTest {
 
   @Test
