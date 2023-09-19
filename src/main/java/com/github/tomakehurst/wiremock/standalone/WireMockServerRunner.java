@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.io.PrintStream;
+import java.util.Set;
 
 public class WireMockServerRunner {
 
@@ -96,6 +97,12 @@ public class WireMockServerRunner {
         out.println("The WireMock server is started .....");
       }
       out.println(options);
+
+      final Set<String> loadedExtensionNames = wireMockServer.getLoadedExtensionNames();
+      if (!loadedExtensionNames.isEmpty()) {
+        out.println("extensions:                   " + String.join(",", loadedExtensionNames));
+      }
+
     } catch (FatalStartupException e) {
       System.err.println(e.getMessage());
       System.exit(1);
