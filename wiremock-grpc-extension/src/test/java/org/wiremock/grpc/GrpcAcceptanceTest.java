@@ -3,6 +3,7 @@ package org.wiremock.grpc;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.wiremock.grpc.client.GreetingsClient;
@@ -14,6 +15,8 @@ import static org.hamcrest.Matchers.is;
 
 public class GrpcAcceptanceTest {
 
+    GreetingsClient greetingsClient;
+
     @RegisterExtension
     public static WireMockExtension wm = WireMockExtension.newInstance()
         .options(wireMockConfig()
@@ -23,18 +26,21 @@ public class GrpcAcceptanceTest {
 //                .extensions(new GrpcExtensionFactory())
         ).build();
 
-    @Test
-    void shouldReturnGreeting() {
+    @BeforeEach
+    void init() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", wm.getPort())
                 .usePlaintext()
                 .build();
-        GreetingsClient client = new GreetingsClient(channel);
+        greetingsClient = new GreetingsClient(channel);
+    }
 
+    @Test
+    void shouldReturnGreeting() {
         wm.stubFor(post(urlPathEqualTo("/com.example.grpc.GreetingService/greeting")).willReturn(okJson("{\n" +
                 "    \"greeting\": \"Hello {{jsonPath request.body '$.name'}}\"\n" +
                 "}")));
 
-        String greeting = client.greet("Tom");
+        String greeting = greetingsClient.greet("Tom");
 
         assertThat(greeting, is("Hello Tom"));
     }
