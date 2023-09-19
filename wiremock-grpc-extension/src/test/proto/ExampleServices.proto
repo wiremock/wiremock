@@ -42,4 +42,6 @@ message HelloResponse {
 // 4. service, unary request/response
 service GreetingService {
     rpc greeting(HelloRequest) returns (HelloResponse);
+    rpc manyGreetingsOneReply(stream HelloRequest) returns (HelloResponse);
+    rpc oneGreetingManyReplies(HelloRequest) returns (stream HelloResponse);
 }

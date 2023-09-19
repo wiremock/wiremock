@@ -18,6 +18,7 @@ package org.wiremock.grpc;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.wiremock.grpc.dsl.WireMockGrpc.*;
@@ -135,5 +136,14 @@ public class GrpcAcceptanceTest {
     StatusRuntimeException exception =
         assertThrows(StatusRuntimeException.class, () -> greetingsClient.greet("Whatever"));
     assertThat(exception.getMessage(), is("FAILED_PRECONDITION: Failed some blah prerequisite"));
+  }
+
+  @Test
+  void returnsStreamedResponseToUnaryRequest() {
+    mockGreetingService.stubFor(
+        method("oneGreetingManyReplies")
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("Hi Tom"))));
+
+    assertThat(greetingsClient.oneGreetingManyReplies("Tom"), hasItem("Hi Tom"));
   }
 }
