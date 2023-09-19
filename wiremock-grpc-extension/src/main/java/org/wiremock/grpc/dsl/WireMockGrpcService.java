@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wiremock.grpc.client;
+package org.wiremock.grpc.dsl;
 
-import com.example.grpc.GreetingServiceGrpc;
-import io.grpc.Channel;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class GreetingsClient {
+public class WireMockGrpcService {
 
-  private final GreetingServiceGrpc.GreetingServiceBlockingStub stub;
+  private final WireMock wireMock;
+  private final String serviceName;
 
-  public GreetingsClient(Channel channel) {
-    stub = GreetingServiceGrpc.newBlockingStub(channel);
+  public WireMockGrpcService(WireMock wireMock, String serviceName) {
+    this.wireMock = wireMock;
+    this.serviceName = serviceName;
   }
 
-  public String greet(String name) {
-    return stub.greeting(com.example.grpc.HelloRequest.newBuilder().setName(name).build())
-        .getGreeting();
+  public StubMapping stubFor(GrpcStubMappingBuilder builder) {
+    final StubMapping stubMapping = builder.build(serviceName);
+    wireMock.register(stubMapping);
+    return stubMapping;
   }
 }

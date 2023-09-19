@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wiremock.grpc;
+package org.wiremock.grpc.internal;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -26,12 +26,12 @@ import com.github.tomakehurst.wiremock.store.BlobStore;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import jakarta.servlet.DispatcherType;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 public class GrpcHttpServerFactory implements HttpServerFactory {
 
@@ -48,20 +48,32 @@ public class GrpcHttpServerFactory implements HttpServerFactory {
       StubRequestHandler stubRequestHandler) {
     return new Jetty11HttpServer(options, adminRequestHandler, stubRequestHandler) {
       @Override
-      protected void decorateMockServiceContextBeforeConfig(ServletContextHandler mockServiceContext) {
-        List<Descriptors.FileDescriptor> fileDescriptors = protoDescriptorStore.getAllKeys()
+      protected void decorateMockServiceContextBeforeConfig(
+          ServletContextHandler mockServiceContext) {
+        List<Descriptors.FileDescriptor> fileDescriptors =
+            protoDescriptorStore
+                .getAllKeys()
                 .filter(key -> key.endsWith(".dsc") || key.endsWith(".desc"))
-                .map(key -> protoDescriptorStore.get(key).map(
+                .map(
+                    key ->
+                        protoDescriptorStore
+                            .get(key)
+                            .map(
                                 data ->
-                                        Exceptions.uncheck(() -> DescriptorProtos.FileDescriptorSet.parseFrom(data), DescriptorProtos.FileDescriptorSet.class)
-                        )
-                ).filter(Optional::isPresent)
+                                    Exceptions.uncheck(
+                                        () -> DescriptorProtos.FileDescriptorSet.parseFrom(data),
+                                        DescriptorProtos.FileDescriptorSet.class)))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .flatMap(fileDescriptorSet -> fileDescriptorSet.getFileList().stream())
-                .map(fileDescriptorProto ->
-                        Exceptions.uncheck(() -> Descriptors.FileDescriptor.buildFrom(fileDescriptorProto, new Descriptors.FileDescriptor[0]), Descriptors.FileDescriptor.class)
-                )
-                .toList();
+                .map(
+                    fileDescriptorProto ->
+                        Exceptions.uncheck(
+                            () ->
+                                Descriptors.FileDescriptor.buildFrom(
+                                    fileDescriptorProto, new Descriptors.FileDescriptor[0]),
+                            Descriptors.FileDescriptor.class))
+                .collect(Collectors.toUnmodifiableList());
 
         final GrpcFilter grpcFilter = new GrpcFilter(stubRequestHandler, fileDescriptors);
         final FilterHolder filterHolder = new FilterHolder(grpcFilter);

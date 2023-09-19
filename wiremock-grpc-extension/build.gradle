@@ -23,6 +23,9 @@ plugins {
 
 group 'org.wiremock'
 
+sourceCompatibility = 11
+targetCompatibility = 11
+
 ext {
   versions = [
     grpc: "1.58.0",
@@ -145,3 +148,6 @@ protobuf {
     }
   }
 }
+
+processTestResources.dependsOn generateProto
+processTestResources.dependsOn generateTestProto

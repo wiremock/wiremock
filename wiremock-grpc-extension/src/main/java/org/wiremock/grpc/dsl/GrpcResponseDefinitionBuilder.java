@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wiremock.grpc.client;
+package org.wiremock.grpc.dsl;
 
-import com.example.grpc.GreetingServiceGrpc;
-import io.grpc.Channel;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 
-public class GreetingsClient {
+public class GrpcResponseDefinitionBuilder {
 
-  private final GreetingServiceGrpc.GreetingServiceBlockingStub stub;
+  private final int grpcStatus;
+  private String json;
 
-  public GreetingsClient(Channel channel) {
-    stub = GreetingServiceGrpc.newBlockingStub(channel);
+  public GrpcResponseDefinitionBuilder(int grpcStatus) {
+    this.grpcStatus = grpcStatus;
   }
 
-  public String greet(String name) {
-    return stub.greeting(com.example.grpc.HelloRequest.newBuilder().setName(name).build())
-        .getGreeting();
+  public GrpcResponseDefinitionBuilder fromJson(String json) {
+    this.json = json;
+    return this;
+  }
+
+  public ResponseDefinitionBuilder build() {
+    return ResponseDefinitionBuilder.responseDefinition().withBody(json);
   }
 }
