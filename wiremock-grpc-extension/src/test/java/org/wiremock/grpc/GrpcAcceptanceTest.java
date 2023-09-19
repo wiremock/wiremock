@@ -20,8 +20,8 @@ public class GrpcAcceptanceTest {
                 .dynamicPort()
                 .globalTemplating(true)
                 .withRootDirectory("src/test/resources/wiremock")
-                .extensions(new GrpcExtensionFactory()))
-        .build();
+//                .extensions(new GrpcExtensionFactory())
+        ).build();
 
     @Test
     void shouldReturnGreeting() {
