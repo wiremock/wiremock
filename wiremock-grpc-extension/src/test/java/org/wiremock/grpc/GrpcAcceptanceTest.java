@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.is;
 import static org.wiremock.grpc.dsl.WireMockGrpc.method;
 
 import com.example.grpc.GreetingServiceGrpc;
+import com.example.grpc.HelloResponse;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.grpc.ManagedChannel;
@@ -79,10 +80,24 @@ public class GrpcAcceptanceTest {
   void returnsResponseBuiltFromJson() {
     greetingMockDsl.stubFor(
         method("greeting")
-            .willReturn(GrpcStatus.OK.json("{\n" + "    \"greeting\": \"Hi Tom\"\n" + "}")));
+            .willReturn(
+                GrpcStatus.OK.json("{\n" + "    \"greeting\": \"Hi Tom from JSON\"\n" + "}")));
 
-    String greeting = greetingsClient.greet("Tom");
+    String greeting = greetingsClient.greet("Whatever");
 
-    assertThat(greeting, is("Hi Tom"));
+    assertThat(greeting, is("Hi Tom from JSON"));
+  }
+
+  @Test
+  void returnsResponseBuiltFromMessageObject() {
+    greetingMockDsl.stubFor(
+        method("greeting")
+            .willReturn(
+                GrpcStatus.OK.message(
+                    HelloResponse.newBuilder().setGreeting("Hi Tom from object"))));
+
+    String greeting = greetingsClient.greet("Whatever");
+
+    assertThat(greeting, is("Hi Tom from object"));
   }
 }
