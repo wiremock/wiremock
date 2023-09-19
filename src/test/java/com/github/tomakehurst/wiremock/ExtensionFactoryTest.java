@@ -62,6 +62,7 @@ public class ExtensionFactoryTest {
             .withRootDirectory(defaultTestFilesRoot())
             .stubCorsEnabled(true)
             .templatingEnabled(false)
+            .extensionScanningEnabled(true)
             .extensions(
                 services ->
                     List.of(
@@ -88,9 +89,13 @@ public class ExtensionFactoryTest {
   }
 
   @Test
-  void usesExtensionFactoryLoadedViaServiceLoader() {
+  void usesExtensionFactoryLoadedViaServiceLoaderWhenEnabled() {
     initialiseWireMockServer(
-        options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).templatingEnabled(false));
+        options()
+            .dynamicPort()
+            .extensionScanningEnabled(true)
+            .withRootDirectory(defaultTestFilesRoot())
+            .templatingEnabled(false));
 
     wm.stubFor(get("/transform-this").willReturn(noContent().withTransformers("loader-test")));
 
@@ -100,9 +105,25 @@ public class ExtensionFactoryTest {
   }
 
   @Test
-  void usesExtensionInstanceLoadedViaServiceLoader() {
+  void doesNotUseExtensionFactoryLoadedViaServiceLoaderByDefault() {
     initialiseWireMockServer(
         options().dynamicPort().withRootDirectory(defaultTestFilesRoot()).templatingEnabled(false));
+
+    wm.stubFor(get("/transform-this").willReturn(noContent().withTransformers("loader-test")));
+
+    client.get("/just-count-this");
+
+    assertThat(client.get("/transform-this").statusCode(), is(204));
+  }
+
+  @Test
+  void usesExtensionInstanceLoadedViaServiceLoader() {
+    initialiseWireMockServer(
+        options()
+            .dynamicPort()
+            .extensionScanningEnabled(true)
+            .withRootDirectory(defaultTestFilesRoot())
+            .templatingEnabled(false));
 
     wm.stubFor(
         get("/transform-this").willReturn(noContent().withTransformers("instance-loader-test")));

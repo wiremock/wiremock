@@ -80,12 +80,17 @@ public class Extensions implements WireMockServices {
 
     loadedExtensions.putAll(extensionDeclarations.getInstances());
 
-    loadedExtensions.putAll(
-        loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
+    if (options.isExtensionScanningEnabled()) {
+      loadedExtensions.putAll(
+          loadExtensionsAsServices().collect(toMap(Extension::getName, Function.identity())));
+    }
 
     final Stream<ExtensionFactory> allFactories =
-        Stream.concat(
-            extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices());
+        options.isExtensionScanningEnabled()
+            ? Stream.concat(
+                extensionDeclarations.getFactories().stream(), loadExtensionFactoriesAsServices())
+            : extensionDeclarations.getFactories().stream();
+
     loadedExtensions.putAll(
         allFactories
             .map(factory -> factory.create(Extensions.this))
