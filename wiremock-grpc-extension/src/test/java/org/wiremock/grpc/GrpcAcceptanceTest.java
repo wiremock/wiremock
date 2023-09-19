@@ -38,7 +38,7 @@ import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 public class GrpcAcceptanceTest {
 
-  WireMockGrpcService greetingMockDsl;
+  WireMockGrpcService mockGreetingService;
   GreetingsClient greetingsClient;
 
   @RegisterExtension
@@ -55,7 +55,7 @@ public class GrpcAcceptanceTest {
 
   @BeforeEach
   void init() {
-    greetingMockDsl =
+    mockGreetingService =
         new WireMockGrpcService(new WireMock(wm.getPort()), GreetingServiceGrpc.SERVICE_NAME);
 
     ManagedChannel channel =
@@ -80,7 +80,7 @@ public class GrpcAcceptanceTest {
 
   @Test
   void returnsResponseBuiltFromJson() {
-    greetingMockDsl.stubFor(
+    mockGreetingService.stubFor(
         method("greeting")
             .willReturn(Status.OK.json("{\n" + "    \"greeting\": \"Hi Tom from JSON\"\n" + "}")));
 
@@ -91,7 +91,7 @@ public class GrpcAcceptanceTest {
 
   @Test
   void returnsResponseBuiltFromMessageObject() {
-    greetingMockDsl.stubFor(
+    mockGreetingService.stubFor(
         method("greeting")
             .willReturn(
                 Status.OK.message(HelloResponse.newBuilder().setGreeting("Hi Tom from object"))));
@@ -102,8 +102,8 @@ public class GrpcAcceptanceTest {
   }
 
   @Test
-  void matchesRequestViaEqualToJson() {
-    greetingMockDsl.stubFor(
+  void matchesRequestViaCoreJsonMatcher() {
+    mockGreetingService.stubFor(
         method("greeting")
             .withRequestMessage(equalToJson("{ \"name\":  \"Tom\" }"))
             .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
@@ -115,7 +115,7 @@ public class GrpcAcceptanceTest {
 
   @Test
   void matchesRequestViaExactMessageEquality() {
-    greetingMockDsl.stubFor(
+    mockGreetingService.stubFor(
         method("greeting")
             .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
             .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
