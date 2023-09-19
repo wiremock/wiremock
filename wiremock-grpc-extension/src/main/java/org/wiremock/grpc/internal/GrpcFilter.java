@@ -16,6 +16,8 @@
 package org.wiremock.grpc.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.wiremock.grpc.dsl.GrpcResponseDefinitionBuilder.GRPC_STATUS_NAME;
+import static org.wiremock.grpc.dsl.GrpcResponseDefinitionBuilder.GRPC_STATUS_REASON;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import org.wiremock.grpc.dsl.WireMockGrpc;
 
 public class GrpcFilter extends HttpFilter {
 
@@ -113,7 +116,7 @@ public class GrpcFilter extends HttpFilter {
       stubRequestHandler.handle(
           wireMockRequest,
           (req, resp, attributes) -> {
-            final HttpHeader statusHeader = resp.getHeaders().getHeader("grpc-status-name");
+            final HttpHeader statusHeader = resp.getHeaders().getHeader(GRPC_STATUS_NAME);
 
             if (!statusHeader.isPresent() && resp.getStatus() == 404) {
               responseObserver.onError(
@@ -123,14 +126,20 @@ public class GrpcFilter extends HttpFilter {
               return;
             }
 
-            //            if (statusHeader.isPresent() &&
-            // !statusHeader.firstValue().equals(Status.Code.OK.name())) {
-            //              responseObserver.onError(
-            //                  Status.fromCodeValue(Integer.parseInt(statusHeader.firstValue()))
-            //                      .withDescription(resp.getBodyAsString())
-            //                      .asRuntimeException());
-            //              return;
-            //            }
+            if (statusHeader.isPresent()
+                && !statusHeader.firstValue().equals(Status.Code.OK.name())) {
+              final HttpHeader statusReasonHeader = resp.getHeaders().getHeader(GRPC_STATUS_REASON);
+              final String reason =
+                  statusReasonHeader.isPresent() ? statusReasonHeader.firstValue() : "";
+
+              WireMockGrpc.Status status = WireMockGrpc.Status.valueOf(statusHeader.firstValue());
+
+              responseObserver.onError(
+                  Status.fromCodeValue(status.getValue())
+                      .withDescription(reason)
+                      .asRuntimeException());
+              return;
+            }
 
             DynamicMessage.Builder messageBuilder =
                 DynamicMessage.newBuilder(methodDescriptor.getOutputType());

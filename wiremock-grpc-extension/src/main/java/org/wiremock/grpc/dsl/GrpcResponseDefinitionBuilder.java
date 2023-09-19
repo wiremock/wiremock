@@ -19,11 +19,19 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 
 public class GrpcResponseDefinitionBuilder {
 
-  private final int grpcStatus;
+  public static final String GRPC_STATUS_NAME = "grpc-status-name";
+  public static final String GRPC_STATUS_REASON = "grpc-status-reason";
+  private final WireMockGrpc.Status grpcStatus;
+  private final String statusReason;
   private String json;
 
-  public GrpcResponseDefinitionBuilder(int grpcStatus) {
+  public GrpcResponseDefinitionBuilder(WireMockGrpc.Status grpcStatus) {
+    this(grpcStatus, null);
+  }
+
+  public GrpcResponseDefinitionBuilder(WireMockGrpc.Status grpcStatus, String statusReason) {
     this.grpcStatus = grpcStatus;
+    this.statusReason = statusReason;
   }
 
   public GrpcResponseDefinitionBuilder fromJson(String json) {
@@ -32,6 +40,14 @@ public class GrpcResponseDefinitionBuilder {
   }
 
   public ResponseDefinitionBuilder build() {
-    return ResponseDefinitionBuilder.responseDefinition().withBody(json);
+    final ResponseDefinitionBuilder responseDefinitionBuilder =
+        ResponseDefinitionBuilder.responseDefinition()
+            .withHeader(GRPC_STATUS_NAME, grpcStatus.name());
+
+    if (statusReason != null) {
+      responseDefinitionBuilder.withHeader(GRPC_STATUS_REASON, statusReason);
+    }
+
+    return responseDefinitionBuilder.withBody(json);
   }
 }

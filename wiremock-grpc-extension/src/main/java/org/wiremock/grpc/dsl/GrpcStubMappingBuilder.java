@@ -43,6 +43,11 @@ public class GrpcStubMappingBuilder {
     return this;
   }
 
+  public GrpcStubMappingBuilder willReturn(WireMockGrpc.Status status, String statusReason) {
+    this.responseBuilder = new GrpcResponseDefinitionBuilder(status, statusReason);
+    return this;
+  }
+
   public StubMapping build(String serviceName) {
     final String path = "/" + serviceName + "/" + method;
     final MappingBuilder mappingBuilder = WireMock.post(WireMock.urlPathEqualTo(path));

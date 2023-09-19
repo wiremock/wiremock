@@ -82,7 +82,7 @@ public class GrpcAcceptanceTest {
   void returnsResponseBuiltFromJson() {
     mockGreetingService.stubFor(
         method("greeting")
-            .willReturn(Status.OK.json("{\n" + "    \"greeting\": \"Hi Tom from JSON\"\n" + "}")));
+            .willReturn(json("{\n" + "    \"greeting\": \"Hi Tom from JSON\"\n" + "}")));
 
     String greeting = greetingsClient.greet("Whatever");
 
@@ -93,8 +93,7 @@ public class GrpcAcceptanceTest {
   void returnsResponseBuiltFromMessageObject() {
     mockGreetingService.stubFor(
         method("greeting")
-            .willReturn(
-                Status.OK.message(HelloResponse.newBuilder().setGreeting("Hi Tom from object"))));
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("Hi Tom from object"))));
 
     String greeting = greetingsClient.greet("Whatever");
 
@@ -106,7 +105,7 @@ public class GrpcAcceptanceTest {
     mockGreetingService.stubFor(
         method("greeting")
             .withRequestMessage(equalToJson("{ \"name\":  \"Tom\" }"))
-            .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("OK"))));
 
     assertThat(greetingsClient.greet("Tom"), is("OK"));
 
@@ -118,10 +117,23 @@ public class GrpcAcceptanceTest {
     mockGreetingService.stubFor(
         method("greeting")
             .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
-            .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("OK"))));
 
     assertThat(greetingsClient.greet("Tom"), is("OK"));
 
-    assertThrows(StatusRuntimeException.class, () -> greetingsClient.greet("Wrong"));
+    StatusRuntimeException exception =
+        assertThrows(StatusRuntimeException.class, () -> greetingsClient.greet("Wrong"));
+    assertThat(
+        exception.getMessage(), is("NOT_FOUND: No matching stub mapping found for gRPC request"));
+  }
+
+  @Test
+  void returnsResponseWithStatus() {
+    mockGreetingService.stubFor(
+        method("greeting").willReturn(Status.FAILED_PRECONDITION, "Failed some blah prerequisite"));
+
+    StatusRuntimeException exception =
+        assertThrows(StatusRuntimeException.class, () -> greetingsClient.greet("Whatever"));
+    assertThat(exception.getMessage(), is("FAILED_PRECONDITION: Failed some blah prerequisite"));
   }
 }

@@ -16,10 +16,8 @@
 package org.wiremock.grpc.dsl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.google.protobuf.MessageOrBuilder;
-import com.google.protobuf.util.JsonFormat;
 import org.wiremock.grpc.internal.JsonMessageUtils;
 
 public class WireMockGrpc {
@@ -35,10 +33,48 @@ public class WireMockGrpc {
     return WireMock.equalToJson(json, true, false);
   }
 
-  public enum Status {
-    OK(0);
+  public static GrpcResponseDefinitionBuilder json(String json) {
+    return new GrpcResponseDefinitionBuilder(Status.OK).fromJson(json);
+  }
 
-    private static final JsonFormat.Printer jsonPrinter = JsonFormat.printer();
+  public static GrpcResponseDefinitionBuilder message(MessageOrBuilder messageOrBuilder) {
+    final String json = JsonMessageUtils.toJson(messageOrBuilder);
+    return new GrpcResponseDefinitionBuilder(Status.OK).fromJson(json);
+  }
+
+  public enum Status {
+    OK(0),
+    CANCELLED(1),
+
+    UNKNOWN(2),
+
+    INVALID_ARGUMENT(3),
+
+    DEADLINE_EXCEEDED(4),
+
+    NOT_FOUND(5),
+
+    ALREADY_EXISTS(6),
+
+    PERMISSION_DENIED(7),
+
+    RESOURCE_EXHAUSTED(8),
+
+    FAILED_PRECONDITION(9),
+
+    ABORTED(10),
+
+    OUT_OF_RANGE(11),
+
+    UNIMPLEMENTED(12),
+
+    INTERNAL(13),
+
+    UNAVAILABLE(14),
+
+    DATA_LOSS(15),
+
+    UNAUTHENTICATED(16);
 
     private final int value;
 
@@ -46,14 +82,18 @@ public class WireMockGrpc {
       this.value = value;
     }
 
-    public GrpcResponseDefinitionBuilder json(String json) {
-      return new GrpcResponseDefinitionBuilder(value).fromJson(json);
+    public int getValue() {
+      return value;
     }
 
-    public GrpcResponseDefinitionBuilder message(MessageOrBuilder messageOrBuilder) {
-      final String json =
-          Exceptions.uncheck(() -> jsonPrinter.print(messageOrBuilder), String.class);
-      return new GrpcResponseDefinitionBuilder(value).fromJson(json);
-    }
+    //    public GrpcResponseDefinitionBuilder json(String json) {
+    //      return new GrpcResponseDefinitionBuilder(value).fromJson(json);
+    //    }
+    //
+    //    public GrpcResponseDefinitionBuilder message(MessageOrBuilder messageOrBuilder) {
+    //      final String json =
+    //          Exceptions.uncheck(() -> jsonPrinter.print(messageOrBuilder), String.class);
+    //      return new GrpcResponseDefinitionBuilder(value).fromJson(json);
+    //    }
   }
 }
