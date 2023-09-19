@@ -15,11 +15,37 @@
  */
 package org.wiremock.grpc.dsl;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.google.protobuf.MessageOrBuilder;
+import com.google.protobuf.util.JsonFormat;
+
 public class WireMockGrpc {
 
   private WireMockGrpc() {}
 
   public static GrpcStubMappingBuilder method(String method) {
     return new GrpcStubMappingBuilder(method);
+  }
+
+  public enum Status {
+    OK(0);
+
+    private static final JsonFormat.Printer jsonPrinter = JsonFormat.printer();
+
+    private final int value;
+
+    Status(int value) {
+      this.value = value;
+    }
+
+    public GrpcResponseDefinitionBuilder json(String json) {
+      return new GrpcResponseDefinitionBuilder(value).fromJson(json);
+    }
+
+    public GrpcResponseDefinitionBuilder message(MessageOrBuilder messageOrBuilder) {
+      final String json =
+          Exceptions.uncheck(() -> jsonPrinter.print(messageOrBuilder), String.class);
+      return new GrpcResponseDefinitionBuilder(value).fromJson(json);
+    }
   }
 }

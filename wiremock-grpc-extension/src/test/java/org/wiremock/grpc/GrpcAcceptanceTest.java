@@ -19,7 +19,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.wiremock.grpc.dsl.WireMockGrpc.method;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.wiremock.grpc.dsl.WireMockGrpc.*;
 
 import com.example.grpc.GreetingServiceGrpc;
 import com.example.grpc.HelloResponse;
@@ -27,11 +28,11 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.wiremock.grpc.client.GreetingsClient;
-import org.wiremock.grpc.dsl.GrpcStatus;
 import org.wiremock.grpc.dsl.WireMockGrpcService;
 
 public class GrpcAcceptanceTest {
@@ -80,8 +81,7 @@ public class GrpcAcceptanceTest {
   void returnsResponseBuiltFromJson() {
     greetingMockDsl.stubFor(
         method("greeting")
-            .willReturn(
-                GrpcStatus.OK.json("{\n" + "    \"greeting\": \"Hi Tom from JSON\"\n" + "}")));
+            .willReturn(Status.OK.json("{\n" + "    \"greeting\": \"Hi Tom from JSON\"\n" + "}")));
 
     String greeting = greetingsClient.greet("Whatever");
 
@@ -93,11 +93,22 @@ public class GrpcAcceptanceTest {
     greetingMockDsl.stubFor(
         method("greeting")
             .willReturn(
-                GrpcStatus.OK.message(
-                    HelloResponse.newBuilder().setGreeting("Hi Tom from object"))));
+                Status.OK.message(HelloResponse.newBuilder().setGreeting("Hi Tom from object"))));
 
     String greeting = greetingsClient.greet("Whatever");
 
     assertThat(greeting, is("Hi Tom from object"));
+  }
+
+  @Test
+  void matchesOnExactRequestByJson() {
+    greetingMockDsl.stubFor(
+        method("greeting")
+            .withRequestMessage(equalToJson("{ \"name\":  \"Tom\" }"))
+            .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
+
+    assertThat(greetingsClient.greet("Tom"), is("OK"));
+
+    assertThrows(StatusRuntimeException.class, () -> greetingsClient.greet("Wrong"));
   }
 }
