@@ -15,9 +15,12 @@
  */
 package org.wiremock.grpc.dsl;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.util.JsonFormat;
+import org.wiremock.grpc.internal.JsonMessageUtils;
 
 public class WireMockGrpc {
 
@@ -25,6 +28,11 @@ public class WireMockGrpc {
 
   public static GrpcStubMappingBuilder method(String method) {
     return new GrpcStubMappingBuilder(method);
+  }
+
+  public static StringValuePattern equalToMessage(MessageOrBuilder messageOrBuilder) {
+    final String json = JsonMessageUtils.toJson(messageOrBuilder);
+    return WireMock.equalToJson(json, true, false);
   }
 
   public enum Status {

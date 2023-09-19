@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.wiremock.grpc.dsl.WireMockGrpc.*;
 
 import com.example.grpc.GreetingServiceGrpc;
+import com.example.grpc.HelloRequest;
 import com.example.grpc.HelloResponse;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -101,10 +102,22 @@ public class GrpcAcceptanceTest {
   }
 
   @Test
-  void matchesOnExactRequestByJson() {
+  void matchesRequestViaEqualToJson() {
     greetingMockDsl.stubFor(
         method("greeting")
             .withRequestMessage(equalToJson("{ \"name\":  \"Tom\" }"))
+            .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
+
+    assertThat(greetingsClient.greet("Tom"), is("OK"));
+
+    assertThrows(StatusRuntimeException.class, () -> greetingsClient.greet("Wrong"));
+  }
+
+  @Test
+  void matchesRequestViaExactMessageEquality() {
+    greetingMockDsl.stubFor(
+        method("greeting")
+            .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Tom")))
             .willReturn(Status.OK.message(HelloResponse.newBuilder().setGreeting("OK"))));
 
     assertThat(greetingsClient.greet("Tom"), is("OK"));

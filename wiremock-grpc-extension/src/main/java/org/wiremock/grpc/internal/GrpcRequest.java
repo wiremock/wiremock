@@ -18,11 +18,9 @@ package org.wiremock.grpc.internal;
 import static java.util.Collections.*;
 
 import com.github.tomakehurst.wiremock.common.Encoding;
-import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.util.JsonFormat;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -51,7 +49,7 @@ public class GrpcRequest implements Request {
     this.serviceName = serviceName;
     this.methodName = methodName;
 
-    body = Exceptions.uncheck(() -> JsonFormat.printer().print(message), String.class);
+    body = JsonMessageUtils.toJson(message);
   }
 
   @Override

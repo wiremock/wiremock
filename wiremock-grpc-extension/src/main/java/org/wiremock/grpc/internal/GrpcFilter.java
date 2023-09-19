@@ -18,11 +18,11 @@ package org.wiremock.grpc.internal;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.util.JsonFormat;
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServerServiceDefinition;
@@ -134,9 +134,10 @@ public class GrpcFilter extends HttpFilter {
 
             DynamicMessage.Builder messageBuilder =
                 DynamicMessage.newBuilder(methodDescriptor.getOutputType());
-            Exceptions.uncheck(
-                () -> JsonFormat.parser().merge(resp.getBodyAsString(), messageBuilder));
-            responseObserver.onNext(messageBuilder.build());
+
+            final DynamicMessage response =
+                JsonMessageUtils.toMessage(resp.getBodyAsString(), messageBuilder);
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
           },
           ServeEvent.of(wireMockRequest));
