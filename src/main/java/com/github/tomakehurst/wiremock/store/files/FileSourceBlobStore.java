@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.store.files;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -47,7 +48,10 @@ public class FileSourceBlobStore implements BlobStore {
 
   @Override
   public Stream<String> getAllKeys() {
-    return fileSource.listFilesRecursively().stream().map(TextFile::getPath);
+    final String rootPath = new File(fileSource.getUri().getSchemeSpecificPart()).getPath();
+    return fileSource.listFilesRecursively().stream()
+        .map(TextFile::getPath)
+        .map(path -> path.substring(rootPath.length() + 1));
   }
 
   @Override
