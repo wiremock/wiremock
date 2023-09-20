@@ -80,6 +80,7 @@ public class CommandLineOptions implements Options {
   private static final String DISABLE_BANNER = "disable-banner";
   private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
   private static final String EXTENSIONS = "extensions";
+  private static final String DISABLE_EXTENSION_SCANNING = "disable-extensions-scanning";
   private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
   private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
   private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
@@ -231,6 +232,9 @@ public class CommandLineOptions implements Options {
             EXTENSIONS,
             "Matching and/or response transformer extension class names, comma separated.")
         .withRequiredArg();
+    optionParser.accepts(
+        DISABLE_EXTENSION_SCANNING,
+        "Prevent extensions from being scanned and loaded from the classpath");
     optionParser
         .accepts(
             MAX_ENTRIES_REQUEST_JOURNAL,
@@ -638,6 +642,11 @@ public class CommandLineOptions implements Options {
   @Override
   public ExtensionDeclarations getDeclaredExtensions() {
     return extensions;
+  }
+
+  @Override
+  public boolean isExtensionScanningEnabled() {
+    return !optionSet.has(DISABLE_EXTENSION_SCANNING);
   }
 
   @Override
