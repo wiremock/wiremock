@@ -19,8 +19,10 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionFactory;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import java.util.List;
+import org.wiremock.annotations.Beta;
 import org.wiremock.grpc.internal.GrpcHttpServerFactory;
 
+@Beta(justification = "Incubating extension: https://github.com/wiremock/wiremock/issues/2383")
 public class GrpcExtensionFactory implements ExtensionFactory {
 
   @Override

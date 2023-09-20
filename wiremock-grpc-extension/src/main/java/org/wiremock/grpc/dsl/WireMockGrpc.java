@@ -18,8 +18,10 @@ package org.wiremock.grpc.dsl;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.google.protobuf.MessageOrBuilder;
+import org.wiremock.annotations.Beta;
 import org.wiremock.grpc.internal.JsonMessageUtils;
 
+@Beta(justification = "Incubating extension: https://github.com/wiremock/wiremock/issues/2383")
 public class WireMockGrpc {
 
   private WireMockGrpc() {}

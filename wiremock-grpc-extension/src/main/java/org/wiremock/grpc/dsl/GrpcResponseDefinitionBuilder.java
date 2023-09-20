@@ -16,7 +16,9 @@
 package org.wiremock.grpc.dsl;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Incubating extension: https://github.com/wiremock/wiremock/issues/2383")
 public class GrpcResponseDefinitionBuilder {
 
   public static final String GRPC_STATUS_NAME = "grpc-status-name";

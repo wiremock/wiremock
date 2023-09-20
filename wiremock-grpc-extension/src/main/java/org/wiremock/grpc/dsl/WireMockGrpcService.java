@@ -17,7 +17,9 @@ package org.wiremock.grpc.dsl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Incubating extension: https://github.com/wiremock/wiremock/issues/2383")
 public class WireMockGrpcService {
 
   private final WireMock wireMock;

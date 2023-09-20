@@ -21,7 +21,9 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.ArrayList;
 import java.util.List;
+import org.wiremock.annotations.Beta;
 
+@Beta(justification = "Incubating extension: https://github.com/wiremock/wiremock/issues/2383")
 public class GrpcStubMappingBuilder {
 
   private String method;
