@@ -97,6 +97,7 @@ public class GreetingsClient {
     for (String name : names) {
       requestObserver.onNext(HelloRequest.newBuilder().setName(name).build());
     }
+    requestObserver.onCompleted();
 
     Exceptions.uncheck(() -> latch.await(10, TimeUnit.SECONDS));
 

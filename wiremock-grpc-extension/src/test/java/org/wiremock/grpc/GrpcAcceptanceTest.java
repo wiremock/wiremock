@@ -139,6 +139,15 @@ public class GrpcAcceptanceTest {
   }
 
   @Test
+  void returnsUnaryResponseToStreamingRequest() {
+    mockGreetingService.stubFor(
+        method("manyGreetingsOneReply")
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("Hi all"))));
+
+    assertThat(greetingsClient.manyGreetingsOneReply("Tom", "Uri", "Rob", "Mark"), is("Hi all"));
+  }
+
+  @Test
   void returnsStreamedResponseToUnaryRequest() {
     mockGreetingService.stubFor(
         method("oneGreetingManyReplies")

@@ -16,19 +16,12 @@
 package org.wiremock.grpc.internal;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.wiremock.grpc.dsl.GrpcResponseDefinitionBuilder.GRPC_STATUS_NAME;
-import static org.wiremock.grpc.dsl.GrpcResponseDefinitionBuilder.GRPC_STATUS_REASON;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
-import io.grpc.BindableService;
-import io.grpc.MethodDescriptor;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.Status;
+import io.grpc.*;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.servlet.jakarta.GrpcServlet;
 import io.grpc.servlet.jakarta.ServletAdapter;
@@ -42,7 +35,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import org.wiremock.grpc.dsl.WireMockGrpc;
 
 public class GrpcFilter extends HttpFilter {
 
@@ -69,16 +61,25 @@ public class GrpcFilter extends HttpFilter {
                       serviceDescriptor
                           .getMethods()
                           .forEach(
-                              methodDescriptor -> {
-                                builder.addMethod(
-                                    buildMessageDescriptorInstance(
-                                        serviceDescriptor, methodDescriptor),
-                                    ServerCalls.asyncUnaryCall(
-                                        adaptUnaryStubCall(serviceDescriptor, methodDescriptor)));
-                              });
+                              methodDescriptor ->
+                                  builder.addMethod(
+                                      buildMessageDescriptorInstance(
+                                          serviceDescriptor, methodDescriptor),
+                                      buildHandler(serviceDescriptor, methodDescriptor)));
                       return builder.build();
                     })
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  private ServerCallHandler<DynamicMessage, DynamicMessage> buildHandler(
+      Descriptors.ServiceDescriptor serviceDescriptor,
+      Descriptors.MethodDescriptor methodDescriptor) {
+    return methodDescriptor.isClientStreaming()
+        ? ServerCalls.asyncClientStreamingCall(
+            new ClientStreamingServerCallHandler(
+                stubRequestHandler, serviceDescriptor, methodDescriptor))
+        : ServerCalls.asyncUnaryCall(
+            new UnaryServerCallHandler(stubRequestHandler, serviceDescriptor, methodDescriptor));
   }
 
   private static MethodDescriptor<DynamicMessage, DynamicMessage> buildMessageDescriptorInstance(
@@ -98,60 +99,52 @@ public class GrpcFilter extends HttpFilter {
         .build();
   }
 
-  private ServerCalls.UnaryMethod<DynamicMessage, DynamicMessage> adaptUnaryStubCall(
-      Descriptors.ServiceDescriptor serviceDescriptor,
-      Descriptors.MethodDescriptor methodDescriptor) {
-    return (request, responseObserver) -> {
-      final ServerAddress serverAddress = ServerAddress.get();
-
-      final GrpcRequest wireMockRequest =
-          new GrpcRequest(
-              serverAddress.scheme,
-              serverAddress.hostname,
-              serverAddress.port,
-              serviceDescriptor.getFullName(),
-              methodDescriptor.getName(),
-              request);
-
-      stubRequestHandler.handle(
-          wireMockRequest,
-          (req, resp, attributes) -> {
-            final HttpHeader statusHeader = resp.getHeaders().getHeader(GRPC_STATUS_NAME);
-
-            if (!statusHeader.isPresent() && resp.getStatus() == 404) {
-              responseObserver.onError(
-                  Status.NOT_FOUND
-                      .withDescription("No matching stub mapping found for gRPC request")
-                      .asRuntimeException());
-              return;
-            }
-
-            if (statusHeader.isPresent()
-                && !statusHeader.firstValue().equals(Status.Code.OK.name())) {
-              final HttpHeader statusReasonHeader = resp.getHeaders().getHeader(GRPC_STATUS_REASON);
-              final String reason =
-                  statusReasonHeader.isPresent() ? statusReasonHeader.firstValue() : "";
-
-              WireMockGrpc.Status status = WireMockGrpc.Status.valueOf(statusHeader.firstValue());
-
-              responseObserver.onError(
-                  Status.fromCodeValue(status.getValue())
-                      .withDescription(reason)
-                      .asRuntimeException());
-              return;
-            }
-
-            DynamicMessage.Builder messageBuilder =
-                DynamicMessage.newBuilder(methodDescriptor.getOutputType());
-
-            final DynamicMessage response =
-                JsonMessageUtils.toMessage(resp.getBodyAsString(), messageBuilder);
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-          },
-          ServeEvent.of(wireMockRequest));
-    };
-  }
+  //  private ServerCalls.ClientStreamingMethod<DynamicMessage, DynamicMessage>
+  // adaptClientStreamingStubCall(
+  //      Descriptors.ServiceDescriptor serviceDescriptor,
+  //      Descriptors.MethodDescriptor methodDescriptor) {
+  //    return responseObserver -> {
+  //      stubRequestHandler.handle(
+  //          wireMockRequest,
+  //          (req, resp, attributes) -> {
+  //            final HttpHeader statusHeader = resp.getHeaders().getHeader(GRPC_STATUS_NAME);
+  //
+  //            if (!statusHeader.isPresent() && resp.getStatus() == 404) {
+  //              responseObserver.onError(
+  //                  Status.NOT_FOUND
+  //                      .withDescription("No matching stub mapping found for gRPC request")
+  //                      .asRuntimeException());
+  //              return;
+  //            }
+  //
+  //            if (statusHeader.isPresent()
+  //                && !statusHeader.firstValue().equals(Status.Code.OK.name())) {
+  //              final HttpHeader statusReasonHeader =
+  // resp.getHeaders().getHeader(GRPC_STATUS_REASON);
+  //              final String reason =
+  //                  statusReasonHeader.isPresent() ? statusReasonHeader.firstValue() : "";
+  //
+  //              WireMockGrpc.Status status =
+  // WireMockGrpc.Status.valueOf(statusHeader.firstValue());
+  //
+  //              responseObserver.onError(
+  //                  Status.fromCodeValue(status.getValue())
+  //                      .withDescription(reason)
+  //                      .asRuntimeException());
+  //              return;
+  //            }
+  //
+  //            DynamicMessage.Builder messageBuilder =
+  //                DynamicMessage.newBuilder(methodDescriptor.getOutputType());
+  //
+  //            final DynamicMessage response =
+  //                JsonMessageUtils.toMessage(resp.getBodyAsString(), messageBuilder);
+  //            responseObserver.onNext(response);
+  //            responseObserver.onCompleted();
+  //          },
+  //          ServeEvent.of(wireMockRequest));
+  //    };
+  //  }
 
   private static MethodDescriptor.MethodType getMethodTypeFromDesc(
       Descriptors.MethodDescriptor methodDesc) {
@@ -190,9 +183,9 @@ public class GrpcFilter extends HttpFilter {
       return Exceptions.uncheck(() -> instance.get(5, SECONDS), ServerAddress.class);
     }
 
-    private final String scheme;
-    private final String hostname;
-    private final int port;
+    final String scheme;
+    final String hostname;
+    final int port;
 
     public ServerAddress(String scheme, String hostname, int port) {
       this.scheme = scheme;
