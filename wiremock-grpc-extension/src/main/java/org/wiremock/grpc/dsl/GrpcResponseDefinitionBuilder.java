@@ -26,6 +26,7 @@ public class GrpcResponseDefinitionBuilder {
   private final WireMockGrpc.Status grpcStatus;
   private final String statusReason;
   private String json;
+  private boolean templatingEnabled;
 
   public GrpcResponseDefinitionBuilder(WireMockGrpc.Status grpcStatus) {
     this(grpcStatus, null);
@@ -41,6 +42,11 @@ public class GrpcResponseDefinitionBuilder {
     return this;
   }
 
+  public GrpcResponseDefinitionBuilder withTemplatingEnabled(boolean enabled) {
+    this.templatingEnabled = enabled;
+    return this;
+  }
+
   public ResponseDefinitionBuilder build() {
     final ResponseDefinitionBuilder responseDefinitionBuilder =
         ResponseDefinitionBuilder.responseDefinition()
@@ -48,6 +54,10 @@ public class GrpcResponseDefinitionBuilder {
 
     if (statusReason != null) {
       responseDefinitionBuilder.withHeader(GRPC_STATUS_REASON, statusReason);
+    }
+
+    if (templatingEnabled) {
+      responseDefinitionBuilder.withTransformers("response-template");
     }
 
     return responseDefinitionBuilder.withBody(json);

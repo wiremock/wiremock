@@ -39,6 +39,10 @@ public class WireMockGrpc {
     return new GrpcResponseDefinitionBuilder(Status.OK).fromJson(json);
   }
 
+  public static GrpcResponseDefinitionBuilder jsonTemplate(String json) {
+    return new GrpcResponseDefinitionBuilder(Status.OK).withTemplatingEnabled(true).fromJson(json);
+  }
+
   public static GrpcResponseDefinitionBuilder message(MessageOrBuilder messageOrBuilder) {
     final String json = JsonMessageUtils.toJson(messageOrBuilder);
     return new GrpcResponseDefinitionBuilder(Status.OK).fromJson(json);

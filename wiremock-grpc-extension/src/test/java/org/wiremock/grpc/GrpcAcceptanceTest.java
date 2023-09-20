@@ -45,10 +45,7 @@ public class GrpcAcceptanceTest {
   public static WireMockExtension wm =
       WireMockExtension.newInstance()
           .options(
-              wireMockConfig()
-                  .dynamicPort()
-                  .globalTemplating(true)
-                  .withRootDirectory("src/test/resources/wiremock")
+              wireMockConfig().dynamicPort().withRootDirectory("src/test/resources/wiremock")
               //                .extensions(new GrpcExtensionFactory())
               )
           .build();
@@ -64,11 +61,27 @@ public class GrpcAcceptanceTest {
   }
 
   @Test
-  void shouldReturnGreetingBuiltViaTemplatedJson() {
+  void shouldReturnGreetingBuiltViaTemplatedJsonWithRawStubbing() {
     wm.stubFor(
         post(urlPathEqualTo("/com.example.grpc.GreetingService/greeting"))
             .willReturn(
                 okJson(
+                        "{\n"
+                            + "    \"greeting\": \"Hello {{jsonPath request.body '$.name'}}\"\n"
+                            + "}")
+                    .withTransformers("response-template")));
+
+    String greeting = greetingsClient.greet("Tom");
+
+    assertThat(greeting, is("Hello Tom"));
+  }
+
+  @Test
+  void shouldReturnGreetingBuiltViaTemplatedJson() {
+    mockGreetingService.stubFor(
+        method("greeting")
+            .willReturn(
+                jsonTemplate(
                     "{\n"
                         + "    \"greeting\": \"Hello {{jsonPath request.body '$.name'}}\"\n"
                         + "}")));
