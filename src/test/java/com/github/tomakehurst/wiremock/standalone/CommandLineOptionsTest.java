@@ -418,10 +418,16 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void enablesLocalResponseTemplating() {
-    CommandLineOptions options = new CommandLineOptions("--local-response-templating");
+  public void enablesLocalResponseTemplatingByDefault() {
+    CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getResponseTemplatingEnabled(), is(true));
     assertThat(options.getResponseTemplatingGlobal(), is(false));
+  }
+
+  @Test
+  public void canDisableTemplating() {
+    CommandLineOptions options = new CommandLineOptions("--disable-response-templating");
+    assertThat(options.getResponseTemplatingEnabled(), is(false));
   }
 
   @Test
