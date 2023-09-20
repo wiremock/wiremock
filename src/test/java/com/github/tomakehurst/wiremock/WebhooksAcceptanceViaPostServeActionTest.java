@@ -38,6 +38,7 @@ import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.CompositeNotifier;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -365,17 +366,18 @@ public class WebhooksAcceptanceViaPostServeActionTest {
 
   @Test
   public void doesNotFireAWebhookWhenRequestedForDeniedTarget() throws Exception {
-    rule.stubFor(
-        post(urlPathEqualTo("/webhook"))
-            .willReturn(aResponse().withStatus(200))
-            .withPostServeAction(
-                "webhook",
-                webhook()
-                    .withMethod(POST)
-                    .withUrl("http://169.254.2.34/foo")
-                    .withHeader("Content-Type", "application/json")
-                    .withHeader("X-Multi", "one", "two")
-                    .withBody("{ \"result\": \"SUCCESS\" }")));
+    StubMapping stub =
+        rule.stubFor(
+            post(urlPathEqualTo("/webhook"))
+                .willReturn(aResponse().withStatus(200))
+                .withPostServeAction(
+                    "webhook",
+                    webhook()
+                        .withMethod(POST)
+                        .withUrl("http://169.254.2.34/foo")
+                        .withHeader("Content-Type", "application/json")
+                        .withHeader("X-Multi", "one", "two")
+                        .withBody("{ \"result\": \"SUCCESS\" }")));
 
     client.post("/webhook", new StringEntity("", TEXT_PLAIN));
 
@@ -389,7 +391,10 @@ public class WebhooksAcceptanceViaPostServeActionTest {
         await().until(() -> testNotifier.getErrorMessages(), hasSize(greaterThanOrEqualTo(1)));
     assertThat(
         errorMessages.get(0),
-        is("The target webhook address is denied in WireMock's configuration."));
+        is(
+            "The target webhook address http://169.254.2.34/foo specified by stub "
+                + stub.getId()
+                + " is denied in WireMock's configuration."));
   }
 
   private void waitForRequestToTargetServer() throws Exception {
