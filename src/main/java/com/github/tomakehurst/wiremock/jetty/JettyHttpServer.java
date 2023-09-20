@@ -271,6 +271,8 @@ public abstract class JettyHttpServer implements HttpServer {
       Notifier notifier) {
     ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
 
+    decorateMockServiceContextBeforeConfig(mockServiceContext);
+
     mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
     mockServiceContext.setInitParameter(
         "org.eclipse.jetty.servlet.Default.resourceBase", fileSource.getPath());
@@ -326,12 +328,19 @@ public abstract class JettyHttpServer implements HttpServer {
       addCorsFilter(mockServiceContext);
     }
 
+    decorateMockServiceContextAfterConfig(mockServiceContext);
+
     return mockServiceContext;
   }
+
+  protected void decorateMockServiceContextBeforeConfig(ServletContextHandler mockServiceContext) {}
+  protected void decorateMockServiceContextAfterConfig(ServletContextHandler mockServiceContext) {}
 
   private ServletContextHandler addAdminContext(
       AdminRequestHandler adminRequestHandler, Notifier notifier) {
     ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
+
+    decorateAdminServiceContextBeforeConfig(adminContext);
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
 
@@ -371,8 +380,13 @@ public abstract class JettyHttpServer implements HttpServer {
 
     addCorsFilter(adminContext);
 
+    decorateAdminServiceContextAfterConfig(adminContext);
+
     return adminContext;
   }
+
+  protected void decorateAdminServiceContextBeforeConfig(ServletContextHandler adminServiceContext) {}
+  protected void decorateAdminServiceContextAfterConfig(ServletContextHandler adminServiceContext) {}
 
   private void addCorsFilter(ServletContextHandler context) {
     context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
