@@ -109,6 +109,7 @@ public class WireMockConfiguration implements Options {
   private Long jettyIdleTimeout;
 
   private ExtensionDeclarations extensions = new ExtensionDeclarations();
+  private boolean extensionScanningEnabled = false;
   private WiremockNetworkTrafficListener networkTrafficListener =
       new DoNothingWiremockNetworkTrafficListener();
 
@@ -411,6 +412,11 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration extensionScanningEnabled(boolean enabled) {
+    this.extensionScanningEnabled = enabled;
+    return this;
+  }
+
   public WireMockConfiguration httpServerFactory(HttpServerFactory serverFactory) {
     httpServerFactory = serverFactory;
     return this;
@@ -667,6 +673,11 @@ public class WireMockConfiguration implements Options {
   @Override
   public ExtensionDeclarations getDeclaredExtensions() {
     return extensions;
+  }
+
+  @Override
+  public boolean isExtensionScanningEnabled() {
+    return extensionScanningEnabled;
   }
 
   @Override
