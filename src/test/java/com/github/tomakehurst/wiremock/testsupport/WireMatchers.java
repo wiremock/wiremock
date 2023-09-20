@@ -266,16 +266,18 @@ public class WireMatchers {
   }
 
   public static Matcher<TextFile> fileWithPath(final String path) {
+
+    String normalizedPath = path.replace('/', File.separatorChar);
     return new TypeSafeMatcher<>() {
 
       @Override
       public void describeTo(Description desc) {
-        desc.appendText("a text file with path " + path);
+        desc.appendText("a text file with path " + normalizedPath);
       }
 
       @Override
       public boolean matchesSafely(TextFile textFile) {
-        return textFile.getPath().equals(path);
+        return textFile.getPath().equals(normalizedPath);
       }
     };
   }
