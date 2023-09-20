@@ -43,7 +43,6 @@ public class GrpcAcceptanceTest {
   ManagedChannel channel;
   GreetingsClient greetingsClient;
 
-
   @RegisterExtension
   public static WireMockExtension wm =
       WireMockExtension.newInstance()
@@ -58,8 +57,7 @@ public class GrpcAcceptanceTest {
     mockGreetingService =
         new WireMockGrpcService(new WireMock(wm.getPort()), GreetingServiceGrpc.SERVICE_NAME);
 
-    channel =
-        ManagedChannelBuilder.forAddress("localhost", wm.getPort()).usePlaintext().build();
+    channel = ManagedChannelBuilder.forAddress("localhost", wm.getPort()).usePlaintext().build();
     greetingsClient = new GreetingsClient(channel);
   }
 
