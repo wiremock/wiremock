@@ -23,6 +23,7 @@ import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,7 +76,7 @@ public class GreetingsClient {
   public String manyGreetingsOneReply(String... names) {
 
     final AtomicReference<HelloResponse> responseHolder = new AtomicReference<>();
-    final CountDownLatch latch = new CountDownLatch(1);
+    final CompletableFuture<HelloResponse> future = new CompletableFuture<>();
 
     final StreamObserver<HelloRequest> requestObserver =
         asyncStub.manyGreetingsOneReply(
@@ -86,11 +87,13 @@ public class GreetingsClient {
               }
 
               @Override
-              public void onError(Throwable t) {}
+              public void onError(Throwable t) {
+                future.completeExceptionally(t);
+              }
 
               @Override
               public void onCompleted() {
-                latch.countDown();
+                future.complete(responseHolder.get());
               }
             });
 
@@ -99,7 +102,7 @@ public class GreetingsClient {
     }
     requestObserver.onCompleted();
 
-    Exceptions.uncheck(() -> latch.await(10, TimeUnit.SECONDS));
+    Exceptions.uncheck(() -> future.get(3, TimeUnit.SECONDS));
 
     return responseHolder.get().getGreeting();
   }

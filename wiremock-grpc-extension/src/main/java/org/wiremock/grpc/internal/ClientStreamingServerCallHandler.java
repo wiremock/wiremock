@@ -50,6 +50,8 @@ public class ClientStreamingServerCallHandler
     final GrpcFilter.ServerAddress serverAddress = GrpcFilter.ServerAddress.get();
 
     final AtomicReference<DynamicMessage> firstResponse = new AtomicReference<>();
+    final AtomicReference<WireMockGrpc.Status> responseStatus = new AtomicReference<>();
+    final AtomicReference<String> statusReason = new AtomicReference<>();
 
     return new StreamObserver<>() {
       @Override
@@ -73,10 +75,6 @@ public class ClientStreamingServerCallHandler
               final HttpHeader statusHeader = resp.getHeaders().getHeader(GRPC_STATUS_NAME);
 
               if (!statusHeader.isPresent() && resp.getStatus() == 404) {
-                responseObserver.onError(
-                    Status.NOT_FOUND
-                        .withDescription("No matching stub mapping found for gRPC request")
-                        .asRuntimeException());
                 return;
               }
 
@@ -89,10 +87,9 @@ public class ClientStreamingServerCallHandler
 
                 WireMockGrpc.Status status = WireMockGrpc.Status.valueOf(statusHeader.firstValue());
 
-                responseObserver.onError(
-                    Status.fromCodeValue(status.getValue())
-                        .withDescription(reason)
-                        .asRuntimeException());
+                responseStatus.set(status);
+                statusReason.set(reason);
+
                 return;
               }
 
@@ -102,6 +99,7 @@ public class ClientStreamingServerCallHandler
               final DynamicMessage response =
                   JsonMessageUtils.toMessage(resp.getBodyAsString(), messageBuilder);
 
+              responseStatus.set(WireMockGrpc.Status.OK);
               firstResponse.set(response);
             },
             ServeEvent.of(wireMockRequest));
@@ -112,11 +110,20 @@ public class ClientStreamingServerCallHandler
 
       @Override
       public void onCompleted() {
-        final DynamicMessage response = firstResponse.get();
-        if (response != null) {
-          responseObserver.onNext(response);
+        if (responseStatus.get() != null && responseStatus.get() == WireMockGrpc.Status.OK) {
+          responseObserver.onNext(firstResponse.get());
+          responseObserver.onCompleted();
+        } else if (responseStatus.get() != null && responseStatus.get() != WireMockGrpc.Status.OK) {
+          responseObserver.onError(
+              Status.fromCodeValue(responseStatus.get().getValue())
+                  .withDescription(statusReason.get())
+                  .asRuntimeException());
+        } else {
+          responseObserver.onError(
+              Status.NOT_FOUND
+                  .withDescription("No matching stub mapping found for gRPC request")
+                  .asRuntimeException());
         }
-        responseObserver.onCompleted();
       }
     };
   }

@@ -18,8 +18,7 @@ package org.wiremock.grpc;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.wiremock.grpc.dsl.WireMockGrpc.*;
 
@@ -139,12 +138,44 @@ public class GrpcAcceptanceTest {
   }
 
   @Test
-  void returnsUnaryResponseToStreamingRequest() {
+  void returnsUnaryResponseToFirstMatchingMessagesInStreamingRequest() {
     mockGreetingService.stubFor(
         method("manyGreetingsOneReply")
-            .willReturn(message(HelloResponse.newBuilder().setGreeting("Hi all"))));
+            .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Rob").build()))
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("Hi Rob"))));
 
-    assertThat(greetingsClient.manyGreetingsOneReply("Tom", "Uri", "Rob", "Mark"), is("Hi all"));
+    assertThat(greetingsClient.manyGreetingsOneReply("Tom", "Uri", "Rob", "Mark"), is("Hi Rob"));
+  }
+
+  @Test
+  void throwsNotFoundWhenNoStreamingClientMessageMatches() {
+    mockGreetingService.stubFor(
+        method("manyGreetingsOneReply")
+            .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Jeff").build()))
+            .willReturn(message(HelloResponse.newBuilder().setGreeting("Hi Rob"))));
+
+    Exception exception =
+        assertThrows(
+            Exception.class,
+            () -> greetingsClient.manyGreetingsOneReply("Tom", "Uri", "Rob", "Mark"));
+    assertThat(exception.getCause(), instanceOf(StatusRuntimeException.class));
+    assertThat(
+        exception.getCause().getMessage(),
+        is("NOT_FOUND: No matching stub mapping found for gRPC request"));
+  }
+
+  @Test
+  void throwsReturnedErrorFromStreamingClientCall() {
+    mockGreetingService.stubFor(
+        method("manyGreetingsOneReply")
+            .withRequestMessage(equalToMessage(HelloRequest.newBuilder().setName("Jerf").build()))
+            .willReturn(Status.INVALID_ARGUMENT, "Jerf is not a valid name"));
+
+    Exception exception =
+        assertThrows(
+            Exception.class, () -> greetingsClient.manyGreetingsOneReply("Tom", "Jerf", "Rob"));
+    assertThat(exception.getCause(), instanceOf(StatusRuntimeException.class));
+    assertThat(exception.getCause().getMessage(), is("INVALID_ARGUMENT: Jerf is not a valid name"));
   }
 
   @Test

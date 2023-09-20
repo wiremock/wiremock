@@ -99,53 +99,6 @@ public class GrpcFilter extends HttpFilter {
         .build();
   }
 
-  //  private ServerCalls.ClientStreamingMethod<DynamicMessage, DynamicMessage>
-  // adaptClientStreamingStubCall(
-  //      Descriptors.ServiceDescriptor serviceDescriptor,
-  //      Descriptors.MethodDescriptor methodDescriptor) {
-  //    return responseObserver -> {
-  //      stubRequestHandler.handle(
-  //          wireMockRequest,
-  //          (req, resp, attributes) -> {
-  //            final HttpHeader statusHeader = resp.getHeaders().getHeader(GRPC_STATUS_NAME);
-  //
-  //            if (!statusHeader.isPresent() && resp.getStatus() == 404) {
-  //              responseObserver.onError(
-  //                  Status.NOT_FOUND
-  //                      .withDescription("No matching stub mapping found for gRPC request")
-  //                      .asRuntimeException());
-  //              return;
-  //            }
-  //
-  //            if (statusHeader.isPresent()
-  //                && !statusHeader.firstValue().equals(Status.Code.OK.name())) {
-  //              final HttpHeader statusReasonHeader =
-  // resp.getHeaders().getHeader(GRPC_STATUS_REASON);
-  //              final String reason =
-  //                  statusReasonHeader.isPresent() ? statusReasonHeader.firstValue() : "";
-  //
-  //              WireMockGrpc.Status status =
-  // WireMockGrpc.Status.valueOf(statusHeader.firstValue());
-  //
-  //              responseObserver.onError(
-  //                  Status.fromCodeValue(status.getValue())
-  //                      .withDescription(reason)
-  //                      .asRuntimeException());
-  //              return;
-  //            }
-  //
-  //            DynamicMessage.Builder messageBuilder =
-  //                DynamicMessage.newBuilder(methodDescriptor.getOutputType());
-  //
-  //            final DynamicMessage response =
-  //                JsonMessageUtils.toMessage(resp.getBodyAsString(), messageBuilder);
-  //            responseObserver.onNext(response);
-  //            responseObserver.onCompleted();
-  //          },
-  //          ServeEvent.of(wireMockRequest));
-  //    };
-  //  }
-
   private static MethodDescriptor.MethodType getMethodTypeFromDesc(
       Descriptors.MethodDescriptor methodDesc) {
     if (!methodDesc.isServerStreaming() && !methodDesc.isClientStreaming()) {
