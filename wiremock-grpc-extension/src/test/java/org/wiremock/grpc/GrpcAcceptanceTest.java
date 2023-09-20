@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -39,7 +40,9 @@ import org.wiremock.grpc.dsl.WireMockGrpcService;
 public class GrpcAcceptanceTest {
 
   WireMockGrpcService mockGreetingService;
+  ManagedChannel channel;
   GreetingsClient greetingsClient;
+
 
   @RegisterExtension
   public static WireMockExtension wm =
@@ -55,9 +58,14 @@ public class GrpcAcceptanceTest {
     mockGreetingService =
         new WireMockGrpcService(new WireMock(wm.getPort()), GreetingServiceGrpc.SERVICE_NAME);
 
-    ManagedChannel channel =
+    channel =
         ManagedChannelBuilder.forAddress("localhost", wm.getPort()).usePlaintext().build();
     greetingsClient = new GreetingsClient(channel);
+  }
+
+  @AfterEach
+  void tearDown() {
+    channel.shutdown();
   }
 
   @Test
