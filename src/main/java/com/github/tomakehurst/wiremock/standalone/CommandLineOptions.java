@@ -92,8 +92,9 @@ public class CommandLineOptions implements Options {
   private static final String ROOT_DIR = "root-dir";
   private static final String CONTAINER_THREADS = "container-threads";
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
-  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
+  private static final String DISABLE_RESPONSE_TEMPLATING = "disable-response-templating";
+  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
   private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
   private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
@@ -265,6 +266,8 @@ public class CommandLineOptions implements Options {
     optionParser.accepts(FILENAME_TEMPLATE, "Add filename template").withRequiredArg();
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
+    optionParser.accepts(
+        DISABLE_RESPONSE_TEMPLATING, "Disable processing of responses with Handlebars templates");
     optionParser
         .accepts(
             ADMIN_API_BASIC_AUTH,
@@ -926,7 +929,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public boolean getResponseTemplatingEnabled() {
-    return optionSet.has(GLOBAL_RESPONSE_TEMPLATING) || optionSet.has(LOCAL_RESPONSE_TEMPLATING);
+    return !optionSet.has(DISABLE_RESPONSE_TEMPLATING);
   }
 
   @Override
