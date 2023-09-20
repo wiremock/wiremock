@@ -62,7 +62,7 @@ public class WireMockServerTests {
 
   @Test
   public void addFilenameTemplateAsOptionAndValidFormat() {
-    Options options = options().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
+    Options options = options().dynamicPort().filenameTemplate("{{{request.url}}}-{{{request.url}}}.json");
     WireMockServer wireMockServer = new WireMockServer(options);
     wireMockServer.start();
     assertThat(wireMockServer.getOptions(), is(options));
