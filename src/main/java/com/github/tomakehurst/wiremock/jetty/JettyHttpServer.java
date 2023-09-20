@@ -334,6 +334,7 @@ public abstract class JettyHttpServer implements HttpServer {
   }
 
   protected void decorateMockServiceContextBeforeConfig(ServletContextHandler mockServiceContext) {}
+
   protected void decorateMockServiceContextAfterConfig(ServletContextHandler mockServiceContext) {}
 
   private ServletContextHandler addAdminContext(
@@ -385,8 +386,11 @@ public abstract class JettyHttpServer implements HttpServer {
     return adminContext;
   }
 
-  protected void decorateAdminServiceContextBeforeConfig(ServletContextHandler adminServiceContext) {}
-  protected void decorateAdminServiceContextAfterConfig(ServletContextHandler adminServiceContext) {}
+  protected void decorateAdminServiceContextBeforeConfig(
+      ServletContextHandler adminServiceContext) {}
+
+  protected void decorateAdminServiceContextAfterConfig(
+      ServletContextHandler adminServiceContext) {}
 
   private void addCorsFilter(ServletContextHandler context) {
     context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
