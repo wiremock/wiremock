@@ -80,7 +80,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
       jsonNode = new TextNode(json);
     }
 
-    final Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
+    final Set<ValidationMessage> validationMessages = validate(jsonNode, json);
     if (validationMessages.isEmpty()) {
       return MatchResult.exactMatch();
     }
@@ -100,5 +100,14 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
         return (double) validationMessages.size() / schemaPropertyCount;
       }
     };
+  }
+
+  private Set<ValidationMessage> validate(JsonNode jsonNode, String originalJson) {
+    final Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
+    if (validationMessages.isEmpty() || jsonNode.isTextual() || jsonNode.isContainerNode()) {
+      return validationMessages;
+    } else {
+      return schema.validate(new TextNode(originalJson));
+    }
   }
 }
