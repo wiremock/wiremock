@@ -18,6 +18,7 @@ package org.wiremock.webhooks;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
@@ -48,6 +49,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
+@SuppressWarnings("deprecation") // maintaining PostServeAction for backwards compatibility
 public class Webhooks extends PostServeAction implements ServeEventListener {
 
   private final ScheduledExecutorService scheduler;
@@ -79,6 +81,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this(NetworkAddressRules.ALLOW_ALL);
   }
 
+  @SuppressWarnings("unused") // public API
   public Webhooks(WebhookTransformer... transformers) {
     this(Arrays.asList(transformers), NetworkAddressRules.ALLOW_ALL);
   }
@@ -149,7 +152,14 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                     response.getCode(),
                     EntityUtils.toString(response.getEntity())));
           } catch (ProhibitedNetworkAddressException e) {
-            notifier.error("The target webhook address is denied in WireMock's configuration.");
+            notifier.error(
+                String.format(
+                    "The target webhook address %s specified by stub %s is denied in WireMock's configuration.",
+                    finalDefinition.getUrl(),
+                    firstNonNull(
+                        serveEvent.getStubMapping().getName(),
+                        serveEvent.getStubMapping().getId(),
+                        "<no name or id>")));
           } catch (Exception e) {
             notifier.error(
                 String.format(
