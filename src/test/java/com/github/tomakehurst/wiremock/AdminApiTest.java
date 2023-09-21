@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static java.util.Arrays.asList;
 import static net.javacrumbs.jsonunit.JsonMatchers.*;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
@@ -43,7 +42,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -918,14 +916,8 @@ class AdminApiTest extends AcceptanceTestBase {
 
     WireMockResponse response = testClient.get("/__admin/files");
 
-    assertEquals(200, response.statusCode());
-    String pathSeparatorRegex = File.separator;
-    if (File.separator.equals("\\")) {
-      pathSeparatorRegex = "\\\\";
-    }
-    assertThat(
-        new String(response.binaryContent()),
-        matches("\\[ \".*" + pathSeparatorRegex + "bar.txt\", \".*zoo.*txt\" ]"));
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("[ \"bar.txt\", \"zoo.txt\" ]"));
   }
 
   @Test

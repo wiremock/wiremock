@@ -80,6 +80,7 @@ public class CommandLineOptions implements Options {
   private static final String DISABLE_BANNER = "disable-banner";
   private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
   private static final String EXTENSIONS = "extensions";
+  private static final String DISABLE_EXTENSION_SCANNING = "disable-extensions-scanning";
   private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
   private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
   private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
@@ -92,8 +93,9 @@ public class CommandLineOptions implements Options {
   private static final String ROOT_DIR = "root-dir";
   private static final String CONTAINER_THREADS = "container-threads";
   private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
-  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
+  private static final String DISABLE_RESPONSE_TEMPLATING = "disable-response-templating";
+  public static final String FILENAME_TEMPLATE = "filename-template";
   private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
   private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
   private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
@@ -230,6 +232,9 @@ public class CommandLineOptions implements Options {
             EXTENSIONS,
             "Matching and/or response transformer extension class names, comma separated.")
         .withRequiredArg();
+    optionParser.accepts(
+        DISABLE_EXTENSION_SCANNING,
+        "Prevent extensions from being scanned and loaded from the classpath");
     optionParser
         .accepts(
             MAX_ENTRIES_REQUEST_JOURNAL,
@@ -265,6 +270,8 @@ public class CommandLineOptions implements Options {
     optionParser.accepts(FILENAME_TEMPLATE, "Add filename template").withRequiredArg();
     optionParser.accepts(
         LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
+    optionParser.accepts(
+        DISABLE_RESPONSE_TEMPLATING, "Disable processing of responses with Handlebars templates");
     optionParser
         .accepts(
             ADMIN_API_BASIC_AUTH,
@@ -638,6 +645,11 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
+  public boolean isExtensionScanningEnabled() {
+    return !optionSet.has(DISABLE_EXTENSION_SCANNING);
+  }
+
+  @Override
   public WiremockNetworkTrafficListener networkTrafficListener() {
     if (optionSet.has(PRINT_ALL_NETWORK_TRAFFIC)) {
       return new ConsoleNotifyingWiremockNetworkTrafficListener();
@@ -926,7 +938,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public boolean getResponseTemplatingEnabled() {
-    return optionSet.has(GLOBAL_RESPONSE_TEMPLATING) || optionSet.has(LOCAL_RESPONSE_TEMPLATING);
+    return !optionSet.has(DISABLE_RESPONSE_TEMPLATING);
   }
 
   @Override

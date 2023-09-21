@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock.store.files;
 
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -44,21 +43,21 @@ public class BlobStoreFileSourceTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void list_all_files() {
+  void list_all_files_returns_paths_relative_to_root_of_file_source() {
     List<TextFile> files = fileSource.listFilesRecursively();
 
     assertThat(
         files,
         hasExactlyIgnoringOrder(
-            fileNamed("one"),
-            fileNamed("two"),
-            fileNamed("three"),
-            fileNamed("four"),
-            fileNamed("five"),
-            fileNamed("six"),
-            fileNamed("seven"),
-            fileNamed("eight"),
-            fileNamed("deepfile.json")));
+            fileWithPath("one"),
+            fileWithPath("two"),
+            fileWithPath("three"),
+            fileWithPath("subdir/four"),
+            fileWithPath("subdir/five"),
+            fileWithPath("anothersubdir/six"),
+            fileWithPath("subdir/subsubdir/seven"),
+            fileWithPath("subdir/subsubdir/eight"),
+            fileWithPath("subdir/deepfile.json")));
   }
 
   @Test

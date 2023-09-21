@@ -483,6 +483,10 @@ public class WireMockApp implements StubServer, Admin {
     return options;
   }
 
+  public Extensions getExtensions() {
+    return extensions;
+  }
+
   @Override
   public void shutdownServer() {
     stores.stop();
@@ -566,5 +570,9 @@ public class WireMockApp implements StubServer, Admin {
         }
       }
     }
+  }
+
+  public Set<String> getLoadedExtensionNames() {
+    return extensions.getAllExtensionNames();
   }
 }
