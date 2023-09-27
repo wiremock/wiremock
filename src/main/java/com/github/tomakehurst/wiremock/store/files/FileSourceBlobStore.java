@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public class FileSourceBlobStore implements BlobStore {
+public class FileSourceBlobStore implements BlobStore, PathBased {
 
   private final FileSource fileSource;
 
@@ -72,5 +72,14 @@ public class FileSourceBlobStore implements BlobStore {
   @Override
   public void clear() {
     fileSource.listFilesRecursively().forEach(file -> fileSource.deleteFile(file.getPath()));
+  }
+
+  public FileSource getFileSource() {
+    return fileSource;
+  }
+
+  @Override
+  public String getPath() {
+    return fileSource.getPath();
   }
 }
