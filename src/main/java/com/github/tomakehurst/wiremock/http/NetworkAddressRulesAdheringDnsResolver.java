@@ -40,13 +40,18 @@ public class NetworkAddressRulesAdheringDnsResolver implements DnsResolver {
 
   @Override
   public InetAddress[] resolve(String host) throws UnknownHostException {
-    if (!networkAddressRules.isAllowed(host)) {
-      throw new ProhibitedNetworkAddressException();
+    var hostNameCheckResult = networkAddressRules.isAllowedHostName(host);
+
+    switch (hostNameCheckResult) {
+      case ALLOW:
+        return delegate.resolve(host);
+      case DENY:
+        throw new ProhibitedNetworkAddressException();
     }
 
     final InetAddress[] resolved = delegate.resolve(host);
     if (Stream.of(resolved)
-        .anyMatch(address -> !networkAddressRules.isAllowed(address.getHostAddress()))) {
+        .anyMatch(address -> !networkAddressRules.isAllowedIpAddress(address.getHostAddress()))) {
       throw new ProhibitedNetworkAddressException();
     }
 

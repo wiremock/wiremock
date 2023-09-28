@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
+import static com.github.tomakehurst.wiremock.common.NetworkAddressRules.NetworkAddressRulesResult.*;
 import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValidInet4Address;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
@@ -33,6 +34,20 @@ public class NetworkAddressRules {
   private final Set<NetworkAddressRange> allowedHostPatterns;
   private final Set<NetworkAddressRange> deniedIps;
   private final Set<NetworkAddressRange> deniedHostPatterns;
+
+  private final boolean allowedHostRulesExist;
+  private final boolean hostRulesExist;
+
+  private final boolean allowedIpRulesExist;
+  private final boolean deniedIpRulesExist;
+
+  private final boolean allowedRulesExist;
+
+  public enum NetworkAddressRulesResult {
+    ALLOW,
+    NEUTRAL,
+    DENY
+  }
 
   private static final Set<NetworkAddressRange> ALL_SET = Set.of(ALL);
 
@@ -63,11 +78,20 @@ public class NetworkAddressRules {
                 networkAddressRange ->
                     (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
             .collect(toSet());
+
+    allowedHostRulesExist = !allowedHostPatterns.isEmpty();
+    boolean deniedHostRulesExist = !deniedHostPatterns.isEmpty();
+    hostRulesExist = allowedHostRulesExist || deniedHostRulesExist;
+
+    allowedIpRulesExist = !allowedIps.isEmpty();
+    deniedIpRulesExist = !deniedIps.isEmpty();
+
+    allowedRulesExist = allowedHostRulesExist || allowedIpRulesExist;
   }
 
-  private static <T> Set<T> defaultIfEmpty(Set<T> original, Set<T> ifEmpty) {
+  private static Set<NetworkAddressRange> allIfEmpty(Set<NetworkAddressRange> original) {
     if (original.isEmpty()) {
-      return ifEmpty;
+      return ALL_SET;
     } else {
       return original;
     }
@@ -75,13 +99,44 @@ public class NetworkAddressRules {
 
   public boolean isAllowed(String testValue) {
     if (isValidInet4Address(testValue)) {
-      return defaultIfEmpty(allowedIps, ALL_SET).stream()
+      return allIfEmpty(allowedIps).stream()
               .anyMatch(rule -> rule.isIncluded(testValue))
           && deniedIps.stream().noneMatch(rule -> rule.isIncluded(testValue));
     } else {
-      return defaultIfEmpty(allowedHostPatterns, ALL_SET).stream()
-              .anyMatch(rule -> rule.isIncluded(testValue))
+      return hostPatternAllowed(testValue)
           && deniedHostPatterns.stream().noneMatch(rule -> rule.isIncluded(testValue));
+    }
+  }
+
+  public NetworkAddressRulesResult isAllowedHostName(String testValue) {
+    if (!hostRulesExist) {
+      return NEUTRAL;
+    } else if (isValidInet4Address(testValue)) {
+      return NEUTRAL;
+    } else if (hostPatternAllowed(testValue)
+        && deniedHostPatterns.stream().noneMatch(rule -> rule.isIncluded(testValue))) {
+      return ALLOW;
+    } else {
+      return DENY;
+    }
+  }
+
+  private boolean hostPatternAllowed(String testValue) {
+    return allIfEmpty(allowedHostPatterns).stream()
+        .anyMatch(rule -> rule.isIncluded(testValue));
+  }
+
+  public boolean isAllowedIpAddress(String testValue) {
+    return ipAllowed(testValue) && deniedIps.stream().noneMatch(rule -> rule.isIncluded(testValue));
+  }
+
+  private boolean ipAllowed(String testValue) {
+    if (!allowedRulesExist) {
+      return true;
+    } else if (allowedHostRulesExist && deniedIpRulesExist && !allowedIpRulesExist) {
+      return true;
+    } else {
+      return allowedIps.stream().anyMatch(rule -> rule.isIncluded(testValue));
     }
   }
 

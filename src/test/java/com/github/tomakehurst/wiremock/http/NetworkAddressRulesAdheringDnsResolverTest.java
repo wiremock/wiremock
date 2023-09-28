@@ -208,8 +208,6 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "10.1.1.1",
-        "10.1.1.2",
         "1.example.com",
       })
   void resolveReturnsForIpv4AddressWithHostnameAllowRule(String host) throws UnknownHostException {
@@ -229,8 +227,52 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
       strings = {
         "2.example.com",
         "3.example.com",
+        "10.1.1.1",
+        "10.1.1.2",
       })
   void resolveThrowsExceptionForIpv4AddressWithHostnameAllowRule(String host)
+      throws UnknownHostException {
+    register("1.example.com", "10.1.1.1");
+    register("2.example.com", "10.1.1.2");
+
+    NetworkAddressRules rules = NetworkAddressRules.builder().allow("1.example.com").build();
+
+    NetworkAddressRulesAdheringDnsResolver resolver =
+        new NetworkAddressRulesAdheringDnsResolver(dns, rules);
+
+    assertThatThrownBy(() -> resolver.resolve(host));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "0-0-1-1or2",
+        "0.0.2.1",
+      })
+  void resolveReturnsForHostnameWithHostnameAllowRuleAndIpDenyRule(String host)
+      throws UnknownHostException {
+    register("0-0-1-1or2", "0.0.1.1", "0.0.1.2");
+    register("0-0-2-1or2", "0.0.2.1", "0.0.2.2");
+    register("0-0-1-1", "0.0.1.1");
+
+    NetworkAddressRules rules =
+        NetworkAddressRules.builder().allow("0-0-1-1or2").deny("0.0.1.0-0.0.1.255").build();
+
+    NetworkAddressRulesAdheringDnsResolver resolver =
+        new NetworkAddressRulesAdheringDnsResolver(dns, rules);
+
+    assertThat(resolver.resolve(host)).isEqualTo(dns.resolve(host));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "0-0-2-1or2",
+        "0-0-1-1",
+        "0.0.1.1",
+        "0.0.1.2",
+      })
+  void resolveThrowsExceptionForHostnameWithHostnameAllowRuleAndIpDenyRule(String host)
       throws UnknownHostException {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
