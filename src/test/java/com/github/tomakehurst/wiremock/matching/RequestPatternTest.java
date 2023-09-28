@@ -584,7 +584,15 @@ class RequestPatternTest {
   }
 
   private static Stream<Arguments> validStrings() {
-    return Stream.of(Arguments.of("\"12\""), Arguments.of("\"123\""), Arguments.of("\"1234\""));
+    return Stream.of(
+        Arguments.of("ab"),
+        Arguments.of("\"ab\""),
+        Arguments.of("\"12\""),
+        Arguments.of("\"123\""),
+        Arguments.of("\"1234\""),
+        Arguments.of("12"),
+        Arguments.of("123"),
+        Arguments.of("1234"));
   }
 
   @ParameterizedTest
@@ -609,9 +617,8 @@ class RequestPatternTest {
         Arguments.of("\"\""),
         Arguments.of("\"1\""),
         Arguments.of("\"12345\""),
-        Arguments.of("12"),
-        Arguments.of("123"),
-        Arguments.of("1234"));
+        Arguments.of("1"),
+        Arguments.of("12345"));
   }
 
   static final String ALL_BODY_PATTERNS_EXAMPLE =
