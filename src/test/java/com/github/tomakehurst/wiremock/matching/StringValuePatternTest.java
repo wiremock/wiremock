@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.*;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -29,46 +28,35 @@ import org.junit.jupiter.api.Test;
 class StringValuePatternTest {
 
   @Test
-  void allSubclassesHaveWorkingToString() throws Exception {
+  void allSubclassesHaveWorkingToString() {
     Set<Class> matchingClasses = getClassOfPackage("com.github.tomakehurst.wiremock.matching");
-
-    var matchingClassesAfterFilter01 =
-        matchingClasses.stream()
-            .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
-            .collect(Collectors.toSet());
-
-    var matchingClassesAfterFilter02 =
-        matchingClassesAfterFilter01.stream()
-            .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-            .collect(Collectors.toSet());
 
     assertDoesNotThrow(
         () ->
-            matchingClassesAfterFilter02.forEach(
-                this::findConstructorWithStringParamInFirstPosition));
+            matchingClasses.stream()
+                .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
+                .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+                .forEach(this::findConstructorWithStringParamInFirstPosition));
   }
 
-  public Set<Class> getClassOfPackage(String packageName)
-      throws ClassNotFoundException, IOException {
-
+  private Set<Class> getClassOfPackage(String packageName) {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     assert classLoader != null;
     String path = packageName.replace('.', '/');
-    Enumeration<URL> resources = classLoader.getResources(path);
-    List<File> dirs = new ArrayList<>();
-    while (resources.hasMoreElements()) {
-      URL resource = resources.nextElement();
-      dirs.add(new File(resource.getFile()));
-    }
+
+    List<File> dirs =
+        classLoader.resources(path).map(e -> new File(e.getFile())).collect(Collectors.toList());
+
     Set<Class> classes = new HashSet<>();
     for (File directory : dirs) {
       classes.addAll(findClasses(directory, packageName));
     }
+
     return classes;
   }
 
-  private Set<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
+  private Set<Class> findClasses(File directory, String packageName) {
     Set<Class> classes = new HashSet<>();
     if (!directory.exists()) {
       return classes;
@@ -79,9 +67,12 @@ class StringValuePatternTest {
         assert !file.getName().contains(".");
         classes.addAll(findClasses(file, packageName + "." + file.getName()));
       } else if (file.getName().endsWith(".class")) {
-        classes.add(
-            Class.forName(
-                packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+        try {
+          classes.add(
+              Class.forName(
+                  packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+        } catch (ClassNotFoundException ignored) {
+        }
       }
     }
     return classes;
