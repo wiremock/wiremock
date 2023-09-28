@@ -41,8 +41,8 @@ class StringValuePatternTest {
 
   private Set<Class> getClassOfPackage(String packageName) {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
     assert classLoader != null;
+
     String path = packageName.replace('.', '/');
 
     List<File> dirs =
