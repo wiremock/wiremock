@@ -403,6 +403,18 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  void extensionScanningIsEnabledByDefault() {
+    CommandLineOptions options = new CommandLineOptions();
+    assertThat(options.isExtensionScanningEnabled(), is(true));
+  }
+
+  @Test
+  void canDisableExtensionScanning() {
+    CommandLineOptions options = new CommandLineOptions("--disable-extensions-scanning");
+    assertThat(options.isExtensionScanningEnabled(), is(false));
+  }
+
+  @Test
   public void returnsAConsoleNotifyingListenerWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--print-all-network-traffic");
     assertThat(
@@ -418,10 +430,16 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void enablesLocalResponseTemplating() {
-    CommandLineOptions options = new CommandLineOptions("--local-response-templating");
+  public void enablesLocalResponseTemplatingByDefault() {
+    CommandLineOptions options = new CommandLineOptions();
     assertThat(options.getResponseTemplatingEnabled(), is(true));
     assertThat(options.getResponseTemplatingGlobal(), is(false));
+  }
+
+  @Test
+  public void canDisableTemplating() {
+    CommandLineOptions options = new CommandLineOptions("--disable-response-templating");
+    assertThat(options.getResponseTemplatingEnabled(), is(false));
   }
 
   @Test

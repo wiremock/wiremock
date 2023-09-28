@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.extension;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 
-public interface HttpServerFactory extends Extension {
-
-  @Override
-  default String getName() {
-    return "http-server-factory";
-  }
-
-  HttpServer buildHttpServer(
-      Options options,
-      AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler);
-}
+public interface MappingsLoaderExtension extends MappingsLoader, Extension {}

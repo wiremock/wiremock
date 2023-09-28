@@ -155,7 +155,13 @@ public class MatchesJsonSchemaPatternTest {
   }
 
   private static Stream<Arguments> validStrings() {
-    return Stream.of(Arguments.of("\"12\""), Arguments.of("\"123\""), Arguments.of("\"1234\""));
+    return Stream.of(
+        Arguments.of("\"12\""),
+        Arguments.of("\"123\""),
+        Arguments.of("\"1234\""),
+        Arguments.of("12"),
+        Arguments.of("123"),
+        Arguments.of("1234"));
   }
 
   @ParameterizedTest
@@ -173,9 +179,8 @@ public class MatchesJsonSchemaPatternTest {
         Arguments.of("\"\""),
         Arguments.of("\"1\""),
         Arguments.of("\"12345\""),
-        Arguments.of("12"),
-        Arguments.of("123"),
-        Arguments.of("1234"));
+        Arguments.of("1"),
+        Arguments.of("12345"));
   }
 
   @ParameterizedTest
@@ -272,7 +277,7 @@ public class MatchesJsonSchemaPatternTest {
   }
 
   @Test
-  void corercesNumericActualValueToJsonString() {
+  void coercesNumericActualValueToJsonString() {
     String schema = file("schema-validation/stringy.schema.json");
 
     MatchesJsonSchemaPattern pattern =
@@ -281,7 +286,9 @@ public class MatchesJsonSchemaPatternTest {
     assertThat(pattern.match("abcd").isExactMatch(), is(true));
     assertThat(pattern.match("abcde").isExactMatch(), is(true));
     assertThat(pattern.match("abcdef").isExactMatch(), is(false));
-    assertThat(pattern.match("0").isExactMatch(), is(false));
+    assertThat(pattern.match("1").isExactMatch(), is(true));
+    assertThat(pattern.match("12345").isExactMatch(), is(true));
+    assertThat(pattern.match("123456").isExactMatch(), is(false));
   }
 
   private static Stream<Arguments> recursiveSchemaNonMatchingExamples() {

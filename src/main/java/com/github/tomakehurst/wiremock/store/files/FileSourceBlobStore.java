@@ -17,13 +17,14 @@ package com.github.tomakehurst.wiremock.store.files;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
-public class FileSourceBlobStore implements BlobStore {
+public class FileSourceBlobStore implements BlobStore, PathBased {
 
   private final FileSource fileSource;
 
@@ -47,7 +48,10 @@ public class FileSourceBlobStore implements BlobStore {
 
   @Override
   public Stream<String> getAllKeys() {
-    return fileSource.listFilesRecursively().stream().map(TextFile::getPath);
+    final String rootPath = new File(fileSource.getUri().getSchemeSpecificPart()).getPath();
+    return fileSource.listFilesRecursively().stream()
+        .map(TextFile::getPath)
+        .map(path -> path.substring(rootPath.length() + 1));
   }
 
   @Override
@@ -68,5 +72,14 @@ public class FileSourceBlobStore implements BlobStore {
   @Override
   public void clear() {
     fileSource.listFilesRecursively().forEach(file -> fileSource.deleteFile(file.getPath()));
+  }
+
+  public FileSource getFileSource() {
+    return fileSource;
+  }
+
+  @Override
+  public String getPath() {
+    return fileSource.getPath();
   }
 }

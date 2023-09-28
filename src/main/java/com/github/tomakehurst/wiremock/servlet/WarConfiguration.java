@@ -165,6 +165,11 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public boolean isExtensionScanningEnabled() {
+    return true;
+  }
+
+  @Override
   public WiremockNetworkTrafficListener networkTrafficListener() {
     return new DoNothingWiremockNetworkTrafficListener();
   }

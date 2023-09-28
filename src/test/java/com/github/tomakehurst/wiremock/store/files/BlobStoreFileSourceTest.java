@@ -16,16 +16,20 @@
 package com.github.tomakehurst.wiremock.store.files;
 
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.store.BlobStore;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -44,21 +48,21 @@ public class BlobStoreFileSourceTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  void list_all_files() {
+  void list_all_files_returns_paths_relative_to_root_of_file_source() {
     List<TextFile> files = fileSource.listFilesRecursively();
 
     assertThat(
         files,
         hasExactlyIgnoringOrder(
-            fileNamed("one"),
-            fileNamed("two"),
-            fileNamed("three"),
-            fileNamed("four"),
-            fileNamed("five"),
-            fileNamed("six"),
-            fileNamed("seven"),
-            fileNamed("eight"),
-            fileNamed("deepfile.json")));
+            fileWithPath("one"),
+            fileWithPath("two"),
+            fileWithPath("three"),
+            fileWithPath("subdir/four"),
+            fileWithPath("subdir/five"),
+            fileWithPath("anothersubdir/six"),
+            fileWithPath("subdir/subsubdir/seven"),
+            fileWithPath("subdir/subsubdir/eight"),
+            fileWithPath("subdir/deepfile.json")));
   }
 
   @Test
@@ -131,7 +135,45 @@ public class BlobStoreFileSourceTest {
   }
 
   @Test
-  void text_file_path() {
-    //        fileSource.getPath()
+  void returns_file_path_when_backed_by_file_source() {
+    assertThat(fileSource.getPath(), is(ROOT_PATH));
+  }
+
+  @Test
+  void returns_empty_string_when_not_backed_by_file_source() {
+    FileSource otherFileSource = new BlobStoreFileSource(new TestInMemoryBlobStore());
+    assertThat(otherFileSource.getPath(), is(""));
+  }
+
+  static class TestInMemoryBlobStore implements BlobStore {
+
+    @Override
+    public Optional<InputStream> getStream(String key) {
+      return Optional.empty();
+    }
+
+    @Override
+    public InputStreamSource getStreamSource(String key) {
+      return null;
+    }
+
+    @Override
+    public Stream<String> getAllKeys() {
+      return null;
+    }
+
+    @Override
+    public Optional<byte[]> get(String key) {
+      return Optional.empty();
+    }
+
+    @Override
+    public void put(String key, byte[] content) {}
+
+    @Override
+    public void remove(String key) {}
+
+    @Override
+    public void clear() {}
   }
 }
