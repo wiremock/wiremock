@@ -29,32 +29,29 @@ public class NetworkAddressRules {
     return new Builder();
   }
 
-  private final Set<NetworkAddressRange> allowed;
+  private final Set<NetworkAddressRange> allowedIps;
   private final Set<NetworkAddressRange> allowedHostPatterns;
-  private final Set<NetworkAddressRange> denied;
+  private final Set<NetworkAddressRange> deniedIps;
   private final Set<NetworkAddressRange> deniedHostPatterns;
 
-  public static final NetworkAddressRules ALLOW_ALL =
-      new NetworkAddressRules(Set.of(ALL), emptySet());
+  private static final Set<NetworkAddressRange> ALL_SET = Set.of(ALL);
+
+  public static final NetworkAddressRules ALLOW_ALL = new NetworkAddressRules(ALL_SET, emptySet());
 
   public NetworkAddressRules(Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
-    this.allowed =
-        defaultIfEmpty(
-            allowed.stream()
-                .filter(
-                    networkAddressRange ->
-                        !(networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
-                .collect(toSet()),
-            Set.of(ALL));
+    this.allowedIps =
+        allowed.stream()
+            .filter(
+                networkAddressRange ->
+                    !(networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
+            .collect(toSet());
     this.allowedHostPatterns =
-        defaultIfEmpty(
-            allowed.stream()
-                .filter(
-                    networkAddressRange ->
-                        (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
-                .collect(toSet()),
-            Set.of(ALL));
-    this.denied =
+        allowed.stream()
+            .filter(
+                networkAddressRange ->
+                    (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
+            .collect(toSet());
+    this.deniedIps =
         denied.stream()
             .filter(
                 networkAddressRange ->
@@ -65,8 +62,6 @@ public class NetworkAddressRules {
             .filter(
                 networkAddressRange ->
                     (networkAddressRange instanceof NetworkAddressRange.DomainNameWildcard))
-            .map(
-                networkAddressRange -> (NetworkAddressRange.DomainNameWildcard) networkAddressRange)
             .collect(toSet());
   }
 
@@ -80,10 +75,12 @@ public class NetworkAddressRules {
 
   public boolean isAllowed(String testValue) {
     if (isValidInet4Address(testValue)) {
-      return allowed.stream().anyMatch(rule -> rule.isIncluded(testValue))
-          && denied.stream().noneMatch(rule -> rule.isIncluded(testValue));
+      return defaultIfEmpty(allowedIps, ALL_SET).stream()
+              .anyMatch(rule -> rule.isIncluded(testValue))
+          && deniedIps.stream().noneMatch(rule -> rule.isIncluded(testValue));
     } else {
-      return allowedHostPatterns.stream().anyMatch(rule -> rule.isIncluded(testValue))
+      return defaultIfEmpty(allowedHostPatterns, ALL_SET).stream()
+              .anyMatch(rule -> rule.isIncluded(testValue))
           && deniedHostPatterns.stream().noneMatch(rule -> rule.isIncluded(testValue));
     }
   }
@@ -105,7 +102,7 @@ public class NetworkAddressRules {
     public NetworkAddressRules build() {
       Set<NetworkAddressRange> allowedRanges = allowed;
       if (allowedRanges.isEmpty()) {
-        allowedRanges = Set.of(ALL);
+        allowedRanges = ALL_SET;
       }
       return new NetworkAddressRules(Set.copyOf(allowedRanges), Set.copyOf(denied));
     }
