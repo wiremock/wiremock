@@ -23,19 +23,18 @@ import registry.NacosServiceRegistryManager;
 public class Run extends WireMockServerRunner {
 
   public static void main(String... args) {
-      String[] wireMockArgs = NacosDiscoveryProperties.removePrivate(args, new String[]{"port"});
-      new Run().run(wireMockArgs);
-      NacosDiscoveryProperties nacosDiscoveryProperties = new NacosDiscoveryProperties();
-      nacosDiscoveryProperties.parse(args);
-      if (0 == nacosDiscoveryProperties.getPort()) {
-          nacosDiscoveryProperties.setPort(8080);
-      }
-      if (nacosDiscoveryProperties.necessaryPropertiesIsComplete()) {
-          NacosServiceRegistryManager.heartbeatRegistry(
-                  new NacosServiceRegistry(nacosDiscoveryProperties));
-      } else {
-          System.out.println("Run:necessaryPropertiesIsComplete is false...");
-      }
-
+    String[] wireMockArgs = NacosDiscoveryProperties.removePrivate(args, new String[] {"port"});
+    new Run().run(wireMockArgs);
+    NacosDiscoveryProperties nacosDiscoveryProperties = new NacosDiscoveryProperties();
+    nacosDiscoveryProperties.parse(args);
+    if (0 == nacosDiscoveryProperties.getPort()) {
+      nacosDiscoveryProperties.setPort(8080);
+    }
+    if (nacosDiscoveryProperties.necessaryPropertiesIsComplete()) {
+      NacosServiceRegistryManager.heartbeatRegistry(
+          new NacosServiceRegistry(nacosDiscoveryProperties));
+    } else {
+      System.out.println("Run:necessaryPropertiesIsComplete is false...");
+    }
   }
 }

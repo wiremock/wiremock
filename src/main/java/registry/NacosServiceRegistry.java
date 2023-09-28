@@ -42,8 +42,9 @@ public class NacosServiceRegistry {
           "NacosServiceRegistry:registerInstance:urlParams is empty ... stop registry...");
       return;
     }
-    String url = String.format(registerUrl, nacosDiscoveryProperties.getServerAddress(),"?" + urlParams);
-    System.out.println("registerInstance: url:"+url);
+    String url =
+        String.format(registerUrl, nacosDiscoveryProperties.getServerAddress(), "?" + urlParams);
+    System.out.println("registerInstance: url:" + url);
     String response = execPostHttp(url);
     System.out.println("NacosServiceRegistry:registerInstance:response is " + response);
   }

@@ -15,7 +15,6 @@
  */
 package registry;
 
-import javax.naming.PartialResultException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,8 +34,14 @@ public class NacosDiscoveryProperties {
 
   private String groupName;
 
-    private static List<String> fileNames = Arrays.asList("port","ip","nacos.discovery.server-addr",
-            "nacos.discovery.namespace","nacos.discovery.group","application.name");
+  private static List<String> fileNames =
+      Arrays.asList(
+          "port",
+          "ip",
+          "nacos.discovery.server-addr",
+          "nacos.discovery.namespace",
+          "nacos.discovery.group",
+          "application.name");
 
   public NacosDiscoveryProperties() {}
 
@@ -63,36 +68,36 @@ public class NacosDiscoveryProperties {
         System.err.println("NacosDiscoveryProperties:parse:" + args[i] + "is not vaild...");
         continue;
       }
-      Consumer<Object> consumer = valueSetConsumer(split[0].replace("--",""), split[1]);
+      Consumer<Object> consumer = valueSetConsumer(split[0].replace("--", ""), split[1]);
       if (null != consumer) {
         consumer.accept(split[1]);
       }
     }
   }
 
-  public static String[] removePrivate(String[] source,String ... excludes){
+  public static String[] removePrivate(String[] source, String... excludes) {
 
-      List<String> strings = new ArrayList<>();
+    List<String> strings = new ArrayList<>();
 
-      List<String> excludeList = Arrays.asList(excludes);
-      if (null == source){
-          return new String[]{};
+    List<String> excludeList = Arrays.asList(excludes);
+    if (null == source) {
+      return new String[] {};
+    }
+    for (int i = 0; i < source.length; i++) {
+      if (null == source[i]) {
+        continue;
       }
-      for (int i = 0; i < source.length; i++) {
-          if (null == source[i]){
-              continue;
-          }
-          String[] split = source[i].split("=");
-          String key = split[0].replace("--", "");
-          if (split.length == 2 && !excludeList.contains(key) && fileNames.contains(key)){
-              continue;
-          }
-          strings.add(source[i]);
+      String[] split = source[i].split("=");
+      String key = split[0].replace("--", "");
+      if (split.length == 2 && !excludeList.contains(key) && fileNames.contains(key)) {
+        continue;
       }
+      strings.add(source[i]);
+    }
 
-      return strings.toArray(new String[]{});
-
+    return strings.toArray(new String[] {});
   }
+
   public boolean necessaryPropertiesIsComplete() {
     if (null == serverAddress || 0 == port || null == serviceName) {
       System.out.println(
@@ -114,8 +119,8 @@ public class NacosDiscoveryProperties {
     if ("port".equals(key)) {
       return o -> this.setPort(Integer.parseInt(String.valueOf(value)));
     }
-    if ("ip".equals(key)){
-        return o->this.setIp(String.valueOf(value));
+    if ("ip".equals(key)) {
+      return o -> this.setIp(String.valueOf(value));
     }
     if ("nacos.discovery.server-addr".equals(key)) {
       return o -> this.setServerAddress(String.valueOf(value));
@@ -126,8 +131,8 @@ public class NacosDiscoveryProperties {
     if ("nacos.discovery.group".equals(key)) {
       return o -> this.setGroupName(String.valueOf(value));
     }
-    if ("application.name".equals(key)){
-        return o->this.setServiceName(String.valueOf(value));
+    if ("application.name".equals(key)) {
+      return o -> this.setServiceName(String.valueOf(value));
     }
 
     return null;
