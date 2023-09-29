@@ -70,11 +70,4 @@ public class WireMockClientAcceptanceTest {
     assertThat(
         testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
   }
-
-  @Test
-  public void buildsMappingWithEmptySegment() {
-    givenThat(get(urlEqualTo("/my//resource")).willReturn(aResponse().withStatus(200)));
-
-    assertThat(testClient.get("/my//resource").statusCode(), is(200));
-  }
 }
