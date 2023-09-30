@@ -59,6 +59,8 @@ public class ContentTypes {
   public static final List<String> TEXT_FILE_EXTENSIONS =
       asList("txt", "json", "xml", "html", "htm", "yaml", "csv");
 
+  public static final List<String> JSON_FILE_EXTENSIONS = asList("json", "json5");
+
   public static final List<String> TEXT_MIME_TYPE_PATTERNS =
       asList(
           ".*text.*",

@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/json5_test"
+  },
+  "response": {
+    // a JSON comment, which is only allowed in JSON5
+    "body": 'json5 testing', // a property in single quotes
+    "status": 200
+  }
+}

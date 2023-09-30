@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
+import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtensions;
 import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -106,7 +106,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 
     List<TextFile> mappingFiles =
         mappingsFileSource.listFilesRecursively().stream()
-            .filter(byFileExtension("json"))
+            .filter(byFileExtensions(ContentTypes.JSON_FILE_EXTENSIONS))
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {

@@ -78,6 +78,14 @@ public class MappingsLoaderAcceptanceTest {
   }
 
   @Test
+  public void json5MappingsLoadedViaClasspath() {
+    buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
+    WireMockResponse json5Response = testClient.get("/json5_test");
+    assertThat(json5Response.content(), is("json5 testing"));
+    assertThat(json5Response.statusCode(), is(200));
+  }
+
+  @Test
   public void loadsStubMappingsFromAMixtureOfSingleAndMultiStubFiles() {
     buildWireMock(configuration);
     wireMockServer.resetMappings();
