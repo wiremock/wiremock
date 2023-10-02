@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.jetty11;
 
+import static org.eclipse.jetty.http.UriCompliance.UNSAFE;
+
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
@@ -63,6 +65,7 @@ public class Jetty11Utils {
     httpConfig.setSendXPoweredBy(false);
     httpConfig.setSendServerVersion(false);
     httpConfig.addCustomizer(new SecureRequestCustomizer(false));
+    httpConfig.setUriCompliance(UNSAFE);
     return httpConfig;
   }
 }
