@@ -274,10 +274,12 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
       })
   void resolveThrowsExceptionForHostnameWithHostnameAllowRuleAndIpDenyRule(String host)
       throws UnknownHostException {
-    register("1.example.com", "10.1.1.1");
-    register("2.example.com", "10.1.1.2");
+    register("0-0-1-1or2", "0.0.1.1", "0.0.1.2");
+    register("0-0-2-1or2", "0.0.2.1", "0.0.2.2");
+    register("0-0-1-1", "0.0.1.1");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("1.example.com").build();
+    NetworkAddressRules rules =
+        NetworkAddressRules.builder().allow("0-0-1-1or2").deny("0.0.1.0-0.0.1.255").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
