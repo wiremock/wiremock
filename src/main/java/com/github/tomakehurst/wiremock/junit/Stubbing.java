@@ -38,6 +38,8 @@ public interface Stubbing {
 
   void removeStub(StubMapping mappingBuilder);
 
+  void removeStub(UUID id);
+
   List<StubMapping> getStubMappings();
 
   StubMapping getSingleStubMapping(UUID id);
