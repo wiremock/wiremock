@@ -135,6 +135,56 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
     assertThat(getMatchingStubCount("/stb-1", "/stb-2"), is(2));
   }
 
+  @Test
+  public void removeStubWithUUIDThatExists() {
+
+    UUID id1 = UUID.randomUUID();
+
+    stubFor(get(urlEqualTo("/stub-1")).withId(id1).willReturn(aResponse().withBody("Stub-1-Body")));
+
+    assertThat(testClient.get("/stub-1").content(), is("Stub-1-Body"));
+
+    UUID id2 = UUID.randomUUID();
+    stubFor(get(urlEqualTo("/stub-2")).withId(id2).willReturn(aResponse().withBody("Stub-2-Body")));
+
+    assertThat(testClient.get("/stub-2").content(), is("Stub-2-Body"));
+
+    assertThat(getMatchingStubCount("/stub-1", "/stub-2"), is(2));
+
+    removeStub(id2);
+
+    assertThat(getMatchingStubCount("/stub-1", "/stub-2"), is(1));
+
+    removeStub(id2);
+
+    assertThat(getMatchingStubCount("/stub-1", "/stub-2"), is(0));
+  }
+
+  @Test
+  public void removeStubWithUUIDThatDoesNotExists() {
+
+    UUID id1 = UUID.randomUUID();
+
+    stubFor(get(urlEqualTo("/stb-1")).withId(id1).willReturn(aResponse().withBody("Stb-1-Body")));
+
+    assertThat(testClient.get("/stb-1").content(), is("Stb-1-Body"));
+
+    UUID id2 = UUID.randomUUID();
+    stubFor(get(urlEqualTo("/stb-2")).withId(id2).willReturn(aResponse().withBody("Stb-2-Body")));
+
+    assertThat(testClient.get("/stb-2").content(), is("Stb-2-Body"));
+
+    assertThat(getMatchingStubCount("/stb-1", "/stb-2"), is(2));
+
+    UUID id3 = UUID.randomUUID();
+    get(urlEqualTo("/stb-3")).withId(id3).willReturn(aResponse().withBody("Stb-3-Body"));
+
+    removeStub(id3);
+
+    assertThat(getMatchingStubCount("/stb-1", "/stb-2"), is(2));
+  }
+
+
   private Predicate<StubMapping> withAnyOf(final String... urls) {
     return mapping ->
         mapping.getRequest().getUrl() != null
