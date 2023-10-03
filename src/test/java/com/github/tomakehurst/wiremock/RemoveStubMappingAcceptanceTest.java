@@ -184,7 +184,6 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
     assertThat(getMatchingStubCount("/stb-1", "/stb-2"), is(2));
   }
 
-
   private Predicate<StubMapping> withAnyOf(final String... urls) {
     return mapping ->
         mapping.getRequest().getUrl() != null
