@@ -15,19 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import org.junit.jupiter.api.Test;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.util.Date;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import java.text.DateFormat;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import org.junit.jupiter.api.Test;
-
 public class DateTimeOffsetTest {
 
-  static final DateFormat ISO8601 = new ISO8601DateFormat();
+  static final DateFormat ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
   @Test
   public void parsesSecondsOffset() {
