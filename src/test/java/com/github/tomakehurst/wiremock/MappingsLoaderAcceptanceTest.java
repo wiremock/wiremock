@@ -81,7 +81,7 @@ public class MappingsLoaderAcceptanceTest {
   public void json5MappingsLoadedViaClasspath() {
     buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
     WireMockResponse json5Response = testClient.get("/json5_test");
-    assertThat(json5Response.content(), is("json5 testing"));
+    assertThat(json5Response.content(), is("{\"stringProp\":\"json5 \\n          \\\"testing\\\"\",\"numberProp\":0.5}"));
     assertThat(json5Response.statusCode(), is(200));
   }
 
