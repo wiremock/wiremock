@@ -321,7 +321,7 @@ public class MatchesXPathPatternTest {
             .match("<something>{ bad json</something>");
     checkJsonError(
         matchResult,
-        "Unexpected character ('b' (code 98)): was expecting double-quote to start field name\n at [Source: (String)\"{ bad json\"; line: 1, column: 4]");
+        "Unexpected character ('j' (code 106)): was expecting a colon to separate field name and value\n at [Source: (String)\"{ bad json\"; line: 1, column: 8]");
   }
 
   @Test
