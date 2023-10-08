@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,7 +30,9 @@ public class Conversions {
 
   public static Date toDate(QueryParameter parameter) {
     try {
-      return parameter.isPresent() ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parameter.firstValue()) : null;
+      return parameter.isPresent()
+          ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parameter.firstValue())
+          : null;
     } catch (ParseException e) {
       throw new InvalidInputException(
           Errors.validation(

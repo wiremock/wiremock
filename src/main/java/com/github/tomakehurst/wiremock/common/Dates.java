@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class Dates {
 

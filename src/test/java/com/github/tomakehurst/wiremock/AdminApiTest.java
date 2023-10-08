@@ -15,6 +15,20 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
+import static java.util.Arrays.asList;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
+import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -29,15 +43,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,20 +51,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static java.util.Arrays.asList;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
-import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 public class AdminApiTest extends AcceptanceTestBase {
 

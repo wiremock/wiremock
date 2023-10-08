@@ -15,39 +15,37 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.github.tomakehurst.wiremock.common.InvalidInputException;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
-import org.junit.jupiter.api.Test;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
 public class ConversionsTest {
 
-    @Test
-    void mapsValidFirstParameterValueAsDate() {
-        // given
-        var queryParameter = new QueryParameter("since", List.of("2023-10-07T00:00:00Z"));
-        var expected = new GregorianCalendar(2023, Calendar.OCTOBER, 7).getTime();
+  @Test
+  void mapsValidFirstParameterValueAsDate() {
+    // given
+    var queryParameter = new QueryParameter("since", List.of("2023-10-07T00:00:00Z"));
+    var expected = new GregorianCalendar(2023, Calendar.OCTOBER, 7).getTime();
 
-        // when
-        var result = Conversions.toDate(queryParameter);
+    // when
+    var result = Conversions.toDate(queryParameter);
 
-        // then
-        assertThat(result).isEqualTo(expected);
-    }
+    // then
+    assertThat(result).isEqualTo(expected);
+  }
 
-    @Test
-    void throwsExceptionWhenFirstParameterValueIsInvalidDate() {
-        // given
-        var queryParameter = new QueryParameter("since", List.of("invalid"));
+  @Test
+  void throwsExceptionWhenFirstParameterValueIsInvalidDate() {
+    // given
+    var queryParameter = new QueryParameter("since", List.of("invalid"));
 
-        // when + then
-        assertThrows(InvalidInputException.class, () -> Conversions.toDate(queryParameter));
-    }
-
+    // when + then
+    assertThrows(InvalidInputException.class, () -> Conversions.toDate(queryParameter));
+  }
 }

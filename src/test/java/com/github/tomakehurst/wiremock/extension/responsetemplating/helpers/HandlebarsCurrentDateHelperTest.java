@@ -15,20 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelperTestBase.transform;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -36,6 +22,19 @@ import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+
+import com.github.jknack.handlebars.Options;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HandlebarsCurrentDateHelperTest {
 
@@ -114,7 +113,8 @@ public class HandlebarsCurrentDateHelperTest {
   public void adjustsISO8601ToSpecifiedTimezone() throws Exception {
     Map<String, Object> optionsHash = Map.of("offset", "3 days", "timezone", "Australia/Sydney");
 
-    Date inputDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'").parse("2023-10-07T00:00:00.00Z");
+    Date inputDate =
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'").parse("2023-10-07T00:00:00.00Z");
     Object output = render(inputDate, optionsHash);
 
     assertThat(output.toString(), is("2023-10-10T00:00:00+11:00"));
@@ -126,7 +126,8 @@ public class HandlebarsCurrentDateHelperTest {
         Map.of(
             "offset", "3 days", "timezone", "Australia/Sydney", "format", "yyyy-MM-dd HH:mm:ssZ");
 
-    Date inputDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'").parse("2023-10-07T00:00:00.00Z");
+    Date inputDate =
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'").parse("2023-10-07T00:00:00.00Z");
     Object output = render(inputDate, optionsHash);
 
     assertThat(output.toString(), is("2023-10-10 00:00:00+1100"));
