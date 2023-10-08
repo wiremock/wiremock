@@ -967,7 +967,8 @@ public class CommandLineOptions implements Options {
   }
 
   private boolean isAsynchronousResponseEnabled() {
-    return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED) && Boolean.parseBoolean((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED));
+    return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED)
+        && Boolean.parseBoolean((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED));
   }
 
   private int getAsynchronousResponseThreads() {
