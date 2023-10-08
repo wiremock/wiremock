@@ -272,10 +272,10 @@ public class ProxyResponseRendererTest {
 
     assertThat(
         forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
-        is(Long.valueOf(PROXY_TIMEOUT)));
+        is((long) PROXY_TIMEOUT));
     assertThat(
         reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
-        is(Long.valueOf(PROXY_TIMEOUT)));
+        is((long) PROXY_TIMEOUT));
   }
 
   private static <T> T reflectiveInnerSpyField(
