@@ -260,7 +260,7 @@ public class AdminApiTest extends AcceptanceTestBase {
       testClient.get("/received-request/" + i);
     }
 
-    String midPoint = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'").format(new Date());
+    String midPoint = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date());
 
     for (int i = 6; i <= 9; i++) {
       testClient.get("/received-request/" + i);
