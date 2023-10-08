@@ -932,7 +932,7 @@ public class CommandLineOptions implements Options {
   @Override
   public int proxyTimeout() {
     return optionSet.has(PROXY_TIMEOUT)
-        ? Integer.valueOf((String) optionSet.valueOf(PROXY_TIMEOUT))
+        ? Integer.parseInt((String) optionSet.valueOf(PROXY_TIMEOUT))
         : DEFAULT_TIMEOUT;
   }
 
@@ -967,12 +967,10 @@ public class CommandLineOptions implements Options {
   }
 
   private boolean isAsynchronousResponseEnabled() {
-    return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED)
-        ? Boolean.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED))
-        : false;
+    return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED) && Boolean.parseBoolean((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED));
   }
 
   private int getAsynchronousResponseThreads() {
-    return Integer.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+    return Integer.parseInt((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
   }
 }
