@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.mappingssource;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ResourceUtil.getResourceURI;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -28,9 +28,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.io.Resources;
 import java.io.File;
-import java.net.URISyntaxException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +56,7 @@ public class MappingsLoaderExtensionTest {
   }
 
   @Test
-  public void mappingsLoadedFromJsonFilesWithMultipleMappingsSource() {
+  void mappingsLoadedFromJsonFilesWithMultipleMappingsSource() {
     FileSource filesRoot = new SingleRootFileSource(filePath("extension-test-request"));
     buildWireMock(
         configuration.extensions(new DummyMappingsLoaderExtension(filesRoot, new FilenameMaker())));
@@ -68,10 +66,6 @@ public class MappingsLoaderExtensionTest {
   }
 
   public static String filePath(String path) {
-    try {
-      return new File(Resources.getResource(path).toURI()).getAbsolutePath();
-    } catch (URISyntaxException e) {
-      return throwUnchecked(e, String.class);
-    }
+    return new File(getResourceURI(MappingsLoaderExtensionTest.class, path)).getAbsolutePath();
   }
 }
