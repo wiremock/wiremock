@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
+import com.github.tomakehurst.wiremock.common.Urls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,11 +74,11 @@ public class PathTemplate {
   }
 
   public boolean matches(String url) {
-    return parser.matches(url);
+    return parser.matches(Urls.getPath(url));
   }
 
   public PathParams parse(String url) {
-    return parser.parse(url);
+    return parser.parse(Urls.getPath(url));
   }
 
   public String render(PathParams pathParams) {
