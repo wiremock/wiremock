@@ -46,8 +46,9 @@ import com.toomuchcoding.jsonassert.JsonVerifiable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -260,7 +261,8 @@ public class AdminApiTest extends AcceptanceTestBase {
       testClient.get("/received-request/" + i);
     }
 
-    String midPoint = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date());
+    String midPoint =
+        DateTimeFormatter.ISO_ZONED_DATE_TIME.format(Instant.now().atZone(ZoneId.of("Z")));
 
     for (int i = 6; i <= 9; i++) {
       testClient.get("/received-request/" + i);

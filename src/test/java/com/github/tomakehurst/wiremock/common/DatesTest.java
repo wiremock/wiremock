@@ -18,9 +18,11 @@ package com.github.tomakehurst.wiremock.common;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 public class DatesTest {
@@ -29,7 +31,8 @@ public class DatesTest {
   void mapsValidInputAsDate() {
     // given
     var input = "2023-10-07T00:00:00Z";
-    var expected = new GregorianCalendar(2023, Calendar.OCTOBER, 7).getTime();
+    var expected =
+        Date.from(LocalDate.of(2023, Month.OCTOBER, 7).atStartOfDay(ZoneId.of("UTC")).toInstant());
 
     // when
     var result = Dates.parse(input);
@@ -44,14 +47,15 @@ public class DatesTest {
     var input = "invalid";
 
     // when + then
-    assertThrows(ParseException.class, () -> Dates.parse(input));
+    assertThrows(DateTimeParseException.class, () -> Dates.parse(input));
   }
 
   @Test
   void parseDateToTextualDate() {
     // given
     var input = "2023-10-07T00:00:00Z";
-    var expected = new GregorianCalendar(2023, Calendar.OCTOBER, 7).getTime();
+    var expected =
+        Date.from(LocalDate.of(2023, Month.OCTOBER, 7).atStartOfDay(ZoneId.of("UTC")).toInstant());
 
     // when
     var result = Dates.parse(input);

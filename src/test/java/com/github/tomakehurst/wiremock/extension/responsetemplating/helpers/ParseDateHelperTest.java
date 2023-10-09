@@ -19,13 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,10 +42,7 @@ public class ParseDateHelperTest {
     String inputDate = "2018-05-01T01:02:03Z";
     Object output = render(inputDate, optionsHash);
 
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    df.setTimeZone(TimeZone.getTimeZone("CEST"));
-
-    Date expectedDate = df.parse(inputDate);
+    Date expectedDate = Date.from(ZonedDateTime.parse(inputDate).toInstant());
     assertThat(output).isInstanceOf(Date.class);
     assertThat(output).isEqualTo(expectedDate);
   }

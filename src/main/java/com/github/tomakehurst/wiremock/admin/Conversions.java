@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class Conversions {
@@ -31,9 +31,9 @@ public class Conversions {
   public static Date toDate(QueryParameter parameter) {
     try {
       return parameter.isPresent()
-          ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(parameter.firstValue())
+          ? Date.from(ZonedDateTime.parse(parameter.firstValue()).toInstant())
           : null;
-    } catch (ParseException e) {
+    } catch (DateTimeParseException e) {
       throw new InvalidInputException(
           Errors.validation(
               parameter.key(), parameter.firstValue() + " is not a valid ISO8601 date"));

@@ -17,21 +17,23 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class Dates {
 
   public static Date parse(String dateString) {
     try {
-      return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(dateString);
-    } catch (ParseException e) {
+      return Date.from(ZonedDateTime.parse(dateString).toInstant());
+    } catch (DateTimeParseException e) {
       return throwUnchecked(e, Date.class);
     }
   }
 
   public static String format(Date date) {
-    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(date);
+    return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date.toInstant().atZone(ZoneId.of("Z")));
   }
 }

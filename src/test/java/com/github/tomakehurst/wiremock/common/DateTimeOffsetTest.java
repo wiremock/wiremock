@@ -19,15 +19,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 public class DateTimeOffsetTest {
-
-  static final DateFormat ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
   @Test
   public void parsesSecondsOffset() {
@@ -113,10 +111,12 @@ public class DateTimeOffsetTest {
   @Test
   public void offsetsProvidedDateByConfiguredAmount() throws Exception {
     DateTimeOffset offset = DateTimeOffset.fromString("3 days");
-    Date startingDate = ISO8601.parse("2018-04-16T12:01:01Z");
+    Date startingDate = Date.from(ZonedDateTime.parse("2018-04-16T12:01:01Z").toInstant());
     Date finalDate = offset.shift(startingDate);
 
-    assertThat(ISO8601.format(finalDate), is("2018-04-19T12:01:01Z"));
+    assertThat(
+        DateTimeFormatter.ISO_ZONED_DATE_TIME.format(finalDate.toInstant().atZone(ZoneId.of("Z"))),
+        is("2018-04-19T12:01:01Z"));
   }
 
   @Test

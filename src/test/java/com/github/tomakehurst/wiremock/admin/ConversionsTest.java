@@ -20,8 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +33,8 @@ public class ConversionsTest {
   void mapsValidFirstParameterValueAsDate() {
     // given
     var queryParameter = new QueryParameter("since", List.of("2023-10-07T00:00:00Z"));
-    var expected = new GregorianCalendar(2023, Calendar.OCTOBER, 7).getTime();
+    var expected =
+        Date.from(LocalDate.of(2023, Month.OCTOBER, 7).atStartOfDay(ZoneId.of("UTC")).toInstant());
 
     // when
     var result = Conversions.toDate(queryParameter);
