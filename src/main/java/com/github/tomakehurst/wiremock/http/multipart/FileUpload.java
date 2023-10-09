@@ -394,7 +394,7 @@ class FileUpload {
                 new FileSizeLimitExceededException(
                     format(
                         "The field %s exceeds its maximum permitted size of %s bytes.",
-                        fieldName, Long.valueOf(fileSizeMax)),
+                        fieldName, fileSizeMax),
                     pContentLength,
                     fileSizeMax);
             e.setFileName(pName);
@@ -415,7 +415,7 @@ class FileUpload {
                       new FileSizeLimitExceededException(
                           format(
                               "The field %s exceeds its maximum permitted size of %s bytes.",
-                              fieldName, Long.valueOf(pSizeMax)),
+                              fieldName, pSizeMax),
                           pCount,
                           pSizeMax);
                   e.setFieldName(fieldName);
@@ -586,7 +586,7 @@ class FileUpload {
           throw new SizeLimitExceededException(
               format(
                   "the request was rejected because its size (%s) exceeds the configured maximum (%s)",
-                  Long.valueOf(requestSize), Long.valueOf(sizeMax)),
+                  requestSize, sizeMax),
               requestSize,
               sizeMax);
         }
@@ -599,7 +599,7 @@ class FileUpload {
                     new SizeLimitExceededException(
                         format(
                             "the request was rejected because its size (%s) exceeds the configured maximum (%s)",
-                            Long.valueOf(pCount), Long.valueOf(pSizeMax)),
+                            pCount, pSizeMax),
                         pCount,
                         pSizeMax);
                 throw new FileUploadIOException(ex);

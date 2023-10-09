@@ -15,40 +15,71 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.reflect.ClassPath;
-import java.lang.reflect.Constructor;
+import java.io.*;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-public class StringValuePatternTest {
+@SuppressWarnings({"unchecked", "rawtypes"})
+class StringValuePatternTest {
 
   @Test
-  public void allSubclassesHaveWorkingToString() throws Exception {
-    Set<ClassPath.ClassInfo> allClasses =
-        ClassPath.from(Thread.currentThread().getContextClassLoader()).getAllClasses();
+  void allSubclassesHaveWorkingToString() {
+    Set<Class> matchingClasses = getClassOfPackage("com.github.tomakehurst.wiremock.matching");
 
-    allClasses.stream()
-        .filter(
-            classInfo ->
-                classInfo.getPackageName().startsWith("com.github.tomakehurst.wiremock.matching"))
-        .map(
-            input -> {
-              try {
-                return input.load();
-              } catch (Throwable e) {
-                return Object.class;
-              }
-            })
-        .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
-        .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-        .forEach(this::findConstructorWithStringParamInFirstPosition);
+    assertDoesNotThrow(
+        () ->
+            matchingClasses.stream()
+                .filter(clazz -> clazz.isAssignableFrom(StringValuePattern.class))
+                .filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
+                .forEach(this::findConstructorWithStringParamInFirstPosition));
   }
 
-  private Constructor<?> findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
-    return Arrays.stream(clazz.getConstructors())
+  private Set<Class> getClassOfPackage(String packageName) {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    assert classLoader != null;
+
+    String path = packageName.replace('.', '/');
+
+    List<File> dirs =
+        classLoader.resources(path).map(e -> new File(e.getFile())).collect(Collectors.toList());
+
+    Set<Class> classes = new HashSet<>();
+    for (File directory : dirs) {
+      classes.addAll(findClasses(directory, packageName));
+    }
+
+    return classes;
+  }
+
+  private Set<Class> findClasses(File directory, String packageName) {
+    Set<Class> classes = new HashSet<>();
+    if (!directory.exists()) {
+      return classes;
+    }
+    File[] files = directory.listFiles();
+    for (File file : Objects.requireNonNull(files)) {
+      if (file.isDirectory()) {
+        assert !file.getName().contains(".");
+        classes.addAll(findClasses(file, packageName + "." + file.getName()));
+      } else if (file.getName().endsWith(".class")) {
+        try {
+          classes.add(
+              Class.forName(
+                  packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+        } catch (ClassNotFoundException ignored) {
+        }
+      }
+    }
+    return classes;
+  }
+
+  private void findConstructorWithStringParamInFirstPosition(Class<?> clazz) {
+    Arrays.stream(clazz.getConstructors())
         .filter(
             constructor ->
                 constructor.getParameterTypes().length > 0
