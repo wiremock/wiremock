@@ -17,7 +17,7 @@ plugins {
   id 'project-report'
   id 'com.diffplug.spotless' version '6.22.0'
   id 'com.github.johnrengelman.shadow' version '8.1.0'
-  id "org.sonarqube" version "4.3.1.3277"
+  id "org.sonarqube" version "4.4.1.3373"
   id 'jacoco'
 }
 
@@ -70,7 +70,7 @@ dependencies {
   api "com.jayway.jsonpath:json-path:2.8.0", {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
-  api "org.ow2.asm:asm:9.5"
+  api "org.ow2.asm:asm:9.6"
 
   implementation "org.slf4j:slf4j-api:1.7.36"
   standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
@@ -109,7 +109,7 @@ dependencies {
   testImplementation "org.hamcrest:hamcrest-core:2.2"
   testImplementation "org.hamcrest:hamcrest-library:2.2"
   testImplementation 'org.mockito:mockito-core:5.6.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
+  testImplementation 'org.mockito:mockito-junit-jupiter:5.6.0'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.6.2'
