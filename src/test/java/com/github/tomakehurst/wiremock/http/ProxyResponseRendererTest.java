@@ -169,7 +169,10 @@ public class ProxyResponseRendererTest {
     ServeEvent serveEvent = reverseProxyServeEvent("/proxied");
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null), ArgumentMatchers.any(HttpClientResponseHandler.class));
+    Mockito.verify(clientSpy)
+        .execute(
+            argThat(request -> request.getEntity() == null),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -180,7 +183,10 @@ public class ProxyResponseRendererTest {
     ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() == null), ArgumentMatchers.any(HttpClientResponseHandler.class));
+    Mockito.verify(clientSpy)
+        .execute(
+            argThat(request -> request.getEntity() == null),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -192,7 +198,10 @@ public class ProxyResponseRendererTest {
         serveEvent("/proxied", false, "Text body".getBytes(StandardCharsets.UTF_8));
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
+    Mockito.verify(clientSpy)
+        .execute(
+            argThat(request -> request.getEntity() != null),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -204,7 +213,10 @@ public class ProxyResponseRendererTest {
         serveEvent("/proxied", true, "Text body".getBytes(StandardCharsets.UTF_8));
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
+    Mockito.verify(clientSpy)
+        .execute(
+            argThat(request -> request.getEntity() != null),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -225,7 +237,10 @@ public class ProxyResponseRendererTest {
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
+    Mockito.verify(clientSpy)
+        .execute(
+            argThat(request -> request.getEntity() != null),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
     List<LoggedRequest> requests =
         origin.findAll(postRequestedFor(urlPathMatching("/proxied/empty-post")));
     Assertions.assertThat(requests)
@@ -252,7 +267,10 @@ public class ProxyResponseRendererTest {
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy).execute(argThat(request -> request.getEntity() != null), ArgumentMatchers.any(HttpClientResponseHandler.class));
+    Mockito.verify(clientSpy)
+        .execute(
+            argThat(request -> request.getEntity() != null),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
     List<LoggedRequest> requests =
         origin.findAll(getRequestedFor(urlPathMatching("/proxied/empty-get")));
     Assertions.assertThat(requests)
@@ -272,10 +290,10 @@ public class ProxyResponseRendererTest {
 
     assertThat(
         forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
-        is(Long.valueOf(PROXY_TIMEOUT)));
+        is((long) PROXY_TIMEOUT));
     assertThat(
         reverseProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
-        is(Long.valueOf(PROXY_TIMEOUT)));
+        is((long) PROXY_TIMEOUT));
   }
 
   private static <T> T reflectiveInnerSpyField(
@@ -348,11 +366,11 @@ public class ProxyResponseRendererTest {
 
     CertificateSpecification certificateSpecification =
         new X509CertificateSpecification(
-            /* version = */ V3,
-            /* subject = */ "CN=localhost",
-            /* issuer = */ "CN=wiremock.org",
-            /* notBefore = */ new Date(),
-            /* notAfter = */ new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000)));
+            /* version= */ V3,
+            /* subject= */ "CN=localhost",
+            /* issuer= */ "CN=wiremock.org",
+            /* notBefore= */ new Date(),
+            /* notAfter= */ new Date(System.currentTimeMillis() + (365L * 24 * 60 * 60 * 1000)));
     KeyPair keyPair = generateKeyPair();
     ks.addPrivateKey("wiremock", keyPair, certificateSpecification.certificateFor(keyPair));
 
@@ -378,8 +396,8 @@ public class ProxyResponseRendererTest {
     return new ProxyResponseRenderer(
         ProxySettings.NO_PROXY,
         KeyStoreSettings.NO_STORE,
-        /* preserveHostHeader = */ false,
-        /* hostHeaderValue = */ null,
+        /* preserveHostHeader= */ false,
+        /* hostHeaderValue= */ null,
         new InMemorySettingsStore(),
         trustAllProxyTargets,
         Collections.<String>emptyList(),
