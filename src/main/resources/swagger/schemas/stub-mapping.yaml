@@ -47,6 +47,7 @@ properties:
             enum:
               - BEFORE_MATCH
               - AFTER_MATCH
+              - BEFORE_RESPONSE_SENT
               - AFTER_COMPLETE
         parameters:
           type: object
