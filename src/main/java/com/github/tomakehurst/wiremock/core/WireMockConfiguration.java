@@ -140,11 +140,6 @@ public class WireMockConfiguration implements Options {
   private Set<String> permittedSystemKeys = null;
   private Long maxTemplateCacheEntries = null;
   private boolean templateEscapingDisabled = true;
-  private boolean dynamicPortAllocationStrategy = Boolean.parseBoolean(System.getProperty("dynamicPortAllocationStrategy", "true"));
-
-  public void setDynamicPortAllocation(boolean dynamicPortAllocationStrategy) {
-    this.dynamicPortAllocationStrategy = dynamicPortAllocationStrategy;
-  }
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -187,11 +182,7 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration dynamicPort() {
-    if (dynamicPortAllocationStrategy) {
-      this.portNumber = PortManager.allocatePort();
-    } else {
-      this.portNumber = DYNAMIC_PORT;
-    }
+    this.portNumber = DYNAMIC_PORT;
     return this;
   }
 
@@ -206,11 +197,7 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration dynamicHttpsPort() {
-    if (dynamicPortAllocationStrategy) {
-      this.httpsPort = PortManager.allocatePort();
-    } else {
-      this.httpsPort = DYNAMIC_PORT;
-    }
+    this.httpsPort = DYNAMIC_PORT;
     return this;
   }
 
