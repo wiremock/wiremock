@@ -17,10 +17,8 @@ package com.github.tomakehurst.wiremock.jetty11;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.doAnswer;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
@@ -38,10 +36,11 @@ import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+
 import java.lang.reflect.Field;
-import java.net.BindException;
 import java.util.Collections;
 
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,15 +125,24 @@ public class JettyHttpServerTest {
   }
 
   @Test
-  public void testStartWithBindException() {
-    JettyHttpServer mockedServer = Mockito.mock(JettyHttpServer.class);
-    doAnswer(inv -> {throw new BindException("Port already in use");}).when(mockedServer).start();
+  public void testStartWithIOException() throws Exception {
+    Server testServer = new Server(0);
+    testServer.start();
+
+    ServerConnector serverConnector = (ServerConnector) testServer.getConnectors()[0];
+    int currentPort = serverConnector.getLocalPort();
+
+    WireMockConfiguration config = WireMockConfiguration.wireMockConfig().port(currentPort);
+    JettyHttpServer jettyHttpServer =
+            (JettyHttpServer)
+                    serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
     try {
-      mockedServer.start();
-      fail("Expected BindException, but no exception was thrown.");
-    } catch (Exception e) {
-      assertTrue(e instanceof BindException);
+      jettyHttpServer.start();
+    } catch (RuntimeException e) {
+      assertEquals("Failed to start the server after 3 attempts.", e.getMessage());
+    } finally {
+      testServer.stop();
     }
   }
 }

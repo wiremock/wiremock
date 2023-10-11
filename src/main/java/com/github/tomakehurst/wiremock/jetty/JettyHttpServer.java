@@ -33,7 +33,7 @@ import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.net.BindException;
+import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -201,7 +201,7 @@ public abstract class JettyHttpServer implements HttpServer {
       try {
         jettyServer.start();
         break;
-      } catch (BindException bindException) {
+      } catch (IOException bindException) {
         retryCount++;
         if (retryCount >= MAX_RETRIES) {
           throw new RuntimeException("Failed to start the server after " + MAX_RETRIES + " attempts.", bindException);
