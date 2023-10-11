@@ -514,6 +514,9 @@ public class CommandLineOptionsTest {
     assertNotNull(options.getFilenameMaker());
   }
 
+
+
+
   @Test
   public void configureFileTemplatesWithWrongFormat() {
     assertThrows(
@@ -691,6 +694,24 @@ public class CommandLineOptionsTest {
     MappingsSaver mappingsSaver = options.mappingsSaver();
 
     assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
+  }
+
+  @Test
+  public void mappingsSourceToYamlFileMappingsSource() {
+    CommandLineOptions options = new CommandLineOptions("--stub-mapping-file-format=Yaml");
+
+    MappingsSaver mappingsSaver = options.mappingsSaver();
+
+    assertThat(mappingsSaver, instanceOf(YamlFileMappingsSource.class));
+  }
+
+  @Test
+  public void mappingsSourceToYmlFileMappingsSource() {
+    CommandLineOptions options = new CommandLineOptions("--stub-mapping-file-format=Yml");
+
+    MappingsSaver mappingsSaver = options.mappingsSaver();
+
+    assertThat(mappingsSaver, instanceOf(YamlFileMappingsSource.class));
   }
 
   @Test

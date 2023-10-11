@@ -77,10 +77,8 @@ public final class Json {
     try {
       YAMLMapper mapper = getYamlMapper();
       return mapper.readValue(yaml, clazz);
-    } catch (JsonMappingException e) {
-        throw new RuntimeException(e);
-    } catch (JsonProcessingException e) {
-        throw JsonException.fromJackson(e);
+    } catch (JsonProcessingException processingException) {
+      throw JsonException.fromJackson(processingException);
     }
   }
 
