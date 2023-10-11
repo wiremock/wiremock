@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.filemaker.FilenameMaker;
+import com.github.tomakehurst.wiremock.http.MimeType;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingCollection;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
@@ -116,7 +117,7 @@ public class JsonFileMappingsSource implements MappingsSource {
           mapping.setDirty(false);
           stubMappings.addMapping(mapping);
           StubMappingFileMetadata fileMetadata =
-              new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti());
+              new StubMappingFileMetadata(mappingFile.getPath(), stubCollection.isMulti() );
           fileNameMap.put(mapping.getId(), fileMetadata);
         }
       } catch (JsonException e) {

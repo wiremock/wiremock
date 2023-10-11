@@ -122,12 +122,14 @@ public class CommandLineOptions implements Options {
 
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
 
+  private static final String STUB_MAPPING_FILE_FORMAT = "stub-mapping-file-format";
+
   private final OptionSet optionSet;
 
   private final Stores stores;
   private final FileSource fileSource;
 
-  private final MappingsSource mappingsSource;
+  private MappingsSource mappingsSource;
   private final ExtensionDeclarations extensions;
   private final FilenameMaker filenameMaker;
 
@@ -371,6 +373,11 @@ public class CommandLineOptions implements Options {
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
 
+    optionParser
+            .accepts(STUB_MAPPING_FILE_FORMAT, "File format of the stub mappings. Can be json [default], yml, yml")
+            .withRequiredArg()
+                    .defaultsTo("json");
+
     optionParser.accepts(HELP, "Print this message").forHelp();
 
     optionSet = optionParser.parse(args);
@@ -401,7 +408,17 @@ public class CommandLineOptions implements Options {
     }
 
     filenameMaker = new FilenameMaker(getFilenameTemplateOption());
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
+
+    //TODO: What's the behavior if the option is not supplied, or will us having a default mean it's always supplied ? Just default to JSON
+    if (optionSet.has(STUB_MAPPING_FILE_FORMAT)) {
+      String fileFormat = (String) optionSet.valueOf(STUB_MAPPING_FILE_FORMAT);
+      if ( fileFormat.equalsIgnoreCase("yml") || fileFormat.equalsIgnoreCase("yaml")) {
+        mappingsSource = new YamlFileMappingsSource(fileSource, filenameMaker);
+      }
+    } else {
+      mappingsSource = new JsonFileMappingsSource(fileSource, filenameMaker);
+    }
+
     buildExtensions();
 
     actualHttpPort = null;
