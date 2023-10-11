@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.http.MimeType;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -29,7 +30,12 @@ public class CreateStubMappingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubMapping newMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
+    StubMapping newMapping = StubMapping.NOT_CONFIGURED;
+    if(serveEvent.getRequest().getHeaders().getContentTypeHeader().equals(MimeType.YAML.toString())) {
+      newMapping = StubMapping.buildFromYaml(serveEvent.getRequest().getBodyAsString());
+    } else {
+      newMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
+    }
     admin.addStubMapping(newMapping);
     return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED);
   }

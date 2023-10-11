@@ -22,11 +22,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
@@ -54,6 +51,17 @@ public final class Json {
         }
       };
 
+  private static final InheritableThreadLocal<YAMLMapper> yamlMapperHolder =
+          new InheritableThreadLocal<>() {
+            protected YAMLMapper initialValue() {
+              YAMLMapper objectMapper = new YAMLMapper();
+              objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+              objectMapper.registerModule(new JavaTimeModule());
+              objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+              return objectMapper;
+            }
+          };
+
   private Json() {}
 
   public static <T> T read(String json, Class<T> clazz) {
@@ -62,6 +70,17 @@ public final class Json {
       return mapper.readValue(json, clazz);
     } catch (JsonProcessingException processingException) {
       throw JsonException.fromJackson(processingException);
+    }
+  }
+
+  public static <T> T readYaml(String yaml, Class<T> clazz) {
+    try {
+      YAMLMapper mapper = getYamlMapper();
+      return mapper.readValue(yaml, clazz);
+    } catch (JsonMappingException e) {
+        throw new RuntimeException(e);
+    } catch (JsonProcessingException e) {
+        throw JsonException.fromJackson(e);
     }
   }
 
@@ -97,6 +116,10 @@ public final class Json {
 
   public static ObjectMapper getObjectMapper() {
     return objectMapperHolder.get();
+  }
+
+  public static YAMLMapper getYamlMapper() {
+    return yamlMapperHolder.get();
   }
 
   public static byte[] toByteArray(Object object) {
