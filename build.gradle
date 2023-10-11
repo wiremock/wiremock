@@ -98,6 +98,8 @@ dependencies {
 
   api 'com.networknt:json-schema-validator:1.0.87'
 
+  implementation 'net.datafaker:datafaker:2.0.2'
+
   testImplementation "junit:junit:4.13"
   testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
   testImplementation("org.junit.platform:junit-platform-testkit")

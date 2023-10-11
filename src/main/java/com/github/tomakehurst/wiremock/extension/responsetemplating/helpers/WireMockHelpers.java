@@ -232,5 +232,14 @@ public enum WireMockHelpers implements Helper<Object> {
     public Object apply(Object context, Options options) throws IOException {
       return helper.apply(context, options);
     }
+  },
+
+  random {
+    private final RandomHelper helper = new RandomHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
   }
 }
