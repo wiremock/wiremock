@@ -131,7 +131,7 @@ public class CommandLineOptions implements Options {
 
   private MappingsSource mappingsSource;
   private final ExtensionDeclarations extensions;
-  private final FilenameMaker filenameMaker;
+  private FilenameMaker filenameMaker;
 
   private String helpText;
   private Integer actualHttpPort;
@@ -407,17 +407,19 @@ public class CommandLineOptions implements Options {
       stores.getSettingsStore().set(newSettings);
     }
 
-    filenameMaker = new FilenameMaker(getFilenameTemplateOption());
 
-    //TODO: What's the behavior if the option is not supplied, or will us having a default mean it's always supplied ? Just default to JSON
     if (optionSet.has(STUB_MAPPING_FILE_FORMAT)) {
       String fileFormat = (String) optionSet.valueOf(STUB_MAPPING_FILE_FORMAT);
       if ( fileFormat.equalsIgnoreCase("yml") || fileFormat.equalsIgnoreCase("yaml")) {
+        filenameMaker = new FilenameMaker(getFilenameTemplateOption() + optionSet.valueOf(STUB_MAPPING_FILE_FORMAT));
         mappingsSource = new YamlFileMappingsSource(fileSource, filenameMaker);
       }
     } else {
+      filenameMaker = new FilenameMaker(getFilenameTemplateOption());
       mappingsSource = new JsonFileMappingsSource(fileSource, filenameMaker);
     }
+
+
 
     buildExtensions();
 
