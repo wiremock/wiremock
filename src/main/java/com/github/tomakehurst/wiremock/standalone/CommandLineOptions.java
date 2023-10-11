@@ -410,7 +410,7 @@ public class CommandLineOptions implements Options {
 
     if (optionSet.has(STUB_MAPPING_FILE_FORMAT)) {
       String fileFormat = (String) optionSet.valueOf(STUB_MAPPING_FILE_FORMAT);
-      if ( fileFormat.equalsIgnoreCase("yml") || fileFormat.equalsIgnoreCase("yaml")) {
+      if (fileFormat.equalsIgnoreCase("yml") || fileFormat.equalsIgnoreCase("yaml")) {
         filenameMaker = new FilenameMaker(getFilenameTemplateOption() + optionSet.valueOf(STUB_MAPPING_FILE_FORMAT));
         mappingsSource = new YamlFileMappingsSource(fileSource, filenameMaker);
       }
