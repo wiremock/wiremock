@@ -18,8 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 public enum MimeType {
   JSON("application/json"),
   XML("text/xml"),
-  PLAIN("text/plain"),
-  YAML("application/yaml");
+  PLAIN("text/plain");
 
   private String mimeString;
 
