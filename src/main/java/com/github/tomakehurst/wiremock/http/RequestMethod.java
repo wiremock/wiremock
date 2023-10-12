@@ -33,7 +33,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod HEAD = new RequestMethod("HEAD");
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
-
+  public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
   private final String name;
 
   public RequestMethod(String name) {

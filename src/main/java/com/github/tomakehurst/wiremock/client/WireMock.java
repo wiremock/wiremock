@@ -26,6 +26,8 @@ import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -559,6 +561,15 @@ public class WireMock {
 
   public static MappingBuilder head(UrlPattern urlPattern) {
     return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
+  }
+
+  public static MappingBuilder getOrHead(String method, UrlPattern urlPattern) {
+    if (RequestMethod.GET.getName().equals(method)) {
+      return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
+    } else if (RequestMethod.HEAD.getName().equals(method)) {
+      return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
+    }
+    throw new InvalidInputException(Errors.single(51, method + " is not a valid http method"));
   }
 
   public static MappingBuilder options(UrlPattern urlPattern) {
