@@ -9,7 +9,6 @@ public class RandomHelper extends HandlebarsHelper<Object> {
 
     @Override
     public Object apply(Object context, Options options) throws IOException {
-        System.out.println(context.toString() + options.toString());
         Faker faker = new Faker();
         try {
             return faker.expression("#{" + context + "}");
