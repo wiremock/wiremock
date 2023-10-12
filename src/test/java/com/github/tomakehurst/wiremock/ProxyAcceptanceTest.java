@@ -300,6 +300,32 @@ public class ProxyAcceptanceTest {
   }
 
   @Test
+  public void returnsHeaderInformationIfHeaderIsPassedInGetOrHeadRequest()
+          throws Exception {
+    init(wireMockConfig().useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.ALWAYS));
+    String path = "/response/content";
+    target.register(getOrHead("HEAD", urlPathEqualTo(path))
+            .willReturn(ok().withHeader("Content-Type", "application/json")));
+    proxy.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+    CloseableHttpClient httpClient = HttpClientFactory.createClient();
+    HttpHead request = new HttpHead(proxyingService.baseUrl() + path);
+    try (CloseableHttpResponse response = httpClient.execute(request)) {
+      assertThat(response.getCode(), is(200));
+      assertThat(response.getFirstHeader("Content-Type").getValue(), is("application/json"));
+    }
+  }
+
+  @Test
+  public void returnsGetRequestIfGetIsPassedInGetOrHeadRequest() {
+    init(wireMockConfig().preserveHostHeader(true));
+    String path = "/response/city";
+    target.stubFor(getOrHead("GET", urlPathEqualTo(path)).willReturn(aResponse().withBody("New York")));
+    WireMockResponse response = testClient.get(targetServiceBaseUrl + path);
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("New York"));
+  }
+
+  @Test
   public void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
     initWithDefaultConfig();
 
