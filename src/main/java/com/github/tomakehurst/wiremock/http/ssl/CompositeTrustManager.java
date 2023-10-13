@@ -68,59 +68,41 @@ class CompositeTrustManager extends X509ExtendedTrustManager {
   @Override
   public void checkClientTrusted(final X509Certificate[] chain, final String authType)
       throws CertificateException {
-    checkAllTrustManagers(
-        tm -> {
-          tm.checkClientTrusted(chain, authType);
-        });
+    checkAllTrustManagers(tm -> tm.checkClientTrusted(chain, authType));
   }
 
   @Override
   public void checkServerTrusted(final X509Certificate[] chain, final String authType)
       throws CertificateException {
-    checkAllTrustManagers(
-        tm -> {
-          tm.checkServerTrusted(chain, authType);
-        });
+    checkAllTrustManagers(tm -> tm.checkServerTrusted(chain, authType));
   }
 
   @Override
   public void checkClientTrusted(
       final X509Certificate[] chain, final String authType, final Socket socket)
       throws CertificateException {
-    checkAllTrustManagers(
-        tm -> {
-          tm.checkClientTrusted(chain, authType, socket);
-        });
+    checkAllTrustManagers(tm -> tm.checkClientTrusted(chain, authType, socket));
   }
 
   @Override
   public void checkServerTrusted(
       final X509Certificate[] chain, final String authType, final Socket socket)
       throws CertificateException {
-    checkAllTrustManagers(
-        tm -> {
-          tm.checkServerTrusted(chain, authType, socket);
-        });
+    checkAllTrustManagers(tm -> tm.checkServerTrusted(chain, authType, socket));
   }
 
   @Override
   public void checkClientTrusted(
       final X509Certificate[] chain, final String authType, final SSLEngine engine)
       throws CertificateException {
-    checkAllTrustManagers(
-        tm -> {
-          tm.checkClientTrusted(chain, authType, engine);
-        });
+    checkAllTrustManagers(tm -> tm.checkClientTrusted(chain, authType, engine));
   }
 
   @Override
   public void checkServerTrusted(
       final X509Certificate[] chain, final String authType, final SSLEngine engine)
       throws CertificateException {
-    checkAllTrustManagers(
-        tm -> {
-          tm.checkServerTrusted(chain, authType, engine);
-        });
+    checkAllTrustManagers(tm -> tm.checkServerTrusted(chain, authType, engine));
   }
 
   @Override

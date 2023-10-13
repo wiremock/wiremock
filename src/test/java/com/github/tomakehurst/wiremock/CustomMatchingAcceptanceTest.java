@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,12 +115,11 @@ public class CustomMatchingAcceptanceTest {
   public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
     assertThrows(
         AdminException.class,
-        () -> {
-          wm.register(
-              get(urlPathMatching("/the/.*/one"))
-                  .andMatching(new MyRequestMatcher())
-                  .willReturn(ok()));
-        });
+        () ->
+            wm.register(
+                get(urlPathMatching("/the/.*/one"))
+                    .andMatching(new MyRequestMatcher())
+                    .willReturn(ok())));
   }
 
   public static class MyRequestMatcher extends RequestMatcherExtension {
