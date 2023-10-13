@@ -28,6 +28,8 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -41,6 +43,7 @@ import com.github.tomakehurst.wiremock.verification.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public class WireMockApp implements StubServer, Admin {
 
@@ -185,22 +188,45 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, ServeEventListener> serveEventListeners =
         extensions.ofType(ServeEventListener.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
+
+    CloseableHttpClient reverseProxyApacheClient =
+        HttpClientFactory.createClient(
+            1000,
+            options.proxyTimeout(),
+            options.proxyVia(),
+            options.httpsSettings().trustStore(),
+            true,
+            Collections.emptyList(),
+            true,
+            options.getProxyTargetRules());
+    HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient);
+
+    CloseableHttpClient forwardProxyApacheClient =
+        HttpClientFactory.createClient(
+            1000,
+            options.proxyTimeout(),
+            options.proxyVia(),
+            options.httpsSettings().trustStore(),
+            browserProxySettings.trustAllProxyTargets(),
+            browserProxySettings.trustAllProxyTargets()
+                ? Collections.emptyList()
+                : browserProxySettings.trustedProxyTargets(),
+            false,
+            options.getProxyTargetRules());
+    HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient);
+
     return new StubRequestHandler(
         this,
         new StubResponseRenderer(
             options.getStores().getFilesBlobStore(),
             settingsStore,
             new ProxyResponseRenderer(
-                options.proxyVia(),
-                options.httpsSettings().trustStore(),
                 options.shouldPreserveHostHeader(),
                 options.proxyHostHeader(),
                 settingsStore,
-                browserProxySettings.trustAllProxyTargets(),
-                browserProxySettings.trustedProxyTargets(),
                 options.getStubCorsEnabled(),
-                options.getProxyTargetRules(),
-                options.proxyTimeout()),
+                reverseProxyClient,
+                forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),
             List.copyOf(extensions.ofType(ResponseTransformerV2.class).values())),
         this,

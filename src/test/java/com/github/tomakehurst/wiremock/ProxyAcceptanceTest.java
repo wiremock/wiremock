@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getLast;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -309,9 +311,9 @@ public class ProxyAcceptanceTest {
 
     testClient.postWithChunkedBody("/chunked", "TEST".getBytes());
 
-    target.verifyThat(
-        postRequestedFor(urlEqualTo("/chunked"))
-            .withHeader("Transfer-Encoding", equalTo("chunked")));
+    List<LoggedRequest> loggedRequests = target.find(postRequestedFor(urlEqualTo("/chunked")));
+    assertThat(loggedRequests.size(), is(1));
+    assertThat(loggedRequests.get(0).header("Transfer-Encoding").firstValue(), is("chunked"));
   }
 
   @Test
