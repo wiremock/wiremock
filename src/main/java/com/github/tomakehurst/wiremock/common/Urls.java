@@ -19,9 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableListMultimap.Builder;
-import com.google.common.collect.Maps;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -49,25 +46,57 @@ public class Urls {
   }
 
   public static Map<String, QueryParameter> splitQuery(String query) {
+
     if (query == null) {
       return Collections.emptyMap();
     }
 
+    Map<String, List<String>> queryParams = new HashMap<>();
     List<String> pairs = Arrays.stream(query.split("&")).collect(Collectors.toList());
-    Builder<String, String> builder = ImmutableListMultimap.builder();
     for (String queryElement : pairs) {
       int firstEqualsIndex = queryElement.indexOf('=');
       if (firstEqualsIndex == -1) {
-        builder.putAll(decode(queryElement), "");
+        queryParams.put(decode(queryElement), Collections.singletonList(""));
       } else {
         String key = decode(queryElement.substring(0, firstEqualsIndex));
         String value = decode(queryElement.substring(firstEqualsIndex + 1));
-        builder.putAll(key, value);
+        if (key.matches(".*\\[\\d+\\]")) {
+          // Handle array format like ?id[0]=1&id[1]=2&id[2]=3
+          int startIndex = key.indexOf('[');
+          int endIndex = key.indexOf(']');
+          int index = Integer.parseInt(key.substring(startIndex + 1, endIndex));
+          key = key.substring(0, startIndex);
+          List<String> values = queryParams.computeIfAbsent(key, paramName -> new ArrayList<>());
+          while (values.size() <= index) {
+            values.add("");
+          }
+          queryParams.put(key, values);
+          values.set(index, value);
+        } else {
+          List<String> values = queryParams.computeIfAbsent(key, paramName -> new ArrayList<>());
+          if (value.startsWith("[") && value.endsWith("]")) {
+            // Handle format like key=[value1,value2,value3]
+            String arrayValue =
+                value.substring(1, value.length() - 1).replace("\"", "").replace("'", "");
+            values.addAll(Arrays.asList(arrayValue.split(",")));
+          } else if (value.contains(",")) {
+            // Handle format like key=value1,value2,value3
+            values.addAll(Arrays.asList(value.split(",")));
+          } else if (value.contains("|")) {
+            // Handle format like key=value1|value2|value3
+            values.addAll(Arrays.asList(value.split("\\|")));
+          } else {
+            // Handle other formats
+            values.add(value);
+          }
+          queryParams.put(key, values);
+        }
       }
     }
-
-    return Maps.transformEntries(
-        builder.build().asMap(), (key, values) -> new QueryParameter(key, new ArrayList<>(values)));
+    return queryParams.entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey, entry -> new QueryParameter(entry.getKey(), entry.getValue())));
   }
 
   public static String getPath(String url) {
