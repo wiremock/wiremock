@@ -30,7 +30,7 @@ public class GetVersionTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    
+
     var acceptHeader = serveEvent.getRequest().getHeader("Accept");
     if (acceptHeader != null && acceptHeader.contains("text/plain")) {
       return responseDefinition()
@@ -39,7 +39,7 @@ public class GetVersionTask implements AdminTask {
           .withHeader("Content-Type", "text/plain")
           .build();
     }
-    
+
     var versionResult = new VersionResult(Version.getCurrentVersion());
     return jsonResponse(versionResult);
   }
