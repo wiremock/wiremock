@@ -63,9 +63,7 @@ public class ServletContextFileSourceTest {
   public void throwsUnsupportedExceptionWhenAttemptingToWrite() {
     assertThrows(
         UnsupportedOperationException.class,
-        () -> {
-          fileSource.writeTextFile("filename", "filecontents");
-        });
+        () -> fileSource.writeTextFile("filename", "filecontents"));
   }
 
   @Test
