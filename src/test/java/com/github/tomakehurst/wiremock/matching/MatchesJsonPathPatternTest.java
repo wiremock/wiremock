@@ -376,16 +376,15 @@ public class MatchesJsonPathPatternTest {
   public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithMissingExpression() {
     assertThrows(
         JsonException.class,
-        () -> {
-          Json.read(
-              "{                                      \n"
-                  + "    \"matchesJsonPath\": {              \n"
-                  + "        \"express\": \"$..thing\",      \n"
-                  + "        \"equalTo\": \"the value\"      \n"
-                  + "    }                                   \n"
-                  + "}",
-              StringValuePattern.class);
-        });
+        () ->
+            Json.read(
+                "{                                      \n"
+                    + "    \"matchesJsonPath\": {              \n"
+                    + "        \"express\": \"$..thing\",      \n"
+                    + "        \"equalTo\": \"the value\"      \n"
+                    + "    }                                   \n"
+                    + "}",
+                StringValuePattern.class));
   }
 
   @Test
@@ -393,16 +392,15 @@ public class MatchesJsonPathPatternTest {
       throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithBadValuePatternName() {
     assertThrows(
         JsonException.class,
-        () -> {
-          Json.read(
-              "{                                      \n"
-                  + "    \"matchesJsonPath\": {              \n"
-                  + "        \"expression\": \"$..thing\",   \n"
-                  + "        \"badOperator\": \"the value\"  \n"
-                  + "    }                                   \n"
-                  + "}",
-              StringValuePattern.class);
-        });
+        () ->
+            Json.read(
+                "{                                      \n"
+                    + "    \"matchesJsonPath\": {              \n"
+                    + "        \"expression\": \"$..thing\",   \n"
+                    + "        \"badOperator\": \"the value\"  \n"
+                    + "    }                                   \n"
+                    + "}",
+                StringValuePattern.class));
   }
 
   @Test

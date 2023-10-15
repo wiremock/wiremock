@@ -131,15 +131,14 @@ public class ResponseDefinitionTransformerV2AcceptanceTest {
   public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new WireMockServer(
-                  wireMockConfig()
-                      .dynamicPort()
-                      .extensions(ExampleTransformer.class)
-                      .extensions(
-                          "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$AnotherExampleTransformer"))
-              .start();
-        });
+        () ->
+            new WireMockServer(
+                    wireMockConfig()
+                        .dynamicPort()
+                        .extensions(ExampleTransformer.class)
+                        .extensions(
+                            "com.github.tomakehurst.wiremock.ResponseDefinitionTransformerV2AcceptanceTest$AnotherExampleTransformer"))
+                .start());
   }
 
   @Test
