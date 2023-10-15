@@ -27,6 +27,7 @@ import static java.lang.System.out;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -57,6 +58,10 @@ public class WireMockServerRunner {
     CommandLineOptions options = new CommandLineOptions(args);
     if (options.help()) {
       out.println(options.helpText());
+      return;
+    }
+    if (options.version()) {
+      out.println(Version.getCurrentVersion());
       return;
     }
 
