@@ -57,6 +57,7 @@ import joptsimple.OptionSet;
 public class CommandLineOptions implements Options {
 
   private static final String HELP = "help";
+  private static final String VERSION = "version";
   private static final String RECORD_MAPPINGS = "record-mappings";
   private static final String MATCH_HEADERS = "match-headers";
   private static final String PROXY_ALL = "proxy-all";
@@ -370,6 +371,7 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
+    optionParser.accepts(VERSION, "Prints wiremock version information and exits");
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -609,6 +611,10 @@ public class CommandLineOptions implements Options {
     return optionSet.has(HTTPS_PORT)
         ? Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT))
         : -1;
+  }
+
+  public boolean version() {
+    return optionSet.has(VERSION);
   }
 
   public boolean help() {
