@@ -61,6 +61,8 @@ public class WireMockConfiguration implements Options {
 
   private long asyncResponseTimeout = DEFAULT_TIMEOUT;
   private boolean disableOptimizeXmlFactoriesLoading = false;
+
+  private String serverName = DEFAULT_SERVER_NAME;
   private int portNumber = DEFAULT_PORT;
   private boolean httpDisabled = false;
   private String bindAddress = DEFAULT_BIND_ADDRESS;
@@ -168,6 +170,12 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration timeout(int timeout) {
     this.asyncResponseTimeout = timeout;
+    return this;
+  }
+
+  public WireMockConfiguration serverName(String serverName) {
+
+    this.serverName = serverName;
     return this;
   }
 
@@ -541,6 +549,12 @@ public class WireMockConfiguration implements Options {
   public WireMockConfiguration withMaxTemplateCacheEntries(Long maxTemplateCacheEntries) {
     this.maxTemplateCacheEntries = maxTemplateCacheEntries;
     return this;
+  }
+
+  @Override
+  public String getServerName() {
+
+    return serverName;
   }
 
   @Override

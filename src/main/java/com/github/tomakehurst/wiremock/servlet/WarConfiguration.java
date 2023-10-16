@@ -50,6 +50,12 @@ public class WarConfiguration implements Options {
   }
 
   @Override
+  public String getServerName() {
+
+    return DEFAULT_SERVER_NAME;
+  }
+
+  @Override
   public int portNumber() {
     return 0;
   }
