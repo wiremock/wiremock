@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.ACCEPT;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.http.MimeType.PLAIN;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -34,7 +35,7 @@ public class GetVersionTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
 
-    var acceptHeader = serveEvent.getRequest().getHeader("Accept");
+    var acceptHeader = serveEvent.getRequest().getHeader(ACCEPT);
     if (acceptHeader != null && acceptHeader.contains(PLAIN.toString())) {
       return responseDefinition()
           .withStatus(HTTP_OK)
