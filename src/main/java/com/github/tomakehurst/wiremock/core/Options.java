@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import org.apache.commons.lang3.StringUtils;
 
 public interface Options {
 
@@ -48,7 +47,7 @@ public interface Options {
   int DEFAULT_CONTAINER_THREADS = 25;
   String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
-  String DEFAULT_SERVER_NAME = StringUtils.EMPTY;
+  String DEFAULT_SERVER_NAME = null;
 
   String getServerName();
 
