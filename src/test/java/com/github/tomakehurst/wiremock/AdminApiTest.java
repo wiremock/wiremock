@@ -255,7 +255,7 @@ class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
+  void getLoggedRequestsWithLimitAndSinceDate() {
     for (int i = 1; i <= 5; i++) {
       testClient.get("/received-request/" + i);
     }
