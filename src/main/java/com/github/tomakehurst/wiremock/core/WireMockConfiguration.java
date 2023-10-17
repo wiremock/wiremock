@@ -174,7 +174,9 @@ public class WireMockConfiguration implements Options {
 
     this.serverName = serverName;
     if (notifier instanceof Slf4jNotifier) {
-      ((Slf4jNotifier) notifier).clone().setLogger(serverName);
+      Slf4jNotifier slf4jNotifier = ((Slf4jNotifier) notifier).clone();
+      slf4jNotifier.setLogger(serverName);
+      this.notifier = slf4jNotifier;
     }
     return this;
   }
