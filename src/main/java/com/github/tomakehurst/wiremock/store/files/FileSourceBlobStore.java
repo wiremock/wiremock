@@ -38,7 +38,11 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
 
   @Override
   public Optional<InputStream> getStream(String key) {
-    return Optional.of(fileSource.getBinaryFileNamed(key).getStream());
+    try {
+      return Optional.of(fileSource.getBinaryFileNamed(key).getStream());
+    } catch (Exception exception) {
+      return Optional.empty();
+    }
   }
 
   @Override
@@ -56,7 +60,11 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
 
   @Override
   public Optional<byte[]> get(String key) {
-    return Optional.of(fileSource.getBinaryFileNamed(key).readContents());
+    try {
+      return Optional.of(fileSource.getBinaryFileNamed(key).readContents());
+    } catch (Exception exception) {
+      return Optional.empty();
+    }
   }
 
   @Override
