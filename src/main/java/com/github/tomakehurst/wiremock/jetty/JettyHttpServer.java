@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.servlet.*;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -204,7 +203,8 @@ public abstract class JettyHttpServer implements HttpServer {
       } catch (IOException bindException) {
         retryCount++;
         if (retryCount >= MAX_RETRIES) {
-          throw new RuntimeException("Failed to start the server after " + MAX_RETRIES + " attempts.", bindException);
+          throw new RuntimeException(
+              "Failed to start the server after " + MAX_RETRIES + " attempts.", bindException);
         }
       } catch (Exception e) {
         throw new RuntimeException(e);

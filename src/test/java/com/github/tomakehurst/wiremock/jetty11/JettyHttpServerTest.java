@@ -37,10 +37,8 @@ import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
-
 import java.lang.reflect.Field;
 import java.util.Collections;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,8 +133,8 @@ public class JettyHttpServerTest {
 
     WireMockConfiguration config = WireMockConfiguration.wireMockConfig().port(currentPort);
     JettyHttpServer jettyHttpServer =
-            (JettyHttpServer)
-                    serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
+        (JettyHttpServer)
+            serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
     RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
     assertEquals("Failed to start the server after 3 attempts.", exception.getMessage());
