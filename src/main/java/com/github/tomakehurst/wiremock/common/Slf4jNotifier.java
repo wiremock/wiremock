@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Slf4jNotifier implements Notifier {
 
-  private static Logger log = LoggerFactory.getLogger("WireMock");
+  private Logger log = LoggerFactory.getLogger("WireMock");
 
   private final boolean verbose;
 
@@ -30,7 +30,7 @@ public class Slf4jNotifier implements Notifier {
     this.verbose = verbose;
   }
 
-  public void setLoggerWithServerName(final String serverName) {
+  public void updateLogger(final String serverName) {
     log = LoggerFactory.getLogger(firstNonNull(serverName, "WireMock"));
   }
 

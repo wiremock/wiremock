@@ -175,8 +175,8 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration serverName(String serverName) {
 
-    ((Slf4jNotifier) notifier).setLoggerWithServerName(serverName);
     this.serverName = serverName;
+    ((Slf4jNotifier) notifier).updateLogger(serverName);
     return this;
   }
 
