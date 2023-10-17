@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,23 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import com.fasterxml.jackson.databind.util.ISO8601Utils;
-import java.text.ParseException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class Dates {
 
   public static Date parse(String dateString) {
     try {
-      return new ISO8601DateFormat().parse(dateString);
-    } catch (ParseException e) {
+      return Date.from(ZonedDateTime.parse(dateString).toInstant());
+    } catch (DateTimeParseException e) {
       return throwUnchecked(e, Date.class);
     }
   }
 
   public static String format(Date date) {
-    return ISO8601Utils.format(date);
+    return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date.toInstant().atZone(ZoneId.of("Z")));
   }
 }
