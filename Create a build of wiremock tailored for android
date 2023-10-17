@@ -1,0 +1,30 @@
+//directly register the extension programmatically via its class name, class or an instance
+
+new WireMockServer(wireMockConfig()
+  .extensions("com.mycorp.BodyContentTransformer", "com.mycorp.HeaderMangler"));
+
+new WireMockServer(wireMockConfig()
+  .extensions(BodyContentTransformer.class, HeaderMangler.class));
+
+new WireMockServer(wireMockConfig()
+  .extensions(new BodyContentTransformer(), new HeaderMangler()));
+
+//an extension to be created with various core WireMock services passed to the constructor
+
+new WireMockServer(wireMockConfig()
+  .extensions(services ->
+                    List.of(
+                        new MiscInfoApi(
+                            services.getAdmin(),
+                            services.getOptions(),
+                            services.getStores(),
+                            services.getFiles(),
+                            services.getExtensions()
+                        ))));
+
+
+//as a parameter and sub-events can be attached to this
+serveEvent.appendSubEvent(
+  "JSON_PARSE_WARNING",
+  Map.of("message", "Single quotes are not permitted")
+);
