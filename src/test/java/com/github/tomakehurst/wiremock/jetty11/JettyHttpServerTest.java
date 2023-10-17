@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
@@ -137,12 +138,7 @@ public class JettyHttpServerTest {
             (JettyHttpServer)
                     serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
-    try {
-      jettyHttpServer.start();
-    } catch (RuntimeException e) {
-      assertEquals("Failed to start the server after 3 attempts.", e.getMessage());
-    } finally {
-      testServer.stop();
-    }
+    RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
+    assertEquals("Failed to start the server after 3 attempts.", exception.getMessage());
   }
 }
