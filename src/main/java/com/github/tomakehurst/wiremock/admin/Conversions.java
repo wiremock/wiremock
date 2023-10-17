@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import java.text.ParseException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class Conversions {
@@ -30,8 +30,10 @@ public class Conversions {
 
   public static Date toDate(QueryParameter parameter) {
     try {
-      return parameter.isPresent() ? new ISO8601DateFormat().parse(parameter.firstValue()) : null;
-    } catch (ParseException e) {
+      return parameter.isPresent()
+          ? Date.from(ZonedDateTime.parse(parameter.firstValue()).toInstant())
+          : null;
+    } catch (DateTimeParseException e) {
       throw new InvalidInputException(
           Errors.validation(
               parameter.key(), parameter.firstValue() + " is not a valid ISO8601 date"));

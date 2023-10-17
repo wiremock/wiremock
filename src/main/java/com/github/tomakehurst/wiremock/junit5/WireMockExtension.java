@@ -28,7 +28,9 @@ import org.junit.platform.commons.support.AnnotationSupport;
 /**
  * JUnit Jupiter extension that manages a WireMock server instance's lifecycle and configuration.
  *
- * <p>See http://wiremock.org/docs/junit-jupiter/ for full documentation.
+ * <p>See <a
+ * href="http://wiremock.org/docs/junit-jupiter/">http://wiremock.org/docs/junit-jupiter/</a> for
+ * full documentation.
  */
 public class WireMockExtension extends DslWrapper
     implements ParameterResolver,
