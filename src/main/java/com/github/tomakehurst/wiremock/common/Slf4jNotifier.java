@@ -22,16 +22,25 @@ import org.slf4j.LoggerFactory;
 
 public class Slf4jNotifier implements Notifier {
 
-  private Logger log = LoggerFactory.getLogger("WireMock");
-
+  private Logger log;
   private final boolean verbose;
 
   public Slf4jNotifier(boolean verbose) {
+    this(verbose, null);
+  }
+
+  public Slf4jNotifier(boolean verbose, String loggerName) {
+    log = LoggerFactory.getLogger(getFirstNonNull(loggerName, "WireMock"));
     this.verbose = verbose;
   }
 
-  public void updateLogger(final String serverName) {
-    log = LoggerFactory.getLogger(getFirstNonNull(serverName, "WireMock"));
+  public void setLogger(String loggerName) {
+
+    log = LoggerFactory.getLogger(getFirstNonNull(loggerName, "WireMock"));
+  }
+
+  public Slf4jNotifier clone() {
+    return new Slf4jNotifier(this.verbose, log.getName());
   }
 
   @Override
