@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class Slf4jNotifier implements Notifier {
   }
 
   public void updateLogger(final String serverName) {
-    log = LoggerFactory.getLogger(firstNonNull(serverName, "WireMock"));
+    log = LoggerFactory.getLogger(getFirstNonNull(serverName, "WireMock"));
   }
 
   @Override
