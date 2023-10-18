@@ -19,7 +19,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Function;
 
 public interface HttpClient {
 
@@ -32,5 +31,5 @@ public interface HttpClient {
       List.of(TRANSFER_ENCODING, CONTENT_LENGTH, "connection", USER_AGENT);
   String HOST_HEADER = "host";
 
-  <T> T execute(Request request, Function<Response, T> responseHandler) throws IOException;
+  Response execute(Request request) throws IOException;
 }

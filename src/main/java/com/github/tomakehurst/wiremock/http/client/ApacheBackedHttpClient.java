@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http.client;
 
-import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.TRANSFER_ENCODING;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.*;
@@ -49,11 +46,9 @@ public class ApacheBackedHttpClient implements HttpClient {
   }
 
   @Override
-  public <T> T execute(Request request, Function<Response, T> responseHandler) throws IOException {
+  public Response execute(Request request) throws IOException {
     ClassicHttpRequest apacheRequest = createApacheRequest(request);
-    return apacheHttpClient.execute(
-        apacheRequest,
-        apacheResponse -> responseHandler.apply(toWireMockHttpResponse(apacheResponse)));
+    return apacheHttpClient.execute(apacheRequest, ApacheBackedHttpClient::toWireMockHttpResponse);
   }
 
   private static ClassicHttpRequest createApacheRequest(Request request) {

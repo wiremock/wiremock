@@ -78,19 +78,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     HttpClient client = chooseClient(serveEvent.getRequest().isBrowserProxyRequest());
 
     try {
-      return client.execute(
-          request,
-          httpResponse ->
-              Response.Builder.like(httpResponse)
-                  .fromProxy(true)
-                  .headers(headersFrom(httpResponse, responseDefinition))
-                  .configureDelay(
-                      settings.getFixedDelay(),
-                      settings.getDelayDistribution(),
-                      responseDefinition.getFixedDelayMilliseconds(),
-                      responseDefinition.getDelayDistribution())
-                  .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
-                  .build());
+      final Response httpResponse = client.execute(request);
+      return Response.Builder.like(httpResponse)
+          .fromProxy(true)
+          .headers(headersFrom(httpResponse, responseDefinition))
+          .configureDelay(
+              settings.getFixedDelay(),
+              settings.getDelayDistribution(),
+              responseDefinition.getFixedDelayMilliseconds(),
+              responseDefinition.getDelayDistribution())
+          .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
+          .build();
     } catch (ProhibitedNetworkAddressException e) {
       return response()
           .status(HTTP_INTERNAL_ERROR)
