@@ -19,6 +19,8 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.store.Stores;
 
 public interface WireMockServices {
@@ -34,4 +36,8 @@ public interface WireMockServices {
   Extensions getExtensions();
 
   TemplateEngine getTemplateEngine();
+
+  HttpClientFactory getHttpClientFactory();
+
+  HttpClient getDefaultHttpClient();
 }

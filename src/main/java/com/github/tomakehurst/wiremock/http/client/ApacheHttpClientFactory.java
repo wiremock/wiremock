@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http.client;
 
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.core.Options;
 import java.util.List;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
@@ -25,25 +23,20 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
 
   @Override
   public HttpClient buildHttpClient(
-      int maxConnections,
-      int proxyTimeoutMillis,
-      ProxySettings proxyVia,
-      KeyStoreSettings trustStoreSettings,
+      Options options,
       boolean trustAllCertificates,
       List<String> trustedHosts,
-      boolean useSystemProperties,
-      NetworkAddressRules networkAddressRules) {
-
+      boolean useSystemProperties) {
     final CloseableHttpClient apacheClient =
         com.github.tomakehurst.wiremock.http.HttpClientFactory.createClient(
-            maxConnections,
-            proxyTimeoutMillis,
-            proxyVia,
-            trustStoreSettings,
+            options.getMaxHttpClientConnections(),
+            options.proxyTimeout(),
+            options.proxyVia(),
+            options.httpsSettings().trustStore(),
             trustAllCertificates,
             trustedHosts,
             useSystemProperties,
-            networkAddressRules);
+            options.getProxyTargetRules());
 
     return new ApacheBackedHttpClient(apacheClient);
   }

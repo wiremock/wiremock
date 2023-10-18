@@ -19,9 +19,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -71,15 +69,10 @@ public class HttpClientSubstitutionTest {
 
     @Override
     public HttpClient buildHttpClient(
-        int maxConnections,
-        int proxyTimeoutMillis,
-        ProxySettings proxyVia,
-        KeyStoreSettings trustStoreSettings,
+        Options options,
         boolean trustAllCertificates,
         List<String> trustedHosts,
-        boolean useSystemProperties,
-        NetworkAddressRules networkAddressRules) {
-
+        boolean useSystemProperties) {
       return new HttpClient() {
         @Override
         public Response execute(Request request) {

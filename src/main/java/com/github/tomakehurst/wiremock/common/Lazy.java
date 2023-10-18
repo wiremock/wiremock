@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http.client;
+package com.github.tomakehurst.wiremock.common;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Extension;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
-public interface HttpClientFactory extends Extension {
+public class Lazy<T> {
 
-  @Override
-  default String getName() {
-    return "http-client-factory";
+  public static <T> Lazy<T> lazy(Supplier<T> supplier) {
+    return new Lazy<>(supplier);
   }
 
-  HttpClient buildHttpClient(
-      Options options,
-      boolean trustAllCertificates,
-      List<String> trustedHosts,
-      boolean useSystemProperties);
+  private final Supplier<T> supplier;
+  private final AtomicReference<T> ref = new AtomicReference<>();
+
+  private Lazy(Supplier<T> supplier) {
+    this.supplier = supplier;
+  }
+
+  public T get() {
+    return ref.updateAndGet(existing -> existing == null ? supplier.get() : existing);
+  }
 }

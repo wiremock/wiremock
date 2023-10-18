@@ -134,6 +134,10 @@ public interface Options {
 
   int proxyTimeout();
 
+  default int getMaxHttpClientConnections() {
+    return 1000;
+  }
+
   boolean getResponseTemplatingEnabled();
 
   boolean getResponseTemplatingGlobal();

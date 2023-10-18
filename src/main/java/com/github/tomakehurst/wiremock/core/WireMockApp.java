@@ -196,27 +196,15 @@ public class WireMockApp implements StubServer, Admin {
             .orElse(options.httpClientFactory());
 
     final HttpClient reverseProxyClient =
-        httpClientFactory.buildHttpClient(
-            1000,
-            options.proxyTimeout(),
-            options.proxyVia(),
-            options.httpsSettings().trustStore(),
-            true,
-            Collections.emptyList(),
-            true,
-            options.getProxyTargetRules());
+        httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true);
     final HttpClient forwardProxyClient =
         httpClientFactory.buildHttpClient(
-            1000,
-            options.proxyTimeout(),
-            options.proxyVia(),
-            options.httpsSettings().trustStore(),
+            options,
             browserProxySettings.trustAllProxyTargets(),
             browserProxySettings.trustAllProxyTargets()
                 ? Collections.emptyList()
                 : browserProxySettings.trustedProxyTargets(),
-            false,
-            options.getProxyTargetRules());
+            false);
 
     return new StubRequestHandler(
         this,
