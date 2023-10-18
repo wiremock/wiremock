@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -636,7 +636,7 @@ public class ProxyAcceptanceTest {
     init(
         wireMockConfig()
             .limitProxyTargets(
-                NetworkAddressRules.builder()
+                DefaultNetworkAddressRules.builder()
                     .deny("10.1.2.3")
                     .deny("192.168.10.1-192.168.11.254")
                     .build()));
@@ -655,7 +655,8 @@ public class ProxyAcceptanceTest {
   void preventsProxyingToExcludedHostnames() {
     init(
         wireMockConfig()
-            .limitProxyTargets(NetworkAddressRules.builder().deny("*.wiremock.org").build()));
+            .limitProxyTargets(
+                DefaultNetworkAddressRules.builder().deny("*.wiremock.org").build()));
 
     proxy.register(proxyAllTo("http://noway.wiremock.org"));
     assertThat(
@@ -667,7 +668,7 @@ public class ProxyAcceptanceTest {
   void preventsProxyingToNonIncludedHostnames() {
     init(
         wireMockConfig()
-            .limitProxyTargets(NetworkAddressRules.builder().allow("wiremock.org").build()));
+            .limitProxyTargets(DefaultNetworkAddressRules.builder().allow("wiremock.org").build()));
 
     proxy.register(proxyAllTo("http://wiremock.io"));
     assertThat(
@@ -679,7 +680,7 @@ public class ProxyAcceptanceTest {
   void preventsProxyingToIpResolvedFromHostname() {
     init(
         wireMockConfig()
-            .limitProxyTargets(NetworkAddressRules.builder().deny("127.0.0.1").build()));
+            .limitProxyTargets(DefaultNetworkAddressRules.builder().deny("127.0.0.1").build()));
 
     proxy.register(proxyAllTo("http://localhost"));
     assertThat(

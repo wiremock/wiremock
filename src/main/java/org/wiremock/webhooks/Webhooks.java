@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
@@ -78,12 +79,12 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
 
   @JsonCreator
   public Webhooks() {
-    this(NetworkAddressRules.ALLOW_ALL);
+    this(DefaultNetworkAddressRules.ALLOW_ALL);
   }
 
   @SuppressWarnings("unused") // public API
   public Webhooks(WebhookTransformer... transformers) {
-    this(Arrays.asList(transformers), NetworkAddressRules.ALLOW_ALL);
+    this(Arrays.asList(transformers), DefaultNetworkAddressRules.ALLOW_ALL);
   }
 
   private static CloseableHttpClient createHttpClient(NetworkAddressRules targetAddressRules) {

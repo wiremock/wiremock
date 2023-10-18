@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -92,6 +93,8 @@ public interface Options {
   String proxyHostHeader();
 
   HttpServerFactory httpServerFactory();
+
+  HttpClientFactory httpClientFactory();
 
   ThreadPoolFactory threadPoolFactory();
 

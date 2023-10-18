@@ -23,6 +23,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
@@ -63,7 +64,7 @@ public class HttpClientFactory {
       int timeoutMilliseconds,
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
-      boolean trustSelfSignedCertificates,
+      boolean trustAllCertificates,
       final List<String> trustedHosts,
       boolean useSystemProperties,
       NetworkAddressRules networkAddressRules) {
@@ -114,7 +115,7 @@ public class HttpClientFactory {
     }
 
     final SSLContext sslContext =
-        buildSslContext(trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
+        buildSslContext(trustStoreSettings, trustAllCertificates, trustedHosts);
     LayeredConnectionSocketFactory sslSocketFactory = buildSslConnectionSocketFactory(sslContext);
     PoolingHttpClientConnectionManager connectionManager =
         PoolingHttpClientConnectionManagerBuilder.create()
@@ -152,12 +153,11 @@ public class HttpClientFactory {
 
   private static SSLContext buildSslContext(
       KeyStoreSettings trustStoreSettings,
-      boolean trustSelfSignedCertificates,
+      boolean trustAllCertificates,
       List<String> trustedHosts) {
     if (trustStoreSettings != NO_STORE) {
-      return buildSSLContextWithTrustStore(
-          trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
-    } else if (trustSelfSignedCertificates) {
+      return buildSSLContextWithTrustStore(trustStoreSettings, trustAllCertificates, trustedHosts);
+    } else if (trustAllCertificates) {
       return buildAllowAnythingSSLContext();
     } else {
       try {
@@ -241,7 +241,7 @@ public class HttpClientFactory {
         NO_PROXY,
         NO_STORE,
         true,
-        NetworkAddressRules.ALLOW_ALL);
+        DefaultNetworkAddressRules.ALLOW_ALL);
   }
 
   public static CloseableHttpClient createClient(int timeoutMilliseconds) {
@@ -255,7 +255,7 @@ public class HttpClientFactory {
         proxySettings,
         NO_STORE,
         true,
-        NetworkAddressRules.ALLOW_ALL);
+        DefaultNetworkAddressRules.ALLOW_ALL);
   }
 
   public static CloseableHttpClient createClient() {

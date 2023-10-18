@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.NetworkAddressRules.ALLOW_ALL;
+import static com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules.ALLOW_ALL;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;

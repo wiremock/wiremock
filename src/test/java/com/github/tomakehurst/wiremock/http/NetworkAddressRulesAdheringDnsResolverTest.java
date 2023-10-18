@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -36,7 +37,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().deny("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().deny("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -55,7 +56,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().deny("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().deny("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -70,7 +71,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.0", "10.1.1.1");
     register("2.example.com", "10.1.1.2", "10.1.1.3");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().deny("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().deny("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -85,7 +86,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.0", "10.1.1.1");
     register("2.example.com", "10.1.1.2", "10.1.1.3");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().deny("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().deny("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -99,7 +100,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().allow("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -118,7 +119,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().allow("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -136,7 +137,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.0", "10.1.1.1");
     register("2.example.com", "10.1.1.2", "10.1.1.3");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().allow("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -159,7 +160,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.0", "10.1.1.1");
     register("2.example.com", "10.1.1.2", "10.1.1.3");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("10.1.1.1").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().allow("10.1.1.1").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -178,7 +179,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().deny("1.example.com").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().deny("1.example.com").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -197,7 +198,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().deny("1.example.com").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().deny("1.example.com").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -216,7 +217,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("1.example.com").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().allow("1.example.com").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
@@ -235,7 +236,7 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
     register("1.example.com", "10.1.1.1");
     register("2.example.com", "10.1.1.2");
 
-    NetworkAddressRules rules = NetworkAddressRules.builder().allow("1.example.com").build();
+    NetworkAddressRules rules = DefaultNetworkAddressRules.builder().allow("1.example.com").build();
 
     NetworkAddressRulesAdheringDnsResolver resolver =
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);

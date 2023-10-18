@@ -22,7 +22,7 @@ import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static java.util.Collections.emptyList;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
@@ -94,7 +94,7 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
             /* trustSelfSignedCertificates= */ false,
             trustedHosts,
             false,
-            NetworkAddressRules.ALLOW_ALL);
+            DefaultNetworkAddressRules.ALLOW_ALL);
   }
 
   @AfterEach

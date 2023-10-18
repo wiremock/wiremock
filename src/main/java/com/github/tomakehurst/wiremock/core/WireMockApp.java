@@ -28,7 +28,6 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -43,7 +42,6 @@ import com.github.tomakehurst.wiremock.verification.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 public class WireMockApp implements StubServer, Admin {
 
@@ -189,8 +187,16 @@ public class WireMockApp implements StubServer, Admin {
         extensions.ofType(ServeEventListener.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
 
-    CloseableHttpClient reverseProxyApacheClient =
-        HttpClientFactory.createClient(
+    final com.github.tomakehurst.wiremock.http.client.HttpClientFactory httpClientFactory =
+        extensions
+            .ofType(com.github.tomakehurst.wiremock.http.client.HttpClientFactory.class)
+            .values()
+            .stream()
+            .findFirst()
+            .orElse(options.httpClientFactory());
+
+    final HttpClient reverseProxyClient =
+        httpClientFactory.buildHttpClient(
             1000,
             options.proxyTimeout(),
             options.proxyVia(),
@@ -199,10 +205,8 @@ public class WireMockApp implements StubServer, Admin {
             Collections.emptyList(),
             true,
             options.getProxyTargetRules());
-    HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient);
-
-    CloseableHttpClient forwardProxyApacheClient =
-        HttpClientFactory.createClient(
+    final HttpClient forwardProxyClient =
+        httpClientFactory.buildHttpClient(
             1000,
             options.proxyTimeout(),
             options.proxyVia(),
@@ -213,7 +217,6 @@ public class WireMockApp implements StubServer, Admin {
                 : browserProxySettings.trustedProxyTargets(),
             false,
             options.getProxyTargetRules());
-    HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient);
 
     return new StubRequestHandler(
         this,
