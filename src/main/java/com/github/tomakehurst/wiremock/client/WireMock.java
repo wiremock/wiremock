@@ -718,21 +718,36 @@ public class WireMock {
     final RequestPattern requestPattern = requestPatternBuilder.build();
 
     int actualCount;
-    if (requestPattern.hasInlineCustomMatcher()) {
-      List<LoggedRequest> requests =
-          admin.findRequestsMatching(RequestPattern.everything()).getRequests();
-      actualCount = (int) requests.stream().filter(thatMatch(requestPattern)).count();
-    } else {
-      VerificationResult result = admin.countRequestsMatching(requestPattern);
-      result.assertRequestJournalEnabled();
-      actualCount = result.getCount();
-    }
+    int retryCount = 3;
+    long fixedDelay = 500;
 
-    if (!expectedCount.match(actualCount)) {
-      throw actualCount == 0
-          ? verificationExceptionForNearMisses(requestPatternBuilder, requestPattern)
-          : new VerificationException(requestPattern, expectedCount, actualCount);
-    }
+    do {
+      if (requestPattern.hasInlineCustomMatcher()) {
+        List<LoggedRequest> requests =
+            admin.findRequestsMatching(RequestPattern.everything()).getRequests();
+        actualCount = (int) requests.stream().filter(thatMatch(requestPattern)).count();
+      } else {
+        VerificationResult result = admin.countRequestsMatching(requestPattern);
+        result.assertRequestJournalEnabled();
+        actualCount = result.getCount();
+      }
+
+      if (!expectedCount.match(actualCount) && retryCount <= 1) {
+        throw actualCount == 0
+            ? verificationExceptionForNearMisses(requestPatternBuilder, requestPattern)
+            : new VerificationException(requestPattern, expectedCount, actualCount);
+      } else if (!expectedCount.match(actualCount)) {
+        try {
+          Thread.sleep(fixedDelay);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        } finally {
+          retryCount--;
+        }
+      } else {
+        return;
+      }
+    } while (retryCount > 0);
   }
 
   private VerificationException verificationExceptionForNearMisses(

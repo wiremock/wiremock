@@ -553,6 +553,26 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
+    public void verifiesAsyncRequests() {
+      getCountableRequests(2);
+
+      new Thread(
+              new Runnable() {
+                public void run() {
+                  try {
+                    Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                  } finally {
+                    getCountableRequests(6);
+                  }
+                }
+              })
+          .start();
+      verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+    }
+
+    @Test
     public void verifiesHeaderAbsent() {
       testClient.get("/without/header", withHeader("Content-Type", "application/json"));
       verify(
