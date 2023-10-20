@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.store.files;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import java.io.File;
@@ -41,6 +43,7 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     try {
       return Optional.of(fileSource.getBinaryFileNamed(key).getStream());
     } catch (Exception exception) {
+      notifier().info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
       return Optional.empty();
     }
   }
@@ -63,6 +66,7 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     try {
       return Optional.of(fileSource.getBinaryFileNamed(key).readContents());
     } catch (Exception exception) {
+      notifier().info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
       return Optional.empty();
     }
   }
