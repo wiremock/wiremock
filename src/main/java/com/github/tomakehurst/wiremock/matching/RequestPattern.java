@@ -302,7 +302,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                     return cookie.getValues().stream()
                         .map(cookiePattern::match)
                         .max(Comparator.naturalOrder())
-                        .orElse(MatchResult.noMatch());
+                        .orElseGet(MatchResult::noMatch);
                   })
               .collect(toList()));
     }

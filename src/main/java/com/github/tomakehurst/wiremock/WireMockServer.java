@@ -75,7 +75,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     HttpServerFactory httpServerFactory =
         wireMockApp.getExtensions().ofType(HttpServerFactory.class).values().stream()
             .findFirst()
-            .orElse(options.httpServerFactory());
+            .orElseGet(options::httpServerFactory);
 
     httpServer =
         httpServerFactory.buildHttpServer(
