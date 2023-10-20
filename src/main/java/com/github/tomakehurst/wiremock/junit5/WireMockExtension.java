@@ -198,7 +198,7 @@ public class WireMockExtension extends DslWrapper
                     ? AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class)
                     : Optional.empty())
         .map(this::buildOptionsFromWireMockTestAnnotation)
-        .orElse(Optional.ofNullable(this.options).orElse(defaultOptions));
+        .orElseGet(() -> Optional.ofNullable(this.options).orElse(defaultOptions));
   }
 
   private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
