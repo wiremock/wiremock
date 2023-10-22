@@ -1,0 +1,6 @@
+request:
+  method: GET
+  url: /test
+response:
+  bodyFileName: stuff.txt
+  status: 200
