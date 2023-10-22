@@ -1,0 +1,19 @@
+request:
+  method: GET
+  url: /third_test
+response:
+  body: |
+    {
+      "key1": "value1",
+      2 : 2.0 
+    }
+  status: 200
+---
+request:
+  method: GET
+  url: /third_test/second_stub_mapping
+response:
+  body:
+    key1: value1
+    2: 2.0
+  status: 200

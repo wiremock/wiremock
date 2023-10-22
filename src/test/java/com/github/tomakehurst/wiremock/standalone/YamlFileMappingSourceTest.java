@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -77,11 +78,11 @@ public class YamlFileMappingSourceTest {
         source.loadMappingsInto(stubMappings);
 
         List<StubMapping> allMappings = stubMappings.getAll();
-        assertThat(allMappings, hasSize(2));
+        assertThat(allMappings, hasSize(3));
 
         List<String> mappingRequestUrls =
-                asList(allMappings.get(0).getRequest().getUrl(), allMappings.get(1).getRequest().getUrl());
-        assertThat(mappingRequestUrls, is(asList("/second_test", "/test")));
+                allMappings.stream().map(stubMapping -> stubMapping.getRequest().getUrl()).collect(Collectors.toList());
+        assertThat(mappingRequestUrls, containsInAnyOrder( "/test", "/second_test", "/third_test"));
     }
 
     @Test
