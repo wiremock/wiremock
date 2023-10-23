@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -43,7 +44,10 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     try {
       return Optional.of(fileSource.getBinaryFileNamed(key).getStream());
     } catch (Exception exception) {
-      notifier().info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+      if (!(exception instanceof FileNotFoundException)) {
+        notifier()
+            .info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+      }
       return Optional.empty();
     }
   }
@@ -66,7 +70,10 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     try {
       return Optional.of(fileSource.getBinaryFileNamed(key).readContents());
     } catch (Exception exception) {
-      notifier().info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+      if (!(exception instanceof FileNotFoundException)) {
+        notifier()
+            .info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+      }
       return Optional.empty();
     }
   }
