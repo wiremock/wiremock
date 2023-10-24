@@ -116,8 +116,7 @@ Merges to this repository can be performed by the WireMock maintainer ([Tom Akeh
 and by _co-maintainers_ assigned by him.
 This is a [community role](https://github.com/wiremock/community/blob/main/governance/README.md)
 designed for WireMock itself and other key repositories,
-specifically to facilitate review and changes while WireMock 3 is in beta
-and receives a lot of incremental patches.
+specifically to improve velocity of reviews and changes.
 
 - The maintainers are responsible to verify the pull request readiness
   in accordance with contributing guidelines (e.g. code quality, test automation, documentation, etc.).
@@ -126,18 +125,17 @@ and receives a lot of incremental patches.
   unless there are negative reviews and unaddressed comments by other contributors
 - After the approval, it is generally recommended to give at least 24 hours for reviews before merging
 
-Beyond WireMock 3.x Beta releases, the scope of responsibilities for co-maintainers
-is yet to be determined based on the experiences with this role for the Beta versions.
-
 ### What can be merged by co-maintainers
 
-While WireMock 3.x is in Beta, co-maintainers can merge the following pull requests:
+For WireMock 3.x and beyond, co-maintainers can merge the following pull requests:
 
 - Minor features and improvements that do not impact the WireMock architecture
 - Refactorings, including the major ones, e.g. Guava replacement
 - Test Automation
 - Non-production repository changes: documentation (including Javadoc), GitHub Actions, bots and automation
 - Dependency updates for shaded dependencies, patch/minor versions for projects following the Semantic Versioning notation
+
+For the WireMock 2.x branch, a decision of BDFL is is needed for any patch. 
 
 ### What CANNOT be merged by co-maintainers without BDFL’s approval
 

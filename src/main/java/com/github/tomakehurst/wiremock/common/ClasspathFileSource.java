@@ -159,7 +159,7 @@ public class ClasspathFileSource implements FileSource {
   }
 
   private void recursivelyAddFilesToList(File root, List<File> fileList) {
-    File[] files = Optional.ofNullable(root.listFiles()).orElse(new File[0]);
+    File[] files = Optional.ofNullable(root.listFiles()).orElseGet(() -> new File[0]);
     for (File file : files) {
       if (file.isDirectory()) {
         recursivelyAddFilesToList(file, fileList);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,9 +58,7 @@ public class CompositeTrustManagerTest {
     CertificateException thrown =
         assertThrows(
             CertificateException.class,
-            () -> {
-              compositeTrustManager.checkServerTrusted(chain, authType);
-            });
+            () -> compositeTrustManager.checkServerTrusted(chain, authType));
     assertEquals(invalidCertForTrustManager1, thrown);
   }
 
@@ -116,9 +114,7 @@ public class CompositeTrustManagerTest {
     CertificateException thrown =
         assertThrows(
             CertificateException.class,
-            () -> {
-              compositeTrustManager.checkServerTrusted(chain, authType);
-            });
+            () -> compositeTrustManager.checkServerTrusted(chain, authType));
 
     assertEquals(invalidCertForTrustManager2, thrown);
   }

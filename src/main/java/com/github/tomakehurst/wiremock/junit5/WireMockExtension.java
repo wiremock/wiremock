@@ -28,7 +28,9 @@ import org.junit.platform.commons.support.AnnotationSupport;
 /**
  * JUnit Jupiter extension that manages a WireMock server instance's lifecycle and configuration.
  *
- * <p>See http://wiremock.org/docs/junit-jupiter/ for full documentation.
+ * <p>See <a
+ * href="http://wiremock.org/docs/junit-jupiter/">http://wiremock.org/docs/junit-jupiter/</a> for
+ * full documentation.
  */
 public class WireMockExtension extends DslWrapper
     implements ParameterResolver,
@@ -196,7 +198,7 @@ public class WireMockExtension extends DslWrapper
                     ? AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class)
                     : Optional.empty())
         .map(this::buildOptionsFromWireMockTestAnnotation)
-        .orElse(Optional.ofNullable(this.options).orElse(defaultOptions));
+        .orElseGet(() -> Optional.ofNullable(this.options).orElse(defaultOptions));
   }
 
   private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {

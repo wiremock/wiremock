@@ -126,7 +126,7 @@ public class AdminRoutes {
         .filter(entry -> entry.getKey().matches(method, path))
         .map(Entry::getValue)
         .findFirst()
-        .orElse(new NotFoundAdminTask());
+        .orElseGet(NotFoundAdminTask::new);
   }
 
   public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {

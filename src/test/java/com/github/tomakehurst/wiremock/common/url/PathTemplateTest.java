@@ -247,4 +247,10 @@ public class PathTemplateTest {
 
     assertThat(renderedUrl, is("/one/.3,4,5/two/;second=1;second=2"));
   }
+
+  @Test
+  void ignoresQueryParameter() {
+    PathTemplate pathTemplate = new PathTemplate("/things/{thingId}/stuff");
+    assertTrue(pathTemplate.matches("/things/123/stuff?query=param"));
+  }
 }
