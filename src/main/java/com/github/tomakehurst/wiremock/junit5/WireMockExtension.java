@@ -183,7 +183,7 @@ public class WireMockExtension extends DslWrapper
               .flatMap(
                   annotatedElement ->
                       AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
-              .<Boolean>map(WireMockTest::proxyMode)
+              .map(WireMockTest::proxyMode)
               .orElse(false);
     }
   }

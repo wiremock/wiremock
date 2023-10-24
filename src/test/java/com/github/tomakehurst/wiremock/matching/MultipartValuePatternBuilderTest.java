@@ -78,7 +78,7 @@ public class MultipartValuePatternBuilderTest {
     //        assertThat(headerPatterns.entrySet(),
     // everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
 
-    List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
+    List<ContentPattern<?>> bodyPatterns = Arrays.asList(equalToXml("<xml />"));
     assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
   }
 
