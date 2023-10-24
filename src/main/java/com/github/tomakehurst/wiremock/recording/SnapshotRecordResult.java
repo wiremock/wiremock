@@ -50,7 +50,7 @@ public class SnapshotRecordResult {
   }
 
   public static SnapshotRecordResult empty() {
-    return full(Collections.<StubMapping>emptyList());
+    return full(Collections.emptyList());
   }
 
   public static class Full extends SnapshotRecordResult {
@@ -69,7 +69,7 @@ public class SnapshotRecordResult {
     private final List<UUID> ids;
 
     public Ids(List<UUID> ids) {
-      super(Collections.<StubMapping>emptyList());
+      super(Collections.emptyList());
       this.ids = ids;
     }
 
