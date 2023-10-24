@@ -56,8 +56,7 @@ public class PlainTextDiffRendererTest {
   public void init() {
     diffRenderer =
         new PlainTextDiffRenderer(
-            Collections.<String, RequestMatcherExtension>singletonMap(
-                "my-custom-matcher", new MyCustomMatcher()));
+            Collections.singletonMap("my-custom-matcher", new MyCustomMatcher()));
   }
 
   @Test

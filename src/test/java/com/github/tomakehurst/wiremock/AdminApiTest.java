@@ -35,7 +35,6 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -1125,9 +1124,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
 
     GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
-    assertThat(
-        settings.getDelayDistribution(),
-        Matchers.<DelayDistribution>instanceOf(UniformDistribution.class));
+    assertThat(settings.getDelayDistribution(), Matchers.instanceOf(UniformDistribution.class));
     assertThat(settings.getExtended().getInt("one"), is(1));
     assertThat(
         settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name,
