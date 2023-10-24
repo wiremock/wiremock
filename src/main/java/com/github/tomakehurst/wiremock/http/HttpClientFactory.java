@@ -183,7 +183,7 @@ public class HttpClientFactory {
         proxySettings,
         trustStoreSettings,
         true,
-        Collections.<String>emptyList(),
+        Collections.emptyList(),
         useSystemProperties,
         networkAddressRules);
   }

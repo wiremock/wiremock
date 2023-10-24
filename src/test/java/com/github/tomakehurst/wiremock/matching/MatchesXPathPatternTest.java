@@ -273,8 +273,7 @@ public class MatchesXPathPatternTest {
 
   @Test
   public void serialisesCorrectlyWithoutNamspaces() throws JSONException {
-    MatchesXPathPattern pattern =
-        new MatchesXPathPattern("//*", Collections.<String, String>emptyMap());
+    MatchesXPathPattern pattern = new MatchesXPathPattern("//*", Collections.emptyMap());
 
     String json = Json.write(pattern);
 

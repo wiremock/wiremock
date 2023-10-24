@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import org.xmlunit.diff.ComparisonType;
 
 public class EqualToXmlPatternTest {
 
@@ -396,7 +395,7 @@ public class EqualToXmlPatternTest {
         placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
     assertThat(
         equalToXmlPattern.getExemptedComparisons(),
-        Matchers.<Set<ComparisonType>>is(Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
+        Matchers.is(Set.of(SCHEMA_LOCATION, NAMESPACE_URI, ATTR_VALUE)));
   }
 
   @Test

@@ -400,7 +400,7 @@ public class ProxyResponseRendererTest {
         /* hostHeaderValue= */ null,
         new InMemorySettingsStore(),
         trustAllProxyTargets,
-        Collections.<String>emptyList(),
+        Collections.emptyList(),
         stubCorsEnabled,
         ALLOW_ALL,
         PROXY_TIMEOUT);

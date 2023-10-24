@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class QueryParameter extends MultiValue {
   }
 
   public static QueryParameter absent(String key) {
-    return new QueryParameter(key, Collections.<String>emptyList());
+    return new QueryParameter(key, Collections.emptyList());
   }
 
   @JsonIgnore
