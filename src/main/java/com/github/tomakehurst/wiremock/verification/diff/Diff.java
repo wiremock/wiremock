@@ -125,9 +125,7 @@ public class Diff {
     addMultipartSectionWithSpacerIfPresent(diffLineList);
 
     addInlineCustomMatcherSectionIfPresent(diffLineList);
-
     addNamedCustomMatcherSectionIfPresent(customMatcherExtensions, diffLineList);
-
     addScenarioSectionIfPresent(diffLineList);
 
     return diffLineList;
