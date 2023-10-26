@@ -16,19 +16,35 @@
 package com.github.tomakehurst.wiremock.store.files;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.InputStream;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class FileSourceBlobStoreTest {
+  private static final String DIRECTORY_PATH =
+      "src/test/java/com/github/tomakehurst/wiremock/store/files/test/empty";
 
   @Test
-  public void createFileSourceBlobStoreWithEmptyDirectory() {
-    String directoryPath = "src/test/java/com/github/tomakehurst/wiremock/store/files/test/empty";
-    FileSourceBlobStore fileSourceBlobStore = new FileSourceBlobStore(directoryPath);
+  public void createFileSourceBlobStoreWithEmptyDirectory_get() {
+    FileSourceBlobStore fileSourceBlobStore = new FileSourceBlobStore(DIRECTORY_PATH);
 
     assertDoesNotThrow(
         () -> {
-          fileSourceBlobStore.get("any-key");
+          Optional<byte[]> result = fileSourceBlobStore.get("any-key");
+          assertEquals(Optional.empty(), result);
+        });
+  }
+
+  @Test
+  public void createFileSourceBlobStoreWithEmptyDirectory_getStream() {
+    FileSourceBlobStore fileSourceBlobStore = new FileSourceBlobStore(DIRECTORY_PATH);
+
+    assertDoesNotThrow(
+        () -> {
+          Optional<InputStream> result = fileSourceBlobStore.getStream("any-key");
+          assertEquals(Optional.empty(), result);
         });
   }
 }

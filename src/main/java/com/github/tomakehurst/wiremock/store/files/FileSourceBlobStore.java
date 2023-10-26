@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.store.files;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -46,9 +47,11 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     } catch (Exception exception) {
       if (!(exception instanceof FileNotFoundException)) {
         notifier()
-            .info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+            .error("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+        return Optional.of(throwUnchecked(exception, InputStream.class));
+      } else {
+        return Optional.empty();
       }
-      return Optional.empty();
     }
   }
 
@@ -72,9 +75,11 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
     } catch (Exception exception) {
       if (!(exception instanceof FileNotFoundException)) {
         notifier()
-            .info("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+            .error("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+        return Optional.of(throwUnchecked(exception, byte[].class));
+      } else {
+        return Optional.empty();
       }
-      return Optional.empty();
     }
   }
 
