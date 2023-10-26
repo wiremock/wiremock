@@ -49,7 +49,10 @@ public interface Options {
 
   String DEFAULT_SERVER_NAME = null;
 
-  String getServerName();
+  default String getServerName() {
+
+    return DEFAULT_SERVER_NAME;
+  }
 
   int portNumber();
 
