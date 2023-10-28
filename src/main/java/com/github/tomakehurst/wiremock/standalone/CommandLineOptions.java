@@ -374,7 +374,7 @@ public class CommandLineOptions implements Options {
         .withRequiredArg();
 
     optionParser
-            .accepts(STUB_MAPPING_FILE_FORMAT, "File format of the stub mappings. Can be json [default], yml, yml")
+            .accepts(STUB_MAPPING_FILE_FORMAT, "File format of the stub mappings. Can be json [default], yml, yaml")
             .withRequiredArg()
                     .defaultsTo("json");
 
