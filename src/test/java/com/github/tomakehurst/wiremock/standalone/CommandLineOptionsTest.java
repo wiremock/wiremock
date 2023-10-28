@@ -514,9 +514,6 @@ public class CommandLineOptionsTest {
     assertNotNull(options.getFilenameMaker());
   }
 
-
-
-
   @Test
   public void configureFileTemplatesWithWrongFormat() {
     assertThrows(
