@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,7 @@ public class UniqueFilenameGenerator {
       pathPart = StringUtils.truncate(pathPart, 150);
     }
 
-    return prefix +
-            "-" +
-            pathPart +
-            "-" +
-            id +
-            "." +
-            extension;
+    return prefix + "-" + pathPart + "-" + id + "." + extension;
   }
 
   private static String sanitise(String input) {

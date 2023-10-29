@@ -15,14 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class MultipartValuePatternBuilderTest {
 
