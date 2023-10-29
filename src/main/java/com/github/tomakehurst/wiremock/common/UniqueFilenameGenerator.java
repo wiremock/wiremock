@@ -26,7 +26,7 @@ public class UniqueFilenameGenerator {
 
   public static String generate(String url, String prefix, String id, String extension) {
     String pathPart = Urls.urlToPathParts(URI.create(url));
-    pathPart = pathPart.isEmpty() ? "(root)" : sanitise(pathPart);
+    pathPart = pathPart.isBlank() ? "(root)" : sanitise(pathPart);
 
     if (pathPart.length() > 150) {
       pathPart = StringUtils.truncate(pathPart, 150);
