@@ -26,20 +26,19 @@ public class UniqueFilenameGenerator {
 
   public static String generate(String url, String prefix, String id, String extension) {
     String pathPart = Urls.urlToPathParts(URI.create(url));
-    pathPart = pathPart.equals("") ? "(root)" : sanitise(pathPart);
+    pathPart = pathPart.isEmpty() ? "(root)" : sanitise(pathPart);
 
     if (pathPart.length() > 150) {
       pathPart = StringUtils.truncate(pathPart, 150);
     }
 
-    return new StringBuilder(prefix)
-        .append("-")
-        .append(pathPart)
-        .append("-")
-        .append(id)
-        .append(".")
-        .append(extension)
-        .toString();
+    return prefix +
+            "-" +
+            pathPart +
+            "-" +
+            id +
+            "." +
+            extension;
   }
 
   private static String sanitise(String input) {

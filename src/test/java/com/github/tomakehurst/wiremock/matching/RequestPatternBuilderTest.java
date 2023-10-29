@@ -15,26 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.in;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Test;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.Is.is;
 
 public class RequestPatternBuilderTest {
   @Test
@@ -128,7 +125,7 @@ public class RequestPatternBuilderTest {
             List.of(WireMock.equalTo("BODY")),
             null,
             null,
-            asList(multipartPattern));
+            singletonList(multipartPattern));
 
     RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
     assertThat(newRequestPattern, is(requestPattern));

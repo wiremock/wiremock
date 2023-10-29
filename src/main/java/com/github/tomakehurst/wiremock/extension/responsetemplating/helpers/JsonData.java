@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.common.Json;
+
 import java.util.*;
 
 public abstract class JsonData<T> {
@@ -158,7 +159,7 @@ public abstract class JsonData<T> {
     }
 
     public boolean containsAll(Collection<?> c) {
-      return data.containsAll(c);
+      return new HashSet<>(data).containsAll(c);
     }
 
     public boolean addAll(Collection<?> c) {
