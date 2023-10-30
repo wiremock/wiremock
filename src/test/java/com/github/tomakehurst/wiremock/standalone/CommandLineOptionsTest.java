@@ -75,7 +75,7 @@ public class CommandLineOptionsTest {
     CommandLineOptions options = new CommandLineOptions("");
     assertThat(options.version(), is(false));
   }
-  
+
   @Test
   public void returnsRecordMappingsTrueWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--record-mappings");
