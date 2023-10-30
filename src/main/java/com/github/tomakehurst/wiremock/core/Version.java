@@ -19,13 +19,19 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Version {
+  private static String version = "";
+
   public static String getCurrentVersion() {
-    Properties properties = new Properties();
-    try {
-      properties.load(Version.class.getResourceAsStream("/version.properties"));
-      return properties.getProperty("version");
-    } catch (IOException e) {
-      return "unknown";
+    if (version.isEmpty()) {
+      try {
+        Properties properties = new Properties();
+        properties.load(Version.class.getResourceAsStream("/version.properties"));
+        version = properties.getProperty("version");
+      } catch (IOException e) {
+        version = "unknown";
+      }
     }
+
+    return version;
   }
 }
