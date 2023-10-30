@@ -15,14 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
@@ -30,9 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ParseDateHelperTest {
-
-  private static final DateFormat df = new ISO8601DateFormat();
-
   private ParseDateHelper helper;
 
   @BeforeEach
@@ -47,9 +42,9 @@ public class ParseDateHelperTest {
     String inputDate = "2018-05-01T01:02:03Z";
     Object output = render(inputDate, optionsHash);
 
-    Date expectedDate = df.parse(inputDate);
-    assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    Date expectedDate = Date.from(ZonedDateTime.parse(inputDate).toInstant());
+    assertThat(output).isInstanceOf(Date.class);
+    assertThat(output).isEqualTo(expectedDate);
   }
 
   @Test
@@ -61,8 +56,8 @@ public class ParseDateHelperTest {
 
     Date expectedDate =
         Date.from(Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(inputDate)));
-    assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is(expectedDate));
+    assertThat(output).isInstanceOf(Date.class);
+    assertThat(output).isEqualTo(expectedDate);
   }
 
   @Test
@@ -73,8 +68,8 @@ public class ParseDateHelperTest {
     Object output = render(inputDate, optionsHash);
 
     Date expectedDate = Date.from(Instant.parse("2003-02-01T00:00:00Z"));
-    assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(output).isInstanceOf(Date.class);
+    assertThat(output).isEqualTo(expectedDate);
   }
 
   @Test
@@ -85,8 +80,8 @@ public class ParseDateHelperTest {
     Object output = render(inputDate, optionsHash);
 
     Date expectedDate = Date.from(Instant.parse("2003-02-01T05:06:07Z"));
-    assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(output).isInstanceOf(Date.class);
+    assertThat(output).isEqualTo(expectedDate);
   }
 
   @Test
@@ -97,8 +92,8 @@ public class ParseDateHelperTest {
     Object output = render(inputDate, optionsHash);
 
     Date expectedDate = Date.from(Instant.parse("2020-01-02T11:21:31Z"));
-    assertThat(output, instanceOf(Date.class));
-    assertThat(((Date) output), is((expectedDate)));
+    assertThat(output).isInstanceOf(Date.class);
+    assertThat(output).isEqualTo(expectedDate);
   }
 
   private Object render(String context, Map<String, Object> optionsHash) throws IOException {

@@ -105,7 +105,7 @@ public class MatchesJsonPathPattern extends PathPattern {
 
       return matchResults.stream()
           .min(Comparator.comparingDouble(MatchResult::getDistance))
-          .orElse(MatchResult.noMatch(subEvents));
+          .orElseGet(() -> MatchResult.noMatch(subEvents));
     } catch (SubExpressionException e) {
       return MatchResult.noMatch(SubEvent.warning(e.getMessage()));
     }

@@ -34,7 +34,7 @@ public class AdminRoutes {
   private final Stores stores;
 
   public static AdminRoutes forClient() {
-    return new AdminRoutes(Collections.<AdminApiExtension>emptyList(), null);
+    return new AdminRoutes(Collections.emptyList(), null);
   }
 
   public static AdminRoutes forServer(Iterable<AdminApiExtension> apiExtensions, Stores stores) {
@@ -128,7 +128,7 @@ public class AdminRoutes {
         .filter(entry -> entry.getKey().matches(method, path))
         .map(Entry::getValue)
         .findFirst()
-        .orElse(new NotFoundAdminTask());
+        .orElseGet(NotFoundAdminTask::new);
   }
 
   public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {

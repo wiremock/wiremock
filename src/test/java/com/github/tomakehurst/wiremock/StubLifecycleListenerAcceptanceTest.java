@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public class StubLifecycleListenerAcceptanceTest {
       wm.stubFor(get("/test").withName("Created").willReturn(ok()));
       fail("Expected an exception to be thrown");
     } catch (Exception e) {
-      assertThat(e, Matchers.<Exception>instanceOf(NotPermittedException.class));
+      assertThat(e, Matchers.instanceOf(NotPermittedException.class));
     }
 
     assertTrue(wm.listAllStubMappings().getMappings().isEmpty());

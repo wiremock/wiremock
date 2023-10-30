@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class FindRequestsResult extends JournalBasedResult {
   }
 
   public static FindRequestsResult withRequestJournalDisabled() {
-    return new FindRequestsResult(Collections.<LoggedRequest>emptyList(), true);
+    return new FindRequestsResult(Collections.emptyList(), true);
   }
 
   public static FindRequestsResult withRequests(List<LoggedRequest> requests) {
