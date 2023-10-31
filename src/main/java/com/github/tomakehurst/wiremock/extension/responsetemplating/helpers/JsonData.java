@@ -158,7 +158,7 @@ public abstract class JsonData<T> {
     }
 
     public boolean containsAll(Collection<?> c) {
-      return new HashSet<>(data).containsAll(c);
+      return data.containsAll(c);
     }
 
     public boolean addAll(Collection<?> c) {
