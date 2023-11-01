@@ -667,7 +667,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public Notifier notifier() {
-    return new ConsoleNotifier(verboseLoggingEnabled());
+    return new Slf4jNotifier(verboseLoggingEnabled());
   }
 
   @Override

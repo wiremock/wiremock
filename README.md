@@ -1,67 +1,22 @@
-WireMock - a web service test double for all occasions
+GiffGaff WireMock - a (modified) web service test double for all occasions
 ======================================================
 
-[![Build Status](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/tomakehurst/wiremock/actions/workflows/build-and-test.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock-jre8.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock-jre8)
+Originally forked from [Wiremock](https://github.com/wiremock/wiremock/tree/master) this projects takes the latest version of 2.x and modifies the logging to produce json with common B3 fields (e.g. trace id) while running in standalone mode. 
 
-!!! Log4j notice !!!
---------------------
-WireMock only uses log4j in its test dependencies. Neither the thin nor standalone JAR depends on or embeds log4j, so
-you can continue to use WireMock 2.32.0 and above without any risk of exposure to the recently discovered vulnerability. 
+Note [Version 3](https://github.com/wiremock/wiremock/releases) of WireMock has introduced breaking changes which prevent us from (currently) migrating.
 
-Key Features
-------------
-	
--	HTTP response stubbing, matchable on URL, header and body content patterns
--	Request verification
--	Runs in unit tests, as a standalone process or as a WAR app
--	Configurable via a fluent Java API, JSON files and JSON over HTTP
--	Record/playback of stubs
--	Fault injection
--	Per-request conditional proxying
--   Browser proxying for request inspection and replacement
--	Stateful behaviour simulation
--	Configurable response delays
- 
+### Building
 
-Full documentation can be found at [wiremock.org](http://wiremock.org/ "wiremock.org")
+To run all of WireMock's tests, run `./gradlew test`
 
-Questions and Issues
---------------------
-If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the 
-[WireMock mailing list](https://groups.google.com/forum/#!forum/wiremock-user).
+To build the standalone JAR run `./gradlew shadowJar` The built JAR will be in `build/libs`.
 
-On the other hand if you're pretty certain you've found a bug please open an issue.
+To publish the JARs to your local Maven repository run `./gradlew publishToMavenLocal`
 
-Contributing
-------------
-We welcome bug fixes and new features in the form of pull requests. If you'd like to contribute, please be mindful of the
-following guidelines:
-* All changes should include suitable tests, whether to demonstrate the bug or exercise and document the new feature.
-* Please make one change per pull request.
-* If the new feature is significantly large/complex/breaks existing behaviour, please first post a summary of your idea
-on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
-* Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
-more difficult.
-* Abide by [the Architecture Rules](https://github.com/wiremock/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock/archunit) enforced by ArchUnit.
+### Running
 
-Building WireMock locally
--------------------------
-To run all of WireMock's tests:
-```bash
-./gradlew clean test
-```
+To populate trace and span information in the logs set the flag `--extensions=com.github.tomakehurst.wiremock.giffgaff.GiffGaffLoggingExtension`. 
 
-To build both JARs (thin and standalone):
-```bash
-./gradlew jar shadowJar 
-```
+Optionally, set the `--verbose` flag to log all incoming requests.
 
-The built JAR will be placed under ``build/libs``.
-
-To publish both JARs to your local Maven repository:
-
-```bash
-./gradlew publishToMavenLocal
-```
-
+![Example Intellij Config](intellij-run-config.png)

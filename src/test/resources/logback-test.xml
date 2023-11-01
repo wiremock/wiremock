@@ -1,0 +1,28 @@
+<configuration scan="true" scanPeriod="60 seconds">
+
+  <appender name="jsonAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <timestamp>
+          <timeZone>UTC</timeZone>
+        </timestamp>
+        <pattern>
+          <pattern>
+            {
+            "severity": "%level",
+            "trace": "%X{traceId:-TestTraceId-123-abc}",
+            "span": "%X{spanId:-}",
+            "class": "%logger{40}",
+            "message": "%message"
+            }
+          </pattern>
+        </pattern>
+      </providers>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="jsonAppender"/>
+  </root>
+
+</configuration>

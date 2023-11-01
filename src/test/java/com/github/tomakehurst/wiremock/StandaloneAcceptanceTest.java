@@ -241,6 +241,13 @@ public class StandaloneAcceptanceTest {
   }
 
   @Test
+  public void traceIdLoggedWhenGiffGaffLoggingExtensionPresent() {
+    startRecordingSystemOutAndErr();
+    startRunner("--extensions=com.github.tomakehurst.wiremock.giffgaff.GiffGaffLoggingExtension");
+    assertThat(systemOutText(), containsString("TestTraceId-123-abc"));
+  }
+
+  @Test
   public void logsVerboselyWhenVerboseSetInCommandLine() {
     startRecordingSystemOutAndErr();
     startRunner("--verbose");

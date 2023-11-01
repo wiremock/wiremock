@@ -70,8 +70,11 @@ dependencies {
   }
   api "org.ow2.asm:asm:9.4"
 
-  implementation "org.slf4j:slf4j-api:1.7.36"
-  standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
+  api "ch.qos.logback:logback-core:1.3.0"
+  api "ch.qos.logback:logback-classic:1.3.0"
+  api "ch.qos.logback:logback-access:1.3.0"
+  api "net.logstash.logback:logstash-logback-encoder:7.3"
+  api "org.slf4j:slf4j-api:1.7.36"
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
@@ -274,7 +277,7 @@ shadowJar {
     project.configurations.runtimeClasspath,
     project.configurations.standaloneOnly
   ]
-  archiveBaseName.set('wiremock-jre8-standalone')
+  archiveBaseName.set('gg-wiremock-jre8-standalone')
 
   relocate "org.mortbay", 'wiremock.org.mortbay'
   relocate "org.eclipse", 'wiremock.org.eclipse'
