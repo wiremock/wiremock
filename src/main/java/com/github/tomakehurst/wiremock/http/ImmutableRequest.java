@@ -16,14 +16,16 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static java.util.Objects.requireNonNull;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.Urls;
+import java.net.URI;
 import java.util.*;
 
 public class ImmutableRequest implements Request {
 
-  private final String absouteUrl;
+  private final String absoluteUrl;
   private final Map<String, QueryParameter> queryParams;
   private final RequestMethod method;
   private final String protocol;
@@ -43,24 +45,24 @@ public class ImmutableRequest implements Request {
   }
 
   protected ImmutableRequest(
-      String absouteUrl,
+      String absoluteUrl,
       RequestMethod method,
       String protocol,
-      String scheme,
-      String host,
-      int port,
       String clientIp,
       HttpHeaders headers,
       byte[] body,
       boolean multipart,
       boolean browserProxyRequest) {
-    this.absouteUrl = absouteUrl;
-    this.queryParams = Urls.splitQueryFromUrl(absouteUrl);
-    this.method = method;
+    this.absoluteUrl = requireNonNull(absoluteUrl);
+    this.queryParams = Urls.splitQueryFromUrl(absoluteUrl);
+    this.method = requireNonNull(method);
     this.protocol = protocol;
-    this.scheme = scheme;
-    this.host = host;
-    this.port = port;
+
+    final URI uri = URI.create(absoluteUrl);
+    this.scheme = uri.getScheme();
+    this.host = uri.getHost();
+    this.port = uri.getPort();
+
     this.clientIp = clientIp;
     this.headers = headers;
     this.body = body;
@@ -71,12 +73,12 @@ public class ImmutableRequest implements Request {
 
   @Override
   public String getUrl() {
-    return Urls.getPathAndQuery(absouteUrl);
+    return Urls.getPathAndQuery(absoluteUrl);
   }
 
   @Override
   public String getAbsoluteUrl() {
-    return absouteUrl;
+    return absoluteUrl;
   }
 
   @Override
@@ -204,9 +206,6 @@ public class ImmutableRequest implements Request {
     private String absouteUrl;
     private RequestMethod requestMethod;
     private String protocol;
-    private String scheme;
-    private String host;
-    private int port;
     private String clientIp;
     private List<HttpHeader> headers = new ArrayList<>();
     private byte[] body;
@@ -225,21 +224,6 @@ public class ImmutableRequest implements Request {
 
     public Builder withProtocol(String protocol) {
       this.protocol = protocol;
-      return this;
-    }
-
-    public Builder withScheme(String scheme) {
-      this.scheme = scheme;
-      return this;
-    }
-
-    public Builder withHost(String host) {
-      this.host = host;
-      return this;
-    }
-
-    public Builder withPort(int port) {
-      this.port = port;
       return this;
     }
 
@@ -283,9 +267,6 @@ public class ImmutableRequest implements Request {
           absouteUrl,
           requestMethod,
           protocol,
-          scheme,
-          host,
-          port,
           clientIp,
           new HttpHeaders(headers),
           body,

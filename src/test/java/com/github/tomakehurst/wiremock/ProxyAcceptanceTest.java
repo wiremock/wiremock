@@ -38,6 +38,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Multimap;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
@@ -736,6 +737,27 @@ public class ProxyAcceptanceTest {
         response.content(),
         startsWith("Network failure trying to make a proxied request from WireMock"));
     assertThat(response.statusCode(), is(500));
+  }
+
+  @Test
+  void multiValueResponseHeadersWithDifferentCasesAreHandledCorrectly() {
+    initWithDefaultConfig();
+
+    target.register(
+        get(urlPathEqualTo("/multi-value-headers"))
+            .willReturn(
+                ok().withHeader("Set-Cookie", "session=1234")
+                    .withHeader("set-cookie", "ads_id=5678")
+                    .withHeader("SET-COOKIE", "trk=t-9987")));
+
+    proxy.register(proxyAllTo(targetServiceBaseUrl));
+
+    WireMockResponse response = testClient.get("/multi-value-headers");
+    assertThat(response.statusCode(), is(200));
+
+    Multimap<String, String> headers = response.headers();
+    assertThat(headers.get("Set-Cookie").size(), is(3));
+    assertThat(headers.get("Set-Cookie"), hasItems("session=1234", "ads_id=5678", "trk=t-9987"));
   }
 
   private void register200StubOnProxyAndTarget(String url) {
