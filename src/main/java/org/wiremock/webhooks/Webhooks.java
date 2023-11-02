@@ -41,7 +41,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   private final ScheduledExecutorService scheduler;
   private final Lazy<HttpClient> lazyHttpClient;
   private final List<WebhookTransformer> transformers;
-  private final TemplateEngine templateEngine;
+  private final Lazy<TemplateEngine> templateEngine;
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -51,7 +51,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this.scheduler = scheduler;
     this.lazyHttpClient = lazy(wireMockServices::getDefaultHttpClient);
     this.transformers = transformers;
-    this.templateEngine = TemplateEngine.defaultTemplateEngine();
+    this.templateEngine = lazy(wireMockServices::getTemplateEngine);
   }
 
   private HttpClient getHttpClient() {
@@ -159,7 +159,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   }
 
   private String renderTemplate(Object context, String value) {
-    return templateEngine.getUncachedTemplate(value).apply(context);
+    return templateEngine.get().getUncachedTemplate(value).apply(context);
   }
 
   private static Request buildRequest(WebhookDefinition definition) {
