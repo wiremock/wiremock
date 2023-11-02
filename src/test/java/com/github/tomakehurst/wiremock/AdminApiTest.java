@@ -23,6 +23,7 @@ import static java.util.Arrays.asList;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.not;
@@ -45,6 +46,7 @@ import com.toomuchcoding.jsonassert.JsonVerifiable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -262,6 +264,8 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     String midPoint =
         DateTimeFormatter.ISO_ZONED_DATE_TIME.format(Instant.now().atZone(ZoneId.of("Z")));
+
+    await().between(Duration.ofMillis(100), Duration.ofMillis(300));
 
     for (int i = 6; i <= 9; i++) {
       testClient.get("/received-request/" + i);
