@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getLast;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -27,7 +29,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -36,6 +38,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Multimap;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
@@ -309,9 +312,9 @@ public class ProxyAcceptanceTest {
 
     testClient.postWithChunkedBody("/chunked", "TEST".getBytes());
 
-    target.verifyThat(
-        postRequestedFor(urlEqualTo("/chunked"))
-            .withHeader("Transfer-Encoding", equalTo("chunked")));
+    List<LoggedRequest> loggedRequests = target.find(postRequestedFor(urlEqualTo("/chunked")));
+    assertThat(loggedRequests.size(), is(1));
+    assertThat(loggedRequests.get(0).header("Transfer-Encoding").firstValue(), is("chunked"));
   }
 
   @Test
@@ -634,7 +637,7 @@ public class ProxyAcceptanceTest {
     init(
         wireMockConfig()
             .limitProxyTargets(
-                NetworkAddressRules.builder()
+                DefaultNetworkAddressRules.builder()
                     .deny("10.1.2.3")
                     .deny("192.168.10.1-192.168.11.254")
                     .build()));
@@ -653,7 +656,8 @@ public class ProxyAcceptanceTest {
   void preventsProxyingToExcludedHostnames() {
     init(
         wireMockConfig()
-            .limitProxyTargets(NetworkAddressRules.builder().deny("*.wiremock.org").build()));
+            .limitProxyTargets(
+                DefaultNetworkAddressRules.builder().deny("*.wiremock.org").build()));
 
     proxy.register(proxyAllTo("http://noway.wiremock.org"));
     assertThat(
@@ -665,7 +669,7 @@ public class ProxyAcceptanceTest {
   void preventsProxyingToNonIncludedHostnames() {
     init(
         wireMockConfig()
-            .limitProxyTargets(NetworkAddressRules.builder().allow("wiremock.org").build()));
+            .limitProxyTargets(DefaultNetworkAddressRules.builder().allow("wiremock.org").build()));
 
     proxy.register(proxyAllTo("http://wiremock.io"));
     assertThat(
@@ -677,7 +681,7 @@ public class ProxyAcceptanceTest {
   void preventsProxyingToIpResolvedFromHostname() {
     init(
         wireMockConfig()
-            .limitProxyTargets(NetworkAddressRules.builder().deny("127.0.0.1").build()));
+            .limitProxyTargets(DefaultNetworkAddressRules.builder().deny("127.0.0.1").build()));
 
     proxy.register(proxyAllTo("http://localhost"));
     assertThat(
@@ -733,6 +737,27 @@ public class ProxyAcceptanceTest {
         response.content(),
         startsWith("Network failure trying to make a proxied request from WireMock"));
     assertThat(response.statusCode(), is(500));
+  }
+
+  @Test
+  void multiValueResponseHeadersWithDifferentCasesAreHandledCorrectly() {
+    initWithDefaultConfig();
+
+    target.register(
+        get(urlPathEqualTo("/multi-value-headers"))
+            .willReturn(
+                ok().withHeader("Set-Cookie", "session=1234")
+                    .withHeader("set-cookie", "ads_id=5678")
+                    .withHeader("SET-COOKIE", "trk=t-9987")));
+
+    proxy.register(proxyAllTo(targetServiceBaseUrl));
+
+    WireMockResponse response = testClient.get("/multi-value-headers");
+    assertThat(response.statusCode(), is(200));
+
+    Multimap<String, String> headers = response.headers();
+    assertThat(headers.get("Set-Cookie").size(), is(3));
+    assertThat(headers.get("Set-Cookie"), hasItems("session=1234", "ads_id=5678", "trk=t-9987"));
   }
 
   private void register200StubOnProxyAndTarget(String url) {

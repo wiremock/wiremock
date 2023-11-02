@@ -15,96 +15,47 @@
  */
 package org.wiremock.webhooks;
 
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.RequestTemplateModel;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.NetworkAddressRulesAdheringDnsResolver;
+import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.SocketConfig;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
-import org.apache.hc.core5.util.TimeValue;
-import org.apache.hc.core5.util.Timeout;
 
 @SuppressWarnings("deprecation") // maintaining PostServeAction for backwards compatibility
 public class Webhooks extends PostServeAction implements ServeEventListener {
 
   private final ScheduledExecutorService scheduler;
-  private final CloseableHttpClient httpClient;
+  private final Lazy<HttpClient> lazyHttpClient;
   private final List<WebhookTransformer> transformers;
   private final TemplateEngine templateEngine;
 
-  private Webhooks(
+  public Webhooks(
+      WireMockServices wireMockServices,
       ScheduledExecutorService scheduler,
-      CloseableHttpClient httpClient,
       List<WebhookTransformer> transformers) {
-    this.scheduler = scheduler;
-    this.httpClient = httpClient;
-    this.transformers = transformers;
 
+    this.scheduler = scheduler;
+    this.lazyHttpClient = lazy(wireMockServices::getDefaultHttpClient);
+    this.transformers = transformers;
     this.templateEngine = TemplateEngine.defaultTemplateEngine();
   }
 
-  public Webhooks(List<WebhookTransformer> transformers, NetworkAddressRules targetAddressRules) {
-    this(Executors.newScheduledThreadPool(10), createHttpClient(targetAddressRules), transformers);
-  }
-
-  public Webhooks(NetworkAddressRules targetAddressRules) {
-    this(new ArrayList<>(), targetAddressRules);
-  }
-
-  @JsonCreator
-  public Webhooks() {
-    this(NetworkAddressRules.ALLOW_ALL);
-  }
-
-  @SuppressWarnings("unused") // public API
-  public Webhooks(WebhookTransformer... transformers) {
-    this(Arrays.asList(transformers), NetworkAddressRules.ALLOW_ALL);
-  }
-
-  private static CloseableHttpClient createHttpClient(NetworkAddressRules targetAddressRules) {
-    return HttpClientBuilder.create()
-        .disableAuthCaching()
-        .disableAutomaticRetries()
-        .disableCookieManagement()
-        .disableRedirectHandling()
-        .disableContentCompression()
-        .setConnectionManager(
-            PoolingHttpClientConnectionManagerBuilder.create()
-                .setDnsResolver(new NetworkAddressRulesAdheringDnsResolver(targetAddressRules))
-                .setDefaultSocketConfig(
-                    SocketConfig.custom().setSoTimeout(Timeout.ofMilliseconds(30000)).build())
-                .setMaxConnPerRoute(1000)
-                .setMaxConnTotal(1000)
-                .setValidateAfterInactivity(TimeValue.ofSeconds(5)) // TODO Verify duration
-                .build())
-        .setConnectionReuseStrategy((request, response, context) -> false)
-        .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS)
-        .build();
+  private HttpClient getHttpClient() {
+    return lazyHttpClient.get();
   }
 
   @Override
@@ -127,7 +78,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     final Notifier notifier = notifier();
 
     WebhookDefinition definition;
-    ClassicHttpRequest request;
+    Request request;
     try {
       definition = WebhookDefinition.from(parameters);
       for (WebhookTransformer transformer : transformers) {
@@ -143,14 +94,15 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     final WebhookDefinition finalDefinition = definition;
     scheduler.schedule(
         () -> {
-          try (CloseableHttpResponse response = httpClient.execute(request)) {
+          try {
+            Response response = getHttpClient().execute(request);
             notifier.info(
                 String.format(
                     "Webhook %s request to %s returned status %s\n\n%s",
                     finalDefinition.getMethod(),
                     finalDefinition.getUrl(),
-                    response.getCode(),
-                    EntityUtils.toString(response.getEntity())));
+                    response.getStatus(),
+                    response.getBodyAsString()));
           } catch (ProhibitedNetworkAddressException e) {
             notifier.error(
                 String.format(
@@ -210,19 +162,15 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     return templateEngine.getUncachedTemplate(value).apply(context);
   }
 
-  private static ClassicHttpRequest buildRequest(WebhookDefinition definition) {
-    final ClassicRequestBuilder requestBuilder =
-        ClassicRequestBuilder.create(definition.getMethod()).setUri(definition.getUrl());
-
-    for (HttpHeader header : definition.getHeaders().all()) {
-      for (String value : header.values()) {
-        requestBuilder.addHeader(header.key(), value);
-      }
-    }
+  private static Request buildRequest(WebhookDefinition definition) {
+    final ImmutableRequest.Builder requestBuilder =
+        ImmutableRequest.create()
+            .withMethod(definition.getRequestMethod())
+            .withAbsoluteUrl(definition.getUrl())
+            .withHeaders(definition.getHeaders());
 
     if (definition.getRequestMethod().hasEntity() && definition.hasBody()) {
-      requestBuilder.setEntity(
-          new ByteArrayEntity(definition.getBinaryBody(), ContentType.DEFAULT_BINARY));
+      requestBuilder.withBody(definition.getBinaryBody());
     }
 
     return requestBuilder.build();

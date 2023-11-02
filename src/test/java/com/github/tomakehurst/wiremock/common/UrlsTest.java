@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,5 +143,24 @@ public class UrlsTest {
   @Test
   public void getsThePathFromAUrlWithJustAQuery() {
     assertThat(Urls.getPath("?q=a"), is(""));
+  }
+
+  @Test
+  void getsThePathAndQueryFromAbsoluteHttpUrl() {
+    assertThat(
+        Urls.getPathAndQuery("http://example.com/things?q=boo&limit=5"),
+        is("/things?q=boo&limit=5"));
+  }
+
+  @Test
+  void getsThePathAndQueryFromAbsoluteHttpsUrl() {
+    assertThat(
+        Urls.getPathAndQuery("https://example.com/things?q=boo&limit=5"),
+        is("/things?q=boo&limit=5"));
+  }
+
+  @Test
+  void getsThePathAndQueryFromRelativeUrl() {
+    assertThat(Urls.getPathAndQuery("/things?q=boo&limit=5"), is("/things?q=boo&limit=5"));
   }
 }

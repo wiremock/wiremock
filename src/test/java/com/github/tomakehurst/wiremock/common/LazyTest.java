@@ -15,6 +15,29 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-public interface NetworkAddressRules {
-  boolean isAllowed(String testValue);
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
+
+public class LazyTest {
+
+  @Test
+  void initialisesFromSupplierOnlyOnce() {
+    AtomicInteger count = new AtomicInteger(0);
+
+    Lazy<String> lazy =
+        lazy(
+            () -> {
+              count.incrementAndGet();
+              return "Lazily";
+            });
+
+    lazy.get();
+    lazy.get();
+
+    assertThat(lazy.get()).isEqualTo("Lazily");
+    assertThat(count.get()).isEqualTo(1);
+  }
 }

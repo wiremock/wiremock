@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.NetworkAddressRules.ALLOW_ALL;
+import static com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules.ALLOW_ALL;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -36,6 +36,8 @@ import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
 import com.github.tomakehurst.wiremock.crypto.InMemoryKeyStore;
 import com.github.tomakehurst.wiremock.crypto.Secret;
 import com.github.tomakehurst.wiremock.crypto.X509CertificateSpecification;
+import com.github.tomakehurst.wiremock.http.client.ApacheBackedHttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.store.InMemorySettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -67,6 +69,9 @@ import org.mockito.Mockito;
 public class ProxyResponseRendererTest {
 
   private static final int PROXY_TIMEOUT = 200_000;
+
+  CloseableHttpClient reverseProxyApacheClient;
+  CloseableHttpClient forwardProxyApacheClient;
 
   @RegisterExtension
   public WireMockExtension origin =
@@ -163,13 +168,10 @@ public class ProxyResponseRendererTest {
 
   @Test
   void doesNotAddEntityIfEmptyBodyReverseProxy() throws IOException {
-    CloseableHttpClient clientSpy =
-        reflectiveSpyField(CloseableHttpClient.class, "reverseProxyClient", proxyResponseRenderer);
-
     ServeEvent serveEvent = reverseProxyServeEvent("/proxied");
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy)
+    Mockito.verify(reverseProxyApacheClient)
         .execute(
             argThat(request -> request.getEntity() == null),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
@@ -177,13 +179,10 @@ public class ProxyResponseRendererTest {
 
   @Test
   void doesNotAddEntityIfEmptyBodyForwardProxy() throws IOException {
-    CloseableHttpClient clientSpy =
-        reflectiveSpyField(CloseableHttpClient.class, "forwardProxyClient", proxyResponseRenderer);
-
     ServeEvent serveEvent = forwardProxyServeEvent("/proxied");
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy)
+    Mockito.verify(forwardProxyApacheClient)
         .execute(
             argThat(request -> request.getEntity() == null),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
@@ -191,14 +190,11 @@ public class ProxyResponseRendererTest {
 
   @Test
   void addsEntityIfNotEmptyBodyReverseProxy() throws IOException {
-    CloseableHttpClient clientSpy =
-        reflectiveSpyField(CloseableHttpClient.class, "reverseProxyClient", proxyResponseRenderer);
-
     ServeEvent serveEvent =
         serveEvent("/proxied", false, "Text body".getBytes(StandardCharsets.UTF_8));
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy)
+    Mockito.verify(reverseProxyApacheClient)
         .execute(
             argThat(request -> request.getEntity() != null),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
@@ -206,14 +202,11 @@ public class ProxyResponseRendererTest {
 
   @Test
   void addsEntityIfNotEmptyBodyForwardProxy() throws IOException {
-    CloseableHttpClient clientSpy =
-        reflectiveSpyField(CloseableHttpClient.class, "forwardProxyClient", proxyResponseRenderer);
-
     ServeEvent serveEvent =
         serveEvent("/proxied", true, "Text body".getBytes(StandardCharsets.UTF_8));
 
     proxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy)
+    Mockito.verify(forwardProxyApacheClient)
         .execute(
             argThat(request -> request.getEntity() != null),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
@@ -222,10 +215,6 @@ public class ProxyResponseRendererTest {
   @Test
   void addsEmptyEntityIfEmptyBodyForwardProxyPOST() throws IOException {
     ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
-    CloseableHttpClient clientSpy =
-        reflectiveSpyField(
-            CloseableHttpClient.class, "forwardProxyClient", trustAllProxyResponseRenderer);
-
     origin.stubFor(post("/proxied/empty-post").willReturn(aResponse().withBody("Result")));
 
     ServeEvent serveEvent =
@@ -237,7 +226,7 @@ public class ProxyResponseRendererTest {
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy)
+    Mockito.verify(forwardProxyApacheClient)
         .execute(
             argThat(request -> request.getEntity() != null),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
@@ -252,10 +241,6 @@ public class ProxyResponseRendererTest {
   @Test
   void addsEmptyEntityIfEmptyBodyForwardProxyGET() throws IOException {
     ProxyResponseRenderer trustAllProxyResponseRenderer = buildProxyResponseRenderer(true);
-    CloseableHttpClient clientSpy =
-        reflectiveSpyField(
-            CloseableHttpClient.class, "forwardProxyClient", trustAllProxyResponseRenderer);
-
     origin.stubFor(get("/proxied/empty-get").willReturn(aResponse().withBody("Result")));
 
     ServeEvent serveEvent =
@@ -267,7 +252,7 @@ public class ProxyResponseRendererTest {
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
-    Mockito.verify(clientSpy)
+    Mockito.verify(forwardProxyApacheClient)
         .execute(
             argThat(request -> request.getEntity() != null),
             ArgumentMatchers.any(HttpClientResponseHandler.class));
@@ -282,11 +267,9 @@ public class ProxyResponseRendererTest {
   @Test
   void usesCorrectProxyRequestTimeout() {
     RequestConfig forwardProxyClientRequestConfig =
-        reflectiveInnerSpyField(
-            RequestConfig.class, "forwardProxyClient", "defaultConfig", proxyResponseRenderer);
+        reflectiveSpyField(RequestConfig.class, "defaultConfig", forwardProxyApacheClient);
     RequestConfig reverseProxyClientRequestConfig =
-        reflectiveInnerSpyField(
-            RequestConfig.class, "reverseProxyClient", "defaultConfig", proxyResponseRenderer);
+        reflectiveSpyField(RequestConfig.class, "defaultConfig", reverseProxyApacheClient);
 
     assertThat(
         forwardProxyClientRequestConfig.getResponseTimeout().toMilliseconds(),
@@ -322,6 +305,10 @@ public class ProxyResponseRendererTest {
     } catch (NoSuchFieldException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static <T> T spyField(T object) {
+    return spy(object);
   }
 
   private ServeEvent reverseProxyServeEvent(String path) {
@@ -393,17 +380,40 @@ public class ProxyResponseRendererTest {
 
   private ProxyResponseRenderer buildProxyResponseRenderer(
       boolean trustAllProxyTargets, boolean stubCorsEnabled) {
+
+    reverseProxyApacheClient =
+        spy(
+            HttpClientFactory.createClient(
+                1000,
+                PROXY_TIMEOUT,
+                ProxySettings.NO_PROXY,
+                KeyStoreSettings.NO_STORE,
+                true,
+                Collections.emptyList(),
+                true,
+                ALLOW_ALL));
+    HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient);
+
+    forwardProxyApacheClient =
+        spy(
+            HttpClientFactory.createClient(
+                1000,
+                PROXY_TIMEOUT,
+                ProxySettings.NO_PROXY,
+                KeyStoreSettings.NO_STORE,
+                trustAllProxyTargets,
+                Collections.emptyList(),
+                false,
+                ALLOW_ALL));
+    HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient);
+
     return new ProxyResponseRenderer(
-        ProxySettings.NO_PROXY,
-        KeyStoreSettings.NO_STORE,
         /* preserveHostHeader= */ false,
         /* hostHeaderValue= */ null,
         new InMemorySettingsStore(),
-        trustAllProxyTargets,
-        Collections.emptyList(),
         stubCorsEnabled,
-        ALLOW_ALL,
-        PROXY_TIMEOUT);
+        reverseProxyClient,
+        forwardProxyClient);
   }
 
   // Just exists to make the compiler happy by having the throws clause

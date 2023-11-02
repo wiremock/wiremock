@@ -13,8 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.http.client;
 
-public interface NetworkAddressRules {
-  boolean isAllowed(String testValue);
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.Extension;
+import java.util.List;
+
+public interface HttpClientFactory extends Extension {
+
+  @Override
+  default String getName() {
+    return "http-client-factory";
+  }
+
+  HttpClient buildHttpClient(
+      Options options,
+      boolean trustAllCertificates,
+      List<String> trustedHosts,
+      boolean useSystemProperties);
 }
