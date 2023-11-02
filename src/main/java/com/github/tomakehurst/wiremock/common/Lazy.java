@@ -15,6 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-public interface NetworkAddressRules {
-  boolean isAllowed(String testValue);
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
+public class Lazy<T> {
+
+  public static <T> Lazy<T> lazy(Supplier<T> supplier) {
+    return new Lazy<>(supplier);
+  }
+
+  private final Supplier<T> supplier;
+  private final AtomicReference<T> ref = new AtomicReference<>();
+
+  private Lazy(Supplier<T> supplier) {
+    this.supplier = supplier;
+  }
+
+  public T get() {
+    return ref.updateAndGet(existing -> existing == null ? supplier.get() : existing);
+  }
 }

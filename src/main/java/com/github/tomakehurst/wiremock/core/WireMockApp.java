@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterV2;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -185,22 +186,38 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, ServeEventListener> serveEventListeners =
         extensions.ofType(ServeEventListener.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
+
+    final com.github.tomakehurst.wiremock.http.client.HttpClientFactory httpClientFactory =
+        extensions
+            .ofType(com.github.tomakehurst.wiremock.http.client.HttpClientFactory.class)
+            .values()
+            .stream()
+            .findFirst()
+            .orElse(options.httpClientFactory());
+
+    final HttpClient reverseProxyClient =
+        httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true);
+    final HttpClient forwardProxyClient =
+        httpClientFactory.buildHttpClient(
+            options,
+            browserProxySettings.trustAllProxyTargets(),
+            browserProxySettings.trustAllProxyTargets()
+                ? Collections.emptyList()
+                : browserProxySettings.trustedProxyTargets(),
+            false);
+
     return new StubRequestHandler(
         this,
         new StubResponseRenderer(
             options.getStores().getFilesBlobStore(),
             settingsStore,
             new ProxyResponseRenderer(
-                options.proxyVia(),
-                options.httpsSettings().trustStore(),
                 options.shouldPreserveHostHeader(),
                 options.proxyHostHeader(),
                 settingsStore,
-                browserProxySettings.trustAllProxyTargets(),
-                browserProxySettings.trustedProxyTargets(),
                 options.getStubCorsEnabled(),
-                options.getProxyTargetRules(),
-                options.proxyTimeout()),
+                reverseProxyClient,
+                forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),
             List.copyOf(extensions.ofType(ResponseTransformerV2.class).values())),
         this,

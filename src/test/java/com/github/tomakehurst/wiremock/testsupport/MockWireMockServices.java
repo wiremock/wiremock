@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extensions;
 import com.github.tomakehurst.wiremock.extension.WireMockServices;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.google.common.base.Suppliers;
 import java.util.Map;
@@ -66,6 +68,16 @@ public class MockWireMockServices implements WireMockServices {
   @Override
   public TemplateEngine getTemplateEngine() {
     return templateEngine.get();
+  }
+
+  @Override
+  public HttpClientFactory getHttpClientFactory() {
+    return null;
+  }
+
+  @Override
+  public HttpClient getDefaultHttpClient() {
+    return null;
   }
 
   public MockWireMockServices setFileSource(FileSource fileSource) {

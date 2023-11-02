@@ -36,6 +36,8 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
@@ -99,6 +101,7 @@ public class WireMockConfiguration implements Options {
   private boolean preserveHostHeader;
   private String proxyHostHeader;
   private HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
+  private HttpClientFactory httpClientFactory = new ApacheHttpClientFactory();
   private ThreadPoolFactory threadPoolFactory = new QueuedThreadPoolFactory();
   private Integer jettyAcceptors;
   private Integer jettyAcceptQueueSize;
@@ -131,7 +134,7 @@ public class WireMockConfiguration implements Options {
 
   private Limit responseBodySizeLimit = UNLIMITED;
 
-  private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
+  private NetworkAddressRules proxyTargetRules = DefaultNetworkAddressRules.ALLOW_ALL;
 
   private int proxyTimeout = DEFAULT_TIMEOUT;
 
@@ -418,7 +421,12 @@ public class WireMockConfiguration implements Options {
   }
 
   public WireMockConfiguration httpServerFactory(HttpServerFactory serverFactory) {
-    httpServerFactory = serverFactory;
+    this.httpServerFactory = serverFactory;
+    return this;
+  }
+
+  public WireMockConfiguration httpClientFactory(HttpClientFactory httpClientFactory) {
+    this.httpClientFactory = httpClientFactory;
     return this;
   }
 
@@ -653,6 +661,11 @@ public class WireMockConfiguration implements Options {
   @Override
   public HttpServerFactory httpServerFactory() {
     return httpServerFactory;
+  }
+
+  @Override
+  public HttpClientFactory httpClientFactory() {
+    return httpClientFactory;
   }
 
   @Override

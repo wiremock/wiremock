@@ -35,6 +35,8 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
@@ -497,6 +499,11 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
+  public HttpClientFactory httpClientFactory() {
+    return new ApacheHttpClientFactory();
+  }
+
+  @Override
   public ThreadPoolFactory threadPoolFactory() {
     return new QueuedThreadPoolFactory();
   }
@@ -897,7 +904,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public NetworkAddressRules getProxyTargetRules() {
-    NetworkAddressRules.Builder builder = NetworkAddressRules.builder();
+    DefaultNetworkAddressRules.Builder builder = DefaultNetworkAddressRules.builder();
     if (optionSet.has(ALLOW_PROXY_TARGETS)) {
       Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
           .forEach(builder::allow);
