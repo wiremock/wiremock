@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProhibitedNetworkAddressException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.stream.Stream;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
@@ -44,13 +46,17 @@ public class NetworkAddressRulesAdheringDnsResolver implements DnsResolver {
       throw new ProhibitedNetworkAddressException();
     }
 
-    final InetAddress[] resolved = delegate.resolve(host);
-    if (Stream.of(resolved)
+    final InetAddress[] resolvedIpv4 =
+        Arrays.stream(delegate.resolve(host))
+            .filter(inetAddress -> inetAddress instanceof Inet4Address)
+            .toArray(InetAddress[]::new);
+
+    if (Stream.of(resolvedIpv4)
         .anyMatch(address -> !networkAddressRules.isAllowed(address.getHostAddress()))) {
       throw new ProhibitedNetworkAddressException();
     }
 
-    return resolved;
+    return resolvedIpv4;
   }
 
   @Override
