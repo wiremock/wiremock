@@ -56,7 +56,7 @@ public class ParseJsonHelper extends HandlebarsHelper<Object> {
 
       // Edge case if JSON object is empty {}
       String jsonAsStringWithoutSpace = jsonAsString.replaceAll("\\s", "");
-      if (jsonAsStringWithoutSpace.equals("{}") || jsonAsStringWithoutSpace.equals("")) {
+      if (jsonAsStringWithoutSpace.equals("{}") || jsonAsStringWithoutSpace.isEmpty()) {
         result = new HashMap<String, Object>();
       } else {
         if (jsonAsString.startsWith("[") && jsonAsString.endsWith("]")) {
