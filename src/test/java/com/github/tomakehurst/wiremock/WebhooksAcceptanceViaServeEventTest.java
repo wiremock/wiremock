@@ -32,7 +32,7 @@ import static org.wiremock.webhooks.Webhooks.webhook;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -92,9 +92,7 @@ public class WebhooksAcceptanceViaServeEventTest {
                   .dynamicPort()
                   .notifier(notifier)
                   .limitProxyTargets(
-                      DefaultNetworkAddressRules.builder()
-                          .deny("169.254.0.0-169.254.255.255")
-                          .build()))
+                      NetworkAddressRules.builder().deny("169.254.0.0-169.254.255.255").build()))
           .configureStaticDsl(true)
           .build();
 

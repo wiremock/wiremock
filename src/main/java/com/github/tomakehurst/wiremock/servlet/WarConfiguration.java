@@ -238,7 +238,7 @@ public class WarConfiguration implements Options {
 
   @Override
   public NetworkAddressRules getProxyTargetRules() {
-    return DefaultNetworkAddressRules.ALLOW_ALL;
+    return NetworkAddressRules.ALLOW_ALL;
   }
 
   @Override
