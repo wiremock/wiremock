@@ -134,7 +134,7 @@ public class WireMockConfiguration implements Options {
 
   private Limit responseBodySizeLimit = UNLIMITED;
 
-  private NetworkAddressRules proxyTargetRules = DefaultNetworkAddressRules.ALLOW_ALL;
+  private NetworkAddressRules proxyTargetRules = NetworkAddressRules.ALLOW_ALL;
 
   private int proxyTimeout = DEFAULT_TIMEOUT;
 

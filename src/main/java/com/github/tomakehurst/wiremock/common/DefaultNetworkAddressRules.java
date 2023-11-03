@@ -17,25 +17,16 @@ package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static com.github.tomakehurst.wiremock.common.NetworkAddressUtils.isValidInet4Address;
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class DefaultNetworkAddressRules implements NetworkAddressRules {
-
-  public static Builder builder() {
-    return new Builder();
-  }
 
   private final Set<NetworkAddressRange> allowed;
   private final Set<NetworkAddressRange> allowedHostPatterns;
   private final Set<NetworkAddressRange> denied;
   private final Set<NetworkAddressRange> deniedHostPatterns;
-
-  public static final NetworkAddressRules ALLOW_ALL =
-      new DefaultNetworkAddressRules(Set.of(ALL), emptySet());
 
   public DefaultNetworkAddressRules(
       Set<NetworkAddressRange> allowed, Set<NetworkAddressRange> denied) {
@@ -87,29 +78,6 @@ public class DefaultNetworkAddressRules implements NetworkAddressRules {
     } else {
       return allowedHostPatterns.stream().anyMatch(rule -> rule.isIncluded(testValue))
           && deniedHostPatterns.stream().noneMatch(rule -> rule.isIncluded(testValue));
-    }
-  }
-
-  public static class Builder {
-    private final Set<NetworkAddressRange> allowed = new HashSet<>();
-    private final Set<NetworkAddressRange> denied = new HashSet<>();
-
-    public Builder allow(String expression) {
-      allowed.add(NetworkAddressRange.of(expression));
-      return this;
-    }
-
-    public Builder deny(String expression) {
-      denied.add(NetworkAddressRange.of(expression));
-      return this;
-    }
-
-    public NetworkAddressRules build() {
-      Set<NetworkAddressRange> allowedRanges = allowed;
-      if (allowedRanges.isEmpty()) {
-        allowedRanges = Set.of(ALL);
-      }
-      return new DefaultNetworkAddressRules(Set.copyOf(allowedRanges), Set.copyOf(denied));
     }
   }
 }

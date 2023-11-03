@@ -23,7 +23,6 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
@@ -241,7 +240,7 @@ public class HttpClientFactory {
         NO_PROXY,
         NO_STORE,
         true,
-        DefaultNetworkAddressRules.ALLOW_ALL);
+        NetworkAddressRules.ALLOW_ALL);
   }
 
   public static CloseableHttpClient createClient(int timeoutMilliseconds) {
@@ -255,7 +254,7 @@ public class HttpClientFactory {
         proxySettings,
         NO_STORE,
         true,
-        DefaultNetworkAddressRules.ALLOW_ALL);
+        NetworkAddressRules.ALLOW_ALL);
   }
 
   public static CloseableHttpClient createClient() {
