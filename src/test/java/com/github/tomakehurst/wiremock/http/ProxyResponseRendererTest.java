@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.DefaultNetworkAddressRules.ALLOW_ALL;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -30,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.spy;
 
+import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.crypto.CertificateSpecification;
@@ -391,7 +391,7 @@ public class ProxyResponseRendererTest {
                 true,
                 Collections.emptyList(),
                 true,
-                ALLOW_ALL));
+                NetworkAddressRules.ALLOW_ALL));
     HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient);
 
     forwardProxyApacheClient =
@@ -404,7 +404,7 @@ public class ProxyResponseRendererTest {
                 trustAllProxyTargets,
                 Collections.emptyList(),
                 false,
-                ALLOW_ALL));
+                NetworkAddressRules.ALLOW_ALL));
     HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient);
 
     return new ProxyResponseRenderer(
