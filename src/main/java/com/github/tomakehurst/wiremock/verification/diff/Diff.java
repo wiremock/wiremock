@@ -110,7 +110,7 @@ public class Diff {
     DiffLine<String> urlSection = addUrlSectionWithSpacer(urlPattern, diffLineList);
 
     addHeaderSectionWithSpacerIfPresent(
-            requestPattern.combineBasicAuthAndOtherHeaders(), request.getHeaders(), diffLineList);
+        requestPattern.combineBasicAuthAndOtherHeaders(), request.getHeaders(), diffLineList);
 
     addPathParameterSectionWithSpacerIfPresent(urlPattern, urlSection, diffLineList);
 
@@ -134,29 +134,29 @@ public class Diff {
   private void addScenarioSectionIfPresent(List<DiffLine<?>> diffLineList) {
     if (scenarioName != null && expectedScenarioState != null) {
       diffLineList.add(
-              new DiffLine<>(
-                      "Scenario",
-                      new EqualToPattern(expectedScenarioState),
-                      buildScenarioLine(scenarioName, scenarioState),
-                      buildScenarioLine(scenarioName, expectedScenarioState)));
+          new DiffLine<>(
+              "Scenario",
+              new EqualToPattern(expectedScenarioState),
+              buildScenarioLine(scenarioName, scenarioState),
+              buildScenarioLine(scenarioName, expectedScenarioState)));
     }
   }
 
   private void addNamedCustomMatcherSectionIfPresent(
-          Map<String, RequestMatcherExtension> customMatcherExtensions,
-          List<DiffLine<?>> diffLineList) {
+      Map<String, RequestMatcherExtension> customMatcherExtensions,
+      List<DiffLine<?>> diffLineList) {
     if (requestPattern.hasNamedCustomMatcher()) {
       RequestMatcherExtension customMatcher =
-              customMatcherExtensions.get(requestPattern.getCustomMatcher().getName());
+          customMatcherExtensions.get(requestPattern.getCustomMatcher().getName());
       if (customMatcher != null) {
         NamedCustomMatcherLine namedCustomMatcherLine =
-                new NamedCustomMatcherLine(
-                        customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
+            new NamedCustomMatcherLine(
+                customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
         diffLineList.add(namedCustomMatcherLine);
       } else {
         diffLineList.add(
-                new SectionDelimiter(
-                        "[custom matcher: " + requestPattern.getCustomMatcher().getName() + "]"));
+            new SectionDelimiter(
+                "[custom matcher: " + requestPattern.getCustomMatcher().getName() + "]"));
       }
     }
   }
@@ -164,7 +164,7 @@ public class Diff {
   private void addInlineCustomMatcherSectionIfPresent(List<DiffLine<?>> diffLineList) {
     if (requestPattern.hasInlineCustomMatcher()) {
       InlineCustomMatcherLine customMatcherLine =
-              new InlineCustomMatcherLine(requestPattern.getMatcher(), request);
+          new InlineCustomMatcherLine(requestPattern.getMatcher(), request);
       diffLineList.add(customMatcherLine);
     }
   }
@@ -182,12 +182,12 @@ public class Diff {
             String patternPartName = pattern.getName() == null ? "" : ": " + pattern.getName();
             String partName = part.getName() == null ? "" : part.getName();
             diffLineList.add(
-                    new SectionDelimiter("[Multipart" + patternPartName + "]", "[" + partName + "]"));
+                new SectionDelimiter("[Multipart" + patternPartName + "]", "[" + partName + "]"));
             diffLineList.add(SPACER);
 
             if (!pattern.match(part).isExactMatch()) {
               addHeaderSectionWithSpacerIfPresent(
-                      pattern.getHeaders(), part.getHeaders(), diffLineList);
+                  pattern.getHeaders(), part.getHeaders(), diffLineList);
               addBodySectionIfPresent(pattern.getBodyPatterns(), part.getBody(), diffLineList);
               diffLineList.add(SPACER);
             }
@@ -211,11 +211,11 @@ public class Diff {
 
         String operator = generateOperatorString(pattern, "=");
         DiffLine<String> section =
-                new DiffLine<>(
-                        "Cookie",
-                        pattern,
-                        cookie.isPresent() ? cookie.getValue() : "",
-                        "Cookie: " + key + operator + pattern.getValue());
+            new DiffLine<>(
+                "Cookie",
+                pattern,
+                cookie.isPresent() ? cookie.getValue() : "",
+                "Cookie: " + key + operator + pattern.getValue());
         diffLineList.add(section);
       }
       if (!cookiesPattern.isEmpty()) {
@@ -233,15 +233,15 @@ public class Diff {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         FormParameter formParameter =
-                getFirstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
+            getFirstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
-                new DiffLine<>(
-                        "Form data",
-                        pattern,
-                        formParameter,
-                        "Form: " + key + operator + pattern.getExpected());
+            new DiffLine<>(
+                "Form data",
+                pattern,
+                formParameter,
+                "Form: " + key + operator + pattern.getExpected());
         diffLineList.add(section);
       }
       if (!formParameters.isEmpty()) {
@@ -254,21 +254,21 @@ public class Diff {
     final Map<String, MultiValuePattern> queryParameters = requestPattern.getQueryParameters();
     if (queryParameters != null) {
       Map<String, QueryParameter> requestQueryParams =
-              Urls.splitQuery(URI.create(request.getUrl()));
+          Urls.splitQuery(URI.create(request.getUrl()));
 
       for (Map.Entry<String, MultiValuePattern> entry : queryParameters.entrySet()) {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         QueryParameter queryParameter =
-                getFirstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
+            getFirstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
-                new DiffLine<>(
-                        "Query",
-                        pattern,
-                        queryParameter,
-                        "Query: " + key + operator + pattern.getExpected());
+            new DiffLine<>(
+                "Query",
+                pattern,
+                queryParameter,
+                "Query: " + key + operator + pattern.getExpected());
         diffLineList.add(section);
       }
       if (!queryParameters.isEmpty()) {
@@ -278,17 +278,17 @@ public class Diff {
   }
 
   private void addPathParameterSectionWithSpacerIfPresent(
-          UrlPattern urlPattern, DiffLine<String> urlSection, List<DiffLine<?>> diffLineList) {
+      UrlPattern urlPattern, DiffLine<String> urlSection, List<DiffLine<?>> diffLineList) {
     final Map<String, StringValuePattern> pathParameters = requestPattern.getPathParameters();
     if (urlPattern instanceof UrlPathTemplatePattern
-            && pathParameters != null
-            && !pathParameters.isEmpty()
-            && urlSection.isExactMatch()) {
+        && pathParameters != null
+        && !pathParameters.isEmpty()
+        && urlSection.isExactMatch()) {
       final UrlPathTemplatePattern urlPathTemplatePattern =
-              (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
+          (UrlPathTemplatePattern) requestPattern.getUrlMatcher();
       final PathTemplate pathTemplate = urlPathTemplatePattern.getPathTemplate();
       final PathParams requestPathParameterValues =
-              pathTemplate.parse(Urls.getPath(request.getUrl()));
+          pathTemplate.parse(Urls.getPath(request.getUrl()));
 
       for (Map.Entry<String, String> entry : requestPathParameterValues.entrySet()) {
         String parameterName = entry.getKey();
@@ -296,11 +296,11 @@ public class Diff {
         final StringValuePattern pattern = pathParameters.get(parameterName);
         String operator = generateOperatorString(pattern, " = ");
         DiffLine<String> section =
-                new DiffLine<>(
-                        "Path parameter",
-                        pattern,
-                        parameterValue,
-                        "Path parameter: " + parameterName + operator + pattern.getValue());
+            new DiffLine<>(
+                "Path parameter",
+                pattern,
+                parameterValue,
+                "Path parameter: " + parameterName + operator + pattern.getValue());
         diffLineList.add(section);
       }
 
@@ -309,10 +309,10 @@ public class Diff {
   }
 
   private DiffLine<String> addUrlSectionWithSpacer(
-          UrlPattern urlPattern, List<DiffLine<?>> diffLineList) {
+      UrlPattern urlPattern, List<DiffLine<?>> diffLineList) {
     String printedUrlPattern = generatePrintedUrlPattern(urlPattern);
     DiffLine<String> urlSection =
-            new DiffLine<>("URL", urlPattern, request.getUrl(), printedUrlPattern);
+        new DiffLine<>("URL", urlPattern, request.getUrl(), printedUrlPattern);
     diffLineList.add(urlSection);
     diffLineList.add(SPACER);
     return urlSection;
@@ -320,11 +320,11 @@ public class Diff {
 
   private void addMethodSection(List<DiffLine<?>> diffLineList) {
     DiffLine<RequestMethod> methodSection =
-            new DiffLine<>(
-                    "HTTP method",
-                    requestPattern.getMethod(),
-                    request.getMethod(),
-                    requestPattern.getMethod().getName());
+        new DiffLine<>(
+            "HTTP method",
+            requestPattern.getMethod(),
+            request.getMethod(),
+            requestPattern.getMethod().getName());
     diffLineList.add(methodSection);
   }
 
@@ -332,7 +332,7 @@ public class Diff {
     if (requestPattern.getScheme() != null) {
       StringValuePattern expectedScheme = equalTo(String.valueOf(requestPattern.getScheme()));
       DiffLine<String> schemeSection =
-              new DiffLine<>("Scheme", expectedScheme, request.getScheme(), requestPattern.getScheme());
+          new DiffLine<>("Scheme", expectedScheme, request.getScheme(), requestPattern.getScheme());
       diffLineList.add(schemeSection);
     }
   }
@@ -342,7 +342,7 @@ public class Diff {
       StringValuePattern expectedPort = equalTo(String.valueOf(requestPattern.getPort()));
       String actualPort = String.valueOf(request.getPort());
       DiffLine<String> portSection =
-              new DiffLine<>("Port", expectedPort, actualPort, expectedPort.getExpected());
+          new DiffLine<>("Port", expectedPort, actualPort, expectedPort.getExpected());
       diffLineList.add(portSection);
     }
   }
@@ -352,8 +352,8 @@ public class Diff {
       String hostOperator = generateOperatorString(requestPattern.getHost(), "");
       String printedHostPatternValue = hostOperator + requestPattern.getHost().getExpected();
       DiffLine<String> hostSection =
-              new DiffLine<>(
-                      "Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
+          new DiffLine<>(
+              "Host", requestPattern.getHost(), request.getHost(), printedHostPatternValue.trim());
       diffLineList.add(hostSection);
     }
   }
@@ -363,9 +363,9 @@ public class Diff {
   }
 
   private void addHeaderSectionWithSpacerIfPresent(
-          Map<String, MultiValuePattern> headerPatterns,
-          HttpHeaders headers,
-          List<DiffLine<?>> builder) {
+      Map<String, MultiValuePattern> headerPatterns,
+      HttpHeaders headers,
+      List<DiffLine<?>> builder) {
     if (headerPatterns != null && !headerPatterns.isEmpty()) {
       for (String key : headerPatterns.keySet()) {
         HttpHeader header = headers.getHeader(key);
@@ -373,13 +373,13 @@ public class Diff {
 
         String operator = generateOperatorStringForMultiValuePattern(headerPattern, "");
         String expected =
-                StringUtils.isEmpty(headerPattern.getExpected())
-                        ? ""
-                        : ": " + headerPattern.getExpected();
+            StringUtils.isEmpty(headerPattern.getExpected())
+                ? ""
+                : ": " + headerPattern.getExpected();
         String printedPatternValue = header.key() + operator + expected;
 
         DiffLine<MultiValue> section =
-                new DiffLine<>("Header", headerPattern, header, printedPatternValue);
+            new DiffLine<>("Header", headerPattern, header, printedPatternValue);
         builder.add(section);
       }
       builder.add(SPACER);
@@ -387,7 +387,7 @@ public class Diff {
   }
 
   private void addBodySectionIfPresent(
-          List<ContentPattern<?>> bodyPatterns, Body body, List<DiffLine<?>> builder) {
+      List<ContentPattern<?>> bodyPatterns, Body body, List<DiffLine<?>> builder) {
     if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
       for (ContentPattern<?> pattern : bodyPatterns) {
         String formattedBody = formatIfJsonOrXml(pattern, body);
@@ -396,18 +396,18 @@ public class Diff {
           if (!pathPattern.isSimple()) {
             String expressionResultString = getExpressionResultString(body, pathPattern);
             String printedExpectedValue =
-                    pathPattern.getExpected()
-                            + " ["
-                            + pathPattern.getValuePattern().getName()
-                            + "] "
-                            + pathPattern.getValuePattern().getExpected();
+                pathPattern.getExpected()
+                    + " ["
+                    + pathPattern.getValuePattern().getName()
+                    + "] "
+                    + pathPattern.getValuePattern().getExpected();
             if (expressionResultString != null) {
               builder.add(
-                      new DiffLine<>(
-                              "Body",
-                              pathPattern.getValuePattern(),
-                              expressionResultString,
-                              printedExpectedValue));
+                  new DiffLine<>(
+                      "Body",
+                      pathPattern.getValuePattern(),
+                      expressionResultString,
+                      printedExpectedValue));
             } else {
               builder.add(new DiffLine<>("Body", pathPattern, formattedBody, printedExpectedValue));
             }
@@ -418,13 +418,13 @@ public class Diff {
           StringValuePattern stringValuePattern = (StringValuePattern) pattern;
           String printedPatternValue = "[" + pattern.getName() + "]\n" + pattern.getExpected();
           builder.add(
-                  new DiffLine<>(
-                          "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue));
+              new DiffLine<>(
+                  "Body", stringValuePattern, "\n" + formattedBody, printedPatternValue));
         } else {
           BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
           builder.add(
-                  new DiffLine<>(
-                          "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected()));
+              new DiffLine<>(
+                  "Body", nonStringPattern, formattedBody.getBytes(), pattern.getExpected()));
         }
       }
     }
@@ -444,8 +444,8 @@ public class Diff {
       try {
         ListOrSingle<String> expressionResult = pathPattern.getExpressionResult(bodyStr);
         return expressionResult != null && !expressionResult.isEmpty()
-                ? expressionResult.toString()
-                : null;
+            ? expressionResult.toString()
+            : null;
       } catch (Exception e) {
         return null;
       }
@@ -458,15 +458,15 @@ public class Diff {
       matchPart = "path template";
     } else {
       matchPart =
-              (urlPattern instanceof UrlPathPattern ? "path" : "")
-                      + (urlPattern.isRegex() ? " regex" : "");
+          (urlPattern instanceof UrlPathPattern ? "path" : "")
+              + (urlPattern.isRegex() ? " regex" : "");
     }
 
     matchPart = matchPart.trim();
 
     return matchPart.isEmpty()
-            ? urlPattern.getExpected()
-            : "[" + matchPart + "] " + urlPattern.getExpected();
+        ? urlPattern.getExpected()
+        : "[" + matchPart + "] " + urlPattern.getExpected();
   }
 
   private String generateOperatorString(ContentPattern<?> pattern, String defaultValue) {
@@ -474,16 +474,16 @@ public class Diff {
   }
 
   private String generateOperatorStringForMultiValuePattern(
-          final MultiValuePattern valuePattern, final String defaultValue) {
+      final MultiValuePattern valuePattern, final String defaultValue) {
     if (valuePattern instanceof MultipleMatchMultiValuePattern) {
       return ((MultipleMatchMultiValuePattern) valuePattern).getOperator()
-              + "["
-              + valuePattern.getName()
-              + "]";
+          + "["
+          + valuePattern.getName()
+          + "]";
     } else {
       return isAnEqualToPattern(((SingleMatchMultiValuePattern) valuePattern).getValuePattern())
-              ? defaultValue
-              : " [" + valuePattern.getName() + "] ";
+          ? defaultValue
+          : " [" + valuePattern.getName() + "] ";
     }
   }
 
@@ -498,12 +498,12 @@ public class Diff {
 
     try {
       return pattern.getClass().equals(EqualToJsonPattern.class)
-              ? Json.prettyPrint(Json.write(body.asJson()))
-              : pattern.getClass().equals(EqualToXmlPattern.class)
+          ? Json.prettyPrint(Json.write(body.asJson()))
+          : pattern.getClass().equals(EqualToXmlPattern.class)
               ? Xml.prettyPrint(body.asString())
               : pattern.getClass().equals(BinaryEqualToPattern.class)
-              ? body.asBase64()
-              : body.asString();
+                  ? body.asBase64()
+                  : body.asString();
     } catch (Exception e) {
       return body.asString();
     }
@@ -511,8 +511,8 @@ public class Diff {
 
   private static boolean isAnEqualToPattern(ContentPattern<?> pattern) {
     return pattern instanceof EqualToPattern
-            || pattern instanceof EqualToJsonPattern
-            || pattern instanceof EqualToXmlPattern
-            || pattern instanceof BinaryEqualToPattern;
+        || pattern instanceof EqualToJsonPattern
+        || pattern instanceof EqualToXmlPattern
+        || pattern instanceof BinaryEqualToPattern;
   }
 }
