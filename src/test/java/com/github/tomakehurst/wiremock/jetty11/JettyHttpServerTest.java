@@ -17,12 +17,13 @@ package com.github.tomakehurst.wiremock.jetty11;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
@@ -137,6 +138,6 @@ public class JettyHttpServerTest {
             serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
     RuntimeException exception = assertThrows(RuntimeException.class, jettyHttpServer::start);
-    assertEquals("Failed to start the server after 3 attempts.", exception.getMessage());
+    assertTrue(exception instanceof FatalStartupException);
   }
 }

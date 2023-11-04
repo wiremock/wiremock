@@ -203,8 +203,7 @@ public abstract class JettyHttpServer implements HttpServer {
       } catch (IOException bindException) {
         retryCount++;
         if (retryCount >= MAX_RETRIES) {
-          throw new RuntimeException(
-              "Failed to start the server after " + MAX_RETRIES + " attempts.", bindException);
+          throw new FatalStartupException(bindException);
         }
       } catch (Exception e) {
         throw new RuntimeException(e);
