@@ -26,15 +26,7 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.http.Body;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.FormParameter;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.MultiValue;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
@@ -53,10 +45,7 @@ import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.URI;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
 public class Diff {
@@ -319,12 +308,12 @@ public class Diff {
   }
 
   private void addMethodSection(List<DiffLine<?>> diffLineList) {
-    DiffLine<RequestMethod> methodSection =
+    DiffLine<Set<RequestMethod>> methodSection =
         new DiffLine<>(
             "HTTP method",
-            requestPattern.getMethod(),
-            request.getMethod(),
-            requestPattern.getMethod().getName());
+            new RequestMethodMatcher(requestPattern.getMethods()),
+            Set.of(request.getMethod()),
+            String.valueOf(requestPattern.getMethods()));
     diffLineList.add(methodSection);
   }
 
