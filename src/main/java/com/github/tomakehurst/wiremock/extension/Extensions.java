@@ -25,8 +25,11 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
+import com.github.tomakehurst.wiremock.http.client.HttpClient;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,6 +49,8 @@ public class Extensions implements WireMockServices {
   private final FileSource files;
 
   private TemplateEngine templateEngine;
+
+  private HttpClientFactory httpClientFactory;
 
   private final Map<String, Extension> loadedExtensions;
 
@@ -98,6 +103,7 @@ public class Extensions implements WireMockServices {
             .collect(toMap(Extension::getName, Function.identity())));
 
     configureTemplating();
+    configureHttpClient();
     configureWebhooks();
   }
 
@@ -140,11 +146,21 @@ public class Extensions implements WireMockServices {
     }
   }
 
+  private void configureHttpClient() {
+    httpClientFactory =
+        ofType(com.github.tomakehurst.wiremock.http.client.HttpClientFactory.class)
+            .values()
+            .stream()
+            .findFirst()
+            .orElse(options.httpClientFactory());
+  }
+
   private void configureWebhooks() {
     final List<WebhookTransformer> webhookTransformers =
         ofType(WebhookTransformer.class).values().stream().collect(Collectors.toUnmodifiableList());
 
-    final Webhooks webhooks = new Webhooks(webhookTransformers, options.getProxyTargetRules());
+    final Webhooks webhooks =
+        new Webhooks(this, Executors.newScheduledThreadPool(10), webhookTransformers);
     loadedExtensions.put(webhooks.getName(), webhooks);
   }
 
@@ -176,6 +192,16 @@ public class Extensions implements WireMockServices {
   @Override
   public TemplateEngine getTemplateEngine() {
     return templateEngine;
+  }
+
+  @Override
+  public HttpClientFactory getHttpClientFactory() {
+    return httpClientFactory;
+  }
+
+  @Override
+  public HttpClient getDefaultHttpClient() {
+    return httpClientFactory.buildHttpClient(options, true, Collections.emptyList(), true);
   }
 
   public int getCount() {

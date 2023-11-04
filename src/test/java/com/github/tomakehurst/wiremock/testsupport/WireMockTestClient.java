@@ -385,6 +385,7 @@ public class WireMockTestClient {
 
   private static CloseableHttpClient httpClient() {
     return HttpClientBuilder.create()
+        .setUserAgent("WireMock Test Client")
         .disableAuthCaching()
         .disableAutomaticRetries()
         .disableCookieManagement()

@@ -15,9 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.store.files;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.store.BlobStore;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -38,7 +42,17 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
 
   @Override
   public Optional<InputStream> getStream(String key) {
-    return Optional.of(fileSource.getBinaryFileNamed(key).getStream());
+    try {
+      return Optional.of(fileSource.getBinaryFileNamed(key).getStream());
+    } catch (Exception exception) {
+      if (!(exception instanceof FileNotFoundException)) {
+        notifier()
+            .error("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+        return Optional.of(throwUnchecked(exception, InputStream.class));
+      } else {
+        return Optional.empty();
+      }
+    }
   }
 
   @Override
@@ -56,7 +70,17 @@ public class FileSourceBlobStore implements BlobStore, PathBased {
 
   @Override
   public Optional<byte[]> get(String key) {
-    return Optional.of(fileSource.getBinaryFileNamed(key).readContents());
+    try {
+      return Optional.of(fileSource.getBinaryFileNamed(key).readContents());
+    } catch (Exception exception) {
+      if (!(exception instanceof FileNotFoundException)) {
+        notifier()
+            .error("Error when working with FileSource:\n" + Json.write(exception.getMessage()));
+        return Optional.of(throwUnchecked(exception, byte[].class));
+      } else {
+        return Optional.empty();
+      }
+    }
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Thomas Akehurst
+ * Copyright (C) 2013-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,14 @@ public class Exceptions {
    * @return Never returns, always throws the passed in exception
    */
   public static <T> T throwUnchecked(final Throwable ex, final Class<T> returnType) {
-    Exceptions.<RuntimeException>throwsUnchecked(ex);
+    Exceptions.throwsUnchecked(ex);
     throw new AssertionError(
         "This code should be unreachable. Something went terribly wrong here!");
   }
 
-  /** @param ex The exception that will be thrown, unwrapped and unchecked */
+  /**
+   * @param ex The exception that will be thrown, unwrapped and unchecked
+   */
   public static void throwUnchecked(final Throwable ex) {
     throwUnchecked(ex, null);
   }

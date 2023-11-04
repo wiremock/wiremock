@@ -27,8 +27,8 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ResponseDefinitionBuilderTest {
@@ -121,7 +121,7 @@ class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
@@ -137,7 +137,7 @@ class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
@@ -153,7 +153,7 @@ class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 }

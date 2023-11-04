@@ -20,10 +20,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.in;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
