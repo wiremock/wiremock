@@ -15,23 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
+
+import com.github.tomakehurst.wiremock.common.Lazy;
 import java.io.IOException;
 import java.util.Properties;
 
 public class Version {
-  private static String version = "";
+  private static final Lazy<String> version = lazy(Version::load);
 
   public static String getCurrentVersion() {
-    if (version.isEmpty()) {
-      try {
-        Properties properties = new Properties();
-        properties.load(Version.class.getResourceAsStream("/version.properties"));
-        version = properties.getProperty("version");
-      } catch (IOException e) {
-        version = "unknown";
-      }
-    }
+    return version.get();
+  }
 
-    return version;
+  private static String load() {
+    try {
+      Properties properties = new Properties();
+      properties.load(Version.class.getResourceAsStream("/version.properties"));
+      return properties.getProperty("version");
+    } catch (NullPointerException | IOException e) {
+      return "unknown";
+    }
   }
 }
