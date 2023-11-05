@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
@@ -186,6 +187,13 @@ public class ResponseDefinitionBuilder {
   public ProxyResponseDefinitionBuilder proxiedFrom(String proxyBaseUrl) {
     this.proxyBaseUrl = proxyBaseUrl;
     return new ProxyResponseDefinitionBuilder(this);
+  }
+
+  public ResponseDefinitionBuilder withGzipDisabled(boolean gzipDisabled) {
+    if (gzipDisabled) {
+      this.headers.add(new HttpHeader(CONTENT_ENCODING, "none"));
+    }
+    return this;
   }
 
   public static ResponseDefinitionBuilder responseDefinition() {
