@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public class Urls {
 
@@ -74,6 +75,14 @@ public class Urls {
     return url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
   }
 
+  public static String getPathAndQuery(String url) {
+    return isAbsolute(url) ? url.substring(StringUtils.ordinalIndexOf(url, "/", 3)) : url;
+  }
+
+  private static boolean isAbsolute(String url) {
+    return url.matches("^https?:\\/\\/.*");
+  }
+
   public static List<String> getPathSegments(String path) {
     return List.of(path.split("/"));
   }
@@ -101,6 +110,7 @@ public class Urls {
   }
 
   // Workaround for a Jetty bug that appends "null" onto the end of the URL
+
   private static String clean(String url) {
     return url.matches(".*:[0-9]+null$") ? url.substring(0, url.length() - 4) : url;
   }

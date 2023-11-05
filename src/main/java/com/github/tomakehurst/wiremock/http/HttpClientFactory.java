@@ -63,7 +63,7 @@ public class HttpClientFactory {
       int timeoutMilliseconds,
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
-      boolean trustSelfSignedCertificates,
+      boolean trustAllCertificates,
       final List<String> trustedHosts,
       boolean useSystemProperties,
       NetworkAddressRules networkAddressRules) {
@@ -114,7 +114,7 @@ public class HttpClientFactory {
     }
 
     final SSLContext sslContext =
-        buildSslContext(trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
+        buildSslContext(trustStoreSettings, trustAllCertificates, trustedHosts);
     LayeredConnectionSocketFactory sslSocketFactory = buildSslConnectionSocketFactory(sslContext);
     PoolingHttpClientConnectionManager connectionManager =
         PoolingHttpClientConnectionManagerBuilder.create()
@@ -152,12 +152,11 @@ public class HttpClientFactory {
 
   private static SSLContext buildSslContext(
       KeyStoreSettings trustStoreSettings,
-      boolean trustSelfSignedCertificates,
+      boolean trustAllCertificates,
       List<String> trustedHosts) {
     if (trustStoreSettings != NO_STORE) {
-      return buildSSLContextWithTrustStore(
-          trustStoreSettings, trustSelfSignedCertificates, trustedHosts);
-    } else if (trustSelfSignedCertificates) {
+      return buildSSLContextWithTrustStore(trustStoreSettings, trustAllCertificates, trustedHosts);
+    } else if (trustAllCertificates) {
       return buildAllowAnythingSSLContext();
     } else {
       try {
@@ -183,7 +182,7 @@ public class HttpClientFactory {
         proxySettings,
         trustStoreSettings,
         true,
-        Collections.<String>emptyList(),
+        Collections.emptyList(),
         useSystemProperties,
         networkAddressRules);
   }

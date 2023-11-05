@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,6 @@ public class DateHeaderAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response = testClient.get("/nodateheader");
 
-    assertThat(response.headers().get("Date"), is(Matchers.<String>empty()));
+    assertThat(response.headers().get("Date"), is(Matchers.empty()));
   }
 }
