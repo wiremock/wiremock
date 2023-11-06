@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.servlet.*;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -61,6 +62,7 @@ public abstract class JettyHttpServer implements HttpServer {
   private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
   private static final String[] GZIPPABLE_METHODS = new String[] {"POST", "PUT", "PATCH", "DELETE"};
   private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
+  private static final int MAX_RETRIES = 3;
 
   protected final Server jettyServer;
   protected final ServerConnector httpConnector;
@@ -192,10 +194,20 @@ public abstract class JettyHttpServer implements HttpServer {
 
   @Override
   public void start() {
-    try {
-      jettyServer.start();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    int retryCount = 0;
+
+    while (retryCount < MAX_RETRIES) {
+      try {
+        jettyServer.start();
+        break;
+      } catch (IOException bindException) {
+        retryCount++;
+        if (retryCount >= MAX_RETRIES) {
+          throw new FatalStartupException(bindException);
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
     long timeout = System.currentTimeMillis() + 30000;
     while (!jettyServer.isStarted()) {
