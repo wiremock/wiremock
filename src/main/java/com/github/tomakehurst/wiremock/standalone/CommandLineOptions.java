@@ -770,7 +770,7 @@ public class CommandLineOptions implements Options {
     Map<String, Object> map = new LinkedHashMap<>();
 
     map.put(VERSION, Version.getCurrentVersion());
-    
+
     if (actualHttpPort != null) {
       map.put(PORT, actualHttpPort);
     }
