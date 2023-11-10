@@ -60,6 +60,18 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void returnsVersionTrueWhenOptionPresent() {
+    CommandLineOptions options = new CommandLineOptions("--version");
+    assertThat(options.version(), is(true));
+  }
+
+  @Test
+  public void returnsVersionFalseWhenOptionNotPresent() {
+    CommandLineOptions options = new CommandLineOptions("");
+    assertThat(options.version(), is(false));
+  }
+
+  @Test
   public void returnsRecordMappingsTrueWhenOptionPresent() {
     CommandLineOptions options = new CommandLineOptions("--record-mappings");
     assertThat(options.recordMappingsEnabled(), is(true));
