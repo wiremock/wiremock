@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -767,6 +768,8 @@ public class CommandLineOptions implements Options {
   @Override
   public String toString() {
     Map<String, Object> map = new LinkedHashMap<>();
+
+    map.put(VERSION, Version.getCurrentVersion());
 
     if (actualHttpPort != null) {
       map.put(PORT, actualHttpPort);
