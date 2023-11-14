@@ -288,7 +288,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   @Override
   public StubMapping build() {
-    checkState(checkScenarioRequired(), "Scenario name must be specified to require or set a new scenario state");
+    checkState(
+        checkScenarioRequired(),
+        "Scenario name must be specified to require or set a new scenario state");
     RequestPattern requestPattern = requestPatternBuilder.build();
     ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
     StubMapping mapping = new StubMapping(requestPattern, response);

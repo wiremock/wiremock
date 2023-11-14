@@ -60,7 +60,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     final Request request = initialServeEvent.getRequest();
 
     final boolean isRequestHttps = URI.create(request.getAbsoluteUrl()).getScheme().equals("https");
-    
+
     if (requireHttps && !isRequestHttps) {
       notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
       return initialServeEvent.withResponseDefinition(

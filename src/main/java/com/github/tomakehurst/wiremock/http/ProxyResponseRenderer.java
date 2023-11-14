@@ -69,10 +69,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     Request originalRequest = responseDefinition.getOriginalRequest();
 
-    boolean originalRequestBodyExists = originalRequest.getBody() != null && originalRequest.getBody().length > 0;
-    
-    if (originalRequestBodyExists
-        || originalRequest.containsHeader(HttpClient.CONTENT_LENGTH)) {
+    boolean originalRequestBodyExists =
+        originalRequest.getBody() != null && originalRequest.getBody().length > 0;
+
+    if (originalRequestBodyExists || originalRequest.containsHeader(HttpClient.CONTENT_LENGTH)) {
       requestBuilder.withBody(originalRequest.getBody());
     }
 
