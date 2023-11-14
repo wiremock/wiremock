@@ -68,7 +68,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     GlobalSettings settings = settingsStore.get();
 
     Request originalRequest = responseDefinition.getOriginalRequest();
-    if ((originalRequest.getBody() != null && originalRequest.getBody().length > 0)
+
+    boolean originalRequestBodyExists = originalRequest.getBody() != null && originalRequest.getBody().length > 0;
+    
+    if (originalRequestBodyExists
         || originalRequest.containsHeader(HttpClient.CONTENT_LENGTH)) {
       requestBuilder.withBody(originalRequest.getBody());
     }
