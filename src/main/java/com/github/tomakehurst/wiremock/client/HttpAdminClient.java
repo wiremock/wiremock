@@ -509,7 +509,7 @@ public class HttpAdminClient implements Admin {
     return responseType == Void.class ? null : Json.read(responseBodyString, responseType);
   }
 
-  private String safelyExecuteRequest(String url, ClassicHttpRequest request) {
+  private void injectHeaders(ClassicHttpRequest request) {
     if (hostHeader != null) {
       request.addHeader(HOST, hostHeader);
     }
@@ -520,17 +520,26 @@ public class HttpAdminClient implements Admin {
         request.addHeader(header.key(), value);
       }
     }
+  }
+
+  private void verifyResponseStatus(String url, int responseStatusCode) {
+    if (HttpStatus.isServerError(responseStatusCode)) {
+      throw new VerificationException(
+          "Expected status 2xx for " + url + " but was " + responseStatusCode);
+    }
+
+    if (responseStatusCode == 401) {
+      throw new NotAuthorisedException();
+    }
+  }
+
+  private String safelyExecuteRequest(String url, ClassicHttpRequest request) {
+    injectHeaders(request);
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       int statusCode = response.getCode();
-      if (HttpStatus.isServerError(statusCode)) {
-        throw new VerificationException(
-            "Expected status 2xx for " + url + " but was " + statusCode);
-      }
-
-      if (statusCode == 401) {
-        throw new NotAuthorisedException();
-      }
+      
+      verifyResponseStatus(url, statusCode);
 
       String body = getEntityAsStringAndCloseStream(response);
       if (HttpStatus.isClientError(statusCode)) {
