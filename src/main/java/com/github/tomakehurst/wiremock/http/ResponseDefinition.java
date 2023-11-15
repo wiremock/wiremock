@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 public class ResponseDefinition {
@@ -396,7 +397,9 @@ public class ResponseDefinition {
       return browserProxyUrl;
     }
 
-    return proxyBaseUrl + StringUtils.removeStart(originalRequest.getUrl(), proxyUrlPrefixToRemove);
+    String originalRequestUrl =
+        Optional.ofNullable(originalRequest).map(Request::getUrl).orElse(StringUtils.EMPTY);
+    return proxyBaseUrl + StringUtils.removeStart(originalRequestUrl, proxyUrlPrefixToRemove);
   }
 
   public String getProxyBaseUrl() {
