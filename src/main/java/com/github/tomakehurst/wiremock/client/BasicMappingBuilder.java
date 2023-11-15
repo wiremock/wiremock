@@ -282,14 +282,14 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     return this;
   }
 
-  private boolean checkScenarioRequired() {
+  private boolean requiredScenarioExist() {
     return scenarioName == null && (requiredScenarioState != null || newScenarioState != null);
   }
 
   @Override
   public StubMapping build() {
     checkState(
-        checkScenarioRequired(),
+        !requiredScenarioExist(),
         "Scenario name must be specified to require or set a new scenario state");
     RequestPattern requestPattern = requestPatternBuilder.build();
     ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
