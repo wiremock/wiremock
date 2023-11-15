@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.admin.model.ServeEventQuery;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Json.JsonSchemaVersion;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -52,7 +53,6 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
-import com.networknt.schema.SpecVersion;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -1045,32 +1045,5 @@ public class WireMock {
 
   public static GlobalSettings getSettings() {
     return defaultInstance.get().getGlobalSettings();
-  }
-
-  public enum JsonSchemaVersion {
-    V4,
-    V6,
-    V7,
-    V201909,
-    V202012;
-
-    public static final JsonSchemaVersion DEFAULT = V202012;
-
-    public SpecVersion.VersionFlag toVersionFlag() {
-      switch (this) {
-        case V4:
-          return SpecVersion.VersionFlag.V4;
-        case V6:
-          return SpecVersion.VersionFlag.V6;
-        case V7:
-          return SpecVersion.VersionFlag.V7;
-        case V201909:
-          return SpecVersion.VersionFlag.V201909;
-        case V202012:
-          return SpecVersion.VersionFlag.V202012;
-        default:
-          throw new IllegalArgumentException("Unknown schema version: " + this);
-      }
-    }
   }
 }

@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.networknt.schema.SpecVersion;
 import java.io.IOException;
 import java.util.Map;
 
@@ -168,5 +169,32 @@ public final class Json {
     }
 
     return count;
+  }
+
+  public enum JsonSchemaVersion {
+    V4,
+    V6,
+    V7,
+    V201909,
+    V202012;
+
+    public static final JsonSchemaVersion DEFAULT = V202012;
+
+    public SpecVersion.VersionFlag toVersionFlag() {
+      switch (this) {
+        case V4:
+          return SpecVersion.VersionFlag.V4;
+        case V6:
+          return SpecVersion.VersionFlag.V6;
+        case V7:
+          return SpecVersion.VersionFlag.V7;
+        case V201909:
+          return SpecVersion.VersionFlag.V201909;
+        case V202012:
+          return SpecVersion.VersionFlag.V202012;
+        default:
+          throw new IllegalArgumentException("Unknown schema version: " + this);
+      }
+    }
   }
 }
