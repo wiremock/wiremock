@@ -1047,6 +1047,11 @@ public class WireMock {
     return defaultInstance.get().getGlobalSettings();
   }
 
+  /**
+   * @deprecated
+   * this method is moved to {@link com.github.tomakehurst.wiremock.common.Json.JsonSchemaVersion} and will be removed in next version
+   */
+  @Deprecated
   public enum JsonSchemaVersion {
     V4,
     V6,
