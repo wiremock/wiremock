@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -59,6 +60,7 @@ import joptsimple.OptionSet;
 public class CommandLineOptions implements Options {
 
   private static final String HELP = "help";
+  private static final String VERSION = "version";
   private static final String RECORD_MAPPINGS = "record-mappings";
   private static final String MATCH_HEADERS = "match-headers";
   private static final String PROXY_ALL = "proxy-all";
@@ -372,6 +374,7 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
+    optionParser.accepts(VERSION, "Prints wiremock version information and exits");
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -618,6 +621,10 @@ public class CommandLineOptions implements Options {
         : -1;
   }
 
+  public boolean version() {
+    return optionSet.has(VERSION);
+  }
+
   public boolean help() {
     return optionSet.has(HELP);
   }
@@ -761,6 +768,8 @@ public class CommandLineOptions implements Options {
   @Override
   public String toString() {
     Map<String, Object> map = new LinkedHashMap<>();
+
+    map.put(VERSION, Version.getCurrentVersion());
 
     if (actualHttpPort != null) {
       map.put(PORT, actualHttpPort);

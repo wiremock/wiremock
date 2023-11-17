@@ -40,6 +40,7 @@ import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
@@ -1330,6 +1331,30 @@ class AdminApiTest extends AcceptanceTestBase {
   @Test
   void returnsBadRequestWhenAttemptingToRemoveServeEventByNonUuid() {
     assertThat(testClient.delete("/__admin/requests/not-a-uuid").statusCode(), is(400));
+  }
+
+  @Test
+  public void getVersionRequestDefaultsToJson() throws Exception {
+    WireMockResponse response = testClient.get("/__admin/version");
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), is("application/json"));
+    JSONAssert.assertEquals(
+        "{                                              \n"
+            + "  \"version\" : \"X.X.X\"                          \n"
+            + "}",
+        response.content(),
+        true);
+  }
+
+  @Test
+  public void getVersionRequestReturnsTextBodyWhenAcceptHeaderIsTextPlain() throws Exception {
+    WireMockResponse response =
+        testClient.get("/__admin/version", new TestHttpHeader("Accept", "text/plain"));
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    assertThat(response.content(), is("X.X.X"));
   }
 
   public static class TestExtendedSettingsData {

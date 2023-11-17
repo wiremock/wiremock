@@ -38,6 +38,7 @@ public class ContentTypes {
   public static final String OCTET_STREAM = "application/octet-stream";
   public static final String LOCATION = "Location";
   public static final String AUTHORIZATION = "Authorization";
+  public static final String ACCEPT = "Accept";
   public static final String COOKIE = "Cookie";
   public static final String APPLICATION_JSON = "application/json";
 
