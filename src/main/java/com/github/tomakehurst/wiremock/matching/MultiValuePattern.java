@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 @JsonDeserialize(using = MultiValuePatternDeserializer.class)
 public abstract class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
+  protected static final String INCLUDES_MATCH_MULTI_VALUE_PATTERN_JSON_KEY = "includes";
+  protected static final String EXACT_MATCH_MULTI_VALUE_PATTERN_JSON_KEY = "hasExactly";
+
   public static MultiValuePattern of(StringValuePattern valuePattern) {
     return new SingleMatchMultiValuePattern(valuePattern);
   }

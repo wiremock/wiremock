@@ -29,9 +29,9 @@ public class MultiValuePatternDeserializer extends JsonDeserializer<MultiValuePa
       throws IOException {
     JsonNode rootNode = parser.readValueAsTree();
     final ObjectMapper mapper = (ObjectMapper) parser.getCodec();
-    if (rootNode.has(ExactMatchMultiValuePattern.JSON_KEY)) {
+    if (rootNode.has(MultiValuePattern.EXACT_MATCH_MULTI_VALUE_PATTERN_JSON_KEY)) {
       return mapper.treeToValue(rootNode, ExactMatchMultiValuePattern.class);
-    } else if (rootNode.has(IncludesMatchMultiValuePattern.JSON_KEY)) {
+    } else if (rootNode.has(MultiValuePattern.INCLUDES_MATCH_MULTI_VALUE_PATTERN_JSON_KEY)) {
       return mapper.treeToValue(rootNode, IncludesMatchMultiValuePattern.class);
     } else {
       return mapper.treeToValue(rootNode, SingleMatchMultiValuePattern.class);

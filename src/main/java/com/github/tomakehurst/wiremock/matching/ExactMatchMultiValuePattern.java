@@ -24,15 +24,15 @@ import java.util.List;
 @JsonDeserialize(as = ExactMatchMultiValuePattern.class)
 public class ExactMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
-  public static final String JSON_KEY = "hasExactly";
   public static final String HAS_EXACTLY_OPERATOR = " exactly ";
 
-  @JsonProperty(JSON_KEY)
+  @JsonProperty(EXACT_MATCH_MULTI_VALUE_PATTERN_JSON_KEY)
   private List<StringValuePattern> stringValuePatterns;
 
   @JsonCreator
   public ExactMatchMultiValuePattern(
-      @JsonProperty(JSON_KEY) final List<StringValuePattern> valuePatterns) {
+      @JsonProperty(EXACT_MATCH_MULTI_VALUE_PATTERN_JSON_KEY)
+          final List<StringValuePattern> valuePatterns) {
     this.stringValuePatterns = valuePatterns;
   }
 

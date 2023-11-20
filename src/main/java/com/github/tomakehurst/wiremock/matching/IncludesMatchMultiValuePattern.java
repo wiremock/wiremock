@@ -23,15 +23,15 @@ import java.util.List;
 @JsonDeserialize(as = IncludesMatchMultiValuePattern.class)
 public class IncludesMatchMultiValuePattern extends MultipleMatchMultiValuePattern {
 
-  public static final String JSON_KEY = "includes";
-  public static final String INCLUDING_OPERATOR = " including ";
+  private static final String INCLUDING_OPERATOR = " including ";
 
-  @JsonProperty(JSON_KEY)
+  @JsonProperty(INCLUDES_MATCH_MULTI_VALUE_PATTERN_JSON_KEY)
   private final List<StringValuePattern> stringValuePatterns;
 
   @JsonCreator
   public IncludesMatchMultiValuePattern(
-      @JsonProperty(JSON_KEY) final List<StringValuePattern> stringValuePatterns) {
+      @JsonProperty(INCLUDES_MATCH_MULTI_VALUE_PATTERN_JSON_KEY)
+          final List<StringValuePattern> stringValuePatterns) {
     this.stringValuePatterns = stringValuePatterns;
   }
 
