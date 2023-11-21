@@ -538,7 +538,7 @@ public class HttpAdminClient implements Admin {
 
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       int statusCode = response.getCode();
-
+      
       verifyResponseStatus(url, statusCode);
 
       String body = getEntityAsStringAndCloseStream(response);

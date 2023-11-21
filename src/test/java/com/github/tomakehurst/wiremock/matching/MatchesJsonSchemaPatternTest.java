@@ -15,14 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion.V4;
+import static com.github.tomakehurst.wiremock.client.WireMock.JsonSchemaVersion.V6;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonSchema;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Json.JsonSchemaVersion;
 import com.jayway.jsonpath.JsonPath;
 import java.util.Arrays;
 import java.util.List;
@@ -81,7 +83,8 @@ public class MatchesJsonSchemaPatternTest {
   @Test
   void serialisesToJsonCorrectlyWithProvidedSchemaVersion() {
     String schema = file("schema-validation/shop-order.schema.json");
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
 
     String json = Json.write(pattern);
     String schemaString = JsonPath.read(json, "$.matchesJsonSchema");
@@ -137,7 +140,7 @@ public class MatchesJsonSchemaPatternTest {
 
     MatchesJsonSchemaPattern pattern = Json.read(matcherJson, MatchesJsonSchemaPattern.class);
 
-    assertThat(pattern.getSchemaVersion(), is(JsonSchemaVersion.V6));
+    assertThat(pattern.getSchemaVersion(), is(V6));
   }
 
   private static final StringValuePattern stringSchema =
@@ -185,7 +188,8 @@ public class MatchesJsonSchemaPatternTest {
   void simpleRefMatches(String input) {
     String schema = file("schema-validation/has-ref.schema.json");
 
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
 
     MatchResult match = pattern.match(input);
 
@@ -204,7 +208,8 @@ public class MatchesJsonSchemaPatternTest {
   void simpleRefRejectsNonMatches(String input) {
     String schema = file("schema-validation/has-ref.schema.json");
 
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
 
     MatchResult match = pattern.match(input);
 
@@ -228,7 +233,7 @@ public class MatchesJsonSchemaPatternTest {
   void recursiveRefExactMatchesCorrectlyMatched(String input) {
     String schema = file("schema-validation/recursive.schema.json");
 
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, V4);
 
     MatchResult match = pattern.match(input);
 
@@ -250,7 +255,7 @@ public class MatchesJsonSchemaPatternTest {
   void recursiveRefNonMatchesCorrectlyMatched(String input) {
     String schema = file("schema-validation/recursive.schema.json");
 
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, V4);
 
     MatchResult match = pattern.match(input);
 
@@ -261,7 +266,8 @@ public class MatchesJsonSchemaPatternTest {
   void corercesNumericActualValueToJsonNumber() {
     String schema = file("schema-validation/numeric.schema.json");
 
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
 
     assertThat(pattern.match("5").isExactMatch(), is(true));
     assertThat(pattern.match("0").isExactMatch(), is(true));
@@ -274,7 +280,8 @@ public class MatchesJsonSchemaPatternTest {
   void coercesNumericActualValueToJsonString() {
     String schema = file("schema-validation/stringy.schema.json");
 
-    MatchesJsonSchemaPattern pattern = new MatchesJsonSchemaPattern(schema, JsonSchemaVersion.V4);
+    MatchesJsonSchemaPattern pattern =
+        new MatchesJsonSchemaPattern(schema, WireMock.JsonSchemaVersion.V4);
 
     assertThat(pattern.match("abcd").isExactMatch(), is(true));
     assertThat(pattern.match("abcde").isExactMatch(), is(true));
