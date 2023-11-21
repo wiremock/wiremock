@@ -1049,7 +1049,7 @@ public class WireMock {
 
   /**
    * @deprecated
-   * this method is moved to {@link com.github.tomakehurst.wiremock.common.Json.JsonSchemaVersion} and will be removed in next version
+   * this enum is moved to {@link com.github.tomakehurst.wiremock.common.Json.JsonSchemaVersion} and will be removed in next version
    */
   @Deprecated
   public enum JsonSchemaVersion {
