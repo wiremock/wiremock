@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.net.HttpURLConnection;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -47,6 +46,6 @@ class HealthCheckTaskTest {
         response.getStatusMessage(),
         equalTo(response.getReponseBody().asJson().get("message").asText()));
     assertThat(response.getReponseBody().asJson().get("status").asText(), is("healthy"));
-    assertThat(response.getReponseBody().asJson().get("version").asText(), Matchers.notNullValue());
+    assertThat(response.getReponseBody().asJson().get("version").asText(), is("X.X.X"));
   }
 }
