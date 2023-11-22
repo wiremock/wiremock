@@ -26,6 +26,10 @@ public class Slf4jNotifier implements Notifier {
 
   public Slf4jNotifier(boolean verbose) {
     this.verbose = verbose;
+
+    if (verbose) {
+      info("Verbose logging enabled");
+    }
   }
 
   @Override

@@ -1,0 +1,14 @@
+<configuration>
+
+  <appender name="STDOUT" class="wiremock.ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="error">
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+  <logger name="WireMock" level="INFO"/>
+</configuration>

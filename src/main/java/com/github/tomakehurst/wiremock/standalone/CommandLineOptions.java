@@ -83,6 +83,7 @@ public class CommandLineOptions implements Options {
   private static final String DISABLE_BANNER = "disable-banner";
   private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
   private static final String EXTENSIONS = "extensions";
+  private static final String LOGBACK_CONFIG_FILE = "logback-config-file";
   private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
   private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
   private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
@@ -227,6 +228,11 @@ public class CommandLineOptions implements Options {
         .withRequiredArg();
     optionParser
         .accepts(
+            LOGBACK_CONFIG_FILE,
+        "Enable logging using a supplied logback configuration file")
+        .withRequiredArg();
+    optionParser
+        .accepts(
             MAX_ENTRIES_REQUEST_JOURNAL,
             "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard")
         .withRequiredArg();
@@ -357,6 +363,7 @@ public class CommandLineOptions implements Options {
     optionSet = optionParser.parse(args);
     validate();
     captureHelpTextIfRequested(optionParser);
+    configureLogbackIfRequested();
 
     if (optionSet.has(LOAD_RESOURCES_FROM_CLASSPATH)) {
       fileSource =
@@ -369,6 +376,13 @@ public class CommandLineOptions implements Options {
     extensions = buildExtensions();
 
     actualHttpPort = null;
+  }
+
+  private void configureLogbackIfRequested() {
+    if (logbackConfigFileProvided()) {
+      String logbackXml = (String) optionSet.valueOf(LOGBACK_CONFIG_FILE);
+      System.setProperty("logback.configurationFile", logbackXml);
+    }
   }
 
   private Map<String, Extension> buildExtensions() {
@@ -427,6 +441,10 @@ public class CommandLineOptions implements Options {
 
   public boolean verboseLoggingEnabled() {
     return optionSet.has(VERBOSE);
+  }
+
+  public boolean logbackConfigFileProvided() {
+    return optionSet.has(LOGBACK_CONFIG_FILE);
   }
 
   public boolean recordMappingsEnabled() {
@@ -667,7 +685,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public Notifier notifier() {
-    return new ConsoleNotifier(verboseLoggingEnabled());
+    return new Slf4jNotifier(verboseLoggingEnabled());
   }
 
   @Override
@@ -767,6 +785,10 @@ public class CommandLineOptions implements Options {
 
     if (getHttpsRequiredForAdminApi()) {
       builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
+    }
+
+    if (logbackConfigFileProvided()) {
+      builder.put(LOGBACK_CONFIG_FILE, optionSet.valueOf(LOGBACK_CONFIG_FILE));
     }
 
     StringBuilder sb = new StringBuilder();

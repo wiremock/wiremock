@@ -23,8 +23,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.*;
@@ -45,6 +47,7 @@ import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Map;
+import joptsimple.OptionException;
 import org.junit.jupiter.api.Test;
 
 public class CommandLineOptionsTest {
@@ -401,6 +404,27 @@ public class CommandLineOptionsTest {
         options.extensionsOfType(RequestMatcherExtension.class);
     assertThat(extensions.entrySet(), hasSize(1));
     assertThat(extensions.get("RequestMatcherExtension_One"), instanceOf(RequestExt1.class));
+  }
+
+  @Test
+  public void returnsCorrectLogbackFile() {
+    final String file = "logback.xml";
+
+    CommandLineOptions options =
+        new CommandLineOptions(
+            "--logback-config-file",
+            file);
+
+    assertTrue(options.logbackConfigFileProvided());
+    String logbackFile = System.getProperty("logback.configurationFile");
+
+    assertEquals(file, logbackFile);
+  }
+
+  @Test
+  public void throwsExceptionWhenLogbackConfigFileIsNotProvided() {
+    assertThrows(OptionException.class, () -> new CommandLineOptions(
+        "--logback-config-file"));
   }
 
   @Test
