@@ -18,17 +18,13 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.github.tomakehurst.wiremock.core.Version;
 import java.lang.management.ManagementFactory;
 import java.time.Instant;
-import java.util.Properties;
 
 public class HealthCheckResult {
   private final String status;
   private final String message;
   private final String version;
-
   private final long uptimeInSeconds;
   private final Instant timestamp;
-
-  private final Properties properties = new Properties();
 
   public HealthCheckResult(String status, String message) {
     this.status = status;
