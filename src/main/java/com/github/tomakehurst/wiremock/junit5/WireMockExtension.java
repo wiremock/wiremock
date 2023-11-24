@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.JvmProxyConfigurer;
+import com.github.tomakehurst.wiremock.http.ssl.PermissiveCertificateAllower;
 import com.github.tomakehurst.wiremock.junit.DslWrapper;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.*;
@@ -49,6 +50,7 @@ public class WireMockExtension extends DslWrapper
   private WireMockRuntimeInfo runtimeInfo;
   private boolean isNonStatic = false;
   private Boolean proxyMode;
+  private Boolean allowAllCertificatesForProxy;
 
   WireMockExtension() {
     configureStaticDsl = true;
@@ -70,6 +72,7 @@ public class WireMockExtension extends DslWrapper
     this.configureStaticDsl = builder.configureStaticDsl;
     this.failOnUnmatchedRequests = builder.failOnUnmatchedRequests;
     this.proxyMode = builder.proxyMode;
+    this.allowAllCertificatesForProxy = builder.allowAllCertificatesForProxy;
     this.isDeclarative = false;
   }
 
@@ -77,11 +80,13 @@ public class WireMockExtension extends DslWrapper
       Options options,
       boolean configureStaticDsl,
       boolean failOnUnmatchedRequests,
-      boolean proxyMode) {
+      boolean proxyMode,
+      boolean allowAllCertificatesForProxy) {
     this.options = options;
     this.configureStaticDsl = configureStaticDsl;
     this.failOnUnmatchedRequests = failOnUnmatchedRequests;
     this.proxyMode = proxyMode;
+    this.allowAllCertificatesForProxy = allowAllCertificatesForProxy;
     this.isDeclarative = false;
   }
 
@@ -186,6 +191,16 @@ public class WireMockExtension extends DslWrapper
               .map(WireMockTest::proxyMode)
               .orElse(false);
     }
+    if (allowAllCertificatesForProxy == null) {
+      allowAllCertificatesForProxy =
+          extensionContext
+              .getElement()
+              .flatMap(
+                  annotatedElement ->
+                      AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
+              .map(WireMockTest::allowAllCertificatesForProxy)
+              .orElse(false);
+    }
   }
 
   private Options resolveOptions(ExtensionContext extensionContext) {
@@ -244,6 +259,10 @@ public class WireMockExtension extends DslWrapper
 
     setAdditionalOptions(context);
 
+    if (proxyMode && allowAllCertificatesForProxy) {
+      PermissiveCertificateAllower.allowAllCertificatesForHttpsURLConnection();
+    }
+
     if (proxyMode) {
       JvmProxyConfigurer.configureFor(wireMockServer);
     }
@@ -301,6 +320,7 @@ public class WireMockExtension extends DslWrapper
     private boolean configureStaticDsl = false;
     private boolean failOnUnmatchedRequests = false;
     private boolean proxyMode = false;
+    private boolean allowAllCertificatesForProxy = false;
 
     public Builder options(Options options) {
       this.options = options;
@@ -322,6 +342,11 @@ public class WireMockExtension extends DslWrapper
       return this;
     }
 
+    public Builder allowAllCertificatesForProxy(boolean allowAllCertificatesForProxy) {
+      this.allowAllCertificatesForProxy = allowAllCertificatesForProxy;
+      return this;
+    }
+
     public WireMockExtension build() {
       if (proxyMode
           && !options.browserProxySettings().enabled()
@@ -329,7 +354,12 @@ public class WireMockExtension extends DslWrapper
         ((WireMockConfiguration) options).enableBrowserProxying(true);
       }
 
-      return new WireMockExtension(options, configureStaticDsl, failOnUnmatchedRequests, proxyMode);
+      return new WireMockExtension(
+          options,
+          configureStaticDsl,
+          failOnUnmatchedRequests,
+          proxyMode,
+          allowAllCertificatesForProxy);
     }
   }
 }
