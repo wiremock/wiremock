@@ -18,38 +18,10 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.NetworkAddressRange.ALL;
 import static java.util.Collections.emptySet;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public interface NetworkAddressRules {
   NetworkAddressRules ALLOW_ALL = new DefaultNetworkAddressRules(Set.of(ALL), emptySet());
 
-  static Builder builder() {
-    return new Builder();
-  }
-
   boolean isAllowed(String testValue);
-
-  public static class Builder {
-    private final Set<NetworkAddressRange> allowed = new HashSet<>();
-    private final Set<NetworkAddressRange> denied = new HashSet<>();
-
-    public Builder allow(String expression) {
-      allowed.add(NetworkAddressRange.of(expression));
-      return this;
-    }
-
-    public Builder deny(String expression) {
-      denied.add(NetworkAddressRange.of(expression));
-      return this;
-    }
-
-    public NetworkAddressRules build() {
-      Set<NetworkAddressRange> allowedRanges = allowed;
-      if (allowedRanges.isEmpty()) {
-        allowedRanges = Set.of(ALL);
-      }
-      return new DefaultNetworkAddressRules(Set.copyOf(allowedRanges), Set.copyOf(denied));
-    }
-  }
 }
