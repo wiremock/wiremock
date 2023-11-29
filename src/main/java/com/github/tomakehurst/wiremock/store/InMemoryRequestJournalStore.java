@@ -36,7 +36,7 @@ public class InMemoryRequestJournalStore implements RequestJournalStore {
 
   @Override
   public Stream<ServeEvent> getAll() {
-    return deque.stream().map(serveEvents::get);
+    return deque.stream().map(serveEvents::get).filter(Objects::nonNull);
   }
 
   @Override
