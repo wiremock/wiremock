@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class PathTemplate {
   static final Pattern SPECIAL_SYMBOL_REGEX =
-      Pattern.compile("(?:\\{(?<variable>[^}]+)\\})|(?<wildcard>\\*\\*)");
+      Pattern.compile("\\{(?<variable>[^}]+)}|(?<wildcard>\\*\\*)");
 
   private final String templateString;
   private final Parser parser;
@@ -110,6 +110,10 @@ public class PathTemplate {
   public int hashCode() {
     return Objects.hash(templateString);
   }
+
+  public int numberOfParameters() {
+    return parser.numberOfParameters();
+  }
 }
 
 class Parser {
@@ -138,6 +142,10 @@ class Parser {
     }
 
     return pathParams;
+  }
+
+  int numberOfParameters() {
+    return templateParameters.size();
   }
 }
 
