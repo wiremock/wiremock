@@ -56,6 +56,17 @@ public final class Json {
 
   private Json() {}
 
+  public static <T> T read(byte[] stream, Class<T> clazz)  {
+    try {
+      ObjectMapper mapper = getObjectMapper();
+      return mapper.readValue(stream, clazz);
+    } catch (JsonProcessingException processingException) {
+      throw JsonException.fromJackson(processingException);
+    } catch (IOException ioException) {
+      throw new RuntimeException(ioException);
+    }
+  }
+
   public static <T> T read(String json, Class<T> clazz) {
     try {
       ObjectMapper mapper = getObjectMapper();
