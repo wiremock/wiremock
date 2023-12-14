@@ -111,7 +111,7 @@ public class JsonFileMappingsSource implements MappingsSource {
     for (TextFile mappingFile : mappingFiles) {
       try {
         StubMappingCollection stubCollection =
-            Json.read(mappingFile.readContentsAsString(), StubMappingCollection.class);
+            Json.read(mappingFile.readContents(), StubMappingCollection.class);
         for (StubMapping mapping : stubCollection.getMappingOrMappings()) {
           mapping.setDirty(false);
           stubMappings.addMapping(mapping);
