@@ -152,6 +152,26 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder withUrlPath(String url) {
+    this.url = WireMock.urlPathEqualTo(url);
+    return this;
+  }
+
+  public RequestPatternBuilder withUrlPathTemplate(String templateUrl) {
+    this.url = WireMock.urlPathTemplate(templateUrl);
+    return this;
+  }
+
+  public RequestPatternBuilder withUrlMatching(String url) {
+    this.url = WireMock.urlMatching(url);
+    return this;
+  }
+
+  public RequestPatternBuilder withUrlPathMatching(String url) {
+    this.url = WireMock.urlPathMatching(url);
+    return this;
+  }
+
   public RequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
     headers.put(key, MultiValuePattern.of(valuePattern));
     return this;

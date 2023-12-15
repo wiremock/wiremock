@@ -45,6 +45,17 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
+  public void likeRequestPatternWithDifferentUrlPath() {
+    RequestPattern requestPattern = RequestPattern.everything();
+
+    RequestPattern newRequestPattern =
+            RequestPatternBuilder.like(requestPattern).but().withUrlPath("/foo").build();
+
+    assertThat(newRequestPattern.getUrlPath(), is("/foo"));
+    assertThat(newRequestPattern, not(equalTo(requestPattern)));
+  }
+
+  @Test
   public void likeRequestPatternWithoutCustomMatcher() {
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
     // set properly
