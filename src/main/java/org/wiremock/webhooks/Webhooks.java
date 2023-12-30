@@ -54,6 +54,21 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     this.templateEngine = lazy(wireMockServices::getTemplateEngine);
   }
 
+  /**
+   * @deprecated passing this class name is no longer required and may lead to compatibility issues
+   *     in the future.
+   */
+  @Deprecated(since = "3.3")
+  public Webhooks() {
+    this.scheduler = null;
+    this.lazyHttpClient = null;
+    this.transformers = null;
+    this.templateEngine = null;
+    notifier()
+        .info(
+            "Passing the class name is no longer required and may lead to compatibility issues in the future");
+  }
+
   private HttpClient getHttpClient() {
     return lazyHttpClient.get();
   }
