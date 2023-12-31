@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2023 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Strings;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -32,33 +32,46 @@ public class Body {
   private final byte[] content;
   private final boolean binary;
   private final boolean json;
+  private final JsonNode jsonContent;
 
   public Body(byte[] content) {
     this(content, true);
   }
 
   public Body(String content) {
-    this.content = Strings.bytesFromString(content);
-    binary = false;
-    json = false;
+    this.content = bytesFromString(content);
+    this.binary = false;
+    this.json = false;
+    this.jsonContent = null;
   }
 
   private Body(byte[] content, boolean binary) {
     this.content = content;
     this.binary = binary;
-    json = false;
+    this.json = false;
+    this.jsonContent = null;
   }
 
   private Body(byte[] content, boolean binary, boolean json) {
-    this.content = content;
-    this.binary = binary;
-    this.json = json;
+    if (json) {
+      JsonNode jsonNode = Json.node(stringFromBytes(content));
+      this.content = Json.toByteArrayEscaped(jsonNode);
+      this.binary = binary;
+      this.json = true;
+      this.jsonContent = jsonNode;
+    } else {
+      this.content = content;
+      this.binary = binary;
+      this.json = false;
+      this.jsonContent = null;
+    }
   }
 
   private Body(JsonNode content) {
-    this.content = Json.toByteArray(content);
+    this.content = Json.toByteArrayEscaped(content);
     binary = false;
     json = true;
+    jsonContent = content;
   }
 
   static Body fromBytes(byte[] bytes) {
@@ -110,7 +123,11 @@ public class Body {
   }
 
   public JsonNode asJson() {
-    return Json.node(asString());
+    if (isJson()) {
+      return jsonContent;
+    } else {
+      return Json.node(asString());
+    }
   }
 
   public boolean isJson() {
