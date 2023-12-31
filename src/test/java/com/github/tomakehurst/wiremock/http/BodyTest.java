@@ -86,6 +86,45 @@ class BodyTest {
   }
 
   @Test
+  void mustEscapeWhenConstructedFromJson() {
+    String jsonString =
+        "{\n"
+            + "  \"escape\": [\n"
+            + "    \"quotation mark : \\\" padding\",\n"
+            + "    \"reverse solidas : \\\\ padding\",\n"
+            + "    \"backspace : \\b padding\",\n"
+            + "    \"formfeed : \\f padding\",\n"
+            + "    \"newline : \\n padding\",\n"
+            + "    \"carriage return : \\r padding\",\n"
+            + "    \"horizontal tab: \\t padding\",\n"
+            + "    \"hex digit: \\u12ab"
+            + " padding\"\n"
+            + "  ]\n"
+            + "}\n";
+    JsonNode jsonNode = Json.node(jsonString);
+    String jsonCompressedAndEscaped =
+        jsonNode
+            .toString()
+            .replace("\\\"", "\"")
+            .replace("\\\\", "\\")
+            .replace("\\b", "\b")
+            .replace("\\f", "\f")
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+            .replaceAll("\\\\u12ab", "\u12ab");
+
+    Body body = Body.fromOneOf(null, null, jsonNode, "lskdjflsjdflks");
+
+    assertThat(body.asString(), is(jsonCompressedAndEscaped));
+    assertThat(body.isBinary(), is(false));
+    assertThat(body.asBytes(), is(jsonCompressedAndEscaped.getBytes(StandardCharsets.UTF_8)));
+    assertThat(body.isJson(), is(true));
+    assertThat(body.asJson(), is(jsonNode));
+    assertThat(body.asBase64(), is(base64EncodeToString(jsonCompressedAndEscaped)));
+  }
+
+  @Test
   void constructsFromBase64() {
     String content = "this content";
     byte[] base64Encoded = base64Encode(content);
@@ -112,6 +151,46 @@ class BodyTest {
     assertThat(body.isJson(), is(true));
     assertThat(body.asJson(), is(jsonNode));
     assertThat(body.asBase64(), is(base64EncodeToString(jsonString)));
+  }
+
+  @Test
+  void mustEscapeWhenConstructedFromJsonBytes() {
+    String jsonString =
+        "{\n"
+            + "  \"escape\": [\n"
+            + "    \"quotation mark : \\\" padding\",\n"
+            + "    \"reverse solidas : \\\\ padding\",\n"
+            + "    \"backspace : \\b padding\",\n"
+            + "    \"formfeed : \\f padding\",\n"
+            + "    \"newline : \\n padding\",\n"
+            + "    \"carriage return : \\r padding\",\n"
+            + "    \"horizontal tab: \\t padding\",\n"
+            + "    \"hex digit: \\u12ab"
+            + " padding\"\n"
+            + "  ]\n"
+            + "}\n";
+    byte[] jsonBytes = jsonString.getBytes(StandardCharsets.UTF_8);
+    JsonNode jsonNode = Json.node(jsonString);
+    String jsonCompressedAndEscaped =
+        jsonNode
+            .toString()
+            .replace("\\\"", "\"")
+            .replace("\\\\", "\\")
+            .replace("\\b", "\b")
+            .replace("\\f", "\f")
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+            .replaceAll("\\\\u12ab", "\u12ab");
+
+    Body body = Body.fromJsonBytes(jsonBytes);
+
+    assertThat(body.asString(), is(jsonCompressedAndEscaped));
+    assertThat(body.isBinary(), is(false));
+    assertThat(body.asBytes(), is(jsonCompressedAndEscaped.getBytes(StandardCharsets.UTF_8)));
+    assertThat(body.isJson(), is(true));
+    assertThat(body.asJson(), is(jsonNode));
+    assertThat(body.asBase64(), is(base64EncodeToString(jsonCompressedAndEscaped)));
   }
 
   @Test
