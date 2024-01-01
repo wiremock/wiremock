@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
@@ -72,6 +73,8 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
       Set<ServeEventListener.RequestPhase> requestPhases, String extensionName, P parameters);
 
   <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
+
+  <P> MappingBuilder withServeEventListener(ServeEventListenerDefinition eventListenerDefinition);
 
   ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
 

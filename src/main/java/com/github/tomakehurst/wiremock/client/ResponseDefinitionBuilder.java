@@ -23,6 +23,7 @@ import static java.util.Arrays.asList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.CustomTransformerDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.ArrayList;
@@ -181,6 +182,13 @@ public class ResponseDefinitionBuilder {
       String transformerName, String parameterKey, Object parameterValue) {
     withTransformers(transformerName);
     withTransformerParameter(parameterKey, parameterValue);
+    return this;
+  }
+
+  public ResponseDefinitionBuilder withTransformer(
+      CustomTransformerDefinition customTransformerDefinition) {
+    withTransformers(customTransformerDefinition.getName());
+    withTransformerParameters(customTransformerDefinition.getParameters());
     return this;
   }
 
