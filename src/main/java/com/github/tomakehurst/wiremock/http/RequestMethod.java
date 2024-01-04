@@ -56,7 +56,9 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public MatchResult match(RequestMethod method) {
-    return MatchResult.of(this.equals(ANY) || this.equals(method));
+    boolean getOrHeadMatch =
+        this.equals(GET_OR_HEAD) && (method.equals(GET) || method.equals(HEAD));
+    return MatchResult.of(this.equals(ANY) || this.equals(method) || getOrHeadMatch);
   }
 
   @Override
@@ -75,9 +77,6 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     if (o == null || getClass() != o.getClass()) return false;
 
     RequestMethod that = (RequestMethod) o;
-    if (name.equals("GET_OR_HEAD") && (that.name.equals("GET") || that.name.equals("HEAD"))) {
-      return true;
-    }
     return name.equals(that.name);
   }
 

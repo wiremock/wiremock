@@ -78,12 +78,15 @@ public class WireMockClientAcceptanceTest {
   void testGetOrHeadRequestWhenGetMatchesShouldReturnAResponseBody() {
     String path = "/get-or-head-test";
     WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
-    wireMock.register(getOrHead(urlEqualTo(path)).willReturn(okJson("{\"key\": \"value\"}")));
+    wireMock.register(
+        getOrHead(urlEqualTo(path))
+            .willReturn(okJson("{\"key\": \"value\"}").withHeader("Content-Length", "16")));
 
     WireMockResponse response = testClient.get(path);
 
     assertThat(response.statusCode(), is(200));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
+    assertThat(response.firstHeader("Content-Length"), is("16"));
     assertThat(response.content(), not(emptyOrNullString()));
   }
 
@@ -95,11 +98,14 @@ public class WireMockClientAcceptanceTest {
     wireMock.register(
         getOrHead(urlEqualTo(path))
             .willReturn(
-                okJson("{\"key\": \"value\"}").withHeader("Content-Type", "application/json")));
+                okJson("{\"key\": \"value\"}")
+                    .withHeader("Content-Type", "application/json")
+                    .withHeader("Content-Length", "16")));
     WireMockResponse response = testClient.head(path);
 
     assertThat(response.statusCode(), is(200));
     assertThat(response.firstHeader("Content-Type"), is("application/json"));
+    assertThat(response.firstHeader("Content-Length"), is("16"));
     assertThat(response.content(), is(emptyOrNullString()));
   }
 
