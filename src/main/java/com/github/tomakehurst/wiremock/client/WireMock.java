@@ -570,16 +570,8 @@ public class WireMock {
     return new BasicMappingBuilder(Set.of(RequestMethod.ANY), urlPattern);
   }
 
-  /**
-   * A mapping builder that can be used for both GET and HEAD http method. Returns a response body
-   * in case for GET and not in case of HEAD method. In case of tie the request is treated as a GET
-   * request
-   *
-   * @param urlPattern for the specified method
-   * @return a mapping builder for {@link RequestMethod#GET_OR_HEAD} http method
-   */
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.GET_OR_HEAD, urlPattern);
+    return new BasicMappingBuilder(Set.of(RequestMethod.GET, RequestMethod.HEAD), urlPattern);
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {
