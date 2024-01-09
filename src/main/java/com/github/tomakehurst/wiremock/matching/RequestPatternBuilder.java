@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import org.apache.hc.client5.http.impl.Wire;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
