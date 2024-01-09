@@ -58,7 +58,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
   @Override
   public ServeEvent handleRequest(ServeEvent initialServeEvent) {
     final Request request = initialServeEvent.getRequest();
-    if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
+
+    final boolean isRequestHttps = URI.create(request.getAbsoluteUrl()).getScheme().equals("https");
+
+    if (requireHttps && !isRequestHttps) {
       notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
       return initialServeEvent.withResponseDefinition(
           ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API"));

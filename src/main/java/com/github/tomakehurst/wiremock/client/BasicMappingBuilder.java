@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
@@ -286,12 +287,15 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     return this;
   }
 
+  private boolean requiredScenarioExist() {
+    return scenarioName == null && (requiredScenarioState != null || newScenarioState != null);
+  }
+
   @Override
   public StubMapping build() {
-    if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
-      throw new IllegalStateException(
-          "Scenario name must be specified to require or set a new scenario state");
-    }
+    checkState(
+        !requiredScenarioExist(),
+        "Scenario name must be specified to require or set a new scenario state");
     RequestPattern requestPattern = requestPatternBuilder.build();
     ResponseDefinition response = getFirstNonNull(responseDefBuilder, aResponse()).build();
     StubMapping mapping = new StubMapping(requestPattern, response);
