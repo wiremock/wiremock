@@ -49,7 +49,7 @@ public class RequestPatternBuilderTest {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
-            RequestPatternBuilder.like(requestPattern).but().withUrlPath("/foo").build();
+            RequestPatternBuilder.like(requestPattern).but().withUrl(WireMock.urlPathEqualTo("/foo")).build();
 
     assertThat(newRequestPattern.getUrlPath(), is("/foo"));
     assertThat(newRequestPattern, not(equalTo(requestPattern)));

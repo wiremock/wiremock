@@ -22,6 +22,8 @@ import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import org.apache.hc.client5.http.impl.Wire;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -152,23 +154,8 @@ public class RequestPatternBuilder {
     return this;
   }
 
-  public RequestPatternBuilder withUrlPath(String url) {
-    this.url = WireMock.urlPathEqualTo(url);
-    return this;
-  }
-
-  public RequestPatternBuilder withUrlPathTemplate(String templateUrl) {
-    this.url = WireMock.urlPathTemplate(templateUrl);
-    return this;
-  }
-
-  public RequestPatternBuilder withUrlMatching(String url) {
-    this.url = WireMock.urlMatching(url);
-    return this;
-  }
-
-  public RequestPatternBuilder withUrlPathMatching(String url) {
-    this.url = WireMock.urlPathMatching(url);
+  public RequestPatternBuilder withUrl(UrlPattern urlPattern) {
+    this.url = urlPattern;
     return this;
   }
 
