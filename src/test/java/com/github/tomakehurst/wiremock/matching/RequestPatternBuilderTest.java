@@ -46,7 +46,7 @@ class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithDifferentUrlPath() {
+  void likeRequestPatternWithDifferentUrlPath() {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
