@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,10 @@ public class RequestPatternBuilderTest {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
-            RequestPatternBuilder.like(requestPattern).but().withUrl(WireMock.urlPathEqualTo("/foo")).build();
+        RequestPatternBuilder.like(requestPattern)
+            .but()
+            .withUrl(WireMock.urlPathEqualTo("/foo"))
+            .build();
 
     assertThat(newRequestPattern.getUrlPath(), is("/foo"));
     assertThat(newRequestPattern, not(equalTo(requestPattern)));
