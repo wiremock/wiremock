@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class MatchesJsonSchemaPatternTest {
   }
 
   @Test
-  void deserialisesFromJsonCorrectlyWithDefaultSchemaVersion() {
+  void deserialisesFromJsonStringCorrectlyWithDefaultSchemaVersion() {
     String schemaJson =
         "{\n"
             + "    \"required\": [\n"
@@ -114,13 +114,14 @@ public class MatchesJsonSchemaPatternTest {
 
     String matcherJson = "{\n" + "  \"matchesJsonSchema\": " + stringify(schemaJson) + "\n" + "}";
 
-    MatchesJsonSchemaPattern pattern = Json.read(matcherJson, MatchesJsonSchemaPattern.class);
+    StringValuePattern pattern = Json.read(matcherJson, StringValuePattern.class);
 
-    assertThat(pattern.getMatchesJsonSchema(), jsonEquals(schemaJson));
+    assertThat(pattern, instanceOf(MatchesJsonSchemaPattern.class));
+    assertThat(((MatchesJsonSchemaPattern) pattern).getMatchesJsonSchema(), jsonEquals(schemaJson));
   }
 
   @Test
-  void deserialisesFromJsonCorrectlyWithProvidedSchemaVersion() {
+  void deserialisesFromJsonStringCorrectlyWithProvidedSchemaVersion() {
     String schemaJson =
         "{\n"
             + "    \"properties\": {\n"
@@ -138,9 +139,66 @@ public class MatchesJsonSchemaPatternTest {
             + "  \"schemaVersion\": \"V6\"\n"
             + "}";
 
-    MatchesJsonSchemaPattern pattern = Json.read(matcherJson, MatchesJsonSchemaPattern.class);
+    StringValuePattern pattern = Json.read(matcherJson, StringValuePattern.class);
 
-    assertThat(pattern.getSchemaVersion(), is(V6));
+    assertThat(pattern, instanceOf(MatchesJsonSchemaPattern.class));
+    assertThat(((MatchesJsonSchemaPattern) pattern).getMatchesJsonSchema(), jsonEquals(schemaJson));
+    assertThat(((MatchesJsonSchemaPattern) pattern).getSchemaVersion(), is(V6));
+  }
+
+  @Test
+  void deserialisesFromJsonValueCorrectlyWithDefaultSchemaVersion() {
+    String schemaJson =
+        "{\n"
+            + "    \"required\": [\n"
+            + "      \"itemCatalogueId\",\n"
+            + "      \"quantity\"\n"
+            + "    ],\n"
+            + "    \"properties\": {\n"
+            + "      \"itemCatalogueId\": {\n"
+            + "        \"type\": \"string\"\n"
+            + "      },\n"
+            + "      \"quantity\": {\n"
+            + "        \"type\": \"integer\"\n"
+            + "      },\n"
+            + "      \"fastDelivery\": {\n"
+            + "        \"type\": \"boolean\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }";
+
+    String matcherJson = "{\n" + "  \"matchesJsonSchema\": " + schemaJson + "\n" + "}";
+
+    StringValuePattern pattern = Json.read(matcherJson, StringValuePattern.class);
+
+    assertThat(pattern, instanceOf(MatchesJsonSchemaPattern.class));
+    assertThat(((MatchesJsonSchemaPattern) pattern).getMatchesJsonSchema(), jsonEquals(schemaJson));
+  }
+
+  @Test
+  void deserialisesFromJsonValueCorrectlyWithProvidedSchemaVersion() {
+    String schemaJson =
+        "{\n"
+            + "    \"properties\": {\n"
+            + "      \"itemCatalogueId\": {\n"
+            + "        \"type\": \"string\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }";
+
+    String matcherJson =
+        "{\n"
+            + "  \"matchesJsonSchema\": "
+            + schemaJson
+            + ",\n"
+            + "  \"schemaVersion\": \"V6\"\n"
+            + "}";
+
+    StringValuePattern pattern = Json.read(matcherJson, StringValuePattern.class);
+
+    assertThat(pattern, instanceOf(MatchesJsonSchemaPattern.class));
+    assertThat(((MatchesJsonSchemaPattern) pattern).getMatchesJsonSchema(), jsonEquals(schemaJson));
+    assertThat(((MatchesJsonSchemaPattern) pattern).getSchemaVersion(), is(V6));
   }
 
   private static final StringValuePattern stringSchema =
