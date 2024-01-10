@@ -46,6 +46,20 @@ class RequestPatternBuilderTest {
   }
 
   @Test
+  public void likeRequestPatternWithDifferentUrlPath() {
+    RequestPattern requestPattern = RequestPattern.everything();
+
+    RequestPattern newRequestPattern =
+        RequestPatternBuilder.like(requestPattern)
+            .but()
+            .withUrl(WireMock.urlPathEqualTo("/foo"))
+            .build();
+
+    assertThat(newRequestPattern.getUrlPath(), is("/foo"));
+    assertThat(newRequestPattern, not(equalTo(requestPattern)));
+  }
+
+  @Test
   void likeRequestPatternWithoutCustomMatcher() {
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
     // set properly

@@ -154,6 +154,11 @@ public class RequestPatternBuilder {
     return this;
   }
 
+  public RequestPatternBuilder withUrl(UrlPattern urlPattern) {
+    this.url = urlPattern;
+    return this;
+  }
+
   public RequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
     headers.put(key, MultiValuePattern.of(valuePattern));
     return this;
