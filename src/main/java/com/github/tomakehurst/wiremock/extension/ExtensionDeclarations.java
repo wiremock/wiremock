@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.wiremock.webhooks.Webhooks;
 
 public class ExtensionDeclarations {
 
@@ -27,7 +28,6 @@ public class ExtensionDeclarations {
   private final List<Class<? extends Extension>> classes;
   private final Map<String, Extension> instances;
   private final List<ExtensionFactory> factories;
-  private static final String WEBHOOK_CLASSNAME = "org.wiremock.webhooks.Webhooks";
   private static final String WEBHOOK_MESSAGE =
       "Passing webhooks in extensions is no longer required and"
           + " may lead to compatibility issues in future";
@@ -76,7 +76,7 @@ public class ExtensionDeclarations {
   }
 
   private boolean removeWebhook(String className) {
-    if (className.equals(WEBHOOK_CLASSNAME)) {
+    if (className.equals(Webhooks.class.getName())) {
       notifier().info(WEBHOOK_MESSAGE);
       return false;
     }
