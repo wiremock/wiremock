@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,9 @@ public class MappingsLoaderAcceptanceTest {
   public void json5MappingsLoadedViaClasspath() {
     buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
     WireMockResponse json5Response = testClient.get("/json5_test");
-    assertThat(json5Response.content(), is("{\"stringProp\":\"json5 \\n          \\\"testing\\\"\",\"numberProp\":0.5}"));
+    String expectedContent =
+        "{\"stringProp\":\"json5 \\n          \\\"testing\\\"\",\"numberProp\":0.5}";
+    assertThat(json5Response.content(), is(expectedContent));
     assertThat(json5Response.statusCode(), is(200));
   }
 
