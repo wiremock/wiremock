@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Thomas Akehurst
+ * Copyright (C) 2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.junit5;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.junit.jupiter.api.extension.ExtendWith;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@ExtendWith(WireMockExtension.class)
-public @interface WireMockTest {
+public class MockExtension extends RequestMatcherExtension {
 
-  boolean extensionScanningEnabled() default false;
+  @Override
+  public MatchResult match(Request request, Parameters parameters) {
+    return MatchResult.exactMatch();
+  }
 
-  int httpPort() default 0;
-
-  boolean httpsEnabled() default false;
-
-  int httpsPort() default 0;
-
-  boolean proxyMode() default false;
+  @Override
+  public String getName() {
+    return "mock";
+  }
 }
