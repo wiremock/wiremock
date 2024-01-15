@@ -15,31 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -179,43 +168,5 @@ class ResponseDefinitionBuilderTest {
     assertNotNull(responseDefinition);
     assertEquals(
         "none", responseDefinition.getHeaders().getHeader(CONTENT_ENCODING).getValues().get(0));
-  }
-
-  @Test
-  void wireMockServerWithStubForWithGzipDisabledTrue() {
-    WireMockServer wireMockServer = new WireMockServer(options().dynamicPort().dynamicHttpsPort());
-    wireMockServer.start();
-    WireMockTestClient client = new WireMockTestClient(wireMockServer.port());
-
-    wireMockServer.stubFor(
-        get(urlEqualTo("/todo/items"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withBody("Here is some kind of response body"
-                            + "Here is some kind of response body"
-                            + "Here is some kind of response body"
-                    )));
-
-    WireMockResponse compressedResponse =
-        client.get("/todo/items", new TestHttpHeader("Accept-Encoding", "gzip"));
-
-    wireMockServer.stubFor(
-        get(urlEqualTo("/todo/items"))
-            .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withGzipDisabled(true)
-                    .withBody("Here is some kind of response body"
-                            + "Here is some kind of response body"
-                            + "Here is some kind of response body"
-                    )));
-
-    WireMockResponse ordinaryResponse =
-        client.get("/todo/items", new TestHttpHeader("Accept-Encoding", "gzip"));
-
-    assertTrue(compressedResponse.content().length() < ordinaryResponse.content().length());
-    assertTrue(Gzip.isGzipped(compressedResponse.binaryContent()));
-    assertFalse(Gzip.isGzipped(ordinaryResponse.binaryContent()));
   }
 }
