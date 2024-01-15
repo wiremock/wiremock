@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -214,7 +215,7 @@ class ResponseDefinitionBuilderTest {
         client.get("/todo/items", new TestHttpHeader("Accept-Encoding", "gzip"));
 
     assertTrue(compressedResponse.content().length() < ordinaryResponse.content().length());
-    assertFalse(compressedResponse.content().contains("Here is some kind of response body"));
-    assertTrue(ordinaryResponse.content().contains("Here is some kind of response body"));
+    assertTrue(Gzip.isGzipped(compressedResponse.binaryContent()));
+    assertFalse(Gzip.isGzipped(ordinaryResponse.binaryContent()));
   }
 }
