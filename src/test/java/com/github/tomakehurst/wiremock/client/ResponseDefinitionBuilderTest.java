@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -192,11 +191,10 @@ class ResponseDefinitionBuilderTest {
             .willReturn(
                 aResponse()
                     .withStatus(200)
-                    .withResponseBody(
-                        new Body(
-                            "Here is some kind of response body"
-                                + "Here is some kind of response body"
-                                + "Here is some kind of response body"))));
+                    .withBody("Here is some kind of response body"
+                            + "Here is some kind of response body"
+                            + "Here is some kind of response body"
+                    )));
 
     WireMockResponse compressedResponse =
         client.get("/todo/items", new TestHttpHeader("Accept-Encoding", "gzip"));
@@ -207,11 +205,10 @@ class ResponseDefinitionBuilderTest {
                 aResponse()
                     .withStatus(200)
                     .withGzipDisabled(true)
-                    .withResponseBody(
-                        new Body(
-                            "Here is some kind of response body"
-                                + "Here is some kind of response body"
-                                + "Here is some kind of response body"))));
+                    .withBody("Here is some kind of response body"
+                            + "Here is some kind of response body"
+                            + "Here is some kind of response body"
+                    )));
 
     WireMockResponse ordinaryResponse =
         client.get("/todo/items", new TestHttpHeader("Accept-Encoding", "gzip"));
