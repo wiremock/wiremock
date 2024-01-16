@@ -46,7 +46,7 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle
 
     - name: Test WireMock with Sonarqube
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.jdk == 11 && github.event_name == 'push' }}
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.jdk == 11 }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
