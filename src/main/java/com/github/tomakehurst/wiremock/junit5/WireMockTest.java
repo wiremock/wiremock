@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Inherited
 @ExtendWith(WireMockExtension.class)
 public @interface WireMockTest {
+
+  boolean extensionScanningEnabled() default false;
 
   int httpPort() default 0;
 

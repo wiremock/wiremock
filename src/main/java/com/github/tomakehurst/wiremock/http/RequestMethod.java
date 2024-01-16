@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod HEAD = new RequestMethod("HEAD");
   public static final RequestMethod TRACE = new RequestMethod("TRACE");
   public static final RequestMethod ANY = new RequestMethod("ANY");
-
+  public static final RequestMethod GET_OR_HEAD = new RequestMethod("GET_OR_HEAD");
   private final String name;
 
   public RequestMethod(String name) {
@@ -56,7 +56,9 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public MatchResult match(RequestMethod method) {
-    return MatchResult.of(this.equals(ANY) || this.equals(method));
+    boolean getOrHeadMatch =
+        this.equals(GET_OR_HEAD) && (method.equals(GET) || method.equals(HEAD));
+    return MatchResult.of(this.equals(ANY) || this.equals(method) || getOrHeadMatch);
   }
 
   @Override
@@ -75,7 +77,6 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
     if (o == null || getClass() != o.getClass()) return false;
 
     RequestMethod that = (RequestMethod) o;
-
     return name.equals(that.name);
   }
 
@@ -94,6 +95,8 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   }
 
   public static RequestMethod[] values() {
-    return new RequestMethod[] {GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY};
+    return new RequestMethod[] {
+      GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, GET_OR_HEAD
+    };
   }
 }
