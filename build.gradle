@@ -548,6 +548,6 @@ int getBetaVersion() {
 }
 
 wrapper {
-  gradleVersion = '7.2'
+  gradleVersion = '8.0.1'
   distributionType = Wrapper.DistributionType.BIN
 }
