@@ -232,12 +232,6 @@ public class JsonTest {
     assertThat(result, is(jsonCompressedAndEscaped));
   }
 
-  @Test
-  public void test2() {
-    String str = "\"quotation mark : \\\"\"".replace("\\\"", "\"");
-    assertEquals("\"quotation mark : \"\"", str);
-  }
-
   private static class TestPojo {
     public String property;
   }
