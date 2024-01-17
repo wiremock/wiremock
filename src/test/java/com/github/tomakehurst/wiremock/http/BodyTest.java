@@ -166,8 +166,7 @@ class BodyTest {
             + "    \"newline : \\n padding\",\n"
             + "    \"carriage return : \\r padding\",\n"
             + "    \"horizontal tab: \\t padding\",\n"
-            + "    \"hex digit: \\u12ab"
-            + " padding\"\n"
+            + "    \"hex digit: \\u12ab padding\"\n"
             + "  ]\n"
             + "}\n";
     byte[] jsonBytes = bytesFromString(jsonString);
