@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,11 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     this.schemaVersion = schemaVersion;
 
     schemaPropertyCount = Json.schemaPropertyCount(Json.read(schemaJson, JsonNode.class));
+  }
+
+  public MatchesJsonSchemaPattern(
+      JsonNode schemaJsonNode, WireMock.JsonSchemaVersion schemaVersion) {
+    this(Json.write(schemaJsonNode), schemaVersion);
   }
 
   public String getMatchesJsonSchema() {
