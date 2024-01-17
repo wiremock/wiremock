@@ -25,13 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
-import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
-import io.netty.handler.codec.base64.Base64Encoder;
 import org.junit.jupiter.api.Test;
 
 class BodyTest {
