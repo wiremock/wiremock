@@ -63,12 +63,10 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
-    if (isAbsent(rootNode)) {
-      return AbsentPattern.ABSENT;
-    }
-
     Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
-    if (patternClass.equals(EqualToJsonPattern.class)) {
+    if (patternClass.equals(AbsentPattern.class)) {
+      return AbsentPattern.ABSENT;
+    } else if (patternClass.equals(EqualToJsonPattern.class)) {
       return deserializeEqualToJson(rootNode);
     } else if (patternClass.equals(MatchesJsonSchemaPattern.class)) {
       return deserializeMatchesJsonSchema(rootNode);
@@ -388,10 +386,6 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     }
 
     return (Constructor<? extends StringValuePattern>) optionalConstructor.get();
-  }
-
-  private static boolean isAbsent(JsonNode rootNode) {
-    return getListFromNode(rootNode).stream().anyMatch(node -> node.getKey().equals("absent"));
   }
 
   private static Class<? extends StringValuePattern> findPatternClass(JsonNode rootNode)
