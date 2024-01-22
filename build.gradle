@@ -67,7 +67,7 @@ dependencies {
   }
   api "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
   api "net.javacrumbs.json-unit:json-unit-core:$versions.jsonUnit"
-  api "com.jayway.jsonpath:json-path:2.8.0", {
+  api "com.jayway.jsonpath:json-path:2.9.0", {
     exclude group: 'org.ow2.asm', module: 'asm'
   }
   api "org.ow2.asm:asm:9.6"
