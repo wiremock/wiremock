@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -698,6 +698,26 @@ public class CommandLineOptionsTest {
     MappingsSaver mappingsSaver = options.mappingsSaver();
 
     assertThat(mappingsSaver, instanceOf(JsonFileMappingsSource.class));
+  }
+
+  @Test
+  public void customNotifier() {
+    CommandLineOptions options =
+        new CommandLineOptions(
+            "--notifier-class", "com.github.tomakehurst.wiremock.common.Slf4jNotifier");
+
+    Notifier mappingsSaver = options.notifier();
+
+    assertThat(mappingsSaver, instanceOf(Slf4jNotifier.class));
+  }
+
+  @Test
+  public void defaultNotifier() {
+    CommandLineOptions options = new CommandLineOptions();
+
+    Notifier mappingsSaver = options.notifier();
+
+    assertThat(mappingsSaver, instanceOf(ConsoleNotifier.class));
   }
 
   @Test

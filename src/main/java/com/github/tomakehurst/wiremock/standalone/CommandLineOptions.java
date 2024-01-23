@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,6 +109,7 @@ public class CommandLineOptions implements Options {
   private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
   private static final String DISABLE_GZIP = "disable-gzip";
   private static final String DISABLE_REQUEST_LOGGING = "disable-request-logging";
+  private static final String NOTIFIER_CLASS = "notifier-class";
   private static final String ENABLE_STUB_CORS = "enable-stub-cors";
   private static final String TRUST_ALL_PROXY_TARGETS = "trust-all-proxy-targets";
   private static final String TRUST_PROXY_TARGET = "trust-proxy-target";
@@ -313,6 +314,9 @@ public class CommandLineOptions implements Options {
     optionParser.accepts(
         DISABLE_REQUEST_LOGGING,
         "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
+    optionParser
+        .accepts(NOTIFIER_CLASS, "Fully qualified name of a notifier class to use")
+        .withRequiredArg();
     optionParser.accepts(
         ENABLE_STUB_CORS, "Enable automatic sending of CORS headers with stub responses.");
     optionParser
@@ -732,7 +736,17 @@ public class CommandLineOptions implements Options {
 
   @Override
   public Notifier notifier() {
-    return new ConsoleNotifier(verboseLoggingEnabled());
+    if (!optionSet.has(NOTIFIER_CLASS)) {
+      return new ConsoleNotifier(verboseLoggingEnabled());
+    }
+    try {
+      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      Class<?> cls = loader.loadClass(optionSet.valueOf(NOTIFIER_CLASS).toString());
+      return (Notifier)
+          cls.getDeclaredConstructor(boolean.class).newInstance(verboseLoggingEnabled());
+    } catch (Exception e) {
+      return throwUnchecked(e, null);
+    }
   }
 
   @Override
