@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<?>> {
 
@@ -30,10 +29,6 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
   public ContentPattern<?> deserialize(JsonParser parser, DeserializationContext context)
       throws IOException, JsonProcessingException {
     JsonNode rootNode = parser.readValueAsTree();
-
-    if (isAbsent(rootNode)) {
-      return AbsentPattern.ABSENT;
-    }
 
     if (rootNode.has("binaryEqualTo")) {
       return deserializeBinaryEqualTo(rootNode);
@@ -46,11 +41,5 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
     String operand = rootNode.findValue("binaryEqualTo").textValue();
 
     return new BinaryEqualToPattern(operand);
-  }
-
-  private static boolean isAbsent(JsonNode rootNode) {
-    return StreamSupport.stream(
-            Spliterators.spliteratorUnknownSize(rootNode.fields(), Spliterator.ORDERED), false)
-        .anyMatch(node -> node.getKey().equals("absent"));
   }
 }

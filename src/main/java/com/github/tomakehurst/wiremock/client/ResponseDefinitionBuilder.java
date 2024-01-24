@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
@@ -186,6 +187,13 @@ public class ResponseDefinitionBuilder {
   public ProxyResponseDefinitionBuilder proxiedFrom(String proxyBaseUrl) {
     this.proxyBaseUrl = proxyBaseUrl;
     return new ProxyResponseDefinitionBuilder(this);
+  }
+
+  public ResponseDefinitionBuilder withGzipDisabled(boolean gzipDisabled) {
+    if (gzipDisabled) {
+      this.headers.add(new HttpHeader(CONTENT_ENCODING, "none"));
+    }
+    return this;
   }
 
   public static ResponseDefinitionBuilder responseDefinition() {
