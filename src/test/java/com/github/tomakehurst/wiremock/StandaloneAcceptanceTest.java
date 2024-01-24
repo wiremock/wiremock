@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -702,5 +703,41 @@ public class StandaloneAcceptanceTest {
 
   public static String padRight(String s, int paddingLength) {
     return String.format("%1$-" + paddingLength + "s", s);
+  }
+
+  @Nested
+  class JsonResponseBodyStandaloneAcceptanceTest {
+
+    private static final String MAPPING_REQUEST_WITH_JSON_RESPONSE_BODY =
+        "{\n"
+            + "  \"metadata\": {\n"
+            + "    \"description\": \"matches helper example\"\n"
+            + "  },\n"
+            + "  \"request\": {\n"
+            + "    \"method\": \"GET\",\n"
+            + "    \"urlPattern\": \"/matches/\\\\?string=[^&]+\"\n"
+            + "  },\n"
+            + "  \"response\": {\n"
+            + "    \"status\": 200,\n"
+            + "    \"headers\": {\n"
+            + "      \"Content-Type\": \"application/json\"\n"
+            + "    },\n"
+            + "    \"transformers\": [\n"
+            + "      \"response-template\"\n"
+            + "    ],\n"
+            + "    \"jsonBody\": {\n"
+            + "\"string matches\": \"{{#matches request.query.string 'lor\\\\w+'}}Matched{{/matches}}\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}\n";
+
+    @Test
+    void readEscapeSequenceProperly() {
+      writeMappingFile("test-mapping-1.json", MAPPING_REQUEST_WITH_JSON_RESPONSE_BODY);
+      startRunner();
+      assertThat(
+          testClient.get("/matches/?string=lorem").content(),
+          is("{\"string matches\":\"Matched\"}"));
+    }
   }
 }
