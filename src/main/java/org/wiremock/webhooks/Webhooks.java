@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.wiremock.webhooks;
 
-import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
@@ -39,9 +38,9 @@ import java.util.concurrent.ScheduledExecutorService;
 public class Webhooks extends PostServeAction implements ServeEventListener {
 
   private final ScheduledExecutorService scheduler;
-  private final Lazy<HttpClient> lazyHttpClient;
+  private final HttpClient httpClient;
   private final List<WebhookTransformer> transformers;
-  private final Lazy<TemplateEngine> templateEngine;
+  private final TemplateEngine templateEngine;
 
   public Webhooks(
       WireMockServices wireMockServices,
@@ -49,13 +48,9 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
       List<WebhookTransformer> transformers) {
 
     this.scheduler = scheduler;
-    this.lazyHttpClient = lazy(wireMockServices::getDefaultHttpClient);
+    this.httpClient = wireMockServices.getDefaultHttpClient();
     this.transformers = transformers;
-    this.templateEngine = lazy(wireMockServices::getTemplateEngine);
-  }
-
-  private HttpClient getHttpClient() {
-    return lazyHttpClient.get();
+    this.templateEngine = wireMockServices.getTemplateEngine();
   }
 
   @Override
@@ -95,7 +90,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
     scheduler.schedule(
         () -> {
           try {
-            Response response = getHttpClient().execute(request);
+            Response response = httpClient.execute(request);
             notifier.info(
                 String.format(
                     "Webhook %s request to %s returned status %s\n\n%s",
@@ -159,7 +154,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
   }
 
   private String renderTemplate(Object context, String value) {
-    return templateEngine.get().getUncachedTemplate(value).apply(context);
+    return templateEngine.getUncachedTemplate(value).apply(context);
   }
 
   private static Request buildRequest(WebhookDefinition definition) {
