@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public enum DateTimeTruncation {
   }
 
   public ZonedDateTime truncate(ZonedDateTime input) {
-    return fn.apply(input);
+    return input != null ? fn.apply(input) : null;
   }
 
   public Date truncate(Date input) {

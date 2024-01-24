@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,12 @@ public class WireMockTestClient {
     String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
     HttpUriRequest httpRequest = new HttpGet(actualUrl);
     return executeMethodAndConvertExceptions(httpRequest, headers);
+  }
+
+  public WireMockResponse head(String url, TestHttpHeader... headers) {
+    String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
+    HttpUriRequest httpUriRequest = new HttpHead(actualUrl);
+    return executeMethodAndConvertExceptions(httpUriRequest, headers);
   }
 
   public WireMockResponse getWithBody(
@@ -385,6 +391,7 @@ public class WireMockTestClient {
 
   private static CloseableHttpClient httpClient() {
     return HttpClientBuilder.create()
+        .setUserAgent("WireMock Test Client")
         .disableAuthCaching()
         .disableAutomaticRetries()
         .disableCookieManagement()

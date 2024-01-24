@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.stream.Stream;
 import org.apache.hc.client5.http.impl.InMemoryDnsResolver;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -241,6 +242,18 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
 
     assertThatThrownBy(() -> resolver.resolve(host));
+  }
+
+  @Test
+  void resolveIgnoresIpv6Addresses() throws UnknownHostException {
+    register("1.example.com", "10.1.1.1", "2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+
+    NetworkAddressRules rules = NetworkAddressRules.builder().allow("10.1.1.1").build();
+
+    NetworkAddressRulesAdheringDnsResolver resolver =
+        new NetworkAddressRulesAdheringDnsResolver(dns, rules);
+
+    assertThat(resolver.resolve("1.example.com")).isEqualTo(dns.resolve("10.1.1.1"));
   }
 
   private void register(String host, String... ipAddresses) throws UnknownHostException {

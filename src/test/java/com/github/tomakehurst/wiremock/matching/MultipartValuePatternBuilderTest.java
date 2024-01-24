@@ -15,23 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
-import static com.github.tomakehurst.wiremock.client.WireMock.absent;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static java.util.Arrays.asList;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.in;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class MultipartValuePatternBuilderTest {
@@ -70,15 +59,7 @@ public class MultipartValuePatternBuilderTest {
             .withBody(equalToXml("<xml />"))
             .build();
 
-    Map<String, List<MultiValuePattern>> headerPatterns = new LinkedHashMap<>();
-    headerPatterns.put(
-        "Content-Disposition", asList(MultiValuePattern.of(containing("name=\"name\""))));
-    headerPatterns.put("X-Header", asList(MultiValuePattern.of(containing("something"))));
-    headerPatterns.put("X-Other", asList(MultiValuePattern.of(absent())));
-    //        assertThat(headerPatterns.entrySet(),
-    // everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
-
-    List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
+    List<ContentPattern<?>> bodyPatterns = List.of(equalToXml("<xml />"));
     assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
   }
 
@@ -97,30 +78,7 @@ public class MultipartValuePatternBuilderTest {
             .withBody(equalToXml("<xml />"))
             .build();
 
-    Map<String, List<MultiValuePattern>> headerPatterns = new LinkedHashMap<>();
-    headerPatterns.put("X-Header", asList(MultiValuePattern.of(containing("something"))));
-    headerPatterns.put("X-Other", asList(MultiValuePattern.of(absent())));
-    //        assertThat(headerPatterns.entrySet(),
-    // everyItem(isIn(pattern.getHeaders().entrySet())));
-
-    List<ContentPattern<?>> bodyPatterns = Arrays.<ContentPattern<?>>asList(equalToXml("<xml />"));
+    List<ContentPattern<?>> bodyPatterns = List.of(equalToXml("<xml />"));
     assertThat(bodyPatterns, everyItem(is(in(pattern.getBodyPatterns()))));
-  }
-
-  @Test
-  public void testBuilderWithNameAndOtherContentDispositionHeaderMatcher() {
-    MultipartValuePattern pattern =
-        aMultipart("name")
-            .withHeader("Content-Disposition", containing("filename=\"something\""))
-            .build();
-
-    Map<String, List<MultiValuePattern>> headerPatterns = new LinkedHashMap<>();
-    headerPatterns.put(
-        "Content-Disposition",
-        asList(
-            MultiValuePattern.of(containing("name=\"name\"")),
-            MultiValuePattern.of(containing("filename=\"something\""))));
-    //        assertThat(headerPatterns.entrySet(),
-    // everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
   }
 }

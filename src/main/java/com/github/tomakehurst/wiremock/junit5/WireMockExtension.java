@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,9 @@ import org.junit.platform.commons.support.AnnotationSupport;
 /**
  * JUnit Jupiter extension that manages a WireMock server instance's lifecycle and configuration.
  *
- * <p>See http://wiremock.org/docs/junit-jupiter/ for full documentation.
+ * <p>See <a
+ * href="http://wiremock.org/docs/junit-jupiter/">http://wiremock.org/docs/junit-jupiter/</a> for
+ * full documentation.
  */
 public class WireMockExtension extends DslWrapper
     implements ParameterResolver,
@@ -181,7 +183,7 @@ public class WireMockExtension extends DslWrapper
               .flatMap(
                   annotatedElement ->
                       AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class))
-              .<Boolean>map(WireMockTest::proxyMode)
+              .map(WireMockTest::proxyMode)
               .orElse(false);
     }
   }
@@ -196,13 +198,14 @@ public class WireMockExtension extends DslWrapper
                     ? AnnotationSupport.findAnnotation(annotatedElement, WireMockTest.class)
                     : Optional.empty())
         .map(this::buildOptionsFromWireMockTestAnnotation)
-        .orElse(Optional.ofNullable(this.options).orElse(defaultOptions));
+        .orElseGet(() -> Optional.ofNullable(this.options).orElse(defaultOptions));
   }
 
   private Options buildOptionsFromWireMockTestAnnotation(WireMockTest annotation) {
     WireMockConfiguration options =
         WireMockConfiguration.options()
             .port(annotation.httpPort())
+            .extensionScanningEnabled(annotation.extensionScanningEnabled())
             .enableBrowserProxying(annotation.proxyMode());
 
     if (annotation.httpsEnabled()) {

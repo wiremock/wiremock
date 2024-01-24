@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: WireMock
-  version: 3.2.0
+  version: 3.3.1
 
 externalDocs:
   description: WireMock user documentation
@@ -43,6 +43,7 @@ tags:
 paths:
   /__admin/mappings:
     get:
+      operationId: getAllStubMappings
       summary: Get all stub mappings
       tags:
          - Stub Mappings
@@ -71,6 +72,7 @@ paths:
                 $ref: 'examples/stub-mappings.yaml'
           description: All stub mappings
     post:
+      operationId: createNewStubMapping
       summary: Create a new stub mapping
       tags:
          - Stub Mappings
@@ -80,6 +82,7 @@ paths:
         '201':
           $ref: "#/components/responses/stubMapping"
     delete:
+      operationId: deleteAllStubMappings
       summary: Delete all stub mappings
       tags:
          - Stub Mappings
@@ -89,6 +92,7 @@ paths:
 
   /__admin/mappings/reset:
     post:
+      operationId: resetStubMappings
       summary: Reset stub mappings
       description: Restores stub mappings to the defaults defined back in the backing store
       tags:
@@ -99,6 +103,7 @@ paths:
 
   /__admin/mappings/save:
     post:
+      operationId: persistStubMappings
       summary: Persist stub mappings
       description: Save all persistent stub mappings to the backing store
       tags:
@@ -109,6 +114,7 @@ paths:
 
   /__admin/mappings/import:
     post:
+      operationId: importStubMappings
       summary: Import stub mappings
       description: Import given stub mappings to the backing store
       tags:
@@ -127,6 +133,7 @@ paths:
         schema:
           type: string
     get:
+      operationId: getStubMappingById
       summary: Get stub mapping by ID
       tags:
          - Stub Mappings
@@ -136,6 +143,7 @@ paths:
         '200':
           $ref: "#/components/responses/stubMapping"
     put:
+      operationId: updateStubMapping
       summary: Update a stub mapping
       tags:
          - Stub Mappings
@@ -147,6 +155,7 @@ paths:
         '200':
           $ref: "#/components/responses/stubMapping"
     delete:
+      operationId: deleteStubMapping
       summary: Delete a stub mapping
       tags:
          - Stub Mappings
@@ -158,6 +167,7 @@ paths:
 
   /__admin/mappings/find-by-metadata:
     post:
+      operationId: findStubMappingsByMetadata
       description: Find stubs by matching on their metadata
       tags:
         - Stub Mappings
@@ -181,6 +191,7 @@ paths:
 
   /__admin/mappings/remove-by-metadata:
     post:
+      operationId: removeStubMappingsByMetadata
       summary: Delete stub mappings matching metadata
       tags:
         - Stub Mappings
@@ -197,6 +208,7 @@ paths:
 
   /__admin/requests:
     get:
+      operationId: getAllRequestsInJournal
       summary: Get all requests in journal
       tags:
          - Requests
@@ -221,6 +233,7 @@ paths:
                 $ref: 'examples/serve-events.yaml'
           description: List of received requests
     delete:
+      operationId: deleteAllRequestsInJournal
       summary: Delete all requests in journal
       tags:
          - Requests
@@ -230,6 +243,7 @@ paths:
 
   /__admin/requests/{requestId}:
     get:
+      operationId: getRequestById
       summary: Get request by ID
       tags:
          - Requests
@@ -251,6 +265,7 @@ paths:
               example:
                 $ref: "examples/request.yaml"
     delete:
+      operationId: deleteRequestById
       summary: Delete request by ID
       tags:
          - Requests
@@ -268,6 +283,7 @@ paths:
 
   /__admin/requests/reset:
     post:
+      operationId: emptyRequestJournal
       deprecated: true
       summary: Empty the request journal
       tags:
@@ -278,6 +294,7 @@ paths:
 
   /__admin/requests/count:
     post:
+      operationId: countRequestsByCriteria
       summary: Count requests by criteria
       description: Count requests logged in the journal matching the specified criteria
       tags:
@@ -298,6 +315,7 @@ paths:
 
   /__admin/requests/remove:
     post:
+      operationId: removeRequestsByCriteria
       summary: Remove requests by criteria
       description: Removed requests logged in the journal matching the specified criteria
       tags:
@@ -314,6 +332,7 @@ paths:
                     
   /__admin/requests/remove-by-metadata:
     post:
+      operationId: removeRequestsByMetadata
       summary: Delete requests mappings matching metadata
       tags:
         - Requests
@@ -334,6 +353,7 @@ paths:
 
   /__admin/requests/find:
     post:
+      operationId: findRequestsByCriteria
       summary: Find requests by criteria
       description: Retrieve details of requests logged in the journal matching the specified criteria
       tags:
@@ -350,6 +370,7 @@ paths:
 
   /__admin/requests/unmatched:
     get:
+      operationId: findUnmatchedRequests
       summary: Find unmatched requests
       description: Get details of logged requests that weren't matched by any stub mapping
       tags:
@@ -364,6 +385,7 @@ paths:
 
   /__admin/requests/unmatched/near-misses:
     get:
+      operationId: retrieveNearMissesForUnmatchedRequests
       description: Retrieve near-misses for all unmatched requests
       tags:
          - Near Misses
@@ -373,6 +395,7 @@ paths:
 
   /__admin/near-misses/request:
     post:
+      operationId: findNearMissesForRequest
       summary: Find near misses matching specific request
       description: Find at most 3 near misses for closest stub mappings to the specified request
       tags:
@@ -391,6 +414,7 @@ paths:
 
   /__admin/near-misses/request-pattern:
     post:
+      operationId: findNearMissesForRequestPattern
       summary: Find near misses matching request pattern
       description: Find at most 3 near misses for closest logged requests to the specified request pattern
       tags:
@@ -403,6 +427,7 @@ paths:
 
   /__admin/recordings/start:
     post:
+      operationId: startRecording
       summary: Start recording
       description: Begin recording stub mappings
       tags:
@@ -415,6 +440,7 @@ paths:
 
   /__admin/recordings/stop:
     post:
+      operationId: stopRecording
       summary: Stop recording
       description: End recording of stub mappings
       tags:
@@ -431,6 +457,7 @@ paths:
 
   /__admin/recordings/status:
     get:
+      operationId: getRecordingStatus
       summary: Get recording status
       tags:
          - Recordings
@@ -452,6 +479,7 @@ paths:
 
   /__admin/recordings/snapshot:
     post:
+      operationId: takeRecordingSnapshot
       summary: Take a snapshot recording
       tags:
          - Recordings
@@ -469,6 +497,7 @@ paths:
 
   /__admin/scenarios:
     get:
+      operationId: getAllScenarios
       summary: Get all scenarios
       tags:
          - Scenarios
@@ -487,6 +516,7 @@ paths:
 
   /__admin/scenarios/reset:
     post:
+      operationId: resetAllScenarios
       summary: Reset the state of all scenarios
       tags:
          - Scenarios
@@ -496,6 +526,7 @@ paths:
 
   /__admin/settings:
     post:
+      operationId: updateGlobalSettings
       summary: Update global settings
       tags:
          - System
@@ -518,6 +549,7 @@ paths:
 
   /__admin/reset:
     post:
+      operationId: resetMappingsAndJournal
       summary: Reset mappings and request journal
       description: Reset mappings to the default state and reset the request journal
       tags:
@@ -528,6 +560,7 @@ paths:
 
   /__admin/shutdown:
     post:
+      operationId: shutdownServer
       description: Shutdown the WireMock server
       tags:
          - System

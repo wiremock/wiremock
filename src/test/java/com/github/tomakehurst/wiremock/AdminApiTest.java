@@ -20,32 +20,37 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static java.util.Arrays.asList;
-import static net.javacrumbs.jsonunit.JsonMatchers.*;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartEquals;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonPartMatches;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -258,7 +263,10 @@ public class AdminApiTest extends AcceptanceTestBase {
       testClient.get("/received-request/" + i);
     }
 
-    String midPoint = new ISO8601DateFormat().format(new Date());
+    String midPoint =
+        DateTimeFormatter.ISO_ZONED_DATE_TIME.format(Instant.now().atZone(ZoneId.of("Z")));
+
+    await().between(Duration.ofMillis(100), Duration.ofMillis(300));
 
     for (int i = 6; i <= 9; i++) {
       testClient.get("/received-request/" + i);
@@ -1121,9 +1129,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
 
     GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
-    assertThat(
-        settings.getDelayDistribution(),
-        Matchers.<DelayDistribution>instanceOf(UniformDistribution.class));
+    assertThat(settings.getDelayDistribution(), Matchers.instanceOf(UniformDistribution.class));
     assertThat(settings.getExtended().getInt("one"), is(1));
     assertThat(
         settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name,
@@ -1323,6 +1329,30 @@ public class AdminApiTest extends AcceptanceTestBase {
   @Test
   void returnsBadRequestWhenAttemptingToRemoveServeEventByNonUuid() {
     assertThat(testClient.delete("/__admin/requests/not-a-uuid").statusCode(), is(400));
+  }
+
+  @Test
+  public void getVersionRequestDefaultsToJson() throws Exception {
+    WireMockResponse response = testClient.get("/__admin/version");
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), is("application/json"));
+    JSONAssert.assertEquals(
+        "{                                              \n"
+            + "  \"version\" : \"X.X.X\"                          \n"
+            + "}",
+        response.content(),
+        true);
+  }
+
+  @Test
+  public void getVersionRequestReturnsTextBodyWhenAcceptHeaderIsTextPlain() throws Exception {
+    WireMockResponse response =
+        testClient.get("/__admin/version", new TestHttpHeader("Accept", "text/plain"));
+
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    assertThat(response.content(), is("X.X.X"));
   }
 
   public static class TestExtendedSettingsData {

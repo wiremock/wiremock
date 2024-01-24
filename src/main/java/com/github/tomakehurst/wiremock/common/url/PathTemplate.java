@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common.url;
 
 import static java.lang.String.format;
 
+import com.github.tomakehurst.wiremock.common.Urls;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
 
 public class PathTemplate {
   static final Pattern SPECIAL_SYMBOL_REGEX =
-      Pattern.compile("(?:\\{(?<variable>[^}]+)\\})|(?<wildcard>\\*\\*)");
+      Pattern.compile("\\{(?<variable>[^}]+)}|(?<wildcard>\\*\\*)");
 
   private final String templateString;
   private final Parser parser;
@@ -73,11 +74,11 @@ public class PathTemplate {
   }
 
   public boolean matches(String url) {
-    return parser.matches(url);
+    return parser.matches(Urls.getPath(url));
   }
 
   public PathParams parse(String url) {
-    return parser.parse(url);
+    return parser.parse(Urls.getPath(url));
   }
 
   public String render(PathParams pathParams) {
@@ -109,6 +110,10 @@ public class PathTemplate {
   public int hashCode() {
     return Objects.hash(templateString);
   }
+
+  public int numberOfParameters() {
+    return parser.numberOfParameters();
+  }
 }
 
 class Parser {
@@ -137,6 +142,10 @@ class Parser {
     }
 
     return pathParams;
+  }
+
+  int numberOfParameters() {
+    return templateParameters.size();
   }
 }
 

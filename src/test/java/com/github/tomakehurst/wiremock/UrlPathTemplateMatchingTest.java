@@ -65,13 +65,24 @@ public class UrlPathTemplateMatchingTest extends AcceptanceTestBase {
   }
 
   @Test
-  void correctly_matches_when_query_parameters_present_in_request() {
+  void correctly_matches_when_query_parameters_present_in_request_and_last_path_node_is_variable() {
     stubFor(
         get(urlPathTemplate("/contacts/{contactId}"))
             .withPathParam("contactId", equalTo("123"))
             .willReturn(ok()));
 
     WireMockResponse response = testClient.get("/contacts/123?detail=summary");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void correctly_matches_when_query_parameters_present_in_request_and_last_path_node_is_constant() {
+    stubFor(
+        get(urlPathTemplate("/contacts/{contactId}/address"))
+            .withPathParam("contactId", equalTo("123"))
+            .willReturn(ok()));
+
+    WireMockResponse response = testClient.get("/contacts/123/address?detail=summary");
     assertThat(response.statusCode(), is(200));
   }
 

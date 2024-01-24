@@ -97,4 +97,11 @@ public class ResponseDefinitionTest {
 
     assertThat(response.getProxyUrl(), equalTo("null/path"));
   }
+
+  @Test
+  public void getProxyUrlGivesBackTheProxyUrlWhenOriginalRequestIsNull() {
+    ResponseDefinition response = ResponseDefinitionBuilder.responseDefinition().build();
+
+    assertThat(response.getProxyUrl(), equalTo("null"));
+  }
 }

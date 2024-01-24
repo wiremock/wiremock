@@ -29,12 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Limit;
-import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -62,6 +57,18 @@ public class CommandLineOptionsTest {
   public void returnsVerboseFalseWhenOptionNotPresent() {
     CommandLineOptions options = new CommandLineOptions("");
     assertThat(options.verboseLoggingEnabled(), is(false));
+  }
+
+  @Test
+  public void returnsVersionTrueWhenOptionPresent() {
+    CommandLineOptions options = new CommandLineOptions("--version");
+    assertThat(options.version(), is(true));
+  }
+
+  @Test
+  public void returnsVersionFalseWhenOptionNotPresent() {
+    CommandLineOptions options = new CommandLineOptions("");
+    assertThat(options.version(), is(false));
   }
 
   @Test
@@ -163,11 +170,7 @@ public class CommandLineOptionsTest {
 
   @Test
   public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
-    assertThrows(
-        Exception.class,
-        () -> {
-          new CommandLineOptions("--port");
-        });
+    assertThrows(Exception.class, () -> new CommandLineOptions("--port"));
   }
 
   @Test
@@ -193,11 +196,7 @@ public class CommandLineOptionsTest {
 
   @Test
   public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
-    assertThrows(
-        Exception.class,
-        () -> {
-          new CommandLineOptions("--proxy-all");
-        });
+    assertThrows(Exception.class, () -> new CommandLineOptions("--proxy-all"));
   }
 
   @Test
@@ -372,9 +371,7 @@ public class CommandLineOptionsTest {
   public void preventsRecordingWhenRequestJournalDisabled() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new CommandLineOptions("--no-request-journal", "--record-mappings");
-        });
+        () -> new CommandLineOptions("--no-request-journal", "--record-mappings"));
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_ENCODING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -27,8 +30,8 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ResponseDefinitionBuilderTest {
@@ -121,7 +124,7 @@ class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
@@ -137,7 +140,7 @@ class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
@@ -153,7 +156,17 @@ class ResponseDefinitionBuilderTest {
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
-        equalTo(new HttpHeaders(Arrays.asList(new HttpHeader("header", "value")))));
+        equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
+  }
+
+  @Test
+  void responseDefinitionBuilderWithGzipDisabled() {
+    ResponseDefinition responseDefinition =
+        ResponseDefinitionBuilder.responseDefinition().withGzipDisabled(true).build();
+
+    assertNotNull(responseDefinition);
+    assertEquals(
+        "none", responseDefinition.getHeaders().getHeader(CONTENT_ENCODING).getValues().get(0));
   }
 }

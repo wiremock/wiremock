@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Json {
 
@@ -61,6 +63,15 @@ public final class Json {
       };
 
   private Json() {}
+
+  public static <T> T read(byte[] stream, Class<T> clazz) throws IOException {
+    try {
+      ObjectMapper mapper = getObjectMapper();
+      return mapper.readValue(stream, clazz);
+    } catch (JsonProcessingException processingException) {
+      throw JsonException.fromJackson(processingException);
+    }
+  }
 
   public static <T> T read(String json, Class<T> clazz) {
     try {
@@ -112,6 +123,32 @@ public final class Json {
     } catch (IOException ioe) {
       return throwUnchecked(ioe, byte[].class);
     }
+  }
+
+  public static byte[] toByteArrayEscaped(JsonNode jsonNode) {
+    String string = toStringEscaped(jsonNode);
+    return string != null ? Strings.bytesFromString(string) : new byte[0];
+  }
+
+  public static String toStringEscaped(JsonNode jsonNode) {
+    if (jsonNode.isValueNode()) {
+      if (jsonNode.isTextual()) {
+        return "\"" + jsonNode.asText() + "\"";
+      } else {
+        return jsonNode.asText();
+      }
+    } else if (jsonNode.isArray()) {
+      return Stream.generate(jsonNode.elements()::next)
+          .limit(jsonNode.size())
+          .map(Json::toStringEscaped)
+          .collect(Collectors.joining(",", "[", "]"));
+    } else if (jsonNode.isObject()) {
+      return Stream.generate(jsonNode.fields()::next)
+          .limit(jsonNode.size())
+          .map(field -> "\"" + field.getKey() + "\":" + toStringEscaped(field.getValue()))
+          .collect(Collectors.joining(",", "{", "}"));
+    }
+    return null;
   }
 
   public static JsonNode node(String json) {

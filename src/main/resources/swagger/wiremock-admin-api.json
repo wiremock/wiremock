@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "WireMock",
-    "version": "3.2.0"
+    "version": "3.3.1"
   },
   "externalDocs": {
     "description": "WireMock user documentation",
@@ -62,6 +62,7 @@
   "paths": {
     "/__admin/mappings": {
       "get": {
+        "operationId": "getAllStubMappings",
         "summary": "Get all stub mappings",
         "tags": [
           "Stub Mappings"
@@ -402,6 +403,7 @@
         }
       },
       "post": {
+        "operationId": "createNewStubMapping",
         "summary": "Create a new stub mapping",
         "tags": [
           "Stub Mappings"
@@ -932,6 +934,7 @@
         }
       },
       "delete": {
+        "operationId": "deleteAllStubMappings",
         "summary": "Delete all stub mappings",
         "tags": [
           "Stub Mappings"
@@ -945,6 +948,7 @@
     },
     "/__admin/mappings/reset": {
       "post": {
+        "operationId": "resetStubMappings",
         "summary": "Reset stub mappings",
         "description": "Restores stub mappings to the defaults defined back in the backing store",
         "tags": [
@@ -959,6 +963,7 @@
     },
     "/__admin/mappings/save": {
       "post": {
+        "operationId": "persistStubMappings",
         "summary": "Persist stub mappings",
         "description": "Save all persistent stub mappings to the backing store",
         "tags": [
@@ -973,6 +978,7 @@
     },
     "/__admin/mappings/import": {
       "post": {
+        "operationId": "importStubMappings",
         "summary": "Import stub mappings",
         "description": "Import given stub mappings to the backing store",
         "tags": [
@@ -999,6 +1005,7 @@
         }
       ],
       "get": {
+        "operationId": "getStubMappingById",
         "summary": "Get stub mapping by ID",
         "tags": [
           "Stub Mappings"
@@ -1275,6 +1282,7 @@
         }
       },
       "put": {
+        "operationId": "updateStubMapping",
         "summary": "Update a stub mapping",
         "tags": [
           "Stub Mappings"
@@ -1808,6 +1816,7 @@
         }
       },
       "delete": {
+        "operationId": "deleteStubMapping",
         "summary": "Delete a stub mapping",
         "tags": [
           "Stub Mappings"
@@ -1824,6 +1833,7 @@
     },
     "/__admin/mappings/find-by-metadata": {
       "post": {
+        "operationId": "findStubMappingsByMetadata",
         "description": "Find stubs by matching on their metadata",
         "tags": [
           "Stub Mappings"
@@ -2272,6 +2282,7 @@
     },
     "/__admin/mappings/remove-by-metadata": {
       "post": {
+        "operationId": "removeStubMappingsByMetadata",
         "summary": "Delete stub mappings matching metadata",
         "tags": [
           "Stub Mappings"
@@ -2412,6 +2423,7 @@
     },
     "/__admin/requests": {
       "get": {
+        "operationId": "getAllRequestsInJournal",
         "summary": "Get all requests in journal",
         "tags": [
           "Requests"
@@ -2533,6 +2545,7 @@
         }
       },
       "delete": {
+        "operationId": "deleteAllRequestsInJournal",
         "summary": "Delete all requests in journal",
         "tags": [
           "Requests"
@@ -2546,6 +2559,7 @@
     },
     "/__admin/requests/{requestId}": {
       "get": {
+        "operationId": "getRequestById",
         "summary": "Get request by ID",
         "tags": [
           "Requests"
@@ -2602,6 +2616,7 @@
         }
       },
       "delete": {
+        "operationId": "deleteRequestById",
         "summary": "Delete request by ID",
         "tags": [
           "Requests"
@@ -2627,6 +2642,7 @@
     },
     "/__admin/requests/reset": {
       "post": {
+        "operationId": "emptyRequestJournal",
         "deprecated": true,
         "summary": "Empty the request journal",
         "tags": [
@@ -2641,6 +2657,7 @@
     },
     "/__admin/requests/count": {
       "post": {
+        "operationId": "countRequestsByCriteria",
         "summary": "Count requests by criteria",
         "description": "Count requests logged in the journal matching the specified criteria",
         "tags": [
@@ -2758,6 +2775,7 @@
     },
     "/__admin/requests/remove": {
       "post": {
+        "operationId": "removeRequestsByCriteria",
         "summary": "Remove requests by criteria",
         "description": "Removed requests logged in the journal matching the specified criteria",
         "tags": [
@@ -2897,6 +2915,7 @@
     },
     "/__admin/requests/remove-by-metadata": {
       "post": {
+        "operationId": "removeRequestsByMetadata",
         "summary": "Delete requests mappings matching metadata",
         "tags": [
           "Requests"
@@ -3072,6 +3091,7 @@
     },
     "/__admin/requests/find": {
       "post": {
+        "operationId": "findRequestsByCriteria",
         "summary": "Find requests by criteria",
         "description": "Retrieve details of requests logged in the journal matching the specified criteria",
         "tags": [
@@ -3211,6 +3231,7 @@
     },
     "/__admin/requests/unmatched": {
       "get": {
+        "operationId": "findUnmatchedRequests",
         "summary": "Find unmatched requests",
         "description": "Get details of logged requests that weren't matched by any stub mapping",
         "tags": [
@@ -3260,6 +3281,7 @@
     },
     "/__admin/requests/unmatched/near-misses": {
       "get": {
+        "operationId": "retrieveNearMissesForUnmatchedRequests",
         "description": "Retrieve near-misses for all unmatched requests",
         "tags": [
           "Near Misses"
@@ -3354,6 +3376,7 @@
     },
     "/__admin/near-misses/request": {
       "post": {
+        "operationId": "findNearMissesForRequest",
         "summary": "Find near misses matching specific request",
         "description": "Find at most 3 near misses for closest stub mappings to the specified request",
         "tags": [
@@ -3512,6 +3535,7 @@
     },
     "/__admin/near-misses/request-pattern": {
       "post": {
+        "operationId": "findNearMissesForRequestPattern",
         "summary": "Find near misses matching request pattern",
         "description": "Find at most 3 near misses for closest logged requests to the specified request pattern",
         "tags": [
@@ -3697,6 +3721,7 @@
     },
     "/__admin/recordings/start": {
       "post": {
+        "operationId": "startRecording",
         "summary": "Start recording",
         "description": "Begin recording stub mappings",
         "tags": [
@@ -3995,6 +4020,7 @@
     },
     "/__admin/recordings/stop": {
       "post": {
+        "operationId": "stopRecording",
         "summary": "Stop recording",
         "description": "End recording of stub mappings",
         "tags": [
@@ -4293,6 +4319,7 @@
     },
     "/__admin/recordings/status": {
       "get": {
+        "operationId": "getRecordingStatus",
         "summary": "Get recording status",
         "tags": [
           "Recordings"
@@ -4324,6 +4351,7 @@
     },
     "/__admin/recordings/snapshot": {
       "post": {
+        "operationId": "takeRecordingSnapshot",
         "summary": "Take a snapshot recording",
         "tags": [
           "Recordings"
@@ -4914,6 +4942,7 @@
     },
     "/__admin/scenarios": {
       "get": {
+        "operationId": "getAllScenarios",
         "summary": "Get all scenarios",
         "tags": [
           "Scenarios"
@@ -4973,6 +5002,7 @@
     },
     "/__admin/scenarios/reset": {
       "post": {
+        "operationId": "resetAllScenarios",
         "summary": "Reset the state of all scenarios",
         "tags": [
           "Scenarios"
@@ -4986,6 +5016,7 @@
     },
     "/__admin/settings": {
       "post": {
+        "operationId": "updateGlobalSettings",
         "summary": "Update global settings",
         "tags": [
           "System"
@@ -5063,6 +5094,7 @@
     },
     "/__admin/reset": {
       "post": {
+        "operationId": "resetMappingsAndJournal",
         "summary": "Reset mappings and request journal",
         "description": "Reset mappings to the default state and reset the request journal",
         "tags": [
@@ -5077,6 +5109,7 @@
     },
     "/__admin/shutdown": {
       "post": {
+        "operationId": "shutdownServer",
         "description": "Shutdown the WireMock server",
         "tags": [
           "System"

@@ -29,12 +29,15 @@ import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ssl.KeyStoreSourceFactory;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.Version;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
@@ -57,6 +60,7 @@ import joptsimple.OptionSet;
 public class CommandLineOptions implements Options {
 
   private static final String HELP = "help";
+  private static final String VERSION = "version";
   private static final String RECORD_MAPPINGS = "record-mappings";
   private static final String MATCH_HEADERS = "match-headers";
   private static final String PROXY_ALL = "proxy-all";
@@ -370,6 +374,7 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
+    optionParser.accepts(VERSION, "Prints wiremock version information and exits");
 
     optionParser.accepts(HELP, "Print this message").forHelp();
 
@@ -497,6 +502,11 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
+  public HttpClientFactory httpClientFactory() {
+    return new ApacheHttpClientFactory();
+  }
+
+  @Override
   public ThreadPoolFactory threadPoolFactory() {
     return new QueuedThreadPoolFactory();
   }
@@ -609,6 +619,10 @@ public class CommandLineOptions implements Options {
     return optionSet.has(HTTPS_PORT)
         ? Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT))
         : -1;
+  }
+
+  public boolean version() {
+    return optionSet.has(VERSION);
   }
 
   public boolean help() {
@@ -755,6 +769,8 @@ public class CommandLineOptions implements Options {
   public String toString() {
     Map<String, Object> map = new LinkedHashMap<>();
 
+    map.put(VERSION, Version.getCurrentVersion());
+
     if (actualHttpPort != null) {
       map.put(PORT, actualHttpPort);
     }
@@ -897,7 +913,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public NetworkAddressRules getProxyTargetRules() {
-    NetworkAddressRules.Builder builder = NetworkAddressRules.builder();
+    DefaultNetworkAddressRules.Builder builder = NetworkAddressRules.builder();
     if (optionSet.has(ALLOW_PROXY_TARGETS)) {
       Arrays.stream(((String) optionSet.valueOf(ALLOW_PROXY_TARGETS)).split(","))
           .forEach(builder::allow);
@@ -932,7 +948,7 @@ public class CommandLineOptions implements Options {
   @Override
   public int proxyTimeout() {
     return optionSet.has(PROXY_TIMEOUT)
-        ? Integer.valueOf((String) optionSet.valueOf(PROXY_TIMEOUT))
+        ? Integer.parseInt((String) optionSet.valueOf(PROXY_TIMEOUT))
         : DEFAULT_TIMEOUT;
   }
 
@@ -968,11 +984,10 @@ public class CommandLineOptions implements Options {
 
   private boolean isAsynchronousResponseEnabled() {
     return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED)
-        ? Boolean.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED))
-        : false;
+        && Boolean.parseBoolean((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED));
   }
 
   private int getAsynchronousResponseThreads() {
-    return Integer.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+    return Integer.parseInt((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
   }
 }

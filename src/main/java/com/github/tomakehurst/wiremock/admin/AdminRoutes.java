@@ -34,7 +34,7 @@ public class AdminRoutes {
   private final Stores stores;
 
   public static AdminRoutes forClient() {
-    return new AdminRoutes(Collections.<AdminApiExtension>emptyList(), null);
+    return new AdminRoutes(Collections.emptyList(), null);
   }
 
   public static AdminRoutes forServer(Iterable<AdminApiExtension> apiExtensions, Stores stores) {
@@ -113,6 +113,8 @@ public class AdminRoutes {
     router.add(GET, "/certs/wiremock-ca.crt", new GetCaCertTask());
 
     router.add(GET, "/health", new HealthCheckTask());
+
+    router.add(GET, "/version", new GetVersionTask());
   }
 
   protected void initAdditionalRoutes(Router routeBuilder) {
@@ -126,7 +128,7 @@ public class AdminRoutes {
         .filter(entry -> entry.getKey().matches(method, path))
         .map(Entry::getValue)
         .findFirst()
-        .orElse(new NotFoundAdminTask());
+        .orElseGet(NotFoundAdminTask::new);
   }
 
   public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {

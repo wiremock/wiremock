@@ -344,12 +344,11 @@ public class HttpsBrowserProxyAcceptanceTest {
   public void failsIfCaKeystorePathIsNotAKeystore() throws IOException {
     assertThrows(
         IOException.class,
-        () -> {
-          new WireMockServer(
-              options()
-                  .enableBrowserProxying(true)
-                  .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString()));
-        });
+        () ->
+            new WireMockServer(
+                options()
+                    .enableBrowserProxying(true)
+                    .caKeystorePath(Files.createTempFile("notakeystore", "jks").toString())));
   }
 
   @Test

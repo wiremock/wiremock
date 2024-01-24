@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,12 +134,11 @@ public class ResponseDefinitionTransformerAcceptanceTest {
   public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          new WireMockServer(
-              wireMockConfig()
-                  .dynamicPort()
-                  .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
-        });
+        () ->
+            new WireMockServer(
+                wireMockConfig()
+                    .dynamicPort()
+                    .extensions(ExampleTransformer.class, AnotherExampleTransformer.class)));
   }
 
   @Test

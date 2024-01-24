@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
-import java.text.DateFormat;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 public class DateTimeOffsetTest {
-
-  static final DateFormat ISO8601 = new ISO8601DateFormat();
 
   @Test
   public void parsesSecondsOffset() {
@@ -113,27 +111,21 @@ public class DateTimeOffsetTest {
   @Test
   public void offsetsProvidedDateByConfiguredAmount() throws Exception {
     DateTimeOffset offset = DateTimeOffset.fromString("3 days");
-    Date startingDate = ISO8601.parse("2018-04-16T12:01:01Z");
+    Date startingDate = Date.from(ZonedDateTime.parse("2018-04-16T12:01:01Z").toInstant());
     Date finalDate = offset.shift(startingDate);
 
-    assertThat(ISO8601.format(finalDate), is("2018-04-19T12:01:01Z"));
+    assertThat(
+        DateTimeFormatter.ISO_ZONED_DATE_TIME.format(finalDate.toInstant().atZone(ZoneId.of("Z"))),
+        is("2018-04-19T12:01:01Z"));
   }
 
   @Test
   public void throwsExceptionWhenUnparseableStringProvided() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          DateTimeOffset.fromString("101");
-        });
+    assertThrows(IllegalArgumentException.class, () -> DateTimeOffset.fromString("101"));
   }
 
   @Test
   public void throwsExceptionWhenUnparseableUnitProvided() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          DateTimeOffset.fromString("101 squillions");
-        });
+    assertThrows(IllegalArgumentException.class, () -> DateTimeOffset.fromString("101 squillions"));
   }
 }

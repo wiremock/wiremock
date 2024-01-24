@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,18 +77,14 @@ public class PortNumberTest {
   public void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          createServer(wireMockConfig().port(Network.findFreePort())).port();
-        });
+        () -> createServer(wireMockConfig().port(Network.findFreePort())).port());
   }
 
   @Test
   public void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
     assertThrows(
         IllegalStateException.class,
-        () -> {
-          createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort();
-        });
+        () -> createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort());
   }
 
   @Test

@@ -26,6 +26,8 @@ import com.github.tomakehurst.wiremock.extension.ExtensionDeclarations;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
+import com.github.tomakehurst.wiremock.http.client.ApacheHttpClientFactory;
+import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -152,6 +154,11 @@ public class WarConfiguration implements Options {
   @Override
   public HttpServerFactory httpServerFactory() {
     return null;
+  }
+
+  @Override
+  public HttpClientFactory httpClientFactory() {
+    return new ApacheHttpClientFactory();
   }
 
   @Override
