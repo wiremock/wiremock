@@ -7,11 +7,13 @@
     "headers": {"Content-Type": "application/json"},
     "jsonBody": {
       "bignumber": 1234567890.12,
+      "integer_as_float": 2.0,
       "array": [
         1,
         2,
         3
       ],
+      "integer": 2,
       "key": "value"
     },
     "status": 200

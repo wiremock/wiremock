@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,8 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(200));
     assertThat(
         response.content(),
-        is("{\"bignumber\":1234567890.12,\"array\":[1,2,3],\"key\":\"value\"}"));
+        is(
+            "{\"bignumber\":1234567890.12,\"integer_as_float\":2.0,\"array\":[1,2,3],\"integer\":2,\"key\":\"value\"}"));
   }
 
   @Test

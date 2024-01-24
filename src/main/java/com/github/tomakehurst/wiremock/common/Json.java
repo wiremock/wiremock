@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
@@ -44,6 +45,7 @@ public final class Json {
         @Override
         protected ObjectMapper initialValue() {
           ObjectMapper objectMapper = new ObjectMapper();
+          objectMapper.setNodeFactory(new JsonNodeFactory(true));
           objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
           objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
           objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
