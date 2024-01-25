@@ -30,6 +30,7 @@ public class ContentPatternDeserialiser extends StdDeserializer<ContentPattern<?
     implements ContextualDeserializer {
 
   private static final Map<String, Class<? extends ContentPattern<?>>> PATTERNS =
+      new HashMap<>(
           Map.ofEntries(
               Map.entry("binaryEqualTo", BinaryEqualToPattern.class),
               Map.entry("equalTo", EqualToPattern.class),
@@ -50,7 +51,7 @@ public class ContentPatternDeserialiser extends StdDeserializer<ContentPattern<?
               Map.entry("absent", AbsentPattern.class),
               Map.entry("and", LogicalAnd.class),
               Map.entry("or", LogicalOr.class),
-              Map.entry("matchesPathTemplate", PathTemplatePattern.class));
+              Map.entry("matchesPathTemplate", PathTemplatePattern.class)));
 
   public ContentPatternDeserialiser() {
     super(ContentPattern.class);
@@ -58,6 +59,10 @@ public class ContentPatternDeserialiser extends StdDeserializer<ContentPattern<?
 
   private ContentPatternDeserialiser(Class<?> vc) {
     super(vc);
+  }
+
+  public static void registerPatterns(Map<String, Class<? extends ContentPattern<?>>> patterns) {
+    patterns.forEach(PATTERNS::putIfAbsent);
   }
 
   @Override

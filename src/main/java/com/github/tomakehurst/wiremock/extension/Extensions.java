@@ -30,6 +30,9 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClient;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClientFactory;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.ContentPatternDeserialiser;
+import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -105,6 +108,7 @@ public class Extensions implements WireMockServices {
             .flatMap(List::stream)
             .collect(toMap(Extension::getName, Function.identity())));
 
+    configurePatterns();
     configureTemplating();
     configureHttpClient();
     configureWebhooks();
@@ -118,6 +122,13 @@ public class Extensions implements WireMockServices {
   private Stream<ExtensionFactory> loadExtensionFactoriesAsServices() {
     final ServiceLoader<ExtensionFactory> loader = ServiceLoader.load(ExtensionFactory.class);
     return loader.stream().map(ServiceLoader.Provider::get);
+  }
+
+  private void configurePatterns() {
+    final Map<String, Class<? extends ContentPattern<?>>> patterns =
+        ofType(ContentPatternExtension.class).entrySet().stream()
+            .collect(toMap(Map.Entry::getKey, entry -> entry.getValue().getContentPatternClass()));
+    ContentPatternDeserialiser.registerPatterns(patterns);
   }
 
   private void configureTemplating() {
