@@ -15,8 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -27,6 +29,7 @@ import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.ValidationMessage;
 import java.util.Set;
 
+@JsonDeserialize
 public class MatchesJsonSchemaPattern extends StringValuePattern {
 
   private final JsonSchema schema;
@@ -37,9 +40,7 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     this(schemaJson, WireMock.JsonSchemaVersion.V202012);
   }
 
-  public MatchesJsonSchemaPattern(
-      @JsonProperty("matchesJsonSchema") String schemaJson,
-      @JsonProperty("schemaVersion") WireMock.JsonSchemaVersion schemaVersion) {
+  public MatchesJsonSchemaPattern(String schemaJson, WireMock.JsonSchemaVersion schemaVersion) {
     super(schemaJson);
 
     SchemaValidatorsConfig config = new SchemaValidatorsConfig();
@@ -54,9 +55,13 @@ public class MatchesJsonSchemaPattern extends StringValuePattern {
     schemaPropertyCount = Json.schemaPropertyCount(Json.read(schemaJson, JsonNode.class));
   }
 
+  @JsonCreator
   public MatchesJsonSchemaPattern(
-      JsonNode schemaJsonNode, WireMock.JsonSchemaVersion schemaVersion) {
-    this(Json.write(schemaJsonNode), schemaVersion);
+      @JsonProperty("matchesJsonSchema") JsonNode node,
+      @JsonProperty("schemaVersion") WireMock.JsonSchemaVersion schemaVersion) {
+    this(
+        node.isTextual() ? node.textValue() : Json.write(node),
+        schemaVersion == null ? WireMock.JsonSchemaVersion.V202012 : schemaVersion);
   }
 
   public String getMatchesJsonSchema() {
