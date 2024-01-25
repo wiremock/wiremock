@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -39,14 +40,19 @@ public class MatchesJsonPathPattern extends PathPattern {
 
   private final JsonPath jsonPath;
 
-  public MatchesJsonPathPattern(
-      @JsonProperty("matchesJsonPath") String expectedJsonPath, StringValuePattern valuePattern) {
+  public MatchesJsonPathPattern(String expectedJsonPath, StringValuePattern valuePattern) {
     super(expectedJsonPath, valuePattern);
     jsonPath = JsonPath.compile(expectedJsonPath);
   }
 
-  public MatchesJsonPathPattern(String value) {
+  public MatchesJsonPathPattern(@JsonProperty("matchesJsonPath") String value) {
     this(value, null);
+  }
+
+  @JsonCreator
+  public MatchesJsonPathPattern(
+      @JsonProperty("matchesJsonPath") AdvancedPathPattern advancedPathPattern) {
+    this(advancedPathPattern.expression, advancedPathPattern.submatcher);
   }
 
   public String getMatchesJsonPath() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Objects;
 
-@JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
   protected StringValuePattern(String expectedValue) {
@@ -34,6 +32,7 @@ public abstract class StringValuePattern extends ContentPattern<String> {
     return !nullSafeIsAbsent();
   }
 
+  @JsonIgnore
   public Boolean isAbsent() {
     return !nullSafeIsAbsent() ? null : true;
   }

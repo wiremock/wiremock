@@ -177,7 +177,6 @@ public class MultiValuePatternTest {
   @Test
   public void correctlyRendersAbsentAsJson() throws Exception {
     String actual = Json.write(MultiValuePattern.absent());
-    JSONAssert.assertEquals(
-        "{                   \n" + "  \"absent\": true   \n" + "}", actual, true);
+    JSONAssert.assertEquals("{ \"absent\": null }", actual, true);
   }
 }

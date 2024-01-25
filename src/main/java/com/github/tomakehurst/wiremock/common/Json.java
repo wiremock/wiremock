@@ -24,10 +24,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.Map;
@@ -42,18 +44,22 @@ public final class Json {
       new InheritableThreadLocal<ObjectMapper>() {
         @Override
         protected ObjectMapper initialValue() {
-          ObjectMapper objectMapper = new ObjectMapper();
-          objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-          objectMapper.configure(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES, false);
-          objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-          objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-          objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
-          objectMapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
-          objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
-          objectMapper.registerModule(new JavaTimeModule());
-          objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-          objectMapper.enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION);
-          return objectMapper;
+          return JsonMapper.builder()
+              .addModule(new JavaTimeModule())
+              .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+              .disable(
+                  SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+                  SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
+              .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+              .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+              .enable(
+                  JsonParser.Feature.ALLOW_COMMENTS,
+                  JsonParser.Feature.ALLOW_SINGLE_QUOTES,
+                  JsonParser.Feature.IGNORE_UNDEFINED,
+                  JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION)
+              .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+              .serializationInclusion(JsonInclude.Include.NON_NULL)
+              .build();
         }
       };
 

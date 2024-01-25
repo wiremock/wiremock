@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,31 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import org.json.JSONException;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 class NotPatternTest {
+
+  @Test
+  public void serializesCorrectly() throws JSONException {
+    String expectedJson = "{\"not\": {\"absent\": null}}";
+    JSONAssert.assertEquals(expectedJson, Json.write(new NotPattern(AbsentPattern.ABSENT)), true);
+  }
+
+  @Test
+  void deserializesCorrectly() {
+    StringValuePattern stringValuePattern =
+        Json.read("{ \"not\": { \"absent\": null } }", StringValuePattern.class);
+
+    assertThat(stringValuePattern, instanceOf(NotPattern.class));
+    assertThat(((NotPattern) stringValuePattern).getNot(), instanceOf(AbsentPattern.class));
+  }
 
   @Test
   void shouldReturnExactMatchWhenValueIsNull() {
