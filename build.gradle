@@ -31,6 +31,7 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
+    jetty12        : '12.0.6',
     guava          : '33.0.0-jre',
     jackson        : '2.16.1',
     xmlUnit        : '2.9.1',
@@ -570,4 +571,40 @@ int getBetaVersion() {
 wrapper {
   gradleVersion = '8.6'
   distributionType = Wrapper.DistributionType.BIN
+}
+
+// Configure Jetty 12 support (with JDK-17 baseline and multi-release JAR)
+if (JavaVersion.current() >= JavaVersion.VERSION_17) {
+  sourceSets {
+    java17 {
+      java {
+        srcDirs = ['src/main/java17']
+      }
+    }
+  }
+
+  configurations {
+    java17Implementation.extendsFrom(implementation)
+  }
+
+  dependencies {
+    java17Implementation sourceSets.main.output
+    java17Implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty12")
+    java17Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
+    java17Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
+    java17Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
+    java17Implementation "org.eclipse.jetty.ee10:jetty-ee10-webapp"
+  }
+
+  compileJava17Java {
+    targetCompatibility = JavaVersion.VERSION_17
+  }
+
+  jar {
+    metaInf {
+      into 'versions/17'
+      from sourceSets.java17.output
+    }
+    manifest.attributes('Multi-Release': 'true')
+  }
 }
