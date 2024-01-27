@@ -86,7 +86,7 @@ public class Scenario {
   Scenario setState(String newState) {
     if (!getPossibleStates().contains(newState)) {
       throw new InvalidInputException(
-          Errors.single(11, "Scenario my-scenario does not support state " + newState));
+          Errors.single(11, "Scenario " + id + " does not support state " + newState));
     }
 
     return new Scenario(id, newState, stubMappings);
