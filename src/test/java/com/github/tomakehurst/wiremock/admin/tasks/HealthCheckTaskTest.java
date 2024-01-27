@@ -46,5 +46,6 @@ class HealthCheckTaskTest {
         response.getStatusMessage(),
         equalTo(response.getReponseBody().asJson().get("message").asText()));
     assertThat(response.getReponseBody().asJson().get("status").asText(), is("healthy"));
+    assertThat(response.getReponseBody().asJson().get("version").asText(), is("X.X.X"));
   }
 }
