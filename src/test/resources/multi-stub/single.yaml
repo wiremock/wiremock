@@ -1,0 +1,5 @@
+request:
+  method: GET
+  url: /single/1
+response:
+  status: 200

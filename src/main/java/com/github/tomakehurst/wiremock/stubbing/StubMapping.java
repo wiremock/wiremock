@@ -74,6 +74,10 @@ public class StubMapping {
     return Json.read(mappingSpecJson, StubMapping.class);
   }
 
+  public static StubMapping buildFromYaml(String mappingSpecYaml) {
+    return Json.readYaml(mappingSpecYaml, StubMapping.class);
+  }
+
   public static String buildJsonStringFor(StubMapping mapping) {
     return Json.write(mapping);
   }

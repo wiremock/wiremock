@@ -51,6 +51,30 @@ public class JsonTest {
           + "}                                                                              \n"
           + "//this is the last comment";
 
+
+  private static final String YAML_WITH_NO_COMMENTS ="property: GET" ;
+
+  private static final String YAML_WITH_COMMENTS ="property: GET  #this is comment" ;
+
+
+  @Test
+  public void testYamlFileNoComments()
+  {
+    TestPojo pojo =Json.readYaml(YAML_WITH_NO_COMMENTS,TestPojo.class);
+    assertNotNull(pojo);
+    assertThat("GET",is(pojo.property));
+
+  }
+
+  @Test
+  public void testYamlFileWithComments()
+  {
+    TestPojo pojo =Json.readYaml(YAML_WITH_COMMENTS,TestPojo.class);
+    assertNotNull(pojo);
+    assertThat("GET",is(pojo.property));
+
+  }
+
   @Test
   public void testReadNoComments() {
     TestPojo pojo = Json.read(JSON_WITH_NO_COMMENTS, TestPojo.class);

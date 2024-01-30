@@ -126,14 +126,16 @@ public class CommandLineOptions implements Options {
 
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
 
+  private static final String STUB_MAPPING_FILE_FORMAT = "stub-mapping-file-format";
+
   private final OptionSet optionSet;
 
   private final Stores stores;
   private final FileSource fileSource;
 
-  private final MappingsSource mappingsSource;
+  private MappingsSource mappingsSource;
   private final ExtensionDeclarations extensions;
-  private final FilenameMaker filenameMaker;
+  private FilenameMaker filenameMaker;
 
   private String helpText;
   private Integer actualHttpPort;
@@ -376,6 +378,11 @@ public class CommandLineOptions implements Options {
         .withRequiredArg();
     optionParser.accepts(VERSION, "Prints wiremock version information and exits");
 
+    optionParser
+            .accepts(STUB_MAPPING_FILE_FORMAT, "File format of the stub mappings. Can be json [default], yml, yaml")
+            .withRequiredArg()
+                    .defaultsTo("json");
+
     optionParser.accepts(HELP, "Print this message").forHelp();
 
     optionSet = optionParser.parse(args);
@@ -405,8 +412,20 @@ public class CommandLineOptions implements Options {
       stores.getSettingsStore().set(newSettings);
     }
 
-    filenameMaker = new FilenameMaker(getFilenameTemplateOption());
-    mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT), filenameMaker);
+
+    if (optionSet.has(STUB_MAPPING_FILE_FORMAT)) {
+      String fileFormat = (String) optionSet.valueOf(STUB_MAPPING_FILE_FORMAT);
+      if (fileFormat.equalsIgnoreCase("yml") || fileFormat.equalsIgnoreCase("yaml")) {
+        filenameMaker = new FilenameMaker(getFilenameTemplateOption() + optionSet.valueOf(STUB_MAPPING_FILE_FORMAT));
+        mappingsSource = new YamlFileMappingsSource(fileSource, filenameMaker);
+      }
+    } else {
+      filenameMaker = new FilenameMaker(getFilenameTemplateOption());
+      mappingsSource = new JsonFileMappingsSource(fileSource, filenameMaker);
+    }
+
+
+
     buildExtensions();
 
     actualHttpPort = null;

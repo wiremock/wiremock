@@ -701,6 +701,24 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void mappingsSourceToYamlFileMappingsSource() {
+    CommandLineOptions options = new CommandLineOptions("--stub-mapping-file-format=Yaml");
+
+    MappingsSaver mappingsSaver = options.mappingsSaver();
+
+    assertThat(mappingsSaver, instanceOf(YamlFileMappingsSource.class));
+  }
+
+  @Test
+  public void mappingsSourceToYmlFileMappingsSource() {
+    CommandLineOptions options = new CommandLineOptions("--stub-mapping-file-format=Yml");
+
+    MappingsSaver mappingsSaver = options.mappingsSaver();
+
+    assertThat(mappingsSaver, instanceOf(YamlFileMappingsSource.class));
+  }
+
+  @Test
   public void loadResourcesFromClasspathSetsFileSourceToUseClasspath() {
     CommandLineOptions options =
         new CommandLineOptions("--load-resources-from-classpath=classpath-filesource");
