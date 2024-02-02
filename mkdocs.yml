@@ -8,7 +8,8 @@ docs_dir: docs
 repo_url: https://github.com/wiremock/wiremock
 repo_name: WireMock
 
-edit_uri: edit/master/
+# Adding docs/ twice is a workaround due to it being stripped out before the plugin calculates the edit_uri
+edit_uri: edit/docs-experiments/docs/docs/
 
 use_directory_urls: false
 
