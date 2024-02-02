@@ -1,0 +1,16 @@
+site_name: WireMock Core Documentation
+site_description: WireMock Core Documentation.
+
+site_url: https://wiremock.org/docs/
+
+copyright: Copyright &copy; 2024 - WireMock Contributors
+docs_dir: docs
+repo_url: https://github.com/wiremock/wiremock
+repo_name: WireMock
+
+edit_uri: edit/master/
+
+use_directory_urls: false
+
+nav:
+  - Overview: './overview.md'
