@@ -16,45 +16,45 @@ nav:
   - Getting started:
     - Overview: overview.md
     - "Quick Start: API Mocking with Java and JUnit 4": quickstart/java-junit.md
-    - Download and Installation: docs/download-and-installation.md
-    - WireMock Tutorials: docs/getting-started.md
-    - FAQ: docs/faq.md
+    - Download and Installation: download-and-installation.md
+    - WireMock Tutorials: getting-started.md
+    - FAQ: faq.md
   - WireMock Standalone:
-    - Running in Docker: docs/standalone/docker.md
-    - Running as a Standalone Process: docs/standalone/java-jar.md
-    - Administrating WireMock: docs/standalone/administration.md
-    - Admin REST API Specification: docs/standalone/admin-api-reference.md
+    - Running in Docker: standalone/docker.md
+    - Running as a Standalone Process: standalone/java-jar.md
+    - Administrating WireMock: standalone/administration.md
+    - Admin REST API Specification: standalone/admin-api-reference.md
   - Java Usage:
-    - JUnit 5+ Jupiter: docs/junit-jupiter.md
-    - JUnit 4 and Vintage: docs/junit-extensions.md
-    - Spring Boot: docs/solutions/spring-boot.md
-    - Plain Java: docs/java-usage.md
-    - Java configuration: docs/configuration.md
-    - Running without the HTTP Server: docs/running-without-http-server.md
+    - JUnit 5+ Jupiter: junit-jupiter.md
+    - JUnit 4 and Vintage: junit-extensions.md
+    - Spring Boot: solutions/spring-boot.md
+    - Plain Java: java-usage.md
+    - Java configuration: configuration.md
+    - Running without the HTTP Server: running-without-http-server.md
   - Stubbing & Verifying:
-    - Stubbing: docs/stubbing.md
-    - Request Matching: docs/request-matching.md
-    - Response Templating: docs/response-templating.md
-    - Simulating Faults: docs/simulating-faults.md
-    - Stateful Behaviour: docs/stateful-behaviour.md
-    - Proxying: docs/proxying.md
-    - Verifying: docs/verifying.md
+    - Stubbing: stubbing.md
+    - Request Matching: request-matching.md
+    - Response Templating: response-templating.md
+    - Simulating Faults: simulating-faults.md
+    - Stateful Behaviour: stateful-behaviour.md
+    - Proxying: proxying.md
+    - Verifying: verifying.md
   - Templating:
-    - WireMock API Templates Library: docs/mock-api-templates/README.md
-    - Using Mock API Templates: docs/mock-api-templates/usage.md
+    - WireMock API Templates Library: mock-api-templates/README.md
+    - Using Mock API Templates: mock-api-templates/usage.md
   - Record & Playback:
-    - Record and Playback: docs/record-playback.md
+    - Record and Playback: record-playback.md
   - Protocols:
-    - Supported Protocols: docs/protocols/README.md
-    - Webhooks and Callbacks: docs/webhooks-and-callbacks.md
-    - Mocking gRPC services: docs/grpc.md
-    - WireMock and GraphQL: docs/solutions/graphql.md
-    - Serving HTTPs: docs/https.md
+    - Supported Protocols: protocols/README.md
+    - Webhooks and Callbacks: webhooks-and-callbacks.md
+    - Mocking gRPC services: grpc.md
+    - WireMock and GraphQL: solutions/graphql.md
+    - Serving HTTPs: https.md
   - Advanced use-cases:
-    - Multi-domain Mocking: docs/multi-domain-mocking.md
-    - Deploying into a servlet container: docs/advanced/deploy-to-servlet-container.md
-    - "WireMock on Java 1.7": docs/advanced/java7.md
+    - Multi-domain Mocking: multi-domain-mocking.md
+    - Deploying into a servlet container: advanced/deploy-to-servlet-container.md
+    - "WireMock on Java 1.7": advanced/java7.md
   - Reference:
-    - Admin API: docs/standalone/admin-api-reference.md
+    - Admin API: standalone/admin-api-reference.md
     - Security: dotgithub/SECURITY.md
-    - WireMock API Templates Library: docs/mock-api-templates/README.md
+    - WireMock API Templates Library: mock-api-templates/README.md
