@@ -14,7 +14,7 @@ use_directory_urls: false
 
 nav:
   - Getting started:
-    - Overview: docs/overview.md
+    - Overview: ./overview
     - "Quick Start: API Mocking with Java and JUnit 4": docs/quickstart/java-junit.md
     - Download and Installation: docs/download-and-installation.md
     - WireMock Tutorials: docs/getting-started.md
