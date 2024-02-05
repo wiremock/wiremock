@@ -163,7 +163,7 @@ allprojects {
     }
     json {
       target 'src/**/*.json'
-      targetExclude '**/tmp*.json', 'src/test/resources/sample.json', 'src/main/resources/swagger/*.json', 'src/test/resources/filesource/subdir/deepfile.json', 'src/test/resources/schema-validation/*.json'
+      targetExclude '**/tmp*.json', 'src/test/resources/sample.json', 'src/main/resources/swagger/*.json', 'src/test/resources/filesource/subdir/deepfile.json', 'src/test/resources/schema-validation/*.json', 'src/test/resources/test-file-root/mappings/testjsonmapping.json'
       simple().indentWithSpaces(2)
     }
   }
