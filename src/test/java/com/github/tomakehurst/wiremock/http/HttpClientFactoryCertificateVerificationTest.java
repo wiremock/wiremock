@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,8 @@ public abstract class HttpClientFactoryCertificateVerificationTest {
             /* trustSelfSignedCertificates= */ false,
             trustedHosts,
             false,
-            NetworkAddressRules.ALLOW_ALL);
+            NetworkAddressRules.ALLOW_ALL,
+            true);
   }
 
   @AfterEach
