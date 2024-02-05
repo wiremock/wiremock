@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import java.io.IOException;
 import java.util.List;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
@@ -78,5 +79,16 @@ public class HttpAdminClientTest {
     var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
 
     assertThat(client.getAllScenarios()).usingRecursiveComparison().isEqualTo(expectedResponse);
+  }
+
+  @Test
+  public void reuseConnections() throws InterruptedException, IOException {
+    var server = new SingleConnectionServer();
+    server.start();
+    var client = new HttpAdminClient("localhost", server.getPort(), ADMIN_TEST_PREFIX);
+
+    client.resetAll();
+    client.resetAll();
+    server.stop();
   }
 }
