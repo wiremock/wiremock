@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class DiffLine<V> {
     }
 
     if (isUrlRegexPattern() && !anyQuestionsMarksAreEscaped(pattern.getExpected())) {
-      message += ". When using a regex, \"?\" should be \"\\\\?\"";
+      message += ". When using a regex, \"?\" should be \"\\?\"";
     }
 
     if (pattern instanceof UrlPattern
@@ -85,8 +85,8 @@ class DiffLine<V> {
       return false;
     }
 
-    String sub = s.substring(index - 2, index);
-    return sub.equals("\\\\");
+    String sub = s.substring(index - 1, index);
+    return sub.equals("\\");
   }
 
   private boolean isUrlRegexPattern() {
