@@ -573,38 +573,34 @@ wrapper {
   distributionType = Wrapper.DistributionType.BIN
 }
 
-// Configure Jetty 12 support (with JDK-17 baseline and multi-release JAR)
+// Configure Jetty 12 support (only when building with JDK-17 or above)
 if (JavaVersion.current() >= JavaVersion.VERSION_17) {
   sourceSets {
-    java17 {
+    jetty12 {
       java {
-        srcDirs = ['src/main/java17']
+        srcDirs = ['src/main/jetty12']
       }
     }
   }
 
   configurations {
-    java17Implementation.extendsFrom(implementation)
+    jetty12Implementation.extendsFrom(implementation)
   }
 
   dependencies {
-    java17Implementation sourceSets.main.output
-    java17Implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty12")
-    java17Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
-    java17Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
-    java17Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
-    java17Implementation "org.eclipse.jetty.ee10:jetty-ee10-webapp"
+    jetty12Implementation sourceSets.main.output
+    jetty12Implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty12")
+    jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
+    jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
+    jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
+    jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-webapp"
   }
 
-  compileJava17Java {
+  compileJetty12Java {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
   jar {
-    metaInf {
-      into 'versions/17'
-      from sourceSets.java17.output
-    }
-    manifest.attributes('Multi-Release': 'true')
+    from sourceSets.jetty12.output
   }
 }
