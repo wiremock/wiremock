@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class Scenario {
   Scenario setState(String newState) {
     if (!getPossibleStates().contains(newState)) {
       throw new InvalidInputException(
-          Errors.single(11, "Scenario my-scenario does not support state " + newState));
+          Errors.single(11, "Scenario " + id + " does not support state " + newState));
     }
 
     return new Scenario(id, newState, stubMappings);

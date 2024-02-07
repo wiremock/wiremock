@@ -6,8 +6,8 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[GET]                                                      | [GET]
-[regex] /?q=correct                                        | /q=wrong                                            <<<<< URL does not match. When using a regex, "?" should be "\\?"
+GET                                                        | GET
+[regex] /?q=correct                                        | /q=wrong                                            <<<<< URL does not match. When using a regex, "?" should be "\?"
                                                            |
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

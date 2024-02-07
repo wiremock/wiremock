@@ -6,8 +6,8 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[GET]                                                      | [GET]
-[regex] thing?query=value                                  | /thing                                              <<<<< URL does not match. When using a regex, "?" should be "\\?". URLs must start with a /
+GET                                                        | GET
+[regex] thing?query=value                                  | /thing                                              <<<<< URL does not match. When using a regex, "?" should be "\?". URLs must start with a /
                                                            |
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

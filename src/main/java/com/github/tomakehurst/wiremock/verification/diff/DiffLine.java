@@ -63,7 +63,7 @@ class DiffLine<V> {
     }
 
     if (isUrlRegexPattern() && !anyQuestionsMarksAreEscaped(pattern.getExpected())) {
-      message += ". When using a regex, \"?\" should be \"\\\\?\"";
+      message += ". When using a regex, \"?\" should be \"\\?\"";
     }
 
     if (pattern instanceof UrlPattern
@@ -85,8 +85,8 @@ class DiffLine<V> {
       return false;
     }
 
-    String sub = s.substring(index - 2, index);
-    return sub.equals("\\\\");
+    String sub = s.substring(index - 1, index);
+    return sub.equals("\\");
   }
 
   private boolean isUrlRegexPattern() {

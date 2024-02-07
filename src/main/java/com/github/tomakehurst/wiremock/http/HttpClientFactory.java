@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,8 @@ public class HttpClientFactory {
       boolean trustAllCertificates,
       final List<String> trustedHosts,
       boolean useSystemProperties,
-      NetworkAddressRules networkAddressRules) {
+      NetworkAddressRules networkAddressRules,
+      boolean disableConnectionReuse) {
 
     NetworkAddressRulesAdheringDnsResolver dnsResolver =
         new NetworkAddressRulesAdheringDnsResolver(networkAddressRules);
@@ -91,9 +92,13 @@ public class HttpClientFactory {
             .setDefaultRequestConfig(
                 RequestConfig.custom()
                     .setResponseTimeout(Timeout.ofMilliseconds(timeoutMilliseconds))
-                    .build())
-            .setConnectionReuseStrategy((request, response, context) -> false)
-            .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS);
+                    .build());
+
+    if (disableConnectionReuse) {
+      builder
+          .setConnectionReuseStrategy((request, response, context) -> false)
+          .setKeepAliveStrategy((response, context) -> TimeValue.ZERO_MILLISECONDS);
+    }
 
     if (useSystemProperties) {
       builder.useSystemProperties();
@@ -175,7 +180,8 @@ public class HttpClientFactory {
       ProxySettings proxySettings,
       KeyStoreSettings trustStoreSettings,
       boolean useSystemProperties,
-      NetworkAddressRules networkAddressRules) {
+      NetworkAddressRules networkAddressRules,
+      boolean disableConnectionReuse) {
     return createClient(
         maxConnections,
         timeoutMilliseconds,
@@ -184,7 +190,8 @@ public class HttpClientFactory {
         true,
         Collections.emptyList(),
         useSystemProperties,
-        networkAddressRules);
+        networkAddressRules,
+        disableConnectionReuse);
   }
 
   private static SSLContext buildSSLContextWithTrustStore(
@@ -240,7 +247,8 @@ public class HttpClientFactory {
         NO_PROXY,
         NO_STORE,
         true,
-        NetworkAddressRules.ALLOW_ALL);
+        NetworkAddressRules.ALLOW_ALL,
+        false);
   }
 
   public static CloseableHttpClient createClient(int timeoutMilliseconds) {
@@ -254,7 +262,8 @@ public class HttpClientFactory {
         proxySettings,
         NO_STORE,
         true,
-        NetworkAddressRules.ALLOW_ALL);
+        NetworkAddressRules.ALLOW_ALL,
+        false);
   }
 
   public static CloseableHttpClient createClient() {

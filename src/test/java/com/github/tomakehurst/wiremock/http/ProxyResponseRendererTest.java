@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -391,7 +391,8 @@ public class ProxyResponseRendererTest {
                 true,
                 Collections.emptyList(),
                 true,
-                NetworkAddressRules.ALLOW_ALL));
+                NetworkAddressRules.ALLOW_ALL,
+                true));
     HttpClient reverseProxyClient = new ApacheBackedHttpClient(reverseProxyApacheClient);
 
     forwardProxyApacheClient =
@@ -404,7 +405,8 @@ public class ProxyResponseRendererTest {
                 trustAllProxyTargets,
                 Collections.emptyList(),
                 false,
-                NetworkAddressRules.ALLOW_ALL));
+                NetworkAddressRules.ALLOW_ALL,
+                true));
     HttpClient forwardProxyClient = new ApacheBackedHttpClient(forwardProxyApacheClient);
 
     return new ProxyResponseRenderer(
