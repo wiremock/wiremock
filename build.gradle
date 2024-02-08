@@ -590,7 +590,11 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
   dependencies {
     jetty12Implementation sourceSets.main.output
     jetty12Implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty12")
+    jetty12Implementation "org.eclipse.jetty:jetty-server:$versions.jetty12"
+    jetty12Implementation "org.eclipse.jetty:jetty-proxy:$versions.jetty12"
+    jetty12Implementation "org.eclipse.jetty:jetty-alpn-server:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
+    jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-webapp"
@@ -603,4 +607,33 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
   jar {
     from sourceSets.jetty12.output
   }
+
+  tasks.register('jetty12test', Test) {
+    classpath += sourceSets.jetty12.runtimeClasspath
+    classpath += sourceSets.jetty12.output
+
+    // Filter out all Jetty 11 artifacts (name vary and does not start with jetty all the time)
+    classpath -= files(classpath.findAll {
+      it.getName().matches("jetty-.+-${versions.jetty}.jar") ||
+          it.getName().matches("http2-.+-${versions.jetty}.jar")
+    })
+
+    // Inherit the settings from the test task
+    // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
+    systemProperty 'user.timezone', 'Australia/Sydney'
+
+    useJUnitPlatform()
+    exclude 'ignored/**'
+    exclude '**/jetty11/**'
+
+    maxParallelForks = runningOnCI ? 1 : 3
+
+    testLogging {
+      events "FAILED", "SKIPPED"
+      exceptionFormat "full"
+    }
+  }
+
+  jacocoTestReport.dependsOn('jetty12test')
+  check.finalizedBy('jetty12test')
 }
