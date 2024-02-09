@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.*;
@@ -256,6 +257,9 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
         final org.eclipse.jetty.server.Response jettyResponse =
             (org.eclipse.jetty.server.Response) httpServletResponse;
         jettyResponse.setStatusWithReason(response.getStatus(), response.getStatusMessage());
+      } else if (JettyUtils.isServlet6()) {
+        // Servet 6.0 specification does not allow to set the status message anymore
+        httpServletResponse.setStatus(response.getStatus());
       } else {
         httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
       }

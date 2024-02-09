@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2023 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,12 @@ import org.eclipse.jetty.server.Response;
 public class JettyUtils {
 
   private static final boolean IS_JETTY;
+  private static final boolean IS_SERVLET_6;
 
   static {
     // do the check only once per classloader / execution
     IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
+    IS_SERVLET_6 = isClassExist("jakarta.servlet.ServletConnection");
   }
 
   private JettyUtils() {
@@ -44,6 +46,10 @@ public class JettyUtils {
 
   public static boolean isJetty() {
     return IS_JETTY;
+  }
+
+  public static boolean isServlet6() {
+    return IS_SERVLET_6;
   }
 
   private static boolean isClassExist(String type) {
@@ -82,11 +88,14 @@ public class JettyUtils {
 
   public static boolean isBrowserProxyRequest(HttpServletRequest request) {
     if (request instanceof Request) {
+      /* Jetty 11 */
       Request jettyRequest = (Request) request;
       return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
           || "http".equals(jettyRequest.getMetaData().getURI().getScheme());
+    } else {
+      /* Jetty 12 */
+      return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
+          || "http".equals(request.getScheme());
     }
-
-    return false;
   }
 }
