@@ -612,8 +612,7 @@ public class VerificationAcceptanceTest {
         assertThat(
             e.getMessage(),
             containsString(
-                junitStyleDiffMessage(
-                    "[GET]\n" + "/a-near-miss\n", "[GET]\n" + "/my-near-miss\n")));
+                junitStyleDiffMessage("GET\n" + "/a-near-miss\n", "GET\n" + "/my-near-miss\n")));
       }
     }
 
@@ -652,8 +651,7 @@ public class VerificationAcceptanceTest {
         fail();
       } catch (VerificationException e) {
         assertThat(
-            e.getMessage(),
-            containsString(junitStyleDiffMessage("[GET]\n/hit\n", "[GET]\n/miss\n")));
+            e.getMessage(), containsString(junitStyleDiffMessage("GET\n/hit\n", "GET\n/miss\n")));
       }
     }
 
@@ -695,7 +693,7 @@ public class VerificationAcceptanceTest {
       } catch (VerificationException e) {
         assertThat(
             e.getMessage(),
-            containsString(junitStyleDiffMessage("[GET]\n" + "/hit\n", "[GET]\n" + "/miss\n")));
+            containsString(junitStyleDiffMessage("GET\n" + "/hit\n", "GET\n" + "/miss\n")));
       }
     }
 

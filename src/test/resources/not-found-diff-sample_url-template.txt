@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[GET]                                                      | [GET]
+GET                                                        | GET
 [path template] /contacts/{contactId}                      | /contracts/12345                                    <<<<< URL does not match
                                                            |
                                                            |

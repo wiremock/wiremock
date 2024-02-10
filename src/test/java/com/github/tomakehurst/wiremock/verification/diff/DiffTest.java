@@ -47,8 +47,7 @@ class DiffTest {
             mockRequest().method(POST).url("/thing"));
 
     assertThat(
-        diff.toString(),
-        is(junitStyleDiffMessage("[GET]\n" + "/thing\n", "[POST]\n" + "/thing\n")));
+        diff.toString(), is(junitStyleDiffMessage("GET\n" + "/thing\n", "POST\n" + "/thing\n")));
   }
 
   @Test
@@ -58,8 +57,7 @@ class DiffTest {
             newRequestPattern(ANY, urlEqualTo("/expected")).build(), mockRequest().url("/actual"));
 
     assertThat(
-        diff.toString(),
-        is(junitStyleDiffMessage("[ANY]\n" + "/expected\n", "[ANY]\n" + "/actual\n")));
+        diff.toString(), is(junitStyleDiffMessage("ANY\n" + "/expected\n", "ANY\n" + "/actual\n")));
   }
 
   @Test
@@ -71,9 +69,7 @@ class DiffTest {
 
     assertThat(
         diff.toString(),
-        is(
-            junitStyleDiffMessage(
-                "[ANY]\n" + "[path regex] /expected/.*\n", "[ANY]\n" + "/actual\n")));
+        is(junitStyleDiffMessage("ANY\n" + "[path regex] /expected/.*\n", "ANY\n" + "/actual\n")));
   }
 
   @Test
@@ -93,12 +89,12 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + "Content-Type: application/json\n"
                     + "X-My-Header: expected\n",
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + "Content-Type: application/json\n"
@@ -118,8 +114,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "X-My-Header: expected\n",
-                "[ANY]\n" + "/thing\n" + "\n" + "\n")));
+                "ANY\n" + "/thing\n" + "\n" + "X-My-Header: expected\n",
+                "ANY\n" + "/thing\n" + "\n" + "\n")));
   }
 
   @Test
@@ -135,8 +131,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "X-My-Header: expected\n",
-                "[ANY]\n" + "/thing\n\n\n")));
+                "ANY\n" + "/thing\n" + "\n" + "X-My-Header: expected\n",
+                "ANY\n" + "/thing\n\n\n")));
   }
 
   @Test
@@ -160,7 +156,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + "[equalToJson]"
@@ -178,7 +174,7 @@ class DiffTest {
                     + "  }"
                     + lineSeparator()
                     + "}",
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + lineSeparator()
@@ -202,7 +198,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + "[equalToJson]\n"
@@ -219,7 +215,7 @@ class DiffTest {
                     + "  }"
                     + lineSeparator()
                     + "}",
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + lineSeparator()
@@ -253,8 +249,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "@.notfound\n" + "@.nothereeither",
-                "[ANY]\n"
+                "ANY\n" + "/thing\n" + "\n" + "@.notfound\n" + "@.nothereeither",
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + "{\n"
@@ -290,7 +286,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n"
                     + "[equalToXml]\n"
@@ -304,7 +300,7 @@ class DiffTest {
                     + lineSeparator()
                     + "</my-elements>"
                     + lineSeparator(),
-                "[ANY]\n"
+                "ANY\n"
                     + "/thing\n"
                     + "\n\n"
                     + "<my-elements>"
@@ -332,8 +328,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "Cookie: my_cookie=expected-cookie\n",
-                "[ANY]\n" + "/thing\n" + "\n" + "actual-cookie\n")));
+                "ANY\n" + "/thing\n" + "\n" + "Cookie: my_cookie=expected-cookie\n",
+                "ANY\n" + "/thing\n" + "\n" + "actual-cookie\n")));
   }
 
   @Test
@@ -349,8 +345,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing?search=nothing\n" + "\n" + "Query: search = everything\n",
-                "[ANY]\n" + "/thing?search=nothing\n" + "\n" + "search: nothing\n")));
+                "ANY\n" + "/thing?search=nothing\n" + "\n" + "Query: search = everything\n",
+                "ANY\n" + "/thing?search=nothing\n" + "\n" + "search: nothing\n")));
   }
 
   @Test
@@ -366,8 +362,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "Cookie: my_cookie=expected-cookie\n",
-                "[ANY]\n" + "/thing\n\n\n")));
+                "ANY\n" + "/thing\n" + "\n" + "Cookie: my_cookie=expected-cookie\n",
+                "ANY\n" + "/thing\n\n\n")));
   }
 
   @Test
@@ -383,7 +379,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[GET]\n" + "/thing\n" + "\n" + "[custom matcher]", "[GET]\n" + "/thing\n\n ")));
+                "GET\n" + "/thing\n" + "\n" + "[custom matcher]", "GET\n" + "/thing\n\n ")));
   }
 
   @Test
@@ -397,8 +393,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[GET]\n" + "/thing\n" + "\n" + "[custom matcher: my-custom-matcher]",
-                "[GET]\n" + "/thing\n" + "\n" + "[custom matcher: my-custom-matcher]")));
+                "GET\n" + "/thing\n" + "\n" + "[custom matcher: my-custom-matcher]",
+                "GET\n" + "/thing\n" + "\n" + "[custom matcher: my-custom-matcher]")));
   }
 
   @Test
@@ -412,8 +408,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[POST]\n" + "/thing\n\n[absent]\n" + "(absent)",
-                "[POST]\n" + "/thing\n\n" + "\nnot absent")));
+                "POST\n" + "/thing\n\n[absent]\n" + "(absent)",
+                "POST\n" + "/thing\n\n" + "\nnot absent")));
   }
 
   @Test
@@ -432,8 +428,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[GET]\n" + "/stateful\n\n" + "[Scenario 'my-steps' state: step2]",
-                "[GET]\n" + "/stateful\n\n" + "[Scenario 'my-steps' state: Started]")));
+                "GET\n" + "/stateful\n\n" + "[Scenario 'my-steps' state: step2]",
+                "GET\n" + "/stateful\n\n" + "[Scenario 'my-steps' state: Started]")));
   }
 
   @Test
@@ -450,8 +446,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[POST]\n" + "/submatch\n\n" + "$.name [contains] Tom",
-                "[POST]\n" + "/submatch\n\n" + "Rob")));
+                "POST\n" + "/submatch\n\n" + "$.name [contains] Tom",
+                "POST\n" + "/submatch\n\n" + "Rob")));
   }
 
   @Test
@@ -468,8 +464,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[POST]\n" + "/submatch\n\n" + "$.name [contains] Tom",
-                "[POST]\n" + "/submatch\n\n" + "{\"id\": \"abc123\"}")));
+                "POST\n" + "/submatch\n\n" + "$.name [contains] Tom",
+                "POST\n" + "/submatch\n\n" + "{\"id\": \"abc123\"}")));
   }
 
   @Test
@@ -483,7 +479,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "my.host\n" + "[ANY]\n" + "/thing\n", "wrong.host\n" + "[ANY]\n" + "/thing\n")));
+                "my.host\n" + "ANY\n" + "/thing\n", "wrong.host\n" + "ANY\n" + "/thing\n")));
   }
 
   @Test
@@ -497,8 +493,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[contains] my.host\n" + "[ANY]\n" + "/thing\n",
-                "wrong.host\n" + "[ANY]\n" + "/thing\n")));
+                "[contains] my.host\n" + "ANY\n" + "/thing\n",
+                "wrong.host\n" + "ANY\n" + "/thing\n")));
   }
 
   @Test
@@ -512,7 +508,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "5544\n" + "[ANY]\n" + "/thing\n", "6543\n" + "[ANY]\n" + "/thing\n")));
+                "5544\n" + "ANY\n" + "/thing\n", "6543\n" + "ANY\n" + "/thing\n")));
   }
 
   @Test
@@ -526,7 +522,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "https\n" + "[ANY]\n" + "/thing\n", "http\n" + "[ANY]\n" + "/thing\n")));
+                "https\n" + "ANY\n" + "/thing\n", "http\n" + "ANY\n" + "/thing\n")));
   }
 
   @Test
@@ -542,8 +538,8 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "$.accountNum [equalTo] 1234",
-                "[ANY]\n" + "/thing\n" + "\n")));
+                "ANY\n" + "/thing\n" + "\n" + "$.accountNum [equalTo] 1234",
+                "ANY\n" + "/thing\n" + "\n")));
   }
 
   @Test
@@ -559,7 +555,7 @@ class DiffTest {
         diff.toString(),
         is(
             junitStyleDiffMessage(
-                "[ANY]\n" + "/thing\n" + "\n" + "$.accountNum [equalTo] 1234",
-                "[ANY]\n" + "/thing\n" + "\n" + "not json")));
+                "ANY\n" + "/thing\n" + "\n" + "$.accountNum [equalTo] 1234",
+                "ANY\n" + "/thing\n" + "\n" + "not json")));
   }
 }

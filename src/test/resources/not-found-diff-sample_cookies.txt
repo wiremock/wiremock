@@ -8,7 +8,7 @@
                                                            |
 Cookie diff                                                |
                                                            |
-[POST]                                                     | [POST]
+POST                                                       | POST
 /thing                                                     | /thing
                                                            |
 Cookie: Cookie_1 [contains] one value                      | zero value                                          <<<<< Cookie does not match

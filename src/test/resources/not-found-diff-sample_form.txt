@@ -8,7 +8,7 @@
                                                            |
 Query params diff                                          |
                                                            |
-[PUT]                                                      | [PUT]
+PUT                                                        | PUT
 [path] /thing                                              | /thing
                                                            |
 Form: one = 1                                              | one: 2                                              <<<<< Form data does not match

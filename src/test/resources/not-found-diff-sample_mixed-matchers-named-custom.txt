@@ -8,7 +8,7 @@
                                                            |
 Standard and custom matched stub                           |
                                                            |
-[POST]                                                     | [POST]
+POST                                                       | POST
 /thing                                                     | /thing
                                                            |
 [custom matcher: my-custom-matcher]                        |                                                     <<<<< custom matcher does not match

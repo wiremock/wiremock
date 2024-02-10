@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[GET]                                                      | [GET]
+GET                                                        | GET
 [path] /thing                                              | /thing
                                                            |
 q including [equalTo 1 AND equalTo 2 AND equalTo 3]        | q: 1                                                <<<<< Header does not match

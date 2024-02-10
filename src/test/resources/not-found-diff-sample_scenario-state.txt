@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[POST]                                                     | [POST]
+POST                                                       | POST
 /thing                                                     | /thing
                                                            |
 [Scenario 'thing states' state: first]                     | [Scenario 'thing states' state: Started]            <<<<< Scenario does not match

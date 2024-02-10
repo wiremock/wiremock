@@ -308,13 +308,25 @@ public class Diff {
   }
 
   private void addMethodSection(List<DiffLine<?>> diffLineList) {
-    DiffLine<Set<RequestMethod>> methodSection =
-        new DiffLine<>(
-            "HTTP method",
-            new RequestMethodMatcher(requestPattern.getMethods()),
-            Set.of(request.getMethod()),
-            String.valueOf(requestPattern.getMethods()));
+    DiffLine<?> methodSection = defineRequestMethodSection();
     diffLineList.add(methodSection);
+  }
+
+  private DiffLine<?> defineRequestMethodSection() {
+    if (requestPattern.getMethods().size() == 1) {
+      return new DiffLine<>(
+          "HTTP method",
+          requestPattern.getMethod(),
+          request.getMethod(),
+          requestPattern.getMethod().getName());
+
+    } else {
+      return new DiffLine<>(
+          "HTTP method",
+          new RequestMethodMatcher(requestPattern.getMethods()),
+          Set.of(request.getMethod()),
+          String.valueOf(requestPattern.getMethods()));
+    }
   }
 
   private void addSchemeSectionIfPresent(List<DiffLine<?>> diffLineList) {

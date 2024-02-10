@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[GET]                                                      | [GET]
+GET                                                        | GET
 [path] /thing                                              | /thing?q=2
                                                            |
 Query: q exactly [equalTo 1 AND equalTo 2 AND equalTo 3]   | q: 2                                                <<<<< Query does not match
