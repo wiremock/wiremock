@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-class HttpsAcceptanceTest {
+public class HttpsAcceptanceTest {
 
   private WireMockServer wireMockServer;
   private WireMockServer proxy;
@@ -435,7 +435,7 @@ class HttpsAcceptanceTest {
     return content;
   }
 
-  static KeyStore readKeyStore(String path, String password)
+  public static KeyStore readKeyStore(String path, String password)
       throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
     KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
     try (FileInputStream instream = new FileInputStream(path)) {

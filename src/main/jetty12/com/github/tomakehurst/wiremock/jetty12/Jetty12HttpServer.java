@@ -259,6 +259,12 @@ public class Jetty12HttpServer extends JettyHttpServer {
     }
 
     getResource(JettyHttpServer.class, "assets/swagger-ui/index.html");
+    // Jetty 12 changed the way welcome files are being served (the context path is not being
+    // taken into account anymore). It is possible to somewhat change this behavior by altering
+    // welcome mode of ServletResourceService but this parameter is only partially supported by
+    // DefaultServlet (not all modes) and in general needs servlet subclassing. Taking an easier
+    // approach here with extended welcome files list.
+    adminContext.setWelcomeFiles(new String[] {"index.html", "index.jsp", "swagger-ui/index.html"});
 
     adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
     ServletHolder swaggerUiServletHolder =

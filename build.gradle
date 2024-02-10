@@ -594,6 +594,7 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
     jetty12Implementation "org.eclipse.jetty:jetty-proxy:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty:jetty-alpn-server:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
+    jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
