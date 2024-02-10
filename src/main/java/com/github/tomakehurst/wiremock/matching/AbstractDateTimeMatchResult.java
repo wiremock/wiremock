@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 
 public abstract class AbstractDateTimeMatchResult extends MatchResult {
+
+  private static final long ONE_YEAR_IN_MILLIS = 365 * 24 * 60 * 60 * 1000L;
 
   private final boolean isZoned;
   private final boolean isLocal;
@@ -83,8 +85,7 @@ public abstract class AbstractDateTimeMatchResult extends MatchResult {
   }
 
   private double calculateDistance(Temporal start, Temporal end) {
-    double distance = ((double) ChronoUnit.YEARS.between(start, end)) / 100;
-    distance = Math.abs(distance);
-    return Math.min(distance, 1.0);
+    long absoluteTimeDifference = Math.abs((ChronoUnit.MILLIS.between(start, end)));
+    return (double) absoluteTimeDifference / (absoluteTimeDifference + 2 * ONE_YEAR_IN_MILLIS);
   }
 }

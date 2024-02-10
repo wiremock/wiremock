@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.common.DateTimeTruncation.*;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,28 +90,38 @@ public class BeforeDateTimePatternTest {
   @Test
   public void returnsAReasonableDistanceWhenNoMatchForZonedExpectedZonedActual() {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00Z");
-    assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
-    assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match("2023-01-01T00:00:00Z").getDistance(), is(0.5));
+    assertThat(
+        matcher.match("2121-01-01T00:00:00Z").getDistance(),
+        allOf(greaterThan(0.5), lessThan(1.0)));
     assertThat(matcher.match(null).getDistance(), is(1.0));
-    assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
+    assertThat(
+        matcher.match("2022-01-01T00:00:00Z").getDistance(),
+        allOf(greaterThan(0.0), lessThan(0.5)));
   }
 
   @Test
   public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedZonedActual() {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
-    assertThat(matcher.match("2071-01-01T00:00:00Z").getDistance(), is(0.5));
-    assertThat(matcher.match("2121-01-01T00:00:00Z").getDistance(), is(1.0));
+    assertThat(matcher.match("2023-01-01T00:00:00Z").getDistance(), is(0.5));
+    assertThat(
+        matcher.match("2121-01-01T00:00:00Z").getDistance(),
+        allOf(greaterThan(0.5), lessThan(1.0)));
     assertThat(matcher.match(null).getDistance(), is(1.0));
-    assertThat(matcher.match("2022-01-01T00:00:00Z").getDistance(), is(0.01));
+    assertThat(
+        matcher.match("2022-01-01T00:00:00Z").getDistance(),
+        allOf(greaterThan(0.0), lessThan(0.5)));
   }
 
   @Test
   public void returnsAReasonableDistanceWhenNoMatchForLocalExpectedLocalActual() {
     StringValuePattern matcher = WireMock.before("2021-01-01T00:00:00");
-    assertThat(matcher.match("2071-01-01T00:00:00").getDistance(), is(0.5));
-    assertThat(matcher.match("2121-01-01T00:00:00").getDistance(), is(1.0));
+    assertThat(matcher.match("2023-01-01T00:00:00").getDistance(), is(0.5));
+    assertThat(
+        matcher.match("2121-01-01T00:00:00").getDistance(), allOf(greaterThan(0.5), lessThan(1.0)));
     assertThat(matcher.match(null).getDistance(), is(1.0));
-    assertThat(matcher.match("2022-01-01T00:00:00").getDistance(), is(0.01));
+    assertThat(
+        matcher.match("2022-01-01T00:00:00").getDistance(), allOf(greaterThan(0.0), lessThan(0.5)));
   }
 
   @Test
