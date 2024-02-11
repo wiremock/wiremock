@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.jetty.JettyFaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import com.github.tomakehurst.wiremock.jetty.NotFoundHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
@@ -239,8 +240,11 @@ public class Jetty11HttpServer extends JettyHttpServer {
 
     mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
 
+    final Jetty11HttpUtils utils = new Jetty11HttpUtils();
+    mockServiceContext.setAttribute(JettyHttpUtils.class.getName(), utils);
+
     mockServiceContext.setAttribute(
-        JettyFaultInjectorFactory.class.getName(), new JettyFaultInjectorFactory());
+        JettyFaultInjectorFactory.class.getName(), new JettyFaultInjectorFactory(utils));
     mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
     mockServiceContext.setAttribute(Notifier.KEY, notifier);
     mockServiceContext.setAttribute(

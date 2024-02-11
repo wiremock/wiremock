@@ -15,29 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.jetty11.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
-import java.net.Socket;
-import java.nio.channels.SocketChannel;
-import org.eclipse.jetty.io.ssl.SslConnection;
-import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
 
 public class JettyUtils {
 
   private static final boolean IS_JETTY;
-  private static final boolean IS_SERVLET_6;
 
   static {
     // do the check only once per classloader / execution
     IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
-    IS_SERVLET_6 = isClassExist("jakarta.servlet.ServletConnection");
   }
 
   private JettyUtils() {
@@ -48,10 +37,6 @@ public class JettyUtils {
     return IS_JETTY;
   }
 
-  public static boolean isServlet6() {
-    return IS_SERVLET_6;
-  }
-
   private static boolean isClassExist(String type) {
     try {
       ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
@@ -60,29 +45,6 @@ public class JettyUtils {
       return true;
     } catch (Exception e) {
       return false;
-    }
-  }
-
-  public static Response unwrapResponse(HttpServletResponse httpServletResponse) {
-    if (httpServletResponse instanceof HttpServletResponseWrapper) {
-      ServletResponse unwrapped = ((HttpServletResponseWrapper) httpServletResponse).getResponse();
-      return (Response) unwrapped;
-    }
-
-    return (Response) httpServletResponse;
-  }
-
-  public static Socket getTlsSocket(Response response) {
-    HttpChannel httpChannel = response.getHttpOutput().getHttpChannel();
-    SslConnection.DecryptedEndPoint sslEndpoint =
-        (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
-    Object endpoint = sslEndpoint.getSslConnection().getEndPoint();
-    try {
-      final SocketChannel channel =
-          (SocketChannel) endpoint.getClass().getMethod("getChannel").invoke(endpoint);
-      return channel.socket();
-    } catch (Exception e) {
-      return throwUnchecked(e, Socket.class);
     }
   }
 
