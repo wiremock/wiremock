@@ -34,7 +34,6 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.jetty.JettyFaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
-import com.github.tomakehurst.wiremock.jetty.NotFoundHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.servlet.MultipartRequestConfigurer;

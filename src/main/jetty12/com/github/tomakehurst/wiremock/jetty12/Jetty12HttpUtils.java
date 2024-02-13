@@ -65,7 +65,9 @@ class Jetty12HttpUtils implements JettyHttpUtils {
   public void setStatusWithReason(
       com.github.tomakehurst.wiremock.http.Response response,
       HttpServletResponse httpServletResponse) {
-    // Servlet 6 is not accepting the reason / message anymore
+    // Servlet 6 is not accepting the reason / message anymore, consequently Jetty 12
+    // completely eliminated the possibility to pass reason / message along with a status
+    // in case of HTTP 1.x communication.
     httpServletResponse.setStatus(response.getStatus());
   }
 

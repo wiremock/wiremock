@@ -34,7 +34,6 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.jetty.JettyFaultInjectorFactory;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServer;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
-import com.github.tomakehurst.wiremock.jetty.NotFoundHandler;
 import com.github.tomakehurst.wiremock.jetty11.Jetty11Utils;
 import com.github.tomakehurst.wiremock.jetty11.SslContexts;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
@@ -186,6 +185,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     ServletContextHandler adminContext = addAdminContext(adminRequestHandler, notifier);
     ServletContextHandler mockServiceContext =
         addMockServiceContext(
+            adminContext,
             stubRequestHandler,
             options.filesRoot(),
             options.getAsynchronousResponseSettings(),
@@ -292,6 +292,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
   }
 
   private ServletContextHandler addMockServiceContext(
+      ServletContextHandler adminContext,
       StubRequestHandler stubRequestHandler,
       FileSource fileSource,
       AsynchronousResponseSettings asynchronousResponseSettings,
@@ -351,7 +352,9 @@ public class Jetty12HttpServer extends JettyHttpServer {
     mockServiceContext.setWelcomeFiles(
         new String[] {"index.json", "index.html", "index.xml", "index.txt"});
 
-    NotFoundHandler errorHandler = new NotFoundHandler(mockServiceContext);
+    // Jetty 12 does not currently support cross context dispatch, we
+    // need to use the adminContext explicitly.
+    NotFoundHandler errorHandler = new NotFoundHandler(adminContext);
     mockServiceContext.setErrorHandler(errorHandler);
 
     mockServiceContext.addFilter(
