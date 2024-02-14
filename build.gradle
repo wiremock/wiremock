@@ -131,7 +131,7 @@ dependencies {
     exclude group: 'org.slf4j', module: 'slf4j-api'
     exclude group: 'io.netty', module: 'netty-all'
   }
-  testImplementation "io.netty:netty-all:4.1.106.Final"
+  testImplementation "io.netty:netty-all:4.1.107.Final"
 
   testImplementation files('test-extension/test-extension.jar')
 
