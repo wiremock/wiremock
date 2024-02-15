@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
@@ -187,7 +188,13 @@ public class Jetty12HttpServer extends JettyHttpServer {
         addMockServiceContext(
             adminContext,
             stubRequestHandler,
-            options.filesRoot(),
+            // Setting the files to the real path here since Jetty 12 does not include
+            // the servlet context path in forwarded request (and at the moment, there
+            // is not way to tell it to do so), the RequestDispatcher.FORWARD_SERVLET_PATH is
+            // ignored (only RequestDispatcher.INCLUDE_SERVLET_PATH is taken into account but
+            // that requires change from to RequestDispatcher#forward() to
+            // RequestDispatcher#include()).
+            options.filesRoot().child(WireMockApp.FILES_ROOT),
             options.getAsynchronousResponseSettings(),
             options.getChunkedEncodingPolicy(),
             options.getStubCorsEnabled(),
@@ -344,6 +351,9 @@ public class Jetty12HttpServer extends JettyHttpServer {
         MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
 
     MimeTypes.Mutable mimeTypes = mockServiceContext.getMimeTypes();
+    // For files without extension, use "application/json" as the default in case
+    // file extension is not provided(and content type could not be detected).
+    mimeTypes.addMimeMapping("*", "application/json");
     mimeTypes.addMimeMapping("json", "application/json");
     mimeTypes.addMimeMapping("html", "text/html");
     mimeTypes.addMimeMapping("xml", "application/xml");

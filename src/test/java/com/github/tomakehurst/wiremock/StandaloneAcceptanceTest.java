@@ -164,7 +164,8 @@ public class StandaloneAcceptanceTest {
     WireMockResponse response = testClient.get("/json/12345");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("{ \"key\": \"value\" }"));
-    assertThat(response.firstHeader("Content-Type"), is("application/json"));
+    // The "Content-Type" header may include charset, fe "application/json;charset=utf-8"
+    assertThat(response.firstHeader("Content-Type"), startsWith("application/json"));
   }
 
   @Test
@@ -184,7 +185,8 @@ public class StandaloneAcceptanceTest {
     WireMockResponse response = testClient.get("/json/23456/");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("{ \"key\": \"new value\" }"));
-    assertThat(response.firstHeader("Content-Type"), is("application/json"));
+    // The "Content-Type" header may include charset, fe "application/json;charset=utf-8"
+    assertThat(response.firstHeader("Content-Type"), startsWith("application/json"));
   }
 
   @Test
