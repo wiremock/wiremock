@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
@@ -553,6 +554,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  @EnabledIfJettyVersion(
+      major = 11,
+      reason = "Jetty 12 and above does not allow setting the status message / reason")
   public void settingStatusMessage() {
     stubFor(
         get(urlEqualTo("/status-message"))

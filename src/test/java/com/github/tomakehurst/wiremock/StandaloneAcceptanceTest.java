@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.standalone.MappingFileException;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
@@ -168,6 +169,10 @@ public class StandaloneAcceptanceTest {
     assertThat(response.firstHeader("Content-Type"), startsWith("application/json"));
   }
 
+  @EnabledIfJettyVersion(
+      major = 11,
+      reason =
+          "Jetty 12 and above always redirects when folder (without trailing slash) is accessed")
   @Test
   public void shouldNotSend302WhenPathIsDirAndTrailingSlashNotPresent() {
     writeFileToFilesDir(
@@ -176,6 +181,19 @@ public class StandaloneAcceptanceTest {
     WireMockResponse response = testClient.get("/json/wire%20&%20mock%20directory");
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("{ \"key\": \"index page value\" }"));
+  }
+
+  @EnabledIfJettyVersion(
+      major = 12,
+      reason =
+          "Jetty 12 and above always redirects when folder (without trailing slash) is accessed")
+  @Test
+  public void shouldSend302WhenPathIsDirAndTrailingSlashNotPresent() {
+    writeFileToFilesDir(
+        "json/wire & mock directory/index.json", "{ \"key\": \"index page value\" }");
+    startRunner();
+    WireMockResponse response = testClient.get("/json/wire%20&%20mock%20directory");
+    assertThat(response.statusCode(), is(302));
   }
 
   @Test
