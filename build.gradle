@@ -12,6 +12,7 @@ plugins {
   id 'scala'
   id 'signing'
   id 'maven-publish'
+  id 'io.github.gradle-nexus.publish-plugin' version '1.3.0'
   id 'idea'
   id 'eclipse'
   id 'project-report'
@@ -341,25 +342,22 @@ signing {
   required {
     !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
   }
+  def signingKey = providers.environmentVariable("OSSRH_GPG_SECRET_KEY").orElse("").get()
+  def signingPassphrase = providers.environmentVariable("OSSRH_GPG_SECRET_KEY_PASSWORD").orElse("").get()
+  if (!signingKey.isEmpty() && !signingPassphrase.isEmpty()) {
+    useInMemoryPgpKeys(signingKey, signingPassphrase)
+  }
   sign publishing.publications
 }
 
 publishing {
   repositories {
     maven {
-      url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+      name = "GitHubPackages"
+      url = "https://maven.pkg.github.com/wiremock/wiremock"
       credentials {
-        username repoUser
-        password repoPassword
-      }
-    }
-
-    maven {
-      name 'snapshots'
-      url 'https://oss.sonatype.org/content/repositories/snapshots'
-      credentials {
-        username repoUser
-        password repoPassword
+        username = System.getenv("GITHUB_ACTOR")
+        password = System.getenv("GITHUB_TOKEN")
       }
     }
   }
@@ -407,11 +405,10 @@ task checkReleasePreconditions {
     assert JavaVersion.current().isJava8(), 'Must use Java 8 when releasing'
   }
 }
+
 publish.dependsOn checkReleasePreconditions
-project.tasks.publishMavenJavaPublicationToMavenLocal.dependsOn 'signStandaloneJarPublication'
-project.tasks.publishStandaloneJarPublicationToMavenLocal.dependsOn 'signMavenJavaPublication'
-project.tasks.publishMavenJavaPublicationToMavenRepository.dependsOn 'signStandaloneJarPublication'
-project.tasks.publishStandaloneJarPublicationToMavenRepository.dependsOn 'signMavenJavaPublication'
+publish.dependsOn 'signStandaloneJarPublication'
+publish.dependsOn 'signMavenJavaPublication'
 
 assemble.dependsOn jar, shadowJar
 
@@ -422,8 +419,25 @@ task addGitTag {
   }
 }
 
+nexusPublishing {
+  // See https://github.com/wiremock/community/blob/main/infra/maven-central.md
+  repositories {
+    sonatype {
+      // TODO: allow configuring destinations for oss1
+      // nexusUrl.set(uri("https://oss.sonatype.org/service/local/"))
+      // snapshotRepositoryUrl.set(uri("https://oss.sonatype.org/content/repositories/snapshots/"))
+      def envUsername = providers.environmentVariable("OSSRH_USERNAME").orElse("").get()
+      def envPassword = providers.environmentVariable("OSSRH_TOKEN").orElse("").get()
+      if (!envUsername.isEmpty() && !envPassword.isEmpty()) {
+        username.set(envUsername)
+        password.set(envPassword)
+      }
+    }
+  }
+}
+
 task release {
-  dependsOn clean, assemble, publishAllPublicationsToMavenRepository, addGitTag
+  dependsOn clean, assemble, publish, addGitTag
 }
 
 task localRelease {
