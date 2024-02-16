@@ -407,8 +407,10 @@ task checkReleasePreconditions {
 }
 
 publish.dependsOn checkReleasePreconditions
-publish.dependsOn 'signStandaloneJarPublication'
-publish.dependsOn 'signMavenJavaPublication'
+project.tasks.publishMavenJavaPublicationToSonatypeRepository.dependsOn 'signStandaloneJarPublication'
+project.tasks.publishMavenJavaPublicationToGitHubPackagesRepository.dependsOn 'signMavenJavaPublication'
+project.tasks.publishMavenJavaPublicationToSonatypeRepository.dependsOn 'signStandaloneJarPublication'
+project.tasks.publishMavenJavaPublicationToGitHubPackagesRepository.dependsOn 'signMavenJavaPublication'
 
 assemble.dependsOn jar, shadowJar
 
