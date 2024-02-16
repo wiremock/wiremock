@@ -1,9 +1,6 @@
 name: Release
 
 on:
-  release:
-    types: [published]
-
   workflow_dispatch:
 
 jobs:
@@ -26,7 +23,7 @@ jobs:
         id: publish_package
         uses: gradle/gradle-build-action@v2.9.0
         with:
-          arguments: publish
+          arguments: publish closeAndReleaseStagingRepository addGitTag --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
