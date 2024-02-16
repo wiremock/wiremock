@@ -16,7 +16,7 @@ plugins {
   id 'eclipse'
   id 'project-report'
   id 'com.diffplug.spotless' version '6.25.0'
-  id 'com.github.johnrengelman.shadow' version '8.1.0'
+  id 'com.github.johnrengelman.shadow' version '8.1.1'
   id "org.sonarqube" version "4.4.1.3373"
   id 'jacoco'
 }
@@ -326,6 +326,8 @@ shadowJar {
   mergeServiceFiles()
 
   exclude 'META-INF/maven/**'
+  exclude 'META-INF/versions/17/**'
+  exclude 'META-INF/versions/21/**'
   exclude 'module-info.class'
   exclude 'handlebars-*.js'
 }
@@ -548,6 +550,6 @@ int getBetaVersion() {
 }
 
 wrapper {
-  gradleVersion = '8.0.1'
+  gradleVersion = '8.6'
   distributionType = Wrapper.DistributionType.BIN
 }
