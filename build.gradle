@@ -1,3 +1,6 @@
+import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
+import org.gradle.plugins.signing.Sign
+
 buildscript {
   repositories {
     maven {
@@ -430,12 +433,10 @@ nexusPublishing {
 publish.dependsOn checkReleasePreconditions
 publish.dependsOn 'signStandaloneJarPublication'
 publish.dependsOn 'signMavenJavaPublication'
-project.tasks.publishMavenJavaPublicationToGitHubPackagesRepository.dependsOn 'signMavenJavaPublication'
-//project.tasks.publishMavenJavaPublicationToSonatypeRepository.dependsOn 'signMavenJavaPublication'
-project.tasks.publishMavenJavaPublicationToMavenLocal.dependsOn 'signMavenJavaPublication'
-project.tasks.publishStandaloneJarPublicationToGitHubPackagesRepository.dependsOn 'signStandaloneJarPublication'
-//project.tasks.publishStandaloneJarPublicationToSonatypeRepository.dependsOn 'signStandaloneJarPublication'
-project.tasks.publishStandaloneJarPublicationToMavenLocal.dependsOn 'signStandaloneJarPublication'
+tasks.withType(AbstractPublishToMaven).configureEach {
+  def signingTasks = tasks.withType(Sign)
+  mustRunAfter(signingTasks)
+}
 
 assemble.dependsOn jar, shadowJar
 
