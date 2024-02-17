@@ -162,7 +162,7 @@ class RequestPatternTest {
     JSONAssert.assertEquals(
         "{									                \n"
             + "		\"url\": \"/my/url\",               \n"
-            + "		\"method\": \"GET\",						    \n"
+            + "		\"method\": \"GET\"						    \n"
             + "}												    ",
         actualJson,
         true);
@@ -177,7 +177,7 @@ class RequestPatternTest {
     JSONAssert.assertEquals(
         "{									                \n"
             + "		\"urlPattern\": \"/my/url\",        \n"
-            + "		\"method\": \"GET\",						    \n"
+            + "		\"method\": \"GET\"						    \n"
             + "}												    ",
         actualJson,
         true);
@@ -192,7 +192,7 @@ class RequestPatternTest {
     JSONAssert.assertEquals(
         "{									                \n"
             + "		\"urlPathPattern\": \"/my/url\",    \n"
-            + "		\"method\": \"GET\",						    \n"
+            + "		\"method\": \"GET\"						    \n"
             + "}												    ",
         actualJson,
         true);
