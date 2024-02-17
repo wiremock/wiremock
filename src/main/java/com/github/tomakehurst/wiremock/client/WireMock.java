@@ -571,7 +571,8 @@ public class WireMock {
   }
 
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(new OneOfRequestMethods(Set.of(RequestMethod.GET, RequestMethod.HEAD)), urlPattern);
+    return new BasicMappingBuilder(
+        new OneOfRequestMethods(Set.of(RequestMethod.GET, RequestMethod.HEAD)), urlPattern);
   }
 
   public static MappingBuilder isOneOf(Set<String> methods, UrlPattern urlPattern) {
@@ -579,11 +580,12 @@ public class WireMock {
   }
 
   public static MappingBuilder request(String method, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.fromString(method),  urlPattern);
+    return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
   }
 
   public static MappingBuilder request(Set<String> methods, UrlPattern urlPattern) {
-    return new BasicMappingBuilder( new OneOfRequestMethods(RequestMethod.fromSet(methods)), urlPattern);
+    return new BasicMappingBuilder(
+        new OneOfRequestMethods(RequestMethod.fromSet(methods)), urlPattern);
   }
 
   public static MappingBuilder requestMatching(String customRequestMatcherName) {

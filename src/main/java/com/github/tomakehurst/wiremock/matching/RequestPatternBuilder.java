@@ -57,7 +57,7 @@ public class RequestPatternBuilder {
     this.url = url;
   }
 
-  public RequestPatternBuilder( OneOfRequestMethods oneOfRequestMethods, UrlPattern url) {
+  public RequestPatternBuilder(OneOfRequestMethods oneOfRequestMethods, UrlPattern url) {
     this.oneOfRequestMethods = oneOfRequestMethods;
     this.url = url;
   }
