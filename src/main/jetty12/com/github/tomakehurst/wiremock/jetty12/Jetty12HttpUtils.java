@@ -15,8 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.jetty12;
 
+import static com.github.tomakehurst.wiremock.jetty12.HttpProxyDetectingHandler.IS_HTTP_PROXY_REQUEST_ATTRIBUTE;
+import static com.github.tomakehurst.wiremock.jetty12.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
+
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.net.Socket;
@@ -63,12 +67,11 @@ class Jetty12HttpUtils implements JettyHttpUtils {
 
   @Override
   public void setStatusWithReason(
-      com.github.tomakehurst.wiremock.http.Response response,
-      HttpServletResponse httpServletResponse) {
+      int status, String reason, HttpServletResponse httpServletResponse) {
     // Servlet 6 is not accepting the reason / message anymore, consequently Jetty 12
     // completely eliminated the possibility to pass reason / message along with a status
     // in case of HTTP 1.x communication.
-    httpServletResponse.setStatus(response.getStatus());
+    httpServletResponse.setStatus(status);
   }
 
   @Override
@@ -76,5 +79,11 @@ class Jetty12HttpUtils implements JettyHttpUtils {
     final AbstractMetaDataConnection connectionMetaData =
         (AbstractMetaDataConnection) jettyResponse.getRequest().getConnectionMetaData();
     return connectionMetaData.getEndPoint();
+  }
+
+  @Override
+  public boolean isBrowserProxyRequest(HttpServletRequest request) {
+    return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
+        || Boolean.TRUE.equals(request.getAttribute(IS_HTTP_PROXY_REQUEST_ATTRIBUTE));
   }
 }

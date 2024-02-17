@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import static com.github.tomakehurst.wiremock.jetty11.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
-
-import jakarta.servlet.http.HttpServletRequest;
-import org.eclipse.jetty.server.Request;
-
 public class JettyUtils {
 
   private static final boolean IS_JETTY;
@@ -45,19 +40,6 @@ public class JettyUtils {
       return true;
     } catch (Exception e) {
       return false;
-    }
-  }
-
-  public static boolean isBrowserProxyRequest(HttpServletRequest request) {
-    if (request instanceof Request) {
-      /* Jetty 11 */
-      Request jettyRequest = (Request) request;
-      return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
-          || "http".equals(jettyRequest.getMetaData().getURI().getScheme());
-    } else {
-      /* Jetty 12 */
-      return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
-          || "http".equals(request.getScheme());
     }
   }
 }

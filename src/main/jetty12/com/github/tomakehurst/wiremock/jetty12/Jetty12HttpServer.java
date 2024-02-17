@@ -224,6 +224,7 @@ public class Jetty12HttpServer extends JettyHttpServer {
     }
 
     if (options.browserProxySettings().enabled()) {
+      handlers.add(0, new HttpProxyDetectingHandler(httpConnector));
       handlers.add(0, new HttpsProxyDetectingHandler(mitmProxyConnector));
       handlers.add(0, new ManInTheMiddleSslConnectHandler(mitmProxyConnector));
     }

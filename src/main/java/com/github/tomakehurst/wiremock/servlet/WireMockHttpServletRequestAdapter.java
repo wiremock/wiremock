@@ -26,6 +26,7 @@ import static java.util.Collections.list;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMultimap;
@@ -50,16 +51,19 @@ public class WireMockHttpServletRequestAdapter implements Request {
   private final Map<String, FormParameter> cachedFormParameters;
   private final boolean browserProxyingEnabled;
   private final String urlPrefixToRemove;
+  private final JettyHttpUtils utils;
   private Collection<Part> cachedMultiparts;
 
   public WireMockHttpServletRequestAdapter(
       HttpServletRequest request,
       MultipartRequestConfigurer multipartRequestConfigurer,
       String urlPrefixToRemove,
-      boolean browserProxyingEnabled) {
+      boolean browserProxyingEnabled,
+      JettyHttpUtils utils) {
     this.request = request;
     this.urlPrefixToRemove = urlPrefixToRemove;
     this.browserProxyingEnabled = browserProxyingEnabled;
+    this.utils = utils;
 
     cachedQueryParams = Suppliers.memoize(() -> splitQuery(request.getQueryString()));
 
@@ -267,7 +271,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
       return false;
     }
 
-    return JettyUtils.isBrowserProxyRequest(request);
+    return utils.isBrowserProxyRequest(request);
   }
 
   @Override

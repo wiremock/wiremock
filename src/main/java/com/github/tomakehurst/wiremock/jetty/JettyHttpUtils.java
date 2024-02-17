@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.Socket;
 import org.eclipse.jetty.io.EndPoint;
@@ -22,15 +23,54 @@ import org.eclipse.jetty.server.Response;
 
 /** Helper utility interface to inject Jetty 11/12/... specific response / request handling */
 public interface JettyHttpUtils {
+  /**
+   * Unwraps Jetty's {@link Response} out of the {@link HttpServletResponse}
+   *
+   * @param httpServletResponse {@link HttpServletResponse} instance
+   * @return unwrapped {@link Response} instance
+   */
   Response unwrapResponse(HttpServletResponse httpServletResponse);
 
+  /**
+   * Extracts the raw network socket of out Jetty's {@link Response}
+   *
+   * @param response {@link Response} instance
+   * @return raw network socket
+   */
   Socket socket(Response response);
 
-  void setStatusWithReason(
-      com.github.tomakehurst.wiremock.http.Response response,
-      HttpServletResponse httpServletResponse);
+  /**
+   * Sets the {@link HttpServletResponse} status and reason (if supported), depending on Jetty
+   * version.
+   *
+   * @param status status
+   * @param status reason
+   * @param httpServletResponse {@link HttpServletResponse} instance to set status and reason (if
+   *     supported)
+   */
+  void setStatusWithReason(int status, String reason, HttpServletResponse httpServletResponse);
 
-  Socket tlsSocket(Response jettyResponse);
+  /**
+   * Extracts the raw network TLS socket of out Jetty's {@link Response}
+   *
+   * @param response {@link Response} instance
+   * @return raw network TLS socket
+   */
+  Socket tlsSocket(Response response);
 
-  EndPoint unwrapEndPoint(Response jettyResponse);
+  /**
+   * Unwraps Jetty's {@link EndPoint} out of the {@link Response}
+   *
+   * @param response {@link Response} instance
+   * @return unwrapped {@link EndPoint} instance
+   */
+  EndPoint unwrapEndPoint(Response response);
+
+  /**
+   * Checks if the {@link HttpServletRequest} is a browser proxy request
+   *
+   * @param request {@link HttpServletRequest} instance
+   * @return {@code true} if is a request isbrowser proxy request, {@code false} otherwise
+   */
+  boolean isBrowserProxyRequest(HttpServletRequest request);
 }

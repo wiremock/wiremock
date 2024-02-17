@@ -16,9 +16,11 @@
 package com.github.tomakehurst.wiremock.jetty11;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.jetty11.HttpsProxyDetectingHandler.IS_HTTPS_PROXY_REQUEST_ATTRIBUTE;
 
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.net.Socket;
@@ -27,6 +29,7 @@ import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.SelectableChannelEndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.HttpChannel;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
 class Jetty11HttpUtils implements JettyHttpUtils {
@@ -64,8 +67,7 @@ class Jetty11HttpUtils implements JettyHttpUtils {
 
   @Override
   public void setStatusWithReason(
-      com.github.tomakehurst.wiremock.http.Response response,
-      HttpServletResponse httpServletResponse) {
+      int status, String reason, HttpServletResponse httpServletResponse) {
     // The Jetty 11 does not implement HttpServletResponse::setStatus and always sets the
     // reason as `null`, the workaround using
     // org.eclipse.jetty.server.Response::setStatusWithReason
@@ -73,14 +75,25 @@ class Jetty11HttpUtils implements JettyHttpUtils {
     if (httpServletResponse instanceof org.eclipse.jetty.server.Response) {
       final org.eclipse.jetty.server.Response jettyResponse =
           (org.eclipse.jetty.server.Response) httpServletResponse;
-      jettyResponse.setStatusWithReason(response.getStatus(), response.getStatusMessage());
+      jettyResponse.setStatusWithReason(status, reason);
     } else {
-      httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+      httpServletResponse.setStatus(status, reason);
     }
   }
 
   @Override
   public EndPoint unwrapEndPoint(Response jettyResponse) {
     return jettyResponse.getHttpOutput().getHttpChannel().getEndPoint();
+  }
+
+  @Override
+  public boolean isBrowserProxyRequest(HttpServletRequest request) {
+    if (request instanceof Request) {
+      final Request jettyRequest = (Request) request;
+      return Boolean.TRUE.equals(request.getAttribute(IS_HTTPS_PROXY_REQUEST_ATTRIBUTE))
+          || "http".equals(jettyRequest.getMetaData().getURI().getScheme());
+    } else {
+      return false;
+    }
   }
 }

@@ -148,7 +148,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     Request request =
         new WireMockHttpServletRequestAdapter(
-            httpServletRequest, multipartRequestConfigurer, mappedUnder, browserProxyingEnabled);
+            httpServletRequest,
+            multipartRequestConfigurer,
+            mappedUnder,
+            browserProxyingEnabled,
+            utils);
 
     ServletHttpResponder responder =
         new ServletHttpResponder(httpServletRequest, httpServletResponse);
@@ -252,7 +256,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     if (response.getStatusMessage() == null) {
       httpServletResponse.setStatus(response.getStatus());
     } else {
-      utils.setStatusWithReason(response, httpServletResponse);
+      utils.setStatusWithReason(
+          response.getStatus(), response.getStatusMessage(), httpServletResponse);
     }
 
     for (HttpHeader header : response.getHeaders().all()) {
