@@ -30,8 +30,8 @@ public class RequestPatternBuilder {
   private StringValuePattern hostPattern;
   private Integer port;
   private UrlPattern url = UrlPattern.ANY;
-  private Set<RequestMethod> methods = new HashSet<>();
   private RequestMethod method = RequestMethod.ANY;
+  private OneOfRequestMethods oneOfRequestMethods = new OneOfRequestMethods(new HashSet<>());
   private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
   private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
 
@@ -53,12 +53,12 @@ public class RequestPatternBuilder {
   }
 
   public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
-    this(Set.of(method), url);
+    this.method = method;
+    this.url = url;
   }
 
-  public RequestPatternBuilder(Set<RequestMethod> methods, UrlPattern url) {
-    this.methods = methods;
-    this.method = methods.iterator().next();
+  public RequestPatternBuilder( OneOfRequestMethods oneOfRequestMethods, UrlPattern url) {
+    this.oneOfRequestMethods = oneOfRequestMethods;
     this.url = url;
   }
 
@@ -100,7 +100,8 @@ public class RequestPatternBuilder {
     builder.hostPattern = requestPattern.getHost();
     builder.port = requestPattern.getPort();
     builder.url = requestPattern.getUrlMatcher();
-    builder.methods = requestPattern.getMethods();
+    builder.method = requestPattern.getMethod();
+    builder.oneOfRequestMethods = requestPattern.getOneOfRequestMethods();
     if (requestPattern.getHeaders() != null) {
       builder.headers = requestPattern.getHeaders();
     }
@@ -270,7 +271,8 @@ public class RequestPatternBuilder {
         hostPattern,
         port,
         url,
-        methods.isEmpty() ? Set.of(method) : methods,
+        method,
+        oneOfRequestMethods,
         headers.isEmpty() ? null : headers,
         pathParams.isEmpty() ? null : pathParams,
         queryParams.isEmpty() ? null : queryParams,

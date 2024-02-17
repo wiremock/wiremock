@@ -633,9 +633,7 @@ public class VerificationAcceptanceTest {
                     + lineSeparator()
                     + "  \"url\" : \"/hit\","
                     + lineSeparator()
-                    + "  \"method\" : \"GET\","
-                    + lineSeparator()
-                    + "  \"methods\" : [ \"GET\" ]"
+                    + "  \"method\" : \"GET\""
                     + lineSeparator()
                     + "}"));
       }
@@ -674,9 +672,7 @@ public class VerificationAcceptanceTest {
                     + lineSeparator()
                     + "  \"url\" : \"/hit\","
                     + lineSeparator()
-                    + "  \"method\" : \"GET\","
-                    + lineSeparator()
-                    + "  \"methods\" : [ \"GET\" ]"
+                    + "  \"method\" : \"GET\""
                     + lineSeparator()
                     + "}"));
       }

@@ -163,7 +163,6 @@ class RequestPatternTest {
         "{									                \n"
             + "		\"url\": \"/my/url\",               \n"
             + "		\"method\": \"GET\",						    \n"
-            + "		\"methods\": [\"GET\"]						  \n"
             + "}												    ",
         actualJson,
         true);
@@ -179,7 +178,6 @@ class RequestPatternTest {
         "{									                \n"
             + "		\"urlPattern\": \"/my/url\",        \n"
             + "		\"method\": \"GET\",						    \n"
-            + "		\"methods\": [\"GET\"]						  \n"
             + "}												    ",
         actualJson,
         true);
@@ -195,7 +193,6 @@ class RequestPatternTest {
         "{									                \n"
             + "		\"urlPathPattern\": \"/my/url\",    \n"
             + "		\"method\": \"GET\",						    \n"
-            + "		\"methods\": [\"GET\"]						  \n"
             + "}												    ",
         actualJson,
         true);
@@ -218,7 +215,6 @@ class RequestPatternTest {
       "{									                \n"
           + "		\"urlPath\": \"/my/url\",             		\n"
           + "		\"method\": \"GET\",						\n"
-          + "		\"methods\": [\"GET\"],						\n"
           + "		\"headers\": {								\n"
           + "			\"Accept\": {							\n"
           + "				\"matches\": \"(.*)xml(.*)\"		\n"
@@ -271,7 +267,6 @@ class RequestPatternTest {
         "{                         \n"
             + "    \"urlPath\": \"/my/url\",  \n"
             + "    \"method\": \"GET\",       \n"
-            + "    \"methods\": [\"GET\"],    \n"
             + "    \"queryParameters\": {     \n"
             + "        \"param1\": {          \n"
             + "            \"equalTo\": \"1\" \n"
@@ -357,7 +352,6 @@ class RequestPatternTest {
     return "{                              \n"
         + "    \"urlPath\": \"/my/url\",  \n"
         + "    \"method\": \"POST\",       \n"
-        + "    \"methods\": [\"POST\"],       \n"
         + "    \"formParameters\": {     \n"
         + "        \"key1\": {          \n"
         + "            \"equalTo\": \"value1\" \n"
@@ -625,7 +619,6 @@ class RequestPatternTest {
       "{                                                      \n"
           + "    \"url\" : \"/all/body/patterns\",                  \n"
           + "    \"method\" : \"PUT\",                              \n"
-          + "    \"methods\" : [ \"PUT\" ],                         \n"
           + "    \"bodyPatterns\" : [                               \n"
           + "        { \"equalTo\": \"thing\" },                    \n"
           + "        { \"equalToJson\": \"{ \\\"thing\\\": 1 }\" }, \n"

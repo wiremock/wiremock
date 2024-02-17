@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[ANY, PUT]                                                 | [GET]
+oneOf: [POST, PUT]                                         | GET                                                 <<<<< HTTP method does not match
 /url                                                       | /wrong-url                                          <<<<< URL does not match
                                                            |
                                                            |

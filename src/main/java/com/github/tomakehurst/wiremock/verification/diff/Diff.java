@@ -27,22 +27,7 @@ import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
-import com.github.tomakehurst.wiremock.matching.ContentPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.MultipartValuePattern;
-import com.github.tomakehurst.wiremock.matching.MultipleMatchMultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.PathPattern;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.SingleMatchMultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
-import com.github.tomakehurst.wiremock.matching.UrlPathTemplatePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.net.URI;
 import java.util.*;
@@ -313,7 +298,8 @@ public class Diff {
   }
 
   private DiffLine<?> defineRequestMethodSection() {
-    if (requestPattern.getMethods().size() == 1) {
+    if (requestPattern.getOneOfRequestMethods() == null
+    || requestPattern.getOneOfRequestMethods().getMethods().isEmpty()) {
       return new DiffLine<>(
           "HTTP method",
           requestPattern.getMethod(),
@@ -323,9 +309,9 @@ public class Diff {
     } else {
       return new DiffLine<>(
           "HTTP method",
-          new RequestMethodMatcher(requestPattern.getMethods()),
-          Set.of(request.getMethod()),
-          String.valueOf(requestPattern.getMethods()));
+              requestPattern.getOneOfRequestMethods(),
+          request.getMethod(),
+              requestPattern.getOneOfRequestMethods().getName());
     }
   }
 

@@ -646,7 +646,7 @@ class PlainTextDiffRendererTest {
   void showsMissingUrlMessageMethodIsOneOfVersion2() {
     Diff diff =
         new Diff(
-            isOneOf(Set.of("ANY", "PUT"), urlEqualTo("/url")).build(),
+            isOneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
             mockRequest().method(GET).url("/wrong-url"));
 
     String output = diffRenderer.render(diff);

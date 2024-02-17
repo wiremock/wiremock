@@ -1295,7 +1295,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     assertThat(response2.statusCode(), is(200));
 
     WireMockResponse response3 = testClient.request("GET", "/some/url");
-    assertThat(response3.statusCode(), is(200));
+    assertThat(response3.statusCode(), is(404));
   }
 
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {

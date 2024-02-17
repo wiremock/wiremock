@@ -6,7 +6,7 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-[GET, PUT]                                                 | [POST]                                              <<<<< HTTP method does not match
+oneOf: [GET, PUT]                                          | POST                                                <<<<< HTTP method does not match
 /url                                                       | /url
                                                            |
                                                            |

@@ -535,55 +535,55 @@ public class WireMock {
   }
 
   public static MappingBuilder get(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.GET), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
   }
 
   public static MappingBuilder post(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.POST), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.POST, urlPattern);
   }
 
   public static MappingBuilder put(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.PUT), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.PUT, urlPattern);
   }
 
   public static MappingBuilder delete(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.DELETE), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.DELETE, urlPattern);
   }
 
   public static MappingBuilder patch(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.PATCH), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
   }
 
   public static MappingBuilder head(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.HEAD), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
   }
 
   public static MappingBuilder options(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.OPTIONS), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.OPTIONS, urlPattern);
   }
 
   public static MappingBuilder trace(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.TRACE), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.TRACE, urlPattern);
   }
 
   public static MappingBuilder any(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.ANY), urlPattern);
+    return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
   }
 
   public static MappingBuilder getOrHead(UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.GET, RequestMethod.HEAD), urlPattern);
-  }
-
-  public static MappingBuilder request(String method, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(Set.of(RequestMethod.fromString(method)), urlPattern);
+    return new BasicMappingBuilder(new OneOfRequestMethods(Set.of(RequestMethod.GET, RequestMethod.HEAD)), urlPattern);
   }
 
   public static MappingBuilder isOneOf(Set<String> methods, UrlPattern urlPattern) {
     return request(methods, urlPattern);
   }
 
+  public static MappingBuilder request(String method, UrlPattern urlPattern) {
+    return new BasicMappingBuilder(RequestMethod.fromString(method),  urlPattern);
+  }
+
   public static MappingBuilder request(Set<String> methods, UrlPattern urlPattern) {
-    return new BasicMappingBuilder(RequestMethod.fromSet(methods), urlPattern);
+    return new BasicMappingBuilder( new OneOfRequestMethods(RequestMethod.fromSet(methods)), urlPattern);
   }
 
   public static MappingBuilder requestMatching(String customRequestMatcherName) {
