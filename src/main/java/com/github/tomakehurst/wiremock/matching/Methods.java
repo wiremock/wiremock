@@ -20,22 +20,21 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class OneOfRequestMethods implements NamedValueMatcher<RequestMethod> {
+public class Methods implements NamedValueMatcher<RequestMethod> {
 
-  private final Set<RequestMethod> methods;
+  private final Set<RequestMethod> onOf;
 
-  public OneOfRequestMethods(@JsonProperty("methods") Set<RequestMethod> methods) {
-    this.methods =
-        methods.stream().filter(e -> !RequestMethod.ANY.equals(e)).collect(Collectors.toSet());
+  public Methods(@JsonProperty("onOf") Set<RequestMethod> onOf) {
+    this.onOf = onOf.stream().filter(e -> !RequestMethod.ANY.equals(e)).collect(Collectors.toSet());
   }
 
-  public Set<RequestMethod> getMethods() {
-    return methods;
+  public Set<RequestMethod> getOnOf() {
+    return onOf;
   }
 
   @Override
   public String getName() {
-    return "oneOf: " + methods.toString();
+    return "oneOf: " + onOf.toString();
   }
 
   @Override
@@ -45,6 +44,6 @@ public class OneOfRequestMethods implements NamedValueMatcher<RequestMethod> {
 
   @Override
   public MatchResult match(RequestMethod value) {
-    return MatchResult.of(this.methods.contains(value));
+    return MatchResult.of(this.onOf.contains(value));
   }
 }

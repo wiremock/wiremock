@@ -52,8 +52,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
   }
 
-  BasicMappingBuilder(OneOfRequestMethods oneOfRequestMethods, UrlPattern urlPattern) {
-    requestPatternBuilder = new RequestPatternBuilder(oneOfRequestMethods, urlPattern);
+  BasicMappingBuilder(Methods methods, UrlPattern urlPattern) {
+    requestPatternBuilder = new RequestPatternBuilder(methods, urlPattern);
   }
 
   BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {

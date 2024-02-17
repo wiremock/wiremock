@@ -298,8 +298,7 @@ public class Diff {
   }
 
   private DiffLine<?> defineRequestMethodSection() {
-    if (requestPattern.getOneOfRequestMethods() == null
-        || requestPattern.getOneOfRequestMethods().getMethods().isEmpty()) {
+    if (requestPattern.getMethods() == null || requestPattern.getMethods().getOnOf().isEmpty()) {
       return new DiffLine<>(
           "HTTP method",
           requestPattern.getMethod(),
@@ -309,9 +308,9 @@ public class Diff {
     } else {
       return new DiffLine<>(
           "HTTP method",
-          requestPattern.getOneOfRequestMethods(),
+          requestPattern.getMethods(),
           request.getMethod(),
-          requestPattern.getOneOfRequestMethods().getName());
+          requestPattern.getMethods().getName());
     }
   }
 
