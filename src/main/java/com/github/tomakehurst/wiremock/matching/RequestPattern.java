@@ -214,7 +214,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public static Map<String, Object> getRequestMethodMap(RequestMethod method, Methods methods) {
     Map<String, Object> map = new HashMap<>();
-
     if (methods != null
         && (isNotNullOrEmptyCollection(methods.getNoneOf())
             || isNotNullOrEmptyCollection(methods.getOneOf()))) {
@@ -222,13 +221,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     } else {
       map.put("method", getFirstNonNull(method, RequestMethod.ANY));
     }
-
     return map;
   }
 
   public static MatchResult defineRequestMethodResult(
       RequestMethod method, Methods methods, Request request) {
-
     if (methods != null
         && (isNotNullOrEmptyCollection(methods.getNoneOf())
             || isNotNullOrEmptyCollection(methods.getOneOf()))) {
