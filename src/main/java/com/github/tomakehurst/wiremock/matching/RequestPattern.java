@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.isNotNullOrEmptyCollection;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
@@ -214,11 +215,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public static Map<String, Object> getRequestMethodMap(RequestMethod method, Methods methods) {
     Map<String, Object> map = new HashMap<>();
 
-    if (methods != null && methods.getNoneOf() != null && !methods.getNoneOf().isEmpty()) {
-      map.put("method", RequestMethod.NONE_OF);
-      map.put("methods", methods);
-    } else if (methods != null && methods.getOneOf() != null && !methods.getOneOf().isEmpty()) {
-      map.put("method", RequestMethod.ONE_OF);
+    if (methods != null
+        && (isNotNullOrEmptyCollection(methods.getNoneOf())
+            || isNotNullOrEmptyCollection(methods.getOneOf()))) {
       map.put("methods", methods);
     } else {
       map.put("method", getFirstNonNull(method, RequestMethod.ANY));
@@ -230,9 +229,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public static MatchResult defineRequestMethodResult(
       RequestMethod method, Methods methods, Request request) {
 
-    if (methods != null && methods.getNoneOf() != null && !methods.getNoneOf().isEmpty()) {
-      return methods.match(request.getMethod());
-    } else if (methods != null && methods.getOneOf() != null && !methods.getOneOf().isEmpty()) {
+    if (methods != null
+        && (isNotNullOrEmptyCollection(methods.getNoneOf())
+            || isNotNullOrEmptyCollection(methods.getOneOf()))) {
       return methods.match(request.getMethod());
     } else {
       return method.match(request.getMethod());

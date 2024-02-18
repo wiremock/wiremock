@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.verification.diff;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.isNotNullOrEmptyCollection;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 
 import com.github.tomakehurst.wiremock.common.Json;
@@ -26,14 +27,7 @@ import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.common.xml.Xml;
-import com.github.tomakehurst.wiremock.http.Body;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.FormParameter;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.MultiValue;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.BinaryEqualToPattern;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
@@ -325,14 +319,9 @@ public class Diff {
   }
 
   private DiffLine<?> defineRequestMethodSection() {
-    if (requestPattern.getMethods() != null && !requestPattern.getMethods().getNoneOf().isEmpty()) {
-      return new DiffLine<>(
-          HTTP_METHOD,
-          requestPattern.getMethods(),
-          request.getMethod(),
-          requestPattern.getMethods().getName());
-    } else if (requestPattern.getMethods() != null
-        && !requestPattern.getMethods().getOneOf().isEmpty()) {
+    if (requestPattern.getMethods() != null
+        && (isNotNullOrEmptyCollection(requestPattern.getMethods().getNoneOf())
+            || isNotNullOrEmptyCollection(requestPattern.getMethods().getOneOf()))) {
       return new DiffLine<>(
           HTTP_METHOD,
           requestPattern.getMethods(),
