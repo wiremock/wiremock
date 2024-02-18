@@ -617,7 +617,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  void showsMissingMethodMessage() {
+  void showsIsOneOfMissingMethodMessage() {
 
     Diff diff =
         new Diff(
@@ -627,7 +627,21 @@ class PlainTextDiffRendererTest {
     String output = diffRenderer.render(diff);
     System.out.println(output);
 
-    assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_method.txt")));
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v1.txt")));
+  }
+
+  @Test
+  void showsIsNoneOfMissingMethodMessage() {
+
+    Diff diff =
+        new Diff(
+            isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(GET).url("/url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v1.txt")));
   }
 
   @Test
@@ -640,7 +654,20 @@ class PlainTextDiffRendererTest {
     String output = diffRenderer.render(diff);
     System.out.println(output);
 
-    assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_url_version_1.txt")));
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v2.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsNoneOfVersion1() {
+    Diff diff =
+        new Diff(
+            isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(POST).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v2.txt")));
   }
 
   @Test
@@ -653,7 +680,20 @@ class PlainTextDiffRendererTest {
     String output = diffRenderer.render(diff);
     System.out.println(output);
 
-    assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_url_version_2.txt")));
+    assertThat(output, equalsMultiLine(file("not-match-isOneOf-v3.txt")));
+  }
+
+  @Test
+  void showsMissingUrlMessageMethodIsNoneOfVersion2() {
+    Diff diff =
+        new Diff(
+            isNoneOf(Set.of("POST", "PUT"), urlEqualTo("/url")).build(),
+            mockRequest().method(PUT).url("/wrong-url"));
+
+    String output = diffRenderer.render(diff);
+    System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-match-isNoneOf-v3.txt")));
   }
 
   public static class MyCustomMatcher extends RequestMatcherExtension {

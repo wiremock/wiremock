@@ -1260,7 +1260,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void testStubWithMultipleRequestMethods() {
+  void testStubWithIsOneOfRequestMethods() {
     stubFor(
         isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
@@ -1270,10 +1270,29 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response2 = testClient.request("POST", "/some/url");
     assertThat(response2.statusCode(), is(200));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(404));
   }
 
   @Test
-  void testStubWithInvalidRequestMethods() {
+  void testStubWithIsNoneOfRequestMethods() {
+    stubFor(
+        isNoneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(404));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(404));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(200));
+  }
+
+  @Test
+  void testStubWithInvalidIsOneOfRequestMethods() {
     stubFor(
         isOneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
@@ -1283,7 +1302,17 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void testStubWithAnyRequestMethod() {
+  void testStubWithInvalidIsNoneOfRequestMethods() {
+    stubFor(
+        isNoneOf(Set.of("PUT", "POST"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response = testClient.request("GET", "/some/url");
+    assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void testStubWithIsOneOfAndAnyRequestMethod() {
     stubFor(
         isOneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
             .willReturn(aResponse().withStatus(200)));
@@ -1296,6 +1325,22 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     WireMockResponse response3 = testClient.request("GET", "/some/url");
     assertThat(response3.statusCode(), is(404));
+  }
+
+  @Test
+  void testStubWithIsNoneOfAndAnyRequestMethod() {
+    stubFor(
+        isNoneOf(Set.of("PUT", "POST", "ANY"), urlEqualTo("/some/url"))
+            .willReturn(aResponse().withStatus(200)));
+
+    WireMockResponse response1 = testClient.request("PUT", "/some/url");
+    assertThat(response1.statusCode(), is(404));
+
+    WireMockResponse response2 = testClient.request("POST", "/some/url");
+    assertThat(response2.statusCode(), is(404));
+
+    WireMockResponse response3 = testClient.request("GET", "/some/url");
+    assertThat(response3.statusCode(), is(200));
   }
 
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
