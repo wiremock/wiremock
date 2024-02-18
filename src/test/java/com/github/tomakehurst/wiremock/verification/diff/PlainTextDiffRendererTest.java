@@ -618,7 +618,6 @@ class PlainTextDiffRendererTest {
 
   @Test
   void showsIsOneOfMissingMethodMessage() {
-
     Diff diff =
         new Diff(
             isOneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
@@ -632,7 +631,6 @@ class PlainTextDiffRendererTest {
 
   @Test
   void showsIsNoneOfMissingMethodMessage() {
-
     Diff diff =
         new Diff(
             isNoneOf(Set.of("GET", "PUT"), urlEqualTo("/url")).build(),
