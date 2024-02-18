@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.isNullOrEmptyCollection;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import java.util.Set;
@@ -44,7 +46,7 @@ public class Methods implements NamedValueMatcher<RequestMethod> {
 
   @Override
   public String getName() {
-    if (noneOf == null || noneOf.isEmpty()) {
+    if (isNullOrEmptyCollection(noneOf)) {
       return "oneOf: " + oneOf;
     } else {
       return "noneOf: " + noneOf;
