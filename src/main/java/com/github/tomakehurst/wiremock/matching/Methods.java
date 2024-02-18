@@ -22,19 +22,33 @@ import java.util.stream.Collectors;
 
 public class Methods implements NamedValueMatcher<RequestMethod> {
 
-  private final Set<RequestMethod> onOf;
+  private final Set<RequestMethod> oneOf;
+  private final Set<RequestMethod> noneOf;
 
-  public Methods(@JsonProperty("onOf") Set<RequestMethod> onOf) {
-    this.onOf = onOf.stream().filter(e -> !RequestMethod.ANY.equals(e)).collect(Collectors.toSet());
+  public Methods(
+      @JsonProperty("oneOf") Set<RequestMethod> oneOf,
+      @JsonProperty("noneOf") Set<RequestMethod> noneOf) {
+    this.oneOf =
+        oneOf.stream().filter(e -> !RequestMethod.ANY.equals(e)).collect(Collectors.toSet());
+    this.noneOf =
+        noneOf.stream().filter(e -> !RequestMethod.ANY.equals(e)).collect(Collectors.toSet());
   }
 
-  public Set<RequestMethod> getOnOf() {
-    return onOf;
+  public Set<RequestMethod> getOneOf() {
+    return oneOf;
+  }
+
+  public Set<RequestMethod> getNoneOf() {
+    return noneOf;
   }
 
   @Override
   public String getName() {
-    return "oneOf: " + onOf.toString();
+    if (noneOf == null || noneOf.isEmpty()) {
+      return "oneOf: " + oneOf;
+    } else {
+      return "noneOf: " + noneOf;
+    }
   }
 
   @Override
@@ -44,6 +58,10 @@ public class Methods implements NamedValueMatcher<RequestMethod> {
 
   @Override
   public MatchResult match(RequestMethod value) {
-    return MatchResult.of(this.onOf.contains(value));
+    if (noneOf == null || noneOf.isEmpty()) {
+      return MatchResult.of(this.oneOf.contains(value));
+    } else {
+      return MatchResult.of(!this.noneOf.contains(value));
+    }
   }
 }

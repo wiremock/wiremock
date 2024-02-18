@@ -37,6 +37,7 @@ public class RequestMethod implements NamedValueMatcher<RequestMethod> {
   public static final RequestMethod ANY = new RequestMethod("ANY");
 
   public static final RequestMethod ONE_OF = new RequestMethod("ONE_OF");
+  public static final RequestMethod NONE_OF = new RequestMethod("NONE_OF");
 
   private final String name;
 

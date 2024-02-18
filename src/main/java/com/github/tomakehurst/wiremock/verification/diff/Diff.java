@@ -35,6 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Diff {
 
+  private static final String HTTP_METHOD = "HTTP method";
+
   private final String stubMappingName;
   private final RequestPattern requestPattern;
   private final Request request;
@@ -298,19 +300,25 @@ public class Diff {
   }
 
   private DiffLine<?> defineRequestMethodSection() {
-    if (requestPattern.getMethods() == null || requestPattern.getMethods().getOnOf().isEmpty()) {
+    if (requestPattern.getMethods() != null && !requestPattern.getMethods().getNoneOf().isEmpty()) {
       return new DiffLine<>(
-          "HTTP method",
-          requestPattern.getMethod(),
-          request.getMethod(),
-          requestPattern.getMethod().getName());
-
-    } else {
-      return new DiffLine<>(
-          "HTTP method",
+          HTTP_METHOD,
           requestPattern.getMethods(),
           request.getMethod(),
           requestPattern.getMethods().getName());
+    } else if (requestPattern.getMethods() != null
+        && !requestPattern.getMethods().getOneOf().isEmpty()) {
+      return new DiffLine<>(
+          HTTP_METHOD,
+          requestPattern.getMethods(),
+          request.getMethod(),
+          requestPattern.getMethods().getName());
+    } else {
+      return new DiffLine<>(
+          HTTP_METHOD,
+          requestPattern.getMethod(),
+          request.getMethod(),
+          requestPattern.getMethod().getName());
     }
   }
 

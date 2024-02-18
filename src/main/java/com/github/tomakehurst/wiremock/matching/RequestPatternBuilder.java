@@ -31,7 +31,7 @@ public class RequestPatternBuilder {
   private Integer port;
   private UrlPattern url = UrlPattern.ANY;
   private RequestMethod method = RequestMethod.ANY;
-  private Methods methods = new Methods(new HashSet<>());
+  private Methods methods = new Methods(new HashSet<>(), new HashSet<>());
   private Map<String, MultiValuePattern> headers = new LinkedHashMap<>();
   private Map<String, MultiValuePattern> queryParams = new LinkedHashMap<>();
 

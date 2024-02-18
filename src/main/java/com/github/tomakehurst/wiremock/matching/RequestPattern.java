@@ -124,7 +124,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     this.port = port;
     this.url = getFirstNonNull(url, UrlPattern.ANY);
     this.method = (RequestMethod) methodsMap.get("method");
-    this.methods = (Methods) methodsMap.get("oneOf");
+    this.methods = (Methods) methodsMap.get("methods");
     this.headers = headers;
     this.pathParams = pathParams;
     this.formParams = formParams;
@@ -198,7 +198,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         port,
         UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern, urlPathTemplate),
         getFirstNonNull(method, RequestMethod.ANY),
-        getFirstNonNull(methods, new Methods(new HashSet<>())),
+        getFirstNonNull(methods, new Methods(new HashSet<>(), new HashSet<>())),
         headers,
         pathParams,
         queryParams,
@@ -214,11 +214,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public static Map<String, Object> getRequestMethodMap(RequestMethod method, Methods methods) {
     Map<String, Object> map = new HashMap<>();
 
-    if (methods == null || methods.getOnOf() == null || methods.getOnOf().isEmpty()) {
-      map.put("method", getFirstNonNull(method, RequestMethod.ANY));
-    } else {
+    if (methods != null && methods.getNoneOf() != null && !methods.getNoneOf().isEmpty()) {
+      map.put("method", RequestMethod.NONE_OF);
+      map.put("methods", methods);
+    } else if (methods != null && methods.getOneOf() != null && !methods.getOneOf().isEmpty()) {
       map.put("method", RequestMethod.ONE_OF);
-      map.put("oneOf", methods);
+      map.put("methods", methods);
+    } else {
+      map.put("method", getFirstNonNull(method, RequestMethod.ANY));
     }
 
     return map;
@@ -226,10 +229,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
   public static MatchResult defineRequestMethodResult(
       RequestMethod method, Methods methods, Request request) {
-    if (methods == null || methods.getOnOf() == null || methods.getOnOf().isEmpty()) {
-      return method.match(request.getMethod());
-    } else {
+
+    if (methods != null && methods.getNoneOf() != null && !methods.getNoneOf().isEmpty()) {
       return methods.match(request.getMethod());
+    } else if (methods != null && methods.getOneOf() != null && !methods.getOneOf().isEmpty()) {
+      return methods.match(request.getMethod());
+    } else {
+      return method.match(request.getMethod());
     }
   }
 
