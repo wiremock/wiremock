@@ -30,14 +30,15 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   private final RequestPatternBuilder requestPatternBuilder;
-  private final List<PostServeActionDefinition> postServeActions = new ArrayList<>();
-  private final List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
-
   private ResponseDefinitionBuilder responseDefBuilder;
   private Integer priority;
   private String scenarioName;
@@ -46,6 +47,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   private UUID id = UUID.randomUUID();
   private String name;
   private Boolean isPersistent = null;
+  private List<PostServeActionDefinition> postServeActions = new ArrayList<>();
+  private List<ServeEventListenerDefinition> serveEventListeners = new ArrayList<>();
   private Metadata metadata;
 
   BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
@@ -62,10 +65,6 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 
   BasicMappingBuilder(String customRequestMatcherName, Parameters parameters) {
     requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
-  }
-
-  private static <P> Parameters resolveParameters(P parameters) {
-    return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
   }
 
   @Override
@@ -238,6 +237,10 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     serveEventListeners.add(
         new ServeEventListenerDefinition(extensionName, resolveParameters(parameters)));
     return this;
+  }
+
+  private static <P> Parameters resolveParameters(P parameters) {
+    return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
   }
 
   @Override
