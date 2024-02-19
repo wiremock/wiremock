@@ -132,7 +132,7 @@ public class MatchesJsonPathPatternTest {
     checkMessage(
         match,
         WARNING,
-        "Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
+        "Warning: JSON path expression failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
   }
 
   private static void checkWarningMessageAndEvent(
@@ -150,7 +150,7 @@ public class MatchesJsonPathPatternTest {
     checkMessage(
         matchResult,
         WARNING,
-        "Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
+        "Warning: JSON path expression failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
   }
 
   @Test
@@ -164,7 +164,7 @@ public class MatchesJsonPathPatternTest {
     checkWarningMessageAndEvent(
         notifier,
         matchResult,
-        "Warning: JSON path expression '$.something' failed to match document '<xml-stuff />' because it's not JSON but probably XML");
+        "Warning: JSON path expression failed to match document '<xml-stuff />' because it's not JSON but probably XML");
   }
 
   @Test
