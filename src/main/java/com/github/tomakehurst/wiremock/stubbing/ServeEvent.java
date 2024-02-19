@@ -192,7 +192,17 @@ public class ServeEvent {
   }
 
   public void appendSubEvent(SubEvent subEvent) {
-    subEvents.add(subEvent);
+    if (hasNotAlreadyBeenAppended(subEvent)) {
+      subEvents.add(subEvent);
+    }
+  }
+
+  private boolean hasNotAlreadyBeenAppended(SubEvent subEvent) {
+    if (!subEvent.isStandardType()) {
+      return true;
+    }
+
+    return subEvents.stream().noneMatch(subEvent::isEquivalentStandardTypedEventTo);
   }
 
   @JsonIgnore
