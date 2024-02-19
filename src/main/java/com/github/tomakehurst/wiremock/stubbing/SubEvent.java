@@ -18,6 +18,9 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Message;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class SubEvent {
@@ -28,6 +31,11 @@ public class SubEvent {
   public static final String INFO = "INFO";
   public static final String WARNING = "WARNING";
   public static final String ERROR = "ERROR";
+
+  private static final List<String> STANDARD_TYPES = Arrays.asList(
+      NON_MATCH_TYPE, JSON_ERROR, XML_ERROR, INFO, WARNING, ERROR
+  );
+
   private final String type;
 
   private final Long timeOffsetNanos;
@@ -81,5 +89,15 @@ public class SubEvent {
 
   public <T> T getDataAs(Class<T> dataType) {
     return Json.mapToObject(data, dataType);
+  }
+
+  public boolean isEquivalentStandardTypedEventTo(SubEvent other) {
+    return isStandardType() && other.isStandardType() &&
+            type.equals(other.type) &&
+            data.equals(other.data);
+  }
+
+  boolean isStandardType() {
+    return STANDARD_TYPES.contains(type);
   }
 }

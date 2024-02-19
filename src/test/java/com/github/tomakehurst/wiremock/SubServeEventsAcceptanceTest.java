@@ -59,4 +59,17 @@ public class SubServeEventsAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         error.getDetail(), containsString("Unexpected end-of-input within/between Object entries"));
   }
+
+  @Test
+  void onlyAppendsOneSubEventPerSpecificError() {
+    wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 1 }")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 2 }")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 3 }")).willReturn(ok()));
+
+    testClient.postXml("/json", "<whoops />");
+
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    assertThat(serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.JSON_ERROR)).count(), is(1L));
+  }
 }
