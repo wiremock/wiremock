@@ -61,7 +61,7 @@ public class SubServeEventsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void onlyAppendsOneSubEventPerSpecificError() {
+  void onlyAppendsOneEqualToJsonErrorSubEventPerOccurance() {
     wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 1 }")).willReturn(ok()));
     wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 2 }")).willReturn(ok()));
     wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 3 }")).willReturn(ok()));
@@ -72,6 +72,38 @@ public class SubServeEventsAcceptanceTest extends AcceptanceTestBase {
     assertThat(
         serveEvent.getSubEvents().stream()
             .filter(sub -> sub.getType().equals(SubEvent.JSON_ERROR))
+            .count(),
+        is(1L));
+  }
+
+  @Test
+  void onlyAppendsOneXmlParsingSubEventPerOccurance() {
+    wm.stubFor(post("/xml").withRequestBody(equalToXml("<some-xml id='1'/>")).willReturn(ok()));
+    wm.stubFor(post("/xml").withRequestBody(equalToXml("<some-xml id='2'/>")).willReturn(ok()));
+    wm.stubFor(post("/xml").withRequestBody(equalToXml("<some-xml id='3'/>")).willReturn(ok()));
+
+    testClient.postXml("/xml", "{}");
+
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    assertThat(
+        serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.WARNING))
+            .count(),
+        is(1L));
+  }
+
+  @Test
+  void onlyAppendsOneMatchesJsonPathErrorSubEventPerOccurance() {
+    wm.stubFor(post("/json").withRequestBody(matchingJsonPath("$.thing")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(matchingJsonPath("$.id")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(matchingJsonPath("$.name")).willReturn(ok()));
+
+    testClient.postXml("/json", "<whoops />");
+
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    assertThat(
+        serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.WARNING))
             .count(),
         is(1L));
   }

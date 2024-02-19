@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ public class MatchesJsonPathPattern extends PathPattern {
     if (value != null && value.trim().startsWith("<")) {
       final String message =
           String.format(
-              "Warning: JSON path expression '%s' failed to match document '%s' because it's not JSON but probably XML",
-              expectedValue, value);
+              "Warning: JSON path expression failed to match document '%s' because it's not JSON but probably XML",
+              value);
       notifier().info(message);
       return MatchResult.noMatch(SubEvent.warning(message));
     }
@@ -78,8 +78,8 @@ public class MatchesJsonPathPattern extends PathPattern {
 
       String message =
           String.format(
-              "Warning: JSON path expression '%s' failed to match document '%s' because %s",
-              expectedValue, value, error);
+              "Warning: JSON path expression failed to match document '%s' because %s",
+              value, error);
 
       return MatchResult.noMatch(SubEvent.warning(message));
     }
