@@ -19,9 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
-import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 public class JsonTest {
@@ -110,125 +108,6 @@ public class JsonTest {
     int count = Json.deepSize(Json.node("{}"));
 
     assertThat(count, is(1));
-  }
-
-  @Test
-  public void testToStringEscaped() {
-    // language=JSON
-    String json =
-        "{\n"
-            + "  \"string\": \"This is a text\",\n"
-            + "  \"number\": 1,\n"
-            + "  \"boolean\": true,\n"
-            + "  \"null\": null,\n"
-            + "  \"simple_array\": [\n"
-            + "    \"element1\",\n"
-            + "    \"element2\",\n"
-            + "    \"element3\"\n"
-            + "  ],\n"
-            + "  \"object\": {\n"
-            + "    \"children_string\": \"This is a text\",\n"
-            + "    \"children_number\": 1\n"
-            + "  },\n"
-            + "  \"object_array\": [\n"
-            + "    {\n"
-            + "      \"id\": 1,\n"
-            + "      \"name\": \"one\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"id\": 2,\n"
-            + "      \"name\": \"two\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"id\": 3,\n"
-            + "      \"name\": \"three\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"escape_sequence\":[\n"
-            + "    \"quotation mark : \\\" padding\",\n"
-            + "    \"reverse solidas : \\\\ padding\",\n"
-            + "    \"backspace : \\b padding\",\n"
-            + "    \"formfeed : \\f padding\",\n"
-            + "    \"newline : \\n padding\",\n"
-            + "    \"carriage return : \\r padding\",\n"
-            + "    \"horizontal tab: \\t padding\",\n"
-            + "    \"hex digit: \\u12ab padding\"\n"
-            + "  ]\n"
-            + "}";
-    JsonNode jsonNode = Json.node(json);
-    String result = Json.toStringEscaped(jsonNode);
-    String jsonCompressedAndEscaped =
-        jsonNode
-            .toString()
-            .replace("\\\"", "\"")
-            .replace("\\\\", "\\")
-            .replace("\\b", "\b")
-            .replace("\\f", "\f")
-            .replace("\\n", "\n")
-            .replace("\\r", "\r")
-            .replace("\\t", "\t")
-            .replaceAll("\\\\u12ab", "\u12ab");
-    assertThat(result, is(jsonCompressedAndEscaped));
-  }
-
-  @Test
-  public void testToByteArrayEscaped() {
-    // language=JSON
-    String json =
-        "{\n"
-            + "  \"string\": \"This is a text\",\n"
-            + "  \"number\": 1,\n"
-            + "  \"boolean\": true,\n"
-            + "  \"null\": null,\n"
-            + "  \"simple_array\": [\n"
-            + "    \"element1\",\n"
-            + "    \"element2\",\n"
-            + "    \"element3\"\n"
-            + "  ],\n"
-            + "  \"object\": {\n"
-            + "    \"children_string\": \"This is a text\",\n"
-            + "    \"children_number\": 1\n"
-            + "  },\n"
-            + "  \"object_array\": [\n"
-            + "    {\n"
-            + "      \"id\": 1,\n"
-            + "      \"name\": \"one\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"id\": 2,\n"
-            + "      \"name\": \"two\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"id\": 3,\n"
-            + "      \"name\": \"three\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"escape_sequence\":[\n"
-            + "    \"quotation mark : \\\" padding\",\n"
-            + "    \"reverse solidas : \\\\ padding\",\n"
-            + "    \"backspace : \\b padding\",\n"
-            + "    \"formfeed : \\f padding\",\n"
-            + "    \"newline : \\n padding\",\n"
-            + "    \"carriage return : \\r padding\",\n"
-            + "    \"horizontal tab: \\t padding\",\n"
-            + "    \"hex digit: \\u12ab padding\"\n"
-            + "  ]\n"
-            + "}";
-    JsonNode jsonNode = Json.node(json);
-    byte[] result = Json.toByteArrayEscaped(jsonNode);
-    byte[] jsonCompressedAndEscaped =
-        jsonNode
-            .toString()
-            .replace("\\\"", "\"")
-            .replace("\\\\", "\\")
-            .replace("\\b", "\b")
-            .replace("\\f", "\f")
-            .replace("\\n", "\n")
-            .replace("\\r", "\r")
-            .replace("\\t", "\t")
-            .replaceAll("\\\\u12ab", "\u12ab")
-            .getBytes(StandardCharsets.UTF_8);
-    assertThat(result, is(jsonCompressedAndEscaped));
   }
 
   private static class TestPojo {
