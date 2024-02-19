@@ -17,13 +17,13 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
-import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Strings;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -32,46 +32,33 @@ public class Body {
   private final byte[] content;
   private final boolean binary;
   private final boolean json;
-  private final JsonNode jsonContent;
 
   public Body(byte[] content) {
     this(content, true);
   }
 
   public Body(String content) {
-    this.content = bytesFromString(content);
-    this.binary = false;
-    this.json = false;
-    this.jsonContent = null;
+    this.content = Strings.bytesFromString(content);
+    binary = false;
+    json = false;
   }
 
   private Body(byte[] content, boolean binary) {
     this.content = content;
     this.binary = binary;
-    this.json = false;
-    this.jsonContent = null;
+    json = false;
   }
 
   private Body(byte[] content, boolean binary, boolean json) {
-    if (json) {
-      JsonNode jsonNode = Json.node(stringFromBytes(content));
-      this.content = Json.toByteArrayEscaped(jsonNode);
-      this.binary = binary;
-      this.json = true;
-      this.jsonContent = jsonNode;
-    } else {
-      this.content = content;
-      this.binary = binary;
-      this.json = false;
-      this.jsonContent = null;
-    }
+    this.content = content;
+    this.binary = binary;
+    this.json = json;
   }
 
   private Body(JsonNode content) {
-    this.content = Json.toByteArrayEscaped(content);
+    this.content = Json.toByteArray(content);
     binary = false;
     json = true;
-    jsonContent = content;
   }
 
   static Body fromBytes(byte[] bytes) {
@@ -123,11 +110,7 @@ public class Body {
   }
 
   public JsonNode asJson() {
-    if (isJson()) {
-      return jsonContent;
-    } else {
-      return Json.node(asString());
-    }
+    return Json.node(asString());
   }
 
   public boolean isJson() {
