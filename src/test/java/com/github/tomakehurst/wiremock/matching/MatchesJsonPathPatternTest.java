@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,30 @@ public class MatchesJsonPathPatternTest {
     assertFalse(
         pattern.match("{ \"numbers\": [{\"number\": 7} ]}").isExactMatch(),
         "Expected no match when JSON attribute is absent");
+  }
+
+  @Test
+  public void matchesOnJsonPathsWithDecimalFilters() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.decimal == '2.3')]");
+
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present and the same as the filter");
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3000} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present, the same as the filter but with trailing zeros");
+  }
+
+  @Test
+  public void matchesOnJsonPathsWithDecimalFiltersWithTrailingZeros() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.decimal == '2.3000')]");
+
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present, the same as the filter but without trailing zeros");
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3000} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present and the same as the filter");
   }
 
   @Test
