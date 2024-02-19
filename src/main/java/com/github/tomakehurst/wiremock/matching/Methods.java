@@ -60,7 +60,7 @@ public class Methods implements NamedValueMatcher<RequestMethod> {
 
   @Override
   public MatchResult match(RequestMethod value) {
-    if (noneOf == null || noneOf.isEmpty()) {
+    if (isNullOrEmptyCollection(noneOf)) {
       return MatchResult.of(this.oneOf.contains(value));
     } else {
       return MatchResult.of(!this.noneOf.contains(value));
