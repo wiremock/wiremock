@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -257,4 +257,21 @@ public class MappingJsonSamples {
           + "           \"body\": \"国家标准\"                       \n"
           + "   }                                                                                          \n"
           + "}\n";
+
+  public static final String MAPPING_REQUEST_JSON_BODY_DECIMALS_NO_TRAILING_ZEROS =
+      "{ 														\n"
+          + "	\"request\": {										\n"
+          + "		\"method\": \"POST\",							\n"
+          + "		\"url\": \"/body/decimals\",	        		\n"
+          + "		\"bodyPatterns\": [								\n"
+          + "			{ \"equalToJson\": {\"float\": 1.2} }   	\n"
+          + "		]												\n"
+          + "	},													\n"
+          + "	\"response\": {										\n"
+          + "		\"status\": 200									\n"
+          + "	}													\n"
+          + "}													";
+
+  public static final String MAPPING_REQUEST_JSON_BODY_DECIMALS_TRAILING_ZEROS =
+      MAPPING_REQUEST_JSON_BODY_DECIMALS_NO_TRAILING_ZEROS.replace("1.2", "1.20000000");
 }
