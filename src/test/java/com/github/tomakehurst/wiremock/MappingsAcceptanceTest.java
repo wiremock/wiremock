@@ -68,6 +68,46 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  public void basicMappingWithNoTrailingZerosMatchingOnDecimalsWithNoTrailingZeros() {
+    testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_JSON_BODY_DECIMALS_NO_TRAILING_ZEROS);
+
+    WireMockResponse noTrailingZerosResponse =
+        testClient.postJson("/body/decimals", "{\"float\": 1.2}");
+
+    assertThat(noTrailingZerosResponse.statusCode(), is(200));
+  }
+
+  @Test
+  public void basicMappingWithNoTrailingZerosMatchingOnDecimalsWithTrailingZeros() {
+    testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_JSON_BODY_DECIMALS_NO_TRAILING_ZEROS);
+
+    WireMockResponse trailingZerosResponse =
+        testClient.postJson("/body/decimals", "{\"float\": 1.2000000}");
+
+    assertThat(trailingZerosResponse.statusCode(), is(200));
+  }
+
+  @Test
+  public void basicMappingWithTrailingZerosMatchingOnDecimalsWithNoTrailingZeros() {
+    testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_JSON_BODY_DECIMALS_TRAILING_ZEROS);
+
+    WireMockResponse noTrailingZerosResponse =
+        testClient.postJson("/body/decimals", "{\"float\": 1.2}");
+
+    assertThat(noTrailingZerosResponse.statusCode(), is(200));
+  }
+
+  @Test
+  public void basicMappingWithTrailingZerosMatchingOnDecimalsWithTrailingZeros() {
+    testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_JSON_BODY_DECIMALS_TRAILING_ZEROS);
+
+    WireMockResponse trailingZerosResponse =
+        testClient.postJson("/body/decimals", "{\"float\": 1.200}");
+
+    assertThat(trailingZerosResponse.statusCode(), is(200));
+  }
+
+  @Test
   public void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
     testClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
 
