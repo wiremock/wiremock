@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,15 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapter;
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.MultiPartInputStreamParser;
 
-public class MultipartParser {
+public class MultipartParser implements BiFunction<byte[], String, Collection<Request.Part>> {
 
   @SuppressWarnings("unchecked")
-  public static Collection<Request.Part> parse(byte[] body, String contentType) {
+  @Override
+  public Collection<Request.Part> apply(byte[] body, String contentType) {
     MultiPartInputStreamParser parser =
         new MultiPartInputStreamParser(new ByteArrayInputStream(body), contentType, null, null);
     try {

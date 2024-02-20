@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -394,6 +395,9 @@ public class RequestPatternTest {
     assertFalse(matchResult.isExactMatch());
   }
 
+  @EnabledIfJettyVersion(
+      major = 11,
+      reason = "Jetty 12 and above does not decode BASE64 content encoding")
   @Test
   public void matchesExactlyWith0DistanceWhenMultipartPatternsAllMatch() {
     RequestPattern requestPattern =
@@ -476,6 +480,9 @@ public class RequestPatternTest {
     assertFalse(matchResult.isExactMatch());
   }
 
+  @EnabledIfJettyVersion(
+      major = 11,
+      reason = "Jetty 12 and above does not decode BASE64 content encoding")
   @Test
   public void matchesExactlyWith0DistanceWhenAllMultipartPatternsMatchAllParts() {
     RequestPattern requestPattern =

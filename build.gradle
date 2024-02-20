@@ -578,7 +578,10 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
   sourceSets {
     jetty12 {
       java {
-        srcDirs = ['src/main/jetty12']
+        srcDirs = [
+          'src/main/jetty12',
+          'src/test/jetty12'
+        ]
       }
     }
   }
