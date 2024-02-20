@@ -44,7 +44,7 @@ public interface JettyHttpUtils {
    * version.
    *
    * @param status status
-   * @param status reason
+   * @param reason reason
    * @param httpServletResponse {@link HttpServletResponse} instance to set status and reason (if
    *     supported)
    */

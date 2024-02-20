@@ -579,15 +579,28 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
     jetty12 {
       java {
         srcDirs = [
-          'src/main/jetty12',
+          'src/main/jetty12'
+        ]
+        destinationDirectory = layout.buildDirectory.dir("classes/jetty12/main")
+      }
+    }
+    jetty12test {
+      java {
+        srcDirs = [
           'src/test/jetty12'
         ]
+        destinationDirectory = layout.buildDirectory.dir("classes/jetty12/test")
+        compileClasspath += sourceSets.jetty12.compileClasspath
+        compileClasspath += sourceSets.test.compileClasspath
+        compileClasspath += sourceSets.test.output
       }
     }
   }
 
   configurations {
     jetty12Implementation.extendsFrom(implementation)
+    jetty12testImplementation.extendsFrom(testImplementation)
+    jetty12testRuntime.extendsFrom(testRuntime)
   }
 
   dependencies {
@@ -597,11 +610,15 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
     jetty12Implementation "org.eclipse.jetty:jetty-proxy:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty:jetty-alpn-server:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
-    jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty12"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
     jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-webapp"
+
+    jetty12testImplementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty12"
+    jetty12testImplementation "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty12"
+    jetty12testRuntime "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty12"
+    jetty12testRuntime "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty12"
   }
 
   compileJetty12Java {
@@ -615,6 +632,8 @@ if (JavaVersion.current() >= JavaVersion.VERSION_17) {
   tasks.register('jetty12test', Test) {
     classpath += sourceSets.jetty12.runtimeClasspath
     classpath += sourceSets.jetty12.output
+    classpath += sourceSets.jetty12test.runtimeClasspath
+    testClassesDirs += sourceSets.jetty12test.output.classesDirs
 
     // Filter out all Jetty 11 artifacts (name vary and does not start with jetty all the time)
     classpath -= files(classpath.findAll {

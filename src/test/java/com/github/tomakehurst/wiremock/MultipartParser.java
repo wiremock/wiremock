@@ -17,19 +17,19 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import java.util.Collection;
-import java.util.function.BiFunction;
 
 public interface MultipartParser {
-  public static Collection<Request.Part> parts(byte[] body, String contentType) {
+  Collection<Request.Part> parse(byte[] body, String contentType);
+
+  static Collection<Request.Part> parts(byte[] body, String contentType) {
     try {
       @SuppressWarnings("unchecked")
       final Class<? extends MultipartParser> parserClass =
           (Class<? extends MultipartParser>)
               Class.forName("com.github.tomakehurst.wiremock.jetty12.MultipartParser");
-      return ((BiFunction<byte[], String, Collection<Request.Part>>) parserClass.newInstance())
-          .apply(body, contentType);
+      return ((MultipartParser) parserClass.newInstance()).parse(body, contentType);
     } catch (Exception e) {
-      return new com.github.tomakehurst.wiremock.jetty11.MultipartParser().apply(body, contentType);
+      return new com.github.tomakehurst.wiremock.jetty11.MultipartParser().parse(body, contentType);
     }
   }
 }

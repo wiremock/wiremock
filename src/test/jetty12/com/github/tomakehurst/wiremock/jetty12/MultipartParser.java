@@ -23,7 +23,6 @@ import jakarta.servlet.http.Part;
 import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.client.BytesRequestContent;
 import org.eclipse.jetty.ee10.servlet.ServletMultiPartFormData.Parts;
@@ -32,10 +31,10 @@ import org.eclipse.jetty.http.MultiPartFormData;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.util.Attributes;
 
-public class MultipartParser implements BiFunction<byte[], String, Collection<Request.Part>> {
+public class MultipartParser implements com.github.tomakehurst.wiremock.MultipartParser {
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Request.Part> apply(byte[] body, String contentType) {
+  public Collection<Request.Part> parse(byte[] body, String contentType) {
     String boundary = MultiPart.extractBoundary(contentType);
 
     final File filesDirectory = new File(System.getProperty("java.io.tmpdir"));

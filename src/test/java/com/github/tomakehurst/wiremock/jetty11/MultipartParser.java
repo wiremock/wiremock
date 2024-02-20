@@ -21,15 +21,12 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapter;
 import java.io.ByteArrayInputStream;
 import java.util.Collection;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.MultiPartInputStreamParser;
 
-public class MultipartParser implements BiFunction<byte[], String, Collection<Request.Part>> {
-
-  @SuppressWarnings("unchecked")
+public class MultipartParser implements com.github.tomakehurst.wiremock.MultipartParser {
   @Override
-  public Collection<Request.Part> apply(byte[] body, String contentType) {
+  public Collection<Request.Part> parse(byte[] body, String contentType) {
     MultiPartInputStreamParser parser =
         new MultiPartInputStreamParser(new ByteArrayInputStream(body), contentType, null, null);
     try {
