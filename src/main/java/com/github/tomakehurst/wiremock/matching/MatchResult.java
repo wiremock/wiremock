@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.List;
 import java.util.Queue;
@@ -92,27 +93,46 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   public static MatchResult aggregateWeighted(final List<WeightedMatchResult> matchResults) {
 
-    final List<SubEvent> allSubEvents =
-        matchResults.stream()
-            .flatMap(weightedResult -> weightedResult.getMatchResult().getSubEvents().stream())
-            .collect(Collectors.toList());
+    return new MatchResult() {
 
-    return new MatchResult(allSubEvents) {
+      private final Lazy<Boolean> exactMatch =
+          Lazy.lazy(() -> matchResults.stream().allMatch(ARE_EXACT_MATCH));
+      private final Lazy<Double> distance =
+          Lazy.lazy(
+              () -> {
+                double totalDistance = 0;
+                double sizeWithWeighting = 0;
+                for (WeightedMatchResult matchResult : matchResults) {
+                  totalDistance += matchResult.getDistance();
+                  sizeWithWeighting += matchResult.getWeighting();
+                }
+
+                return (totalDistance / sizeWithWeighting);
+              });
+
+      private final Lazy<List<SubEvent>> subEvents =
+          Lazy.lazy(
+              () -> {
+                isExactMatch(); // TODO: Find a less icky way to do this
+                return matchResults.stream()
+                    .flatMap(
+                        weightedResult -> weightedResult.getMatchResult().getSubEvents().stream())
+                    .collect(Collectors.toList());
+              });
+
       @Override
       public boolean isExactMatch() {
-        return matchResults.stream().allMatch(ARE_EXACT_MATCH);
+        return exactMatch.get();
       }
 
       @Override
       public double getDistance() {
-        double totalDistance = 0;
-        double sizeWithWeighting = 0;
-        for (WeightedMatchResult matchResult : matchResults) {
-          totalDistance += matchResult.getDistance();
-          sizeWithWeighting += matchResult.getWeighting();
-        }
+        return distance.get();
+      }
 
-        return (totalDistance / sizeWithWeighting);
+      @Override
+      public List<SubEvent> getSubEvents() {
+        return subEvents.get();
       }
     };
   }

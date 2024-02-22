@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,5 +58,53 @@ public class SubServeEventsAcceptanceTest extends AcceptanceTestBase {
         failedJsonParseWarning.getDataAs(Errors.class).getErrors().stream().findFirst().get();
     assertThat(
         error.getDetail(), containsString("Unexpected end-of-input within/between Object entries"));
+  }
+
+  @Test
+  void onlyAppendsOneEqualToJsonErrorSubEventPerOccurance() {
+    wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 1 }")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 2 }")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(equalToJson("{ \"thing\": 3 }")).willReturn(ok()));
+
+    testClient.postXml("/json", "<whoops />");
+
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    assertThat(
+        serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.JSON_ERROR))
+            .count(),
+        is(1L));
+  }
+
+  @Test
+  void onlyAppendsOneXmlParsingSubEventPerOccurance() {
+    wm.stubFor(post("/xml").withRequestBody(equalToXml("<some-xml id='1'/>")).willReturn(ok()));
+    wm.stubFor(post("/xml").withRequestBody(equalToXml("<some-xml id='2'/>")).willReturn(ok()));
+    wm.stubFor(post("/xml").withRequestBody(equalToXml("<some-xml id='3'/>")).willReturn(ok()));
+
+    testClient.postXml("/xml", "{}");
+
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    assertThat(
+        serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.WARNING))
+            .count(),
+        is(1L));
+  }
+
+  @Test
+  void onlyAppendsOneMatchesJsonPathErrorSubEventPerOccurance() {
+    wm.stubFor(post("/json").withRequestBody(matchingJsonPath("$.thing")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(matchingJsonPath("$.id")).willReturn(ok()));
+    wm.stubFor(post("/json").withRequestBody(matchingJsonPath("$.name")).willReturn(ok()));
+
+    testClient.postXml("/json", "<whoops />");
+
+    ServeEvent serveEvent = wm.getAllServeEvents().get(0);
+    assertThat(
+        serveEvent.getSubEvents().stream()
+            .filter(sub -> sub.getType().equals(SubEvent.WARNING))
+            .count(),
+        is(1L));
   }
 }

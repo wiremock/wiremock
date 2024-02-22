@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,30 @@ public class MatchesJsonPathPatternTest {
   }
 
   @Test
+  public void matchesOnJsonPathsWithDecimalFilters() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.decimal == '2.3')]");
+
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present and the same as the filter");
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3000} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present, the same as the filter but with trailing zeros");
+  }
+
+  @Test
+  public void matchesOnJsonPathsWithDecimalFiltersWithTrailingZeros() {
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.decimal == '2.3000')]");
+
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present, the same as the filter but without trailing zeros");
+    assertTrue(
+        pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"decimal\": 2.3000} ]}").isExactMatch(),
+        "Expected match when JSON attribute is present and the same as the filter");
+  }
+
+  @Test
   public void matchesOnJsonPathsWithRegexFilter() {
     StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number =~ /2/i)]");
 
@@ -108,7 +132,7 @@ public class MatchesJsonPathPatternTest {
     checkMessage(
         match,
         WARNING,
-        "Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
+        "Warning: JSON path expression failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
   }
 
   private static void checkWarningMessageAndEvent(
@@ -126,7 +150,7 @@ public class MatchesJsonPathPatternTest {
     checkMessage(
         matchResult,
         WARNING,
-        "Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
+        "Warning: JSON path expression failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
   }
 
   @Test
@@ -140,7 +164,7 @@ public class MatchesJsonPathPatternTest {
     checkWarningMessageAndEvent(
         notifier,
         matchResult,
-        "Warning: JSON path expression '$.something' failed to match document '<xml-stuff />' because it's not JSON but probably XML");
+        "Warning: JSON path expression failed to match document '<xml-stuff />' because it's not JSON but probably XML");
   }
 
   @Test
