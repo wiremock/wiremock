@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,44 +39,40 @@ import org.xml.sax.XMLReader;
 
 public class XmlNode {
 
-  protected static final InheritableThreadLocal<XPath> XPATH_CACHE =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected XPath initialValue() {
-          final XPathFactory xPathfactory = XPathFactory.newInstance();
-          return xPathfactory.newXPath();
-        }
-      };
+  protected static final ThreadLocal<XPath> XPATH_CACHE =
+      ThreadLocal.withInitial(
+          () -> {
+            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            return xPathfactory.newXPath();
+          });
 
-  protected static final InheritableThreadLocal<Transformer> TRANSFORMER_CACHE =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected Transformer initialValue() {
-          TransformerFactory transformerFactory;
-          try {
-            // Optimization to get likely transformerFactory directly, rather than going through
-            // FactoryFinder#find
-            transformerFactory =
-                (TransformerFactory)
-                    Class.forName(
-                            "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
-                        .getDeclaredConstructor()
-                        .newInstance();
-          } catch (Exception e) {
-            transformerFactory = TransformerFactory.newInstance();
-          }
-          transformerFactory.setAttribute("indent-number", 2);
+  protected static final ThreadLocal<Transformer> TRANSFORMER_CACHE =
+      ThreadLocal.withInitial(
+          () -> {
+            TransformerFactory transformerFactory;
+            try {
+              // Optimization to get likely transformerFactory directly, rather than going through
+              // FactoryFinder#find
+              transformerFactory =
+                  (TransformerFactory)
+                      Class.forName(
+                              "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
+                          .getDeclaredConstructor()
+                          .newInstance();
+            } catch (Exception e) {
+              transformerFactory = TransformerFactory.newInstance();
+            }
+            transformerFactory.setAttribute("indent-number", 2);
 
-          try {
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(INDENT, "yes");
-            transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
-            return transformer;
-          } catch (TransformerConfigurationException e) {
-            return throwUnchecked(e, Transformer.class);
-          }
-        }
-      };
+            try {
+              Transformer transformer = transformerFactory.newTransformer();
+              transformer.setOutputProperty(INDENT, "yes");
+              transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+              return transformer;
+            } catch (TransformerConfigurationException e) {
+              return throwUnchecked(e, Transformer.class);
+            }
+          });
 
   private static final Class<XMLReader> DOM2SAX_XMLREADER_CLASS = getDom2SaxAvailability();
 
