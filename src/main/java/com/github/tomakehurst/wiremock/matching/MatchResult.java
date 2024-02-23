@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.List;
 import java.util.Queue;

@@ -38,10 +38,12 @@ public class WeightedAggregateMatchResult extends MatchResult {
               final List<SubEvent> subEvents = new ArrayList<>(matchResults.size());
               return pair(
                   matchResults.stream()
-                      .peek(
-                          weightedResult ->
-                              subEvents.addAll(weightedResult.getMatchResult().getSubEvents()))
-                      .allMatch(WeightedMatchResult::isExactMatch),
+                      .allMatch(
+                          weightedMatchResult -> {
+                            final boolean exactMatch = weightedMatchResult.isExactMatch();
+                            subEvents.addAll(weightedMatchResult.getMatchResult().getSubEvents());
+                            return exactMatch;
+                          }),
                   subEvents);
             });
   }
