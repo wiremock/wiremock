@@ -35,7 +35,8 @@ project.ext {
     jackson        : '2.16.1',
     xmlUnit        : '2.9.1',
     jsonUnit       : '2.38.0',
-    junitJupiter   : '5.10.2'
+    junitJupiter   : '5.10.2',
+    slf4j          : '1.7.36'
   ]
 }
 
@@ -76,8 +77,8 @@ dependencies {
   }
   api "org.ow2.asm:asm:9.6"
 
-  implementation "org.slf4j:slf4j-api:1.7.36"
-  standaloneOnly "org.slf4j:slf4j-nop:1.7.36"
+  compileOnly "org.slf4j:slf4j-api:$versions.slf4j"
+  standaloneOnly "org.slf4j:slf4j-nop:$versions.slf4j"
 
   api "net.sf.jopt-simple:jopt-simple:5.0.4"
 
@@ -125,8 +126,8 @@ dependencies {
 
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
-  testRuntimeOnly "org.slf4j:log4j-over-slf4j:2.0.12"
-  testRuntimeOnly "ch.qos.logback:logback-classic:1.4.0"
+  testRuntimeOnly 'org.slf4j:slf4j-jdk-platform-logging:2.0.12'
+  testRuntimeOnly 'ch.qos.logback:logback-classic:1.4.14'
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
   testImplementation ('net.jockx:littleproxy:1.1.3') {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNet
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.jetty.QueuedThreadPoolFactory;
+import com.github.tomakehurst.wiremock.logging.JavaSystemNotifier;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -93,7 +94,7 @@ public class WireMockConfiguration implements Options {
   private MappingsSource mappingsSource;
   private FilenameMaker filenameMaker;
 
-  private Notifier notifier = new Slf4jNotifier(false);
+  private Notifier notifier = new JavaSystemNotifier(false);
   private boolean requestJournalDisabled = false;
   private Optional<Integer> maxRequestJournalEntries = Optional.empty();
   private List<CaseInsensitiveKey> matchingHeaders = emptyList();

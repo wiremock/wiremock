@@ -23,12 +23,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SingleConnectionServer {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SingleConnectionServer.class);
 
   private final Thread thread;
   private final ServerSocket serverSocket;
@@ -53,7 +49,7 @@ public class SingleConnectionServer {
                     socket.close();
                   }
                 } catch (IOException e) {
-                  LOG.error("Error closing socket", e);
+                  e.printStackTrace();
                 }
               }
             });

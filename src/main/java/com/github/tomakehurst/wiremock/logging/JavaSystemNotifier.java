@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,39 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.logging;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
 
-/**
- * @deprecated Use {@link com.github.tomakehurst.wiremock.logging.JavaSystemNotifier} instead
- */
-@Deprecated
-public class Slf4jNotifier implements Notifier {
+import com.github.tomakehurst.wiremock.common.Notifier;
 
-  private static final Logger log = LoggerFactory.getLogger("WireMock");
+public class JavaSystemNotifier implements Notifier {
+
+  private final System.Logger log = System.getLogger("WireMock");
 
   private final boolean verbose;
 
-  public Slf4jNotifier(boolean verbose) {
+  public JavaSystemNotifier(boolean verbose) {
     this.verbose = verbose;
   }
 
   @Override
   public void info(String message) {
     if (verbose) {
-      log.info(message);
+      log.log(INFO, message);
     }
   }
 
   @Override
   public void error(String message) {
-    log.error(message);
+    log.log(ERROR, message);
   }
 
   @Override
   public void error(String message, Throwable t) {
-    log.error(message, t);
+    log.log(ERROR, message, t);
   }
 }
