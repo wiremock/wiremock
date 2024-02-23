@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class MatchResultTest {
 
@@ -31,6 +34,51 @@ public class MatchResultTest {
     MatchResult.aggregate(
         result1, result2,
         result3); // Expecting no exception to be thrown because getDistance is never called
+  }
+
+  @Test
+  void aggregateWeightedIsLazy() {
+    MatchResult match1 = Mockito.spy(MatchResult.exactMatch());
+    MatchResult match2 = Mockito.spy(MatchResult.exactMatch());
+    MatchResult match3 = Mockito.spy(MatchResult.exactMatch());
+    MatchResult nonMatch1 = Mockito.spy(MatchResult.noMatch());
+    MatchResult nonMatch2 = Mockito.spy(MatchResult.noMatch());
+
+    MatchResult matchResult =
+        MatchResult.aggregateWeighted(
+            weight(match1, 5),
+            weight(match2, 2),
+            weight(nonMatch1, 5),
+            weight(match3, 3),
+            weight(nonMatch2, 2));
+
+    boolean isExactMatch = matchResult.isExactMatch();
+
+    assertThat(isExactMatch, is(false));
+    Mockito.verify(match1).isExactMatch();
+    Mockito.verify(match2).isExactMatch();
+    Mockito.verify(nonMatch1).isExactMatch();
+    Mockito.verifyNoInteractions(match3);
+    Mockito.verifyNoInteractions(nonMatch2);
+  }
+
+  @Test
+  void subEventsAreAggregatedForWeightedMatchResultsWhenIsNotAnOverallExactMatch() {
+    MatchResult match1 = MatchResult.exactMatch(SubEvent.info("1"));
+    MatchResult match2 = MatchResult.exactMatch(SubEvent.info("2"));
+    MatchResult match3 = MatchResult.exactMatch(SubEvent.info("3"));
+    MatchResult nonMatch1 = MatchResult.noMatch(SubEvent.info("4"));
+    MatchResult nonMatch2 = MatchResult.noMatch(SubEvent.info("5"));
+
+    MatchResult matchResult =
+        MatchResult.aggregateWeighted(
+            weight(match1, 5),
+            weight(match2, 2),
+            weight(nonMatch1, 5),
+            weight(match3, 3),
+            weight(nonMatch2, 2));
+
+    assertThat(matchResult.getSubEvents().size(), is(3));
   }
 
   @Test
