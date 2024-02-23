@@ -211,7 +211,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.4.1'
+  version = '3.4.2'
 
 
   sourceCompatibility = 11
