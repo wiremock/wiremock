@@ -244,7 +244,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   }
 
   @Override
-  public <P> MappingBuilder withServeEventListener(
+  public MappingBuilder withServeEventListener(
       ServeEventListenerDefinition eventListenerDefinition) {
     return withServeEventListener(
         eventListenerDefinition.getRequestPhases(),

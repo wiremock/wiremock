@@ -87,7 +87,7 @@ public interface MappingBuilder {
 
   <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
 
-  <P> MappingBuilder withServeEventListener(ServeEventListenerDefinition eventListenerDefinition);
+  MappingBuilder withServeEventListener(ServeEventListenerDefinition eventListenerDefinition);
 
   MappingBuilder withMetadata(Map<String, ?> metadata);
 
