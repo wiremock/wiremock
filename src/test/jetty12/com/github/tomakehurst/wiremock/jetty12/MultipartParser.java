@@ -31,7 +31,8 @@ import org.eclipse.jetty.http.MultiPartFormData;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.util.Attributes;
 
-public class MultipartParser implements com.github.tomakehurst.wiremock.MultipartParser {
+public class MultipartParser
+    implements com.github.tomakehurst.wiremock.MultipartParserLoader.MultipartParser {
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Request.Part> parse(byte[] body, String contentType) {

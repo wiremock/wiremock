@@ -21,7 +21,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
-import com.github.tomakehurst.wiremock.MultipartParser;
+import com.github.tomakehurst.wiremock.MultipartParserLoader;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
@@ -292,7 +292,7 @@ public class MockRequest implements Request {
         contentTypeHeader.isPresent()
             ? contentTypeHeader.firstValue()
             : "multipart/form-data; boundary=BOUNDARY";
-    this.multiparts = MultipartParser.parts(bytesFromString(body), contentType);
+    this.multiparts = MultipartParserLoader.parts(bytesFromString(body), contentType);
 
     return this;
   }

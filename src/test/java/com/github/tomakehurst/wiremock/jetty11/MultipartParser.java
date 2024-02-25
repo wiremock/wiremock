@@ -24,7 +24,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.MultiPartInputStreamParser;
 
-public class MultipartParser implements com.github.tomakehurst.wiremock.MultipartParser {
+public class MultipartParser
+    implements com.github.tomakehurst.wiremock.MultipartParserLoader.MultipartParser {
   @Override
   public Collection<Request.Part> parse(byte[] body, String contentType) {
     MultiPartInputStreamParser parser =

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2024 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.jetty11;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.extension.Extension;
+import java.util.Optional;
 
-@FunctionalInterface
-public interface HttpServerFactory extends Extension {
+public class MultipartParserLoader
+    implements com.github.tomakehurst.wiremock.MultipartParserLoader {
+  private static final String JETTY_11 = "11"; /* Jetty 11 */
 
   @Override
-  default String getName() {
-    return "http-server-factory";
+  public Optional<MultipartParser> getMultipartParser(String jettyMajorVersion) {
+    if (JETTY_11.equalsIgnoreCase(jettyMajorVersion)) {
+      return Optional.of(new com.github.tomakehurst.wiremock.jetty11.MultipartParser());
+    } else {
+      return Optional.empty();
+    }
   }
-
-  HttpServer buildHttpServer(
-      Options options,
-      AdminRequestHandler adminRequestHandler,
-      StubRequestHandler stubRequestHandler);
 }

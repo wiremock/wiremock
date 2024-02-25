@@ -1,0 +1,2 @@
+com.github.tomakehurst.wiremock.jetty11.MultipartParserLoader
+com.github.tomakehurst.wiremock.jetty12.MultipartParserLoader
