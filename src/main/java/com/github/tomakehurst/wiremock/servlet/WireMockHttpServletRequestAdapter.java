@@ -27,7 +27,6 @@ import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.multipart.PartParser;
 import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
-import com.github.tomakehurst.wiremock.jetty.JettyUtils;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
@@ -267,7 +266,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public boolean isBrowserProxyRequest() {
     // Avoid the performance hit if browser proxying is disabled
-    if (!browserProxyingEnabled || !JettyUtils.isJetty()) {
+    if (!browserProxyingEnabled || !JettyHttpUtils.isJetty()) {
       return false;
     }
 

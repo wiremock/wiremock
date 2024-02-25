@@ -23,6 +23,23 @@ import org.eclipse.jetty.server.Response;
 
 /** Helper utility interface to inject Jetty 11/12/... specific response / request handling */
 public interface JettyHttpUtils {
+  static final boolean IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
+
+  static boolean isJetty() {
+    return IS_JETTY;
+  }
+
+  private static boolean isClassExist(String type) {
+    try {
+      ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+      ClassLoader loader = contextCL == null ? JettyHttpUtils.class.getClassLoader() : contextCL;
+      Class.forName(type, false, loader);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
   /**
    * Unwraps Jetty's {@link Response} out of the {@link HttpServletResponse}
    *
