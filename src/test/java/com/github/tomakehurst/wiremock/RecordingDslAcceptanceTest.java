@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
-import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.Strings.rightPad;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM;
 import static org.apache.hc.core5.http.ContentType.TEXT_PLAIN;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +39,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import java.io.File;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -293,7 +293,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
   public void recordsIntoPlainBinaryWhenResponseIsGZipped() {
     proxyingService.startRecording(targetBaseUrl);
 
-    byte[] originalBody = "sdkfnslkdjfsjdf".getBytes(DEFAULT_CHARSET);
+    byte[] originalBody = "sdkfnslkdjfsjdf".getBytes(UTF_8);
     byte[] gzippedBody = gzip(originalBody);
     targetService.stubFor(
         get("/gzipped-response")
@@ -337,7 +337,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
             .willReturn(
                 aResponse()
                     .withHeader(CONTENT_TYPE, "text/plain")
-                    .withBody(StringUtils.rightPad("", 10241, 'a'))));
+                    .withBody(rightPad("", 10241, 'a'))));
 
     proxyingService.startRecording(recordSpec().forTarget(targetBaseUrl));
 
@@ -359,7 +359,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
             .willReturn(
                 aResponse()
                     .withHeader(CONTENT_TYPE, "text/plain")
-                    .withBody(StringUtils.rightPad("", 10239, 'a'))));
+                    .withBody(rightPad("", 10239, 'a'))));
 
     proxyingService.startRecording(recordSpec().forTarget(targetBaseUrl));
 

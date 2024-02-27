@@ -15,9 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
+
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
-import org.apache.commons.lang3.StringUtils;
 
 class DiffLine<V> {
 
@@ -55,8 +56,8 @@ class DiffLine<V> {
   }
 
   public String getMessage() {
-    String message = null;
-    if (value == null || StringUtils.isEmpty(value.toString())) {
+    String message;
+    if (value == null || isEmpty(value.toString())) {
       message = requestAttribute + " is not present";
     } else {
       message = isExactMatch() ? null : requestAttribute + " does not match";

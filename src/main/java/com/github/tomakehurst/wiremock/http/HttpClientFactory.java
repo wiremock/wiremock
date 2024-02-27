@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
 import static com.github.tomakehurst.wiremock.common.ssl.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
@@ -107,7 +107,7 @@ public class HttpClientFactory {
     if (proxySettings != NO_PROXY) {
       HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
       builder.setProxy(proxyHost);
-      if (!isEmpty(proxySettings.getUsername()) && !isEmpty(proxySettings.getPassword())) {
+      if (isNotEmpty(proxySettings.getUsername()) && isNotEmpty(proxySettings.getPassword())) {
         builder.setProxyAuthenticationStrategy(new DefaultAuthenticationStrategy()); // TODO Verify
         BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(
@@ -144,10 +144,6 @@ public class HttpClientFactory {
         );
   }
 
-  /**
-   * Copied from {@link HttpClientBuilder#split(String)} which is not the same as {@link
-   * org.apache.commons.lang3.StringUtils#split(String)}
-   */
   private static String[] split(final String s) {
     if (TextUtils.isBlank(s)) {
       return null;
