@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common.filemaker;
 
 import static com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine.defaultTemplateEngine;
+import static java.lang.Math.min;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.HandlebarsOptimizedTemplate;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
@@ -23,7 +24,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 
 public class FilenameMaker {
   public static final String DEFAULT_FILENAME_TEMPLATE =
@@ -68,7 +68,7 @@ public class FilenameMaker {
     String pathWithoutWhitespace = WHITESPACE.matcher(startingPath).replaceAll("-");
     String normalizedPath = Normalizer.normalize(pathWithoutWhitespace, Normalizer.Form.NFD);
     String slug = sanitise(normalizedPath).replaceAll("^[_]*", "").replaceAll("[_]*$", "");
-    slug = StringUtils.truncate(slug, 200);
+    slug = slug.substring(0, min(slug.length(), 200));
     return slug;
   }
 

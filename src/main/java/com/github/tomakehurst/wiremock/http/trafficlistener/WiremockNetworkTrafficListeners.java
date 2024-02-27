@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.http.trafficlistener;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 public final class WiremockNetworkTrafficListeners {
   private static final ConsoleNotifier CONSOLE_NOTIFIER = new ConsoleNotifier(true);
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private WiremockNetworkTrafficListeners() {}
 
@@ -31,7 +31,7 @@ public final class WiremockNetworkTrafficListeners {
   }
 
   public static WiremockNetworkTrafficListener createConsoleNotifying() {
-    return new NotifyingWiremockNetworkTrafficListener(CONSOLE_NOTIFIER, DEFAULT_CHARSET);
+    return new NotifyingWiremockNetworkTrafficListener(CONSOLE_NOTIFIER, UTF_8);
   }
 
   public static WiremockNetworkTrafficListener createConsoleNotifying(Charset charset) {

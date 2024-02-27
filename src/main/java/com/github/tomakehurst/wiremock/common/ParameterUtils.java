@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,16 @@ public class ParameterUtils {
       return second;
     }
     throw new NullPointerException("Both parameters are null");
+  }
+
+  public static <T> T getFirstNonNull(T first, T second, String etr) {
+    if (first != null) {
+      return first;
+    }
+    if (second != null) {
+      return second;
+    }
+    throw new NullPointerException(etr);
   }
 
   public static void checkParameter(boolean condition, String errorMessage) {

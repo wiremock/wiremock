@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
+
 import com.github.tomakehurst.wiremock.common.Urls;
 import java.net.URI;
 import java.util.ArrayList;
-import org.apache.commons.lang3.StringUtils;
 
 public class UrlPath extends ArrayList<String> {
 
@@ -29,7 +30,7 @@ public class UrlPath extends ArrayList<String> {
     Urls.getPathSegments(originalPath)
         .forEach(
             pathNode -> {
-              if (StringUtils.isNotEmpty(pathNode)) {
+              if (isNotEmpty(pathNode)) {
                 add(pathNode);
               }
             });

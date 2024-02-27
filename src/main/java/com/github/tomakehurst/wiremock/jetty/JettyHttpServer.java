@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.mutable.MutableBoolean;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.NetworkTrafficListener;
@@ -61,7 +61,7 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 public abstract class JettyHttpServer implements HttpServer {
   private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
   private static final String[] GZIPPABLE_METHODS = new String[] {"POST", "PUT", "PATCH", "DELETE"};
-  private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
+  private static final AtomicBoolean STRICT_HTTP_HEADERS_APPLIED = new AtomicBoolean(false);
   private static final int MAX_RETRIES = 3;
 
   protected final Server jettyServer;
@@ -74,9 +74,10 @@ public abstract class JettyHttpServer implements HttpServer {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    if (!options.getDisableStrictHttpHeaders() && STRICT_HTTP_HEADERS_APPLIED.isFalse()) {
+    if (!options.getDisableStrictHttpHeaders()
+        && Boolean.FALSE.equals(STRICT_HTTP_HEADERS_APPLIED.get())) {
       System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", String.valueOf(true));
-      STRICT_HTTP_HEADERS_APPLIED.setTrue();
+      STRICT_HTTP_HEADERS_APPLIED.set(true);
     }
 
     jettyServer = createServer(options);
@@ -148,7 +149,7 @@ public abstract class JettyHttpServer implements HttpServer {
           }
         };
     handlers.setHandlers(
-        ArrayUtils.addAll(extensionHandlers(), adminContext, asyncTimeoutSettingHandler));
+        Stream.of(adminContext, asyncTimeoutSettingHandler).toArray(Handler[]::new));
 
     if (options.getGzipDisabled()) {
       handlers.addHandler(mockServiceContext);
@@ -188,7 +189,7 @@ public abstract class JettyHttpServer implements HttpServer {
   }
 
   /** Extend only this method if you want to add additional handlers to Jetty. */
-  protected Handler[] extensionHandlers() {
+  public Handler[] extensionHandlers() {
     return new Handler[] {};
   }
 

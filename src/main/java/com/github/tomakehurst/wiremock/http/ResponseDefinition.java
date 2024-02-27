@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.LOCATION;
+import static com.github.tomakehurst.wiremock.common.Strings.removeStart;
 import static java.net.HttpURLConnection.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -34,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 
 public class ResponseDefinition {
 
@@ -398,8 +398,8 @@ public class ResponseDefinition {
     }
 
     String originalRequestUrl =
-        Optional.ofNullable(originalRequest).map(Request::getUrl).orElse(StringUtils.EMPTY);
-    return proxyBaseUrl + StringUtils.removeStart(originalRequestUrl, proxyUrlPrefixToRemove);
+        Optional.ofNullable(originalRequest).map(Request::getUrl).orElse("");
+    return proxyBaseUrl + removeStart(originalRequestUrl, proxyUrlPrefixToRemove);
   }
 
   public String getProxyBaseUrl() {

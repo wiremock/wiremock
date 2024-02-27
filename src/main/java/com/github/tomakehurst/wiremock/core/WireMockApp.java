@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,15 +40,15 @@ import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class WireMockApp implements StubServer, Admin {
 
   public static final String FILES_ROOT = "__files";
   public static final String ADMIN_CONTEXT_ROOT = "/__admin";
   public static final String MAPPINGS_ROOT = "mappings";
-  private static final MutableBoolean FACTORIES_LOADING_OPTIMIZED = new MutableBoolean(false);
+  private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);
 
   private final Stores stores;
   private final Scenarios scenarios;
@@ -69,9 +69,10 @@ public class WireMockApp implements StubServer, Admin {
   private Extensions extensions;
 
   public WireMockApp(Options options, Container container) {
-    if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
+    if (!options.getDisableOptimizeXmlFactoriesLoading()
+        && Boolean.FALSE.equals(FACTORIES_LOADING_OPTIMIZED.get())) {
       Xml.optimizeFactoriesLoading();
-      FACTORIES_LOADING_OPTIMIZED.setTrue();
+      FACTORIES_LOADING_OPTIMIZED.set(true);
     }
 
     this.options = options;
