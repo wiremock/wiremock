@@ -52,17 +52,6 @@ dependencies {
   api "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty"
   api "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty"
 
-  testCompileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.junit.platform:junit-platform-testkit")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation("org.junit.platform:junit-platform-launcher")
-  testImplementation("org.junit.jupiter:junit-jupiter-params")
-  testImplementation('org.junit-pioneer:junit-pioneer:2.2.0')
-
-  testImplementation "org.hamcrest:hamcrest-core:2.2"
-  testImplementation "org.hamcrest:hamcrest-library:2.2"
-  testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty"
   testImplementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty"
   testImplementation "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"

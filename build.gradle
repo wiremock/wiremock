@@ -214,7 +214,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.4.2'
+  version = '3.5.0'
 
   compileJava {
     options.encoding = 'UTF-8'
@@ -271,17 +271,6 @@ java {
   withSourcesJar()
   withJavadocJar()
 }
-
-//task archTest(type: Test) {
-//  description = 'Runs the ArchUnit tests'
-//  useJUnitPlatform()
-//
-//  include '**/archunit/**'
-//
-//  classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
-//}
-
-//check.dependsOn archTest
 
 task testJar(type: Jar, dependsOn: testClasses) {
   archiveClassifier.set('tests')
