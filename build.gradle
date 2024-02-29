@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
   id 'java-library'
+  id 'java-test-fixtures'
   id 'scala'
   id 'signing'
   id 'maven-publish'
@@ -31,7 +32,6 @@ project.ext {
   versions = [
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
-    jetty12        : '12.0.6',
     guava          : '33.0.0-jre',
     jackson        : '2.16.1',
     xmlUnit        : '2.9.1',
@@ -103,25 +103,27 @@ dependencies {
 
   api 'com.networknt:json-schema-validator:1.3.3'
 
-  testImplementation "junit:junit:4.13.2"
-  testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
-  testImplementation("org.junit.platform:junit-platform-testkit")
-  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
-  testImplementation("org.junit.platform:junit-platform-launcher")
-  testImplementation("org.junit.jupiter:junit-jupiter-params")
-  testImplementation('org.junit-pioneer:junit-pioneer:2.2.0')
+  testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
+  testFixturesApi("org.junit.platform:junit-platform-testkit")
+  testFixturesApi("org.junit.platform:junit-platform-launcher")
+  testFixturesApi("org.junit.jupiter:junit-jupiter-params")
+  testFixturesApi('org.junit-pioneer:junit-pioneer:2.2.0')
+  testFixturesApi "org.hamcrest:hamcrest-core:2.2"
+  testFixturesApi "org.hamcrest:hamcrest-library:2.2"
+  testFixturesApi 'org.mockito:mockito-core:5.10.0'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.10.0'
+  testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
+  testFixturesApi "org.skyscreamer:jsonassert:1.2.3"
+  testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
+  testFixturesApi 'org.awaitility:awaitility:4.2.0'
+  testFixturesApi "com.googlecode.jarjar:jarjar:1.3"
+  testFixturesApi "commons-io:commons-io:2.15.1"
 
-  testImplementation "org.hamcrest:hamcrest-core:2.2"
-  testImplementation "org.hamcrest:hamcrest-library:2.2"
-  testImplementation 'org.mockito:mockito-core:5.10.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
-  testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
-  testImplementation "org.skyscreamer:jsonassert:1.2.3"
-  testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
-  testImplementation 'org.awaitility:awaitility:4.2.0'
-  testImplementation "com.googlecode.jarjar:jarjar:1.3"
-  testImplementation "commons-io:commons-io:2.15.1"
+
+  testImplementation "junit:junit:4.13.2"
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
   testImplementation 'org.scala-lang:scala-library:2.13.13'
+
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
   testImplementation "org.eclipse.jetty:jetty-client"
@@ -214,10 +216,6 @@ allprojects {
 
   version = '3.4.2'
 
-
-  sourceCompatibility = 11
-  targetCompatibility = 11
-
   compileJava {
     options.encoding = 'UTF-8'
 
@@ -239,6 +237,8 @@ allprojects {
     useJUnitPlatform()
     exclude 'ignored/**'
 
+    classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+
     maxParallelForks = runningOnCI ? 1 : 3
 
     testLogging {
@@ -247,12 +247,12 @@ allprojects {
     }
   }
 
-  jacocoTestReport {
-    reports {
-      xml.required = true
-    }
-  }
-  test.finalizedBy jacocoTestReport
+  //  jacocoTestReport {
+  //    reports {
+  //      xml.required = true
+  //    }
+  //  }
+  //  test.finalizedBy jacocoTestReport
 
   sonarqube {
     properties {
@@ -266,9 +266,22 @@ allprojects {
 }
 
 java {
+  sourceCompatibility = 11
+  targetCompatibility = 11
   withSourcesJar()
   withJavadocJar()
 }
+
+//task archTest(type: Test) {
+//  description = 'Runs the ArchUnit tests'
+//  useJUnitPlatform()
+//
+//  include '**/archunit/**'
+//
+//  classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+//}
+
+//check.dependsOn archTest
 
 task testJar(type: Jar, dependsOn: testClasses) {
   archiveClassifier.set('tests')
@@ -571,92 +584,4 @@ int getBetaVersion() {
 wrapper {
   gradleVersion = '8.6'
   distributionType = Wrapper.DistributionType.BIN
-}
-
-// Configure Jetty 12 support (only when building with JDK-17 or above)
-if (JavaVersion.current() >= JavaVersion.VERSION_17) {
-  sourceSets {
-    jetty12 {
-      java {
-        srcDirs = [
-          'src/main/jetty12'
-        ]
-        destinationDirectory = layout.buildDirectory.dir("classes/jetty12/main")
-      }
-    }
-    jetty12test {
-      java {
-        srcDirs = [
-          'src/test/jetty12'
-        ]
-        destinationDirectory = layout.buildDirectory.dir("classes/jetty12/test")
-        compileClasspath += sourceSets.jetty12.compileClasspath
-        compileClasspath += sourceSets.test.compileClasspath
-        compileClasspath += sourceSets.test.output
-      }
-    }
-  }
-
-  configurations {
-    jetty12Implementation.extendsFrom(implementation)
-    jetty12testImplementation.extendsFrom(testImplementation)
-    jetty12testRuntime.extendsFrom(testRuntime)
-  }
-
-  dependencies {
-    jetty12Implementation sourceSets.main.output
-    jetty12Implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty12")
-    jetty12Implementation "org.eclipse.jetty:jetty-server:$versions.jetty12"
-    jetty12Implementation "org.eclipse.jetty:jetty-proxy:$versions.jetty12"
-    jetty12Implementation "org.eclipse.jetty:jetty-alpn-server:$versions.jetty12"
-    jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty12"
-    jetty12Implementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty12"
-    jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
-    jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-servlets"
-    jetty12Implementation "org.eclipse.jetty.ee10:jetty-ee10-webapp"
-
-    jetty12testImplementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty12"
-    jetty12testImplementation "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty12"
-    jetty12testRuntime "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty12"
-    jetty12testRuntime "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty12"
-  }
-
-  compileJetty12Java {
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-
-  jar {
-    from sourceSets.jetty12.output
-  }
-
-  tasks.register('jetty12test', Test) {
-    classpath += sourceSets.jetty12.runtimeClasspath
-    classpath += sourceSets.jetty12.output
-    classpath += sourceSets.jetty12test.runtimeClasspath
-    testClassesDirs += sourceSets.jetty12test.output.classesDirs
-
-    // Filter out all Jetty 11 artifacts (name vary and does not start with jetty all the time)
-    classpath -= files(classpath.findAll {
-      it.getName().matches("jetty-.+-${versions.jetty}.jar") ||
-          it.getName().matches("http2-.+-${versions.jetty}.jar")
-    })
-
-    // Inherit the settings from the test task
-    // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
-    systemProperty 'user.timezone', 'Australia/Sydney'
-
-    useJUnitPlatform()
-    exclude 'ignored/**'
-    exclude '**/jetty11/**'
-
-    maxParallelForks = runningOnCI ? 1 : 3
-
-    testLogging {
-      events "FAILED", "SKIPPED"
-      exceptionFormat "full"
-    }
-  }
-
-  jacocoTestReport.dependsOn('jetty12test')
-  check.finalizedBy('jetty12test')
 }
