@@ -247,12 +247,12 @@ allprojects {
     }
   }
 
-  //  jacocoTestReport {
-  //    reports {
-  //      xml.required = true
-  //    }
-  //  }
-  //  test.finalizedBy jacocoTestReport
+    jacocoTestReport {
+      reports {
+        xml.required = true
+      }
+    }
+    test.finalizedBy jacocoTestReport
 
   sonarqube {
     properties {
