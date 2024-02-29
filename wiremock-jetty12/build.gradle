@@ -17,6 +17,8 @@ plugins {
   id 'jacoco'
 }
 
+group 'org.wiremock'
+
 java {
   sourceCompatibility = 17
   targetCompatibility = 17
@@ -110,4 +112,8 @@ publishing {
       }
     }
   }
+}
+
+task localRelease {
+  dependsOn clean, assemble, publishToMavenLocal
 }
