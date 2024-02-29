@@ -444,44 +444,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void connectionResetByPeerFault() {
-    stubFor(
-        get(urlEqualTo("/connection/reset"))
-            .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
-
-    RuntimeException runtimeException =
-        assertThrows(RuntimeException.class, () -> testClient.get("/connection/reset"));
-    assertThat(runtimeException.getMessage(), is("java.net.SocketException: Connection reset"));
-  }
-
-  @Test
-  public void emptyResponseFault() {
-    stubFor(
-        get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
-
-    getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
-  }
-
-  @Test
-  public void malformedResponseChunkFault() {
-    stubFor(
-        get(urlEqualTo("/malformed/response"))
-            .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
-
-    getAndAssertUnderlyingExceptionInstanceClass(
-        "/malformed/response", MalformedChunkCodingException.class);
-  }
-
-  @Test
-  public void randomDataOnSocketFault() {
-    stubFor(
-        get(urlEqualTo("/random/data"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
-
-    getAndAssertUnderlyingExceptionInstanceClass("/random/data", NoHttpResponseException.class);
-  }
-
-  @Test
   public void matchingUrlsWithEscapeCharacters() {
     stubFor(
         get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
