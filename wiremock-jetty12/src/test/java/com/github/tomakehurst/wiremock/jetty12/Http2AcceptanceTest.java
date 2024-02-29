@@ -39,6 +39,7 @@ public class Http2AcceptanceTest {
       WireMockExtension.newInstance()
           .options(
               wireMockConfig()
+                  .extensionScanningEnabled(true)
                   .dynamicPort()
                   .dynamicHttpsPort()
                   .httpServerFactory(new Jetty12HttpServerFactory()))

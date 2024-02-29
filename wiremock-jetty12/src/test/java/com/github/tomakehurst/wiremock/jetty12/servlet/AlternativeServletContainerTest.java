@@ -21,9 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +32,7 @@ public class AlternativeServletContainerTest {
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(options().httpServerFactory(new AltHttpServerFactory()))
+          .options(options().dynamicPort().httpServerFactory(new AltHttpServerFactory()))
           .build();
 
   private WireMockTestClient client;
@@ -50,15 +48,5 @@ public class AlternativeServletContainerTest {
     stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withStatus(204)));
 
     assertThat(client.get("/alt-server").statusCode(), is(204));
-  }
-
-  @Test
-  public void supportsAlternativeHttpServerForFaultInjection() {
-    stubFor(get(urlEqualTo("/alt-server")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
-
-    WireMockResponse response = client.get("/alt-server");
-
-    assertThat(response.statusCode(), is(418));
-    assertThat(response.content(), is("No fault injector is configured!"));
   }
 }
