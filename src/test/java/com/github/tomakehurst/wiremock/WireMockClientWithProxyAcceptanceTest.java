@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static java.net.Proxy.Type.HTTP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -25,20 +26,22 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.littleshoot.proxy.HttpProxyServer;
-import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
+
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 
 public class WireMockClientWithProxyAcceptanceTest {
 
   private static WireMockServer wireMockServer;
   private static WireMockTestClient testClient;
-  private static HttpProxyServer proxyServer;
+  private static Proxy proxyServer;
 
   @BeforeAll
   public static void init() {
     wireMockServer = new WireMockServer(DYNAMIC_PORT);
     wireMockServer.start();
-    proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
+    proxyServer = new Proxy(HTTP, new InetSocketAddress("127.0.0.1", wireMockServer.port()));
+
 
     testClient = new WireMockTestClient(wireMockServer.port());
   }
@@ -46,7 +49,6 @@ public class WireMockClientWithProxyAcceptanceTest {
   @AfterAll
   public static void stopServer() {
     wireMockServer.stop();
-    proxyServer.stop();
   }
 
   @Test
@@ -55,8 +57,10 @@ public class WireMockClientWithProxyAcceptanceTest {
         "http",
         "localhost",
         wireMockServer.port(),
-        proxyServer.getListenAddress().getHostString(),
-        proxyServer.getListenAddress().getPort());
+            ((InetSocketAddress) proxyServer.address()).getHostString(),
+            ((InetSocketAddress) proxyServer.address()).getPort());
+
+    proxyServer.address();
 
     givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
@@ -72,8 +76,8 @@ public class WireMockClientWithProxyAcceptanceTest {
             .port(wireMockServer.port())
             .urlPathPrefix("")
             .hostHeader(null)
-            .proxyHost(proxyServer.getListenAddress().getHostString())
-            .proxyPort(proxyServer.getListenAddress().getPort())
+            .proxyHost(((InetSocketAddress) proxyServer.address()).getHostString())
+            .proxyPort(((InetSocketAddress) proxyServer.address()).getPort())
             .build();
 
     wireMock.register(
