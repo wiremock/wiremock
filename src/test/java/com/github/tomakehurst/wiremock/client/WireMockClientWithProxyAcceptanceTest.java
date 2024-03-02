@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,11 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 
 public class WireMockClientWithProxyAcceptanceTest {
 
@@ -57,8 +55,8 @@ public class WireMockClientWithProxyAcceptanceTest {
         "http",
         "localhost",
         wireMockServer.port(),
-            ((InetSocketAddress) proxyServer.address()).getHostString(),
-            ((InetSocketAddress) proxyServer.address()).getPort());
+        ((InetSocketAddress) proxyServer.address()).getHostString(),
+        ((InetSocketAddress) proxyServer.address()).getPort());
 
     givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
