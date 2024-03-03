@@ -39,7 +39,7 @@ public class WireMockClientWithProxyAcceptanceTest {
   public static void init() {
     wireMockServer = new WireMockServer(DYNAMIC_PORT);
     wireMockServer.start();
-    proxyServer = new Proxy(HTTP, new InetSocketAddress("127.0.0.1", wireMockServer.port()));
+    proxyServer = new Proxy(HTTP, new InetSocketAddress("localhost", wireMockServer.port()));
 
     testClient = new WireMockTestClient(wireMockServer.port());
   }
@@ -50,7 +50,7 @@ public class WireMockClientWithProxyAcceptanceTest {
   }
 
   @Test
-  public void supportsProxyingWithTheStaticClient() {
+  void supportsProxyingWithTheStaticClient() {
     WireMock.configureFor(
         "http",
         "localhost",
@@ -58,15 +58,13 @@ public class WireMockClientWithProxyAcceptanceTest {
         ((InetSocketAddress) proxyServer.address()).getHostString(),
         ((InetSocketAddress) proxyServer.address()).getPort());
 
-    proxyServer.address();
-
     givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
     assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
   }
 
   @Test
-  public void supportsProxyingWithTheInstanceClient() {
+  void supportsProxyingWithTheInstanceClient() {
     WireMock wireMock =
         WireMock.create()
             .scheme("http")
