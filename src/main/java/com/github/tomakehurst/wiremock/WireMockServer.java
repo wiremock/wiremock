@@ -258,6 +258,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
   public void removeStub(StubMapping stubMapping) {
     client.removeStubMapping(stubMapping);
   }
+  @Override
+  public void removeStub(UUID id) {
+    client.removeStubMapping(id);
+  }
 
   @Override
   public List<StubMapping> getStubMappings() {
