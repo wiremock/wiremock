@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtension;
+import static com.github.tomakehurst.wiremock.common.AbstractFileSource.byFileExtensions;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
@@ -50,7 +50,7 @@ public class RemoteMappingsLoader {
   public void load() {
     List<TextFile> mappingFiles =
         mappingsFileSource.listFilesRecursively().stream()
-            .filter(byFileExtension("json"))
+            .filter(byFileExtensions(ContentTypes.JSON_FILE_EXTENSIONS))
             .collect(Collectors.toList());
     for (TextFile mappingFile : mappingFiles) {
       try {

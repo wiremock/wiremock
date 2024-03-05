@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -191,6 +192,11 @@ public abstract class AbstractFileSource implements FileSource {
   }
 
   public static Predicate<BinaryFile> byFileExtension(final String extension) {
-    return input -> input.name().endsWith("." + extension);
+    return inputFile -> inputFile.name().endsWith("." + extension);
+  }
+
+  public static Predicate<BinaryFile> byFileExtensions(final Collection<String> extensions) {
+    return inputFile ->
+        extensions.stream().anyMatch(extension -> byFileExtension(extension).test(inputFile));
   }
 }

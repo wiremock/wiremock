@@ -1,6 +1,7 @@
 {
   "request": {"url": "/remote-load/1"},
   "response": {
+    // a json5 comment
     "body": "Remote load 1",
     "status": 200
   }

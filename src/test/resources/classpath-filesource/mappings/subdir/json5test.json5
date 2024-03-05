@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/json5_test"
+  },
+  "response": {
+    jsonBody: {
+      "stringProp": 'json5 \
+          "testing"',
+      numberProp: .5
+    }, 'status': 200, // trailing commas in single-quoted and unquoted properties + comment
+  }
+}
