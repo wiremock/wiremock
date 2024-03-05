@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,29 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static java.net.Proxy.Type.HTTP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.littleshoot.proxy.HttpProxyServer;
-import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 public class WireMockClientWithProxyAcceptanceTest {
 
   private static WireMockServer wireMockServer;
   private static WireMockTestClient testClient;
-  private static HttpProxyServer proxyServer;
+  private static Proxy proxyServer;
 
   @BeforeAll
   public static void init() {
     wireMockServer = new WireMockServer(DYNAMIC_PORT);
     wireMockServer.start();
-    proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
+    proxyServer = new Proxy(HTTP, new InetSocketAddress("localhost", wireMockServer.port()));
 
     testClient = new WireMockTestClient(wireMockServer.port());
   }
@@ -46,17 +47,16 @@ public class WireMockClientWithProxyAcceptanceTest {
   @AfterAll
   public static void stopServer() {
     wireMockServer.stop();
-    proxyServer.stop();
   }
 
   @Test
-  public void supportsProxyingWithTheStaticClient() {
+  void supportsProxyingWithTheStaticClient() {
     WireMock.configureFor(
         "http",
         "localhost",
         wireMockServer.port(),
-        proxyServer.getListenAddress().getHostString(),
-        proxyServer.getListenAddress().getPort());
+        ((InetSocketAddress) proxyServer.address()).getHostString(),
+        ((InetSocketAddress) proxyServer.address()).getPort());
 
     givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
@@ -64,7 +64,7 @@ public class WireMockClientWithProxyAcceptanceTest {
   }
 
   @Test
-  public void supportsProxyingWithTheInstanceClient() {
+  void supportsProxyingWithTheInstanceClient() {
     WireMock wireMock =
         WireMock.create()
             .scheme("http")
@@ -72,8 +72,8 @@ public class WireMockClientWithProxyAcceptanceTest {
             .port(wireMockServer.port())
             .urlPathPrefix("")
             .hostHeader(null)
-            .proxyHost(proxyServer.getListenAddress().getHostString())
-            .proxyPort(proxyServer.getListenAddress().getPort())
+            .proxyHost(((InetSocketAddress) proxyServer.address()).getHostString())
+            .proxyPort(((InetSocketAddress) proxyServer.address()).getPort())
             .build();
 
     wireMock.register(
