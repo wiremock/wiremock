@@ -146,6 +146,10 @@ public class WireMock {
     defaultInstance.get().removeStubMapping(stubMapping);
   }
 
+  public static void removeStub(UUID id) {
+    defaultInstance.get().removeStubMapping(id);
+  }
+
   public static ListStubMappingsResult listAllStubMappings() {
     return defaultInstance.get().allStubMappings();
   }
@@ -457,7 +461,9 @@ public class WireMock {
   public void removeStubMapping(StubMapping stubMapping) {
     admin.removeStubMapping(stubMapping);
   }
-
+  public void removeStubMapping(UUID id) {
+    admin.removeStubMapping(id);
+  }
   public ListStubMappingsResult allStubMappings() {
     return admin.listAllStubMappings();
   }
