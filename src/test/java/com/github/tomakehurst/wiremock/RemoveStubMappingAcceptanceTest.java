@@ -135,6 +135,36 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
     assertThat(getMatchingStubCount("/stb-1", "/stb-2"), is(2));
   }
 
+  @Test
+  public void removeStubWithUUIDThatExists() {
+
+    UUID id1 = UUID.randomUUID();
+
+    stubFor(get(urlEqualTo("/stub-1")).withId(id1).willReturn(aResponse().withBody("Stub-1-Body")));
+
+    assertThat(testClient.get("/stub-1").content(), is("Stub-1-Body"));
+
+    assertThat(getMatchingStubCount("/stub-1", ""), is(1));
+
+    removeStub(id1);
+
+    assertThat(getMatchingStubCount("/stub-1", ""), is(0));
+  }
+
+  @Test
+  public void removeStubWithUUIDThatDoesNotExists() {
+
+    UUID id1 = UUID.randomUUID();
+
+    stubFor(get(urlEqualTo("/stb-1")).withId(id1).willReturn(aResponse().withBody("Stb-1-Body")));
+
+    assertThat(testClient.get("/stb-1").content(), is("Stb-1-Body"));
+
+    removeStub(id1);
+
+    assertThat(getMatchingStubCount("/stb-1", ""), is(0));
+  }
+
   private Predicate<StubMapping> withAnyOf(final String... urls) {
     return mapping ->
         mapping.getRequest().getUrl() != null
