@@ -22,6 +22,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -44,7 +47,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
   }
 
   public List<SubEvent> getSubEvents() {
-    return subEvents.stream().collect(toUnmodifiableList());
+    return new ArrayList<>(subEvents);
   }
 
   @JsonCreator

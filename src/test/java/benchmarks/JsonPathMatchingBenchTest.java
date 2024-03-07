@@ -43,17 +43,30 @@ public class JsonPathMatchingBenchTest {
     wm = new WireMockServer(wireMockConfig().dynamicPort());
     wm.start();
     client = new WireMockTestClient(wm.port());
-
-    for (String topic : TOPICS) {
-      wm.stubFor(
-          post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")).willReturn(ok(topic)));
-    }
   }
 
   @Test
-  public void matched() {
+  public void simple() {
+    for (String topic : TOPICS) {
+      wm.stubFor(
+              post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")).willReturn(ok(topic)));
+    }
+
     final WireMockResponse response =
         client.postJson("/things", String.format(JSON_TEMPLATE, "topic-one"));
+    assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("topic-one"));
+  }
+
+  @Test
+  public void advanced() {
+    for (String topic : TOPICS) {
+      wm.stubFor(
+          post("/things").withRequestBody(matchingJsonPath("$.[*].topic", equalTo(topic))).willReturn(ok(topic)));
+    }
+
+    final WireMockResponse response =
+            client.postJson("/things", String.format(JSON_TEMPLATE, "topic-one"));
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("topic-one"));
   }
