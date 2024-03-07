@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +54,7 @@ public class ProxySettings {
       ProxySettings proxySettings =
           new ProxySettings(
               proxyUrl.getHost(), proxyUrl.getPort() == -1 ? DEFAULT_PORT : proxyUrl.getPort());
-      if (!isEmpty(proxyUrl.getUserInfo())) {
+      if (isNotEmpty(proxyUrl.getUserInfo())) {
         String[] userInfoArray = proxyUrl.getUserInfo().split(":");
         proxySettings.setUsername(userInfoArray[0]);
         if (userInfoArray.length > 1) {
@@ -99,6 +99,6 @@ public class ProxySettings {
     }
 
     return String.format(
-        "%s:%s%s", host(), port(), (!isEmpty(this.username) ? " (with credentials)" : ""));
+        "%s:%s%s", host(), port(), (isNotEmpty(this.username) ? " (with credentials)" : ""));
   }
 }

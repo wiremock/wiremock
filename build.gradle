@@ -87,12 +87,12 @@ dependencies {
   compileOnly(platform("org.junit:junit-bom:$versions.junitJupiter"))
   compileOnly("org.junit.jupiter:junit-jupiter")
 
-  api 'org.apache.commons:commons-lang3:3.14.0'
   api "com.github.jknack:handlebars:$versions.handlebars", {
     exclude group: 'org.mozilla', module: 'rhino'
   }
   api("com.github.jknack:handlebars-helpers:$versions.handlebars") {
     exclude group: 'org.mozilla', module: 'rhino'
+    exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
 
   api 'commons-fileupload:commons-fileupload:1.5',  {

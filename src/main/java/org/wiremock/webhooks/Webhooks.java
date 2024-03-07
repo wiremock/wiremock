@@ -16,9 +16,9 @@
 package org.wiremock.webhooks;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -103,7 +103,7 @@ public class Webhooks extends PostServeAction implements ServeEventListener {
                 String.format(
                     "The target webhook address %s specified by stub %s is denied in WireMock's configuration.",
                     finalDefinition.getUrl(),
-                    firstNonNull(
+                    getFirstNonNull(
                         serveEvent.getStubMapping().getName(),
                         serveEvent.getStubMapping().getId(),
                         "<no name or id>")));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
+import static com.github.tomakehurst.wiremock.common.Strings.isNotBlank;
 import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static java.util.Objects.requireNonNull;
 import static org.apache.hc.core5.http.HttpHeaders.HOST;
@@ -49,7 +50,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -438,7 +438,7 @@ public class HttpAdminClient implements Admin {
   }
 
   private ProxySettings createProxySettings(String proxyHost, int proxyPort) {
-    if (StringUtils.isNotBlank(proxyHost)) {
+    if (isNotBlank(proxyHost)) {
       return new ProxySettings(proxyHost, proxyPort);
     }
     return ProxySettings.NO_PROXY;

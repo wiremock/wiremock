@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
@@ -39,7 +40,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import org.apache.commons.lang3.StringUtils;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
@@ -374,9 +374,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                       pattern -> {
                         if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
                           String body =
-                              StringUtils.isEmpty(request.getBodyAsString())
-                                  ? null
-                                  : request.getBodyAsString();
+                              isEmpty(request.getBodyAsString()) ? null : request.getBodyAsString();
                           return pattern.match(body);
                         }
 
