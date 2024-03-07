@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.isNotNullOrEmptyCollection;
+import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 
 import com.github.tomakehurst.wiremock.common.Json;
@@ -50,7 +51,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
 public class Diff {
 
@@ -381,9 +381,7 @@ public class Diff {
 
         String operator = generateOperatorStringForMultiValuePattern(headerPattern, "");
         String expected =
-            StringUtils.isEmpty(headerPattern.getExpected())
-                ? ""
-                : ": " + headerPattern.getExpected();
+            isEmpty(headerPattern.getExpected()) ? "" : ": " + headerPattern.getExpected();
         String printedPatternValue = header.key() + operator + expected;
 
         DiffLine<MultiValue> section =
@@ -446,7 +444,7 @@ public class Diff {
 
   private static String getExpressionResultString(Body body, PathPattern pathPattern) {
     String bodyStr = body.asString();
-    if (StringUtils.isEmpty(bodyStr)) {
+    if (isEmpty(bodyStr)) {
       return null;
     } else {
       try {

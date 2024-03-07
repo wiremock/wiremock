@@ -35,7 +35,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import java.util.*;
-import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
@@ -208,7 +207,7 @@ class PlainTextDiffRendererTest {
 
     // Ugh. The joys of Microsoft's line ending innovations.
     String expected =
-        SystemUtils.IS_OS_WINDOWS
+        System.getProperty("os.name").startsWith("Windows")
             ? file("not-found-diff-sample_large_json_windows.txt")
             : file("not-found-diff-sample_large_json.txt");
 
