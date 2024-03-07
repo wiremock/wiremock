@@ -38,10 +38,16 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class MatchesJsonPathPatternTest {
+
+  @BeforeEach
+    public void init() {
+        RequestCache.disable();
+    }
 
   @Test
   public void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
@@ -61,7 +67,7 @@ public class MatchesJsonPathPatternTest {
 
   @Test
   public void matchesOnJsonPathsWithFilters() {
-    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number == '2')]");
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number == 2)]");
 
     assertTrue(
         pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"number\": 2} ]}").isExactMatch(),
@@ -138,7 +144,15 @@ public class MatchesJsonPathPatternTest {
     checkMessage(
         match,
         WARNING,
-        "Warning: JSON path expression failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
+        "Warning: JSON path expression failed to match document 'Not a JSON document' because of error '{\n" +
+                "  \"errors\" : [ {\n" +
+                "    \"code\" : 10,\n" +
+                "    \"source\" : { },\n" +
+                "    \"title\" : \"Error parsing JSON\",\n" +
+                "    \"detail\" : \"Unrecognized token 'Not': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\\n" +
+                " at [Source: (String)\\\"Not a JSON document\\\"; line: 1, column: 4]\"\n" +
+                "  } ]\n" +
+                "}'");
   }
 
   private static void checkWarningMessageAndEvent(
@@ -177,12 +191,12 @@ public class MatchesJsonPathPatternTest {
   void subEventsReturnedBySubMatchersAreAddedToServeEvent() {
     StringValuePattern pattern =
         WireMock.matchingJsonPath("$.something", WireMock.equalToJson("{}"));
-    MatchResult matchResult = pattern.match("{ \"something\": \"{ \\\"bad:\" }");
+    MatchResult matchResult = pattern.match("{ \"something\": \"{ \\\"bad\\\": }\" }");
 
     assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
     ServeEventChecks.checkJsonError(
         matchResult,
-        "Unexpected end-of-input in field name\n at [Source: (String)\"{ \"bad:\"; line: 1, column: 8]");
+        "Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (String)\"{ \"bad\": }\"; line: 1, column: 11]");
   }
 
   @Test

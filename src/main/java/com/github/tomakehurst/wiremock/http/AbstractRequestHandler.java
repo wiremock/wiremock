@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.ORIGINAL_SERVE_EVENT_KEY;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.extension.requestfilter.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.ArrayList;
@@ -102,6 +103,8 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
     serveEvent.afterSend();
     afterResponseSent(serveEvent, response);
+
+    RequestCache.onRequestEnd();
   }
 
   protected String formatRequest(Request request) {

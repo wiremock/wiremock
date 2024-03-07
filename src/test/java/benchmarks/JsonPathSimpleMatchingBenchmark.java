@@ -15,8 +15,7 @@
  */
 package benchmarks;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -31,7 +30,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 2)
 @Fork(1)
 @Measurement(iterations = 5)
-public class JsonPathMatchingBenchmark {
+public class JsonPathSimpleMatchingBenchmark {
 
   public static final String[] TOPICS = {
     "topic-one", "longer-topic-2", "very-long-topic-3", "four", "five55555555"
@@ -44,13 +43,13 @@ public class JsonPathMatchingBenchmark {
 
     @Setup
     public void setup() {
-      wm = new WireMockServer(wireMockConfig().dynamicPort());
+      wm = new WireMockServer(wireMockConfig().dynamicPort().disableRequestJournal().containerThreads(100));
       wm.start();
       client = new WireMockTestClient(wm.port());
 
       for (String topic : TOPICS) {
         wm.stubFor(
-            post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")));
+            post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")).willReturn(ok(topic)));
       }
     }
 
@@ -64,13 +63,13 @@ public class JsonPathMatchingBenchmark {
   public boolean matched(BenchmarkState state) {
     final WireMockResponse response =
         state.client.postJson("/things", String.format(JSON_TEMPLATE, "very-long-topic-3"));
-    return response.statusCode() == 200;
+    return response.content().equals("very-long-topic-3");
   }
 
   public static void main(String[] args) throws Exception {
     Options opt =
         new OptionsBuilder()
-            .include(JsonPathMatchingBenchmark.class.getSimpleName())
+            .include(JsonPathSimpleMatchingBenchmark.class.getSimpleName())
             .warmupIterations(2)
             .forks(1)
             .measurementIterations(5)

@@ -572,4 +572,5 @@ wrapper {
 
 jmh {
   includes = ['.*benchmarks.*']
+  threads = 10
 }

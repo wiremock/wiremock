@@ -15,8 +15,7 @@
  */
 package benchmarks;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -47,7 +46,7 @@ public class JsonPathMatchingBenchTest {
 
     for (String topic : TOPICS) {
       wm.stubFor(
-          post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")));
+          post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")).willReturn(ok(topic)));
     }
   }
 
@@ -56,6 +55,7 @@ public class JsonPathMatchingBenchTest {
     final WireMockResponse response =
         client.postJson("/things", String.format(JSON_TEMPLATE, "topic-one"));
     assertThat(response.statusCode(), is(200));
+    assertThat(response.content(), is("topic-one"));
   }
 
   public static void main(String[] args) throws Exception {
