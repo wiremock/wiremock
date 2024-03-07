@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
@@ -28,7 +29,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 
 public class Urls {
 
@@ -76,7 +76,7 @@ public class Urls {
   }
 
   public static String getPathAndQuery(String url) {
-    return isAbsolute(url) ? url.substring(StringUtils.ordinalIndexOf(url, "/", 3)) : url;
+    return isAbsolute(url) ? url.substring(ordinalIndexOf(url, "/", 3)) : url;
   }
 
   private static boolean isAbsolute(String url) {

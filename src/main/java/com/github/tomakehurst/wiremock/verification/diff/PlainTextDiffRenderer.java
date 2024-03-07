@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import static com.github.tomakehurst.wiremock.common.Strings.isNotEmpty;
 import static com.github.tomakehurst.wiremock.common.Strings.normaliseLineBreaks;
+import static com.github.tomakehurst.wiremock.common.Strings.rightPad;
 import static java.lang.System.lineSeparator;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.apache.commons.lang3.StringUtils.rightPad;
 
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -70,14 +69,14 @@ public class PlainTextDiffRenderer {
     int middle = getMiddle();
     int titleLinePaddingLeft = middle - (titleLine.length() / 2);
     sb.append(SEPARATOR)
-        .append(repeat(' ', titleLinePaddingLeft))
+        .append(String.valueOf(' ').repeat(titleLinePaddingLeft))
         .append(titleLine)
         .append(SEPARATOR)
-        .append(repeat(' ', titleLinePaddingLeft))
-        .append(repeat('=', titleLine.length()))
+        .append(String.valueOf(' ').repeat(titleLinePaddingLeft))
+        .append(String.valueOf('=').repeat(titleLine.length()))
         .append(SEPARATOR)
         .append(SEPARATOR)
-        .append(repeat('-', consoleWidth))
+        .append(String.valueOf('-').repeat(consoleWidth))
         .append(SEPARATOR)
         .append('|')
         .append(rightPad(" Closest stub", middle))
@@ -85,14 +84,14 @@ public class PlainTextDiffRenderer {
         .append(rightPad(" Request", middle, ' '))
         .append('|')
         .append(SEPARATOR)
-        .append(repeat('-', consoleWidth))
+        .append(String.valueOf('-').repeat(consoleWidth))
         .append(SEPARATOR);
 
     writeBlankLine(sb);
   }
 
   private void footer(StringBuilder sb) {
-    sb.append(repeat('-', consoleWidth)).append(SEPARATOR);
+    sb.append(String.valueOf('-').repeat(consoleWidth)).append(SEPARATOR);
   }
 
   private void writeLine(StringBuilder sb, String left, String right, String message) {

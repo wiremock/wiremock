@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -94,12 +94,12 @@ public class ContentTypeHeaderTest {
   @Test
   public void returnsDefaultCharsetWhenEncodingNotPresent() {
     ContentTypeHeader header = new ContentTypeHeader("text/plain");
-    assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
+    assertThat(header.charset(), is(UTF_8));
   }
 
   @Test
   public void returnsDefaultCharsetWhenAbsent() {
     ContentTypeHeader header = ContentTypeHeader.absent();
-    assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
+    assertThat(header.charset(), is(UTF_8));
   }
 }

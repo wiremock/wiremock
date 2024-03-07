@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2021 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
 import static com.github.tomakehurst.wiremock.common.Gzip.unGzipToString;
+import static com.github.tomakehurst.wiremock.common.Strings.randomAlphabetic;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,7 +29,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.hc.client5.http.entity.GzipCompressingEntity;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -117,9 +117,7 @@ public class GzipAcceptanceTest {
     public void returnsContentLengthHeaderWhenChunkedEncodingDisabled() {
       assumeTrue(isNotOldJettyVersion());
 
-      String bodyText =
-          RandomStringUtils.randomAlphabetic(
-              257); // 256 bytes is the minimum size for gzip to be used
+      String bodyText = randomAlphabetic(257); // 256 bytes is the minimum size for gzip to be used
       wm.stubFor(get("/gzip-response").willReturn(ok(bodyText)));
 
       WireMockResponse response =

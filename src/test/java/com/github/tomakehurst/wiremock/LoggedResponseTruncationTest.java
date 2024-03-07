@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Strings.randomAlphabetic;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -47,7 +47,7 @@ public class LoggedResponseTruncationTest {
 
   @Test
   void includesFullResponseBodyWhenBelowConfiguredThreshold() {
-    String bigBody = RandomStringUtils.randomAlphabetic(MAX_SIZE - 1);
+    String bigBody = randomAlphabetic(MAX_SIZE - 1);
     wm.stubFor(any(anyUrl()).willReturn(ok(bigBody)));
     client.get("/big");
 
@@ -56,7 +56,7 @@ public class LoggedResponseTruncationTest {
 
   @Test
   void includesFullResponseBodyWhenAtConfiguredThreshold() {
-    String bigBody = RandomStringUtils.randomAlphabetic(MAX_SIZE - 1);
+    String bigBody = randomAlphabetic(MAX_SIZE - 1);
     wm.stubFor(any(anyUrl()).willReturn(ok(bigBody)));
     client.get("/big");
 
@@ -65,7 +65,7 @@ public class LoggedResponseTruncationTest {
 
   @Test
   void truncatesResponseBodyWhenOverConfiguredThreshold() {
-    String bigBody = RandomStringUtils.randomAlphabetic(MAX_SIZE + 1);
+    String bigBody = randomAlphabetic(MAX_SIZE + 1);
     wm.stubFor(any(anyUrl()).willReturn(ok(bigBody)));
     client.get("/big");
 
