@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension.responsetemplating;
+package com.github.tomakehurst.wiremock.common;
 
 import static java.util.Arrays.asList;
 
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class RenderCache {
+public class RequestCache {
 
   private final Map<Key, Object> cache = new HashMap<>();
 

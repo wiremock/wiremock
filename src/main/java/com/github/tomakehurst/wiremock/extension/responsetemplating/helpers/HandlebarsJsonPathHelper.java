@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
@@ -60,8 +60,8 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
   }
 
   private Object getValue(JsonPath jsonPath, DocumentContext jsonDocument, Options options) {
-    RenderCache renderCache = getRenderCache(options);
-    RenderCache.Key cacheKey = RenderCache.Key.keyFor(Object.class, jsonPath, jsonDocument);
+    RequestCache renderCache = getRenderCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(Object.class, jsonPath, jsonDocument);
     Object value = renderCache.get(cacheKey);
     if (value == null) {
       Object defaultValue = options.hash != null ? options.hash("default") : null;
@@ -82,8 +82,8 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
   }
 
   private DocumentContext getJsonDocument(Object json, Options options) {
-    RenderCache renderCache = getRenderCache(options);
-    RenderCache.Key cacheKey = RenderCache.Key.keyFor(DocumentContext.class, json);
+    RequestCache renderCache = getRenderCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(DocumentContext.class, json);
     DocumentContext document = renderCache.get(cacheKey);
     if (document == null) {
       document =

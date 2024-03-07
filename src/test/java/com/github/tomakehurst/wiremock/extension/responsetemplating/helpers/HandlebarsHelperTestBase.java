@@ -25,7 +25,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -40,12 +40,12 @@ import org.junit.jupiter.api.BeforeEach;
 public abstract class HandlebarsHelperTestBase {
 
   protected ResponseTemplateTransformer transformer;
-  protected RenderCache renderCache;
+  protected RequestCache renderCache;
 
   @BeforeEach
   public void initRenderCache() {
     transformer = buildTemplateTransformer(true);
-    renderCache = new RenderCache();
+    renderCache = new RequestCache();
   }
 
   protected static final String FAIL_GRACEFULLY_MSG =
@@ -86,7 +86,7 @@ public abstract class HandlebarsHelperTestBase {
   }
 
   protected Options createOptions(
-      RenderCache renderCache, Map<String, Object> hash, Object... optionParams) {
+          RequestCache renderCache, Map<String, Object> hash, Object... optionParams) {
     Context context = createContext(renderCache);
 
     return new Options(
@@ -97,8 +97,8 @@ public abstract class HandlebarsHelperTestBase {
     return createContext(renderCache);
   }
 
-  private Context createContext(RenderCache renderCache) {
-    return Context.newBuilder(null).combine("renderCache", renderCache).build();
+  private Context createContext(RequestCache renderCache) {
+    return Context.newBuilder(null).combine("requestCache", renderCache).build();
   }
 
   protected static Map<String, Object> map() {

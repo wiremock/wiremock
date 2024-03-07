@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 
 /**
  * This abstract class is the base for all defined Handlebars helper in wiremock. It basically
@@ -74,7 +74,7 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
     return ERROR_PREFIX + message + ERROR_SUFFIX;
   }
 
-  protected static RenderCache getRenderCache(Options options) {
-    return options.get("renderCache", new RenderCache());
+  protected static RequestCache getRenderCache(Options options) {
+    return options.get("requestCache", new RequestCache());
   }
 }

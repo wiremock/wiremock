@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import java.io.IOException;
 
 /**
@@ -62,8 +62,8 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
   private ListOrSingle<XmlNode> getXmlNodes(
       String xPathExpression, XmlDocument doc, Options options) {
-    RenderCache renderCache = getRenderCache(options);
-    RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
+    RequestCache renderCache = getRenderCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
     ListOrSingle<XmlNode> nodes = renderCache.get(cacheKey);
 
     if (nodes == null) {
@@ -75,8 +75,8 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
   }
 
   private XmlDocument getXmlDocument(String xml, Options options) {
-    RenderCache renderCache = getRenderCache(options);
-    RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xml);
+    RequestCache renderCache = getRenderCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xml);
     XmlDocument document = renderCache.get(cacheKey);
     if (document == null) {
       document = Xml.parse(xml);

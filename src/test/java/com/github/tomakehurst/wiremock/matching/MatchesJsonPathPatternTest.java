@@ -27,9 +27,14 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -495,6 +500,27 @@ public class MatchesJsonPathPatternTest {
     assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
+  }
+
+  @Test
+  void jacksonJsonPathTest() {
+    String json = "{\n" + "  \"one\": 1\n" + "}";
+    String json2 = "{\n" +
+            "  \"one\": {\n" +
+            "    \"stuff\": [1,2,4]\n" +
+            "  }\n" +
+            "}";
+    JsonNode jsonNode = Json.read(json2, JsonNode.class);
+    Configuration jsonPathConf = Configuration.builder()
+            .jsonProvider(new JacksonJsonNodeJsonProvider())
+            .mappingProvider(new JacksonMappingProvider())
+            .build();
+    final JsonPath jsonPath = JsonPath.compile("$.one.stuff");
+
+    final JsonNode resultNode = jsonPath.read(jsonNode, jsonPathConf);
+    Object result = Json.getObjectMapper().convertValue(resultNode, Object.class);
+
+    assertEquals(1, result);
   }
 
   private static Notifier setMockNotifier() {
