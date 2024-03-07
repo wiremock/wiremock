@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.common.RequestCache;
+import com.github.tomakehurst.wiremock.common.xml.*;
 import java.io.IOException;
 
 /**

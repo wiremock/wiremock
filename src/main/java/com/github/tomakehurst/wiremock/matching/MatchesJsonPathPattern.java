@@ -30,9 +30,12 @@ import java.util.*;
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
 
+  private final JsonPath jsonPath;
+
   public MatchesJsonPathPattern(
       @JsonProperty("matchesJsonPath") String expectedJsonPath, StringValuePattern valuePattern) {
     super(expectedJsonPath, valuePattern);
+    jsonPath = JsonPath.compile(expectedJsonPath);
   }
 
   public MatchesJsonPathPattern(String value) {
@@ -54,7 +57,7 @@ public class MatchesJsonPathPattern extends PathPattern {
       return MatchResult.noMatch(SubEvent.warning(message));
     }
     try {
-      Object obj = JsonPath.read(value, expectedValue);
+      Object obj = jsonPath.read(value);
 
       boolean result;
       if (obj instanceof Collection) {
@@ -125,7 +128,7 @@ public class MatchesJsonPathPattern extends PathPattern {
 
     Object obj = null;
     try {
-      obj = JsonPath.read(value, expectedValue);
+      obj = jsonPath.read(value);
     } catch (PathNotFoundException ignored) {
     } catch (Exception e) {
       String error;
