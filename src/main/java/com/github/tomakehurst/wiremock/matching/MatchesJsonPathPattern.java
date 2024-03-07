@@ -124,8 +124,22 @@ public class MatchesJsonPathPattern extends PathPattern {
               .collect(toList());
 
       return matchResults.stream()
-          .min(Comparator.comparingDouble(MatchResult::getDistance))
-          .orElseGet(() -> MatchResult.noMatch(subEvents));
+              .filter(MatchResult::isExactMatch)
+              .findFirst()
+              .orElse(new MatchResult(subEvents) {
+                @Override
+                public boolean isExactMatch() {
+                  return false;
+                }
+
+                @Override
+                public double getDistance() {
+                  return matchResults.stream()
+                          .min(Comparator.comparingDouble(MatchResult::getDistance))
+                          .map(MatchResult::getDistance)
+                          .orElse(1.0);
+                }
+              });
     } catch (SubExpressionException e) {
       return MatchResult.noMatch(SubEvent.warning(e.getMessage()));
     }
