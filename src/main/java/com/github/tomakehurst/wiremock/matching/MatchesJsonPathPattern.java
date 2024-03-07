@@ -15,14 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
-import static java.util.stream.Collectors.toList;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.RequestCache;
@@ -34,8 +29,14 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 
-import java.security.MessageDigest;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
+import static java.util.stream.Collectors.toList;
 
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
@@ -182,16 +183,13 @@ public class MatchesJsonPathPattern extends PathPattern {
 
   private Object evaluateJsonPath(String value) {
     final RequestCache requestCache = RequestCache.getCurrent();
-//    final MessageDigest md = Exceptions.uncheck(() -> MessageDigest.getInstance("MD5"), MessageDigest.class);
-//    md.update(value.getBytes());
-//    final byte[] valueDigest = md.digest();
 
     final DocumentContext documentContext = requestCache.get(
-            keyFor(JsonNode.class, "parsedJson"),
+            keyFor(JsonNode.class, "parsedJson", value.hashCode()),
             () -> JsonPath.parse(value));
 
     return requestCache.get(
-            keyFor(JsonNode.class, "jsonPathResult", expectedValue),
+            keyFor(JsonNode.class, "jsonPathResult", expectedValue, value.hashCode()),
             () -> documentContext.read(jsonPath));
   }
 }
