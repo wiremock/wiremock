@@ -60,6 +60,7 @@ public class JsonPathAdvancedMatchingBenchmark {
   }
 
   @Benchmark
+  @Threads(50)
   public boolean matched(BenchmarkState state) {
     final WireMockResponse response =
         state.client.postJson("/things", String.format(JSON_TEMPLATE, "very-long-topic-3"));
