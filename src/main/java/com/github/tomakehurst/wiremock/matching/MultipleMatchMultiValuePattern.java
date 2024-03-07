@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 
 public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
 
@@ -42,7 +41,7 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
    */
   @Override
   public String getExpected() {
-    return StringUtils.EMPTY;
+    return "";
   }
 
   @Override
@@ -62,6 +61,6 @@ public abstract class MultipleMatchMultiValuePattern extends MultiValuePattern {
 
   @JsonIgnore
   public String getOperator() {
-    return StringUtils.EMPTY;
+    return "";
   }
 }

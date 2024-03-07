@@ -42,6 +42,16 @@ public class ParameterUtils {
     throw new NullPointerException("Both parameters are null");
   }
 
+  public static <T> T getFirstNonNull(T first, T second, String etr) {
+    if (first != null) {
+      return first;
+    }
+    if (second != null) {
+      return second;
+    }
+    throw new NullPointerException(etr);
+  }
+
   public static void checkParameter(boolean condition, String errorMessage) {
     if (!condition) {
       throw new IllegalArgumentException(errorMessage);
