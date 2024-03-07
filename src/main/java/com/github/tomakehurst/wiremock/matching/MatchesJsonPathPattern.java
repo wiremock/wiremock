@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
@@ -181,20 +182,16 @@ public class MatchesJsonPathPattern extends PathPattern {
 
   private Object evaluateJsonPath(String value) {
     final RequestCache requestCache = RequestCache.getCurrent();
-    final MessageDigest md = Exceptions.uncheck(() -> MessageDigest.getInstance("MD5"), MessageDigest.class);
-    md.update(value.getBytes());
-    final byte[] valueDigest = md.digest();
+//    final MessageDigest md = Exceptions.uncheck(() -> MessageDigest.getInstance("MD5"), MessageDigest.class);
+//    md.update(value.getBytes());
+//    final byte[] valueDigest = md.digest();
 
-    final JsonNode jsonNode = requestCache.get(
-            keyFor(JsonNode.class, "requestBody", valueDigest),
-            () -> Json.read(value, JsonNode.class)
-    );
+    final DocumentContext documentContext = requestCache.get(
+            keyFor(JsonNode.class, "parsedJson"),
+            () -> JsonPath.parse(value));
 
     return requestCache.get(
-            keyFor(JsonNode.class, "jsonPathResult", expectedValue, valueDigest),
-            () -> {
-              final JsonNode resultNode = jsonPath.read(jsonNode, JSON_PATH_CONF);
-              return Json.getObjectMapper().convertValue(resultNode, Object.class);
-            });
+            keyFor(JsonNode.class, "jsonPathResult", expectedValue),
+            () -> documentContext.read(jsonPath));
   }
 }
