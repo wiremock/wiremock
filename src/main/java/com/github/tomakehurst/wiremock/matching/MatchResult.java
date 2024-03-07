@@ -16,15 +16,12 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;

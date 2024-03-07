@@ -33,7 +33,26 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 public class JsonPathSimpleMatchingBenchmark {
 
   public static final String[] TOPICS = {
-    "topic-one", "longer-topic-2", "very-long-topic-3", "four", "five55555555", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"
+    "topic-one",
+    "longer-topic-2",
+    "very-long-topic-3",
+    "four",
+    "five55555555",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+    "twenty"
   };
 
   @State(Scope.Benchmark)
@@ -43,13 +62,17 @@ public class JsonPathSimpleMatchingBenchmark {
 
     @Setup
     public void setup() {
-      wm = new WireMockServer(wireMockConfig().dynamicPort().disableRequestJournal().containerThreads(100));
+      wm =
+          new WireMockServer(
+              wireMockConfig().dynamicPort().disableRequestJournal().containerThreads(100));
       wm.start();
       client = new WireMockTestClient(wm.port());
 
       for (String topic : TOPICS) {
         wm.stubFor(
-            post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")).willReturn(ok(topic)));
+            post("/things")
+                .withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]"))
+                .willReturn(ok(topic)));
       }
     }
 

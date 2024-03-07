@@ -15,6 +15,9 @@
  */
 package benchmarks;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -23,9 +26,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 2)
 @Fork(1)
@@ -33,7 +33,26 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class JsonPathAdvancedMatchingBenchmark {
 
   public static final String[] TOPICS = {
-      "topic-one", "longer-topic-2", "very-long-topic-3", "four", "five55555555", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"
+    "topic-one",
+    "longer-topic-2",
+    "very-long-topic-3",
+    "four",
+    "five55555555",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+    "thirteen",
+    "fourteen",
+    "fifteen",
+    "sixteen",
+    "seventeen",
+    "eighteen",
+    "nineteen",
+    "twenty"
   };
 
   @State(Scope.Benchmark)
@@ -43,13 +62,17 @@ public class JsonPathAdvancedMatchingBenchmark {
 
     @Setup
     public void setup() {
-      wm = new WireMockServer(wireMockConfig().dynamicPort().disableRequestJournal().containerThreads(100));
+      wm =
+          new WireMockServer(
+              wireMockConfig().dynamicPort().disableRequestJournal().containerThreads(100));
       wm.start();
       client = new WireMockTestClient(wm.port());
 
       for (String topic : TOPICS) {
         wm.stubFor(
-            post("/things").withRequestBody(matchingJsonPath("$.[*].topic", equalTo(topic))).willReturn(ok(topic)));
+            post("/things")
+                .withRequestBody(matchingJsonPath("$.[*].topic", equalTo(topic)))
+                .willReturn(ok(topic)));
       }
     }
 

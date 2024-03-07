@@ -25,20 +25,21 @@ import java.util.function.Supplier;
 
 public class RequestCache {
 
-  private static RequestCache OFF = new RequestCache() {
-    @Override
-    public void put(Key key, Object value) {}
+  private static RequestCache OFF =
+      new RequestCache() {
+        @Override
+        public void put(Key key, Object value) {}
 
-    @Override
-    public <T> T get(Key key) {
-      return null;
-    }
+        @Override
+        public <T> T get(Key key) {
+          return null;
+        }
 
-    @Override
-    public <T> T get(Key key, Supplier<T> supplier) {
-      return supplier.get();
-    }
-  };
+        @Override
+        public <T> T get(Key key, Supplier<T> supplier) {
+          return supplier.get();
+        }
+      };
 
   private static final ThreadLocal<RequestCache> current = new ThreadLocal<>();
 

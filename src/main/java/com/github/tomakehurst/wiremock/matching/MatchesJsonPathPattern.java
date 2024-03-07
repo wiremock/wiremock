@@ -15,6 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
+import static java.util.stream.Collectors.toList;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,24 +32,19 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
-import static java.util.stream.Collectors.toList;
-
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
 
   private static final Configuration JSON_PATH_CONF =
-          Configuration.builder()
-                  .jsonProvider(new JacksonJsonNodeJsonProvider())
-                  .mappingProvider(new JacksonMappingProvider())
-                  .build();
+      Configuration.builder()
+          .jsonProvider(new JacksonJsonNodeJsonProvider())
+          .mappingProvider(new JacksonMappingProvider())
+          .build();
 
   private final JsonPath jsonPath;
 
@@ -124,9 +123,10 @@ public class MatchesJsonPathPattern extends PathPattern {
               .collect(toList());
 
       return matchResults.stream()
-              .filter(MatchResult::isExactMatch)
-              .findFirst()
-              .orElse(new MatchResult(subEvents) {
+          .filter(MatchResult::isExactMatch)
+          .findFirst()
+          .orElse(
+              new MatchResult(subEvents) {
                 @Override
                 public boolean isExactMatch() {
                   return false;
@@ -135,9 +135,9 @@ public class MatchesJsonPathPattern extends PathPattern {
                 @Override
                 public double getDistance() {
                   return matchResults.stream()
-                          .min(Comparator.comparingDouble(MatchResult::getDistance))
-                          .map(MatchResult::getDistance)
-                          .orElse(1.0);
+                      .min(Comparator.comparingDouble(MatchResult::getDistance))
+                      .map(MatchResult::getDistance)
+                      .orElse(1.0);
                 }
               });
     } catch (SubExpressionException e) {
@@ -196,14 +196,18 @@ public class MatchesJsonPathPattern extends PathPattern {
   }
 
   private Object evaluateJsonPath(String value) {
+    if (value == null) {
+      return null;
+    }
+
     final RequestCache requestCache = RequestCache.getCurrent();
 
-    final DocumentContext documentContext = requestCache.get(
-            keyFor(JsonNode.class, "parsedJson", value.hashCode()),
-            () -> JsonPath.parse(value));
+    final DocumentContext documentContext =
+        requestCache.get(
+            keyFor(JsonNode.class, "parsedJson", value.hashCode()), () -> JsonPath.parse(value));
 
     return requestCache.get(
-            keyFor(JsonNode.class, "jsonPathResult", expectedValue, value.hashCode()),
-            () -> documentContext.read(jsonPath));
+        keyFor(JsonNode.class, "jsonPathResult", expectedValue, value.hashCode()),
+        () -> documentContext.read(jsonPath));
   }
 }

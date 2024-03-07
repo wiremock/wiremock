@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,8 @@ public class LoggedRequest implements Request {
   private final Collection<Part> multiparts;
   private final String protocol;
 
-  private final Lazy<String> bodyAsString;
-  private final Lazy<String> bodyAsBase64;
-
+  private final Lazy<String> lazyBodyAsString;
+  private final Lazy<String> lazyBodyAsBase64;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
@@ -151,8 +150,8 @@ public class LoggedRequest implements Request {
     this.multiparts = multiparts;
     this.protocol = protocol;
 
-    bodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));
-    bodyAsBase64 = lazy(() -> encodeBase64(body));
+    lazyBodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));
+    lazyBodyAsBase64 = lazy(() -> encodeBase64(body));
   }
 
   @Override
@@ -240,13 +239,13 @@ public class LoggedRequest implements Request {
   @Override
   @JsonProperty("body")
   public String getBodyAsString() {
-    return bodyAsString.get();
+    return lazyBodyAsString.get();
   }
 
   @Override
   @JsonProperty("bodyAsBase64")
   public String getBodyAsBase64() {
-    return bodyAsBase64.get();
+    return lazyBodyAsBase64.get();
   }
 
   @Override

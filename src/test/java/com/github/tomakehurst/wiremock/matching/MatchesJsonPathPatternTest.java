@@ -27,16 +27,10 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,9 +39,9 @@ import org.mockito.Mockito;
 public class MatchesJsonPathPatternTest {
 
   @BeforeEach
-    public void init() {
-        RequestCache.disable();
-    }
+  public void init() {
+    RequestCache.disable();
+  }
 
   @Test
   public void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
@@ -144,15 +138,7 @@ public class MatchesJsonPathPatternTest {
     checkMessage(
         match,
         WARNING,
-        "Warning: JSON path expression failed to match document 'Not a JSON document' because of error '{\n" +
-                "  \"errors\" : [ {\n" +
-                "    \"code\" : 10,\n" +
-                "    \"source\" : { },\n" +
-                "    \"title\" : \"Error parsing JSON\",\n" +
-                "    \"detail\" : \"Unrecognized token 'Not': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\\n" +
-                " at [Source: (String)\\\"Not a JSON document\\\"; line: 1, column: 4]\"\n" +
-                "  } ]\n" +
-                "}'");
+        "Warning: JSON path expression failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
   }
 
   private static void checkWarningMessageAndEvent(

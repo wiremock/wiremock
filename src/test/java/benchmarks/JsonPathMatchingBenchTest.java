@@ -49,7 +49,9 @@ public class JsonPathMatchingBenchTest {
   public void simple() {
     for (String topic : TOPICS) {
       wm.stubFor(
-              post("/things").withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]")).willReturn(ok(topic)));
+          post("/things")
+              .withRequestBody(matchingJsonPath("$.[?(@.topic == '" + topic + "')]"))
+              .willReturn(ok(topic)));
     }
 
     final WireMockResponse response =
@@ -62,11 +64,13 @@ public class JsonPathMatchingBenchTest {
   public void advanced() {
     for (String topic : TOPICS) {
       wm.stubFor(
-          post("/things").withRequestBody(matchingJsonPath("$.[*].topic", equalTo(topic))).willReturn(ok(topic)));
+          post("/things")
+              .withRequestBody(matchingJsonPath("$.[*].topic", equalTo(topic)))
+              .willReturn(ok(topic)));
     }
 
     final WireMockResponse response =
-            client.postJson("/things", String.format(JSON_TEMPLATE, "topic-one"));
+        client.postJson("/things", String.format(JSON_TEMPLATE, "topic-one"));
     assertThat(response.statusCode(), is(200));
     assertThat(response.content(), is("topic-one"));
   }
