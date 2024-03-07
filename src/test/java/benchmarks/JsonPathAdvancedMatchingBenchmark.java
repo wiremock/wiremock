@@ -33,7 +33,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class JsonPathAdvancedMatchingBenchmark {
 
   public static final String[] TOPICS = {
-    "topic-one", "longer-topic-2", "very-long-topic-3", "four", "five55555555"
+      "topic-one", "longer-topic-2", "very-long-topic-3", "four", "five55555555", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"
   };
 
   @State(Scope.Benchmark)
@@ -63,8 +63,12 @@ public class JsonPathAdvancedMatchingBenchmark {
   @Threads(50)
   public boolean matched(BenchmarkState state) {
     final WireMockResponse response =
-        state.client.postJson("/things", String.format(JSON_TEMPLATE, "very-long-topic-3"));
+        state.client.postJson("/things", String.format(JSON_TEMPLATE, pickRandom(TOPICS)));
     return response.content().equals("very-long-topic-3");
+  }
+
+  private static String pickRandom(String[] values) {
+    return values[(int) (Math.random() * values.length)];
   }
 
   public static void main(String[] args) throws Exception {
