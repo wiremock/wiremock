@@ -40,12 +40,12 @@ import org.junit.jupiter.api.BeforeEach;
 public abstract class HandlebarsHelperTestBase {
 
   protected ResponseTemplateTransformer transformer;
-  protected RequestCache renderCache;
+  protected RequestCache requestCache;
 
   @BeforeEach
-  public void initRenderCache() {
+  public void initRequestCache() {
     transformer = buildTemplateTransformer(true);
-    renderCache = new RequestCache();
+    requestCache = new RequestCache();
   }
 
   protected static final String FAIL_GRACEFULLY_MSG =
@@ -82,23 +82,23 @@ public abstract class HandlebarsHelperTestBase {
   }
 
   protected Options createOptions(Map<String, Object> hash, Object... optionParams) {
-    return createOptions(renderCache, hash, optionParams);
+    return createOptions(requestCache, hash, optionParams);
   }
 
   protected Options createOptions(
-      RequestCache renderCache, Map<String, Object> hash, Object... optionParams) {
-    Context context = createContext(renderCache);
+      RequestCache requestCache, Map<String, Object> hash, Object... optionParams) {
+    Context context = createContext(requestCache);
 
     return new Options(
         null, null, null, context, null, null, optionParams, hash, new ArrayList<String>(0));
   }
 
   protected Context createContext() {
-    return createContext(renderCache);
+    return createContext(requestCache);
   }
 
-  private Context createContext(RequestCache renderCache) {
-    return Context.newBuilder(null).combine("requestCache", renderCache).build();
+  private Context createContext(RequestCache requestCache) {
+    return Context.newBuilder(null).combine("requestCache", requestCache).build();
   }
 
   protected static Map<String, Object> map() {

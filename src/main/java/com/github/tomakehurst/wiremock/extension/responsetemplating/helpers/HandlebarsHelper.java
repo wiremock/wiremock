@@ -74,7 +74,7 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
     return ERROR_PREFIX + message + ERROR_SUFFIX;
   }
 
-  protected static RequestCache getRenderCache(Options options) {
+  protected static RequestCache getRequestCache(Options options) {
     return options.get("requestCache", new RequestCache());
   }
 }

@@ -62,25 +62,25 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
   private ListOrSingle<XmlNode> getXmlNodes(
       String xPathExpression, XmlDocument doc, Options options) {
-    RequestCache renderCache = getRenderCache(options);
+    RequestCache requestCache = getRequestCache(options);
     RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
-    ListOrSingle<XmlNode> nodes = renderCache.get(cacheKey);
+    ListOrSingle<XmlNode> nodes = requestCache.get(cacheKey);
 
     if (nodes == null) {
       nodes = doc.findNodes(xPathExpression);
-      renderCache.put(cacheKey, nodes);
+      requestCache.put(cacheKey, nodes);
     }
 
     return nodes;
   }
 
   private XmlDocument getXmlDocument(String xml, Options options) {
-    RequestCache renderCache = getRenderCache(options);
+    RequestCache requestCache = getRequestCache(options);
     RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xml);
-    XmlDocument document = renderCache.get(cacheKey);
+    XmlDocument document = requestCache.get(cacheKey);
     if (document == null) {
       document = Xml.parse(xml);
-      renderCache.put(cacheKey, document);
+      requestCache.put(cacheKey, document);
     }
 
     return document;

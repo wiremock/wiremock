@@ -63,8 +63,8 @@ public class HandlebarsOptimizedTemplate {
   }
 
   public String apply(Object contextData) {
-    final RequestCache renderCache = new RequestCache();
-    Context context = Context.newBuilder(contextData).combine("requestCache", renderCache).build();
+    final RequestCache requestCache = RequestCache.getCurrent();
+    Context context = Context.newBuilder(contextData).combine("requestCache", requestCache).build();
 
     return startContent + applyTemplate(context) + endContent;
   }
