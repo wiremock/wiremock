@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ResourceUtil.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +31,7 @@ public class TestFiles {
   public static final String KEY_STORE_PATH = filePath("test-keystore");
   public static final String KEY_STORE_WITH_CA_PATH = filePath("test-keystore-with-ca");
 
+  // TODO still needed 1.7 ?
   private static String getTrustStoreRelativeName() {
     return System.getProperty("java.specification.version").equals("1.7")
         ? "test-truststore.jks"
@@ -44,7 +44,7 @@ public class TestFiles {
 
   public static String file(String path) {
     try {
-      String text = Files.readString(getResourcePath(TestFiles.class, path), UTF_8);
+      String text = Files.readString(getResourcePath(TestFiles.class, path));
       if (System.getProperty("os.name").startsWith("Windows")) {
         text = text.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
       }
