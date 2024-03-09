@@ -606,7 +606,7 @@ class FileUpload {
                   throw new FileUploadIOException(ex);
                 }
               }
-              : ctx.getInputStream(); ) {
+              : ctx.getInputStream()) {
         String charEncoding = headerEncoding;
         if (charEncoding == null) {
           charEncoding = ctx.getCharacterEncoding();
