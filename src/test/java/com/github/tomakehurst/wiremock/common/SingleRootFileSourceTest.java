@@ -58,7 +58,7 @@ public class SingleRootFileSourceTest {
   @Test
   void writesTextFileEvenWhenRootIsARelativePath() {
     String relativeRootPath = "./target/tmp/";
-    new File(String.valueOf(Paths.get(relativeRootPath).toAbsolutePath())).mkdir();
+    new File(String.valueOf(Paths.get(relativeRootPath).toAbsolutePath())).mkdirs();
     SingleRootFileSource fileSource = new SingleRootFileSource(relativeRootPath);
     Path fileAbsolutePath = Paths.get(relativeRootPath).toAbsolutePath().resolve("myFile");
     fileSource.writeTextFile(fileAbsolutePath.toString(), "stuff");
