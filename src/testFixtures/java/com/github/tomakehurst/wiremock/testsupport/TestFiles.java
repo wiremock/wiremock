@@ -23,7 +23,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import org.apache.commons.lang3.SystemUtils;
 
 public class TestFiles {
 
@@ -47,7 +46,7 @@ public class TestFiles {
   public static String file(String path) {
     try {
       String text = Files.readString(getResourcePath(TestFiles.class, path), UTF_8);
-      if (SystemUtils.IS_OS_WINDOWS) {
+      if (System.getProperty("os.name").startsWith("Windows")) {
         text = text.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
       }
 

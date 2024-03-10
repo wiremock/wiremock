@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.mutable.MutableBoolean;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.Handler;
@@ -39,7 +39,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 
 public abstract class JettyHttpServer implements HttpServer {
-  private static final MutableBoolean STRICT_HTTP_HEADERS_APPLIED = new MutableBoolean(false);
+  private static final AtomicBoolean STRICT_HTTP_HEADERS_APPLIED = new AtomicBoolean(false);
   private static final int MAX_RETRIES = 3;
 
   protected static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
@@ -56,9 +56,10 @@ public abstract class JettyHttpServer implements HttpServer {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
-    if (!options.getDisableStrictHttpHeaders() && STRICT_HTTP_HEADERS_APPLIED.isFalse()) {
+    if (!options.getDisableStrictHttpHeaders()
+        && Boolean.FALSE.equals(STRICT_HTTP_HEADERS_APPLIED.get())) {
       System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", String.valueOf(true));
-      STRICT_HTTP_HEADERS_APPLIED.setTrue();
+      STRICT_HTTP_HEADERS_APPLIED.set(true);
     }
 
     jettyServer = createServer(options);
@@ -121,7 +122,7 @@ public abstract class JettyHttpServer implements HttpServer {
   }
 
   /** Extend only this method if you want to add additional handlers to Jetty. */
-  protected Handler[] extensionHandlers() {
+  public Handler[] extensionHandlers() {
     return new Handler[] {};
   }
 

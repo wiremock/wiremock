@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import static com.github.tomakehurst.wiremock.common.Strings.*;
+
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.UUID;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
 
@@ -32,25 +33,25 @@ public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
 
     switch (type) {
       case "ALPHANUMERIC":
-        rawValue = RandomStringUtils.randomAlphanumeric(length);
+        rawValue = randomAlphanumeric(length);
         break;
       case "ALPHABETIC":
-        rawValue = RandomStringUtils.randomAlphabetic(length);
+        rawValue = randomAlphabetic(length);
         break;
       case "NUMERIC":
-        rawValue = RandomStringUtils.randomNumeric(length);
+        rawValue = randomNumeric(length);
         break;
       case "ALPHANUMERIC_AND_SYMBOLS":
-        rawValue = RandomStringUtils.random(length, 33, 126, false, false);
+        rawValue = random(length, 33, 126, false, false);
         break;
       case "UUID":
         rawValue = UUID.randomUUID().toString();
         break;
       case "HEXADECIMAL":
-        rawValue = RandomStringUtils.random(length, "ABCDEF0123456789");
+        rawValue = random(length, "ABCDEF0123456789");
         break;
       default:
-        rawValue = RandomStringUtils.randomAscii(length);
+        rawValue = randomAscii(length);
         break;
     }
     return uppercase ? rawValue.toUpperCase() : rawValue.toLowerCase();

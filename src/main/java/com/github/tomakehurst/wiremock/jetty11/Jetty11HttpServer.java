@@ -43,9 +43,10 @@ import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MimeTypes;
@@ -204,7 +205,10 @@ public class Jetty11HttpServer extends JettyHttpServer {
           }
         };
     handlers.setHandlers(
-        ArrayUtils.addAll(extensionHandlers(), adminContext, asyncTimeoutSettingHandler));
+        Stream.concat(
+                Arrays.stream(extensionHandlers()),
+                Stream.of(adminContext, asyncTimeoutSettingHandler))
+            .toArray(Handler[]::new));
 
     if (options.getGzipDisabled()) {
       handlers.addHandler(mockServiceContext);

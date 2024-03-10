@@ -42,7 +42,6 @@ public class Jetty12MultipartParser
     final CompletableFuture<Collection<Part>> parts =
         MultiPartFormData.from(
                 Attributes.NULL,
-                null,
                 boundary,
                 parser -> {
                   try {

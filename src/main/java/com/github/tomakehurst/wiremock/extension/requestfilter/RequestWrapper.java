@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static org.apache.commons.lang3.StringUtils.countMatches;
-import static org.apache.commons.lang3.StringUtils.ordinalIndexOf;
+import static com.github.tomakehurst.wiremock.common.Strings.countMatches;
+import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.*;
@@ -88,7 +88,7 @@ public class RequestWrapper implements Request {
   public String getUrl() {
     String absoluteUrl = getAbsoluteUrl();
     int relativeStartIndex =
-        countMatches(absoluteUrl, "/") >= 3
+        countMatches(absoluteUrl, '/') >= 3
             ? ordinalIndexOf(absoluteUrl, "/", 3)
             : absoluteUrl.length();
     return absoluteUrl.substring(relativeStartIndex);
