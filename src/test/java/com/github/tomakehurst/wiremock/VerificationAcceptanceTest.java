@@ -64,19 +64,19 @@ public class VerificationAcceptanceTest {
   class JournalEnabled extends AcceptanceTestBase {
 
     @Test
-    public void verifiesRequestBasedOnUrlOnly() {
+    void verifiesRequestBasedOnUrlOnly() {
       testClient.get("/this/got/requested?query");
       verify(getRequestedFor(urlEqualTo("/this/got/requested?query")));
     }
 
     @Test
-    public void anyRequestedForMatchesAnyHttpMethod() {
+    void anyRequestedForMatchesAnyHttpMethod() {
       testClient.get("/this/got/requested?query");
       verify(anyRequestedFor(urlEqualTo("/this/got/requested?query")));
     }
 
     @Test
-    public void throwsVerificationExceptionOnUrlEqualsWhenQueryMissing() {
+    void throwsVerificationExceptionOnUrlEqualsWhenQueryMissing() {
       assertThrows(
           VerificationException.class,
           () -> {
@@ -86,7 +86,7 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    public void throwsVerificationExceptionOnUrlEqualsWhenPathShorter() {
+    void throwsVerificationExceptionOnUrlEqualsWhenPathShorter() {
       assertThrows(
           VerificationException.class,
           () -> {
@@ -694,7 +694,6 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void showsExpectedAndReceivedRequestsOnVerificationExceptionForLessThan() {
       testClient.get("/some/request");
       testClient.get("/some/request");
@@ -713,7 +712,6 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void showsExpectedAndReceivedRequestsOnVerificationExceptionForLessThanOrExactly() {
       testClient.get("/some/request");
       testClient.get("/some/request");
@@ -732,7 +730,6 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void showsExpectedAndReceivedRequestsOnVerificationExceptionForExactly() {
       testClient.get("/some/request");
 
@@ -749,7 +746,6 @@ public class VerificationAcceptanceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void showsExpectedAndReceivedRequestsOnVerificationExceptionForMoreThan() {
       testClient.get("/some/request");
 
@@ -1026,14 +1022,14 @@ public class VerificationAcceptanceTest {
             .build();
 
     @Test
-    public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
+    void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
       assertThrows(
           RequestJournalDisabledException.class,
           () -> verify(getRequestedFor(urlEqualTo("/whatever"))));
     }
 
     @Test
-    public void findAllThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
+    void findAllThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
       assertThrows(
           RequestJournalDisabledException.class,
           () -> findAll(getRequestedFor(urlEqualTo("/whatever"))));
@@ -1051,7 +1047,7 @@ public class VerificationAcceptanceTest {
             .build();
 
     @Test
-    public void maxLengthIs2() {
+    void maxLengthIs2() {
       WireMockTestClient testClient = new WireMockTestClient(wireMockRule.getPort());
       testClient.get("/request1");
       testClient.get("/request2");
