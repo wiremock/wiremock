@@ -124,8 +124,6 @@ dependencies {
   testImplementation "org.eclipse.jetty.http2:http2-http-client-transport"
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
-  testImplementation "io.netty:netty-all:4.1.107.Final"
-
   testImplementation files('test-extension/test-extension.jar')
 
   constraints {
