@@ -32,7 +32,7 @@ project.ext {
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
     guava          : '33.0.0-jre',
-    jackson        : '2.16.1',
+    jackson        : '2.16.2',
     xmlUnit        : '2.9.1',
     jsonUnit       : '2.38.0',
     junitJupiter   : '5.10.2'
