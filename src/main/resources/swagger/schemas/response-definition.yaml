@@ -13,6 +13,11 @@ allOf:
       additionalProxyRequestHeaders:
         type: object
         description: Extra request headers to send when proxying to another host.
+      removeProxyRequestHeaders:
+        type: array
+        description: Request headers to remove when proxying to another host.
+        items:
+          type: string
       body:
         type: string
         description: The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.

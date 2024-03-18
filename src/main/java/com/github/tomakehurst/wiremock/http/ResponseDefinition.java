@@ -44,6 +44,7 @@ public class ResponseDefinition {
   private final String bodyFileName;
   private final HttpHeaders headers;
   private final HttpHeaders additionalProxyRequestHeaders;
+  private final List<String> removeProxyRequestHeaders;
   private final Integer fixedDelayMilliseconds;
   private final DelayDistribution delayDistribution;
   private final ChunkedDribbleDelay chunkedDribbleDelay;
@@ -67,6 +68,7 @@ public class ResponseDefinition {
       @JsonProperty("bodyFileName") String bodyFileName,
       @JsonProperty("headers") HttpHeaders headers,
       @JsonProperty("additionalProxyRequestHeaders") HttpHeaders additionalProxyRequestHeaders,
+      @JsonProperty("removeProxyRequestHeaders") List<String> removeProxyRequestHeaders,
       @JsonProperty("fixedDelayMilliseconds") Integer fixedDelayMilliseconds,
       @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
       @JsonProperty("chunkedDribbleDelay") ChunkedDribbleDelay chunkedDribbleDelay,
@@ -83,6 +85,7 @@ public class ResponseDefinition {
         bodyFileName,
         headers,
         additionalProxyRequestHeaders,
+        removeProxyRequestHeaders,
         fixedDelayMilliseconds,
         delayDistribution,
         chunkedDribbleDelay,
@@ -103,6 +106,7 @@ public class ResponseDefinition {
       String bodyFileName,
       HttpHeaders headers,
       HttpHeaders additionalProxyRequestHeaders,
+      List<String> removeProxyRequestHeaders,
       Integer fixedDelayMilliseconds,
       DelayDistribution delayDistribution,
       ChunkedDribbleDelay chunkedDribbleDelay,
@@ -119,6 +123,7 @@ public class ResponseDefinition {
         bodyFileName,
         headers,
         additionalProxyRequestHeaders,
+        removeProxyRequestHeaders,
         fixedDelayMilliseconds,
         delayDistribution,
         chunkedDribbleDelay,
@@ -137,6 +142,7 @@ public class ResponseDefinition {
       String bodyFileName,
       HttpHeaders headers,
       HttpHeaders additionalProxyRequestHeaders,
+      List<String> removeProxyRequestHeaders,
       Integer fixedDelayMilliseconds,
       DelayDistribution delayDistribution,
       ChunkedDribbleDelay chunkedDribbleDelay,
@@ -154,6 +160,7 @@ public class ResponseDefinition {
 
     this.headers = headers;
     this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
+    this.removeProxyRequestHeaders = removeProxyRequestHeaders;
     this.fixedDelayMilliseconds = fixedDelayMilliseconds;
     this.delayDistribution = delayDistribution;
     this.chunkedDribbleDelay = chunkedDribbleDelay;
@@ -170,6 +177,7 @@ public class ResponseDefinition {
         statusCode,
         null,
         Body.fromString(bodyContent),
+        null,
         null,
         null,
         null,
@@ -198,6 +206,7 @@ public class ResponseDefinition {
         null,
         null,
         null,
+        null,
         Collections.emptyList(),
         Parameters.empty(),
         true);
@@ -208,6 +217,7 @@ public class ResponseDefinition {
         HTTP_OK,
         null,
         Body.none(),
+        null,
         null,
         null,
         null,
@@ -306,6 +316,7 @@ public class ResponseDefinition {
             this.bodyFileName,
             this.headers,
             this.additionalProxyRequestHeaders,
+            this.removeProxyRequestHeaders,
             this.fixedDelayMilliseconds,
             this.delayDistribution,
             this.chunkedDribbleDelay,
@@ -324,6 +335,10 @@ public class ResponseDefinition {
 
   public HttpHeaders getAdditionalProxyRequestHeaders() {
     return additionalProxyRequestHeaders;
+  }
+
+  public List<String> getRemoveProxyRequestHeaders() {
+    return removeProxyRequestHeaders;
   }
 
   public int getStatus() {
@@ -473,6 +488,7 @@ public class ResponseDefinition {
         && Objects.equals(bodyFileName, that.bodyFileName)
         && Objects.equals(headers, that.headers)
         && Objects.equals(additionalProxyRequestHeaders, that.additionalProxyRequestHeaders)
+        && Objects.equals(removeProxyRequestHeaders, that.removeProxyRequestHeaders)
         && Objects.equals(fixedDelayMilliseconds, that.fixedDelayMilliseconds)
         && Objects.equals(delayDistribution, that.delayDistribution)
         && Objects.equals(chunkedDribbleDelay, that.chunkedDribbleDelay)
@@ -494,6 +510,7 @@ public class ResponseDefinition {
         bodyFileName,
         headers,
         additionalProxyRequestHeaders,
+        removeProxyRequestHeaders,
         fixedDelayMilliseconds,
         delayDistribution,
         chunkedDribbleDelay,
