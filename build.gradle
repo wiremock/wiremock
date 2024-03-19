@@ -115,7 +115,7 @@ dependencies {
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
   testImplementation "org.skyscreamer:jsonassert:1.2.3"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
-  testImplementation 'org.awaitility:awaitility:4.2.0'
+  testImplementation 'org.awaitility:awaitility:4.2.1'
   testImplementation "commons-io:commons-io:2.15.1"
   testImplementation 'org.scala-lang:scala-library:2.13.13'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
