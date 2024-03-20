@@ -25,15 +25,21 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePattern;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.apache.hc.client5.http.entity.mime.ByteArrayBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.MultipartPartBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -137,6 +143,66 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(EntityUtils.toString(response.getEntity()), response.getCode(), is(200));
   }
+
+
+  /** @see <a href="https://github.com/tomakehurst/wiremock/issues/2260">#2260</a> */
+  @Test
+  public void acceptsAMultipartRelatedRequestContaining2XmlPartsIfMatchingTypeAny() throws Exception {
+    stubFor(
+        post("/multipart-related")
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withNameOnly("part-1")
+                    .withBody(equalToXml("<root><ref>${xmlunit.ignore}</ref></root>", true))
+                    .matchingType(MultipartValuePattern.MatchingType.ANY)
+            )
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withNameOnly("part-2")
+                    .withBody(equalToXml(
+                        "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
+                            "<a><b>${xmlunit.ignore}</b></a>",
+                        true
+                    ))
+                    .matchingType(MultipartValuePattern.MatchingType.ANY)
+            )
+            .willReturn(ok()));
+
+    ClassicHttpRequest request =
+        ClassicRequestBuilder.post(wireMockServer.baseUrl() + "/multipart-related")
+            .setEntity(
+                MultipartEntityBuilder.create()
+                    .setMimeSubtype("related")
+                    .addParameter(new BasicNameValuePair("type", "text/xml"))
+                    .addPart(
+                        MultipartPartBuilder
+                            .create(new StringBody("<root><ref>cid:xml2</ref></root>", ContentType.TEXT_XML))
+                            .setHeader("Content-ID", "<root-xml>")
+                            .setHeader("Content-Type", "text/xml")
+                            .build()
+                    )
+                    .addPart(
+                        MultipartPartBuilder
+                            .create(new ByteArrayBody(
+                                (
+                                    "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
+                                        "<a><b>1</b></a>"
+                                )
+                                    .getBytes(),
+                                ContentType.TEXT_XML
+                            ))
+                            .setHeader("Content-ID", "<xml2>")
+                            .setHeader("Content-Type", "text/xml")
+                            .build()
+                    )
+                    .build())
+            .build();
+
+    ClassicHttpResponse response = httpClient.execute(request);
+
+    assertThat(EntityUtils.toString(response.getEntity()), response.getCode(), is(200));
+  }
+
 
   // https://github.com/tomakehurst/wiremock/issues/1179
   @Test
