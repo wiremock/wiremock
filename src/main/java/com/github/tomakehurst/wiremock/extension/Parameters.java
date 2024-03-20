@@ -36,7 +36,7 @@ public class Parameters extends Metadata {
     return from(Map.of(name, value));
   }
 
-  public static <T> Parameters of(T myData) {
+  public static Parameters of(Object myData) {
     return from(Json.objectToMap(myData));
   }
 
