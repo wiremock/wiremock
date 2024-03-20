@@ -18,8 +18,12 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -27,16 +31,23 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.util.*;
 
+@JsonDeserialize
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
 
-  public MatchesJsonPathPattern(
-      @JsonProperty("matchesJsonPath") String expectedJsonPath, StringValuePattern valuePattern) {
+  public MatchesJsonPathPattern(String expectedJsonPath, StringValuePattern valuePattern) {
     super(expectedJsonPath, valuePattern);
   }
 
   public MatchesJsonPathPattern(String value) {
     this(value, null);
+  }
+
+  @JsonCreator
+  public MatchesJsonPathPattern(@JsonProperty("matchesJsonPath") JsonNode node) {
+    super(
+        node.isTextual() ? node.textValue() : ((ObjectNode) node).remove("expression").textValue(),
+        node.isTextual() ? null : Json.read(node.toString(), StringValuePattern.class));
   }
 
   public String getMatchesJsonPath() {

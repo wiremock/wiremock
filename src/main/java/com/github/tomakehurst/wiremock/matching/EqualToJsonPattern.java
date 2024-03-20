@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.stubbing.SubEvent.JSON_ERROR;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -29,6 +31,7 @@ import net.javacrumbs.jsonunit.core.listener.Difference;
 import net.javacrumbs.jsonunit.core.listener.DifferenceContext;
 import net.javacrumbs.jsonunit.core.listener.DifferenceListener;
 
+@JsonDeserialize
 public class EqualToJsonPattern extends StringValuePattern {
 
   private final JsonNode expected;
@@ -36,10 +39,7 @@ public class EqualToJsonPattern extends StringValuePattern {
   private final Boolean ignoreExtraElements;
   private final Boolean serializeAsString;
 
-  public EqualToJsonPattern(
-      @JsonProperty("equalToJson") String json,
-      @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
-      @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
+  public EqualToJsonPattern(String json, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
     super(json);
     expected = Json.read(json, JsonNode.class);
     this.ignoreArrayOrder = ignoreArrayOrder;
@@ -47,13 +47,16 @@ public class EqualToJsonPattern extends StringValuePattern {
     this.serializeAsString = true;
   }
 
+  @JsonCreator
   public EqualToJsonPattern(
-      JsonNode jsonNode, Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
-    super(Json.write(jsonNode));
-    expected = jsonNode;
+      @JsonProperty("equalToJson") JsonNode node,
+      @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
+      @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
+    super(node.isTextual() ? node.textValue() : Json.write(node));
+    expected = node.isTextual() ? Json.read(node.textValue(), JsonNode.class) : node;
     this.ignoreArrayOrder = ignoreArrayOrder;
     this.ignoreExtraElements = ignoreExtraElements;
-    this.serializeAsString = false;
+    this.serializeAsString = node.isTextual();
   }
 
   @Override

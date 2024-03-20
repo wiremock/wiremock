@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@JsonDeserialize
 public class LogicalAnd extends AbstractLogicalMatcher {
 
   public LogicalAnd(StringValuePattern... operands) {
     super(operands);
   }
 
+  @JsonCreator
   public LogicalAnd(@JsonProperty("and") List<StringValuePattern> operands) {
     super(operands);
   }

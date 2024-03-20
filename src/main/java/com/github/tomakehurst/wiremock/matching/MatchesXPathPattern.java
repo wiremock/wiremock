@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,21 @@ package com.github.tomakehurst.wiremock.matching;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.xml.*;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@JsonDeserialize
 @JsonSerialize(using = XPathPatternJsonSerializer.class)
 public class MatchesXPathPattern extends PathPattern {
 
@@ -45,10 +51,18 @@ public class MatchesXPathPattern extends PathPattern {
   }
 
   public MatchesXPathPattern(
-      @JsonProperty("matchesXPath") String xpath,
-      @JsonProperty("namespaces") Map<String, String> namespaces,
-      @JsonProperty("valuePattern") StringValuePattern valuePattern) {
+      String xpath, Map<String, String> namespaces, StringValuePattern valuePattern) {
     super(xpath, valuePattern);
+    xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
+  }
+
+  @JsonCreator
+  public MatchesXPathPattern(
+      @JsonProperty("matchesXPath") JsonNode node,
+      @JsonProperty("xPathNamespaces") Map<String, String> namespaces) {
+    super(
+        node.isTextual() ? node.textValue() : ((ObjectNode) node).remove("expression").textValue(),
+        node.isTextual() ? null : Json.read(node.toString(), StringValuePattern.class));
     xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
   }
 

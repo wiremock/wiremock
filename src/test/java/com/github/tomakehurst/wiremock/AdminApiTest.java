@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -758,7 +758,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     Errors errors = Json.read(response.content(), Errors.class);
     assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    assertThat(errors.first().getDetail(), is("'contains' expected value cannot be null"));
   }
 
   @Test
@@ -770,7 +770,7 @@ public class AdminApiTest extends AcceptanceTestBase {
                 + "    \"request\": {\n"
                 + "        \"bodyPatterns\": [\n"
                 + "            {\n"
-                + "                \"equalTo\": 12\n"
+                + "                \"equalTo\": {}\n"
                 + "            }\n"
                 + "        ]\n"
                 + "    }\n"
@@ -779,9 +779,12 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(422));
 
     Errors errors = Json.read(response.content(), Errors.class);
-    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0/equalTo"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("equalTo operand must be a non-null string"));
+    assertThat(
+        errors.first().getDetail(),
+        is(
+            "Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)"));
   }
 
   @Test
@@ -793,7 +796,7 @@ public class AdminApiTest extends AcceptanceTestBase {
                 + "    \"request\": {\n"
                 + "        \"bodyPatterns\": [\n"
                 + "            {\n"
-                + "                \"contains\": 12\n"
+                + "                \"contains\": {}\n"
                 + "            }\n"
                 + "        ]\n"
                 + "    }\n"
@@ -802,9 +805,12 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(422));
 
     Errors errors = Json.read(response.content(), Errors.class);
-    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0/contains"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
+    assertThat(
+        errors.first().getDetail(),
+        is(
+            "Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)"));
   }
 
   @Test
@@ -816,7 +822,7 @@ public class AdminApiTest extends AcceptanceTestBase {
                 + "    \"request\": {\n"
                 + "        \"bodyPatterns\": [\n"
                 + "            {\n"
-                + "                \"matches\": 12\n"
+                + "                \"matches\": {}\n"
                 + "            }\n"
                 + "        ]\n"
                 + "    }\n"
@@ -825,9 +831,12 @@ public class AdminApiTest extends AcceptanceTestBase {
     assertThat(response.statusCode(), is(422));
 
     Errors errors = Json.read(response.content(), Errors.class);
-    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+    assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0/matches"));
     assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-    assertThat(errors.first().getDetail(), is("matches operand must be a non-null string"));
+    assertThat(
+        errors.first().getDetail(),
+        is(
+            "Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)"));
   }
 
   @Test
