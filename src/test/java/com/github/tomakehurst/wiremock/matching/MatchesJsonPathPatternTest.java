@@ -30,8 +30,11 @@ import static org.mockito.Mockito.verify;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -473,6 +476,48 @@ public class MatchesJsonPathPatternTest {
         matchingJsonPath(
                 "$.searchCriteria[?(@.customerId == '104903')].date",
                 equalToDateTime("2021-01-01T00:00:00").actualFormat("dd/MM/yyyy"))
+            .match(json);
+
+    assertTrue(result.isExactMatch());
+  }
+
+  public void matchesCorrectlyWhenUsingActualFormatWithJustTheDayPartOfTheDateAndTruncatingTheDateToo() {
+  public void
+      matchesCorrectlyWhenUsingActualFormatWithJustTheDayPartOfTheDateAndTruncatingTheDateToo() {
+    String json =
+            "{\n"
+                    + "   \"searchCriteria\": {\n"
+                    + "      \"customerId\": \"104903\",\n"
+                    + "      \"day\": " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd")) + ",\n"
+                    + "      \"month\": " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("MM")) + ",\n"
+                    + "       \"year\": " + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy")) + "\n"
+                    + "   }\n"
+                    + "}";
+        "{\n"
+            + "   \"searchCriteria\": {\n"
+            + "      \"customerId\": \"104903\",\n"
+            + "      \"day\": "
+            + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd"))
+            + ",\n"
+            + "      \"month\": "
+            + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("MM"))
+            + ",\n"
+            + "       \"year\": "
+            + LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy"))
+            + "\n"
+            + "   }\n"
+            + "}";
+
+    MatchResult result =
+            matchingJsonPath(
+                    "$.searchCriteria.day",
+                    equalToDateTime("now +1 days").truncateActual(DateTimeTruncation.FIRST_HOUR_OF_DAY).actualFormat("dd"))
+                    .match(json);
+        matchingJsonPath(
+                "$.searchCriteria.day",
+                equalToDateTime("now +1 days")
+                    .truncateActual(DateTimeTruncation.FIRST_HOUR_OF_DAY)
+                    .actualFormat("dd"))
             .match(json);
 
     assertTrue(result.isExactMatch());
