@@ -217,6 +217,7 @@ public class WireMockApp implements StubServer, Admin {
                 options.proxyHostHeader(),
                 settingsStore,
                 options.getStubCorsEnabled(),
+                options.getSupportedProxyEncodings(),
                 reverseProxyClient,
                 forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),

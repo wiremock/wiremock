@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public interface HttpClient {
   List<String> FORBIDDEN_REQUEST_HEADERS =
       List.of(TRANSFER_ENCODING, CONTENT_LENGTH, "connection", USER_AGENT);
   String HOST_HEADER = "host";
+  String ACCEPT_ENCODING_HEADER = "accept-encoding";
 
   Response execute(Request request) throws IOException;
 }
