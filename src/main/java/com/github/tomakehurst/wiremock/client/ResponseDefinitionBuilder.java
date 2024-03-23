@@ -71,19 +71,22 @@ public class ResponseDefinitionBuilder {
     builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 
     if (builder.proxyBaseUrl != null) {
-      ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder =
-          new ProxyResponseDefinitionBuilder(builder);
-      proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove =
-          responseDefinition.getProxyUrlPrefixToRemove();
-      proxyResponseDefinitionBuilder.additionalRequestHeaders =
-          responseDefinition.getAdditionalProxyRequestHeaders() != null
-              ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
-              : new ArrayList<>();
-
-      return proxyResponseDefinitionBuilder;
+      return createProxyResponseDefinitionBuilder(builder, responseDefinition);
     }
 
     return builder;
+  }
+
+  private static ResponseDefinitionBuilder createProxyResponseDefinitionBuilder(ResponseDefinitionBuilder builder, ResponseDefinition responseDefinition) {
+    ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder =
+            new ProxyResponseDefinitionBuilder(builder);
+    proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove =
+            responseDefinition.getProxyUrlPrefixToRemove();
+    proxyResponseDefinitionBuilder.additionalRequestHeaders =
+            responseDefinition.getAdditionalProxyRequestHeaders() != null
+                    ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
+                    : new ArrayList<>();
+    return proxyResponseDefinitionBuilder;
   }
 
   public static ResponseDefinition jsonResponse(Object body) {
