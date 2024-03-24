@@ -31,7 +31,7 @@ public class Slf4jNotifier implements Notifier {
   @Override
   public void info(String message) {
     if (verbose) {
-      log.info(message);
+      log.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     }
   }
 
