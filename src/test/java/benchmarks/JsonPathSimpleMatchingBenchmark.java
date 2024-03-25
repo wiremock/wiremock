@@ -128,16 +128,3 @@ public class JsonPathSimpleMatchingBenchmark {
           + "  {\"topic\": \"R\", \"name\": \"Michelle Garcia\", \"age\": 30, \"occupation\": \"Software Engineer\", \"city\": \"San Antonio\", \"interests\": [\"coding\", \"gaming\", \"traveling\"], \"email\": \"michelle.garcia@example.com\", \"phone\": \"+1333444555\", \"address\": \"890 Walnut St\", \"member_since\": \"2019-02-14\"}\n"
           + "]\n";
 }
-
-/*
-Last result but one:
-
-Benchmark                           Mode  Cnt     Score      Error  Units
-JsonPathMatchingBenchmark.matched  thrpt    5  9326.701 ± 1291.559  ops/s
-
-
-Last result (pre-compiling JSONPath expression):
-
-Benchmark                           Mode  Cnt     Score     Error  Units
-JsonPathMatchingBenchmark.matched  thrpt    5  9600.253 ± 463.052  ops/s
- */

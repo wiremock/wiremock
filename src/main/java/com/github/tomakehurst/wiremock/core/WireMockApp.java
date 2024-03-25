@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.spi.cache.CacheProvider;
+import com.jayway.jsonpath.spi.cache.NOOPCache;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -72,6 +75,15 @@ public class WireMockApp implements StubServer, Admin {
     if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
       Xml.optimizeFactoriesLoading();
       FACTORIES_LOADING_OPTIMIZED.setTrue();
+    }
+
+    try {
+      // Disabling JsonPath's cache due to
+      // https://github.com/json-path/JsonPath/issues/975#issuecomment-1867293053 and the fact that
+      // we're now doing our own caching.
+      CacheProvider.setCache(new NOOPCache());
+    } catch (JsonPathException ignored) {
+      // May fail on subsequent runs, but this doesn't matter
     }
 
     this.options = options;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,13 +41,14 @@ class GeneralCodingRulesTest {
 
   @ArchTest
   static ArchRule RULE_NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS =
-      noClasses()
-          .that()
-          .areNotAssignableTo(ConsoleNotifier.class)
-          .and()
-          .areNotAssignableTo(WireMockServerRunner.class)
-          .should(ACCESS_STANDARD_STREAMS)
-          .as("classes should not access standard streams");
+      freeze(
+          noClasses()
+              .that()
+              .areNotAssignableTo(ConsoleNotifier.class)
+              .and()
+              .areNotAssignableTo(WireMockServerRunner.class)
+              .should(ACCESS_STANDARD_STREAMS)
+              .as("classes should not access standard streams"));
 
   @ArchTest
   static ArchRule RULE_NO_CLASSES_SHOULD_THROW_GENERIC_EXCEPTIONS =

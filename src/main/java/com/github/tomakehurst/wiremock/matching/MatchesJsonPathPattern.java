@@ -26,12 +26,9 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -39,12 +36,6 @@ import java.util.Map;
 
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
-
-  private static final Configuration JSON_PATH_CONF =
-      Configuration.builder()
-          .jsonProvider(new JacksonJsonNodeJsonProvider())
-          .mappingProvider(new JacksonMappingProvider())
-          .build();
 
   private final JsonPath jsonPath;
 
