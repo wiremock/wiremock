@@ -127,7 +127,7 @@ dependencies {
   testImplementation files('test-extension/test-extension.jar')
 
   constraints {
-    implementation "net.minidev:json-smart:2.5.0", {
+    implementation "net.minidev:json-smart:2.5.1", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
     }
   }
