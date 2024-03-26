@@ -15,6 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
+import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,22 +37,11 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.AUTHORIZATION;
-import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
-import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
-import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 

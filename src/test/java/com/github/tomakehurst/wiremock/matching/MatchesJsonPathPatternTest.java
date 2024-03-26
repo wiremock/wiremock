@@ -182,7 +182,7 @@ public class MatchesJsonPathPatternTest {
     assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
     ServeEventChecks.checkJsonError(
         matchResult,
-        "Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (String)\"{ \"bad\": }\"; line: 1, column: 11]");
+        "Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (String)\"{ \"bad\": }\"; line: 1, column: 10]");
   }
 
   @Test
