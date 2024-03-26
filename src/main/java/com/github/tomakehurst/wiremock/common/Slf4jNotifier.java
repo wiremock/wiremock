@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2023 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Slf4jNotifier implements Notifier {
 
-  private static final Logger log = LoggerFactory.getLogger("WireMock");
-
+  private Logger log;
   private final boolean verbose;
 
   public Slf4jNotifier(boolean verbose) {
+    this(verbose, null);
+  }
+
+  public Slf4jNotifier(boolean verbose, String loggerName) {
+    log = LoggerFactory.getLogger(getFirstNonNull(loggerName, "WireMock"));
     this.verbose = verbose;
+  }
+
+  public void setLogger(String loggerName) {
+
+    log = LoggerFactory.getLogger(getFirstNonNull(loggerName, "WireMock"));
+  }
+
+  public Slf4jNotifier clone() {
+    return new Slf4jNotifier(this.verbose, log.getName());
   }
 
   @Override

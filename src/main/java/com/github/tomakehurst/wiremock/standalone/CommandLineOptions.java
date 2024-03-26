@@ -68,6 +68,8 @@ public class CommandLineOptions implements Options {
   private static final String PROXY_VIA = "proxy-via";
   private static final String TIMEOUT = "timeout";
   private static final String PORT = "port";
+
+  private static final String SERVER_NAME = "server-name";
   private static final String DISABLE_HTTP = "disable-http";
   private static final String BIND_ADDRESS = "bind-address";
   private static final String HTTPS_PORT = "https-port";
@@ -141,6 +143,7 @@ public class CommandLineOptions implements Options {
 
   public CommandLineOptions(String... args) {
     OptionParser optionParser = new OptionParser();
+    optionParser.accepts(SERVER_NAME, "Name of wiremock server instance").withRequiredArg();
     optionParser
         .accepts(
             PORT,
@@ -515,6 +518,19 @@ public class CommandLineOptions implements Options {
     return optionSet.has(PORT);
   }
 
+  private boolean specifiesServerName() {
+    return optionSet.has(SERVER_NAME);
+  }
+
+  @Override
+  public String getServerName() {
+
+    if (specifiesServerName()) {
+      return (String) optionSet.valueOf(SERVER_NAME);
+    }
+    return DEFAULT_SERVER_NAME;
+  }
+
   @Override
   public int portNumber() {
     if (specifiesPortNumber()) {
@@ -732,7 +748,7 @@ public class CommandLineOptions implements Options {
 
   @Override
   public Notifier notifier() {
-    return new ConsoleNotifier(verboseLoggingEnabled());
+    return new ConsoleNotifier(getServerName(), verboseLoggingEnabled());
   }
 
   @Override

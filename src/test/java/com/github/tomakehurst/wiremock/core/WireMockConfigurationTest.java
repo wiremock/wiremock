@@ -86,4 +86,11 @@ public class WireMockConfigurationTest {
     Options config = WireMockConfiguration.wireMockConfig().withMaxTemplateCacheEntries(11L);
     assertThat(config.getMaxTemplateCacheEntries(), is(11L));
   }
+
+  @Test
+  public void testServerNameIsSet() {
+    WireMockConfiguration configuration =
+        WireMockConfiguration.wireMockConfig().serverName("TestServer");
+    assertThat(configuration.getServerName(), is("TestServer"));
+  }
 }
