@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2022 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class JettyFaultInjectorFactory implements FaultInjectorFactory {
+  private final JettyHttpUtils utils;
+
+  public JettyFaultInjectorFactory(JettyHttpUtils utils) {
+    this.utils = utils;
+  }
 
   @Override
   public FaultInjector buildFaultInjector(
       HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     if (httpServletRequest.getScheme().equals("https")) {
-      return new JettyHttpsFaultInjector(httpServletResponse);
+      return new JettyHttpsFaultInjector(httpServletResponse, utils);
     }
 
-    return new JettyFaultInjector(httpServletResponse);
+    return new JettyFaultInjector(httpServletResponse, utils);
   }
 }
