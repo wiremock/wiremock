@@ -739,7 +739,7 @@ public class ResponseTemplateTransformerTest {
     String body =
         transform(
                 mockRequest().url("/stuff?things[1]=one&things[2]=two&things[3]=three"),
-                ok("{{lookup request.query 'things[2]'}}"))
+                ok("{{lookup request.query 'things.[2]'}}"))
             .getBody();
 
     assertThat(body, is("two"));
