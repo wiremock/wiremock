@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  core:
     strategy:
       fail-fast: false
       matrix:
@@ -50,11 +50,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: ./gradlew check sonarqube --stacktrace --no-daemon
+      run: ./gradlew :check :sonarqube --stacktrace --no-daemon
 
     - name: Test WireMock
       if: ${{ !(matrix.os == 'ubuntu-latest' && github.event_name == 'push') }}
-      run: ./gradlew check --stacktrace --no-daemon
+      run: ./gradlew :check --stacktrace --no-daemon
 
     - name: Archive WireMock test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
@@ -64,11 +64,51 @@ jobs:
         path: |
           build/reports/tests/test
           build/test-results/test
-    - name: Archive Webhooks test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
+
+  jetty12:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        jdk: [17]
+    runs-on: ${{ matrix.os }}
+    env:
+      JDK_VERSION:  ${{ matrix.jdk }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: ${{ matrix.jdk }}
+        distribution: 'temurin'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-jetty12-sonar
+        restore-keys: ${{ runner.os }}-jetty12-sonar
+    - name: Cache Gradle packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-jetty12-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-jetty12-gradle
+
+    - name: Test Jetty12 JAR
+      if: ${{ !(matrix.os == 'ubuntu-latest' && github.event_name == 'push') }}
+      run: ./gradlew :wiremock-jetty12:check --stacktrace --no-daemon
+
+    - name: Archive Jetty12 test report - ${{ matrix.os }} JDK ${{ matrix.jdk }}
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: wiremock-webhooks-extension-test-report-${{ matrix.os }}-${{ matrix.jdk }}
+        name: wiremock-jetty12-test-report-${{ matrix.os }} JDK ${{ matrix.jdk }}
         path: |
-          wiremock-webhooks-extension/build/reports/tests/test
-          wiremock-webhooks-extension/build/test-results/test
+          wiremock-jetty12/build/reports/tests/test
+          wiremock-jetty12/build/test-results/test
