@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.verification;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.Lazy.lazy;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
@@ -26,6 +27,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.fasterxml.jackson.annotation.*;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Lazy;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import java.net.URL;
@@ -51,6 +53,9 @@ public class LoggedRequest implements Request {
   private final Date loggedDate;
   private final Collection<Part> multiparts;
   private final String protocol;
+
+  private final Lazy<String> lazyBodyAsString;
+  private final Lazy<String> lazyBodyAsBase64;
 
   public static LoggedRequest createFrom(Request request) {
     return new LoggedRequest(
@@ -144,6 +149,9 @@ public class LoggedRequest implements Request {
     this.loggedDate = loggedDate;
     this.multiparts = multiparts;
     this.protocol = protocol;
+
+    lazyBodyAsString = lazy(() -> stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8()));
+    lazyBodyAsBase64 = lazy(() -> encodeBase64(body));
   }
 
   @Override
@@ -231,13 +239,13 @@ public class LoggedRequest implements Request {
   @Override
   @JsonProperty("body")
   public String getBodyAsString() {
-    return stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8());
+    return lazyBodyAsString.get();
   }
 
   @Override
   @JsonProperty("bodyAsBase64")
   public String getBodyAsBase64() {
-    return encodeBase64(body);
+    return lazyBodyAsBase64.get();
   }
 
   @Override

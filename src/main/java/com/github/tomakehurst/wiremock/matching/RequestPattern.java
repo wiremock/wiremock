@@ -40,6 +40,8 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
@@ -98,14 +100,24 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         new RequestMatcher() {
           @Override
           public MatchResult match(Request request) {
+            final List<WeightedMatchResult> firstPartMatchResults =
+                List.of(
+                    weight(schemeMatches(request), 3.0),
+                    weight(hostMatches(request), 10.0),
+                    weight(portMatches(request), 10.0),
+                    weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
+                    weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
+            final MatchResult firstPartsMatchResult =
+                new MemoizingMatchResult(MatchResult.aggregateWeighted(firstPartMatchResults));
+
+            if (!firstPartsMatchResult.isExactMatch()) {
+              return firstPartsMatchResult;
+            }
+
             List<WeightedMatchResult> matchResults =
                 new ArrayList<>(
                     asList(
-                        weight(schemeMatches(request), 3.0),
-                        weight(hostMatches(request), 10.0),
-                        weight(portMatches(request), 10.0),
-                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+                        weight(firstPartsMatchResult, 1.0),
                         weight(allPathParamsMatch(request)),
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
@@ -118,7 +130,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
               matchResults.add(weight(customMatcher.match(request)));
             }
 
-            return MatchResult.aggregateWeighted(matchResults);
+            return MatchResult.aggregateWeighted(
+                Stream.concat(firstPartMatchResults.stream(), matchResults.stream())
+                    .collect(Collectors.toList()));
           }
 
           @Override

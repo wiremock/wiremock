@@ -23,6 +23,7 @@ plugins {
   id 'com.github.johnrengelman.shadow' version '8.1.1'
   id "org.sonarqube" version "4.4.1.3373"
   id 'jacoco'
+  id "me.champeau.jmh" version "0.7.2"
 }
 
 group = 'org.wiremock'
@@ -125,6 +126,9 @@ dependencies {
   testRuntimeOnly files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 
   testImplementation files('test-extension/test-extension.jar')
+
+  testImplementation 'org.openjdk.jmh:jmh-core:1.37'
+  testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
 
   constraints {
     implementation "net.minidev:json-smart:2.5.1", {
@@ -557,4 +561,9 @@ int getBetaVersion() {
 wrapper {
   gradleVersion = '8.6'
   distributionType = Wrapper.DistributionType.BIN
+}
+
+jmh {
+  includes = ['.*benchmarks.*']
+  threads = 50
 }
