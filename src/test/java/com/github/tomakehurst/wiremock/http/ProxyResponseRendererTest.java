@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.crypto.X509CertificateVersion.V3;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -26,7 +27,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.Mockito.spy;
 
 import com.github.tomakehurst.wiremock.common.NetworkAddressRules;
@@ -49,11 +52,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -131,7 +134,7 @@ public class ProxyResponseRendererTest {
 
   @Test
   void passesThroughCorsResponseHeadersWhenStubCorsDisabled() {
-    ProxyResponseRenderer responseRenderer = buildProxyResponseRenderer(true, false);
+    ProxyResponseRenderer responseRenderer = buildProxyResponseRenderer(true, false, null);
 
     origin.stubFor(
         get("/proxied")
@@ -150,7 +153,7 @@ public class ProxyResponseRendererTest {
 
   @Test
   void doesNotPassThroughCorsResponseHeadersWhenStubCorsEnabled() {
-    ProxyResponseRenderer responseRenderer = buildProxyResponseRenderer(true, true);
+    ProxyResponseRenderer responseRenderer = buildProxyResponseRenderer(true, true, null);
 
     origin.stubFor(
         get("/proxied")
@@ -248,7 +251,7 @@ public class ProxyResponseRendererTest {
             "/proxied/empty-get",
             true,
             new byte[0],
-            RequestMethod.GET,
+            GET,
             new HttpHeaders(new HttpHeader("Content-Length", "0")));
 
     trustAllProxyResponseRenderer.render(serveEvent);
@@ -319,6 +322,97 @@ public class ProxyResponseRendererTest {
   }
 
   @Test
+  void maintainsAcceptEncodingIfNoSupportedEncodingsSpecified() throws IOException {
+
+    Set<String> supportedProxyEncodings = null;
+    ProxyResponseRenderer proxyResponseRenderer =
+        buildProxyResponseRenderer(false, false, supportedProxyEncodings);
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            new byte[0],
+            GET,
+            new HttpHeaders(HttpHeader.httpHeader("Accept-Encoding", "gzip,br")));
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            assertArg(
+                request ->
+                    assertThat(
+                        Arrays.stream(request.getHeaders("Accept-Encoding"))
+                            .map(NameValuePair::getValue)
+                            .collect(Collectors.toList()),
+                        is(List.of("gzip,br")))),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
+  @Test
+  void limitsAcceptEncodingToSupportedEncodings() throws IOException {
+
+    Set<String> supportedProxyEncodings = Set.of("gzip", "br");
+    ProxyResponseRenderer proxyResponseRenderer =
+        buildProxyResponseRenderer(false, false, supportedProxyEncodings);
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            new byte[0],
+            GET,
+            new HttpHeaders(HttpHeader.httpHeader("Accept-Encoding", "gzip,deflate,br")));
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            assertArg(
+                request ->
+                    assertThat(
+                        Arrays.stream(request.getHeaders("Accept-Encoding"))
+                            .map(NameValuePair::getValue)
+                            .collect(Collectors.toList()),
+                        is(List.of("gzip,br")))),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
+  @Test
+  void removesAcceptEncodingIfNoneSupported() throws IOException {
+
+    Set<String> supportedProxyEncodings = Set.of("gzip");
+    ProxyResponseRenderer proxyResponseRenderer =
+        buildProxyResponseRenderer(false, false, supportedProxyEncodings);
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            new byte[0],
+            GET,
+            new HttpHeaders(HttpHeader.httpHeader("Accept-Encoding", "deflate,br")));
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            assertArg(request -> assertFalse(request.containsHeader("Accept-Encoding"))),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
+  private static <T> T reflectiveInnerSpyField(
+      Class<T> fieldType, String outerFieldName, String innerFieldName, Object object) {
+    try {
+      Field outerField = object.getClass().getDeclaredField(outerFieldName);
+      outerField.setAccessible(true);
+      Object outerFieldObject = outerField.get(object);
+      Field innerField = outerFieldObject.getClass().getDeclaredField(innerFieldName);
+      innerField.setAccessible(true);
+      T spy = spy(fieldType.cast(innerField.get(outerFieldObject)));
+      innerField.set(outerFieldObject, spy);
+      return spy;
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
   void proxyUrlPrefixToRemove() throws IOException {
     ServeEvent serveEvent =
         serveEvent(
@@ -360,7 +454,7 @@ public class ProxyResponseRendererTest {
   }
 
   private ServeEvent serveEvent(String path, boolean isBrowserProxyRequest, byte[] body) {
-    return serveEvent(path, isBrowserProxyRequest, body, RequestMethod.GET, new HttpHeaders());
+    return serveEvent(path, isBrowserProxyRequest, body, GET, new HttpHeaders());
   }
 
   private ServeEvent serveEvent(
@@ -430,11 +524,11 @@ public class ProxyResponseRendererTest {
   }
 
   private ProxyResponseRenderer buildProxyResponseRenderer(boolean trustAllProxyTargets) {
-    return buildProxyResponseRenderer(trustAllProxyTargets, false);
+    return buildProxyResponseRenderer(trustAllProxyTargets, false, null);
   }
 
   private ProxyResponseRenderer buildProxyResponseRenderer(
-      boolean trustAllProxyTargets, boolean stubCorsEnabled) {
+      boolean trustAllProxyTargets, boolean stubCorsEnabled, Set<String> supportedProxyEncodings) {
 
     reverseProxyApacheClient =
         spy(
@@ -469,6 +563,7 @@ public class ProxyResponseRendererTest {
         /* hostHeaderValue= */ null,
         new InMemorySettingsStore(),
         stubCorsEnabled,
+        supportedProxyEncodings,
         reverseProxyClient,
         forwardProxyClient);
   }
