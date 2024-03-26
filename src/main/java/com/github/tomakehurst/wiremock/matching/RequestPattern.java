@@ -244,18 +244,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
-    if (customMatcherDefinition != null) {
+    final MatchResult standardMatchResult = matcher.match(request);
+    if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
           getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
 
-      MatchResult standardMatchResult = matcher.match(request);
       MatchResult customMatchResult =
           requestMatcher.match(request, customMatcherDefinition.getParameters());
 
       return MatchResult.aggregate(standardMatchResult, customMatchResult);
     }
 
-    return matcher.match(request);
+    return standardMatchResult;
   }
 
   private MatchResult allCookiesMatch(final Request request) {
