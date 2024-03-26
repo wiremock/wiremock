@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension.responsetemplating;
+package com.github.tomakehurst.wiremock.common;
 
 import static java.util.Arrays.asList;
 
@@ -21,8 +21,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
-public class RenderCache {
+public class RequestCache {
+
+  private static RequestCache OFF =
+      new RequestCache() {
+        @Override
+        public void put(Key key, Object value) {}
+
+        @Override
+        public <T> T get(Key key) {
+          return null;
+        }
+
+        @Override
+        public <T> T get(Key key, Supplier<T> supplier) {
+          return supplier.get();
+        }
+      };
+
+  private static final ThreadLocal<RequestCache> current = new ThreadLocal<>();
+
+  public static RequestCache getCurrent() {
+    RequestCache requestCache = current.get();
+    if (requestCache == null) {
+      requestCache = new RequestCache();
+      current.set(requestCache);
+    }
+
+    return requestCache;
+  }
+
+  public static void onRequestEnd() {
+    current.remove();
+  }
+
+  public static void disable() {
+    current.set(OFF);
+  }
 
   private final Map<Key, Object> cache = new HashMap<>();
 
@@ -33,6 +70,11 @@ public class RenderCache {
   @SuppressWarnings("unchecked")
   public <T> T get(Key key) {
     return (T) cache.get(key);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T get(Key key, Supplier<T> supplier) {
+    return (T) cache.computeIfAbsent(key, k -> supplier.get());
   }
 
   public static class Key {

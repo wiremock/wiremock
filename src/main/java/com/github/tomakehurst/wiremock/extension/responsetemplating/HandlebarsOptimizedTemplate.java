@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import java.io.IOException;
 import java.io.Writer;
 import org.apache.commons.io.output.StringBuilderWriter;
@@ -62,8 +63,8 @@ public class HandlebarsOptimizedTemplate {
   }
 
   public String apply(Object contextData) {
-    final RenderCache renderCache = new RenderCache();
-    Context context = Context.newBuilder(contextData).combine("renderCache", renderCache).build();
+    final RequestCache requestCache = RequestCache.getCurrent();
+    Context context = Context.newBuilder(contextData).combine("requestCache", requestCache).build();
 
     return startContent + applyTemplate(context) + endContent;
   }
