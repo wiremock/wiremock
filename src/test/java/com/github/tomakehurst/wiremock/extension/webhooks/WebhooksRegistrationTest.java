@@ -22,8 +22,8 @@ import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,25 +33,20 @@ class WebhooksRegistrationTest {
   private static final String MESSAGE =
       "Passing webhooks in extensions is no longer required and"
           + " may lead to compatibility issues in future";
-  private final PrintStream stdOut = System.out;
   private WireMockServerRunner runner;
   private WireMockServer server;
-  private ByteArrayOutputStream out;
+
+  TestNotifier testNotifier;
 
   @BeforeEach
   public void recordCommandLineMessages() {
-    startRecordingSystemOut();
+    testNotifier = TestNotifier.createAndSet();
   }
 
   @AfterEach
   public void resetPrintStream() {
-    System.setOut(stdOut);
+    testNotifier.revert();
     stopServer();
-  }
-
-  private void startRecordingSystemOut() {
-    out = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(out));
   }
 
   private void stopServer() {
@@ -67,7 +62,8 @@ class WebhooksRegistrationTest {
   }
 
   private String getSystemOutText() {
-    return out.toString();
+    final List<String> infoMessages = testNotifier.getInfoMessages();
+    return infoMessages.isEmpty() ? "" : infoMessages.get(0);
   }
 
   @Test
