@@ -112,7 +112,7 @@ dependencies {
   testImplementation 'org.mockito:mockito-core:5.11.0'
   testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
   testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
-  testImplementation "org.skyscreamer:jsonassert:1.2.3"
+  testImplementation "org.skyscreamer:jsonassert:1.5.1"
   testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testImplementation 'org.awaitility:awaitility:4.2.1'
   testImplementation "commons-io:commons-io:2.15.1"
@@ -126,7 +126,7 @@ dependencies {
   testImplementation files('test-extension/test-extension.jar')
 
   constraints {
-    implementation "net.minidev:json-smart:2.5.0", {
+    implementation "net.minidev:json-smart:2.5.1", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
     }
   }

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   fill="none"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="wm-favicon.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="64"
+     inkscape:cx="21.109375"
+     inkscape:cy="15.507812"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10" />
+  <circle
+     cx="16"
+     cy="16"
+     r="16"
+     fill="white"
+     id="circle2" />
+  <path
+     d="m 13.4286,21 3.3143,-10 h 0.8285 l -3.3142,10 z"
+     fill="#ffffff"
+     id="path8"
+     style="display:none" />
+  <path
+     d="M 8.5475748,22.003887 H 5.1636498 L 1.7069568,11.269931 h 3.6568176 z"
+     fill="#0fb2ef"
+     id="path297"
+     style="stroke-width:0.112854" />
+  <path
+     d="M 8.5475748,22.003887 H 5.2364184 L 8.4020267,11.269931 h 3.6750213 z"
+     fill="#0fb2ef"
+     id="path299"
+     style="stroke-width:0.112854" />
+  <path
+     d="M 13.5781,22.003887 H 11.876923 L 8.4020379,11.269931 h 3.6750101 l 3.05641,10.733956 z"
+     fill="#0fb2ef"
+     id="path301"
+     style="stroke-width:0.112854" />
+  <path
+     d="m 15.133458,22.003887 h -3.238342 l 3.111043,-10.733956 h 3.656818 z"
+     fill="#0fb2ef"
+     id="path303"
+     style="stroke-width:0.112854" />
+  <path
+     d="m 18.726514,11.269931 h 1.701166 l 3.474896,10.733956 H 20.227588 L 17.171156,11.269931 Z"
+     fill="#f59122"
+     id="path305"
+     style="stroke-width:0.112854" />
+  <path
+     d="m 23.756994,11.269931 h 3.383937 l 3.456727,10.733956 H 26.94084 Z"
+     fill="#f59122"
+     id="path307"
+     style="stroke-width:0.112854" />
+  <path
+     d="m 23.756994,11.269931 h 3.311145 l -3.165563,10.733956 h -3.674988 z"
+     fill="#f59121"
+     id="path309"
+     style="stroke-width:0.112854" />
+  <path
+     d="m 17.171156,11.269931 h 3.238353 l -3.111054,10.733956 h -3.656818 z"
+     fill="#f59121"
+     id="path311"
+     style="stroke-width:0.112854" />
+</svg>
