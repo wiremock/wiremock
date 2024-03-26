@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import java.util.List;
 
 public class MemoizingMatchResult extends MatchResult {
 
   private final Supplier<Double> memoizedDistance =
       Suppliers.memoize(
-          new Supplier<Double>() {
+          new Supplier<>() {
             @Override
             public Double get() {
               return target.getDistance();
@@ -31,7 +33,7 @@ public class MemoizingMatchResult extends MatchResult {
 
   private final Supplier<Boolean> memoizedExactMatch =
       Suppliers.memoize(
-          new Supplier<Boolean>() {
+          new Supplier<>() {
             @Override
             public Boolean get() {
               return target.isExactMatch();
@@ -52,5 +54,10 @@ public class MemoizingMatchResult extends MatchResult {
   @Override
   public double getDistance() {
     return memoizedDistance.get();
+  }
+
+  @Override
+  public List<SubEvent> getSubEvents() {
+    return target.getSubEvents();
   }
 }
