@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
+
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import java.security.AccessControlException;
-import org.apache.commons.lang3.StringUtils;
 
 public class SystemValueHelper extends HandlebarsHelper<Object> {
 
@@ -32,7 +33,8 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
   public String apply(Object context, Options options) {
     String key = options.hash("key", "");
     String type = options.hash("type", "ENVIRONMENT");
-    if (StringUtils.isEmpty(key)) {
+    String defaultValue = options.hash("default");
+    if (isEmpty(key)) {
       return this.handleError("The key cannot be empty");
     }
     if (!systemKeyAuthoriser.isPermitted(key)) {
@@ -44,10 +46,10 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
     try {
       switch (type) {
         case "ENVIRONMENT":
-          rawValue = getSystemEnvironment(key);
+          rawValue = getSystemEnvironment(key, defaultValue);
           break;
         case "PROPERTY":
-          rawValue = getSystemProperties(key);
+          rawValue = getSystemProperties(key, defaultValue);
           break;
       }
       return rawValue;
@@ -57,11 +59,11 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
     }
   }
 
-  private String getSystemEnvironment(final String key) {
-    return System.getenv(key);
+  private String getSystemEnvironment(final String key, final String defaultValue) {
+    return System.getenv().getOrDefault(key, defaultValue);
   }
 
-  private String getSystemProperties(final String key) {
-    return System.getProperty(key);
+  private String getSystemProperties(final String key, final String defaultValue) {
+    return System.getProperty(key, defaultValue);
   }
 }

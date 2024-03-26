@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
@@ -211,7 +210,7 @@ public class PlainTextDiffRendererTest {
 
     // Ugh. The joys of Microsoft's line ending innovations.
     String expected =
-        SystemUtils.IS_OS_WINDOWS
+        System.getProperty("os.name").startsWith("Windows")
             ? file("not-found-diff-sample_large_json_windows.txt")
             : file("not-found-diff-sample_large_json.txt");
 

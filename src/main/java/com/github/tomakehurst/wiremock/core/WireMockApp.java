@@ -43,15 +43,15 @@ import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.spi.cache.CacheProvider;
 import com.jayway.jsonpath.spi.cache.NOOPCache;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class WireMockApp implements StubServer, Admin {
 
   public static final String FILES_ROOT = "__files";
   public static final String ADMIN_CONTEXT_ROOT = "/__admin";
   public static final String MAPPINGS_ROOT = "mappings";
-  private static final MutableBoolean FACTORIES_LOADING_OPTIMIZED = new MutableBoolean(false);
+  private static final AtomicBoolean FACTORIES_LOADING_OPTIMIZED = new AtomicBoolean(false);
 
   private final Stores stores;
   private final Scenarios scenarios;
@@ -72,9 +72,10 @@ public class WireMockApp implements StubServer, Admin {
   private Extensions extensions;
 
   public WireMockApp(Options options, Container container) {
-    if (!options.getDisableOptimizeXmlFactoriesLoading() && FACTORIES_LOADING_OPTIMIZED.isFalse()) {
+    if (!options.getDisableOptimizeXmlFactoriesLoading()
+        && Boolean.FALSE.equals(FACTORIES_LOADING_OPTIMIZED.get())) {
       Xml.optimizeFactoriesLoading();
-      FACTORIES_LOADING_OPTIMIZED.setTrue();
+      FACTORIES_LOADING_OPTIMIZED.set(true);
     }
 
     try {
@@ -228,6 +229,7 @@ public class WireMockApp implements StubServer, Admin {
                 options.proxyHostHeader(),
                 settingsStore,
                 options.getStubCorsEnabled(),
+                options.getSupportedProxyEncodings(),
                 reverseProxyClient,
                 forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),

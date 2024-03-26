@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-import org.apache.commons.lang3.SystemUtils;
-
 public class Assumptions {
 
   public static void doNotRunOnMacOSXInCI() {
-    assumeFalse(SystemUtils.IS_OS_MAC_OSX && "true".equalsIgnoreCase(System.getenv("CI")));
+    assumeFalse(
+        System.getProperty("os.name").startsWith("Mac OS X")
+            && "true".equalsIgnoreCase(System.getenv("CI")));
   }
 }
