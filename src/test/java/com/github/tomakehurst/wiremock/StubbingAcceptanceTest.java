@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,10 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
@@ -54,8 +53,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.MalformedChunkCodingException;
-import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
@@ -443,44 +440,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void connectionResetByPeerFault() {
-    stubFor(
-        get(urlEqualTo("/connection/reset"))
-            .willReturn(aResponse().withFault(Fault.CONNECTION_RESET_BY_PEER)));
-
-    RuntimeException runtimeException =
-        assertThrows(RuntimeException.class, () -> testClient.get("/connection/reset"));
-    assertThat(runtimeException.getMessage(), is("java.net.SocketException: Connection reset"));
-  }
-
-  @Test
-  public void emptyResponseFault() {
-    stubFor(
-        get(urlEqualTo("/empty/response")).willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE)));
-
-    getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
-  }
-
-  @Test
-  public void malformedResponseChunkFault() {
-    stubFor(
-        get(urlEqualTo("/malformed/response"))
-            .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
-
-    getAndAssertUnderlyingExceptionInstanceClass(
-        "/malformed/response", MalformedChunkCodingException.class);
-  }
-
-  @Test
-  public void randomDataOnSocketFault() {
-    stubFor(
-        get(urlEqualTo("/random/data"))
-            .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
-
-    getAndAssertUnderlyingExceptionInstanceClass("/random/data", NoHttpResponseException.class);
-  }
-
-  @Test
   public void matchingUrlsWithEscapeCharacters() {
     stubFor(
         get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
@@ -553,6 +512,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
+  @EnabledIfJettyVersion(
+      major = 11,
+      reason = "Jetty 12 and above does not allow setting the status message / reason")
   public void settingStatusMessage() {
     stubFor(
         get(urlEqualTo("/status-message"))

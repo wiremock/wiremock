@@ -33,6 +33,7 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
   public String apply(Object context, Options options) {
     String key = options.hash("key", "");
     String type = options.hash("type", "ENVIRONMENT");
+    String defaultValue = options.hash("default");
     if (isEmpty(key)) {
       return this.handleError("The key cannot be empty");
     }
@@ -45,10 +46,10 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
     try {
       switch (type) {
         case "ENVIRONMENT":
-          rawValue = getSystemEnvironment(key);
+          rawValue = getSystemEnvironment(key, defaultValue);
           break;
         case "PROPERTY":
-          rawValue = getSystemProperties(key);
+          rawValue = getSystemProperties(key, defaultValue);
           break;
       }
       return rawValue;
@@ -58,11 +59,11 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
     }
   }
 
-  private String getSystemEnvironment(final String key) {
-    return System.getenv(key);
+  private String getSystemEnvironment(final String key, final String defaultValue) {
+    return System.getenv().getOrDefault(key, defaultValue);
   }
 
-  private String getSystemProperties(final String key) {
-    return System.getProperty(key);
+  private String getSystemProperties(final String key, final String defaultValue) {
+    return System.getProperty(key, defaultValue);
   }
 }

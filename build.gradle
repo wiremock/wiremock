@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
   id 'java-library'
+  id 'java-test-fixtures'
   id 'scala'
   id 'signing'
   id 'maven-publish'
@@ -23,6 +24,7 @@ plugins {
   id 'com.github.johnrengelman.shadow' version '8.1.1'
   id "org.sonarqube" version "4.4.1.3373"
   id 'jacoco'
+  id "me.champeau.jmh" version "0.7.2"
 }
 
 group = 'org.wiremock'
@@ -32,7 +34,7 @@ project.ext {
     handlebars     : '4.3.1',
     jetty          : '11.0.20',
     guava          : '33.1.0-jre',
-    jackson        : '2.16.2',
+    jackson        : '2.17.0',
     xmlUnit        : '2.9.1',
     jsonUnit       : '2.38.0',
     junitJupiter   : '5.10.2'
@@ -101,22 +103,23 @@ dependencies {
 
   api 'com.networknt:json-schema-validator:1.4.0'
 
-  testImplementation "junit:junit:4.13.2"
-  testImplementation("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
-  testImplementation("org.junit.platform:junit-platform-testkit")
-  testImplementation("org.junit.platform:junit-platform-launcher")
-  testImplementation("org.junit.jupiter:junit-jupiter-params")
-  testImplementation('org.junit-pioneer:junit-pioneer:2.2.0')
+  testFixturesApi("org.junit.jupiter:junit-jupiter:$versions.junitJupiter")
+  testFixturesApi("org.junit.platform:junit-platform-testkit")
+  testFixturesApi("org.junit.platform:junit-platform-launcher")
+  testFixturesApi("org.junit.jupiter:junit-jupiter-params")
+  testFixturesApi('org.junit-pioneer:junit-pioneer:2.2.0')
+  testFixturesApi "org.hamcrest:hamcrest-core:2.2"
+  testFixturesApi "org.hamcrest:hamcrest-library:2.2"
+  testFixturesApi 'org.mockito:mockito-core:5.11.0'
+  testFixturesApi 'org.mockito:mockito-junit-jupiter:5.11.0'
+  testFixturesApi "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
+  testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
+  testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
+  testFixturesApi 'org.awaitility:awaitility:4.2.1'
+  testFixturesApi "commons-io:commons-io:2.15.1"
 
-  testImplementation "org.hamcrest:hamcrest-core:2.2"
-  testImplementation "org.hamcrest:hamcrest-library:2.2"
-  testImplementation 'org.mockito:mockito-core:5.11.0'
-  testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
-  testImplementation "net.javacrumbs.json-unit:json-unit:$versions.jsonUnit"
-  testImplementation "org.skyscreamer:jsonassert:1.2.3"
-  testImplementation 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
-  testImplementation 'org.awaitility:awaitility:4.2.1'
-  testImplementation "commons-io:commons-io:2.15.1"
+  testImplementation "junit:junit:4.13.2"
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
   testImplementation 'org.scala-lang:scala-library:2.13.13'
   testImplementation 'com.tngtech.archunit:archunit-junit5:0.23.1'
 
@@ -126,8 +129,11 @@ dependencies {
 
   testImplementation files('test-extension/test-extension.jar')
 
+  testImplementation 'org.openjdk.jmh:jmh-core:1.37'
+  testImplementation 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+
   constraints {
-    implementation "net.minidev:json-smart:2.5.0", {
+    implementation "net.minidev:json-smart:2.5.1", {
       because 'Pinning this above the transitive version from json-path to get CVE fix'
     }
   }
@@ -200,10 +206,6 @@ allprojects {
 
   version = '3.4.2'
 
-
-  sourceCompatibility = 11
-  targetCompatibility = 11
-
   compileJava {
     options.encoding = 'UTF-8'
 
@@ -216,6 +218,10 @@ allprojects {
     options.encoding = 'UTF-8'
     options.compilerArgs += '-XDenableSunApiLintControl'
     options.compilerArgs += '--add-exports=java.base/sun.security.x509=ALL-UNNAMED'
+  }
+
+  compileTestFixturesJava {
+    options.encoding = 'UTF-8'
   }
 
   test {
@@ -251,7 +257,11 @@ allprojects {
   shadowJar.dependsOn jar
 }
 
+test.classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
+
 java {
+  sourceCompatibility = 11
+  targetCompatibility = 11
   withSourcesJar()
   withJavadocJar()
 }
@@ -385,6 +395,20 @@ publishing {
       }
     }
   }
+
+  nexusPublishing {
+    // See https://github.com/wiremock/community/blob/main/infra/maven-central.md
+    repositories {
+      sonatype {
+        def envUsername = providers.environmentVariable("OSSRH_USERNAME").orElse("").get()
+        def envPassword = providers.environmentVariable("OSSRH_TOKEN").orElse("").get()
+        if (!envUsername.isEmpty() && !envPassword.isEmpty()) {
+          username.set(envUsername)
+          password.set(envPassword)
+        }
+      }
+    }
+  }
 }
 
 task checkReleasePreconditions {
@@ -400,20 +424,6 @@ task addGitTag {
   doLast {
     println "git tag ${version}".execute().text
     println "git push origin --tags".execute().text
-  }
-}
-
-nexusPublishing {
-  // See https://github.com/wiremock/community/blob/main/infra/maven-central.md
-  repositories {
-    sonatype {
-      def envUsername = providers.environmentVariable("OSSRH_USERNAME").orElse("").get()
-      def envPassword = providers.environmentVariable("OSSRH_TOKEN").orElse("").get()
-      if (!envUsername.isEmpty() && !envPassword.isEmpty()) {
-        username.set(envUsername)
-        password.set(envPassword)
-      }
-    }
   }
 }
 
@@ -557,4 +567,9 @@ int getBetaVersion() {
 wrapper {
   gradleVersion = '8.6'
   distributionType = Wrapper.DistributionType.BIN
+}
+
+jmh {
+  includes = ['.*benchmarks.*']
+  threads = 50
 }

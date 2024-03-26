@@ -461,9 +461,11 @@ public class WireMock {
   public void removeStubMapping(StubMapping stubMapping) {
     admin.removeStubMapping(stubMapping);
   }
+
   public void removeStubMapping(UUID id) {
     admin.removeStubMapping(id);
   }
+
   public ListStubMappingsResult allStubMappings() {
     return admin.listAllStubMappings();
   }

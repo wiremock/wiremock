@@ -340,7 +340,7 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
   }
 
   @Test
-  public void helperCanBeCalledDirectlyWithoutSupplyingRenderCache() throws Exception {
+  public void helperCanBeCalledDirectlyWithoutSupplyingRequestCache() throws Exception {
     Context context = Context.newBuilder(null).build();
     Options options =
         new Options(

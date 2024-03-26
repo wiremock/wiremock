@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,6 +143,8 @@ public class WireMockConfiguration implements Options {
   private Set<String> permittedSystemKeys = null;
   private Long maxTemplateCacheEntries = null;
   private boolean templateEscapingDisabled = true;
+
+  private Set<String> supportedProxyEncodings = null;
 
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
@@ -551,6 +553,15 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration withSupportedProxyEncodings(Set<String> supportedProxyEncodings) {
+    this.supportedProxyEncodings = supportedProxyEncodings;
+    return this;
+  }
+
+  public WireMockConfiguration withSupportedProxyEncodings(String... supportedProxyEncodings) {
+    return withSupportedProxyEncodings(Set.of(supportedProxyEncodings));
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -814,5 +825,10 @@ public class WireMockConfiguration implements Options {
   @Override
   public boolean getTemplateEscapingDisabled() {
     return templateEscapingDisabled;
+  }
+
+  @Override
+  public Set<String> getSupportedProxyEncodings() {
+    return supportedProxyEncodings;
   }
 }
