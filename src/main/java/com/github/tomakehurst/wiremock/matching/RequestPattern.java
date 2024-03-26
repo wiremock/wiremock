@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -40,8 +39,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
@@ -100,39 +97,39 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         new RequestMatcher() {
           @Override
           public MatchResult match(Request request) {
-            final List<WeightedMatchResult> firstPartMatchResults =
-                List.of(
-                    weight(schemeMatches(request), 3.0),
-                    weight(hostMatches(request), 10.0),
-                    weight(portMatches(request), 10.0),
-                    weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                    weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
-            final MatchResult firstPartsMatchResult =
-                new MemoizingMatchResult(MatchResult.aggregateWeighted(firstPartMatchResults));
+            final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
 
-            if (!firstPartsMatchResult.isExactMatch()) {
-              return firstPartsMatchResult;
+            requestPartMatchResults.add(weight(schemeMatches(request), 3.0));
+            requestPartMatchResults.add(weight(hostMatches(request), 10.0));
+            requestPartMatchResults.add(weight(portMatches(request), 10.0));
+            requestPartMatchResults.add(
+                weight(RequestPattern.this.url.match(request.getUrl()), 10.0));
+            requestPartMatchResults.add(
+                weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
+
+            MatchResult matchResult =
+                new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
+
+            if (!matchResult.isExactMatch()) {
+              return matchResult;
             }
 
-            List<WeightedMatchResult> matchResults =
-                new ArrayList<>(
-                    asList(
-                        weight(firstPartsMatchResult, 1.0),
-                        weight(allPathParamsMatch(request)),
-                        weight(allHeadersMatchResult(request)),
-                        weight(allQueryParamsMatch(request)),
-                        weight(allFormParamsMatch(request)),
-                        weight(allCookiesMatch(request)),
-                        weight(allBodyPatternsMatch(request)),
-                        weight(allMultipartPatternsMatch(request))));
+            requestPartMatchResults.add(weight(allPathParamsMatch(request)));
+            requestPartMatchResults.add(weight(allHeadersMatchResult(request)));
+            requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
+            requestPartMatchResults.add(weight(allFormParamsMatch(request)));
+            requestPartMatchResults.add(weight(allCookiesMatch(request)));
+            requestPartMatchResults.add(weight(allBodyPatternsMatch(request)));
+            requestPartMatchResults.add(weight(allMultipartPatternsMatch(request)));
 
-            if (hasInlineCustomMatcher) {
-              matchResults.add(weight(customMatcher.match(request)));
+            matchResult =
+                new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
+            if (!matchResult.isExactMatch() || !hasInlineCustomMatcher) {
+              return matchResult;
             }
 
-            return MatchResult.aggregateWeighted(
-                Stream.concat(firstPartMatchResults.stream(), matchResults.stream())
-                    .collect(Collectors.toList()));
+            requestPartMatchResults.add(weight(customMatcher.match(request)));
+            return new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
           }
 
           @Override
