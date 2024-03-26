@@ -23,6 +23,9 @@ import static org.hamcrest.Matchers.not;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,17 +39,23 @@ class WebhooksRegistrationTest {
   private WireMockServerRunner runner;
   private WireMockServer server;
 
-  TestNotifier testNotifier;
+  private final PrintStream stdOut = System.out;
+  private ByteArrayOutputStream out;
 
   @BeforeEach
   public void recordCommandLineMessages() {
-    testNotifier = TestNotifier.createAndSet();
+    startRecordingSystemOut();
   }
 
   @AfterEach
   public void resetPrintStream() {
-    testNotifier.revert();
+    System.setOut(stdOut);
     stopServer();
+  }
+
+  private void startRecordingSystemOut() {
+    out = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(out));
   }
 
   private void stopServer() {
@@ -62,8 +71,7 @@ class WebhooksRegistrationTest {
   }
 
   private String getSystemOutText() {
-    final List<String> infoMessages = testNotifier.getInfoMessages();
-    return infoMessages.isEmpty() ? "" : infoMessages.get(0);
+    return out.toString();
   }
 
   @Test
