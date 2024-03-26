@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.net.ssl.SSLException;
@@ -143,8 +144,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private void addRequestHeaders(
       ImmutableRequest.Builder requestBuilder, ResponseDefinition response) {
     Request originalRequest = response.getOriginalRequest();
+    List<String> removeProxyRequestHeaders =
+        response.getRemoveProxyRequestHeaders() == null
+            ? Collections.emptyList()
+            : response.getRemoveProxyRequestHeaders();
     for (String key : originalRequest.getAllHeaderKeys()) {
-      if (!HttpClient.HOST_HEADER.equalsIgnoreCase(key) || preserveHostHeader) {
+      String lowerCaseKey = key.toLowerCase();
+      if (removeProxyRequestHeaders.contains(lowerCaseKey)) {
+        continue;
+      }
+      if (!HttpClient.HOST_HEADER.equals(lowerCaseKey) || preserveHostHeader) {
         List<String> values = originalRequest.header(key).values();
         requestBuilder.withHeader(key, values);
       } else {
