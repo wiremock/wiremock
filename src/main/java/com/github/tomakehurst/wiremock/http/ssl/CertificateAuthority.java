@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkState;
 import static java.util.Objects.requireNonNull;
 
@@ -38,7 +39,7 @@ public class CertificateAuthority {
 
   public CertificateAuthority(X509Certificate[] certificateChain, PrivateKey key) {
     this.certificateChain = requireNonNull(certificateChain);
-    checkState(certificateChain.length == 0, "Chain must have entries");
+    checkParameter(certificateChain.length == 0, "Chain must have entries");
     this.key = requireNonNull(key);
   }
 
