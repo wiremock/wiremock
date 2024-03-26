@@ -25,9 +25,12 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.net.ssl.SSLException;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
@@ -38,7 +41,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
   private final String hostHeaderValue;
   private final SettingsStore settingsStore;
   private final boolean stubCorsEnabled;
+  private final Set<String> supportedEncodings;
 
+  @SuppressWarnings("unused")
   public ProxyResponseRenderer(
       boolean preserveHostHeader,
       String hostHeaderValue,
@@ -47,10 +52,30 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       HttpClient reverseProxyClient,
       HttpClient forwardProxyClient) {
 
+    this(
+        preserveHostHeader,
+        hostHeaderValue,
+        settingsStore,
+        stubCorsEnabled,
+        null,
+        reverseProxyClient,
+        forwardProxyClient);
+  }
+
+  public ProxyResponseRenderer(
+      boolean preserveHostHeader,
+      String hostHeaderValue,
+      SettingsStore settingsStore,
+      boolean stubCorsEnabled,
+      Set<String> supportedEncodings,
+      HttpClient reverseProxyClient,
+      HttpClient forwardProxyClient) {
+
     this.settingsStore = settingsStore;
     this.preserveHostHeader = preserveHostHeader;
     this.hostHeaderValue = hostHeaderValue;
     this.stubCorsEnabled = stubCorsEnabled;
+    this.supportedEncodings = supportedEncodings;
 
     this.forwardProxyClient = forwardProxyClient;
     this.reverseProxyClient = reverseProxyClient;
@@ -153,15 +178,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
       if (removeProxyRequestHeaders.contains(lowerCaseKey)) {
         continue;
       }
-      if (!HttpClient.HOST_HEADER.equals(lowerCaseKey) || preserveHostHeader) {
-        List<String> values = originalRequest.header(key).values();
-        requestBuilder.withHeader(key, values);
-      } else {
-        if (hostHeaderValue != null) {
-          requestBuilder.withHeader(key, hostHeaderValue);
-        } else if (response.getProxyBaseUrl() != null) {
-          requestBuilder.withHeader(key, URI.create(response.getProxyBaseUrl()).getAuthority());
-        }
+      switch (lowerCaseKey) {
+        case HttpClient.HOST_HEADER:
+          addHostHeader(requestBuilder, response, key, originalRequest);
+          break;
+        case HttpClient.ACCEPT_ENCODING_HEADER:
+          addAcceptEncodingHeader(requestBuilder, key, originalRequest);
+          break;
+        default:
+          copyHeader(requestBuilder, key, originalRequest);
+          break;
       }
     }
 
@@ -171,6 +197,43 @@ public class ProxyResponseRenderer implements ResponseRenderer {
             key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());
       }
     }
+  }
+
+  private void addHostHeader(
+      ImmutableRequest.Builder requestBuilder,
+      ResponseDefinition response,
+      String key,
+      Request originalRequest) {
+    if (preserveHostHeader) {
+      copyHeader(requestBuilder, key, originalRequest);
+    } else if (hostHeaderValue != null) {
+      requestBuilder.withHeader(key, hostHeaderValue);
+    } else if (response.getProxyBaseUrl() != null) {
+      requestBuilder.withHeader(key, URI.create(response.getProxyBaseUrl()).getAuthority());
+    }
+  }
+
+  private void addAcceptEncodingHeader(
+      ImmutableRequest.Builder requestBuilder, String key, Request originalRequest) {
+    if (supportedEncodings == null) {
+      copyHeader(requestBuilder, key, originalRequest);
+    } else {
+      List<String> prunedAcceptEncodings =
+          originalRequest.header(key).values().stream()
+              .flatMap(s -> Arrays.stream(s.split(",")))
+              .map(String::trim)
+              .filter(supportedEncodings::contains)
+              .collect(Collectors.toList());
+      if (!prunedAcceptEncodings.isEmpty()) {
+        requestBuilder.withHeader(key, String.join(",", prunedAcceptEncodings));
+      }
+    }
+  }
+
+  private static void copyHeader(
+      ImmutableRequest.Builder requestBuilder, String key, Request originalRequest) {
+    List<String> values = originalRequest.header(key).values();
+    requestBuilder.withHeader(key, values);
   }
 
   public boolean responseHeaderShouldBeTransferred(String key) {
