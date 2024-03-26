@@ -22,11 +22,8 @@ import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
-import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

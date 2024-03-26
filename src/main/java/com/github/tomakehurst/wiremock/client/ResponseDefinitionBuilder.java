@@ -90,15 +90,16 @@ public class ResponseDefinitionBuilder {
     return builder;
   }
 
-  private static ResponseDefinitionBuilder createProxyResponseDefinitionBuilder(ResponseDefinitionBuilder builder, ResponseDefinition responseDefinition) {
+  private static ResponseDefinitionBuilder createProxyResponseDefinitionBuilder(
+      ResponseDefinitionBuilder builder, ResponseDefinition responseDefinition) {
     ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder =
-            new ProxyResponseDefinitionBuilder(builder);
+        new ProxyResponseDefinitionBuilder(builder);
     proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove =
-            responseDefinition.getProxyUrlPrefixToRemove();
+        responseDefinition.getProxyUrlPrefixToRemove();
     proxyResponseDefinitionBuilder.additionalRequestHeaders =
-            responseDefinition.getAdditionalProxyRequestHeaders() != null
-                    ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
-                    : new ArrayList<>();
+        responseDefinition.getAdditionalProxyRequestHeaders() != null
+            ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
+            : new ArrayList<>();
     return proxyResponseDefinitionBuilder;
   }
 

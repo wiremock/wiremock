@@ -283,8 +283,10 @@ public class WireMockApp implements StubServer, Admin {
   public ServeEvent serveStubFor(ServeEvent initialServeEvent) {
     ServeEvent serveEvent = stubMappings.serveFor(initialServeEvent);
 
-    final boolean isBrowserProxyEnabled = browserProxyingEnabled && getGlobalSettings().getSettings().getProxyPassThrough();
-    final boolean canUseBrowserProxyForRequest = serveEvent.isNoExactMatch() && serveEvent.getRequest().isBrowserProxyRequest();
+    final boolean isBrowserProxyEnabled =
+        browserProxyingEnabled && getGlobalSettings().getSettings().getProxyPassThrough();
+    final boolean canUseBrowserProxyForRequest =
+        serveEvent.isNoExactMatch() && serveEvent.getRequest().isBrowserProxyRequest();
 
     if (isBrowserProxyEnabled && canUseBrowserProxyForRequest) {
       return ServeEvent.ofUnmatched(
