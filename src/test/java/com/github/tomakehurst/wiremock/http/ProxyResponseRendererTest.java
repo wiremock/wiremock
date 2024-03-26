@@ -279,20 +279,64 @@ public class ProxyResponseRendererTest {
         is((long) PROXY_TIMEOUT));
   }
 
-  private static <T> T reflectiveInnerSpyField(
-      Class<T> fieldType, String outerFieldName, String innerFieldName, Object object) {
-    try {
-      Field outerField = object.getClass().getDeclaredField(outerFieldName);
-      outerField.setAccessible(true);
-      Object outerFieldObject = outerField.get(object);
-      Field innerField = outerFieldObject.getClass().getDeclaredField(innerFieldName);
-      innerField.setAccessible(true);
-      T spy = spy(fieldType.cast(innerField.get(outerFieldObject)));
-      innerField.set(outerFieldObject, spy);
-      return spy;
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
+  @Test
+  void additionalProxyRequestHeaders() throws IOException {
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            null,
+            RequestMethod.GET,
+            new HttpHeaders(),
+            aResponse()
+                .proxiedFrom(origin.baseUrl())
+                .withAdditionalRequestHeader("header", "value")
+                .build());
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            argThat(request -> request.getFirstHeader("header").getValue().equals("value")),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
+  @Test
+  void removeProxyRequestHeaders() throws IOException {
+    ServeEvent serveEvent =
+        serveEvent(
+            "/proxied",
+            false,
+            null,
+            RequestMethod.GET,
+            new HttpHeaders(new HttpHeader("header", "value")),
+            aResponse().proxiedFrom(origin.baseUrl()).withRemoveRequestHeader("Header").build());
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            argThat(request -> request.getHeaders().length == 0),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
+  }
+
+  @Test
+  void proxyUrlPrefixToRemove() throws IOException {
+    ServeEvent serveEvent =
+        serveEvent(
+            "/prefix/proxied",
+            false,
+            null,
+            RequestMethod.GET,
+            new HttpHeaders(new HttpHeader("header", "value")),
+            aResponse()
+                .proxiedFrom(origin.baseUrl())
+                .withProxyUrlPrefixToRemove("/prefix")
+                .build());
+
+    proxyResponseRenderer.render(serveEvent);
+    Mockito.verify(reverseProxyApacheClient)
+        .execute(
+            argThat(request -> request.getRequestUri().equals("/proxied")),
+            ArgumentMatchers.any(HttpClientResponseHandler.class));
   }
 
   private static <T> T reflectiveSpyField(Class<T> fieldType, String fieldName, Object object) {
@@ -305,10 +349,6 @@ public class ProxyResponseRendererTest {
     } catch (NoSuchFieldException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private static <T> T spyField(T object) {
-    return spy(object);
   }
 
   private ServeEvent reverseProxyServeEvent(String path) {
@@ -329,6 +369,22 @@ public class ProxyResponseRendererTest {
       byte[] body,
       RequestMethod method,
       HttpHeaders headers) {
+    return serveEvent(
+        path,
+        isBrowserProxyRequest,
+        body,
+        method,
+        headers,
+        aResponse().proxiedFrom(origin.baseUrl()).build());
+  }
+
+  private ServeEvent serveEvent(
+      String path,
+      boolean isBrowserProxyRequest,
+      byte[] body,
+      RequestMethod method,
+      HttpHeaders headers,
+      ResponseDefinition responseDefinition) {
 
     LoggedRequest loggedRequest =
         LoggedRequest.createFrom(
@@ -340,7 +396,6 @@ public class ProxyResponseRendererTest {
                 .isBrowserProxyRequest(isBrowserProxyRequest)
                 .body(body)
                 .protocol("HTTP/1.1"));
-    ResponseDefinition responseDefinition = aResponse().proxiedFrom(origin.baseUrl()).build();
     responseDefinition.setOriginalRequest(loggedRequest);
 
     return newPostMatchServeEvent(loggedRequest, responseDefinition);
