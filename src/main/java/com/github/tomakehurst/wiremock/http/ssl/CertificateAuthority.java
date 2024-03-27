@@ -38,7 +38,7 @@ public class CertificateAuthority {
 
   public CertificateAuthority(X509Certificate[] certificateChain, PrivateKey key) {
     this.certificateChain = requireNonNull(certificateChain);
-    checkParameter(certificateChain.length == 0, "Chain must have entries");
+    checkParameter(certificateChain.length != 0, "Chain must have entries");
     this.key = requireNonNull(key);
   }
 
