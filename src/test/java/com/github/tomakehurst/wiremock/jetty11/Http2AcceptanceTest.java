@@ -15,8 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty11;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.eclipse.jetty.http.HttpVersion.HTTP_2;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,12 +31,18 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 public class Http2AcceptanceTest {
 
   @RegisterExtension
   public WireMockExtension wm =
       WireMockExtension.newInstance()
-          .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+//          .options(wireMockConfig().dynamicPort().dynamicHttpsPort())
+          .options(wireMockConfig().port(8877).dynamicHttpsPort())
           .build();
 
   @Test
@@ -56,9 +61,27 @@ public class Http2AcceptanceTest {
 
     wm.stubFor(get("/thing").willReturn(ok("HTTP/2 response")));
 
-    ContentResponse response = client.GET(wm.url("/thing"));
+    ContentResponse response = client.GET(wm.getRuntimeInfo().getHttpBaseUrl() + "/thing");
     assertThat(response.getVersion(), is(HTTP_2));
     assertThat(response.getStatus(), is(200));
+  }
+
+  @Test
+  public void supportsHttp2PlaintextConnectionsWithJdkClient() throws Exception {
+    java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_2).build();
+
+    wm.stubFor(put("/thing")
+                    .withRequestBody(equalTo("request body"))
+            .willReturn(ok("HTTP/2 response")));
+
+    String url = wm.getRuntimeInfo().getHttpBaseUrl() + "/thing";
+
+    HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+            .PUT(HttpRequest.BodyPublishers.ofInputStream(() -> new ByteArrayInputStream("request body".getBytes())))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    assertThat(response.version(), is(java.net.http.HttpClient.Version.HTTP_2));
+    assertThat(response.statusCode(), is(200));
   }
 
   @Test
