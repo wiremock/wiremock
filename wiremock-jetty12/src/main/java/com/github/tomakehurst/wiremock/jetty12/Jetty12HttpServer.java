@@ -44,11 +44,8 @@ import com.github.tomakehurst.wiremock.servlet.NotMatchedServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
 import jakarta.servlet.DispatcherType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
@@ -83,16 +80,17 @@ public class Jetty12HttpServer extends JettyHttpServer {
 
     HttpConfiguration httpConfig = createHttpConfig(jettySettings);
 
-    HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfig);
+    ConnectionFactory[] connectionFactories =
+        Stream.of(
+                new HttpConnectionFactory(httpConfig),
+                options.getHttp2PlainEnabled()
+                    ? new HTTP2CServerConnectionFactory(httpConfig)
+                    : null)
+            .filter(Objects::nonNull)
+            .toArray(ConnectionFactory[]::new);
 
     return Jetty11Utils.createServerConnector(
-        jettyServer,
-        bindAddress,
-        jettySettings,
-        port,
-        listener,
-        new HttpConnectionFactory(httpConfig),
-        h2c);
+        jettyServer, bindAddress, jettySettings, port, listener, connectionFactories);
   }
 
   @Override
@@ -101,26 +99,37 @@ public class Jetty12HttpServer extends JettyHttpServer {
       HttpsSettings httpsSettings,
       JettySettings jettySettings,
       NetworkTrafficListener listener) {
-    SslContextFactory.Server http2SslContextFactory =
-        SslContexts.buildHttp2SslContextFactory(httpsSettings);
 
     HttpConfiguration httpConfig = createHttpConfig(jettySettings);
 
-    HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
-    HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
-
     ConnectionFactory[] connectionFactories;
-    try {
-      ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
 
-      SslConnectionFactory ssl =
-          new SslConnectionFactory(http2SslContextFactory, alpn.getProtocol());
+    if (options.getHttp2TlsEnabled()) {
 
-      connectionFactories = new ConnectionFactory[] {ssl, alpn, h2, http};
-    } catch (IllegalStateException e) {
-      SslConnectionFactory ssl =
-          new SslConnectionFactory(http2SslContextFactory, http.getProtocol());
+      SslContextFactory.Server http2SslContextFactory =
+          SslContexts.buildHttp2SslContextFactory(httpsSettings);
 
+      HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
+      HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
+
+      try {
+        ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+
+        SslConnectionFactory ssl =
+            new SslConnectionFactory(http2SslContextFactory, alpn.getProtocol());
+
+        connectionFactories = new ConnectionFactory[] {ssl, alpn, h2, http};
+      } catch (IllegalStateException e) {
+        SslConnectionFactory ssl =
+            new SslConnectionFactory(http2SslContextFactory, http.getProtocol());
+
+        connectionFactories = new ConnectionFactory[] {ssl, http};
+      }
+    } else {
+      final SslContextFactory.Server sslContextFactory =
+          SslContexts.buildHttp1_1SslContextFactory(httpsSettings);
+      final SslConnectionFactory ssl = new SslConnectionFactory(sslContextFactory, "http/1.1");
+      final HttpConnectionFactory http = new HttpConnectionFactory(httpConfig);
       connectionFactories = new ConnectionFactory[] {ssl, http};
     }
 

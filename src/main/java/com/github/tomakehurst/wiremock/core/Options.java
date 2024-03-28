@@ -52,6 +52,10 @@ public interface Options {
 
   boolean getHttpDisabled();
 
+  boolean getHttp2PlainEnabled();
+
+  boolean getHttp2TlsEnabled();
+
   HttpsSettings httpsSettings();
 
   JettySettings jettySettings();
