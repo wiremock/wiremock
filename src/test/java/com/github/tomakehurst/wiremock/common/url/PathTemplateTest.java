@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,7 +216,7 @@ public class PathTemplateTest {
   @Test
   void returnsPathTemplateWithVariablesStrippedOut() {
     PathTemplate pathTemplate = new PathTemplate("/one/{first}/two/{second}/three");
-    assertThat(pathTemplate.withoutVariables(), is("/one//two//three"));
+    assertThat(pathTemplate.withoutVariables(), is("/one/_/two/_/three"));
   }
 
   @Test

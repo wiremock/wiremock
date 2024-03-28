@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.Arrays.asList;
 
 import java.util.*;
@@ -77,7 +76,7 @@ public class ExtensionDeclarations {
 
   private boolean removeWebhook(String className) {
     if (className.equals(Webhooks.class.getName())) {
-      notifier().info(WEBHOOK_MESSAGE);
+      System.out.println(WEBHOOK_MESSAGE);
       return false;
     }
     return true;

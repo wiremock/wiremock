@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2023 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,13 +66,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.HttpHost;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.HttpProxy;
-import org.eclipse.jetty.client.Origin;
-import org.eclipse.jetty.client.ProxyConfiguration;
-import org.eclipse.jetty.client.api.ContentResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -130,22 +124,6 @@ public class HttpsBrowserProxyAcceptanceTest {
     WireMockResponse response =
         testClient.getViaProxy(target.url("/whatever"), proxy.getHttpsPort(), "https");
     assertThat(response.content(), is("Got it"));
-  }
-
-  @Test
-  @Disabled("Jetty doesn't yet support proxying via HTTP2")
-  public void canProxyHttpsUsingHttp2InBrowserHttpsProxyMode() throws Exception {
-
-    HttpClient httpClient = Http2ClientFactory.create();
-    ProxyConfiguration proxyConfig = httpClient.getProxyConfiguration();
-    HttpProxy httpProxy =
-        new HttpProxy(new Origin.Address("localhost", proxy.getHttpsPort()), true);
-    proxyConfig.addProxy(httpProxy);
-
-    target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
-
-    ContentResponse response = httpClient.GET(target.url("/whatever"));
-    assertThat(response.getContentAsString(), is("Got it"));
   }
 
   @Test

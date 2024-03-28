@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ListFunctions {
 
@@ -31,6 +33,11 @@ public final class ListFunctions {
       }
     }
     return new Pair<>(as, bs);
+  }
+
+  @SafeVarargs
+  public static <T> List<T> concatenate(List<T>... lists) {
+    return Stream.of(lists).flatMap(List::stream).collect(Collectors.toList());
   }
 
   private ListFunctions() {

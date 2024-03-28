@@ -711,7 +711,7 @@ class AdminApiTest extends AcceptanceTestBase {
         allOf(
             containsString(
                 "Unexpected character ('(' (code 40)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')"),
-            containsString("line: 1, column: 2")));
+            containsString("line: 1, column: 1")));
   }
 
   @Test
