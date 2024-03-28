@@ -368,30 +368,32 @@ publishing {
     }
   }
 
-  publications {
-    mavenJava(MavenPublication) { publication ->
-      artifactId = "${jar.getArchiveBaseName().get()}"
-      from components.java
-      artifact testJar
+  if (JavaVersion.current().isJava11()) {
+    publications {
+      mavenJava(MavenPublication) { publication ->
+        artifactId = "${jar.getArchiveBaseName().get()}"
+        from components.java
+        artifact testJar
 
-      pom.withXml {
-        asNode().appendNode('description', 'A web service test double for all occasions')
-        asNode().children().last() + pomInfo
+        pom.withXml {
+          asNode().appendNode('description', 'A web service test double for all occasions')
+          asNode().children().last() + pomInfo
+        }
       }
-    }
 
-    standaloneJar(MavenPublication) { publication ->
-      artifactId = "${jar.getArchiveBaseName().get()}-standalone"
-      project.shadow.component(publication)
+      standaloneJar(MavenPublication) { publication ->
+        artifactId = "${jar.getArchiveBaseName().get()}-standalone"
+        project.shadow.component(publication)
 
-      artifact sourcesJar
-      artifact javadocJar
-      artifact testJar
+        artifact sourcesJar
+        artifact javadocJar
+        artifact testJar
 
-      pom.packaging 'jar'
-      pom.withXml {
-        asNode().appendNode('description', 'A web service test double for all occasions - standalone edition')
-        asNode().children().last() + pomInfo
+        pom.packaging 'jar'
+        pom.withXml {
+          asNode().appendNode('description', 'A web service test double for all occasions - standalone edition')
+          asNode().children().last() + pomInfo
+        }
       }
     }
   }
@@ -416,7 +418,7 @@ task checkReleasePreconditions {
     def REQUIRED_GIT_BRANCH = 'master'
     def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
     assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
-    assert JavaVersion.current().isJava11(), 'Must use Java 8 when releasing'
+//    assert JavaVersion.current().isJava11(), 'Must use Java 8 when releasing'
   }
 }
 
