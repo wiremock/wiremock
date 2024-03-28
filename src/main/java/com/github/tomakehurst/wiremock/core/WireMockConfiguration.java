@@ -65,8 +65,8 @@ public class WireMockConfiguration implements Options {
   private boolean disableOptimizeXmlFactoriesLoading = false;
   private int portNumber = DEFAULT_PORT;
   private boolean httpDisabled = false;
-  private boolean http2PlainEnabled = true;
-  private boolean http2TlsEnabled = true;
+  private boolean http2PlainDisabled = false;
+  private boolean http2TlsDisabled = false;
   private String bindAddress = DEFAULT_BIND_ADDRESS;
 
   private int containerThreads = DEFAULT_CONTAINER_THREADS;
@@ -198,13 +198,13 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
-  public WireMockConfiguration http2PlainEnabled(boolean enabled) {
-    this.http2PlainEnabled = enabled;
+  public WireMockConfiguration http2PlainDisabled(boolean enabled) {
+    this.http2PlainDisabled = enabled;
     return this;
   }
 
-  public WireMockConfiguration http2TlsEnabled(boolean enabled) {
-    this.http2TlsEnabled = enabled;
+  public WireMockConfiguration http2TlsDisabled(boolean enabled) {
+    this.http2TlsDisabled = enabled;
     return this;
   }
 
@@ -585,13 +585,13 @@ public class WireMockConfiguration implements Options {
   }
 
   @Override
-  public boolean getHttp2PlainEnabled() {
-    return http2PlainEnabled;
+  public boolean getHttp2PlainDisabled() {
+    return http2PlainDisabled;
   }
 
   @Override
-  public boolean getHttp2TlsEnabled() {
-    return http2TlsEnabled;
+  public boolean getHttp2TlsDisabled() {
+    return http2TlsDisabled;
   }
 
   @Override

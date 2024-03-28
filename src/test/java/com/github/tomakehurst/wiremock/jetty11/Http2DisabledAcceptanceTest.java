@@ -47,8 +47,8 @@ public class Http2DisabledAcceptanceTest {
               wireMockConfig()
                   .dynamicPort()
                   .dynamicHttpsPort()
-                  .http2PlainEnabled(false)
-                  .http2TlsEnabled(false))
+                  .http2PlainDisabled(true)
+                  .http2TlsDisabled(true))
           .build();
 
   HttpClient client;
