@@ -104,9 +104,15 @@ public class CommandLineOptionsTest {
   }
 
   @Test
-  public void disablesHttp2PlainWhenOptionSetToFalse() {
-    CommandLineOptions options = new CommandLineOptions("--disable-http", "--https-port", "8443");
-    assertThat(options.getHttp2PlainDisabled(), is(false));
+  public void disablesHttp2PlainWhenOptionSet() {
+    CommandLineOptions options = new CommandLineOptions("--disable-http2-plain");
+    assertThat(options.getHttp2PlainDisabled(), is(true));
+  }
+
+  @Test
+  public void disablesHttp2TlsWhenOptionSet() {
+    CommandLineOptions options = new CommandLineOptions("--disable-http2-tls");
+    assertThat(options.getHttp2TlsDisabled(), is(true));
   }
 
   @Test

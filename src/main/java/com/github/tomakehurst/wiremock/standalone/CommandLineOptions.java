@@ -69,6 +69,8 @@ public class CommandLineOptions implements Options {
   private static final String TIMEOUT = "timeout";
   private static final String PORT = "port";
   private static final String DISABLE_HTTP = "disable-http";
+  private static final String DISABLE_HTTP2_PLAIN = "disable-http2-plain";
+  private static final String DISABLE_HTTP2_TLS = "disable-http2-tls";
   private static final String BIND_ADDRESS = "bind-address";
   private static final String HTTPS_PORT = "https-port";
   private static final String HTTPS_KEYSTORE = "https-keystore";
@@ -147,6 +149,8 @@ public class CommandLineOptions implements Options {
             "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.")
         .withRequiredArg();
     optionParser.accepts(DISABLE_HTTP, "Disable the default HTTP listener.");
+    optionParser.accepts(DISABLE_HTTP2_PLAIN, "Disable HTTP/2 on plain text (HTTP) connections.");
+    optionParser.accepts(DISABLE_HTTP2_TLS, "Disable HTTP/2 on TLS (HTTPS) connections.");
     optionParser
         .accepts(
             HTTPS_PORT,
@@ -531,12 +535,12 @@ public class CommandLineOptions implements Options {
 
   @Override
   public boolean getHttp2PlainDisabled() {
-    return false;
+    return optionSet.has(DISABLE_HTTP2_PLAIN);
   }
 
   @Override
   public boolean getHttp2TlsDisabled() {
-    return false;
+    return optionSet.has(DISABLE_HTTP2_TLS);
   }
 
   public void setActualHttpPort(int port) {
