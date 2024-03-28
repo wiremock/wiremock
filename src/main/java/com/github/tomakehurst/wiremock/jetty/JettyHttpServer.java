@@ -46,6 +46,8 @@ public abstract class JettyHttpServer implements HttpServer {
   protected static final String[] GZIPPABLE_METHODS =
       new String[] {"POST", "PUT", "PATCH", "DELETE"};
 
+  protected final Options options;
+
   protected final Server jettyServer;
   protected final ServerConnector httpConnector;
   protected final ServerConnector httpsConnector;
@@ -56,6 +58,8 @@ public abstract class JettyHttpServer implements HttpServer {
       Options options,
       AdminRequestHandler adminRequestHandler,
       StubRequestHandler stubRequestHandler) {
+    this.options = options;
+
     if (!options.getDisableStrictHttpHeaders()
         && Boolean.FALSE.equals(STRICT_HTTP_HEADERS_APPLIED.get())) {
       System.setProperty("org.eclipse.jetty.http.HttpGenerator.STRICT", String.valueOf(true));
