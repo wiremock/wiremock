@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.CustomTransformerDefinition;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestWrapper;
@@ -324,6 +325,26 @@ public class Examples extends AcceptanceTestBase {
     System.out.println(
         get(urlEqualTo("/transform"))
             .willReturn(aResponse().withTransformer("body-transformer", "newValue", 66))
+            .build());
+  }
+
+  @Test
+  public void transformerWithParametersAsDefinition() {
+    stubFor(
+        get(urlEqualTo("/transform"))
+            .willReturn(
+                aResponse()
+                    .withTransformer(
+                        new CustomTransformerDefinition(
+                            "body-transformer", Parameters.from(Map.of("newValue", 66))))));
+
+    System.out.println(
+        get(urlEqualTo("/transform"))
+            .willReturn(
+                aResponse()
+                    .withTransformer(
+                        new CustomTransformerDefinition(
+                            "body-transformer", Parameters.from(Map.of("newValue", 66)))))
             .build());
   }
 

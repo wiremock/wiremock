@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2023 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -104,6 +105,20 @@ public class CustomMatchingAcceptanceTest {
     wm.register(
         get(urlPathMatching("/the/.*/one"))
             .andMatching("path-contains-param", Parameters.one("path", "correct"))
+            .willReturn(ok()));
+
+    assertThat(client.get("/the/correct/one").statusCode(), is(200));
+    assertThat(client.get("/the/wrong/one").statusCode(), is(404));
+    assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
+  }
+
+  @Test
+  public void namedCustomRequestMatcherCanBeSpecifiedViaDefinition() {
+    wm.register(
+        get(urlPathMatching("/the/.*/one"))
+            .andMatching(
+                new CustomMatcherDefinition(
+                    "path-contains-param", Parameters.one("path", "correct")))
             .willReturn(ok()));
 
     assertThat(client.get("/the/correct/one").statusCode(), is(200));

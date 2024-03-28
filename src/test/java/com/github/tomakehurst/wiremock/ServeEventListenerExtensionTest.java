@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -411,6 +412,33 @@ public class ServeEventListenerExtensionTest {
             .willReturn(ok())
             .withServeEventListener("count-request", counterNameParameter().withName("one"))
             .withServeEventListener("count-request", counterNameParameter().withName("two")));
+
+    client.get("/count-me");
+    client.get("/count-me");
+    client.get("/count-me");
+
+    await().atMost(5, SECONDS).until(getContent("/__admin/named-counter/one"), is("3"));
+
+    await().atMost(5, SECONDS).until(getContent("/__admin/named-counter/two"), is("3"));
+  }
+
+  @Test
+  void multipleActionsOfTheSameNameCanBeSpecifiedViaTheDSLWithDefinition() {
+    initWithOptions(
+        options()
+            .dynamicPort()
+            .notifier(new ConsoleNotifier(true))
+            .extensions(new NamedCounterAction()));
+
+    wm.stubFor(
+        get(urlPathEqualTo("/count-me"))
+            .willReturn(ok())
+            .withServeEventListener(
+                new ServeEventListenerDefinition(
+                    "count-request", Parameters.of(counterNameParameter().withName("one"))))
+            .withServeEventListener(
+                new ServeEventListenerDefinition(
+                    "count-request", Parameters.of(counterNameParameter().withName("two")))));
 
     client.get("/count-me");
     client.get("/count-me");

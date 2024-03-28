@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,9 @@ package com.github.tomakehurst.wiremock.extension;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Set;
 
-public class ServeEventListenerDefinition {
+public class ServeEventListenerDefinition extends ParameterisedExtensionDefinition {
 
-  private final String name;
   private final Set<ServeEventListener.RequestPhase> requestPhases;
-  private final Parameters parameters;
 
   public ServeEventListenerDefinition(String name, Parameters parameters) {
     this(name, null, parameters);
@@ -32,21 +30,12 @@ public class ServeEventListenerDefinition {
       @JsonProperty("name") String name,
       @JsonProperty("requestPhases") Set<ServeEventListener.RequestPhase> requestPhases,
       @JsonProperty("parameters") Parameters parameters) {
-    this.name = name;
+    super(name, parameters);
     this.requestPhases = requestPhases;
-    this.parameters = parameters;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public Set<ServeEventListener.RequestPhase> getRequestPhases() {
     return requestPhases;
-  }
-
-  public Parameters getParameters() {
-    return parameters;
   }
 
   public boolean shouldFireFor(ServeEventListener.RequestPhase requestPhase) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ServeEventListener;
+import com.github.tomakehurst.wiremock.extension.ServeEventListenerDefinition;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -85,6 +87,8 @@ public interface MappingBuilder {
 
   <P> MappingBuilder withServeEventListener(String extensionName, P parameters);
 
+  MappingBuilder withServeEventListener(ServeEventListenerDefinition eventListenerDefinition);
+
   MappingBuilder withMetadata(Map<String, ?> metadata);
 
   MappingBuilder withMetadata(Metadata metadata);
@@ -96,6 +100,8 @@ public interface MappingBuilder {
   MappingBuilder andMatching(String customRequestMatcherName);
 
   MappingBuilder andMatching(String customRequestMatcherName, Parameters parameters);
+
+  MappingBuilder andMatching(CustomMatcherDefinition customMatcherDefinition);
 
   MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 
