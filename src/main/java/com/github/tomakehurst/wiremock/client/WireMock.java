@@ -49,6 +49,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.LoggedRequests;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
@@ -779,13 +780,13 @@ public class WireMock {
     defaultInstance.get().verifyThat(countMatchingStrategy, requestPatternBuilder);
   }
 
-  public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
+  public LoggedRequests find(RequestPatternBuilder requestPatternBuilder) {
     FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build());
     result.assertRequestJournalEnabled();
-    return result.getRequests();
+    return new LoggedRequests(result.getRequests());
   }
 
-  public static List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
+  public static LoggedRequests findAll(RequestPatternBuilder requestPatternBuilder) {
     return defaultInstance.get().find(requestPatternBuilder);
   }
 
@@ -922,13 +923,13 @@ public class WireMock {
     return nearMissesResult.getNearMisses();
   }
 
-  public static List<LoggedRequest> findUnmatchedRequests() {
+  public static LoggedRequests findUnmatchedRequests() {
     return defaultInstance.get().findAllUnmatchedRequests();
   }
 
-  public List<LoggedRequest> findAllUnmatchedRequests() {
+  public LoggedRequests findAllUnmatchedRequests() {
     FindRequestsResult unmatchedResult = admin.findUnmatchedRequests();
-    return unmatchedResult.getRequests();
+    return new LoggedRequests(unmatchedResult.getRequests());
   }
 
   public static List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest) {
