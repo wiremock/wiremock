@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
+import com.github.tomakehurst.wiremock.MultipartParserLoader;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty11.MultipartParser;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import java.net.URI;
 import java.util.*;
@@ -292,7 +292,7 @@ public class MockRequest implements Request {
         contentTypeHeader.isPresent()
             ? contentTypeHeader.firstValue()
             : "multipart/form-data; boundary=BOUNDARY";
-    this.multiparts = MultipartParser.parse(bytesFromString(body), contentType);
+    this.multiparts = MultipartParserLoader.parts(bytesFromString(body), contentType);
 
     return this;
   }

@@ -16,23 +16,33 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.common.RequestCache.Key.keyFor;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 @JsonSerialize(using = JsonPathPatternJsonSerializer.class)
 public class MatchesJsonPathPattern extends PathPattern {
 
+  private final JsonPath jsonPath;
+
   public MatchesJsonPathPattern(
       @JsonProperty("matchesJsonPath") String expectedJsonPath, StringValuePattern valuePattern) {
     super(expectedJsonPath, valuePattern);
+    jsonPath = JsonPath.compile(expectedJsonPath);
   }
 
   public MatchesJsonPathPattern(String value) {
@@ -54,7 +64,7 @@ public class MatchesJsonPathPattern extends PathPattern {
       return MatchResult.noMatch(SubEvent.warning(message));
     }
     try {
-      Object obj = JsonPath.read(value, expectedValue);
+      Object obj = evaluateJsonPath(value);
 
       boolean result;
       if (obj instanceof Collection) {
@@ -104,8 +114,23 @@ public class MatchesJsonPathPattern extends PathPattern {
               .collect(toList());
 
       return matchResults.stream()
-          .min(Comparator.comparingDouble(MatchResult::getDistance))
-          .orElseGet(() -> MatchResult.noMatch(subEvents));
+          .filter(MatchResult::isExactMatch)
+          .findFirst()
+          .orElse(
+              new MatchResult(subEvents) {
+                @Override
+                public boolean isExactMatch() {
+                  return false;
+                }
+
+                @Override
+                public double getDistance() {
+                  return matchResults.stream()
+                      .min(Comparator.comparingDouble(MatchResult::getDistance))
+                      .map(MatchResult::getDistance)
+                      .orElse(1.0);
+                }
+              });
     } catch (SubExpressionException e) {
       return MatchResult.noMatch(SubEvent.warning(e.getMessage()));
     }
@@ -125,7 +150,7 @@ public class MatchesJsonPathPattern extends PathPattern {
 
     Object obj = null;
     try {
-      obj = JsonPath.read(value, expectedValue);
+      obj = evaluateJsonPath(value);
     } catch (PathNotFoundException ignored) {
     } catch (Exception e) {
       String error;
@@ -159,5 +184,21 @@ public class MatchesJsonPathPattern extends PathPattern {
     }
 
     return expressionResult;
+  }
+
+  private Object evaluateJsonPath(String value) {
+    if (value == null) {
+      return null;
+    }
+
+    final RequestCache requestCache = RequestCache.getCurrent();
+
+    final DocumentContext documentContext =
+        requestCache.get(
+            keyFor(JsonNode.class, "parsedJson", value.hashCode()), () -> JsonPath.parse(value));
+
+    return requestCache.get(
+        keyFor(JsonNode.class, "jsonPathResult", expectedValue, value.hashCode()),
+        () -> documentContext.read(jsonPath));
   }
 }

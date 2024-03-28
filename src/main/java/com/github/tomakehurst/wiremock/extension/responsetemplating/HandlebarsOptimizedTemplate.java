@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -60,8 +61,8 @@ public class HandlebarsOptimizedTemplate {
   }
 
   public String apply(Object contextData) {
-    final RenderCache renderCache = new RenderCache();
-    Context context = Context.newBuilder(contextData).combine("renderCache", renderCache).build();
+    final RequestCache requestCache = RequestCache.getCurrent();
+    Context context = Context.newBuilder(contextData).combine("requestCache", requestCache).build();
 
     return startContent + applyTemplate(context) + endContent;
   }

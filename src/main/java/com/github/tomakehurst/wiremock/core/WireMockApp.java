@@ -39,6 +39,9 @@ import com.github.tomakehurst.wiremock.store.SettingsStore;
 import com.github.tomakehurst.wiremock.store.Stores;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.spi.cache.CacheProvider;
+import com.jayway.jsonpath.spi.cache.NOOPCache;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -73,6 +76,15 @@ public class WireMockApp implements StubServer, Admin {
         && Boolean.FALSE.equals(FACTORIES_LOADING_OPTIMIZED.get())) {
       Xml.optimizeFactoriesLoading();
       FACTORIES_LOADING_OPTIMIZED.set(true);
+    }
+
+    try {
+      // Disabling JsonPath's cache due to
+      // https://github.com/json-path/JsonPath/issues/975#issuecomment-1867293053 and the fact that
+      // we're now doing our own caching.
+      CacheProvider.setCache(new NOOPCache());
+    } catch (JsonPathException ignored) {
+      // May fail on subsequent runs, but this doesn't matter
     }
 
     this.options = options;
@@ -217,6 +229,7 @@ public class WireMockApp implements StubServer, Admin {
                 options.proxyHostHeader(),
                 settingsStore,
                 options.getStubCorsEnabled(),
+                options.getSupportedProxyEncodings(),
                 reverseProxyClient,
                 forwardProxyClient),
             List.copyOf(extensions.ofType(ResponseTransformer.class).values()),

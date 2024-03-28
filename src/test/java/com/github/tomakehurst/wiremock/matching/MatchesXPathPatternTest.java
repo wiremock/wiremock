@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -320,7 +320,7 @@ public class MatchesXPathPatternTest {
             .match("<something>{ bad json</something>");
     checkJsonError(
         matchResult,
-        "Unexpected character ('b' (code 98)): was expecting double-quote to start field name\n at [Source: (String)\"{ bad json\"; line: 1, column: 4]");
+        "Unexpected character ('b' (code 98)): was expecting double-quote to start field name\n at [Source: (String)\"{ bad json\"; line: 1, column: 3]");
   }
 
   @Test

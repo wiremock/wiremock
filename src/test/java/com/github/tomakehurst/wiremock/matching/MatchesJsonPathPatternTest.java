@@ -32,10 +32,16 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.testsupport.ServeEventChecks;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class MatchesJsonPathPatternTest {
+
+  @BeforeEach
+  public void init() {
+    RequestCache.disable();
+  }
 
   @Test
   public void matchesABasicJsonPathWhenTheExpectedElementIsPresent() {
@@ -55,7 +61,7 @@ public class MatchesJsonPathPatternTest {
 
   @Test
   public void matchesOnJsonPathsWithFilters() {
-    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number == '2')]");
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.numbers[?(@.number == 2)]");
 
     assertTrue(
         pattern.match("{ \"numbers\": [ {\"number\": 1}, {\"number\": 2} ]}").isExactMatch(),
@@ -171,12 +177,12 @@ public class MatchesJsonPathPatternTest {
   void subEventsReturnedBySubMatchersAreAddedToServeEvent() {
     StringValuePattern pattern =
         WireMock.matchingJsonPath("$.something", WireMock.equalToJson("{}"));
-    MatchResult matchResult = pattern.match("{ \"something\": \"{ \\\"bad:\" }");
+    MatchResult matchResult = pattern.match("{ \"something\": \"{ \\\"bad\\\": }\" }");
 
     assertFalse(matchResult.isExactMatch(), "Expected the match to fail");
     ServeEventChecks.checkJsonError(
         matchResult,
-        "Unexpected end-of-input in field name\n at [Source: (String)\"{ \"bad:\"; line: 1, column: 8]");
+        "Unexpected character ('}' (code 125)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n at [Source: (String)\"{ \"bad\": }\"; line: 1, column: 10]");
   }
 
   @Test
@@ -184,7 +190,7 @@ public class MatchesJsonPathPatternTest {
     String json =
         "{\n" + "  \"RequestDetail\" : {\n" + "    \"ClientTag\" : \"test111\"\n" + "  }\n" + "}";
 
-    StringValuePattern pattern = WireMock.matchingJsonPath("$.RequestDetail.?(@=='test222')");
+    StringValuePattern pattern = WireMock.matchingJsonPath("$.RequestDetail.[?(@=='test222')]");
     MatchResult match = pattern.match(json);
     assertFalse(match.isExactMatch());
   }
