@@ -32,9 +32,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class RequestPatternBuilderTest {
+class RequestPatternBuilderTest {
   @Test
-  public void likeRequestPatternWithDifferentUrl() {
+  void likeRequestPatternWithDifferentUrl() {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
@@ -45,7 +45,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithDifferentUrlPath() {
+  void likeRequestPatternWithDifferentUrlPath() {
     RequestPattern requestPattern = RequestPattern.everything();
 
     RequestPattern newRequestPattern =
@@ -59,7 +59,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithoutCustomMatcher() {
+  void likeRequestPatternWithoutCustomMatcher() {
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
     // set properly
     RequestPattern requestPattern =
@@ -85,7 +85,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithCustomMatcher() {
+  void likeRequestPatternWithCustomMatcher() {
     RequestMatcher customRequestMatcher =
         new RequestMatcherExtension() {
           @Override
@@ -100,7 +100,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithMultipartMatcher() {
+  void likeRequestPatternWithMultipartMatcher() {
     MultipartValuePattern multipartValuePattern = aMultipart().withBody(equalToJson("[]")).build();
 
     RequestPattern requestPattern = RequestPattern.everything();
@@ -117,7 +117,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithoutMultipartMatcher() {
+  void likeRequestPatternWithoutMultipartMatcher() {
     MultipartValuePattern multipartPattern = aMultipart().withBody(equalToJson("[]")).build();
 
     // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are
@@ -145,7 +145,7 @@ public class RequestPatternBuilderTest {
   }
 
   @Test
-  public void likeRequestPatternWithCustomMatcherDefinition() {
+  void likeRequestPatternWithCustomMatcherDefinition() {
     CustomMatcherDefinition customMatcherDefinition =
         new CustomMatcherDefinition("foo", Parameters.empty());
     RequestPattern requestPattern = new RequestPattern(customMatcherDefinition);

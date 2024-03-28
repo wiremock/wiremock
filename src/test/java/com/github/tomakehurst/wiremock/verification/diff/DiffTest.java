@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,13 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import org.junit.jupiter.api.Test;
 
-public class DiffTest {
+class DiffTest {
 
   @Test
   public void correctlyRendersJUnitStyleDiffMessage() {
     String diff = junitStyleDiffMessage("expected", "actual");
 
-    assertThat(diff, is(" expected:<\nexpected> but was:<\nactual>"));
+    assertThat(diff, is(String.format(" expected:<%nexpected> but was:<%nactual>")));
   }
 
   @Test

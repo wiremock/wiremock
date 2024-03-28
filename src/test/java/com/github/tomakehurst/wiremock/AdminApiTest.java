@@ -63,7 +63,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class AdminApiTest extends AcceptanceTestBase {
+class AdminApiTest extends AcceptanceTestBase {
 
   static Stubbing dsl = wireMockServer;
 
@@ -83,7 +83,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllStubMappings() throws Exception {
+  void getAllStubMappings() throws Exception {
     StubMapping stubMapping =
         dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
 
@@ -116,7 +116,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getAllStubMappingsWithLimitedResults() throws Exception {
+  void getAllStubMappingsWithLimitedResults() {
     for (int i = 1; i <= 20; i++) {
       dsl.stubFor(get(urlEqualTo("/things/" + i)).willReturn(aResponse().withStatus(418)));
     }
@@ -152,7 +152,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deprecatedGetAllStubMappings() throws Exception {
+  void deprecatedGetAllStubMappings() throws Exception {
     dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
 
     String body = testClient.get("/__admin/").content();
@@ -174,7 +174,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getStubMappingById() throws Exception {
+  void getStubMappingById() throws Exception {
     UUID id = UUID.randomUUID();
 
     dsl.stubFor(
@@ -194,7 +194,7 @@ public class AdminApiTest extends AcceptanceTestBase {
             + "\",              \n"
             + "    \"request\" : {                        \n"
             + "      \"url\" : \"/my-addressable-stub\",  \n"
-            + "      \"method\" : \"TRACE\"               \n"
+            + "      \"method\" : \"TRACE\"              \n"
             + "    },                                     \n"
             + "    \"response\" : {                       \n"
             + "      \"status\" : 451                     \n"
@@ -205,7 +205,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequests() throws Exception {
+  void getLoggedRequests() {
     dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
 
     for (int i = 1; i <= 5; i++) {
@@ -229,7 +229,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimit() throws Exception {
+  void getLoggedRequestsWithLimit() throws Exception {
     dsl.stubFor(
         get(urlPathEqualTo("/received-request/7"))
             .willReturn(aResponse().withStatus(200).withBody("This was matched")));
@@ -258,7 +258,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
+  void getLoggedRequestsWithLimitAndSinceDate() {
     for (int i = 1; i <= 5; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -292,7 +292,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
+  void getLoggedRequestsWithInvalidSinceDateReturnsBadRequest() throws Exception {
     WireMockResponse response = testClient.get("/__admin/requests?since=foo");
 
     assertThat(response.statusCode(), is(400));
@@ -305,7 +305,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
+  void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -318,7 +318,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void getLoggedRequestById() {
+  void getLoggedRequestById() {
     for (int i = 1; i <= 3; i++) {
       testClient.get("/received-request/" + i);
     }
@@ -337,7 +337,7 @@ public class AdminApiTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void deleteStubMappingById() throws Exception {
+  void deleteStubMappingById() throws Exception {
     StubMapping stubMapping =
         dsl.stubFor(get(urlPathEqualTo("/delete/this")).willReturn(aResponse().withStatus(200)));
 
