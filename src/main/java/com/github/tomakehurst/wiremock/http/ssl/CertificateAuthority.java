@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http.ssl;
 
 import static com.github.tomakehurst.wiremock.common.ArrayFunctions.prepend;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.checkParameter;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -37,9 +38,7 @@ public class CertificateAuthority {
 
   public CertificateAuthority(X509Certificate[] certificateChain, PrivateKey key) {
     this.certificateChain = requireNonNull(certificateChain);
-    if (certificateChain.length == 0) {
-      throw new IllegalArgumentException("Chain must have entries");
-    }
+    checkParameter(certificateChain.length != 0, "Chain must have entries");
     this.key = requireNonNull(key);
   }
 
@@ -76,8 +75,11 @@ public class CertificateAuthority {
   }
 
   private static X509CertImpl selfSign(X509CertInfo info, PrivateKey privateKey, String sigAlg)
-      throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
-          NoSuchProviderException, SignatureException {
+      throws CertificateException,
+          NoSuchAlgorithmException,
+          InvalidKeyException,
+          NoSuchProviderException,
+          SignatureException {
     X509CertImpl certificate = new X509CertImpl(info);
     certificate.sign(privateKey, sigAlg);
     return certificate;
@@ -151,8 +153,12 @@ public class CertificateAuthority {
   }
 
   private X509CertImpl sign(X509CertInfo info)
-      throws CertificateException, IOException, NoSuchAlgorithmException, InvalidKeyException,
-          NoSuchProviderException, SignatureException {
+      throws CertificateException,
+          IOException,
+          NoSuchAlgorithmException,
+          InvalidKeyException,
+          NoSuchProviderException,
+          SignatureException {
     X509Certificate issuerCertificate = certificateChain[0];
     info.set(X509CertInfo.ISSUER, issuerCertificate.getSubjectDN());
 
