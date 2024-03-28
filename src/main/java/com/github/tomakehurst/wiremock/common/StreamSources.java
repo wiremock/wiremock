@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,5 +62,17 @@ public class StreamSources {
 
   public static InputStreamSource empty() {
     return forBytes(new byte[0]);
+  }
+
+  public static String getStringFromInputStream(InputStream inputStream) {
+    try {
+      StringBuilder sb = new StringBuilder();
+      for (int ch; (ch = inputStream.read()) != -1; ) {
+        sb.append((char) ch);
+      }
+      return sb.toString();
+    } catch (Exception ignored) {
+      return null;
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.standalone;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -37,13 +36,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
+import java.util.Objects;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class JsonFileMappingsSourceTest {
+class JsonFileMappingsSourceTest {
 
   @TempDir public File tempDir;
 
@@ -80,7 +79,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void loadsMappingsViaClasspathFileSource() {
+  void loadsMappingsViaClasspathFileSource() {
     ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
     JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource, new FilenameMaker());
     StoreBackedStubMappings stubMappings = new InMemoryStubMappings();
@@ -96,21 +95,21 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
+  void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
     JsonFileMappingsSource source =
         new JsonFileMappingsSource(new SingleRootFileSource(tempDir), new FilenameMaker());
 
     StubMapping stub = get("/saveable").willReturn(ok()).build();
     source.save(stub);
 
-    File savedFile = tempDir.listFiles()[0];
-    String savedStub = FileUtils.readFileToString(savedFile, UTF_8);
+    File savedFile = Objects.requireNonNull(tempDir.listFiles())[0];
+    String savedStub = Files.readString(savedFile.toPath());
 
     assertThat(savedStub, containsString("\"insertionIndex\" : 0"));
   }
 
   @Test
-  public void stubMappingFilesWithOwnFileTemplateFormat() {
+  void stubMappingFilesWithOwnFileTemplateFormat() {
     JsonFileMappingsSource source =
         new JsonFileMappingsSource(
             new SingleRootFileSource(tempDir),
@@ -119,13 +118,13 @@ public class JsonFileMappingsSourceTest {
     StubMapping stub = get("/saveable").willReturn(ok()).build();
     source.save(stub);
 
-    File savedFile = tempDir.listFiles()[0];
+    File savedFile = Objects.requireNonNull(tempDir.listFiles())[0];
 
-    assertEquals(savedFile.getName(), "get-saveable.json");
+    assertEquals("get-saveable.json", savedFile.getName());
   }
 
   @Test
-  public void refusesToRemoveStubMappingContainedInMultiFile() throws Exception {
+  void refusesToRemoveStubMappingContainedInMultiFile() throws Exception {
     configureWithMultipleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
@@ -145,7 +144,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void refusesToRemoveAllWhenMultiMappingFilesArePresent() throws Exception {
+  void refusesToRemoveAllWhenMultiMappingFilesArePresent() throws Exception {
     configureWithMultipleMappingFile();
 
     try {
@@ -163,7 +162,7 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void refusesToSaveStubMappingOriginallyLoadedFromMultiMappingFile() throws Exception {
+  void refusesToSaveStubMappingOriginallyLoadedFromMultiMappingFile() throws Exception {
     configureWithMultipleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
@@ -182,18 +181,18 @@ public class JsonFileMappingsSourceTest {
   }
 
   @Test
-  public void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
+  void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
     configureWithSingleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
     firstStub.setName("New name");
     source.save(firstStub);
 
-    assertThat(FileUtils.readFileToString(stubMappingFile, UTF_8), containsString("New name"));
+    assertThat(Files.readString(stubMappingFile.toPath()), containsString("New name"));
   }
 
   @Test
-  public void removesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
+  void removesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
     configureWithSingleMappingFile();
 
     StubMapping firstStub = stubMappings.getAll().get(0);
