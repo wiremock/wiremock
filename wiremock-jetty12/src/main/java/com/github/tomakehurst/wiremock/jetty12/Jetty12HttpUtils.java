@@ -32,7 +32,7 @@ import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.AbstractMetaDataConnection;
 import org.eclipse.jetty.server.Response;
 
-class Jetty12HttpUtils implements JettyHttpUtils {
+public class Jetty12HttpUtils implements JettyHttpUtils {
   @Override
   public Response unwrapResponse(HttpServletResponse httpServletResponse) {
     if (httpServletResponse instanceof HttpServletResponseWrapper) {

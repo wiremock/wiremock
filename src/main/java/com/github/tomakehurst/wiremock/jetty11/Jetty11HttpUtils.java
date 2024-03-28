@@ -32,7 +32,7 @@ import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
-class Jetty11HttpUtils implements JettyHttpUtils {
+public class Jetty11HttpUtils implements JettyHttpUtils {
   @Override
   public Response unwrapResponse(HttpServletResponse httpServletResponse) {
     if (httpServletResponse instanceof HttpServletResponseWrapper) {
