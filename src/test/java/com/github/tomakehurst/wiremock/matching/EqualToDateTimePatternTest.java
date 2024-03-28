@@ -29,6 +29,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.DateTimeOffset;
 import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.MultiValue;
+import com.google.common.collect.Lists;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -190,5 +192,45 @@ public class EqualToDateTimePatternTest {
     assertNotEquals(a.hashCode(), c.hashCode());
     assertNotEquals(b, c);
     assertNotEquals(b.hashCode(), c.hashCode());
+  }
+
+  @Test
+  public void matchesMultipleZonedToMultipleLocalUsingHavingExactly() {
+    String local1 = "2024-03-27T00:00:00";
+    String zoned1 = LocalDateTime.parse(local1).atZone(ZoneId.systemDefault()).toString();
+    String local2 = "2024-03-28T00:00:00";
+    String zoned2 = LocalDateTime.parse(local2).atZone(ZoneId.systemDefault()).toString();
+    MultiValuePattern matcher =
+        WireMock.havingExactly(WireMock.equalToDateTime(zoned1), WireMock.equalToDateTime(zoned2));
+
+    MultiValue good = new MultiValue("dateTimes", Lists.newArrayList(local1, local2));
+    MultiValue bad =
+        new MultiValue(
+            "dateTimes",
+            Lists.newArrayList(local1, LocalDateTime.parse(local2).minusSeconds(1).toString()));
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
+  }
+
+  @Test
+  public void matchesMultipleZonedToMultipleLocalUsingIncluding() {
+    String local1 = "2024-03-27T00:00:00";
+    String zoned1 = LocalDateTime.parse(local1).atZone(ZoneId.systemDefault()).toString();
+    String local2 = "2024-03-28T00:00:00";
+    String zoned2 = LocalDateTime.parse(local2).atZone(ZoneId.systemDefault()).toString();
+    MultiValuePattern matcher =
+        WireMock.including(WireMock.equalToDateTime(zoned1), WireMock.equalToDateTime(zoned2));
+    String local3 = "2024-03-29T00:00:00";
+
+    MultiValue good = new MultiValue("dateTimes", Lists.newArrayList(local1, local2, local3));
+    MultiValue bad =
+        new MultiValue(
+            "dateTimes",
+            Lists.newArrayList(
+                local1, LocalDateTime.parse(local2).minusSeconds(1).toString(), local3));
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
   }
 }
