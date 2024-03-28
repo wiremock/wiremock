@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 
+@FunctionalInterface
 public interface HttpServerFactory extends Extension {
 
   @Override

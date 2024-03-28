@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,8 @@ public class WireMockConfiguration implements Options {
   private boolean disableOptimizeXmlFactoriesLoading = false;
   private int portNumber = DEFAULT_PORT;
   private boolean httpDisabled = false;
+  private boolean http2PlainEnabled = true;
+  private boolean http2TlsEnabled = true;
   private String bindAddress = DEFAULT_BIND_ADDRESS;
 
   private int containerThreads = DEFAULT_CONTAINER_THREADS;
@@ -144,6 +146,8 @@ public class WireMockConfiguration implements Options {
   private Long maxTemplateCacheEntries = null;
   private boolean templateEscapingDisabled = true;
 
+  private Set<String> supportedProxyEncodings = null;
+
   private MappingsSource getMappingsSource() {
     if (mappingsSource == null) {
       mappingsSource =
@@ -191,6 +195,16 @@ public class WireMockConfiguration implements Options {
 
   public WireMockConfiguration httpDisabled(boolean httpDisabled) {
     this.httpDisabled = httpDisabled;
+    return this;
+  }
+
+  public WireMockConfiguration http2PlainEnabled(boolean enabled) {
+    this.http2PlainEnabled = enabled;
+    return this;
+  }
+
+  public WireMockConfiguration http2TlsEnabled(boolean enabled) {
+    this.http2TlsEnabled = enabled;
     return this;
   }
 
@@ -551,6 +565,15 @@ public class WireMockConfiguration implements Options {
     return this;
   }
 
+  public WireMockConfiguration withSupportedProxyEncodings(Set<String> supportedProxyEncodings) {
+    this.supportedProxyEncodings = supportedProxyEncodings;
+    return this;
+  }
+
+  public WireMockConfiguration withSupportedProxyEncodings(String... supportedProxyEncodings) {
+    return withSupportedProxyEncodings(Set.of(supportedProxyEncodings));
+  }
+
   @Override
   public int portNumber() {
     return portNumber;
@@ -559,6 +582,16 @@ public class WireMockConfiguration implements Options {
   @Override
   public boolean getHttpDisabled() {
     return httpDisabled;
+  }
+
+  @Override
+  public boolean getHttp2PlainEnabled() {
+    return http2PlainEnabled;
+  }
+
+  @Override
+  public boolean getHttp2TlsEnabled() {
+    return http2TlsEnabled;
   }
 
   @Override
@@ -814,5 +847,10 @@ public class WireMockConfiguration implements Options {
   @Override
   public boolean getTemplateEscapingDisabled() {
     return templateEscapingDisabled;
+  }
+
+  @Override
+  public Set<String> getSupportedProxyEncodings() {
+    return supportedProxyEncodings;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,10 @@ public interface Options {
   int portNumber();
 
   boolean getHttpDisabled();
+
+  boolean getHttp2PlainEnabled();
+
+  boolean getHttp2TlsEnabled();
 
   HttpsSettings httpsSettings();
 
@@ -147,4 +151,8 @@ public interface Options {
   Set<String> getTemplatePermittedSystemKeys();
 
   boolean getTemplateEscapingDisabled();
+
+  default Set<String> getSupportedProxyEncodings() {
+    return null;
+  }
 }
