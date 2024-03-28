@@ -23,7 +23,7 @@ jobs:
         id: publish_package
         uses: gradle/gradle-build-action@v2.9.0
         with:
-          arguments: :publish :closeAndReleaseStagingRepository addGitTag --stacktrace
+          arguments: :publish :closeAndReleaseStagingRepository --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
