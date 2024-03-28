@@ -530,13 +530,13 @@ public class CommandLineOptions implements Options {
   }
 
   @Override
-  public boolean getHttp2PlainEnabled() {
-    return true;
+  public boolean getHttp2PlainDisabled() {
+    return false;
   }
 
   @Override
-  public boolean getHttp2TlsEnabled() {
-    return true;
+  public boolean getHttp2TlsDisabled() {
+    return false;
   }
 
   public void setActualHttpPort(int port) {
