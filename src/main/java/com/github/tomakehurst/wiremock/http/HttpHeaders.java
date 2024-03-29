@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -132,5 +133,22 @@ public class HttpHeaders {
 
   private CaseInsensitiveKey caseInsensitive(String key) {
     return new CaseInsensitiveKey(key);
+  }
+
+  public String summary() {
+    Map<String, List<String>> sortedHeaders = new TreeMap<>();
+    this.headers
+        .entries()
+        .forEach(
+            e -> {
+              String key = e.getKey().value();
+              if (!sortedHeaders.containsKey(key)) {
+                sortedHeaders.put(key, new ArrayList<>());
+              }
+              sortedHeaders.get(key).add(e.getValue());
+            });
+    return sortedHeaders.entrySet().stream()
+        .map(e -> e.getKey() + ": [" + e.getValue().stream().sorted().collect(joining(", ")) + "]")
+        .collect(joining("\n"));
   }
 }

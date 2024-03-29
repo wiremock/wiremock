@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class HttpHeadersTest {
@@ -31,6 +32,8 @@ public class HttpHeadersTest {
     HttpHeader header = httpHeaders.getHeader("Test-Header");
 
     assertThat(header.isPresent(), is(false));
+
+    Assertions.assertThat(httpHeaders.summary()).isEqualTo("");
   }
 
   @Test
@@ -41,6 +44,8 @@ public class HttpHeadersTest {
     assertThat(header.isPresent(), is(true));
     assertThat(header.key(), is("Test-Header"));
     assertThat(header.containsValue("value2"), is(true));
+
+    Assertions.assertThat(httpHeaders.summary()).isEqualTo("Test-Header: [value1, value2]");
   }
 
   @SuppressWarnings("unchecked")
@@ -112,6 +117,9 @@ public class HttpHeadersTest {
     assertThat(header.values().size(), is(2));
 
     assertThat(headers.size(), is(2));
+
+    Assertions.assertThat(headers.summary())
+        .isEqualTo("Header-1: [value-1, value-2]\n" + "Header-2: [value-3, value-4]");
   }
 
   @Test
@@ -123,6 +131,9 @@ public class HttpHeadersTest {
 
     String json = Json.write(headers);
     assertThat("Actual: " + json, json, equalToJson(MULTI_VALUE_HEADER));
+
+    Assertions.assertThat(headers.summary())
+        .isEqualTo("Header-1: [value-1, value-2]\n" + "Header-2: [value-3, value-4]");
   }
 
   @Test
