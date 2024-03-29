@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -62,9 +61,9 @@ public interface Request {
 
   FormParameter formParameter(String key);
 
-  Map<String, FormParameter> formParameters();
+  MultiValues<FormParameter> formParameters();
 
-  Map<String, Cookie> getCookies();
+  MultiValues<Cookie> getCookies();
 
   byte[] getBody();
 

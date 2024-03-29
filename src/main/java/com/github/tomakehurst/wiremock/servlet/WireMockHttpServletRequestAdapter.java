@@ -234,7 +234,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public Map<String, Cookie> getCookies() {
+  public MultiValues<Cookie> getCookies() {
     ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
     jakarta.servlet.http.Cookie[] cookies =
@@ -243,8 +243,9 @@ public class WireMockHttpServletRequestAdapter implements Request {
       builder.put(cookie.getName(), cookie.getValue());
     }
 
-    return Maps.transformValues(
-        builder.build().asMap(), input -> new Cookie(null, List.copyOf(input)));
+    return new MultiValues<>(
+        Maps.transformValues(
+            builder.build().asMap(), input -> new Cookie(null, List.copyOf(input))));
   }
 
   @Override
@@ -259,8 +260,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
   }
 
   @Override
-  public Map<String, FormParameter> formParameters() {
-    return cachedFormParameters;
+  public MultiValues<FormParameter> formParameters() {
+    return new MultiValues<FormParameter>(cachedFormParameters);
   }
 
   @Override

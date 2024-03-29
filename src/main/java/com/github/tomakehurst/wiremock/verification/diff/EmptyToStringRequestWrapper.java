@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.http.*;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -95,8 +94,8 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
-  public Map<String, Cookie> getCookies() {
-    return target.getCookies();
+  public MultiValues<Cookie> getCookies() {
+    return new MultiValues<>(target.getCookies());
   }
 
   @Override
@@ -110,7 +109,7 @@ public class EmptyToStringRequestWrapper implements Request {
   }
 
   @Override
-  public Map<String, FormParameter> formParameters() {
+  public MultiValues<FormParameter> formParameters() {
     return target.formParameters();
   }
 

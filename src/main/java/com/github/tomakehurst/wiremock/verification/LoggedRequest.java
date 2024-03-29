@@ -227,8 +227,8 @@ public class LoggedRequest implements Request {
   }
 
   @Override
-  public Map<String, Cookie> getCookies() {
-    return cookies;
+  public MultiValues<Cookie> getCookies() {
+    return new MultiValues<>(cookies);
   }
 
   @Override
@@ -265,18 +265,18 @@ public class LoggedRequest implements Request {
   }
 
   @Override
-  public Map<String, FormParameter> formParameters() {
-    return formParameters;
+  public MultiValues<FormParameter> formParameters() {
+    return new MultiValues<FormParameter>(formParameters);
   }
 
   @JsonProperty("formParams")
-  public Map<String, FormParameter> getFormParameters() {
-    return formParameters;
+  public MultiValues<FormParameter> getFormParameters() {
+    return new MultiValues<FormParameter>(formParameters);
   }
 
   @JsonProperty("queryParams")
-  public Map<String, QueryParameter> getQueryParams() {
-    return queryParams;
+  public MultiValues<QueryParameter> getQueryParams() {
+    return new MultiValues<QueryParameter>(queryParams);
   }
 
   public HttpHeaders getHeaders() {

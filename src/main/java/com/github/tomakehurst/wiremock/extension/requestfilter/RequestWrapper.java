@@ -178,7 +178,7 @@ public class RequestWrapper implements Request {
   }
 
   @Override
-  public Map<String, Cookie> getCookies() {
+  public MultiValues<Cookie> getCookies() {
     Map<String, Cookie> cookieMap = new HashMap<>();
     for (Map.Entry<String, Cookie> entry : delegate.getCookies().entrySet()) {
       Cookie newCookie =
@@ -193,7 +193,7 @@ public class RequestWrapper implements Request {
 
     cookieMap.putAll(additionalCookies);
 
-    return Collections.unmodifiableMap(cookieMap);
+    return new MultiValues<>(cookieMap);
   }
 
   @Override
@@ -207,7 +207,7 @@ public class RequestWrapper implements Request {
   }
 
   @Override
-  public Map<String, FormParameter> formParameters() {
+  public MultiValues<FormParameter> formParameters() {
     return delegate.formParameters();
   }
 

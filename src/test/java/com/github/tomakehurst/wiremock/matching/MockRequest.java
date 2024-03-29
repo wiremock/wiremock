@@ -215,8 +215,8 @@ public class MockRequest implements Request {
   }
 
   @Override
-  public Map<String, Cookie> getCookies() {
-    return cookies;
+  public MultiValues<Cookie> getCookies() {
+    return new MultiValues<>(cookies);
   }
 
   @Override
@@ -231,8 +231,8 @@ public class MockRequest implements Request {
   }
 
   @Override
-  public Map<String, FormParameter> formParameters() {
-    return formParameters;
+  public MultiValues<FormParameter> formParameters() {
+    return new MultiValues<FormParameter>(formParameters);
   }
 
   @Override
