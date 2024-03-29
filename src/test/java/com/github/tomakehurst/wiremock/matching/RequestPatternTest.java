@@ -44,6 +44,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.common.Json;
@@ -335,10 +336,10 @@ class RequestPatternTest {
   void correctlyDeserializesFormParams() {
     RequestPattern requestPattern =
         Json.read(getFormParameterRequestPatternJson(), RequestPattern.class);
-    assertTrue(
-        requestPattern.getFormParameters().get("key1") instanceof SingleMatchMultiValuePattern);
-    assertTrue(
-        requestPattern.getFormParameters().get("key2") instanceof SingleMatchMultiValuePattern);
+    assertInstanceOf(
+        SingleMatchMultiValuePattern.class, requestPattern.getFormParameters().get("key1"));
+    assertInstanceOf(
+        SingleMatchMultiValuePattern.class, requestPattern.getFormParameters().get("key2"));
     assertThat(
         ((SingleMatchMultiValuePattern) requestPattern.getFormParameters().get("key1"))
             .getValuePattern(),
