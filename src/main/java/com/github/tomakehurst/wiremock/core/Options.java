@@ -52,9 +52,9 @@ public interface Options {
 
   boolean getHttpDisabled();
 
-  boolean getHttp2PlainEnabled();
+  boolean getHttp2PlainDisabled();
 
-  boolean getHttp2TlsEnabled();
+  boolean getHttp2TlsDisabled();
 
   HttpsSettings httpsSettings();
 
