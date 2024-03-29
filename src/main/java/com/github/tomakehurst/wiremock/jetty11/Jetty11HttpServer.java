@@ -85,9 +85,9 @@ public class Jetty11HttpServer extends JettyHttpServer {
     ConnectionFactory[] connectionFactories =
         Stream.of(
                 new HttpConnectionFactory(httpConfig),
-                options.getHttp2PlainEnabled()
-                    ? new HTTP2CServerConnectionFactory(httpConfig)
-                    : null)
+                options.getHttp2PlainDisabled()
+                    ? null
+                    : new HTTP2CServerConnectionFactory(httpConfig))
             .filter(Objects::nonNull)
             .toArray(ConnectionFactory[]::new);
 
@@ -106,7 +106,7 @@ public class Jetty11HttpServer extends JettyHttpServer {
 
     ConnectionFactory[] connectionFactories;
 
-    if (options.getHttp2TlsEnabled()) {
+    if (!options.getHttp2TlsDisabled()) {
 
       SslContextFactory.Server http2SslContextFactory =
           SslContexts.buildHttp2SslContextFactory(httpsSettings);
