@@ -44,7 +44,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
 
   private static void resetFileSourceRoot() {
     try {
-      if (new File(String.valueOf(FILE_SOURCE_ROOT.toPath().toAbsolutePath())).exists()) {
+      if (FILE_SOURCE_ROOT.exists()) {
         try (Stream<Path> pathStream = Files.walk(FILE_SOURCE_ROOT.toPath().toAbsolutePath())) {
           pathStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         }

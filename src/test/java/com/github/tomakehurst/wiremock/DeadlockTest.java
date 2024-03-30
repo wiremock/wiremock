@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.common.StreamSources.getStringFromInputStream;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -26,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -123,6 +123,12 @@ public class DeadlockTest {
   }
 
   private String httpGetContent(HttpURLConnection connection) throws IOException {
-    return getStringFromInputStream(connection.getInputStream());
+    try (InputStream is = connection.getInputStream()) {
+      StringBuilder sb = new StringBuilder();
+      for (int ch; (ch = is.read()) != -1; ) {
+        sb.append((char) ch);
+      }
+      return sb.toString();
+    }
   }
 }

@@ -78,7 +78,7 @@ public class StandaloneAcceptanceTest {
 
   @BeforeEach
   public void init() throws Exception {
-    if (new File(String.valueOf(FILE_SOURCE_ROOT.toPath().toAbsolutePath())).exists()) {
+    if (FILE_SOURCE_ROOT.exists()) {
       try (Stream<Path> pathStream = Files.walk(FILE_SOURCE_ROOT.toPath().toAbsolutePath())) {
         pathStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
       }

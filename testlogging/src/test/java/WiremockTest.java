@@ -43,7 +43,12 @@ public class WiremockTest {
         URL uri = new URL("http://localhost:8080/blah");
         InputStream content = uri.openConnection().getInputStream();
 
-        final String retrievedBody = getStringFromInputStream(content);
+        StringBuilder sb = new StringBuilder();
+        for (int ch; (ch = inputStream.read()) != -1; ) {
+            sb.append((char) ch);
+        }
+
+        final String retrievedBody = sb.toString();
         assertEquals("body", retrievedBody);
         assertThat(stdOutCapture.toString(), containsString("LOGBACK INFO  w.o.e.j.s.h.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler"));
     }
