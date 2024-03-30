@@ -63,16 +63,4 @@ public class StreamSources {
   public static InputStreamSource empty() {
     return forBytes(new byte[0]);
   }
-
-  public static String getStringFromInputStream(InputStream inputStream) {
-    try {
-      StringBuilder sb = new StringBuilder();
-      for (int ch; (ch = inputStream.read()) != -1; ) {
-        sb.append((char) ch);
-      }
-      return sb.toString();
-    } catch (Exception ignored) {
-      return null;
-    }
-  }
 }
