@@ -246,11 +246,11 @@ public class LoggedRequest implements Request {
     return headers.keys();
   }
 
-  private QueryParameter absentqueryParameter(String key) {
+  public static QueryParameter absentqueryParameter(String key) {
     return new QueryParameter(key, Collections.emptyList());
   }
 
-  private FormParameter absentformParameter(String key) {
+  public static FormParameter absentformParameter(String key) {
     return new FormParameter(key, Collections.emptyList());
   }
 

@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.matching.PatternClass.findMainFieldEntry;
+import static com.github.tomakehurst.wiremock.matching.PatternClass.findPatternClass;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,31 +35,10 @@ import org.xmlunit.diff.ComparisonType;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
 
-  private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
-      Map.ofEntries(
-          Map.entry("equalTo", EqualToPattern.class),
-          Map.entry("equalToJson", EqualToJsonPattern.class),
-          Map.entry("matchesJsonPath", MatchesJsonPathPattern.class),
-          Map.entry("matchesJsonSchema", MatchesJsonSchemaPattern.class),
-          Map.entry("equalToXml", EqualToXmlPattern.class),
-          Map.entry("matchesXPath", MatchesXPathPattern.class),
-          Map.entry("contains", ContainsPattern.class),
-          Map.entry("not", NotPattern.class),
-          Map.entry("doesNotContain", NegativeContainsPattern.class),
-          Map.entry("matches", RegexPattern.class),
-          Map.entry("doesNotMatch", NegativeRegexPattern.class),
-          Map.entry("before", BeforeDateTimePattern.class),
-          Map.entry("after", AfterDateTimePattern.class),
-          Map.entry("equalToDateTime", EqualToDateTimePattern.class),
-          Map.entry("anything", AnythingPattern.class),
-          Map.entry("absent", AbsentPattern.class),
-          Map.entry("and", LogicalAnd.class),
-          Map.entry("or", LogicalOr.class),
-          Map.entry("matchesPathTemplate", PathTemplatePattern.class));
 
   @Override
   public StringValuePattern deserialize(JsonParser parser, DeserializationContext context)
-      throws IOException {
+          throws IOException {
     JsonNode rootNode = parser.readValueAsTree();
     return buildStringValuePattern(rootNode);
   }
@@ -93,7 +74,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     final Map.Entry<String, JsonNode> mainFieldEntry = findMainFieldEntry(rootNode);
     if (!mainFieldEntry.getValue().isTextual()) {
       throw new JsonMappingException(
-          mainFieldEntry.getKey() + " operand must be a non-null string");
+              mainFieldEntry.getKey() + " operand must be a non-null string");
     }
     String operand = mainFieldEntry.getValue().textValue();
     try {
@@ -102,14 +83,6 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     } catch (Exception e) {
       return throwUnchecked(e, StringValuePattern.class);
     }
-  }
-
-  private static Map.Entry<String, JsonNode> findMainFieldEntry(JsonNode rootNode) {
-    List<Map.Entry<String, JsonNode>> list = getListFromNode(rootNode);
-    return list.stream()
-        .filter(input -> PATTERNS.containsKey(input.getKey()))
-        .findFirst()
-        .orElseThrow(NoSuchElementException::new);
   }
 
   private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
@@ -147,7 +120,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private MatchesJsonSchemaPattern deserializeMatchesJsonSchema(JsonNode rootNode)
-      throws JsonMappingException {
+          throws JsonMappingException {
     if (!rootNode.has("matchesJsonSchema")) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
@@ -158,12 +131,12 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     try {
       String schemaVersionString = fromNullableTextNode(rootNode.findValue("schemaVersion"));
       schemaVersion =
-          schemaVersionString != null
-              ? JsonSchemaVersion.valueOf(schemaVersionString)
-              : JsonSchemaVersion.DEFAULT;
+              schemaVersionString != null
+                      ? JsonSchemaVersion.valueOf(schemaVersionString)
+                      : JsonSchemaVersion.DEFAULT;
     } catch (Exception e) {
       throw new JsonMappingException(
-          "schemaVersion must be one of " + Json.write(JsonSchemaVersion.values()));
+              "schemaVersion must be one of " + Json.write(JsonSchemaVersion.values()));
     }
 
     // Allow either a JSON value or a string containing JSON
@@ -183,22 +156,22 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     Boolean enablePlaceholders = fromNullable(rootNode.findValue("enablePlaceholders"));
     String placeholderOpeningDelimiterRegex =
-        fromNullableTextNode(rootNode.findValue("placeholderOpeningDelimiterRegex"));
+            fromNullableTextNode(rootNode.findValue("placeholderOpeningDelimiterRegex"));
     String placeholderClosingDelimiterRegex =
-        fromNullableTextNode(rootNode.findValue("placeholderClosingDelimiterRegex"));
+            fromNullableTextNode(rootNode.findValue("placeholderClosingDelimiterRegex"));
     Set<ComparisonType> exemptedComparisons =
-        comparisonTypeSetFromArray(rootNode.findValue("exemptedComparisons"));
+            comparisonTypeSetFromArray(rootNode.findValue("exemptedComparisons"));
 
     return new EqualToXmlPattern(
-        operand.textValue(),
-        enablePlaceholders,
-        placeholderOpeningDelimiterRegex,
-        placeholderClosingDelimiterRegex,
-        exemptedComparisons);
+            operand.textValue(),
+            enablePlaceholders,
+            placeholderOpeningDelimiterRegex,
+            placeholderClosingDelimiterRegex,
+            exemptedComparisons);
   }
 
   private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode)
-      throws JsonMappingException {
+          throws JsonMappingException {
     if (!rootNode.has("matchesJsonPath")) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
@@ -219,7 +192,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private MatchesXPathPattern deserialiseMatchesXPathPattern(JsonNode rootNode)
-      throws JsonMappingException {
+          throws JsonMappingException {
     if (!rootNode.has("matchesXPath")) {
       throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
@@ -227,7 +200,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     JsonNode namespacesNode = rootNode.findValue("xPathNamespaces");
 
     Map<String, String> namespaces =
-        namespacesNode != null ? toNamespaceMap(namespacesNode) : Collections.emptyMap();
+            namespacesNode != null ? toNamespaceMap(namespacesNode) : Collections.emptyMap();
 
     JsonNode outerPatternNode = rootNode.findValue("matchesXPath");
     if (outerPatternNode.isTextual()) {
@@ -245,7 +218,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   }
 
   private StringValuePattern deserialiseDateTimePattern(JsonNode rootNode, String matcherName)
-      throws JsonMappingException {
+          throws JsonMappingException {
     JsonNode dateTimeNode = rootNode.findValue(matcherName);
     JsonNode formatNode = rootNode.findValue("actualFormat");
     JsonNode truncateExpectedNode = rootNode.findValue("truncateExpected");
@@ -256,34 +229,34 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     switch (matcherName) {
       case "before":
         return new BeforeDateTimePattern(
-            dateTimeNode.textValue(),
-            formatNode != null ? formatNode.textValue() : null,
-            truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-            truncateActualNode != null ? truncateActualNode.textValue() : null,
-            expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
-            expectedOffsetUnitNode != null
-                ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
-                : null);
+                dateTimeNode.textValue(),
+                formatNode != null ? formatNode.textValue() : null,
+                truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+                truncateActualNode != null ? truncateActualNode.textValue() : null,
+                expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+                expectedOffsetUnitNode != null
+                        ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
+                        : null);
       case "after":
         return new AfterDateTimePattern(
-            dateTimeNode.textValue(),
-            formatNode != null ? formatNode.textValue() : null,
-            truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-            truncateActualNode != null ? truncateActualNode.textValue() : null,
-            expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
-            expectedOffsetUnitNode != null
-                ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
-                : null);
+                dateTimeNode.textValue(),
+                formatNode != null ? formatNode.textValue() : null,
+                truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+                truncateActualNode != null ? truncateActualNode.textValue() : null,
+                expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+                expectedOffsetUnitNode != null
+                        ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
+                        : null);
       case "equalToDateTime":
         return new EqualToDateTimePattern(
-            dateTimeNode.textValue(),
-            formatNode != null ? formatNode.textValue() : null,
-            truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
-            truncateActualNode != null ? truncateActualNode.textValue() : null,
-            expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
-            expectedOffsetUnitNode != null
-                ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
-                : null);
+                dateTimeNode.textValue(),
+                formatNode != null ? formatNode.textValue() : null,
+                truncateExpectedNode != null ? truncateExpectedNode.textValue() : null,
+                truncateActualNode != null ? truncateActualNode.textValue() : null,
+                expectedOffsetAmountNode != null ? expectedOffsetAmountNode.intValue() : null,
+                expectedOffsetUnitNode != null
+                        ? DateTimeUnit.valueOf(expectedOffsetUnitNode.textValue().toUpperCase())
+                        : null);
       default:
         throw new JsonMappingException(rootNode + " is not a valid match operation");
     }
@@ -297,7 +270,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     try (JsonParser parser = Json.getObjectMapper().treeAsTokens(node.get("and"))) {
       List<StringValuePattern> operands =
-          parser.readValueAs(new TypeReference<List<StringValuePattern>>() {});
+              parser.readValueAs(new TypeReference<List<StringValuePattern>>() {});
       return new LogicalAnd(operands);
     } catch (IOException e) {
       return throwUnchecked(e, LogicalAnd.class);
@@ -312,7 +285,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     try (JsonParser parser = Json.getObjectMapper().treeAsTokens(node.get("or"))) {
       List<StringValuePattern> operands =
-          parser.readValueAs(new TypeReference<List<StringValuePattern>>() {});
+              parser.readValueAs(new TypeReference<List<StringValuePattern>>() {});
       return new LogicalOr(operands);
     } catch (IOException e) {
       return throwUnchecked(e, LogicalOr.class);
@@ -328,7 +301,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     try (JsonParser parser = Json.getObjectMapper().treeAsTokens(notNode)) {
       StringValuePattern unexpectedPattern =
-          parser.readValueAs(new TypeReference<StringValuePattern>() {});
+              parser.readValueAs(new TypeReference<StringValuePattern>() {});
       return new NotPattern(unexpectedPattern);
     } catch (IOException e) {
       return throwUnchecked(e, NotPattern.class);
@@ -338,7 +311,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
   private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {
     Map<String, String> map = new LinkedHashMap<>();
     for (Iterator<Map.Entry<String, JsonNode>> fields = namespacesNode.fields();
-        fields.hasNext(); ) {
+         fields.hasNext(); ) {
       Map.Entry<String, JsonNode> field = fields.next();
       map.put(field.getKey(), field.getValue().textValue());
     }
@@ -369,40 +342,22 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
   @SuppressWarnings("unchecked")
   private static Constructor<? extends StringValuePattern> findConstructor(
-      Class<? extends StringValuePattern> clazz) {
+          Class<? extends StringValuePattern> clazz) {
     Optional<Constructor<?>> optionalConstructor =
-        Arrays.stream(clazz.getDeclaredConstructors())
-            .filter(
-                input ->
-                    input.getParameterTypes().length == 1
-                        && input.getGenericParameterTypes()[0].equals(String.class))
-            .findFirst();
+            Arrays.stream(clazz.getDeclaredConstructors())
+                    .filter(
+                            input ->
+                                    input.getParameterTypes().length == 1
+                                            && input.getGenericParameterTypes()[0].equals(String.class))
+                    .findFirst();
 
     if (optionalConstructor.isEmpty()) {
       throw new IllegalStateException(
-          "Constructor for "
-              + clazz.getSimpleName()
-              + " must have a single string argument constructor");
+              "Constructor for "
+                      + clazz.getSimpleName()
+                      + " must have a single string argument constructor");
     }
 
     return (Constructor<? extends StringValuePattern>) optionalConstructor.get();
-  }
-
-  private static Class<? extends StringValuePattern> findPatternClass(JsonNode rootNode)
-      throws JsonMappingException {
-    for (Map.Entry<String, JsonNode> node : getListFromNode(rootNode)) {
-      Class<? extends StringValuePattern> patternClass = PATTERNS.get(node.getKey());
-      if (patternClass != null) {
-        return patternClass;
-      }
-    }
-
-    throw new JsonMappingException(rootNode + " is not a valid match operation");
-  }
-
-  private static List<Map.Entry<String, JsonNode>> getListFromNode(JsonNode rootNode) {
-    List<Map.Entry<String, JsonNode>> list = new LinkedList<>();
-    rootNode.fields().forEachRemaining(list::add);
-    return list;
   }
 }

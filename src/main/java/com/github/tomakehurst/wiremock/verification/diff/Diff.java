@@ -19,6 +19,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
 import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
+import static com.github.tomakehurst.wiremock.verification.LoggedRequest.absentformParameter;
+import static com.github.tomakehurst.wiremock.verification.LoggedRequest.absentqueryParameter;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 
 import com.github.tomakehurst.wiremock.common.Json;
@@ -233,7 +235,7 @@ public class Diff {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         FormParameter formParameter =
-            getFirstNonNull(requestFormParameters.get(key), FormParameter.absent(key));
+            getFirstNonNull(requestFormParameters.get(key), absentformParameter(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
@@ -260,7 +262,7 @@ public class Diff {
         String key = entry.getKey();
         MultiValuePattern pattern = entry.getValue();
         QueryParameter queryParameter =
-            getFirstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
+            getFirstNonNull(requestQueryParams.get(key), absentqueryParameter(key));
 
         String operator = generateOperatorStringForMultiValuePattern(pattern, " = ");
         DiffLine<MultiValue> section =
