@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.common.Strings.*;
 
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
@@ -29,31 +30,25 @@ public class HandlebarsRandomValuesHelper extends HandlebarsHelper<Void> {
     boolean uppercase = options.hash("uppercase", false);
 
     String type = options.hash("type", "ALPHANUMERIC");
-    String rawValue;
 
-    switch (type) {
-      case "ALPHANUMERIC":
-        rawValue = randomAlphanumeric(length);
-        break;
-      case "ALPHABETIC":
-        rawValue = randomAlphabetic(length);
-        break;
-      case "NUMERIC":
-        rawValue = randomNumeric(length);
-        break;
-      case "ALPHANUMERIC_AND_SYMBOLS":
-        rawValue = random(length, 33, 126, false, false);
-        break;
-      case "UUID":
-        rawValue = UUID.randomUUID().toString();
-        break;
-      case "HEXADECIMAL":
-        rawValue = random(length, "ABCDEF0123456789");
-        break;
-      default:
-        rawValue = randomAscii(length);
-        break;
-    }
+    String rawValue = getString(type, length);
+
     return uppercase ? rawValue.toUpperCase() : rawValue.toLowerCase();
+  }
+
+  private static String getString(String type, int length) {
+    Map<String, RandomStringGenerator> generators = Map.ofEntries(
+            Map.entry("ALPHANUMERIC", new AlphanumericGenerator()),
+            Map.entry("ALPHABETIC", new AlphabeticGenerator()),
+            Map.entry("NUMERIC", new NumericGenerator()),
+            Map.entry("ALPHANUMERIC_AND_SYMBOLS", new AplhanumericAndSymbolsGenerator()),
+            Map.entry("UUID", new UUIDGenerator()),
+            Map.entry("HEXADECIMAL", new HexadecimalGenerator()),
+            Map.entry("DEFAULT", new DefautGenerator())
+    );
+
+    RandomStringGenerator stringGenerator = generators.get(type);
+    String rawValue = stringGenerator.generate(length);
+    return rawValue;
   }
 }
