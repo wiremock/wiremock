@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,18 @@ public class CommandLineOptionsTest {
   public void disablesHttpWhenOptionPresentAndHttpsEnabled() {
     CommandLineOptions options = new CommandLineOptions("--disable-http", "--https-port", "8443");
     assertThat(options.getHttpDisabled(), is(true));
+  }
+
+  @Test
+  public void disablesHttp2PlainWhenOptionSet() {
+    CommandLineOptions options = new CommandLineOptions("--disable-http2-plain");
+    assertThat(options.getHttp2PlainDisabled(), is(true));
+  }
+
+  @Test
+  public void disablesHttp2TlsWhenOptionSet() {
+    CommandLineOptions options = new CommandLineOptions("--disable-http2-tls");
+    assertThat(options.getHttp2TlsDisabled(), is(true));
   }
 
   @Test

@@ -86,6 +86,7 @@ class ResponseDefinitionBuilderTest {
         ResponseDefinitionBuilder.responseDefinition().proxiedFrom("http://my.domain").build();
 
     assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), nullValue());
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
   }
 
@@ -98,6 +99,7 @@ class ResponseDefinitionBuilderTest {
             .build();
 
     assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), nullValue());
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
   }
 
@@ -110,6 +112,7 @@ class ResponseDefinitionBuilderTest {
             .build();
 
     assertThat(proxyDefinition.getAdditionalProxyRequestHeaders(), nullValue());
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), nullValue());
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), nullValue());
   }
 
@@ -119,12 +122,14 @@ class ResponseDefinitionBuilderTest {
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
             .withAdditionalRequestHeader("header", "value")
+            .withRemoveRequestHeader("header")
             .withProxyUrlPrefixToRemove("/remove")
             .build();
 
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
@@ -134,6 +139,7 @@ class ResponseDefinitionBuilderTest {
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
             .withAdditionalRequestHeader("header", "value")
+            .withRemoveRequestHeader("header")
             .withProxyUrlPrefixToRemove("/remove")
             .withJsonBody(Json.read("{}", JsonNode.class))
             .build();
@@ -141,6 +147,7 @@ class ResponseDefinitionBuilderTest {
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 
@@ -150,6 +157,7 @@ class ResponseDefinitionBuilderTest {
         ResponseDefinitionBuilder.responseDefinition()
             .proxiedFrom("http://my.domain")
             .withAdditionalRequestHeader("header", "value")
+            .withRemoveRequestHeader("header")
             .withProxyUrlPrefixToRemove("/remove")
             .withBody(new byte[] {0x01})
             .build();
@@ -157,6 +165,7 @@ class ResponseDefinitionBuilderTest {
     assertThat(
         proxyDefinition.getAdditionalProxyRequestHeaders(),
         equalTo(new HttpHeaders(List.of(new HttpHeader("header", "value")))));
+    assertThat(proxyDefinition.getRemoveProxyRequestHeaders(), equalTo(List.of("header")));
     assertThat(proxyDefinition.getProxyUrlPrefixToRemove(), equalTo("/remove"));
   }
 

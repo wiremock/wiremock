@@ -22,7 +22,6 @@ import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -98,27 +97,39 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         new RequestMatcher() {
           @Override
           public MatchResult match(Request request) {
-            List<WeightedMatchResult> matchResults =
-                new ArrayList<>(
-                    asList(
-                        weight(schemeMatches(request), 3.0),
-                        weight(hostMatches(request), 10.0),
-                        weight(portMatches(request), 10.0),
-                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
-                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
-                        weight(allPathParamsMatch(request)),
-                        weight(allHeadersMatchResult(request)),
-                        weight(allQueryParamsMatch(request)),
-                        weight(allFormParamsMatch(request)),
-                        weight(allCookiesMatch(request)),
-                        weight(allBodyPatternsMatch(request)),
-                        weight(allMultipartPatternsMatch(request))));
+            final List<WeightedMatchResult> requestPartMatchResults = new ArrayList<>(15);
 
-            if (hasInlineCustomMatcher) {
-              matchResults.add(weight(customMatcher.match(request)));
+            requestPartMatchResults.add(weight(schemeMatches(request), 3.0));
+            requestPartMatchResults.add(weight(hostMatches(request), 10.0));
+            requestPartMatchResults.add(weight(portMatches(request), 10.0));
+            requestPartMatchResults.add(
+                weight(RequestPattern.this.url.match(request.getUrl()), 10.0));
+            requestPartMatchResults.add(
+                weight(RequestPattern.this.method.match(request.getMethod()), 3.0));
+
+            MatchResult matchResult =
+                new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
+
+            if (!matchResult.isExactMatch()) {
+              return matchResult;
             }
 
-            return MatchResult.aggregateWeighted(matchResults);
+            requestPartMatchResults.add(weight(allPathParamsMatch(request)));
+            requestPartMatchResults.add(weight(allHeadersMatchResult(request)));
+            requestPartMatchResults.add(weight(allQueryParamsMatch(request)));
+            requestPartMatchResults.add(weight(allFormParamsMatch(request)));
+            requestPartMatchResults.add(weight(allCookiesMatch(request)));
+            requestPartMatchResults.add(weight(allBodyPatternsMatch(request)));
+            requestPartMatchResults.add(weight(allMultipartPatternsMatch(request)));
+
+            matchResult =
+                new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
+            if (!matchResult.isExactMatch() || !hasInlineCustomMatcher) {
+              return matchResult;
+            }
+
+            requestPartMatchResults.add(weight(customMatcher.match(request)));
+            return new MemoizingMatchResult(MatchResult.aggregateWeighted(requestPartMatchResults));
           }
 
           @Override
@@ -233,18 +244,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   }
 
   public MatchResult match(Request request, Map<String, RequestMatcherExtension> customMatchers) {
-    if (customMatcherDefinition != null) {
+    final MatchResult standardMatchResult = matcher.match(request);
+    if (standardMatchResult.isExactMatch() && customMatcherDefinition != null) {
       RequestMatcherExtension requestMatcher =
           getFirstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
 
-      MatchResult standardMatchResult = matcher.match(request);
       MatchResult customMatchResult =
           requestMatcher.match(request, customMatcherDefinition.getParameters());
 
       return MatchResult.aggregate(standardMatchResult, customMatchResult);
     }
 
-    return matcher.match(request);
+    return standardMatchResult;
   }
 
   private MatchResult allCookiesMatch(final Request request) {

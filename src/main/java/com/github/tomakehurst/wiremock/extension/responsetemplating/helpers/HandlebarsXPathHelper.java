@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
+import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.common.xml.*;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import java.io.IOException;
 
 /**
@@ -62,25 +62,25 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
   private ListOrSingle<XmlNode> getXmlNodes(
       String xPathExpression, XmlDocument doc, Options options) {
-    RenderCache renderCache = getRenderCache(options);
-    RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
-    ListOrSingle<XmlNode> nodes = renderCache.get(cacheKey);
+    RequestCache requestCache = getRequestCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xPathExpression, doc);
+    ListOrSingle<XmlNode> nodes = requestCache.get(cacheKey);
 
     if (nodes == null) {
       nodes = doc.findNodes(xPathExpression);
-      renderCache.put(cacheKey, nodes);
+      requestCache.put(cacheKey, nodes);
     }
 
     return nodes;
   }
 
   private XmlDocument getXmlDocument(String xml, Options options) {
-    RenderCache renderCache = getRenderCache(options);
-    RenderCache.Key cacheKey = RenderCache.Key.keyFor(XmlDocument.class, xml);
-    XmlDocument document = renderCache.get(cacheKey);
+    RequestCache requestCache = getRequestCache(options);
+    RequestCache.Key cacheKey = RequestCache.Key.keyFor(XmlDocument.class, xml);
+    XmlDocument document = requestCache.get(cacheKey);
     if (document == null) {
       document = Xml.parse(xml);
-      renderCache.put(cacheKey, document);
+      requestCache.put(cacheKey, document);
     }
 
     return document;

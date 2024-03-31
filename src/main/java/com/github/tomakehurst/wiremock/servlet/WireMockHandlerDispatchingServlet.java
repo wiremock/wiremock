@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.jetty.JettyHttpUtils;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import jakarta.servlet.*;
@@ -66,6 +67,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
   private MultipartRequestConfigurer multipartRequestConfigurer;
   private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
   private boolean browserProxyingEnabled;
+  private JettyHttpUtils utils;
 
   @Override
   public void init(ServletConfig config) {
@@ -112,6 +114,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     browserProxyingEnabled =
         Boolean.parseBoolean(
             getFirstNonNull(context.getAttribute("browserProxyingEnabled"), "false").toString());
+
+    utils = (JettyHttpUtils) context.getAttribute(JettyHttpUtils.class.getName());
   }
 
   private String getNormalizedMappedUnder(ServletConfig config) {
@@ -144,7 +148,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     Request request =
         new WireMockHttpServletRequestAdapter(
-            httpServletRequest, multipartRequestConfigurer, mappedUnder, browserProxyingEnabled);
+            httpServletRequest,
+            multipartRequestConfigurer,
+            mappedUnder,
+            browserProxyingEnabled,
+            utils);
 
     ServletHttpResponder responder =
         new ServletHttpResponder(httpServletRequest, httpServletResponse);
@@ -248,17 +256,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     if (response.getStatusMessage() == null) {
       httpServletResponse.setStatus(response.getStatus());
     } else {
-      // The Jetty 11 does not implement HttpServletResponse::setStatus and always sets the
-      // reason as `null`, the workaround using
-      // org.eclipse.jetty.server.Response::setStatusWithReason
-      // still works.
-      if (httpServletResponse instanceof org.eclipse.jetty.server.Response) {
-        final org.eclipse.jetty.server.Response jettyResponse =
-            (org.eclipse.jetty.server.Response) httpServletResponse;
-        jettyResponse.setStatusWithReason(response.getStatus(), response.getStatusMessage());
-      } else {
-        httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
-      }
+      utils.setStatusWithReason(
+          response.getStatus(), response.getStatusMessage(), httpServletResponse);
     }
 
     for (HttpHeader header : response.getHeaders().all()) {

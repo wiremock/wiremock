@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import org.eclipse.jetty.server.MultiPartInputStreamParser;
 
-public class MultipartParser {
-
-  @SuppressWarnings("unchecked")
-  public static Collection<Request.Part> parse(byte[] body, String contentType) {
+public class MultipartParser
+    implements com.github.tomakehurst.wiremock.MultipartParserLoader.MultipartParser {
+  @Override
+  public Collection<Request.Part> parse(byte[] body, String contentType) {
     MultiPartInputStreamParser parser =
         new MultiPartInputStreamParser(new ByteArrayInputStream(body), contentType, null, null);
     try {

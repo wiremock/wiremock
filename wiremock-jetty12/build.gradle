@@ -1,0 +1,139 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://oss.sonatype.org"
+    }
+    mavenCentral()
+  }
+}
+
+plugins {
+  id 'java-library'
+  id 'java-test-fixtures'
+  id 'signing'
+  id 'maven-publish'
+  id 'com.diffplug.spotless' version '6.25.0'
+  id "org.sonarqube" version "4.4.1.3373"
+  id 'jacoco'
+  id 'idea'
+}
+
+group 'org.wiremock'
+
+java {
+  sourceCompatibility = 17
+  targetCompatibility = 17
+  withSourcesJar()
+  withJavadocJar()
+}
+
+project.ext {
+  versions = [
+    jetty        : '12.0.7',
+    junitJupiter : '5.10.2'
+  ]
+}
+
+dependencies {
+
+  api project(':'), {
+    exclude group: 'org.eclipse.jetty'
+    exclude group: 'org.eclipse.jetty.http2'
+  }
+
+  api platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
+  api platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
+  api "org.eclipse.jetty:jetty-server"
+  api "org.eclipse.jetty:jetty-proxy"
+  api "org.eclipse.jetty:jetty-alpn-server"
+  api "org.eclipse.jetty:jetty-alpn-java-server"
+  api "org.eclipse.jetty:jetty-alpn-java-client"
+  api "org.eclipse.jetty:jetty-alpn-client"
+  api "org.eclipse.jetty.ee10:jetty-ee10-servlet"
+  api "org.eclipse.jetty.ee10:jetty-ee10-servlets"
+  api "org.eclipse.jetty.ee10:jetty-ee10-webapp"
+  api "org.eclipse.jetty.http2:jetty-http2-server:$versions.jetty"
+  api "org.eclipse.jetty:jetty-alpn-java-server:$versions.jetty"
+
+  testImplementation "org.eclipse.jetty.http2:jetty-http2-client:$versions.jetty"
+  testImplementation "org.eclipse.jetty.http2:jetty-http2-client-transport:$versions.jetty"
+  testImplementation "org.eclipse.jetty:jetty-alpn-java-client:$versions.jetty"
+
+  testImplementation(testFixtures(project(":")), {
+    exclude group: 'org.eclipse.jetty'
+    exclude group: 'org.eclipse.jetty.http2'
+  })
+}
+
+idea {
+  module {
+    jdkName = '1.17'
+  }
+}
+
+jar {
+  archiveBaseName.set('wiremock-jetty12')
+  manifest {
+    attributes("Implementation-Version": project.version)
+    attributes("Implementation-Title": "WireMock with Jetty 12")
+  }
+}
+
+javadoc {
+  exclude "**/CertificateAuthority.java"
+  options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+signing {
+  required {
+    !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
+  }
+  def signingKey = providers.environmentVariable("OSSRH_GPG_SECRET_KEY").orElse("").get()
+  def signingPassphrase = providers.environmentVariable("OSSRH_GPG_SECRET_KEY_PASSWORD").orElse("").get()
+  if (!signingKey.isEmpty() && !signingPassphrase.isEmpty()) {
+    useInMemoryPgpKeys(signingKey, signingPassphrase)
+  }
+  sign publishing.publications
+}
+
+if (JavaVersion.current().getMajorVersion() == '17') {
+  publishing {
+    repositories {
+      maven {
+        name = "GitHubPackages"
+        url = "https://maven.pkg.github.com/wiremock/wiremock"
+        credentials {
+          username = System.getenv("GITHUB_ACTOR")
+          password = System.getenv("GITHUB_TOKEN")
+        }
+      }
+    }
+
+    publications {
+      mavenJava(MavenPublication) { publication ->
+        artifactId = "${jar.getArchiveBaseName().get()}"
+        from components.java
+
+        pom.withXml {
+          asNode().appendNode('description', 'WireMock with Jetty 12 as its HTTP server')
+          asNode().children().last() + pomInfo
+        }
+      }
+    }
+  }
+}
+
+task localRelease {
+  dependsOn clean, assemble, publishToMavenLocal
+}
+
+test {
+  useJUnitPlatform()
+
+  maxParallelForks = runningOnCI ? 1 : 3
+
+  testLogging {
+    events "FAILED", "SKIPPED"
+    exceptionFormat "full"
+  }
+}

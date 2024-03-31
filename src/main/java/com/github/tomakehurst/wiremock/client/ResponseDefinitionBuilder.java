@@ -71,7 +71,24 @@ public class ResponseDefinitionBuilder {
     builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 
     if (builder.proxyBaseUrl != null) {
+<<<<<<< HEAD
       return createProxyResponseDefinitionBuilder(builder, responseDefinition);
+=======
+      ProxyResponseDefinitionBuilder proxyResponseDefinitionBuilder =
+          new ProxyResponseDefinitionBuilder(builder);
+      proxyResponseDefinitionBuilder.proxyUrlPrefixToRemove =
+          responseDefinition.getProxyUrlPrefixToRemove();
+      proxyResponseDefinitionBuilder.additionalRequestHeaders =
+          responseDefinition.getAdditionalProxyRequestHeaders() != null
+              ? (List<HttpHeader>) responseDefinition.getAdditionalProxyRequestHeaders().all()
+              : new ArrayList<>();
+      proxyResponseDefinitionBuilder.removeRequestHeaders =
+          responseDefinition.getRemoveProxyRequestHeaders() != null
+              ? responseDefinition.getRemoveProxyRequestHeaders()
+              : new ArrayList<>();
+
+      return proxyResponseDefinitionBuilder;
+>>>>>>> upstream/master
     }
 
     return builder;
@@ -235,6 +252,7 @@ public class ResponseDefinitionBuilder {
   public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
     private List<HttpHeader> additionalRequestHeaders = new ArrayList<>();
+    private List<String> removeRequestHeaders = new ArrayList<>();
 
     public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
       this.status = from.status;
@@ -257,6 +275,11 @@ public class ResponseDefinitionBuilder {
       return this;
     }
 
+    public ProxyResponseDefinitionBuilder withRemoveRequestHeader(String key) {
+      removeRequestHeaders.add(key.toLowerCase());
+      return this;
+    }
+
     public ProxyResponseDefinitionBuilder withProxyUrlPrefixToRemove(
         String proxyUrlPrefixToRemove) {
       this.proxyUrlPrefixToRemove = proxyUrlPrefixToRemove;
@@ -267,6 +290,7 @@ public class ResponseDefinitionBuilder {
     public ResponseDefinition build() {
       return super.build(
           !additionalRequestHeaders.isEmpty() ? new HttpHeaders(additionalRequestHeaders) : null,
+          !removeRequestHeaders.isEmpty() ? removeRequestHeaders : null,
           proxyUrlPrefixToRemove);
     }
   }
@@ -277,11 +301,13 @@ public class ResponseDefinitionBuilder {
   }
 
   public ResponseDefinition build() {
-    return build(null, null);
+    return build(null, null, null);
   }
 
   protected ResponseDefinition build(
-      HttpHeaders additionalProxyRequestHeaders, String proxyUrlPrefixToRemove) {
+      HttpHeaders additionalProxyRequestHeaders,
+      List<String> removeProxyRequestHeaders,
+      String proxyUrlPrefixToRemove) {
     HttpHeaders httpHeaders =
         headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
     Parameters transformerParameters =
@@ -295,6 +321,7 @@ public class ResponseDefinitionBuilder {
         bodyFileName,
         httpHeaders,
         additionalProxyRequestHeaders,
+        removeProxyRequestHeaders,
         fixedDelayMilliseconds,
         delayDistribution,
         chunkedDribbleDelay,

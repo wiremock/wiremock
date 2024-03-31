@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "WireMock",
-    "version": "3.4.2"
+    "version": "3.5.2"
   },
   "externalDocs": {
     "description": "WireMock user documentation",
@@ -207,6 +207,13 @@
                                   "additionalProxyRequestHeaders": {
                                     "type": "object",
                                     "description": "Extra request headers to send when proxying to another host."
+                                  },
+                                  "removeProxyRequestHeaders": {
+                                    "type": "array",
+                                    "description": "Request headers to remove when proxying to another host.",
+                                    "items": {
+                                      "type": "string"
+                                    }
                                   },
                                   "body": {
                                     "type": "string",
@@ -521,6 +528,13 @@
                             "type": "object",
                             "description": "Extra request headers to send when proxying to another host."
                           },
+                          "removeProxyRequestHeaders": {
+                            "type": "array",
+                            "description": "Request headers to remove when proxying to another host.",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
                           "body": {
                             "type": "string",
                             "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified."
@@ -779,6 +793,13 @@
                             "additionalProxyRequestHeaders": {
                               "type": "object",
                               "description": "Extra request headers to send when proxying to another host."
+                            },
+                            "removeProxyRequestHeaders": {
+                              "type": "array",
+                              "description": "Request headers to remove when proxying to another host.",
+                              "items": {
+                                "type": "string"
+                              }
                             },
                             "body": {
                               "type": "string",
@@ -1125,6 +1146,13 @@
                               "type": "object",
                               "description": "Extra request headers to send when proxying to another host."
                             },
+                            "removeProxyRequestHeaders": {
+                              "type": "array",
+                              "description": "Request headers to remove when proxying to another host.",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
                             "body": {
                               "type": "string",
                               "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified."
@@ -1400,6 +1428,13 @@
                             "type": "object",
                             "description": "Extra request headers to send when proxying to another host."
                           },
+                          "removeProxyRequestHeaders": {
+                            "type": "array",
+                            "description": "Request headers to remove when proxying to another host.",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
                           "body": {
                             "type": "string",
                             "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified."
@@ -1658,6 +1693,13 @@
                             "additionalProxyRequestHeaders": {
                               "type": "object",
                               "description": "Extra request headers to send when proxying to another host."
+                            },
+                            "removeProxyRequestHeaders": {
+                              "type": "array",
+                              "description": "Request headers to remove when proxying to another host.",
+                              "items": {
+                                "type": "string"
+                              }
                             },
                             "body": {
                               "type": "string",
@@ -2084,6 +2126,13 @@
                                   "additionalProxyRequestHeaders": {
                                     "type": "object",
                                     "description": "Extra request headers to send when proxying to another host."
+                                  },
+                                  "removeProxyRequestHeaders": {
+                                    "type": "array",
+                                    "description": "Request headers to remove when proxying to another host.",
+                                    "items": {
+                                      "type": "string"
+                                    }
                                   },
                                   "body": {
                                     "type": "string",
@@ -4145,6 +4194,13 @@
                                     "type": "object",
                                     "description": "Extra request headers to send when proxying to another host."
                                   },
+                                  "removeProxyRequestHeaders": {
+                                    "type": "array",
+                                    "description": "Request headers to remove when proxying to another host.",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
                                   "body": {
                                     "type": "string",
                                     "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified."
@@ -4768,6 +4824,13 @@
                                     "type": "object",
                                     "description": "Extra request headers to send when proxying to another host."
                                   },
+                                  "removeProxyRequestHeaders": {
+                                    "type": "array",
+                                    "description": "Request headers to remove when proxying to another host.",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
                                   "body": {
                                     "type": "string",
                                     "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified."
@@ -5326,6 +5389,13 @@
                         "additionalProxyRequestHeaders": {
                           "type": "object",
                           "description": "Extra request headers to send when proxying to another host."
+                        },
+                        "removeProxyRequestHeaders": {
+                          "type": "array",
+                          "description": "Request headers to remove when proxying to another host.",
+                          "items": {
+                            "type": "string"
+                          }
                         },
                         "body": {
                           "type": "string",
@@ -6163,6 +6233,13 @@
                         "additionalProxyRequestHeaders": {
                           "type": "object",
                           "description": "Extra request headers to send when proxying to another host."
+                        },
+                        "removeProxyRequestHeaders": {
+                          "type": "array",
+                          "description": "Request headers to remove when proxying to another host.",
+                          "items": {
+                            "type": "string"
+                          }
                         },
                         "body": {
                           "type": "string",
