@@ -25,8 +25,4 @@ public class FormParameter extends MultiValue {
       @JsonProperty("key") String key, @JsonProperty("values") List<String> values) {
     super(key, values);
   }
-
-  public static FormParameter absent(String key) {
-    return new FormParameter(key, Collections.emptyList());
-  }
 }

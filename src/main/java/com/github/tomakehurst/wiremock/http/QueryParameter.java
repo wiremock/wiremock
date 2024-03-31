@@ -33,10 +33,6 @@ public class QueryParameter extends MultiValue {
     return new QueryParameter(key, asList(values));
   }
 
-  public static QueryParameter absent(String key) {
-    return new QueryParameter(key, Collections.emptyList());
-  }
-
   @JsonIgnore
   @Override
   public boolean isPresent() {

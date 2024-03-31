@@ -246,14 +246,22 @@ public class LoggedRequest implements Request {
     return headers.keys();
   }
 
+  private QueryParameter absentqueryParameter(String key) {
+    return new QueryParameter(key, Collections.emptyList());
+  }
+
+  private FormParameter absentformParameter(String key) {
+    return new FormParameter(key, Collections.emptyList());
+  }
+
   @Override
   public QueryParameter queryParameter(String key) {
-    return getFirstNonNull(queryParams.get(key), QueryParameter.absent(key));
+    return getFirstNonNull(queryParams.get(key), absentqueryParameter(key));
   }
 
   @Override
   public FormParameter formParameter(String key) {
-    return getFirstNonNull(formParameters.get(key), FormParameter.absent(key));
+    return getFirstNonNull(formParameters.get(key), absentformParameter(key));
   }
 
   @Override
