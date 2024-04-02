@@ -524,13 +524,16 @@ public class HttpAdminClient implements Admin {
 
   private void verifyResponseStatus(String url, int responseStatusCode) {
     if (HttpStatus.isServerError(responseStatusCode)) {
-      throw new VerificationException(
-          "Expected status 2xx for " + url + " but was " + responseStatusCode);
+      throw new VerificationException(responseStatusErrorMessage(url, responseStatusCode));
     }
 
     if (responseStatusCode == 401) {
-      throw new NotAuthorisedException();
+      throw new NotAuthorisedException(responseStatusErrorMessage(url, responseStatusCode));
     }
+  }
+
+  private String responseStatusErrorMessage(String url, int responseStatusCode) {
+    return "Expected status 2xx for " + url + " but was " + responseStatusCode;
   }
 
   private String safelyExecuteRequest(String url, ClassicHttpRequest request) {
@@ -543,14 +546,42 @@ public class HttpAdminClient implements Admin {
 
       String body = getEntityAsStringAndCloseStream(response);
       if (HttpStatus.isClientError(statusCode)) {
-        Errors errors = Json.read(body, Errors.class);
-        throw ClientError.fromErrors(errors);
+        throwParsedClientError(url, body, statusCode);
       }
 
       return body;
     } catch (Exception e) {
       return throwUnchecked(e, String.class);
     }
+  }
+
+  private void throwParsedClientError(String url, String responseBody, int responseStatusCode) {
+    Errors errors;
+    try {
+      errors = Json.read(responseBody, Errors.class);
+    } catch (JsonException e) {
+      Errors.Error jsonError = e.getErrors().first();
+      String jsonErrorDetail = jsonError.getDetail();
+      String extendedDetail =
+          new StringBuilder()
+              .append("Error parsing response body '")
+              .append(responseBody)
+              .append("' with status code ")
+              .append(responseStatusCode)
+              .append(" for ")
+              .append(url)
+              .append(". Error: ")
+              .append(jsonErrorDetail)
+              .toString();
+      errors =
+          Errors.single(
+              jsonError.getCode(),
+              jsonError.getSource().getPointer(),
+              jsonError.getTitle(),
+              extendedDetail);
+    }
+
+    throw ClientError.fromErrors(errors);
   }
 
   private String urlFor(Class<? extends AdminTask> taskClass) {
