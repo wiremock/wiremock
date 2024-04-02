@@ -18,11 +18,15 @@ package com.github.tomakehurst.wiremock.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
@@ -90,5 +94,18 @@ public class HttpAdminClientTest {
     client.resetAll();
     client.resetAll();
     server.stop();
+  }
+
+  @Test
+  public void shouldThrowExceptionWithUrlForStubMappingFromNonWireMockServerPort()
+      throws IOException {
+    var nonWireMockServer = HttpServer.create(new InetSocketAddress(0), 0);
+    nonWireMockServer.start();
+    var serverPort = nonWireMockServer.getAddress().getPort();
+    var client = new HttpAdminClient("localhost", serverPort, ADMIN_TEST_PREFIX);
+    var mapping = post(urlPathMatching("/test")).willReturn(ok()).build();
+    var thrown = assertThrows(ClientError.class, () -> client.addStubMapping(mapping));
+    assertThat(thrown.getMessage()).contains("localhost:" + serverPort);
+    nonWireMockServer.stop(0);
   }
 }
