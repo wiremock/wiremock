@@ -22,7 +22,7 @@ plugins {
   id 'project-report'
   id 'com.diffplug.spotless' version '6.25.0'
   id 'com.github.johnrengelman.shadow' version '8.1.1'
-  id "org.sonarqube" version "4.4.1.3373"
+  id "org.sonarqube" version "5.0.0.4638"
   id 'jacoco'
   id "me.champeau.jmh" version "0.7.2"
 }
@@ -99,7 +99,7 @@ dependencies {
   api 'commons-fileupload:commons-fileupload:1.5',  {
     exclude group: 'commons-io', module: 'commons-io'
   }
-  api "commons-io:commons-io:2.15.1"
+  api "commons-io:commons-io:2.16.0"
 
   api 'com.networknt:json-schema-validator:1.4.0'
 
@@ -116,7 +116,7 @@ dependencies {
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.2.1'
-  testFixturesApi "commons-io:commons-io:2.15.1"
+  testFixturesApi "commons-io:commons-io:2.16.0"
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
@@ -204,7 +204,7 @@ allprojects {
     mavenCentral()
   }
 
-  version = '3.5.1'
+  version = '3.5.2'
 
   compileJava {
     options.encoding = 'UTF-8'
@@ -361,6 +361,9 @@ publishing {
       }
     }
   }
+
+  components.java.withVariantsFromConfiguration(configurations.testFixturesApiElements) { skip() }
+  components.java.withVariantsFromConfiguration(configurations.testFixturesRuntimeElements) { skip() }
 
   getComponents().withType(AdhocComponentWithVariants).each { c ->
     c.withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
