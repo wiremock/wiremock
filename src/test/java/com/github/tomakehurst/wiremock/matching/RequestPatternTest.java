@@ -512,6 +512,39 @@ public class RequestPatternTest {
   }
 
   @Test
+  public void doesNotMatchExactlyWhenManyMultipartPatternsSupposeToMatchAllDistinctParts() {
+    RequestPattern requestPattern =
+        newRequestPattern(POST, urlPathEqualTo("/my/url"))
+            .withAllRequestBodyParts(
+                aMultipart()
+                    .withHeader("Content-Type", containing("text/plain"))
+                    .withBody(containing("body value-1"))
+            )
+            .withAllRequestBodyParts(
+                aMultipart()
+                    .withHeader("Content-Type", containing("text/plain"))
+                    .withBody(containing("body value-2"))
+            )
+            .build();
+
+    MatchResult matchResult =
+        requestPattern.match(
+            mockRequest()
+                .method(POST)
+                .url("/my/url")
+                .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
+                .multipartBody(
+                    "--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n"
+                        + "body value-1\r\n"
+                        + "--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n"
+                        + "body value-2\r\n"
+                        + "--BOUNDARY--"));
+
+    assertThat("Distance > 0", matchResult.getDistance(), greaterThan(0.0d));
+    assertFalse(matchResult.isExactMatch(), "isExactMatch");
+  }
+
+  @Test
   public void matchesExactlyWhenAllCookiesMatch() {
     RequestPattern requestPattern =
         newRequestPattern(POST, urlPathEqualTo("/my/url"))

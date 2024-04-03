@@ -40,6 +40,11 @@ public class MultipartValuePatternBuilder {
     return this;
   }
 
+  public MultipartValuePatternBuilder withNameOnly(String name) {
+    this.name = name;
+    return this;
+  }
+
   public MultipartValuePatternBuilder withName(String name) {
     this.name = name;
     return withHeader("Content-Disposition", containing("name=\"" + name + "\""));

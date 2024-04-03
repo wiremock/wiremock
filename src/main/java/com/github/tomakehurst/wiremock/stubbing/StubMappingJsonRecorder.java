@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -100,9 +101,14 @@ public class StubMappingJsonRecorder implements RequestListener {
   private MultipartValuePattern valuePatternForPart(Request.Part part) {
     MultipartValuePatternBuilder builder =
         new MultipartValuePatternBuilder()
-            .withName(part.getName())
-            .matchingType(MultipartValuePattern.MatchingType.ALL);
+            .matchingType(MultipartValuePattern.MatchingType.ANY);
 
+    if (part.getHeader("Content-Disposition").isPresent()
+      && part.getHeader("Content-Disposition").hasValueMatching(containing("name=\"" + part.getName() + "\""))) {
+      builder.withName(part.getName());
+    } else {
+      builder.withNameOnly(part.getName());
+    }
     if (!headersToMatch.isEmpty()) {
       Collection<HttpHeader> all = part.getHeaders().all();
 
@@ -115,12 +121,14 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     HttpHeader contentType = part.getHeader("Content-Type");
 
-    if (!contentType.isPresent() || contentType.firstValue().contains("text")) {
+    if (!contentType.isPresent()) {
       builder.withBody(equalTo(part.getBody().asString()));
     } else if (contentType.firstValue().contains("json")) {
       builder.withBody(equalToJson(part.getBody().asString(), true, true));
     } else if (contentType.firstValue().contains("xml")) {
       builder.withBody(equalToXml(part.getBody().asString()));
+    } else if (contentType.firstValue().contains("text")) {
+      builder.withBody(equalTo(part.getBody().asString()));
     } else {
       builder.withBody(binaryEqualTo(part.getBody().asBytes()));
     }
