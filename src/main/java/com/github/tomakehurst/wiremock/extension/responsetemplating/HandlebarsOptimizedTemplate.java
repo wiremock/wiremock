@@ -21,8 +21,8 @@ import com.github.jknack.handlebars.Template;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.RequestCache;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
-import org.apache.commons.io.output.StringBuilderWriter;
 
 public class HandlebarsOptimizedTemplate {
 
@@ -45,9 +45,7 @@ public class HandlebarsOptimizedTemplate {
         templateContent =
             content.substring(
                 firstDelimStartPosition, lastDelimEndPosition + Handlebars.DELIM_END.length());
-        endContent =
-            content.substring(
-                lastDelimEndPosition + Handlebars.DELIM_END.length(), content.length());
+        endContent = content.substring(lastDelimEndPosition + Handlebars.DELIM_END.length());
       }
     }
 
@@ -72,7 +70,7 @@ public class HandlebarsOptimizedTemplate {
   private String applyTemplate(Context context) {
     return Exceptions.uncheck(
         () -> {
-          Writer stringWriter = new StringBuilderWriter(template.text().length() * 2);
+          Writer stringWriter = new StringWriter(template.text().length() * 2);
           template.apply(context, stringWriter);
           return stringWriter.toString();
         },

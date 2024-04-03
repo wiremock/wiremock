@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.lessThan;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
-import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -80,7 +79,7 @@ public class ResponseDribbleAcceptanceTest {
     long start = System.currentTimeMillis();
     ClassicHttpResponse response =
         httpClient.execute(new HttpGet(wireMockRule.url("/delayedDribble")));
-    byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
+    byte[] responseBody = response.getEntity().getContent().readAllBytes();
     int duration = (int) (System.currentTimeMillis() - start);
 
     assertThat(response.getCode(), is(200));
@@ -121,7 +120,7 @@ public class ResponseDribbleAcceptanceTest {
     long start = System.currentTimeMillis();
     ClassicHttpResponse response =
         httpClient.execute(new HttpGet(wireMockRule.url("/nonDelayedDribble")));
-    byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
+    byte[] responseBody = response.getEntity().getContent().readAllBytes();
     int duration = (int) (System.currentTimeMillis() - start);
 
     assertThat(response.getCode(), is(200));
