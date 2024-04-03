@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ import org.apache.commons.fileupload.util.Closeable;
 import org.apache.commons.fileupload.util.FileItemHeadersImpl;
 import org.apache.commons.fileupload.util.LimitedInputStream;
 import org.apache.commons.fileupload.util.Streams;
-import org.apache.commons.io.IOUtils;
 
 /**
  * The implementation is largely ported from {@link org.apache.commons.fileupload.FileUpload} and
@@ -103,7 +102,7 @@ class FileUpload {
    * @throws FileUploadException if there are problems reading/parsing the request or storing files.
    */
   public List<FileItem> parseRequest(RequestContext ctx) throws FileUploadException {
-    List<FileItem> items = new ArrayList<FileItem>();
+    List<FileItem> items = new ArrayList<>();
     boolean successful = false;
     try {
       FileItemIterator iter = getItemIterator(ctx);
@@ -580,7 +579,7 @@ class FileUpload {
               : contentLengthInt;
       // CHECKSTYLE:ON
 
-      InputStream input; // N.B. this is eventually closed in MultipartStream processing
+      ; // N.B. this is eventually closed in MultipartStream processing
       if (sizeMax >= 0) {
         if (requestSize != -1 && requestSize > sizeMax) {
           throw new SizeLimitExceededException(
@@ -590,50 +589,49 @@ class FileUpload {
               requestSize,
               sizeMax);
         }
-        // N.B. this is eventually closed in MultipartStream processing
-        input =
-            new LimitedInputStream(ctx.getInputStream(), sizeMax) {
-              @Override
-              protected void raiseError(long pSizeMax, long pCount) throws IOException {
-                FileUploadException ex =
-                    new SizeLimitExceededException(
-                        format(
-                            "the request was rejected because its size (%s) exceeds the configured maximum (%s)",
-                            pCount, pSizeMax),
-                        pCount,
-                        pSizeMax);
-                throw new FileUploadIOException(ex);
+      }
+
+      try (InputStream input =
+          sizeMax >= 0
+              ? new LimitedInputStream(ctx.getInputStream(), sizeMax) {
+                @Override
+                protected void raiseError(long pSizeMax, long pCount) throws IOException {
+                  FileUploadException ex =
+                      new SizeLimitExceededException(
+                          format(
+                              "the request was rejected because its size (%s) exceeds the configured maximum (%s)",
+                              pCount, pSizeMax),
+                          pCount,
+                          pSizeMax);
+                  throw new FileUploadIOException(ex);
+                }
               }
-            };
-      } else {
-        input = ctx.getInputStream();
-      }
+              : ctx.getInputStream()) {
+        String charEncoding = headerEncoding;
+        if (charEncoding == null) {
+          charEncoding = ctx.getCharacterEncoding();
+        }
 
-      String charEncoding = headerEncoding;
-      if (charEncoding == null) {
-        charEncoding = ctx.getCharacterEncoding();
-      }
+        boundary = getBoundary(contentType);
+        if (boundary == null) {
+          throw new FileUploadException(
+              "the request was rejected because no multipart boundary was found");
+        }
 
-      boundary = getBoundary(contentType);
-      if (boundary == null) {
-        IOUtils.closeQuietly(input); // avoid possible resource leak
-        throw new FileUploadException(
-            "the request was rejected because no multipart boundary was found");
-      }
+        try {
+          multi = new MultipartStream(input, boundary, 4096, null);
+        } catch (IllegalArgumentException iae) {
+          throw new InvalidContentTypeException(
+              format(
+                  "The boundary specified in the %s header is too long",
+                  FileUploadBase.CONTENT_TYPE),
+              iae);
+        }
+        multi.setHeaderEncoding(charEncoding);
 
-      try {
-        multi = new MultipartStream(input, boundary, 4096, null);
-      } catch (IllegalArgumentException iae) {
-        IOUtils.closeQuietly(input); // avoid possible resource leak
-        throw new InvalidContentTypeException(
-            format(
-                "The boundary specified in the %s header is too long", FileUploadBase.CONTENT_TYPE),
-            iae);
+        skipPreamble = true;
+        findNextItem();
       }
-      multi.setHeaderEncoding(charEncoding);
-
-      skipPreamble = true;
-      findNextItem();
     }
 
     /**

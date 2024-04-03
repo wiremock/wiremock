@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,12 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
-import org.apache.commons.io.FileUtils;
+import java.util.stream.Stream;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -42,7 +45,9 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   private static void resetFileSourceRoot() {
     try {
       if (FILE_SOURCE_ROOT.exists()) {
-        FileUtils.deleteDirectory(FILE_SOURCE_ROOT);
+        try (Stream<Path> pathStream = Files.walk(FILE_SOURCE_ROOT.toPath().toAbsolutePath())) {
+          pathStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        }
       }
       if (!FILES_DIRECTORY.mkdirs()) {
         throw new Exception("Could no create " + FILES_DIRECTORY.getAbsolutePath());
@@ -62,13 +67,13 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     resetFileSourceRoot();
     reset();
   }
 
   @Test
-  public void savesMappingsToMappingsDirectory() {
+  void savesMappingsToMappingsDirectory() {
     // Check the mapping we're about to add isn't already there
     WireMockResponse response = testClient.get("/some/url");
     assertThat(response.statusCode(), is(404));
@@ -89,7 +94,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void savedMappingIsDeletedFromTheDiskOnRemove() {
+  void savedMappingIsDeletedFromTheDiskOnRemove() {
     StubMapping stubMapping = stubFor(get("/delete/me").willReturn(ok()));
     saveAllMappings();
 
@@ -124,7 +129,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void doesNotDuplicateMappingsAlreadyPersistedToFileSystem() {
+  void doesNotDuplicateMappingsAlreadyPersistedToFileSystem() {
     // Check the mapping we're about to add isn't already there
     WireMockResponse response = testClient.get("/some/url");
     assertThat(response.statusCode(), is(404));
@@ -137,11 +142,11 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     saveAllMappings();
 
     // Check only one file has been written
-    assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
+    assertThat(Objects.requireNonNull(MAPPINGS_DIRECTORY.listFiles()).length, is(1));
   }
 
   @Test
-  public void doesNotDuplicateMappingsAlreadyPersistedAfterReset() {
+  void doesNotDuplicateMappingsAlreadyPersistedAfterReset() {
     // Check the mapping we're about to add isn't already there
     WireMockResponse response = testClient.get("/some/url");
     assertThat(response.statusCode(), is(404));
@@ -155,7 +160,7 @@ public class SavingMappingsAcceptanceTest extends AcceptanceTestBase {
     saveAllMappings();
 
     // Check only one file has been written
-    assertThat(MAPPINGS_DIRECTORY.listFiles().length, is(1));
+    assertThat(Objects.requireNonNull(MAPPINGS_DIRECTORY.listFiles()).length, is(1));
   }
 
   static final TypeSafeDiagnosingMatcher<StubMapping> IS_PERSISTENT =
