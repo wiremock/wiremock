@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPost
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.lessThan;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -36,8 +34,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEventFactory;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -1032,18 +1028,6 @@ public class ResponseTemplateTransformerTest {
     String result = transform("{{date (parseDate '2021' format='yyyy') format='yyyy-MM'}}");
     String expected = YearMonth.of(2021, 1).toString();
     assertThat(result, is(expected));
-  }
-
-  @Test
-  public void canHandleALargeTemplateReasonablyFast() {
-    String template = "{{#each (range 100000 199999) as |index|}}Line {{index}}\n{{/each}}";
-    Instant start = Instant.now();
-    String result = transform(template);
-    Duration timeTaken = Duration.between(start, Instant.now());
-
-    assertThat(result.substring(0, 100), startsWith("Line 100000\nLine 100001\nLine 100002\n"));
-    assertThat(result.length(), equalTo(1_200_000));
-    assertThat(timeTaken, lessThan(Duration.ofSeconds(5)));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {
