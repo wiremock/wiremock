@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
-  private static CollectingNetworkTrafficListener networkTrafficListener =
+  private static final CollectingNetworkTrafficListener networkTrafficListener =
       new CollectingNetworkTrafficListener();
 
   @BeforeAll
@@ -33,7 +33,7 @@ public class NetworkTrafficListenerAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void capturesRawTraffic() {
+  void capturesRawTraffic() {
     testClient.get("/a/non-registered/resource");
 
     assertThat(

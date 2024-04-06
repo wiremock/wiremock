@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class NearMissesRuleAcceptanceTest {
   @Nested
   class NearMissesRuleTest {
 
-    private TestNotifier testNotifier = new TestNotifier();
+    private final TestNotifier testNotifier = new TestNotifier();
 
     @RegisterExtension
     public WireMockExtension wm =
@@ -77,7 +77,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void logsUnmatchedRequestsAtErrorWithNearMisses() throws Exception {
+    void logsUnmatchedRequestsAtErrorWithNearMisses() {
       wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
       wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
 
@@ -95,7 +95,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void throwsVerificationExceptionIfSomeRequestsWentUnmatched() {
+    void throwsVerificationExceptionIfSomeRequestsWentUnmatched() {
       String message = runTestAndGetMessage(ManyUnmatchedRequestsTest.class);
 
       assertThat(message, containsString("2 requests were unmatched by any stub mapping"));
@@ -106,7 +106,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void throwsVerificationExceptionIfASingleRequestWentUnmatched() {
+    void throwsVerificationExceptionIfASingleRequestWentUnmatched() {
       String message = runTestAndGetMessage(SingleUnmatchedRequestTest.class);
       assertThat(
           message,
@@ -116,7 +116,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void shouldFindNearMatch() {
+    void shouldFindNearMatch() {
       Throwable exception =
           assertThrows(
               VerificationException.class,
@@ -183,7 +183,7 @@ public class NearMissesRuleAcceptanceTest {
     }
 
     @Test
-    public void successfullyCalculatesNearMissesWhenACustomMatcherIsRegistered() {
+    void successfullyCalculatesNearMissesWhenACustomMatcherIsRegistered() {
       wmeWithCustomMatcher.stubFor(requestMatching("always-match").willReturn(aResponse()));
 
       client.get("/");
