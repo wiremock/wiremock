@@ -586,7 +586,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     WireMockResponse response =
         testClient.postJson(
             "/__admin/mappings",
-                """
+            """
                         {
                             "request": {
                                 "headers": {
@@ -693,7 +693,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     WireMockResponse response =
         testClient.postJson(
             "/__admin/mappings",
-                """
+            """
                         {
                             "request": {
                                 "bodyPatterns": [
