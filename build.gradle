@@ -259,8 +259,8 @@ allprojects {
 test.classpath += sourceSets.main.compileClasspath + sourceSets.main.runtimeClasspath
 
 java {
-  sourceCompatibility = 11
-  targetCompatibility = 11
+  sourceCompatibility = 17
+  targetCompatibility = 17
   withSourcesJar()
   withJavadocJar()
 }

@@ -586,15 +586,16 @@ public class AdminApiTest extends AcceptanceTestBase {
     WireMockResponse response =
         testClient.postJson(
             "/__admin/mappings",
-            "{\n"
-                + "    \"request\": {\n"
-                + "        \"headers\": {\n"
-                + "            \"Accept\": {\n"
-                + "                \"matches\": \"%[[json[[\"\n"
-                + "            }\n"
-                + "        }\n"
-                + "    }\n"
-                + "}");
+                """
+                        {
+                            "request": {
+                                "headers": {
+                                    "Accept": {
+                                        "matches": "%[[json[["
+                                    }
+                                }
+                            }
+                        }""");
 
     assertThat(response.statusCode(), is(422));
 
@@ -692,15 +693,16 @@ public class AdminApiTest extends AcceptanceTestBase {
     WireMockResponse response =
         testClient.postJson(
             "/__admin/mappings",
-            "{\n"
-                + "    \"request\": {\n"
-                + "        \"bodyPatterns\": [\n"
-                + "            {\n"
-                + "                \"equalToJson\": \"(wrong)\"\n"
-                + "            }\n"
-                + "        ]\n"
-                + "    }\n"
-                + "}");
+                """
+                        {
+                            "request": {
+                                "bodyPatterns": [
+                                    {
+                                        "equalToJson": "(wrong)"
+                                    }
+                                ]
+                            }
+                        }""");
 
     assertThat(response.statusCode(), is(422));
 
