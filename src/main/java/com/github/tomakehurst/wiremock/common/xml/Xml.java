@@ -24,21 +24,17 @@ import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathFactory;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -54,26 +50,16 @@ public class Xml {
       String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
       String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
 
-      setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
-      setProperty(
+      System.setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
+      System.setProperty(
           XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
           xPathFactoryImpl);
 
       XMLUnit.setTransformerFactory(transformerFactoryImpl);
       XMLUnit.setXPathFactory(xPathFactoryImpl);
-    } catch (Throwable ignored) {
+    } catch (Exception ignored) {
       // Since this is just an optimisation, if an exception is thrown we do nothing and carry on
     }
-  }
-
-  private static String setProperty(final String name, final String value) {
-    return AccessController.doPrivileged(
-        new PrivilegedAction<String>() {
-          @Override
-          public String run() {
-            return System.setProperty(name, value);
-          }
-        });
   }
 
   public static String prettyPrint(String xml) {
@@ -128,31 +114,6 @@ public class Xml {
       throw XmlException.fromSaxException(e);
     } catch (Exception e) {
       return throwUnchecked(e, Document.class);
-    }
-  }
-
-  public static String toStringValue(Node node) {
-    switch (node.getNodeType()) {
-      case Node.TEXT_NODE:
-      case Node.ATTRIBUTE_NODE:
-        return node.getTextContent();
-      case Node.ELEMENT_NODE:
-        return render(node);
-      default:
-        return node.toString();
-    }
-  }
-
-  private static String render(Node node) {
-    try {
-      StringWriter sw = new StringWriter();
-      Transformer transformer = createTransformerFactory().newTransformer();
-      transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
-      transformer.setOutputProperty(INDENT, "yes");
-      transformer.transform(new DOMSource(node), new StreamResult(sw));
-      return sw.toString();
-    } catch (TransformerException e) {
-      return throwUnchecked(e, String.class);
     }
   }
 
@@ -213,14 +174,13 @@ public class Xml {
             });
 
     @Override
-    public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+    public DocumentBuilder newDocumentBuilder() {
       return DB_CACHE.get();
     }
 
     private static class ResolveToEmptyString implements EntityResolver {
       @Override
-      public InputSource resolveEntity(String publicId, String systemId)
-          throws SAXException, IOException {
+      public InputSource resolveEntity(String publicId, String systemId) {
         return new InputSource(new StringReader(""));
       }
     }
