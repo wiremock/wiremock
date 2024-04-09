@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,7 +157,9 @@ public abstract class AbstractFileSource implements FileSource {
         throw new NotAuthorisedException(
             "Access to file "
                 + path
-                + " is not permitted. An absolute path from the filesystem root might be specified");
+                + " is not permitted. An absolute path from the filesystem root might be specified. "
+                + "Your file must be in "
+                + rootDirectory.getAbsolutePath());
       }
     } catch (IOException ioe) {
       throw new NotAuthorisedException("File " + path + " cannot be accessed", ioe);
