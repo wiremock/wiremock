@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,17 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import org.junit.jupiter.api.Test;
 
-public class DiffTest {
+class DiffTest {
 
   @Test
-  public void correctlyRendersJUnitStyleDiffMessage() {
+  void correctlyRendersJUnitStyleDiffMessage() {
     String diff = junitStyleDiffMessage("expected", "actual");
 
     assertThat(diff, is(" expected:<\nexpected> but was:<\nactual>"));
   }
 
   @Test
-  public void showsDiffForNonMatchingRequestMethod() {
+  void showsDiffForNonMatchingRequestMethod() {
     Diff diff =
         new Diff(
             newRequestPattern(GET, urlEqualTo("/thing")).build(),
@@ -51,7 +51,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsDiffForUrlEqualTo() {
+  void showsDiffForUrlEqualTo() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/expected")).build(), mockRequest().url("/actual"));
@@ -61,7 +61,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsDiffForUrlPathMatching() {
+  void showsDiffForUrlPathMatching() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlPathMatching("/expected/.*")).build(),
@@ -73,7 +73,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsDiffsForSingleNonMatchingHeaderAndMatchingHeader() {
+  void showsDiffsForSingleNonMatchingHeaderAndMatchingHeader() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -102,7 +102,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsDiffWhenRequestHeaderIsAbsent() {
+  void showsDiffWhenRequestHeaderIsAbsent() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -119,7 +119,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsHeaders() {
+  void showsHeaders() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -136,7 +136,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsRequestBody() {
+  void showsRequestBody() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -186,7 +186,7 @@ public class DiffTest {
   }
 
   @Test
-  public void prettyPrintsJsonRequestBody() {
+  void prettyPrintsJsonRequestBody() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -227,7 +227,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsJsonPathExpectations() {
+  void showsJsonPathExpectations() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -270,7 +270,7 @@ public class DiffTest {
   }
 
   @Test
-  public void prettyPrintsXml() {
+  void prettyPrintsXml() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -316,7 +316,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsCookiesInDiffWhenNotMatching() {
+  void showsCookiesInDiffWhenNotMatching() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -333,7 +333,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsQueryParametersInDiffWhenNotMatching() {
+  void showsQueryParametersInDiffWhenNotMatching() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlPathEqualTo("/thing"))
@@ -350,7 +350,7 @@ public class DiffTest {
   }
 
   @Test
-  public void showsCookiesInDiffAbsentFromRequest() {
+  void showsCookiesInDiffAbsentFromRequest() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -367,7 +367,7 @@ public class DiffTest {
   }
 
   @Test
-  public void indicatesThatAnInlineCustomMatcherDidNotMatch() {
+  void indicatesThatAnInlineCustomMatcherDidNotMatch() {
     Diff diff =
         new Diff(
             newRequestPattern(GET, urlEqualTo("/thing"))
@@ -383,7 +383,7 @@ public class DiffTest {
   }
 
   @Test
-  public void indicatesThatANamedCustomMatcherDidNotMatch() {
+  void indicatesThatANamedCustomMatcherDidNotMatch() {
     Diff diff =
         new Diff(
             newRequestPattern(GET, urlEqualTo("/thing")).andMatching("my-custom-matcher").build(),
@@ -398,7 +398,7 @@ public class DiffTest {
   }
 
   @Test
-  public void handlesAbsentRequestBody() {
+  void handlesAbsentRequestBody() {
     Diff diff =
         new Diff(
             newRequestPattern(POST, urlEqualTo("/thing")).withRequestBody(absent()).build(),
@@ -413,7 +413,7 @@ public class DiffTest {
   }
 
   @Test
-  public void indicatesThatScenarioStateDiffersWhenStubAndRequestOtherwiseMatch() {
+  void indicatesThatScenarioStateDiffersWhenStubAndRequestOtherwiseMatch() {
     Diff diff =
         new Diff(
             get("/stateful")
@@ -433,7 +433,7 @@ public class DiffTest {
   }
 
   @Test
-  public void includesSpecificDiffForJsonPathSubMatchWhenElementFound() {
+  void includesSpecificDiffForJsonPathSubMatchWhenElementFound() {
     Diff diff =
         new Diff(
             post("/submatch")
@@ -451,7 +451,7 @@ public class DiffTest {
   }
 
   @Test
-  public void includesSpecificDiffForJsonPathSubMatchWhenElementNotFound() {
+  void includesSpecificDiffForJsonPathSubMatchWhenElementNotFound() {
     Diff diff =
         new Diff(
             post("/submatch")
@@ -469,7 +469,7 @@ public class DiffTest {
   }
 
   @Test
-  public void includeHostnameIfSpecifiedWithEqualTo() {
+  void includeHostnameIfSpecifiedWithEqualTo() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing")).withHost(equalTo("my.host")).build(),
@@ -483,7 +483,7 @@ public class DiffTest {
   }
 
   @Test
-  public void includeHostnameIfSpecifiedWithNonEqualTo() {
+  void includeHostnameIfSpecifiedWithNonEqualTo() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing")).withHost(containing("my.host")).build(),
@@ -498,7 +498,7 @@ public class DiffTest {
   }
 
   @Test
-  public void includePortIfSpecified() {
+  void includePortIfSpecified() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing")).withPort(5544).build(),
@@ -512,7 +512,7 @@ public class DiffTest {
   }
 
   @Test
-  public void includeSchemeIfSpecified() {
+  void includeSchemeIfSpecified() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing")).withScheme("https").build(),
@@ -526,7 +526,7 @@ public class DiffTest {
   }
 
   @Test
-  public void handleExceptionGettingExpressionResultDueToEmptyBody() {
+  void handleExceptionGettingExpressionResultDueToEmptyBody() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -543,7 +543,7 @@ public class DiffTest {
   }
 
   @Test
-  public void handleExceptionGettingExpressionResultDueToNonJson() {
+  void handleExceptionGettingExpressionResultDueToNonJson() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
