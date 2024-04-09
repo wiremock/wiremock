@@ -19,7 +19,6 @@ import static com.github.tomakehurst.wiremock.common.Strings.isEmpty;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
-import java.security.AccessControlException;
 
 public class SystemValueHelper extends HandlebarsHelper<Object> {
 
@@ -43,20 +42,15 @@ public class SystemValueHelper extends HandlebarsHelper<Object> {
 
     String rawValue = "";
 
-    try {
-      switch (type) {
-        case "ENVIRONMENT":
-          rawValue = getSystemEnvironment(key, defaultValue);
-          break;
-        case "PROPERTY":
-          rawValue = getSystemProperties(key, defaultValue);
-          break;
-      }
-      return rawValue;
-
-    } catch (AccessControlException e) {
-      return this.handleError("Access to " + key + " is denied");
+    switch (type) {
+      case "ENVIRONMENT":
+        rawValue = getSystemEnvironment(key, defaultValue);
+        break;
+      case "PROPERTY":
+        rawValue = getSystemProperties(key, defaultValue);
+        break;
     }
+    return rawValue;
   }
 
   private String getSystemEnvironment(final String key, final String defaultValue) {
