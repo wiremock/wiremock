@@ -252,7 +252,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
       MatchResult customMatchResult =
           requestMatcher.match(request, customMatcherDefinition.getParameters());
 
-      return MatchResult.aggregate(standardMatchResult, customMatchResult);
+      return new WeightedAggregateMatchResult(
+          List.of(
+              new WeightedMatchResult(standardMatchResult, 100.0),
+              new WeightedMatchResult(customMatchResult, 1.0)));
     }
 
     return standardMatchResult;

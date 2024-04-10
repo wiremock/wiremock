@@ -43,12 +43,15 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.FormParameter;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import java.util.HashMap;
@@ -677,6 +680,35 @@ class RequestPatternTest {
 
     String json = Json.write(requestPattern);
     JSONAssert.assertEquals(ALL_BODY_PATTERNS_EXAMPLE, json, true);
+  }
+
+  @Test
+  public void distanceIsNotHugelyBiasTowardsCustomMatcher() throws Exception {
+    RequestMatcherExtension customMatcher =
+        new RequestMatcherExtension() {
+          @Override
+          public String getName() {
+            return "custom matcher";
+          }
+
+          @Override
+          public MatchResult match(Request request, Parameters parameters) {
+            return MatchResult.noMatch();
+          }
+        };
+    RequestPattern requestPattern1 =
+        newRequestPattern(GET, urlPathEqualTo("/things"))
+            .andMatching(customMatcher.getName())
+            .build();
+    RequestPattern requestPattern2 =
+        newRequestPattern(GET, urlPathEqualTo("/thing"))
+            .andMatching(customMatcher.getName())
+            .build();
+
+    Request request = mockRequest().method(GET).url("/things");
+    MatchResult matchResult1 = requestPattern1.match(request);
+    MatchResult matchResult2 = requestPattern2.match(request);
+    assertThat(matchResult1.getDistance(), lessThan(matchResult2.getDistance()));
   }
 
   static Matcher<ContentPattern<?>> valuePattern(
