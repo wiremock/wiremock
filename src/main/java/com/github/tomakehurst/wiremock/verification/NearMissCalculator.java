@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ import static java.lang.Math.min;
 
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.MemoizingMatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class NearMissCalculator {
@@ -34,12 +36,22 @@ public class NearMissCalculator {
   private final StubMappings stubMappings;
   private final RequestJournal requestJournal;
   private final Scenarios scenarios;
+  private final Map<String, RequestMatcherExtension> customMatchers;
 
   public NearMissCalculator(
       StubMappings stubMappings, RequestJournal requestJournal, Scenarios scenarios) {
+    this(stubMappings, requestJournal, scenarios, Map.of());
+  }
+
+  public NearMissCalculator(
+      StubMappings stubMappings,
+      RequestJournal requestJournal,
+      Scenarios scenarios,
+      Map<String, RequestMatcherExtension> customMatchers) {
     this.stubMappings = stubMappings;
     this.requestJournal = requestJournal;
     this.scenarios = scenarios;
+    this.customMatchers = customMatchers;
   }
 
   public List<NearMiss> findNearestTo(final LoggedRequest request) {
@@ -50,7 +62,8 @@ public class NearMissCalculator {
             .map(
                 stubMapping -> {
                   MatchResult matchResult =
-                      new MemoizingMatchResult(stubMapping.getRequest().match(request));
+                      new MemoizingMatchResult(
+                          stubMapping.getRequest().match(request, customMatchers));
                   String actualScenarioState = getScenarioStateOrNull(stubMapping);
                   return new NearMiss(request, stubMapping, matchResult, actualScenarioState);
                 })
@@ -74,7 +87,8 @@ public class NearMissCalculator {
             .map(
                 serveEvent -> {
                   MatchResult matchResult =
-                      new MemoizingMatchResult(requestPattern.match(serveEvent.getRequest()));
+                      new MemoizingMatchResult(
+                          requestPattern.match(serveEvent.getRequest(), customMatchers));
                   return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
                 })
             .collect(Collectors.toList()),
