@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
-import com.github.tomakehurst.wiremock.common.ClientError;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -104,8 +104,17 @@ public class HttpAdminClientTest {
     var serverPort = nonWireMockServer.getAddress().getPort();
     var client = new HttpAdminClient("localhost", serverPort, ADMIN_TEST_PREFIX);
     var mapping = post(urlPathMatching("/test")).willReturn(ok()).build();
-    var thrown = assertThrows(ClientError.class, () -> client.addStubMapping(mapping));
-    assertThat(thrown.getMessage()).contains("localhost:" + serverPort);
+    var thrown = assertThrows(InvalidInputException.class, () -> client.addStubMapping(mapping));
+    assertThat(thrown.getErrors().getErrors()).hasSize(1);
+    var thrownError = thrown.getErrors().first();
+    assertThat(thrownError.getCode()).isEqualTo(10);
+    assertThat(thrownError.getTitle()).isEqualTo("Error parsing JSON");
+    assertThat(thrownError.getDetail())
+        .matches(
+            "Error parsing response body '(.|\n)*' with status code 404 for http://localhost:"
+                + serverPort
+                + "/admin-test/__admin/mappings. Error: (.|\n)*");
+
     nonWireMockServer.stop(0);
   }
 }
