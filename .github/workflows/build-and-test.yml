@@ -29,6 +29,10 @@ jobs:
       with:
         java-version: ${{ matrix.jdk }}
         distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        validate-wrappers: true
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
@@ -38,12 +42,6 @@ jobs:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
-    - name: Cache Gradle packages
-      uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-        restore-keys: ${{ runner.os }}-gradle
 
     - name: Test WireMock with Sonarqube
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.jdk == 17 && github.event_name == 'push' }}
@@ -83,6 +81,10 @@ jobs:
       with:
         java-version: ${{ matrix.jdk }}
         distribution: 'temurin'
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        validate-wrappers: true
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
@@ -92,12 +94,6 @@ jobs:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-jetty12-sonar
         restore-keys: ${{ runner.os }}-jetty12-sonar
-    - name: Cache Gradle packages
-      uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-jetty12-gradle-${{ hashFiles('**/*.gradle') }}
-        restore-keys: ${{ runner.os }}-jetty12-gradle
 
     - name: Test Jetty12 JAR
       if: ${{ !(matrix.os == 'ubuntu-latest' && github.event_name == 'push') }}
