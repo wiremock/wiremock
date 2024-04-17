@@ -697,5 +697,4 @@ class RequestPatternTest {
       }
     };
   }
-
 }
