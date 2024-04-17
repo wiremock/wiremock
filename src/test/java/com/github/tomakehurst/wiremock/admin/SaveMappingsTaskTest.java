@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import java.net.HttpURLConnection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
- class SaveMappingsTaskTest {
+class SaveMappingsTaskTest {
 
   private Admin mockAdmin = Mockito.mock(Admin.class);
   private Request mockRequest = mockRequest();
@@ -38,14 +38,14 @@ import org.mockito.Mockito;
   private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
   @Test
-   void delegatesSavingMappingsToAdmin() {
+  void delegatesSavingMappingsToAdmin() {
     saveMappingsTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 
     verify(mockAdmin).saveMappings();
   }
 
   @Test
-   void returnsOkResponse() {
+  void returnsOkResponse() {
     ResponseDefinition response =
         saveMappingsTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 

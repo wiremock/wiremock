@@ -29,7 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
- class WireMockClientAcceptanceTest {
+class WireMockClientAcceptanceTest {
 
   private WireMockServer wireMockServer;
   private WireMockTestClient testClient;
@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Test;
   }
 
   @Test
-   void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
+  void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
     WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
     wireMock.register(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
@@ -56,14 +56,14 @@ import org.junit.jupiter.api.Test;
   }
 
   @Test
-   void buildsMappingFromStaticSyntax() {
+  void buildsMappingFromStaticSyntax() {
     givenThat(get(urlEqualTo("/my/new/resource")).willReturn(aResponse().withStatus(304)));
 
     assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
   }
 
   @Test
-   void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
+  void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
     WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
     wireMock.register(
         get(urlEqualTo("/my/new/resource"))

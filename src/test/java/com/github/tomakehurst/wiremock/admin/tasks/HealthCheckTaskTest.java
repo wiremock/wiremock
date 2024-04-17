@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class HealthCheckTaskTest {
   private final HealthCheckTask healthCheckTask = new HealthCheckTask();
 
   @Test
-   void healthy() {
+  void healthy() {
     ResponseDefinition response =
         healthCheckTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 
