@@ -50,7 +50,15 @@ public abstract class MatchResult implements Comparable<MatchResult> {
 
   @JsonCreator
   public static MatchResult partialMatch(@JsonProperty("distance") double distance) {
-    return new EagerMatchResult(distance);
+    return partialMatch(distance, List.of());
+  }
+
+  public static MatchResult partialMatch(double distance, SubEvent... subEvents) {
+    return partialMatch(distance, List.of(subEvents));
+  }
+
+  public static MatchResult partialMatch(double distance, List<SubEvent> subEvents) {
+    return new EagerMatchResult(distance, subEvents);
   }
 
   public static MatchResult exactMatch(SubEvent... subEvents) {

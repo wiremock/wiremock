@@ -163,8 +163,8 @@ class RequestPatternTest {
 
     JSONAssert.assertEquals(
         "{									                \n"
-            + "		\"url\": \"/my/url\",               \n"
-            + "		\"method\": \"GET\"						    \n"
+            + "		\"method\": \"GET\",						\n"
+            + "		\"url\": \"/my/url\"                		\n"
             + "}												    ",
         actualJson,
         true);
@@ -178,8 +178,8 @@ class RequestPatternTest {
 
     JSONAssert.assertEquals(
         "{									                \n"
-            + "		\"urlPattern\": \"/my/url\",        \n"
-            + "		\"method\": \"GET\"						    \n"
+            + "		\"method\": \"GET\",						\n"
+            + "		\"urlPattern\": \"/my/url\"           		\n"
             + "}												    ",
         actualJson,
         true);
@@ -193,8 +193,8 @@ class RequestPatternTest {
 
     JSONAssert.assertEquals(
         "{									                \n"
-            + "		\"urlPathPattern\": \"/my/url\",    \n"
-            + "		\"method\": \"GET\"						    \n"
+            + "		\"method\": \"GET\",						\n"
+            + "		\"urlPathPattern\": \"/my/url\"             \n"
             + "}												    ",
         actualJson,
         true);
@@ -215,8 +215,8 @@ class RequestPatternTest {
 
   static final String URL_PATH_AND_HEADERS_EXAMPLE =
       "{									                \n"
-          + "		\"urlPath\": \"/my/url\",             		\n"
           + "		\"method\": \"GET\",						\n"
+          + "		\"urlPath\": \"/my/url\",             		\n"
           + "		\"headers\": {								\n"
           + "			\"Accept\": {							\n"
           + "				\"matches\": \"(.*)xml(.*)\"		\n"
@@ -266,9 +266,9 @@ class RequestPatternTest {
     String actualJson = Json.write(requestPattern);
 
     JSONAssert.assertEquals(
-        "{                         \n"
-            + "    \"urlPath\": \"/my/url\",  \n"
+        "{                              \n"
             + "    \"method\": \"GET\",       \n"
+            + "    \"urlPath\": \"/my/url\",  \n"
             + "    \"queryParameters\": {     \n"
             + "        \"param1\": {          \n"
             + "            \"equalTo\": \"1\" \n"
@@ -352,8 +352,8 @@ class RequestPatternTest {
 
   private String getFormParameterRequestPatternJson() {
     return "{                              \n"
-        + "    \"urlPath\": \"/my/url\",  \n"
         + "    \"method\": \"POST\",       \n"
+        + "    \"urlPath\": \"/my/url\",  \n"
         + "    \"formParameters\": {     \n"
         + "        \"key1\": {          \n"
         + "            \"equalTo\": \"value1\" \n"
@@ -698,24 +698,4 @@ class RequestPatternTest {
     };
   }
 
-  static Matcher<ContentPattern<?>> notValuePattern(
-      final Class<? extends StringValuePattern> patternClass,
-      final StringValuePattern unexpectedPattern) {
-    return new TypeSafeDiagnosingMatcher<>() {
-      @Override
-      protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
-        return item.getClass().equals(patternClass)
-            && item.getValue().equals(unexpectedPattern.expectedValue);
-      }
-
-      @Override
-      public void describeTo(Description description) {
-        description.appendText(
-            "a value pattern of type "
-                + patternClass.getSimpleName()
-                + " with expected value "
-                + unexpectedPattern.expectedValue);
-      }
-    };
-  }
 }

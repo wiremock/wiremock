@@ -657,4 +657,9 @@ public class RequestPattern implements NamedValueMatcher<Request> {
   public static Predicate<ServeEvent> withRequestMatching(final RequestPattern pattern) {
     return serveEvent -> pattern.match(serveEvent.getRequest()).isExactMatch();
   }
+
+  public static Predicate<ServeEvent> withRequestMatching(
+      final RequestPattern pattern, final Map<String, RequestMatcherExtension> customMatchers) {
+    return serveEvent -> pattern.match(serveEvent.getRequest(), customMatchers).isExactMatch();
+  }
 }

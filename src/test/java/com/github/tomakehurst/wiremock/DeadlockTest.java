@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2021 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
@@ -126,7 +124,11 @@ public class DeadlockTest {
 
   private String httpGetContent(HttpURLConnection connection) throws IOException {
     try (InputStream is = connection.getInputStream()) {
-      return IOUtils.toString(is, StandardCharsets.UTF_8);
+      StringBuilder sb = new StringBuilder();
+      for (int ch; (ch = is.read()) != -1; ) {
+        sb.append((char) ch);
+      }
+      return sb.toString();
     }
   }
 }

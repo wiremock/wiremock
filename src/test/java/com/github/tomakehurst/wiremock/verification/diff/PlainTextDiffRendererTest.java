@@ -49,7 +49,7 @@ class PlainTextDiffRendererTest {
   PlainTextDiffRenderer diffRenderer;
 
   @BeforeEach
-  public void init() {
+  void init() {
     diffRenderer =
         new PlainTextDiffRenderer(
             Collections.singletonMap("my-custom-matcher", new MyCustomMatcher()));
@@ -91,7 +91,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void rendersWithDifferingCookies() {
+  void rendersWithDifferingCookies() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -112,7 +112,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void rendersWithDifferingQueryParameters() {
+  void rendersWithDifferingQueryParameters() {
     Diff diff =
         new Diff(
             get(urlPathEqualTo("/thing"))
@@ -130,7 +130,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void rendersWithDifferingFormParameters() {
+  void rendersWithDifferingFormParameters() {
     Diff diff =
         new Diff(
             put(urlPathEqualTo("/thing"))
@@ -160,7 +160,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void wrapsLargeJsonBodiesAppropriately() {
+  void wrapsLargeJsonBodiesAppropriately() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -219,7 +219,7 @@ class PlainTextDiffRendererTest {
 
   @Test
   @DisabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
-  public void wrapsLargeXmlBodiesAppropriatelyJre8() {
+  void wrapsLargeXmlBodiesAppropriatelyJre8() {
     String output = wrapsLargeXmlBodiesAppropriately();
     assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre8.txt")));
   }
@@ -227,7 +227,7 @@ class PlainTextDiffRendererTest {
   @Test
   @EnabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
   @DisabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
-  public void wrapsLargeXmlBodiesAppropriatelyJre11() {
+  void wrapsLargeXmlBodiesAppropriatelyJre11() {
     String output = wrapsLargeXmlBodiesAppropriately();
     assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml_jre11.txt")));
   }
@@ -235,7 +235,7 @@ class PlainTextDiffRendererTest {
   @Test
   @EnabledForJreRange(min = JRE.JAVA_11, disabledReason = "Wrap differs per JRE")
   @EnabledOnOs(value = OS.WINDOWS, disabledReason = "Wrap differs per OS")
-  public void wrapsLargeXmlBodiesAppropriatelyJre11Windows() {
+  void wrapsLargeXmlBodiesAppropriatelyJre11Windows() {
     String output = wrapsLargeXmlBodiesAppropriately();
 
     String expected = file("not-found-diff-sample_large_xml_jre11_windows.txt");
@@ -294,7 +294,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsMissingHeaderMessage() {
+  void showsMissingHeaderMessage() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -310,7 +310,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsJsonPathMismatch() {
+  void showsJsonPathMismatch() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -344,7 +344,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsXPathWithSubMatchMismatch() {
+  void showsXPathWithSubMatchMismatch() {
     Diff diff =
         new Diff(
             post("/thing").withRequestBody(matchingXPath("//thing/text()", equalTo("two"))).build(),
@@ -361,7 +361,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsUrlRegexUnescapedMessage() {
+  void showsUrlRegexUnescapedMessage() {
     Diff diff =
         new Diff(
             get(urlMatching("thing?query=value")).build(), mockRequest().method(GET).url("/thing"));
@@ -373,7 +373,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsUrlTemplateNonMatchMessage() {
+  void showsUrlTemplateNonMatchMessage() {
     Diff diff =
         new Diff(
             get(urlPathTemplate("/contacts/{contactId}")).build(),
@@ -386,7 +386,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsUrlPathParametersNonMatchMessage() {
+  void showsUrlPathParametersNonMatchMessage() {
     Diff diff =
         new Diff(
             get(urlPathTemplate("/contacts/{contactId}"))
@@ -401,7 +401,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsMultipartDifference() {
+  void showsMultipartDifference() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -434,7 +434,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenMultipartExpectedButNotSent() {
+  void showsErrorInDiffWhenMultipartExpectedButNotSent() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -453,7 +453,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenInlineCustomMatcherNotSatisfiedInMixedStub() {
+  void showsErrorInDiffWhenInlineCustomMatcherNotSatisfiedInMixedStub() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -469,7 +469,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenNamedCustomMatcherNotSatisfiedInMixedStub() {
+  void showsErrorInDiffWhenNamedCustomMatcherNotSatisfiedInMixedStub() {
     Diff diff =
         new Diff(
             post("/thing")
@@ -486,7 +486,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenExactMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
+  void showsErrorInDiffWhenExactMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
     Diff diff =
         new Diff(
             get(urlPathEqualTo("/thing")).withQueryParam("q", havingExactly("1", "2", "3")).build(),
@@ -500,7 +500,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenIncludesMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
+  void showsErrorInDiffWhenIncludesMatchForMultipleValuesInQueryParamNotSatisfiedInStub() {
     Diff diff =
         new Diff(
             get(urlPathEqualTo("/thing")).withQueryParam("q", including("1", "2", "3")).build(),
@@ -514,7 +514,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenExactMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
+  void showsErrorInDiffWhenExactMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
     Diff diff =
         new Diff(
             get(urlPathEqualTo("/thing")).withHeader("q", havingExactly("1", "2", "3")).build(),
@@ -527,7 +527,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenIncludesMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
+  void showsErrorInDiffWhenIncludesMatchForMultipleValuesInHeaderNotSatisfiedInStub() {
     Diff diff =
         new Diff(
             get(urlPathEqualTo("/thing")).withHeader("q", including("1", "2", "3")).build(),
@@ -540,7 +540,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
+  void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
     Diff diff =
         new Diff(
             requestMatching(value -> MatchResult.noMatch()).build(),
@@ -553,7 +553,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void handlesUrlsWithQueryStringAndNoPath() {
+  void handlesUrlsWithQueryStringAndNoPath() {
     Diff diff =
         new Diff(
             newRequestPattern(GET, urlMatching("/?q=correct")).build(),
@@ -561,6 +561,8 @@ class PlainTextDiffRendererTest {
 
     String output = diffRenderer.render(diff);
     System.out.println(output);
+
+    assertThat(output, equalsMultiLine(file("not-found-diff-sample_no-path.txt")));
   }
 
   @Test
@@ -584,7 +586,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenBodyIsEmptyAndPathExpressionResult() {
+  void showsErrorInDiffWhenBodyIsEmptyAndPathExpressionResult() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
@@ -600,7 +602,7 @@ class PlainTextDiffRendererTest {
   }
 
   @Test
-  public void showsErrorInDiffWhenBodyIsNotJsonAndPathExpressionResult() {
+  void showsErrorInDiffWhenBodyIsNotJsonAndPathExpressionResult() {
     Diff diff =
         new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
