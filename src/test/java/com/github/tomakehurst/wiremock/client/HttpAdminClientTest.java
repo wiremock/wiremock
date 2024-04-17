@@ -18,11 +18,15 @@ package com.github.tomakehurst.wiremock.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.admin.model.GetScenariosResult;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.List;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
@@ -90,5 +94,27 @@ public class HttpAdminClientTest {
     client.resetAll();
     client.resetAll();
     server.stop();
+  }
+
+  @Test
+  public void shouldThrowExceptionWithUrlForStubMappingFromNonWireMockServerPort()
+      throws IOException {
+    var nonWireMockServer = HttpServer.create(new InetSocketAddress(0), 0);
+    nonWireMockServer.start();
+    var serverPort = nonWireMockServer.getAddress().getPort();
+    var client = new HttpAdminClient("localhost", serverPort, ADMIN_TEST_PREFIX);
+    var mapping = post(urlPathMatching("/test")).willReturn(ok()).build();
+    var thrown = assertThrows(InvalidInputException.class, () -> client.addStubMapping(mapping));
+    assertThat(thrown.getErrors().getErrors()).hasSize(1);
+    var thrownError = thrown.getErrors().first();
+    assertThat(thrownError.getCode()).isEqualTo(10);
+    assertThat(thrownError.getTitle()).isEqualTo("Error parsing JSON");
+    assertThat(thrownError.getDetail())
+        .matches(
+            "Error parsing response body '(.|\n)*' with status code 404 for http://localhost:"
+                + serverPort
+                + "/admin-test/__admin/mappings. Error: (.|\n)*");
+
+    nonWireMockServer.stop(0);
   }
 }
