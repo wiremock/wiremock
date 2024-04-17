@@ -870,7 +870,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void matchesQueryCharactersThatStriclyShouldBeEscapedInEitherForm() {
+  void matchesQueryCharactersThatStriclyShouldBeEscapedInEitherForm() {
     stubFor(
         get(urlPathEqualTo("/test")).withQueryParam("filter[id]", equalTo("1")).willReturn(ok()));
 
