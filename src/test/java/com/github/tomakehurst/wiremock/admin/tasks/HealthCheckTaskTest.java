@@ -36,7 +36,7 @@ class HealthCheckTaskTest {
   private final HealthCheckTask healthCheckTask = new HealthCheckTask();
 
   @Test
-  public void healthy() {
+   void healthy() {
     ResponseDefinition response =
         healthCheckTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 

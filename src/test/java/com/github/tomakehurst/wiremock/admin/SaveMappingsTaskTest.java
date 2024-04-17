@@ -30,7 +30,7 @@ import java.net.HttpURLConnection;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class SaveMappingsTaskTest {
+ class SaveMappingsTaskTest {
 
   private Admin mockAdmin = Mockito.mock(Admin.class);
   private Request mockRequest = mockRequest();
@@ -38,14 +38,14 @@ public class SaveMappingsTaskTest {
   private SaveMappingsTask saveMappingsTask = new SaveMappingsTask();
 
   @Test
-  public void delegatesSavingMappingsToAdmin() {
+   void delegatesSavingMappingsToAdmin() {
     saveMappingsTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 
     verify(mockAdmin).saveMappings();
   }
 
   @Test
-  public void returnsOkResponse() {
+   void returnsOkResponse() {
     ResponseDefinition response =
         saveMappingsTask.execute(mockAdmin, ServeEvent.of(mockRequest), PathParams.empty());
 

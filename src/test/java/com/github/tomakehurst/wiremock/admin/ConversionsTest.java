@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class ConversionsTest {
+ class ConversionsTest {
 
   @Test
   void mapsValidFirstParameterValueAsDate() {

@@ -64,7 +64,7 @@ class JUnit4DetectionTest {
       describe(
           "exclude WireMockJUnitRuleTest",
           clazz ->
-              !excluded.stream().anyMatch(excl -> clazz.getName().contains(excl.getSimpleName())));
+                  excluded.stream().noneMatch(excl -> clazz.getName().contains(excl.getSimpleName())));
 
   private static final String REASON = "we want to migrate to JUnit Jupiter";
 

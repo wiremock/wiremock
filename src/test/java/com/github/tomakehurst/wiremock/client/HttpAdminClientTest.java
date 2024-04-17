@@ -32,18 +32,18 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-public class HttpAdminClientTest {
+ class HttpAdminClientTest {
   private static final String ADMIN_TEST_PREFIX = "/admin-test";
 
   @Test
-  public void returnsOptionsWhenCallingGetOptions() {
+   void returnsOptionsWhenCallingGetOptions() {
     var client = new HttpAdminClient("localhost", 8080);
     assertThat(client.getOptions().portNumber()).isEqualTo(8080);
     assertThat(client.getOptions().bindAddress()).isEqualTo("localhost");
   }
 
   @Test
-  public void shouldSendEmptyRequestForResetToDefaultMappings() {
+   void shouldSendEmptyRequestForResetToDefaultMappings() {
     var server = new WireMockServer(options().dynamicPort());
     server.start();
     server.addStubMapping(
@@ -57,7 +57,7 @@ public class HttpAdminClientTest {
   }
 
   @Test
-  public void shouldSendEmptyRequestForResetAll() {
+   void shouldSendEmptyRequestForResetAll() {
     var server = new WireMockServer(options().dynamicPort());
     server.start();
     server.addStubMapping(
@@ -71,7 +71,7 @@ public class HttpAdminClientTest {
   }
 
   @Test
-  public void shouldNotSendEntityForGetAllScenarios() {
+   void shouldNotSendEntityForGetAllScenarios() {
     var server = new WireMockServer(options().dynamicPort());
     server.start();
     var expectedResponse = new GetScenariosResult(List.of(Scenario.inStartedState("scn1")));
@@ -86,7 +86,7 @@ public class HttpAdminClientTest {
   }
 
   @Test
-  public void reuseConnections() throws InterruptedException, IOException {
+   void reuseConnections() throws InterruptedException, IOException {
     var server = new SingleConnectionServer();
     server.start();
     var client = new HttpAdminClient("localhost", server.getPort(), ADMIN_TEST_PREFIX);
@@ -97,7 +97,7 @@ public class HttpAdminClientTest {
   }
 
   @Test
-  public void shouldThrowExceptionWithUrlForStubMappingFromNonWireMockServerPort()
+   void shouldThrowExceptionWithUrlForStubMappingFromNonWireMockServerPort()
       throws IOException {
     var nonWireMockServer = HttpServer.create(new InetSocketAddress(0), 0);
     nonWireMockServer.start();

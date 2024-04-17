@@ -22,10 +22,10 @@ import java.security.Key;
 import java.security.KeyStore;
 import org.junit.jupiter.api.Test;
 
-public class KeyStoreSourceTest {
+ class KeyStoreSourceTest {
 
   @Test
-  public void loadsAPasswordProtectedJksKeyStore() throws Exception {
+   void loadsAPasswordProtectedJksKeyStore() throws Exception {
     KeyStoreSource keyStoreSource =
         new ReadOnlyFileOrClasspathKeyStoreSource(
             "test-keystore-pwd", "jks", "nondefaultpass".toCharArray());
