@@ -25,6 +25,8 @@ import java.util.function.Supplier;
 
 public class RequestCache {
 
+  private static volatile boolean disabled = false;
+
   private static RequestCache OFF =
       new RequestCache() {
         @Override
@@ -41,24 +43,29 @@ public class RequestCache {
         }
       };
 
-  private static final ThreadLocal<RequestCache> current = new ThreadLocal<>();
+  private static final ThreadLocal<RequestCache> current =
+      ThreadLocal.withInitial(() -> disabled ? OFF : new RequestCache());
 
   public static RequestCache getCurrent() {
-    RequestCache requestCache = current.get();
-    if (requestCache == null) {
-      requestCache = new RequestCache();
-      current.set(requestCache);
-    }
+    return current.get();
+  }
 
-    return requestCache;
+  public static void setCurrent(RequestCache requestCache) {
+    current.set(requestCache);
   }
 
   public static void onRequestEnd() {
     current.remove();
   }
 
+  public static void enable() {
+    disabled = false;
+    current.remove();
+  }
+
   public static void disable() {
-    current.set(OFF);
+    disabled = true;
+    current.remove();
   }
 
   private final Map<Key, Object> cache = new HashMap<>();
