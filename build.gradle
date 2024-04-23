@@ -96,7 +96,10 @@ dependencies {
     exclude group: 'org.apache.commons', module: 'commons-lang3'
   }
 
-  api 'commons-fileupload:commons-fileupload:1.5'
+  api 'commons-fileupload:commons-fileupload:1.5',  {
+    exclude group: 'commons-io', module: 'commons-io'
+  }
+  api 'commons-io:commons-io:2.16.1'
 
   api 'com.networknt:json-schema-validator:1.4.0'
 
@@ -113,7 +116,6 @@ dependencies {
   testFixturesApi "org.skyscreamer:jsonassert:1.5.1"
   testFixturesApi 'com.toomuchcoding.jsonassert:jsonassert:0.8.0'
   testFixturesApi 'org.awaitility:awaitility:4.2.1'
-  testFixturesApi "commons-io:commons-io:2.16.1"
 
   testImplementation "junit:junit:4.13.2"
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
