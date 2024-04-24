@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.security.KeyStore;
 import org.junit.jupiter.api.Test;
 
-public class KeyStoreSettingsTest {
+class KeyStoreSettingsTest {
 
   @Test
-  public void loadsTrustStoreFromClasspath() {
+  void loadsTrustStoreFromClasspath() {
     KeyStoreSettings trustStoreSettings =
         new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jks");
 
@@ -34,7 +34,7 @@ public class KeyStoreSettingsTest {
   }
 
   @Test
-  public void loadsTrustStoreOfTypeJCEKS() {
+  void loadsTrustStoreOfTypeJCEKS() {
     KeyStoreSettings trustStoreSettings =
         new KeyStoreSettings(JCEKS_TRUST_STORE_NAME, TRUST_STORE_PASSWORD, "jceks");
 
@@ -43,7 +43,7 @@ public class KeyStoreSettingsTest {
   }
 
   @Test
-  public void loadsTrustStoreFromFilesystem() {
+  void loadsTrustStoreFromFilesystem() {
     KeyStoreSettings trustStoreSettings =
         new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD, "jks");
 
@@ -52,7 +52,7 @@ public class KeyStoreSettingsTest {
   }
 
   @Test
-  public void failsWhenTrustStoreNotFound() {
+  void failsWhenTrustStoreNotFound() {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
