@@ -43,6 +43,7 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class CommandLineOptionsTest {
@@ -804,6 +805,17 @@ public class CommandLineOptionsTest {
   void testProxyPassThroughOptionDefaultToTrue() {
     CommandLineOptions options = new CommandLineOptions();
     assertTrue(options.getStores().getSettingsStore().get().getProxyPassThrough());
+  }
+
+  @Test
+  void configuresProxyEncodings() {
+    CommandLineOptions options =
+        new CommandLineOptions("--supported-proxy-encodings", "gzip,deflate");
+
+    Set<String> supportedProxyEncodings = options.getSupportedProxyEncodings();
+
+    assertThat(supportedProxyEncodings.size(), is(2));
+    assertThat(supportedProxyEncodings, hasItems("gzip", "deflate"));
   }
 
   public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
