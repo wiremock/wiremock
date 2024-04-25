@@ -189,6 +189,7 @@ public class WireMatchers {
     };
   }
 
+  @SafeVarargs
   public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
     return new TypeSafeMatcher<>() {
 

@@ -152,7 +152,5 @@ public interface Options {
 
   boolean getTemplateEscapingDisabled();
 
-  default Set<String> getSupportedProxyEncodings() {
-    return null;
-  }
+  Set<String> getSupportedProxyEncodings();
 }
