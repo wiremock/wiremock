@@ -127,6 +127,7 @@ public class CommandLineOptions implements Options {
   private static final String PROXY_TIMEOUT = "proxy-timeout";
 
   private static final String PROXY_PASS_THROUGH = "proxy-pass-through";
+  private static final String SUPPORTED_PROXY_ENCODINGS = "supported-proxy-encodings";
 
   private final OptionSet optionSet;
 
@@ -370,7 +371,7 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(
             DENY_PROXY_TARGETS,
-            "Comma separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
+            "Comma-separated list of IP addresses, IP ranges (hyphenated) and domain name wildcards that cannot be proxied to/recorded from. Is evaluated after the list of allowed addresses.")
         .withRequiredArg();
     optionParser
         .accepts(PROXY_TIMEOUT, "Timeout in milliseconds for requests to proxy")
@@ -378,6 +379,14 @@ public class CommandLineOptions implements Options {
     optionParser
         .accepts(PROXY_PASS_THROUGH, "Flag to control browser proxy pass through")
         .withRequiredArg();
+    optionParser
+        .accepts(
+            SUPPORTED_PROXY_ENCODINGS,
+            "Comma-separated list of supported accept-encoding values for use when proxying and recording")
+        .withRequiredArg()
+        .ofType(String.class)
+        .withValuesSeparatedBy(",");
+
     optionParser.accepts(VERSION, "Prints wiremock version information and exits");
 
     optionParser.accepts(HELP, "Print this message").forHelp();
@@ -994,6 +1003,14 @@ public class CommandLineOptions implements Options {
   @Override
   public boolean getTemplateEscapingDisabled() {
     return true;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<String> getSupportedProxyEncodings() {
+    return optionSet.has(SUPPORTED_PROXY_ENCODINGS)
+        ? Set.copyOf((List<String>) optionSet.valuesOf(SUPPORTED_PROXY_ENCODINGS))
+        : null;
   }
 
   private boolean isAsynchronousResponseEnabled() {
