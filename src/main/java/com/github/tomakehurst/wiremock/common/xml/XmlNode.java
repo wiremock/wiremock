@@ -20,24 +20,16 @@ import static javax.xml.transform.OutputKeys.INDENT;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
-import java.io.StringWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathEvaluationResult;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.XMLReader;
 
-public class XmlNode {
+public abstract class XmlNode {
 
   protected static final ThreadLocal<XPath> XPATH_CACHE =
       ThreadLocal.withInitial(
@@ -74,106 +66,25 @@ public class XmlNode {
             }
           });
 
-  private static final Class<XMLReader> DOM2SAX_XMLREADER_CLASS = getDom2SaxAvailability();
+  public abstract Map<String, String> getAttributes();
 
-  private static Class<XMLReader> getDom2SaxAvailability() {
-    try {
-      return (Class<XMLReader>)
-          Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.DOM2SAX");
-    } catch (ClassNotFoundException e) {
-      return null;
-    }
-  }
+  @SuppressWarnings("unchecked")
+  protected static ListOrSingle<XmlNode> toListOrSingle(XPathEvaluationResult<?> evaluationResult) {
+    ListOrSingle<XmlNode> xmlNodes = new ListOrSingle<>();
 
-  private final Node domNode;
-  private final Map<String, String> attributes;
-
-  public XmlNode(Node domNode) {
-    this.domNode = domNode;
-    attributes =
-        domNode.hasAttributes()
-            ? convertAttributeMap(domNode.getAttributes())
-            : Collections.emptyMap();
-  }
-
-  private static Map<String, String> convertAttributeMap(NamedNodeMap namedNodeMap) {
-    Map<String, String> map = new HashMap<>();
-    for (int i = 0; i < namedNodeMap.getLength(); i++) {
-      Node node = namedNodeMap.item(i);
-      map.put(node.getNodeName(), node.getNodeValue());
-    }
-
-    return Collections.unmodifiableMap(map);
-  }
-
-  public Map<String, String> getAttributes() {
-    return attributes;
-  }
-
-  protected static ListOrSingle<XmlNode> toListOrSingle(NodeList nodeList) {
-    ListOrSingle<XmlNode> nodes = new ListOrSingle<>();
-    for (int i = 0; i < nodeList.getLength(); i++) {
-      nodes.add(new XmlNode(nodeList.item(i)));
-    }
-
-    return nodes;
-  }
-
-  public String getName() {
-    return domNode.getNodeName();
-  }
-
-  public String getText() {
-    return domNode.getTextContent();
-  }
-
-  @Override
-  public String toString() {
-    switch (domNode.getNodeType()) {
-      case Node.TEXT_NODE:
-      case Node.ATTRIBUTE_NODE:
-        return domNode.getTextContent();
-      case Node.DOCUMENT_NODE:
-      case Node.ELEMENT_NODE:
-        return render();
+    switch (evaluationResult.type()) {
+      case NODESET:
+        Iterable<Node> nodes = (Iterable<Node>) evaluationResult.value();
+        nodes.forEach(node -> xmlNodes.add(new XmlDomNode(node)));
+        break;
+      case NODE:
+        xmlNodes.add(new XmlDomNode((Node) evaluationResult.value()));
+        break;
       default:
-        return domNode.toString();
-    }
-  }
-
-  private String render() {
-    try {
-      Transformer transformer = TRANSFORMER_CACHE.get();
-      StreamResult result = new StreamResult(new StringWriter());
-      Source source = getSourceForTransform(domNode);
-      transformer.transform(source, result);
-      return result.getWriter().toString();
-    } catch (Exception e) {
-      return throwUnchecked(e, String.class);
-    }
-  }
-
-  // This nasty little hack attempts to ensure no exception is thrown when attempting to print an
-  // XML node with
-  // unbound namespace prefixes (which can happen when you've selected an element via XPath whose
-  // namespaces are declared in a parent element).
-  // For some reason Transformer is happy to do this with a SAX source, but not a DOM source.
-  private static Source getSourceForTransform(Node node) {
-    if (DOM2SAX_XMLREADER_CLASS != null) {
-      try {
-        Constructor<XMLReader> constructor = DOM2SAX_XMLREADER_CLASS.getConstructor(Node.class);
-        XMLReader dom2SAX = constructor.newInstance(node);
-        SAXSource saxSource = new SAXSource();
-        saxSource.setXMLReader(dom2SAX);
-        return saxSource;
-      } catch (NoSuchMethodException
-          | InstantiationException
-          | IllegalAccessException
-          | InvocationTargetException e) {
-        return new DOMSource(node);
-      }
+        xmlNodes.add(new XmlPrimitiveNode<>(evaluationResult.value()));
+        break;
     }
 
-    return new DOMSource(node);
+    return xmlNodes;
   }
 }

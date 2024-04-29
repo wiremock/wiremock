@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 Thomas Akehurst
+ * Copyright (C) 2020-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common.xml;
 
-import static javax.xml.xpath.XPathConstants.NODESET;
-
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,12 +22,12 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathEvaluationResult;
 import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xmlunit.util.Convert;
 
-public class XmlDocument extends XmlNode {
+public class XmlDocument extends XmlDomNode {
 
   private final Document document;
 
@@ -47,20 +45,19 @@ public class XmlDocument extends XmlNode {
       final XPath xPath = XPATH_CACHE.get();
       xPath.reset();
 
-      NodeList nodeSet;
+      XPathEvaluationResult<?> xPathEvaluationResult;
       if (namespaces != null) {
         Map<String, String> fullNamespaces = addStandardNamespaces(namespaces);
         NamespaceContext namespaceContext = Convert.toNamespaceContext(fullNamespaces);
         xPath.setNamespaceContext(namespaceContext);
-        nodeSet =
-            (NodeList)
-                xPath.evaluate(
-                    xPathExpression, Convert.toInputSource(new DOMSource(document)), NODESET);
+        xPathEvaluationResult =
+            xPath.evaluateExpression(
+                xPathExpression, Convert.toInputSource(new DOMSource(document)));
       } else {
-        nodeSet = (NodeList) xPath.evaluate(xPathExpression, document, NODESET);
+        xPathEvaluationResult = xPath.evaluateExpression(xPathExpression, document);
       }
 
-      return toListOrSingle(nodeSet);
+      return toListOrSingle(xPathEvaluationResult);
     } catch (XPathExpressionException e) {
       throw XPathException.fromXPathException(e);
     }
