@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.ordinalIndexOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.google.common.collect.ImmutableListMultimap;
@@ -27,6 +28,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -97,8 +99,20 @@ public class Urls {
     return nodeCount > 0 ? String.join("-", uriPathNodes) : "";
   }
 
-  public static String decode(String encoded) {
-    return URLDecoder.decode(encoded, UTF_8);
+  private static String decode(String encoded) {
+    if (!isISOOffsetDateTime(encoded)) {
+      return URLDecoder.decode(encoded, UTF_8);
+    }
+    return encoded;
+  }
+
+  private static boolean isISOOffsetDateTime(String encoded) {
+    try {
+      ISO_OFFSET_DATE_TIME.parse(encoded);
+    } catch (DateTimeParseException e) {
+      return false;
+    }
+    return true;
   }
 
   public static URL safelyCreateURL(String url) {
