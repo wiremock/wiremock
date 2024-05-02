@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Thomas Akehurst
+ * Copyright (C) 2014-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.*;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,20 @@ public class UrlsTest {
     assertThat(params.size(), is(2));
     assertThat(params.get("param1").isSingleValued(), is(false));
     assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
+  }
+
+  @Test
+  public void supportsOffsetDateTimeParameterValues() {
+    OffsetDateTime offsetDateTime = OffsetDateTime.parse("2024-05-01T09:30:00.000Z");
+    params =
+        Urls.splitQuery(
+            URI.create(
+                "/thing?date=2024-05-01T10:30:00.000+01:00&date=2024-05-01T08:30:00.000-01:00&date=2024-05-01T09:30:00.000Z"));
+    for (QueryParameter queryParameter : params.values()) {
+      for (String parameterValue : queryParameter.values()) {
+        assert (offsetDateTime.isEqual(OffsetDateTime.parse(parameterValue)));
+      }
+    }
   }
 
   @Test
