@@ -289,7 +289,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
   @Override
   public boolean isMultipart() {
     String header = getHeader("Content-Type");
-    return (header != null && header.contains("multipart/"));
+    return (header != null && header.matches("(?i)^multipart/.*"));
   }
 
   @Override

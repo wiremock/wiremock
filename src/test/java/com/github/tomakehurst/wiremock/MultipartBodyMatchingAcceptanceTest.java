@@ -37,6 +37,11 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.UUID;
+
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   CloseableHttpClient httpClient = HttpClientFactory.createClient();
@@ -170,5 +175,44 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             "/multipart", singletonList(part("vlarge", randomAlphanumeric(300000), TEXT_PLAIN)));
 
     assertThat(response.statusCode(), is(200));
+  }
+
+  @Test
+  void acceptsAMultipartRequestWithCamelcasedContentTypeInformation() throws Exception {
+    stubFor(
+        post("/multipart-camelcased-content-type")
+            .withMultipartRequestBody(aMultipart()
+                .withName("field1")
+                .withHeader("Content-Type", equalTo("text/plain"))
+                .withBody(containing("hello")))
+            .withMultipartRequestBody(aMultipart()
+                .withName("field2")
+                .withBody(containing("world")))
+            .willReturn(ok()));
+
+    final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
+    final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setDoInput(true);
+    connection.setDoOutput(true);
+    connection.setUseCaches(false);
+    connection.setRequestMethod("POST");
+    connection.setRequestProperty("Accept", "*/*");
+
+    final String boundary = "uuid:" + UUID.randomUUID();
+    connection.setRequestProperty("Content-Type", "Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(("--" + boundary + "\r\n" +
+          "Content-Disposition: form-data; name=\"field1\"\r\n" +
+          "Content-Type: text/plain\r\n" +
+          "\r\n" +
+          "hello\r\n" +
+          "--" + boundary + "\r\n" +
+          "Content-Disposition: form-data; name=\"field2\"\r\n" +
+          "\r\n" +
+          "world\r\n" +
+          "--" + boundary + "--").getBytes());
+    }
+
+    assertThat(connection.getResponseCode(), is(200));
   }
 }
