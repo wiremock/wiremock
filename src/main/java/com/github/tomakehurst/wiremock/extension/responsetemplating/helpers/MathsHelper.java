@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,11 +88,12 @@ public class MathsHelper extends HandlebarsHelper<Object> {
     }
 
     if (value.scale() == 0) {
-      if (value.longValue() <= Integer.MAX_VALUE) {
+      long longValue = value.longValue();
+      if (longValue <= Integer.MAX_VALUE && longValue >= Integer.MIN_VALUE) {
         return value.intValue();
       }
 
-      return value.longValue();
+      return longValue;
     }
 
     return value.doubleValue();
