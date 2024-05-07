@@ -52,6 +52,38 @@ public class UrlsTest {
   }
 
   @Test
+  public void supportsMultiValuedParametersInArrayFormat() {
+    params = Urls.splitQuery("param1[0]=1&param1[1]=2&param1[2]=3&param1[3]=4");
+    assertThat(params.size(), is(1));
+    assertThat(params.get("param1").isSingleValued(), is(false));
+    assertThat(params.get("param1").values(), hasItems("1", "2", "3", "4"));
+  }
+
+  @Test
+  public void supportsMultiValuedParametersInArrayIndexFormat() {
+    params = Urls.splitQuery("param1=['1','2','3','4']");
+    assertThat(params.size(), is(1));
+    assertThat(params.get("param1").isSingleValued(), is(false));
+    assertThat(params.get("param1").values(), hasItems("1", "2", "3", "4"));
+  }
+
+  @Test
+  public void supportsMultiValuedParametersWithPipeSeparator() {
+    params = Urls.splitQuery("param1=1|2|3|4");
+    assertThat(params.size(), is(1));
+    assertThat(params.get("param1").isSingleValued(), is(false));
+    assertThat(params.get("param1").values(), hasItems("1", "2", "3", "4"));
+  }
+
+  @Test
+  public void supportsMultiValuedParametersWithCommaSeparator() {
+    params = Urls.splitQuery("param1=1,2,3,4");
+    assertThat(params.size(), is(1));
+    assertThat(params.get("param1").isSingleValued(), is(false));
+    assertThat(params.get("param1").values(), hasItems("1", "2", "3", "4"));
+  }
+
+  @Test
   public void doesNotAttemptToDoubleDecodeSplitQueryString() {
     URI url = URI.create("/thing?q=a%25b");
     Map<String, QueryParameter> query = Urls.splitQuery(url);
