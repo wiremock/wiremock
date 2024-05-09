@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -242,6 +243,15 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     return this;
   }
 
+  @Override
+  public MappingBuilder withServeEventListener(
+      ServeEventListenerDefinition eventListenerDefinition) {
+    return withServeEventListener(
+        eventListenerDefinition.getRequestPhases(),
+        eventListenerDefinition.getName(),
+        eventListenerDefinition.getParameters());
+  }
+
   private static <P> Parameters resolveParameters(P parameters) {
     return parameters instanceof Parameters ? (Parameters) parameters : Parameters.of(parameters);
   }
@@ -279,6 +289,13 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
   @Override
   public BasicMappingBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
     requestPatternBuilder.andMatching(customRequestMatcherName, parameters);
+    return this;
+  }
+
+  @Override
+  public BasicMappingBuilder andMatching(CustomMatcherDefinition customMatcherDefinition) {
+    requestPatternBuilder.andMatching(
+        customMatcherDefinition.getName(), customMatcherDefinition.getParameters());
     return this;
   }
 
