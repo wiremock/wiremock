@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2021 Thomas Akehurst
+ * Copyright (C) 2012-2025 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.runners.model.Statement;
  * @deprecated JUnit disallows this approach from version 4.11. Use {@link WireMockClassRule}
  *     instead
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class WireMockStaticRule implements MethodRule {
 
   private final WireMockServer wireMockServer;
