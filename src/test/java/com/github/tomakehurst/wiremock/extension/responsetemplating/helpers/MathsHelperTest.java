@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,5 +109,10 @@ public class MathsHelperTest extends HandlebarsHelperTestBase {
     assertThat(
         renderHelperValue(helper, new RenderableDate(date, "epoch", null), "+", 0),
         is(1663258226792L));
+  }
+
+  @Test
+  void handlesLargeNegativeIntegerResults() throws Exception {
+    assertThat(renderHelperValue(helper, Long.MIN_VALUE, "+", 1), is(Long.MIN_VALUE + 1));
   }
 }
