@@ -26,7 +26,7 @@ import org.junit.runners.model.Statement;
  * @deprecated JUnit disallows this approach from version 4.11. Use {@link WireMockClassRule}
  *     instead
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class WireMockStaticRule implements MethodRule {
 
   private final WireMockServer wireMockServer;
