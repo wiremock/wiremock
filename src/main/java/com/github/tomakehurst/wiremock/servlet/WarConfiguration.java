@@ -285,4 +285,9 @@ public class WarConfiguration implements Options {
   public boolean getTemplateEscapingDisabled() {
     return false;
   }
+
+  @Override
+  public Set<String> getSupportedProxyEncodings() {
+    return null;
+  }
 }
