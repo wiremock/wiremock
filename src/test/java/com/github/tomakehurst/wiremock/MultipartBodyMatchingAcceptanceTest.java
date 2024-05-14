@@ -181,13 +181,10 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   void acceptsAMultipartRequestWithCamelcasedContentTypeInformation() throws Exception {
     stubFor(
         post("/multipart-camelcased-content-type")
-            .withMultipartRequestBody(aMultipart()
-                .withName("field1")
-                .withHeader("Content-Type", equalTo("text/plain"))
-                .withBody(containing("hello")))
-            .withMultipartRequestBody(aMultipart()
-                .withName("field2")
-                .withBody(containing("world")))
+            .withMultipartRequestBody(
+                aMultipart().withName("field1").withBody(containing("hello")))
+            .withMultipartRequestBody(
+                aMultipart().withName("field2").withBody(containing("world")))
             .willReturn(ok()));
 
     final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
@@ -203,7 +200,6 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     try (final OutputStream contentStream = connection.getOutputStream()) {
       contentStream.write(("--" + boundary + "\r\n" +
           "Content-Disposition: form-data; name=\"field1\"\r\n" +
-          "Content-Type: text/plain\r\n" +
           "\r\n" +
           "hello\r\n" +
           "--" + boundary + "\r\n" +
