@@ -196,7 +196,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     connection.setRequestProperty("Accept", "*/*");
 
     final String boundary = "uuid:" + UUID.randomUUID();
-    connection.setRequestProperty("Content-Type", "Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    connection.setRequestProperty("Content-Type", "   Multipart/Form-Data; boundary=\"" + boundary + "\"");
     try (final OutputStream contentStream = connection.getOutputStream()) {
       contentStream.write(("--" + boundary + "\r\n" +
           "Content-Disposition: form-data; name=\"field1\"\r\n" +
