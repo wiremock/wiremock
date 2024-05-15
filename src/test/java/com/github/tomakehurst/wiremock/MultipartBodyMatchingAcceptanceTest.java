@@ -178,7 +178,7 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  void acceptsAMultipartRequestWithCamelcasedContentTypeInformation() throws Exception {
+  public void acceptsAMultipartRequestWithCamelCasedContentTypeInformation() throws Exception {
     stubFor(
             post("/multipart-camelcased-content-type")
                     .withMultipartRequestBody(
