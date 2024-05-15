@@ -188,27 +188,42 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok()));
 
     final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
+
+    final String boundary = "uuid:" + UUID.randomUUID();
+    final byte[] content = ("--" + boundary + "\r\n" +
+        "Content-Disposition: form-data; name=\"field1\"\r\n" +
+        "\r\n" +
+        "hello\r\n" +
+        "--" + boundary + "\r\n" +
+        "Content-Disposition: form-data; name=\"field2\"\r\n" +
+        "\r\n" +
+        "world\r\n" +
+        "--" + boundary + "--").getBytes();
+
+    // Test without leading Spaces
+    HttpURLConnection connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
+    connection.setRequestProperty("Content-Type", "Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(content);
+    }
+    assertThat(connection.getResponseCode(), is(200));
+
+    // Test with leading Spaces
+    connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
+    connection.setRequestProperty("Content-Type", "   Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(content);
+    }
+    assertThat(connection.getResponseCode(), is(200));
+  }
+
+  private HttpURLConnection prepareUrlConnectionForCamelcasedContentTypeInformation(URL url) throws Exception {
     final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setDoInput(true);
     connection.setDoOutput(true);
     connection.setUseCaches(false);
     connection.setRequestMethod("POST");
     connection.setRequestProperty("Accept", "*/*");
-
-    final String boundary = "uuid:" + UUID.randomUUID();
-    connection.setRequestProperty("Content-Type", "   Multipart/Form-Data; boundary=\"" + boundary + "\"");
-    try (final OutputStream contentStream = connection.getOutputStream()) {
-      contentStream.write(("--" + boundary + "\r\n" +
-          "Content-Disposition: form-data; name=\"field1\"\r\n" +
-          "\r\n" +
-          "hello\r\n" +
-          "--" + boundary + "\r\n" +
-          "Content-Disposition: form-data; name=\"field2\"\r\n" +
-          "\r\n" +
-          "world\r\n" +
-          "--" + boundary + "--").getBytes());
-    }
-
-    assertThat(connection.getResponseCode(), is(200));
+    return connection;
   }
 }
