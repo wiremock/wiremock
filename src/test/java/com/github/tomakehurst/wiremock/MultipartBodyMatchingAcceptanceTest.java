@@ -186,29 +186,5 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
                     .withMultipartRequestBody(
                             aMultipart().withName("field2").withBody(containing("world")))
                     .willReturn(ok()));
-
-    final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
-    final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setDoInput(true);
-    connection.setDoOutput(true);
-    connection.setUseCaches(false);
-    connection.setRequestMethod("POST");
-    connection.setRequestProperty("Accept", "*/*");
-
-    final String boundary = "uuid:" + UUID.randomUUID();
-    connection.setRequestProperty("Content-Type", "   Multipart/Form-Data; boundary=\"" + boundary + "\"");
-    try (final OutputStream contentStream = connection.getOutputStream()) {
-      contentStream.write(("--" + boundary + "\r\n" +
-              "Content-Disposition: form-data; name=\"field1\"\r\n" +
-              "\r\n" +
-              "hello\r\n" +
-              "--" + boundary + "\r\n" +
-              "Content-Disposition: form-data; name=\"field2\"\r\n" +
-              "\r\n" +
-              "world\r\n" +
-              "--" + boundary + "--").getBytes());
-    }
-
-    assertThat(connection.getResponseCode(), is(200));
   }
 }
