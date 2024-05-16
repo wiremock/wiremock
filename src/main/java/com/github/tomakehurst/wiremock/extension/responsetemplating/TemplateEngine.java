@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import com.github.jknack.handlebars.EscapingStrategy;
@@ -25,13 +27,22 @@ import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.url.PathTemplate;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class TemplateEngine {
 
@@ -39,20 +50,24 @@ public class TemplateEngine {
   private final Cache<Object, HandlebarsOptimizedTemplate> cache;
   private final Long maxCacheEntries;
 
+  private final List<TemplateModelDataProviderExtension> templateModelDataProviders;
+
   public static TemplateEngine defaultTemplateEngine() {
-    return new TemplateEngine(emptyMap(), null, null, false);
+    return new TemplateEngine(emptyMap(), null, null, false, emptyList());
   }
 
   public TemplateEngine(
       Map<String, Helper<?>> helpers,
       Long maxCacheEntries,
       Set<String> permittedSystemKeys,
-      boolean escapingDisabled) {
+      boolean escapingDisabled,
+      List<TemplateModelDataProviderExtension> templateModelDataProviders) {
 
     this.handlebars =
         escapingDisabled ? new Handlebars().with(EscapingStrategy.NOOP) : new Handlebars();
 
     this.maxCacheEntries = maxCacheEntries;
+    this.templateModelDataProviders = templateModelDataProviders;
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
     if (maxCacheEntries != null) {
       cacheBuilder.maximumSize(maxCacheEntries);
@@ -66,6 +81,7 @@ public class TemplateEngine {
     this.handlebars = null;
     this.maxCacheEntries = null;
     this.cache = null;
+    this.templateModelDataProviders = emptyList();
   }
 
   private void addHelpers(Map<String, Helper<?>> helpers, Set<String> permittedSystemKeys) {
@@ -112,6 +128,28 @@ public class TemplateEngine {
 
   public HandlebarsOptimizedTemplate getUncachedTemplate(final String content) {
     return new HandlebarsOptimizedTemplate(handlebars, content);
+  }
+
+  public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
+    final Request request = serveEvent.getRequest();
+    final ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+    final Parameters parameters =
+        getFirstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty());
+
+    final PathTemplate pathTemplate =
+        serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
+
+    final Map<String, Object> additionalModelData =
+        templateModelDataProviders.stream()
+            .map(provider -> provider.provideTemplateModelData(serveEvent).entrySet())
+            .flatMap(Set::stream)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    final Map<String, Object> model = new HashMap<>();
+    model.put("parameters", parameters);
+    model.put("request", RequestTemplateModel.from(request, pathTemplate));
+    model.putAll(additionalModelData);
+    return model;
   }
 
   public long getCacheSize() {

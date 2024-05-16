@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import com.github.jknack.handlebars.Helper;
@@ -38,7 +39,8 @@ public class MockWireMockServices implements WireMockServices {
   private Map<String, Helper<?>> helpers = emptyMap();
   private Long maxCacheEntries = null;
   private Supplier<TemplateEngine> templateEngine =
-      Suppliers.memoize(() -> new TemplateEngine(helpers, maxCacheEntries, null, false));
+      Suppliers.memoize(
+          () -> new TemplateEngine(helpers, maxCacheEntries, null, false, emptyList()));
 
   @Override
   public Admin getAdmin() {
