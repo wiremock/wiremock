@@ -26,6 +26,10 @@ import static org.hamcrest.Matchers.is;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.UUID;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -36,7 +40,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
 
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
@@ -174,11 +177,61 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void acceptsAMultipartRequestWithCamelCasedContentTypeInformation() throws Exception {
+  void acceptsAMultipartRequestWithCamelcasedContentTypeInformation() throws Exception {
     stubFor(
         post("/multipart-camelcased-content-type")
             .withMultipartRequestBody(aMultipart().withName("field1").withBody(containing("hello")))
             .withMultipartRequestBody(aMultipart().withName("field2").withBody(containing("world")))
             .willReturn(ok()));
+
+    final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
+
+    final String boundary = "uuid:" + UUID.randomUUID();
+    final byte[] content =
+        ("--"
+                + boundary
+                + "\r\n"
+                + "Content-Disposition: form-data; name=\"field1\"\r\n"
+                + "\r\n"
+                + "hello\r\n"
+                + "--"
+                + boundary
+                + "\r\n"
+                + "Content-Disposition: form-data; name=\"field2\"\r\n"
+                + "\r\n"
+                + "world\r\n"
+                + "--"
+                + boundary
+                + "--")
+            .getBytes();
+
+    // Test without leading Spaces
+    HttpURLConnection connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
+    connection.setRequestProperty(
+        "Content-Type", "Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(content);
+    }
+    assertThat(connection.getResponseCode(), is(200));
+
+    // Test with leading Spaces
+    connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
+    connection.setRequestProperty(
+        "Content-Type", "   Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(content);
+    }
+    assertThat(connection.getResponseCode(), is(200));
+  }
+
+  private HttpURLConnection prepareUrlConnectionForCamelcasedContentTypeInformation(URL url)
+      throws Exception {
+    final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setDoInput(true);
+    connection.setDoOutput(true);
+    connection.setUseCaches(false);
+    connection.setRequestMethod("POST");
+    connection.setRequestProperty("Accept", "*/*");
+    return connection;
   }
 }
