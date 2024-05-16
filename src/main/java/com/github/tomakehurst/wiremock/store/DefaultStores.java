@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.store;
 
+import static com.github.tomakehurst.wiremock.store.Stores.PersistenceType.EPHEMERAL;
+
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.store.files.FileSourceBlobStore;
+import com.github.tomakehurst.wiremock.store.files.FileSourceJsonObjectStore;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.wiremock.annotations.Beta;
 
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
@@ -30,6 +35,8 @@ public class DefaultStores implements Stores {
 
   private final ScenariosStore scenariosStore;
 
+  private final Map<String, ObjectStore> objectStores;
+
   public DefaultStores(FileSource fileRoot) {
     this.fileRoot = fileRoot;
 
@@ -37,6 +44,8 @@ public class DefaultStores implements Stores {
     this.requestJournalStore = new InMemoryRequestJournalStore();
     this.settingsStore = new InMemorySettingsStore();
     this.scenariosStore = new InMemoryScenariosStore();
+
+    objectStores = new ConcurrentHashMap<>();
   }
 
   @Override
@@ -66,7 +75,26 @@ public class DefaultStores implements Stores {
 
   @Override
   public BlobStore getBlobStore(String name) {
-    return new FileSourceBlobStore(fileRoot.child(name));
+    final FileSource child = fileRoot.child(name);
+    child.createIfNecessary();
+    return new FileSourceBlobStore(child);
+  }
+
+  @Override
+  public ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint) {
+    if (persistenceTypeHint == EPHEMERAL) {
+      ObjectStore store = objectStores.get(name);
+      if (store == null) {
+        store = new InMemoryObjectStore(10000);
+        objectStores.putIfAbsent(name, store);
+      }
+
+      return store;
+    } else {
+      final FileSource child = fileRoot.child(name);
+      child.createIfNecessary();
+      return new FileSourceJsonObjectStore(child);
+    }
   }
 
   @Override
