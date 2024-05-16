@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+
 public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   CloseableHttpClient httpClient = HttpClientFactory.createClient();
@@ -174,6 +175,12 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
 
   @Test
   public void acceptsAMultipartRequestWithCamelCasedContentTypeInformation() throws Exception {
-    assertThat(200, is(200));
+    stubFor(
+            post("/multipart-camelcased-content-type")
+                    .withMultipartRequestBody(
+                            aMultipart().withName("field1").withBody(containing("hello")))
+                    .withMultipartRequestBody(
+                            aMultipart().withName("field2").withBody(containing("world")))
+                    .willReturn(ok()));
   }
 }
