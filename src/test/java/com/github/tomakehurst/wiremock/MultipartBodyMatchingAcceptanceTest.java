@@ -190,29 +190,12 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
 
     final String boundary = "uuid:" + UUID.randomUUID();
-    final byte[] content = ("--" + boundary + "\r\n" +
-        "Content-Disposition: form-data; name=\"field1\"\r\n" +
-        "\r\n" +
-        "hello\r\n" +
-        "--" + boundary + "\r\n" +
-        "Content-Disposition: form-data; name=\"field2\"\r\n" +
-        "\r\n" +
-        "world\r\n" +
-        "--" + boundary + "--").getBytes();
 
     // Test without leading Spaces
     HttpURLConnection connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
     connection.setRequestProperty("Content-Type", "Multipart/Form-Data; boundary=\"" + boundary + "\"");
     try (final OutputStream contentStream = connection.getOutputStream()) {
-      contentStream.write(content);
-    }
-    assertThat(connection.getResponseCode(), is(200));
-
-    // Test with leading Spaces
-    connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
-    connection.setRequestProperty("Content-Type", "   Multipart/Form-Data; boundary=\"" + boundary + "\"");
-    try (final OutputStream contentStream = connection.getOutputStream()) {
-      contentStream.write(content);
+      contentStream.write(getRequestBodyForCamelasedContentTypeInformationWithBoundary(boundary));
     }
     assertThat(connection.getResponseCode(), is(200));
   }
@@ -225,5 +208,40 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
     connection.setRequestMethod("POST");
     connection.setRequestProperty("Accept", "*/*");
     return connection;
+  }
+
+  private byte[] getRequestBodyForCamelasedContentTypeInformationWithBoundary(String boundary) {
+    return ("--" + boundary + "\r\n" +
+        "Content-Disposition: form-data; name=\"field1\"\r\n" +
+        "\r\n" +
+        "hello\r\n" +
+        "--" + boundary + "\r\n" +
+        "Content-Disposition: form-data; name=\"field2\"\r\n" +
+        "\r\n" +
+        "world\r\n" +
+        "--" + boundary + "--").getBytes();
+  }
+
+  @Test
+  void acceptsAMultipartRequestWithCamelcasedContentTypeInformationPrefixedWithSpaces() throws Exception {
+    stubFor(
+        post("/multipart-camelcased-content-type")
+            .withMultipartRequestBody(
+                aMultipart().withName("field1").withBody(containing("hello")))
+            .withMultipartRequestBody(
+                aMultipart().withName("field2").withBody(containing("world")))
+            .willReturn(ok()));
+
+    final URL url = new URL(wireMockServer.baseUrl() + "/multipart-camelcased-content-type");
+
+    final String boundary = "uuid:" + UUID.randomUUID();
+
+    // Test without leading Spaces
+    HttpURLConnection connection = prepareUrlConnectionForCamelcasedContentTypeInformation(url);
+    connection.setRequestProperty("Content-Type", "    Multipart/Form-Data; boundary=\"" + boundary + "\"");
+    try (final OutputStream contentStream = connection.getOutputStream()) {
+      contentStream.write(getRequestBodyForCamelasedContentTypeInformationWithBoundary(boundary));
+    }
+    assertThat(connection.getResponseCode(), is(200));
   }
 }
