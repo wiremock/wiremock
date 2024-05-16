@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,8 +251,11 @@ public class RequestPatternBuilder {
   }
 
   public RequestPatternBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
-    this.customMatcherDefinition =
-        new CustomMatcherDefinition(customRequestMatcherName, parameters);
+    return andMatching(new CustomMatcherDefinition(customRequestMatcherName, parameters));
+  }
+
+  public RequestPatternBuilder andMatching(CustomMatcherDefinition matcherDefinition) {
+    this.customMatcherDefinition = matcherDefinition;
     return this;
   }
 
