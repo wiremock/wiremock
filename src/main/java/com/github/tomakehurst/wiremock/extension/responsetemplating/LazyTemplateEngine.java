@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.tomakehurst.wiremock.common.Lazy;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class LazyTemplateEngine extends TemplateEngine {
@@ -33,6 +35,11 @@ public class LazyTemplateEngine extends TemplateEngine {
   @Override
   public HandlebarsOptimizedTemplate getUncachedTemplate(String content) {
     return templateEngineLazy.get().getUncachedTemplate(content);
+  }
+
+  @Override
+  public Map<String, Object> buildModelForRequest(ServeEvent serveEvent) {
+    return templateEngineLazy.get().buildModelForRequest(serveEvent);
   }
 
   @Override

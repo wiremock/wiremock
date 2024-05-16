@@ -22,7 +22,6 @@ import com.github.jknack.handlebars.HandlebarsException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
-import com.github.tomakehurst.wiremock.common.url.PathTemplate;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -75,20 +74,8 @@ public class ResponseTemplateTransformer
       ResponseDefinitionBuilder newResponseDefBuilder =
           ResponseDefinitionBuilder.like(responseDefinition);
 
-      final PathTemplate pathTemplate =
-          serveEvent.getStubMapping().getRequest().getUrlMatcher().getPathTemplate();
-
-      final Map<String, Object> additionalModelData =
-          templateModelDataProviders.stream()
-              .map(provider -> provider.provideTemplateModelData(serveEvent).entrySet())
-              .flatMap(Set::stream)
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-      final Map<String, Object> model = new HashMap<>();
-      model.put("parameters", parameters);
-      model.put("request", RequestTemplateModel.from(request, pathTemplate));
+      final Map<String, Object> model = templateEngine.buildModelForRequest(serveEvent);
       model.putAll(addExtraModelElements(request, responseDefinition, files, parameters));
-      model.putAll(additionalModelData);
 
       if (responseDefinition.specifiesTextBodyContent()) {
         boolean isJsonBody = responseDefinition.getReponseBody().isJson();

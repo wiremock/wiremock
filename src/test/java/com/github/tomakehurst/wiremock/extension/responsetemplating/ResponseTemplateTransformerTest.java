@@ -863,6 +863,16 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  void addsArrayItem() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2 position=1}}"), is("[1, 2, three]"));
+  }
+
+  @Test
+  void deletesArrayItem() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') position=1}}"), is("[1, three]"));
+  }
+
+  @Test
   public void parsesJsonLiteralToAMapOfMapsVariable() {
     String result =
         transform(
@@ -1028,6 +1038,12 @@ public class ResponseTemplateTransformerTest {
     String result = transform("{{date (parseDate '2021' format='yyyy') format='yyyy-MM'}}");
     String expected = YearMonth.of(2021, 1).toString();
     assertThat(result, is(expected));
+  }
+
+  @Test
+  void valHelperDefaultsNullValue() {
+    assertThat(transform("{{val request.query.nonexist or='123'}}"), is("123"));
+    assertThat(transform("{{val 'exists' or='123'}}"), is("exists"));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {
