@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Pair.pair;
 import static com.github.tomakehurst.wiremock.common.ParameterUtils.getFirstNonNull;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.AFTER_MATCH;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static java.util.stream.Collectors.toList;
 
@@ -25,10 +27,7 @@ import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
-import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -41,13 +40,14 @@ import java.util.*;
 
 public abstract class AbstractStubMappings implements StubMappings {
 
+  protected final StubMappingStore store;
   protected final Scenarios scenarios;
   protected final Map<String, RequestMatcherExtension> customMatchers;
   protected final Map<String, ResponseDefinitionTransformer> transformers;
   protected final Map<String, ResponseDefinitionTransformerV2> v2transformers;
   protected final FileSource filesFileSource;
   protected final List<StubLifecycleListener> stubLifecycleListeners;
-  protected final StubMappingStore store;
+  protected final Map<String, ServeEventListener> serveEventListeners;
 
   public AbstractStubMappings(
       StubMappingStore store,
@@ -56,8 +56,8 @@ public abstract class AbstractStubMappings implements StubMappings {
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
-      List<StubLifecycleListener> stubLifecycleListeners) {
-
+      List<StubLifecycleListener> stubLifecycleListeners,
+      Map<String, ServeEventListener> serveEventListeners) {
     this.store = store;
     this.scenarios = scenarios;
     this.customMatchers = customMatchers;
@@ -65,15 +65,16 @@ public abstract class AbstractStubMappings implements StubMappings {
     this.v2transformers = v2transformers;
     this.filesFileSource = new BlobStoreFileSource(filesBlobStore);
     this.stubLifecycleListeners = stubLifecycleListeners;
+    this.serveEventListeners = serveEventListeners;
   }
 
   @Override
-  public ServeEvent serveFor(ServeEvent initialServeEvent) {
+  public ServeEvent serveFor(final ServeEvent initialServeEvent) {
     final LoggedRequest request = initialServeEvent.getRequest();
 
     final List<SubEvent> subEvents = new LinkedList<>();
 
-    StubMapping matchingMapping =
+    StubMapping matchingStub =
         store
             .findAllMatchingRequest(request, customMatchers, subEvents::add)
             .filter(
@@ -85,16 +86,21 @@ public abstract class AbstractStubMappings implements StubMappings {
 
     subEvents.forEach(initialServeEvent::appendSubEvent);
 
-    scenarios.onStubServed(matchingMapping);
+    scenarios.onStubServed(matchingStub);
+
+    final ResponseDefinition initialResponseDefinition = matchingStub.getResponse();
+    ServeEvent serveEvent =
+        initialServeEvent
+            .withStubMapping(matchingStub)
+            .withResponseDefinition(initialResponseDefinition);
+
+    triggerListeners(serveEventListeners, AFTER_MATCH, serveEvent);
 
     ResponseDefinition responseDefinition =
         applyV1Transformations(
-            request, matchingMapping.getResponse(), List.copyOf(transformers.values()));
+            request, matchingStub.getResponse(), List.copyOf(transformers.values()));
 
-    ServeEvent serveEvent =
-        initialServeEvent
-            .withStubMapping(matchingMapping)
-            .withResponseDefinition(responseDefinition);
+    serveEvent = serveEvent.withResponseDefinition(responseDefinition);
 
     final Pair<ServeEvent, ResponseDefinition> transformed =
         applyV2Transformations(serveEvent, List.copyOf(v2transformers.values()));
