@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2021 Thomas Akehurst
+ * Copyright (C) 2014-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,4 +18,8 @@ package com.github.tomakehurst.wiremock.extension;
 public interface Extension {
 
   String getName();
+
+  default void start() {}
+
+  default void stop() {}
 }
