@@ -1092,14 +1092,14 @@ public class ResponseTemplateTransformerTest {
   public void joinWithNoParameterShouldReturnError() {
     String result = transform("{{join ','}}");
 
-    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameters must be list]\n"));
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
   }
 
   @Test
   public void joinWithStringAsParameterShouldReturnError() {
     String result = transform("{{join ',' \"blablabla\"}}");
 
-    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameters must be list]\n"));
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {
