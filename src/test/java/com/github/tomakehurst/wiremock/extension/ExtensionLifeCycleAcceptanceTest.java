@@ -43,7 +43,7 @@ public class ExtensionLifeCycleAcceptanceTest extends AcceptanceTestBase {
   }
 
   @Test
-  public void extensionStopIsCalled() {
+  public void extensionStopIsCalledWhenTheServerShutsDown() {
     TestNotifier notifier = new TestNotifier();
     setupServer(
         wireMockConfig()
