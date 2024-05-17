@@ -46,7 +46,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
       result = processWithoutSection(separator, items);
     }
 
-    return result.replaceAll("\n", "");
+    return result;
   }
 
   private static String processWithoutSection(String separator, List<Object> items) {
