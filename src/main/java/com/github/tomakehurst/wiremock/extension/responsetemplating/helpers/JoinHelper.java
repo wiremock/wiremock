@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2019-2021 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.TagType;
+import com.github.tomakehurst.wiremock.common.Json;
+
+import java.io.IOException;
+import java.util.List;
+
+public class JoinHelper implements Helper<Object> {
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+
+        String separator = context.toString();
+
+        String jsonString = options.param(0, "");
+        List<Object> items = Json.read(jsonString, new TypeReference<>() {
+        });
+
+        String result;
+        if (options.tagType == TagType.SECTION) {
+            result = processSection(options, separator, items);
+        } else {
+            result = processWithoutSection(separator, items);
+        }
+
+        return result.trim().replaceAll("\n", "");
+    }
+
+    private static String processWithoutSection(String separator, List<Object> items) {
+        StringBuilder sb = new StringBuilder();
+        boolean initialised = false;
+
+        for (Object item : items) {
+            if (initialised) {
+                sb.append(separator);
+            }
+            sb.append(item.toString());
+            initialised = true;
+        }
+        return sb.toString();
+    }
+
+    private static String processSection(Options options, String separator, List<Object> list) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            CharSequence itemRendered = options.fn(list.get(i));
+            sb.append(itemRendered);
+            if (i < list.size() - 1) {
+                sb.append(separator);
+            }
+        }
+
+        return sb.toString();
+    }
+}

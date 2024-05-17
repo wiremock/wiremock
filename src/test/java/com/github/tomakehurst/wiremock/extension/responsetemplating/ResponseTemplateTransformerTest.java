@@ -1046,6 +1046,46 @@ public class ResponseTemplateTransformerTest {
     assertThat(transform("{{val 'exists' or='123'}}"), is("exists"));
   }
 
+
+  @Test
+  public void joinWithObjectBody() {
+    String result =
+            transform(
+                    "{{#assign 'myList'}}\n"
+                            + "[\n"
+                            + "        {\n"
+                            + "            \"name\": \"One\"\n"
+                            + "        },\n"
+                            + "        {\n"
+                            + "            \"name\": \"Two\"\n"
+                            + "        },\n"
+                            + "        {\n"
+                            + "            \"name\": \"Three\"\n"
+                            + "        }\n"
+                            + "    ]\n"
+                            + "{{/assign}}\n"
+                            + "{{#join ',' myList as |item|}}\n"
+                            + " {\n"
+                            + "   name2: {{item.name}}\n"
+                            + " }\n"
+                            + "{{/join}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace("{   name2: One }, {   name2: Two }, {   name2: Three }"));
+  }
+
+
+  @Test
+  public void joinWithArrayOfStrings() {
+    String result =
+            transform(
+                    "{{#assign 'myList'}}\n"
+                            + "[\"One\",\"Two\",\"Three\"]"
+                            + "{{/assign}}\n"
+                            + "{{join ',' myList}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace("One,Two,Three"));
+  }
+
   private Integer transformToInt(String responseBodyTemplate) {
     return Integer.parseInt(transform(responseBodyTemplate));
   }
