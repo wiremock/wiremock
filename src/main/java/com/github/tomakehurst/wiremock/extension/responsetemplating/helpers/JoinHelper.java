@@ -36,7 +36,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
       return handleError("The parameter must be list");
     }
     List<Object> items = (List<Object>) param;
-    if (items == null || items.isEmpty()) {
+    if (items.isEmpty()) {
       return "";
     }
     String result;
