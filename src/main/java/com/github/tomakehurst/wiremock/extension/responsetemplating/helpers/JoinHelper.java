@@ -29,7 +29,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
       return handleError("Separator parameter must be a String");
     }
 
-    String separator = context.toString();
+    String separator = (String)context;
 
     Object param = options.param(0, null);
     if (param == null || !(Iterable.class.isAssignableFrom(param.getClass()))) {
