@@ -31,6 +31,9 @@ public class JoinHelper implements Helper<Object> {
     String separator = context.toString();
 
     String jsonString = options.param(0, "");
+    if("".equals(jsonString)) {
+      return "";
+    }
     List<Object> items = Json.read(jsonString, new TypeReference<>() {});
 
     String result;

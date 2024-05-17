@@ -1092,6 +1092,18 @@ public class ResponseTemplateTransformerTest {
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
 
+  @Test
+  public void joinWithNoSeparatorShouldReturnEmptyString() {
+    String result =
+            transform(
+                    "{{#assign 'myList'}}\n"
+                            + "[\"One\",\"Two\",\"Three\"]"
+                            + "{{/assign}}\n"
+                            + "{{join myList}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace(""));
+  }
+
   private Integer transformToInt(String responseBodyTemplate) {
     return Integer.parseInt(transform(responseBodyTemplate));
   }
