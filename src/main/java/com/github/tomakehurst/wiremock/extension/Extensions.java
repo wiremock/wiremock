@@ -234,6 +234,14 @@ public class Extensions implements WireMockServices {
     }
   }
 
+  public void startAll() {
+    loadedExtensions.values().forEach(Extension::start);
+  }
+
+  public void stopAll() {
+    loadedExtensions.values().forEach(Extension::stop);
+  }
+
   @SuppressWarnings("unchecked")
   public <T extends Extension> Map<String, T> ofType(Class<T> extensionType) {
     return (Map<String, T>)
