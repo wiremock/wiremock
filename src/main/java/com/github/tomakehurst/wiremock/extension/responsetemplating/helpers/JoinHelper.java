@@ -25,7 +25,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
   @Override
   public Object apply(Object context, Options options) throws IOException {
 
-    if (context == null || !(context instanceof String)) {
+    if (!(context instanceof String)) {
       return handleError("Separator parameter must be a String");
     }
 
