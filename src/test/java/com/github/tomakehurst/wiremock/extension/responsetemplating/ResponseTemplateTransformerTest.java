@@ -1081,10 +1081,25 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  public void joinWithNoSeparatorShouldReturnEmptyString() {
+  public void joinWithNoSeparatorShouldReturnError() {
     String result = transform("{{join (array 'One' 'Two' 'Three')}}\n");
 
-    assertThat(result, equalToCompressingWhiteSpace(""));
+    assertThat(
+        result, equalToCompressingWhiteSpace("[ERROR: Separator parameter must be a String]\n"));
+  }
+
+  @Test
+  public void joinWithNoParameterShouldReturnError() {
+    String result = transform("{{join ','}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameters must be list]\n"));
+  }
+
+  @Test
+  public void joinWithStringAsParameterShouldReturnError() {
+    String result = transform("{{join ',' \"blablabla\"}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameters must be list]\n"));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {

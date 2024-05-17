@@ -15,19 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
 import java.io.IOException;
 import java.util.List;
 
-public class JoinHelper implements Helper<Object> {
+public class JoinHelper extends HandlebarsHelper<Object> {
 
   @Override
   public Object apply(Object context, Options options) throws IOException {
 
+    if (context == null || !(context instanceof String)) {
+      return handleError("Separator parameter must be a String");
+    }
+
     String separator = context.toString();
-    List<Object> items = options.param(0, null);
+
+    Object param = options.param(0, null);
+    if (param == null || !(Iterable.class.isAssignableFrom(param.getClass()))) {
+      return handleError("The parameters must be list");
+    }
+    List<Object> items = (List<Object>) param;
     if (items == null || items.isEmpty()) {
       return "";
     }
