@@ -1050,20 +1050,14 @@ public class ResponseTemplateTransformerTest {
   public void joinWithObjectBody() {
     String result =
         transform(
-            "{{#assign 'myList'}}\n"
+            "{{#parseJson 'myThings'}}\n"
                 + "[\n"
-                + "        {\n"
-                + "            \"name\": \"One\"\n"
-                + "        },\n"
-                + "        {\n"
-                + "            \"name\": \"Two\"\n"
-                + "        },\n"
-                + "        {\n"
-                + "            \"name\": \"Three\"\n"
-                + "        }\n"
-                + "    ]\n"
-                + "{{/assign}}\n"
-                + "{{#join ',' myList as |item|}}\n"
+                + "  { \"id\": 1, \"name\": \"One\" },\n"
+                + "  { \"id\": 2, \"name\": \"Two\" },\n"
+                + "  { \"id\": 3, \"name\": \"Three\" }\n"
+                + "]\n"
+                + "{{/parseJson}}"
+                + "{{#join ',' myThings as |item|}}\n"
                 + "{\n"
                 + "name2:{{item.name}}\n"
                 + "}\n"
@@ -1074,32 +1068,21 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void joinWithArrayOfStrings() {
-    String result =
-        transform(
-            "{{#assign 'myList'}}\n"
-                + "[\"One\",\"Two\",\"Three\"]"
-                + "{{/assign}}\n"
-                + "{{join ',' myList}}\n");
+    String result = transform("{{join ',' (array 'One' 'Two' 'Three')}}\n");
 
     assertThat(result, equalToCompressingWhiteSpace("One,Two,Three"));
   }
 
   @Test
   public void joinWithEmptyArray() {
-    String result =
-        transform("{{#assign 'myList'}}\n" + "[]" + "{{/assign}}\n" + "{{join ',' myList}}\n");
+    String result = transform("{{join ',' (array )}}\n");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
 
   @Test
   public void joinWithNoSeparatorShouldReturnEmptyString() {
-    String result =
-            transform(
-                    "{{#assign 'myList'}}\n"
-                            + "[\"One\",\"Two\",\"Three\"]"
-                            + "{{/assign}}\n"
-                            + "{{join myList}}\n");
+    String result = transform("{{join (array 'One' 'Two' 'Three')}}\n");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
