@@ -1061,28 +1061,28 @@ public class ResponseTemplateTransformerTest {
                 + "{\n"
                 + "name2:{{item.name}}\n"
                 + "}\n"
-                + "{{/join}}\n");
+                + "{{/join}}");
 
     assertThat(result, equalToCompressingWhiteSpace("{name2:One},{name2:Two},{name2:Three}"));
   }
 
   @Test
   public void joinWithArrayOfStrings() {
-    String result = transform("{{join ',' (array 'One' 'Two' 'Three')}}\n");
+    String result = transform("{{join ',' (array 'One' 'Two' 'Three')}}");
 
     assertThat(result, equalToCompressingWhiteSpace("One,Two,Three"));
   }
 
   @Test
   public void joinWithEmptyArray() {
-    String result = transform("{{join ',' (array )}}\n");
+    String result = transform("{{join ',' (array )}}");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
 
   @Test
   public void joinWithNoSeparatorShouldReturnError() {
-    String result = transform("{{join (array 'One' 'Two' 'Three')}}\n");
+    String result = transform("{{join (array 'One' 'Two' 'Three')}}");
 
     assertThat(
         result, equalToCompressingWhiteSpace("[ERROR: Separator parameter must be a String]\n"));
@@ -1090,14 +1090,14 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void joinWithNoParameterShouldReturnError() {
-    String result = transform("{{join ','}}\n");
+    String result = transform("{{join ','}}");
 
     assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameters must be list]\n"));
   }
 
   @Test
   public void joinWithStringAsParameterShouldReturnError() {
-    String result = transform("{{join ',' \"blablabla\"}}\n");
+    String result = transform("{{join ',' \"blablabla\"}}");
 
     assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameters must be list]\n"));
   }
