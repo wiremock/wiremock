@@ -1084,6 +1084,14 @@ public class ResponseTemplateTransformerTest {
     assertThat(result, equalToCompressingWhiteSpace("One,Two,Three"));
   }
 
+  @Test
+  public void joinWithEmptyArray() {
+    String result =
+        transform("{{#assign 'myList'}}\n" + "[]" + "{{/assign}}\n" + "{{join ',' myList}}\n");
+
+    assertThat(result, equalToCompressingWhiteSpace(""));
+  }
+
   private Integer transformToInt(String responseBodyTemplate) {
     return Integer.parseInt(transform(responseBodyTemplate));
   }
