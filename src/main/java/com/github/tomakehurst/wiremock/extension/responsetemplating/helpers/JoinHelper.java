@@ -15,11 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
-import com.github.tomakehurst.wiremock.common.Json;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,13 +27,10 @@ public class JoinHelper implements Helper<Object> {
   public Object apply(Object context, Options options) throws IOException {
 
     String separator = context.toString();
-
-    String jsonString = options.param(0, "");
-    if("".equals(jsonString)) {
+    List<Object> items = options.param(0, null);
+    if (items == null || items.isEmpty()) {
       return "";
     }
-    List<Object> items = Json.read(jsonString, new TypeReference<>() {});
-
     String result;
     if (options.tagType == TagType.SECTION) {
       result = processSection(options, separator, items);
