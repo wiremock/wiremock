@@ -46,6 +46,10 @@ public class ArrayAddHelper extends AbstractArrayHelper {
     }
 
     if (position != null) {
+      if (position < 0 || position > mutableList.size()) {
+        return handleError(
+            "position must be greater than or equal to 0 and less than or equal to the size of the list");
+      }
       mutableList.add(position, newValue);
     } else {
       mutableList.add(newValue);
