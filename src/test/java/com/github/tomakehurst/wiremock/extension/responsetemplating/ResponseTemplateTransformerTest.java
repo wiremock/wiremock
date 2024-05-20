@@ -1110,9 +1110,32 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  void valHelperDefaultsNullValue() {
+  void valHelperReturnsDefaultsNullValue() {
     assertThat(transform("{{val request.query.nonexist or='123'}}"), is("123"));
+    assertThat(transform("{{val request.query.nonexist default='123'}}"), is("123"));
+  }
+
+  @Test
+  void valHelperReturnsValueIfNotNullValue() {
     assertThat(transform("{{val 'exists' or='123'}}"), is("exists"));
+    assertThat(transform("{{val 'exists' default='123'}}"), is("exists"));
+    assertThat(transform("{{val (array 1 2 3) default='123'}}"), is("[1, 2, 3]"));
+  }
+
+  @Test
+  void valHelperCanAssignValueToNamedVariable() {
+    assertThat(
+        transform("{{val 'value for myVar' assign='myVar'}}{{myVar}}"), is("value for myVar"));
+    assertThat(transform("{{val 12 assign='myVar'}}{{myVar}}"), is("12"));
+    assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{myVar}}"), is("[1, 2, 3]"));
+    assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{join '*' myVar}}"), is("1*2*3"));
+  }
+
+  @Test
+  void valHelperCanAssignValueToNamedVariableAndMaintainsType() {
+    assertThat(
+        transform("{{val 10 assign='myVar'}}{{#lt myVar 20}}Less Than{{else}}More Than{{/lt}}"),
+        is("Less Than"));
   }
 
   @Test
