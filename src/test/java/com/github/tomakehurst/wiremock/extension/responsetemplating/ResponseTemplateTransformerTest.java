@@ -863,13 +863,82 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
-  void addsArrayItem() {
+  void addsArrayItemWthSpecifiedIntegerPosition() {
     assertThat(transform("{{arrayAdd (array 1 'three') 2 position=1}}"), is("[1, 2, three]"));
   }
 
   @Test
-  void deletesArrayItem() {
+  void addsArrayItemWthSpecifiedStartPosition() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2 position='start'}}"), is("[2, 1, three]"));
+  }
+
+  @Test
+  void addsArrayItemWthSpecifiedEndPosition() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2 position='end'}}"), is("[1, three, 2]"));
+  }
+
+  @Test
+  void addsArrayItemWithNoPositionAddsToEnd() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2}}"), is("[1, three, 2]"));
+  }
+
+  @Test
+  void addsArrayItemWithNegativePositionThrowsAnError() {
+    assertThat(
+        transform("{{arrayAdd (array 1 'three') 2 position=-2}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
+  void addsArrayItemWithPositionGreaterThanTheArrayLengthThrowsAnError() {
+    assertThat(
+        transform("{{arrayAdd (array 1 'three') 2 position=3}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
+  void addsArrayItemWithMissingValueToAdd() {
+    assertThat(
+        transform("{{arrayAdd (array 1 'three') position=1}}"),
+        is("[ERROR: Missing required parameter: additional value to add to list]"));
+  }
+
+  @Test
+  void deletesArrayItemWthSpecifiedIntegerPosition() {
     assertThat(transform("{{arrayRemove (array 1 2 'three') position=1}}"), is("[1, three]"));
+  }
+
+  @Test
+  void deletesArrayItemWthSpecifiedStartPosition() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') position='start'}}"), is("[2, three]"));
+  }
+
+  @Test
+  void deletesArrayItemWthSpecifiedEndPosition() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') position='end'}}"), is("[1, 2]"));
+  }
+
+  @Test
+  void deletesArrayItemWithNoPositionRemovesFromEnd() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') }}"), is("[1, 2]"));
+  }
+
+  @Test
+  void deletesArrayItemWithNegativePositionThrowsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array 1 'three') position=-2}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
+  void deletesArrayItemWithPositionGreaterThanTheArrayLengthThrowsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array 1 'three') position=3}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
   }
 
   @Test
