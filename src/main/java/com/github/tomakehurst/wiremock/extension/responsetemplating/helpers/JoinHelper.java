@@ -42,6 +42,9 @@ public class JoinHelper extends HandlebarsHelper<Object> {
       items = Arrays.asList(options.params);
     }
 
+    String prefix = options.hash("prefix", "");
+    String suffix = options.hash("suffix", "");
+
     if (items.isEmpty()) {
       return "";
     }
@@ -52,7 +55,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
       result = processWithoutSection(separator, items);
     }
 
-    return result;
+    return prefix + result + suffix;
   }
 
   private static String processWithoutSection(String separator, List<Object> items) {
