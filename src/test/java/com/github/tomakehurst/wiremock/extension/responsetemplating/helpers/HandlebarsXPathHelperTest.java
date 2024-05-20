@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -250,5 +250,34 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
                     "{{#each (xPath request.body '/stuff/*') as |thing|}}{{{thing.name}}} {{/each}}"));
 
     assertThat(responseDefinition.getBody(), is("one two three "));
+  }
+
+  @Test
+  void rendersElementWhenXPathSelectorReturnsPrimitiveStringResult() {
+    ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest().body("<one>\n" + "    <two>value</two>\n" + "</one>"),
+            aResponse().withBody("{{xPath request.body 'local-name(/*/*[1])'}}"));
+
+    assertThat(responseDefinition.getBody(), is("two"));
+  }
+
+  @Test
+  void rendersElementWhenXPathSelectorReturnsPrimitiveNumberResult() {
+    ResponseDefinition responseDefinition =
+        transform(
+            transformer,
+            mockRequest()
+                .body(
+                    "<wrap>\n"
+                        + "    <one>value</one>\n"
+                        + "    <two>value</two>\n"
+                        + "    <three>value</three>\n"
+                        + "    <four>value</four>\n"
+                        + "</wrap>"),
+            aResponse().withBody("{{xPath request.body 'count(/wrap/*)'}}"));
+
+    assertThat(responseDefinition.getBody(), is("4"));
   }
 }
