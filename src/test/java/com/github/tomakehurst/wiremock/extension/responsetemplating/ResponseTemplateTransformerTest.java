@@ -1117,6 +1117,8 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   void valHelperReturnsValueIfNotNullValue() {
+    assertThat(transform("{{val 'exists'}}"), is("exists"));
+    assertThat(transform("{{val null}}"), is(""));
     assertThat(transform("{{val 'exists' or='123'}}"), is("exists"));
     assertThat(transform("{{val 'exists' default='123'}}"), is("exists"));
     assertThat(transform("{{val (array 1 2 3) default='123'}}"), is("[1, 2, 3]"));
