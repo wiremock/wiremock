@@ -86,7 +86,7 @@ public class InMemoryObjectStoreTest {
     assertThat(store.getAllKeys().count(), is(3L));
     assertThat(store.getAllKeys().collect(toList()), hasItems("three", "four", "five"));
   }
-  
+
   @Test
   void clearRemovesAllItems() {
     InMemoryObjectStore store = new InMemoryObjectStore(3);
@@ -99,5 +99,4 @@ public class InMemoryObjectStoreTest {
 
     assertThat(store.getAllKeys().count(), is(0L));
   }
-
 }
