@@ -1126,6 +1126,12 @@ public class ResponseTemplateTransformerTest {
   void valHelperCanAssignValueToNamedVariable() {
     assertThat(
         transform("{{val 'value for myVar' assign='myVar'}}{{myVar}}"), is("value for myVar"));
+    assertThat(
+        transform("{{val null or='other value for myVar' assign='myVar'}}{{myVar}}"),
+        is("other value for myVar"));
+    assertThat(
+        transform("{{val null default='other value for myVar' assign='myVar'}}{{myVar}}"),
+        is("other value for myVar"));
     assertThat(transform("{{val 12 assign='myVar'}}{{myVar}}"), is("12"));
     assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{myVar}}"), is("[1, 2, 3]"));
     assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{join '*' myVar}}"), is("1*2*3"));
