@@ -1090,7 +1090,6 @@ public class ResponseTemplateTransformerTest {
     assertThat(result, equalToCompressingWhiteSpace("1,2,3"));
   }
 
-
   @Test
   public void joinWithEmptyArray() {
     String result = transform("{{arrayJoin ',' (array )}}");
@@ -1118,6 +1117,20 @@ public class ResponseTemplateTransformerTest {
     String result = transform("{{arrayJoin ',' \"blablabla\"}}");
 
     assertThat(result, equalToCompressingWhiteSpace("blablabla"));
+  }
+
+  @Test
+  public void joinWithItemsListedAndPrefixAndSuffix() {
+    String result = transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three') prefix=\"p..\" suffix=\"..s\"}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..One\n,Two,Three..s"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndPrefixAndSuffix() {
+    String result = transform("{{arrayJoin ',' 1 2 3  prefix='p..' suffix='..s'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..1,2,3..s"));
   }
 
   @Test
