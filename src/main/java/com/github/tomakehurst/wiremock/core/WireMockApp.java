@@ -139,6 +139,7 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
 
     this.container = container;
+    extensions.startAll();
     loadDefaultMappings();
   }
 
@@ -534,6 +535,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void shutdownServer() {
+    extensions.stopAll();
     stores.stop();
     container.shutdown();
   }

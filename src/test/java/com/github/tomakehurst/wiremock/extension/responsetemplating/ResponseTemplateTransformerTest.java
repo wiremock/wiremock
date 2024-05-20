@@ -1115,6 +1115,84 @@ public class ResponseTemplateTransformerTest {
     assertThat(transform("{{val 'exists' or='123'}}"), is("exists"));
   }
 
+  @Test
+  public void joinWithObjectBody() {
+    String result =
+        transform(
+            "{{#parseJson 'myThings'}}\n"
+                + "[\n"
+                + "  { \"id\": 1, \"name\": \"One\" },\n"
+                + "  { \"id\": 2, \"name\": \"Two\" },\n"
+                + "  { \"id\": 3, \"name\": \"Three\" }\n"
+                + "]\n"
+                + "{{/parseJson}}"
+                + "[{{#join ',' myThings as |item|}}"
+                + "{\n"
+                + "\"name{{item.id}}\": \"{{item.name}}\"\n"
+                + "}\n"
+                + "{{/join}}]");
+
+    assertThat(
+        result,
+        equalToCompressingWhiteSpace(
+            "[{\n\"name1\": \"One\"\n}\n,{\n\"name2\": \"Two\"\n}\n,{\n\"name3\": \"Three\"\n}\n]"));
+  }
+
+  @Test
+  public void joinWithArrayOfStrings() {
+    String result = transform("{{join ',' (array 'One\n' 'Two' 'Three')}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("One\n,Two,Three"));
+  }
+
+  @Test
+  public void joinWithEmptyArray() {
+    String result = transform("{{join ',' (array )}}");
+
+    assertThat(result, equalToCompressingWhiteSpace(""));
+  }
+
+  @Test
+  public void joinWithNoSeparatorShouldReturnError() {
+    String result = transform("{{join (array 'One' 'Two' 'Three')}}");
+
+    assertThat(
+        result, equalToCompressingWhiteSpace("[ERROR: Separator parameter must be a String]\n"));
+  }
+
+  @Test
+  public void joinWithNoParameterShouldReturnError() {
+    String result = transform("{{join ','}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
+  }
+
+  @Test
+  public void joinWithStringAsParameterShouldReturnError() {
+    String result = transform("{{join ',' \"blablabla\"}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
+  }
+
+  @Test
+  public void joinWithDifferentSeparators() {
+    String result1 = transform("{{join (pickRandom ':') (array 'One' 'Two' 'Three')}}");
+    assertThat(result1, equalToCompressingWhiteSpace("One:Two:Three"));
+
+    String result2 = transform("{{join '*' (array 1 2 3)}}");
+    assertThat(result2, equalToCompressingWhiteSpace("1*2*3"));
+
+    String result3 = transform("{{join ' ' (array 'WireMock' 'Rocks')}}");
+    assertThat(result3, equalToCompressingWhiteSpace("WireMock Rocks"));
+
+    String result4 =
+        transform("{{join '' (array 'W' 'i' 'r' 'e' 'M' 'o' 'c' 'k' ' ' 'R' 'o' 'c' 'k' 's')}}");
+    assertThat(result4, equalToCompressingWhiteSpace("WireMock Rocks"));
+
+    String result5 = transform("{{join \" - * - \" (array 'One' 'Two' 'Three')}}");
+    assertThat(result5, equalToCompressingWhiteSpace("One - * - Two - * - Three"));
+  }
+
   private Integer transformToInt(String responseBodyTemplate) {
     return Integer.parseInt(transform(responseBodyTemplate));
   }
