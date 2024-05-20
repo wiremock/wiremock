@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2023 Thomas Akehurst
+ * Copyright (C) 2015-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,9 @@ public class CustomMatchingAcceptanceTest {
   public void customMatcherDefinitionCanBeCombinedWithStandardMatchers() {
     wm.register(
         get(urlPathMatching("/the/.*/one"))
-            .andMatching(new CustomMatcherDefinition("path-contains-param", Parameters.one("path", "correct")))
+            .andMatching(
+                new CustomMatcherDefinition(
+                    "path-contains-param", Parameters.one("path", "correct")))
             .willReturn(ok()));
 
     assertThat(client.get("/the/correct/one").statusCode(), is(200));

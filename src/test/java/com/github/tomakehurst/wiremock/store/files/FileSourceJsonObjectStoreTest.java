@@ -137,7 +137,7 @@ public class FileSourceJsonObjectStoreTest {
 
     assertThat(store.get("count").get(), is(101));
   }
-  
+
   @Test
   void getAllKeysReturnsTheCorrectKeys() {
     store.put("the_key", "Store this");
@@ -156,14 +156,14 @@ public class FileSourceJsonObjectStoreTest {
     assertThat(store.getAllKeys().count(), is(2L));
     assertThat(store.getAllKeys().anyMatch("the_key.json"::equals), is(true));
     assertThat(store.getAllKeys().anyMatch("that_key.json"::equals), is(true));
-    
+
     store.remove("the_key");
-    
+
     assertThat(store.getAllKeys().count(), is(1L));
     assertThat(store.getAllKeys().anyMatch("the_key.json"::equals), is(false));
     assertThat(store.getAllKeys().anyMatch("that_key.json"::equals), is(true));
   }
-  
+
   @Test
   void clear() {
     store.put("the_key", "Store this");
