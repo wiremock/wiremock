@@ -1136,7 +1136,8 @@ public class ResponseTemplateTransformerTest {
         is("other value for myVar"));
     assertThat(transform("{{val 12 assign='myVar'}}{{myVar}}"), is("12"));
     assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{myVar}}"), is("[1, 2, 3]"));
-    assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{join '*' myVar}}"), is("1*2*3"));
+    assertThat(
+        transform("{{val (array 1 2 3) assign='myVar'}}{{arrayJoin '*' myVar}}"), is("1*2*3"));
   }
 
   @Test
