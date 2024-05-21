@@ -302,6 +302,18 @@ public class CommandLineOptionsTest {
   }
 
   @Test
+  public void returnPreserveUserAgentProxyHeaderTrueWhenPresent() {
+    CommandLineOptions options = new CommandLineOptions("--preserve-user-agent-proxy-header");
+    assertThat(options.shouldPreserveUserAgentProxyHeader(), is(true));
+  }
+
+  @Test
+  public void returnPreserveUserAgentProxyHeaderFalseWhenNotPresent() {
+    CommandLineOptions options = new CommandLineOptions("--port", "8080");
+    assertThat(options.shouldPreserveUserAgentProxyHeader(), is(false));
+  }
+
+  @Test
   public void returnsCorrectlyParsedNumberOfThreads() {
     CommandLineOptions options = new CommandLineOptions("--container-threads", "300");
     assertThat(options.containerThreads(), is(300));

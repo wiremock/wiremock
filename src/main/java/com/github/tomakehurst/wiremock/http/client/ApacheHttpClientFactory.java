@@ -39,6 +39,6 @@ public class ApacheHttpClientFactory implements HttpClientFactory {
             options.getProxyTargetRules(),
             true);
 
-    return new ApacheBackedHttpClient(apacheClient);
+    return new ApacheBackedHttpClient(apacheClient, options.shouldPreserveUserAgentProxyHeader());
   }
 }
