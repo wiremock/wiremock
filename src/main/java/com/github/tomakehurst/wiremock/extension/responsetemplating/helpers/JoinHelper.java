@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.TagType;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class JoinHelper extends HandlebarsHelper<Object> {
@@ -31,11 +32,19 @@ public class JoinHelper extends HandlebarsHelper<Object> {
 
     String separator = (String) context;
 
-    Object param = options.param(0, null);
-    if (param == null || !(Iterable.class.isAssignableFrom(param.getClass()))) {
+    List<Object> items;
+    Object firstParam = options.param(0, null);
+    if (firstParam == null) {
       return handleError("The parameter must be list");
+    } else if (Iterable.class.isAssignableFrom(firstParam.getClass())) {
+      items = (List<Object>) firstParam;
+    } else {
+      items = Arrays.asList(options.params);
     }
-    List<Object> items = (List<Object>) param;
+
+    String prefix = options.hash("prefix", "");
+    String suffix = options.hash("suffix", "");
+
     if (items.isEmpty()) {
       return "";
     }
@@ -46,7 +55,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
       result = processWithoutSection(separator, items);
     }
 
-    return result;
+    return prefix + result + suffix;
   }
 
   private static String processWithoutSection(String separator, List<Object> items) {
