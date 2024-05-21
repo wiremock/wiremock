@@ -53,6 +53,9 @@ public class ValHelperTest extends HandlebarsHelperTestBase {
   void returnsTheValueWhenNotNullAndDefaultIsSpecified() throws Exception {
     assertThat(
         renderHelperValue(helper, "some value", Map.of("or", "other value")), is("some value"));
+    assertThat(
+        renderHelperValue(helper, "some value", Map.of("default", "other value")),
+        is("some value"));
   }
 
   @Test

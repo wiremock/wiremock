@@ -70,7 +70,7 @@ public class InMemoryObjectStoreTest {
   }
 
   @Test
-  void sizeLimitRemainsConsistenWhenItemRemoved() {
+  void sizeLimitRemainsConsistentWhenItemRemoved() {
     InMemoryObjectStore store = new InMemoryObjectStore(3);
 
     store.put("one", "1");
@@ -85,5 +85,18 @@ public class InMemoryObjectStoreTest {
     store.put("five", "5");
     assertThat(store.getAllKeys().count(), is(3L));
     assertThat(store.getAllKeys().collect(toList()), hasItems("three", "four", "five"));
+  }
+
+  @Test
+  void clearRemovesAllItems() {
+    InMemoryObjectStore store = new InMemoryObjectStore(3);
+
+    store.put("one", "1");
+    store.put("two", "2");
+    store.put("three", "3");
+
+    store.clear();
+
+    assertThat(store.getAllKeys().count(), is(0L));
   }
 }
