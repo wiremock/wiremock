@@ -262,7 +262,7 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
 
-  join {
+  arrayJoin {
     private final JoinHelper helper = new JoinHelper();
 
     @Override

@@ -1057,11 +1057,11 @@ public class ResponseTemplateTransformerTest {
                 + "  { \"id\": 3, \"name\": \"Three\" }\n"
                 + "]\n"
                 + "{{/parseJson}}"
-                + "[{{#join ',' myThings as |item|}}"
+                + "[{{#arrayJoin ',' myThings as |item|}}"
                 + "{\n"
                 + "\"name{{item.id}}\": \"{{item.name}}\"\n"
                 + "}\n"
-                + "{{/join}}]");
+                + "{{/arrayJoin}}]");
 
     assertThat(
         result,
@@ -1071,21 +1071,35 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void joinWithArrayOfStrings() {
-    String result = transform("{{join ',' (array 'One\n' 'Two' 'Three')}}");
+    String result = transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three')}}");
 
     assertThat(result, equalToCompressingWhiteSpace("One\n,Two,Three"));
   }
 
   @Test
+  public void joinWithItemsListed() {
+    String result = transform("{{arrayJoin ',' 'One\n' 'Two' 'Three'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("One\n,Two,Three"));
+  }
+
+  @Test
+  public void joinWithNumbersListed() {
+    String result = transform("{{arrayJoin ',' 1 2 3}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("1,2,3"));
+  }
+
+  @Test
   public void joinWithEmptyArray() {
-    String result = transform("{{join ',' (array )}}");
+    String result = transform("{{arrayJoin ',' (array )}}");
 
     assertThat(result, equalToCompressingWhiteSpace(""));
   }
 
   @Test
   public void joinWithNoSeparatorShouldReturnError() {
-    String result = transform("{{join (array 'One' 'Two' 'Three')}}");
+    String result = transform("{{arrayJoin (array 'One' 'Two' 'Three')}}");
 
     assertThat(
         result, equalToCompressingWhiteSpace("[ERROR: Separator parameter must be a String]\n"));
@@ -1093,34 +1107,64 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void joinWithNoParameterShouldReturnError() {
-    String result = transform("{{join ','}}");
+    String result = transform("{{arrayJoin ','}}");
 
     assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
   }
 
   @Test
   public void joinWithStringAsParameterShouldReturnError() {
-    String result = transform("{{join ',' \"blablabla\"}}");
+    String result = transform("{{arrayJoin ',' \"blablabla\"}}");
 
-    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
+    assertThat(result, equalToCompressingWhiteSpace("blablabla"));
+  }
+
+  @Test
+  public void joinWithItemsListedAndPrefixAndSuffix() {
+    String result =
+        transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three') prefix=\"p..\" suffix=\"..s\"}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..One\n,Two,Three..s"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndPrefix() {
+    String result = transform("{{arrayJoin ',' 1 2 3  prefix='p..'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..1,2,3"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndSuffix() {
+    String result = transform("{{arrayJoin ',' 1 2 3 suffix='..s'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("1,2,3..s"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndPrefixAndSuffix() {
+    String result = transform("{{arrayJoin ',' 1 2 3  prefix='p..' suffix='..s'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..1,2,3..s"));
   }
 
   @Test
   public void joinWithDifferentSeparators() {
-    String result1 = transform("{{join (pickRandom ':') (array 'One' 'Two' 'Three')}}");
+    String result1 = transform("{{arrayJoin (pickRandom ':') (array 'One' 'Two' 'Three')}}");
     assertThat(result1, equalToCompressingWhiteSpace("One:Two:Three"));
 
-    String result2 = transform("{{join '*' (array 1 2 3)}}");
+    String result2 = transform("{{arrayJoin '*' (array 1 2 3)}}");
     assertThat(result2, equalToCompressingWhiteSpace("1*2*3"));
 
-    String result3 = transform("{{join ' ' (array 'WireMock' 'Rocks')}}");
+    String result3 = transform("{{arrayJoin ' ' (array 'WireMock' 'Rocks')}}");
     assertThat(result3, equalToCompressingWhiteSpace("WireMock Rocks"));
 
     String result4 =
-        transform("{{join '' (array 'W' 'i' 'r' 'e' 'M' 'o' 'c' 'k' ' ' 'R' 'o' 'c' 'k' 's')}}");
+        transform(
+            "{{arrayJoin '' (array 'W' 'i' 'r' 'e' 'M' 'o' 'c' 'k' ' ' 'R' 'o' 'c' 'k' 's')}}");
     assertThat(result4, equalToCompressingWhiteSpace("WireMock Rocks"));
 
-    String result5 = transform("{{join \" - * - \" (array 'One' 'Two' 'Three')}}");
+    String result5 = transform("{{arrayJoin \" - * - \" (array 'One' 'Two' 'Three')}}");
     assertThat(result5, equalToCompressingWhiteSpace("One - * - Two - * - Three"));
   }
 
