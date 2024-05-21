@@ -1121,11 +1121,11 @@ public class ResponseTemplateTransformerTest {
 
   @Test
   public void joinWithItemsListedAndPrefixAndSuffix() {
-    String result = transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three') prefix=\"p..\" suffix=\"..s\"}}");
+    String result =
+        transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three') prefix=\"p..\" suffix=\"..s\"}}");
 
     assertThat(result, equalToCompressingWhiteSpace("p..One\n,Two,Three..s"));
   }
-
 
   @Test
   public void joinWithNumbersListedAndPrefix() {
@@ -1160,7 +1160,8 @@ public class ResponseTemplateTransformerTest {
     assertThat(result3, equalToCompressingWhiteSpace("WireMock Rocks"));
 
     String result4 =
-        transform("{{arrayJoin '' (array 'W' 'i' 'r' 'e' 'M' 'o' 'c' 'k' ' ' 'R' 'o' 'c' 'k' 's')}}");
+        transform(
+            "{{arrayJoin '' (array 'W' 'i' 'r' 'e' 'M' 'o' 'c' 'k' ' ' 'R' 'o' 'c' 'k' 's')}}");
     assertThat(result4, equalToCompressingWhiteSpace("WireMock Rocks"));
 
     String result5 = transform("{{arrayJoin \" - * - \" (array 'One' 'Two' 'Three')}}");

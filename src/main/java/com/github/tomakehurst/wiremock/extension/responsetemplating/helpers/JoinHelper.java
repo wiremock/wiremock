@@ -34,7 +34,7 @@ public class JoinHelper extends HandlebarsHelper<Object> {
 
     List<Object> items;
     Object firstParam = options.param(0, null);
-    if(firstParam == null) {
+    if (firstParam == null) {
       return handleError("The parameter must be list");
     } else if (Iterable.class.isAssignableFrom(firstParam.getClass())) {
       items = (List<Object>) firstParam;
