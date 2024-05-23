@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -254,6 +254,18 @@ public class NetworkAddressRulesAdheringDnsResolverTest {
         new NetworkAddressRulesAdheringDnsResolver(dns, rules);
 
     assertThat(resolver.resolve("1.example.com")).isEqualTo(dns.resolve("10.1.1.1"));
+  }
+
+  @Test
+  void resolveIpv4AndIpv6AddressesWithoutCustomRules() throws UnknownHostException {
+    register("1.example.com", "10.1.1.1", "2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+
+    NetworkAddressRules rules = NetworkAddressRules.builder().build();
+
+    NetworkAddressRulesAdheringDnsResolver resolver =
+        new NetworkAddressRulesAdheringDnsResolver(dns, rules);
+
+    assertThat(resolver.resolve("1.example.com")).isEqualTo(dns.resolve("1.example.com"));
   }
 
   private void register(String host, String... ipAddresses) throws UnknownHostException {
