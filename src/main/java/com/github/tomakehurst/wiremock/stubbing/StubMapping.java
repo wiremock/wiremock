@@ -70,10 +70,12 @@ public class StubMapping {
   public static final StubMapping NOT_CONFIGURED =
       new StubMapping(null, ResponseDefinition.notConfigured());
 
+  @Deprecated
   public static StubMapping buildFrom(String mappingSpecJson) {
     return Json.read(mappingSpecJson, StubMapping.class);
   }
 
+  @Deprecated
   public static String buildJsonStringFor(StubMapping mapping) {
     return Json.write(mapping);
   }

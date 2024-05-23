@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ public class OldEditStubMappingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubMapping stubMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
+    StubMapping stubMapping =
+        admin.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     admin.editStubMapping(stubMapping);
     return ResponseDefinition.noContent();
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.common.Json.write;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -33,7 +32,7 @@ public class GetRequestCountTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     RequestPattern requestPattern =
-        Json.read(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
+        admin.read(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
     VerificationResult result = admin.countRequestsMatching(requestPattern);
 
     return responseDefinition()

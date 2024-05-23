@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.admin.model.ScenarioState;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Errors;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -42,7 +41,7 @@ public class SetScenarioStateTask implements AdminTask {
 
   private void setOrResetScenarioState(Admin admin, String name, String body) {
     if (body != null && !body.isEmpty()) {
-      ScenarioState scenarioState = Json.read(body, ScenarioState.class);
+      ScenarioState scenarioState = admin.read(body, ScenarioState.class);
       admin.setScenarioState(name, scenarioState.getState());
     } else {
       admin.resetScenario(name);

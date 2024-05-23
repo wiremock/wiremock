@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2023 Thomas Akehurst
+ * Copyright (C) 2018-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -27,7 +26,7 @@ public class RemoveStubMappingsByMetadataTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     StringValuePattern pattern =
-        Json.read(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
+        admin.read(serveEvent.getRequest().getBodyAsString(), StringValuePattern.class);
     admin.removeStubsByMetadata(pattern);
     return ResponseDefinition.okEmptyJson();
   }

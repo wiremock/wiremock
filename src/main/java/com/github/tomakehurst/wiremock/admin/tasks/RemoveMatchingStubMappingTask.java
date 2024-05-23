@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ public class RemoveMatchingStubMappingTask implements AdminTask {
 
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
-    StubMapping removeMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
+    StubMapping removeMapping =
+        admin.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     admin.removeStubMapping(removeMapping);
     return ResponseDefinition.ok();
   }

@@ -252,6 +252,11 @@ public class DslWrapper implements Admin, Stubbing {
   }
 
   @Override
+  public <T> T read(String content, Class<T> valueType) {
+    return admin.read(content, valueType);
+  }
+
+  @Override
   public StubMapping givenThat(MappingBuilder mappingBuilder) {
     return stubbing.givenThat(mappingBuilder);
   }

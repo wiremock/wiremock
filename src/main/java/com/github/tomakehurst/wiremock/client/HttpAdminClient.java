@@ -433,6 +433,11 @@ public class HttpAdminClient implements Admin {
         adminRoutes.requestSpecForTask(GetGlobalSettingsTask.class), GetGlobalSettingsResult.class);
   }
 
+  @Override
+  public <T> T read(String content, Class<T> valueType) {
+    throw new UnsupportedOperationException();
+  }
+
   public int port() {
     return port;
   }

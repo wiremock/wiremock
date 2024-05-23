@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "POST",
+    "bodyPatterns": [
+      {"myContent": "myContent"},
+      {"contains": "my"}
+    ],
+    "url": "/mappings/multiple"
+  },
+  "response": {"status": 200}
+}

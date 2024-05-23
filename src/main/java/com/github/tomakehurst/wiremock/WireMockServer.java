@@ -571,6 +571,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     return wireMockApp.getGlobalSettings();
   }
 
+  @Override
+  public <T> T read(String content, Class<T> valueType) {
+    return wireMockApp.read(content, valueType);
+  }
+
   public void checkForUnmatchedRequests() {
     List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
     if (!unmatchedRequests.isEmpty()) {

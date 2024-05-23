@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2024 Thomas Akehurst
+ * Copyright (C) 2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.standalone;
+package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.extension.Extensions;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.extension.Extension;
 
-public interface MappingsLoader {
-
-  @Deprecated
-  void loadMappingsInto(StubMappings stubMappings);
-
-  default void loadMappingsInto(StubMappings stubMappings, Extensions extensions) {
-    loadMappingsInto(stubMappings);
-  }
+public interface ContentPatternExtension extends Extension {
+  Class<? extends ContentPattern<?>> getContentPatternClass();
 }

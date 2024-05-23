@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Limit;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -43,7 +45,6 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class AdminRequestHandlerTest {
   private Admin admin = mock(Admin.class);
@@ -109,8 +110,9 @@ public class AdminRequestHandlerTest {
   @Test
   public void shouldReturnCountOfMatchingRequests() {
     RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
-    Mockito.when(admin.countRequestsMatching(requestPattern))
-        .thenReturn(VerificationResult.withCount(5));
+    when(admin.read(REQUEST_PATTERN_SAMPLE, RequestPattern.class))
+        .thenReturn(Json.read(REQUEST_PATTERN_SAMPLE, RequestPattern.class));
+    when(admin.countRequestsMatching(requestPattern)).thenReturn(VerificationResult.withCount(5));
 
     handler.handle(
         aRequest()
@@ -133,6 +135,9 @@ public class AdminRequestHandlerTest {
 
   @Test
   public void shouldUpdateGlobalSettings() {
+    when(admin.read(GLOBAL_SETTINGS_JSON, GlobalSettings.class))
+        .thenReturn(Json.read(GLOBAL_SETTINGS_JSON, GlobalSettings.class));
+
     handler.handle(
         aRequest().withUrl("/settings").withMethod(POST).withBody(GLOBAL_SETTINGS_JSON).build(),
         httpResponder,

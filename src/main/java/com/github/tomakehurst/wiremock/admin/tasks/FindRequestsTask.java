@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Thomas Akehurst
+ * Copyright (C) 2013-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class FindRequestsTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     RequestPattern requestPattern =
-        Json.read(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
+        admin.read(serveEvent.getRequest().getBodyAsString(), RequestPattern.class);
     FindRequestsResult result = admin.findRequestsMatching(requestPattern);
 
     return responseDefinition()

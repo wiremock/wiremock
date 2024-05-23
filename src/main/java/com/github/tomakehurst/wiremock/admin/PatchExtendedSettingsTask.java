@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2023 Thomas Akehurst
+ * Copyright (C) 2019-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.admin.model.ExtendedSettingsWrapper;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -29,7 +28,7 @@ public class PatchExtendedSettingsTask implements AdminTask {
   @Override
   public ResponseDefinition execute(Admin admin, ServeEvent serveEvent, PathParams pathParams) {
     ExtendedSettingsWrapper extendedSettingsWrapper =
-        Json.read(serveEvent.getRequest().getBodyAsString(), ExtendedSettingsWrapper.class);
+        admin.read(serveEvent.getRequest().getBodyAsString(), ExtendedSettingsWrapper.class);
     Parameters newExtended = extendedSettingsWrapper.getExtended();
 
     GlobalSettings existingSettings = admin.getGlobalSettings().getSettings();

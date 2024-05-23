@@ -19,8 +19,12 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static java.util.stream.Collectors.toMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.Helper;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.LazyTemplateEngine;
@@ -30,6 +34,7 @@ import com.github.tomakehurst.wiremock.http.client.HttpClient;
 import com.github.tomakehurst.wiremock.http.client.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClient;
 import com.github.tomakehurst.wiremock.http.client.LazyHttpClientFactory;
+import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
 import com.github.tomakehurst.wiremock.store.Stores;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -254,5 +259,19 @@ public class Extensions implements WireMockServices {
                         Map.Entry::getValue,
                         (entry1, entry2) -> entry1,
                         LinkedHashMap::new)));
+  }
+
+  public <T> T read(String content, Class<T> valueType) {
+    try {
+      List<Class<?>> contentPatternExtensions =
+          ofType(ContentPatternExtension.class).values().stream()
+              .map(ContentPatternExtension::getContentPatternClass)
+              .collect(Collectors.toList());
+      ObjectMapper objectMapper = Json.getObjectMapper().copy();
+      objectMapper.registerSubtypes(contentPatternExtensions);
+      return objectMapper.readValue(content, valueType);
+    } catch (JsonProcessingException processingException) {
+      throw JsonException.fromJackson(processingException);
+    }
   }
 }

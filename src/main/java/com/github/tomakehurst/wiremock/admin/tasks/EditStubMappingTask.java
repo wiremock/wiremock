@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ public class EditStubMappingTask extends AbstractSingleStubTask {
   @Override
   protected ResponseDefinition processStubMapping(
       Admin admin, ServeEvent serveEvent, StubMapping stubMapping) {
-    StubMapping newStubMapping = StubMapping.buildFrom(serveEvent.getRequest().getBodyAsString());
+    StubMapping newStubMapping =
+        admin.read(serveEvent.getRequest().getBodyAsString(), StubMapping.class);
     newStubMapping.setId(stubMapping.getId());
     admin.editStubMapping(newStubMapping);
     return ResponseDefinition.okForJson(newStubMapping);
