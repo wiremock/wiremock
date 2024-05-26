@@ -128,15 +128,16 @@ public class Extensions implements WireMockServices {
             .flatMap(Set::stream)
             .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+    final List<TemplateModelDataProviderExtension> templateModelProviders =
+        new ArrayList<>(ofType(TemplateModelDataProviderExtension.class).values());
+
     templateEngine =
         new TemplateEngine(
             helpers,
             options.getMaxTemplateCacheEntries(),
             options.getTemplatePermittedSystemKeys(),
-            options.getTemplateEscapingDisabled());
-
-    final List<TemplateModelDataProviderExtension> templateModelProviders =
-        new ArrayList<>(ofType(TemplateModelDataProviderExtension.class).values());
+            options.getTemplateEscapingDisabled(),
+            templateModelProviders);
 
     if (options.getResponseTemplatingEnabled()) {
       final ResponseTemplateTransformer responseTemplateTransformer =
@@ -231,6 +232,14 @@ public class Extensions implements WireMockServices {
     } catch (Exception e) {
       return throwUnchecked(e, Extension.class);
     }
+  }
+
+  public void startAll() {
+    loadedExtensions.values().forEach(Extension::start);
+  }
+
+  public void stopAll() {
+    loadedExtensions.values().forEach(Extension::stop);
   }
 
   @SuppressWarnings("unchecked")

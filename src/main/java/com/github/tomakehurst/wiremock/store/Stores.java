@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,11 @@ import org.wiremock.annotations.Beta;
 @Beta(justification = "Externalized State API: https://github.com/wiremock/wiremock/issues/2144")
 public interface Stores extends StoresLifecycle {
 
+  enum PersistenceType {
+    PERSISTENT,
+    EPHEMERAL
+  }
+
   StubMappingStore getStubStore();
 
   RequestJournalStore getRequestJournalStore();
@@ -42,4 +47,10 @@ public interface Stores extends StoresLifecycle {
   }
 
   BlobStore getBlobStore(String name);
+
+  default ObjectStore getObjectStore(String name) {
+    return getObjectStore(name, PersistenceType.EPHEMERAL);
+  }
+
+  ObjectStore getObjectStore(String name, PersistenceType persistenceTypeHint);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.extension.ServeEventListener.RequestPhase.*;
+import static com.github.tomakehurst.wiremock.extension.ServeEventListenerUtils.triggerListeners;
 
 import com.github.tomakehurst.wiremock.common.DataTruncationSettings;
 import com.github.tomakehurst.wiremock.common.url.PathParams;
@@ -68,10 +69,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
   @Override
   public ServeEvent handleRequest(ServeEvent initialServeEvent) {
-    triggerListeners(BEFORE_MATCH, initialServeEvent);
-    final ServeEvent serveEvent = stubServer.serveStubFor(initialServeEvent);
-    triggerListeners(AFTER_MATCH, serveEvent);
-    return serveEvent;
+    triggerListeners(serveEventListeners, BEFORE_MATCH, initialServeEvent);
+    return stubServer.serveStubFor(initialServeEvent);
   }
 
   @Override
@@ -87,7 +86,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
     requestJournal.requestReceived(serveEvent);
 
-    triggerListeners(BEFORE_RESPONSE_SENT, serveEvent);
+    triggerListeners(serveEventListeners, BEFORE_RESPONSE_SENT, serveEvent);
   }
 
   private void appendNonMatchSubEvent(ServeEvent serveEvent) {
@@ -111,7 +110,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
     triggerPostServeActions(serveEvent);
 
-    triggerListeners(AFTER_COMPLETE, serveEvent);
+    triggerListeners(serveEventListeners, AFTER_COMPLETE, serveEvent);
   }
 
   private void triggerPostServeActions(ServeEvent serveEvent) {
@@ -127,27 +126,6 @@ public class StubRequestHandler extends AbstractRequestHandler {
         action.doAction(serveEvent, admin, parameters);
       } else {
         notifier().error("No extension was found named \"" + postServeActionDef.getName() + "\"");
-      }
-    }
-  }
-
-  private void triggerListeners(
-      ServeEventListener.RequestPhase requestPhase, ServeEvent serveEvent) {
-    serveEventListeners.values().stream()
-        .filter(ServeEventListener::applyGlobally)
-        .forEach(listener -> listener.onEvent(requestPhase, serveEvent, Parameters.empty()));
-
-    List<ServeEventListenerDefinition> serveEventListenerDefinitions =
-        serveEvent.getServeEventListeners();
-    for (ServeEventListenerDefinition listenerDef : serveEventListenerDefinitions) {
-      ServeEventListener listener = serveEventListeners.get(listenerDef.getName());
-      if (listener != null
-          && !listener.applyGlobally()
-          && listenerDef.shouldFireFor(requestPhase)) {
-        Parameters parameters = listenerDef.getParameters();
-        listener.onEvent(requestPhase, serveEvent, parameters);
-      } else {
-        notifier().error("No per-stub listener was found named \"" + listenerDef.getName() + "\"");
       }
     }
   }

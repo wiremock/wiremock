@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2023 Thomas Akehurst
+ * Copyright (C) 2012-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,11 +64,6 @@ public class ServletContextFileSourceTest {
     assertThrows(
         UnsupportedOperationException.class,
         () -> fileSource.writeTextFile("filename", "filecontents"));
-  }
-
-  @Test
-  public void throwsUnsupportedExceptionWhenAttemptingToCreate() {
-    assertThrows(UnsupportedOperationException.class, fileSource::createIfNecessary);
   }
 
   private static class MockServletContext implements ServletContext {

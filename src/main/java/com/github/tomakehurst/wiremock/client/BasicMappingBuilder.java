@@ -279,6 +279,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     return this;
   }
 
+  @Override
+  public BasicMappingBuilder andMatching(CustomMatcherDefinition matcherDefinition) {
+    requestPatternBuilder.andMatching(matcherDefinition);
+    return this;
+  }
+
   private boolean requiredScenarioExist() {
     return scenarioName == null && (requiredScenarioState != null || newScenarioState != null);
   }

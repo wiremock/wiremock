@@ -863,6 +863,85 @@ public class ResponseTemplateTransformerTest {
   }
 
   @Test
+  void addsArrayItemWthSpecifiedIntegerPosition() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2 position=1}}"), is("[1, 2, three]"));
+  }
+
+  @Test
+  void addsArrayItemWthSpecifiedStartPosition() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2 position='start'}}"), is("[2, 1, three]"));
+  }
+
+  @Test
+  void addsArrayItemWthSpecifiedEndPosition() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2 position='end'}}"), is("[1, three, 2]"));
+  }
+
+  @Test
+  void addsArrayItemWithNoPositionAddsToEnd() {
+    assertThat(transform("{{arrayAdd (array 1 'three') 2}}"), is("[1, three, 2]"));
+  }
+
+  @Test
+  void addsArrayItemWithNegativePositionThrowsAnError() {
+    assertThat(
+        transform("{{arrayAdd (array 1 'three') 2 position=-2}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
+  void addsArrayItemWithPositionGreaterThanTheArrayLengthThrowsAnError() {
+    assertThat(
+        transform("{{arrayAdd (array 1 'three') 2 position=3}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
+  void addsArrayItemWithMissingValueToAdd() {
+    assertThat(
+        transform("{{arrayAdd (array 1 'three') position=1}}"),
+        is("[ERROR: Missing required parameter: additional value to add to list]"));
+  }
+
+  @Test
+  void deletesArrayItemWthSpecifiedIntegerPosition() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') position=1}}"), is("[1, three]"));
+  }
+
+  @Test
+  void deletesArrayItemWthSpecifiedStartPosition() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') position='start'}}"), is("[2, three]"));
+  }
+
+  @Test
+  void deletesArrayItemWthSpecifiedEndPosition() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') position='end'}}"), is("[1, 2]"));
+  }
+
+  @Test
+  void deletesArrayItemWithNoPositionRemovesFromEnd() {
+    assertThat(transform("{{arrayRemove (array 1 2 'three') }}"), is("[1, 2]"));
+  }
+
+  @Test
+  void deletesArrayItemWithNegativePositionThrowsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array 1 'three') position=-2}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
+  void deletesArrayItemWithPositionGreaterThanTheArrayLengthThrowsAnError() {
+    assertThat(
+        transform("{{arrayRemove (array 1 'three') position=3}}"),
+        is(
+            "[ERROR: position must be greater than or equal to 0 and less than or equal to the size of the list]"));
+  }
+
+  @Test
   public void parsesJsonLiteralToAMapOfMapsVariable() {
     String result =
         transform(
@@ -1028,6 +1107,166 @@ public class ResponseTemplateTransformerTest {
     String result = transform("{{date (parseDate '2021' format='yyyy') format='yyyy-MM'}}");
     String expected = YearMonth.of(2021, 1).toString();
     assertThat(result, is(expected));
+  }
+
+  @Test
+  void valHelperReturnsDefaultsNullValue() {
+    assertThat(transform("{{val request.query.nonexist or='123'}}"), is("123"));
+    assertThat(transform("{{val request.query.nonexist default='123'}}"), is("123"));
+  }
+
+  @Test
+  void valHelperReturnsValueIfNotNullValue() {
+    assertThat(transform("{{val 'exists'}}"), is("exists"));
+    assertThat(transform("{{val null}}"), is(""));
+    assertThat(transform("{{val 'exists' or='123'}}"), is("exists"));
+    assertThat(transform("{{val 'exists' default='123'}}"), is("exists"));
+    assertThat(transform("{{val (array 1 2 3) default='123'}}"), is("[1, 2, 3]"));
+  }
+
+  @Test
+  void valHelperCanAssignValueToNamedVariable() {
+    assertThat(
+        transform("{{val 'value for myVar' assign='myVar'}}{{myVar}}"), is("value for myVar"));
+    assertThat(
+        transform("{{val null or='other value for myVar' assign='myVar'}}{{myVar}}"),
+        is("other value for myVar"));
+    assertThat(
+        transform("{{val null default='other value for myVar' assign='myVar'}}{{myVar}}"),
+        is("other value for myVar"));
+    assertThat(transform("{{val 12 assign='myVar'}}{{myVar}}"), is("12"));
+    assertThat(transform("{{val (array 1 2 3) assign='myVar'}}{{myVar}}"), is("[1, 2, 3]"));
+    assertThat(
+        transform("{{val (array 1 2 3) assign='myVar'}}{{arrayJoin '*' myVar}}"), is("1*2*3"));
+  }
+
+  @Test
+  void valHelperCanAssignValueToNamedVariableAndMaintainsType() {
+    assertThat(
+        transform("{{val 10 assign='myVar'}}{{#lt myVar 20}}Less Than{{else}}More Than{{/lt}}"),
+        is("Less Than"));
+  }
+
+  @Test
+  public void joinWithObjectBody() {
+    String result =
+        transform(
+            "{{#parseJson 'myThings'}}\n"
+                + "[\n"
+                + "  { \"id\": 1, \"name\": \"One\" },\n"
+                + "  { \"id\": 2, \"name\": \"Two\" },\n"
+                + "  { \"id\": 3, \"name\": \"Three\" }\n"
+                + "]\n"
+                + "{{/parseJson}}"
+                + "[{{#arrayJoin ',' myThings as |item|}}"
+                + "{\n"
+                + "\"name{{item.id}}\": \"{{item.name}}\"\n"
+                + "}\n"
+                + "{{/arrayJoin}}]");
+
+    assertThat(
+        result,
+        equalToCompressingWhiteSpace(
+            "[{\n\"name1\": \"One\"\n}\n,{\n\"name2\": \"Two\"\n}\n,{\n\"name3\": \"Three\"\n}\n]"));
+  }
+
+  @Test
+  public void joinWithArrayOfStrings() {
+    String result = transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three')}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("One\n,Two,Three"));
+  }
+
+  @Test
+  public void joinWithItemsListed() {
+    String result = transform("{{arrayJoin ',' 'One\n' 'Two' 'Three'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("One\n,Two,Three"));
+  }
+
+  @Test
+  public void joinWithNumbersListed() {
+    String result = transform("{{arrayJoin ',' 1 2 3}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("1,2,3"));
+  }
+
+  @Test
+  public void joinWithEmptyArray() {
+    String result = transform("{{arrayJoin ',' (array )}}");
+
+    assertThat(result, equalToCompressingWhiteSpace(""));
+  }
+
+  @Test
+  public void joinWithNoSeparatorShouldReturnError() {
+    String result = transform("{{arrayJoin (array 'One' 'Two' 'Three')}}");
+
+    assertThat(
+        result, equalToCompressingWhiteSpace("[ERROR: Separator parameter must be a String]\n"));
+  }
+
+  @Test
+  public void joinWithNoParameterShouldReturnError() {
+    String result = transform("{{arrayJoin ','}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("[ERROR: The parameter must be list]\n"));
+  }
+
+  @Test
+  public void joinWithStringAsParameterShouldReturnError() {
+    String result = transform("{{arrayJoin ',' \"blablabla\"}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("blablabla"));
+  }
+
+  @Test
+  public void joinWithItemsListedAndPrefixAndSuffix() {
+    String result =
+        transform("{{arrayJoin ',' (array 'One\n' 'Two' 'Three') prefix=\"p..\" suffix=\"..s\"}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..One\n,Two,Three..s"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndPrefix() {
+    String result = transform("{{arrayJoin ',' 1 2 3  prefix='p..'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..1,2,3"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndSuffix() {
+    String result = transform("{{arrayJoin ',' 1 2 3 suffix='..s'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("1,2,3..s"));
+  }
+
+  @Test
+  public void joinWithNumbersListedAndPrefixAndSuffix() {
+    String result = transform("{{arrayJoin ',' 1 2 3  prefix='p..' suffix='..s'}}");
+
+    assertThat(result, equalToCompressingWhiteSpace("p..1,2,3..s"));
+  }
+
+  @Test
+  public void joinWithDifferentSeparators() {
+    String result1 = transform("{{arrayJoin (pickRandom ':') (array 'One' 'Two' 'Three')}}");
+    assertThat(result1, equalToCompressingWhiteSpace("One:Two:Three"));
+
+    String result2 = transform("{{arrayJoin '*' (array 1 2 3)}}");
+    assertThat(result2, equalToCompressingWhiteSpace("1*2*3"));
+
+    String result3 = transform("{{arrayJoin ' ' (array 'WireMock' 'Rocks')}}");
+    assertThat(result3, equalToCompressingWhiteSpace("WireMock Rocks"));
+
+    String result4 =
+        transform(
+            "{{arrayJoin '' (array 'W' 'i' 'r' 'e' 'M' 'o' 'c' 'k' ' ' 'R' 'o' 'c' 'k' 's')}}");
+    assertThat(result4, equalToCompressingWhiteSpace("WireMock Rocks"));
+
+    String result5 = transform("{{arrayJoin \" - * - \" (array 'One' 'Two' 'Three')}}");
+    assertThat(result5, equalToCompressingWhiteSpace("One - * - Two - * - Three"));
   }
 
   private Integer transformToInt(String responseBodyTemplate) {

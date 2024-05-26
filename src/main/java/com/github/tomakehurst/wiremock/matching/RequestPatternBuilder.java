@@ -254,8 +254,11 @@ public class RequestPatternBuilder {
   }
 
   public RequestPatternBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
-    this.customMatcherDefinition =
-        new CustomMatcherDefinition(customRequestMatcherName, parameters);
+    return andMatching(new CustomMatcherDefinition(customRequestMatcherName, parameters));
+  }
+
+  public RequestPatternBuilder andMatching(CustomMatcherDefinition matcherDefinition) {
+    this.customMatcherDefinition = matcherDefinition;
     return this;
   }
 

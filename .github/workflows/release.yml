@@ -23,7 +23,7 @@ jobs:
 
       - name: Publish core package
         id: publish_package
-        run: ./gradlew :publish :closeAndReleaseStagingRepository --stacktrace
+        run: ./gradlew :publish :closeAndReleaseStagingRepositories --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,7 +51,7 @@ jobs:
 
       - name: Publish Jetty 12 package
         id: publish_package
-        run: ./gradlew :wiremock-jetty12:publish :closeAndReleaseStagingRepository --stacktrace
+        run: ./gradlew :wiremock-jetty12:publish :closeAndReleaseStagingRepositories --stacktrace
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

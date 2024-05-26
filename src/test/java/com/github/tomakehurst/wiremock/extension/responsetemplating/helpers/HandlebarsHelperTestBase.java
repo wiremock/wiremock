@@ -20,9 +20,7 @@ import static com.github.tomakehurst.wiremock.testsupport.ExtensionFactoryUtils.
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.github.jknack.handlebars.Context;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.*;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.RequestCache;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
@@ -64,6 +62,18 @@ public abstract class HandlebarsHelperTestBase {
   protected <R, C> R renderHelperValue(Helper<C> helper, C content, Object... parameters)
       throws IOException {
     return (R) helper.apply(content, createOptions(parameters));
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <R, C> R renderHelperValue(
+      Helper<C> helper, C value, Map<String, Object> keyValueOptions, Object... parameters)
+      throws IOException {
+    final Options options =
+        new Options.Builder(null, null, TagType.VAR, createContext(), Template.EMPTY)
+            .setParams(new Object[] {value})
+            .setHash(keyValueOptions)
+            .build();
+    return (R) helper.apply(value, options);
   }
 
   protected <T> void testHelper(Helper<T> helper, T content, String optionParam, String expected)
