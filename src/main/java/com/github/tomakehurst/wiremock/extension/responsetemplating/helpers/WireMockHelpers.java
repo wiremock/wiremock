@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2021 Thomas Akehurst
+ * Copyright (C) 2017-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * This enum is implemented similar to the StringHelpers of handlebars. It is basically a library of
@@ -198,6 +199,24 @@ public enum WireMockHelpers implements Helper<Object> {
     }
   },
 
+  arrayAdd {
+    private final ArrayAddHelper helper = new ArrayAddHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply((List<?>) context, options);
+    }
+  },
+
+  arrayRemove {
+    private final ArrayRemoveHelper helper = new ArrayRemoveHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply((List<?>) context, options);
+    }
+  },
+
   parseJson {
     private final ParseJsonHelper helper = new ParseJsonHelper();
 
@@ -227,6 +246,24 @@ public enum WireMockHelpers implements Helper<Object> {
 
   math {
     private final MathsHelper helper = new MathsHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
+  },
+
+  val {
+    private final ValHelper helper = new ValHelper();
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+      return helper.apply(context, options);
+    }
+  },
+
+  arrayJoin {
+    private final JoinHelper helper = new JoinHelper();
 
     @Override
     public Object apply(Object context, Options options) throws IOException {

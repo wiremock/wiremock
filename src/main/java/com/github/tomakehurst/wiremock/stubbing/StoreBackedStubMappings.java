@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformerV2;
+import com.github.tomakehurst.wiremock.extension.ServeEventListener;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.store.BlobStore;
@@ -33,7 +34,8 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
       Map<String, ResponseDefinitionTransformer> transformers,
       Map<String, ResponseDefinitionTransformerV2> v2transformers,
       BlobStore filesBlobStore,
-      List<StubLifecycleListener> stubLifecycleListeners) {
+      List<StubLifecycleListener> stubLifecycleListeners,
+      Map<String, ServeEventListener> serveEventListeners) {
     super(
         store,
         scenarios,
@@ -41,6 +43,7 @@ public class StoreBackedStubMappings extends AbstractStubMappings {
         transformers,
         v2transformers,
         filesBlobStore,
-        stubLifecycleListeners);
+        stubLifecycleListeners,
+        serveEventListeners);
   }
 }

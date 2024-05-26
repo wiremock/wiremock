@@ -66,6 +66,7 @@ public class WireMockApp implements StubServer, Admin {
   private final Recorder recorder;
   private final List<GlobalSettingsListener> globalSettingsListeners;
   private final Map<String, MappingsLoaderExtension> mappingsLoaderExtensions;
+  private final Map<String, ServeEventListener> serveEventListeners;
 
   private Options options;
 
@@ -109,6 +110,8 @@ public class WireMockApp implements StubServer, Admin {
     Map<String, RequestMatcherExtension> customMatchers =
         extensions.ofType(RequestMatcherExtension.class);
 
+    serveEventListeners = extensions.ofType(ServeEventListener.class);
+
     requestJournal =
         options.requestJournalDisabled()
             ? new DisabledRequestJournal()
@@ -126,7 +129,8 @@ public class WireMockApp implements StubServer, Admin {
             extensions.ofType(ResponseDefinitionTransformer.class),
             extensions.ofType(ResponseDefinitionTransformerV2.class),
             stores.getFilesBlobStore(),
-            List.copyOf(extensions.ofType(StubLifecycleListener.class).values()));
+            List.copyOf(extensions.ofType(StubLifecycleListener.class).values()),
+            serveEventListeners);
     nearMissCalculator =
         new NearMissCalculator(stubMappings, requestJournal, scenarios, customMatchers);
     recorder =
@@ -135,6 +139,7 @@ public class WireMockApp implements StubServer, Admin {
     this.mappingsLoaderExtensions = extensions.ofType(MappingsLoaderExtension.class);
 
     this.container = container;
+    extensions.startAll();
     loadDefaultMappings();
   }
 
@@ -164,6 +169,9 @@ public class WireMockApp implements StubServer, Admin {
             : new StoreBackedRequestJournal(
                 maxRequestJournalEntries, requestMatchers, stores.getRequestJournalStore());
     scenarios = new InMemoryScenarios(stores.getScenariosStore());
+
+    serveEventListeners = Collections.emptyMap();
+
     stubMappings =
         new StoreBackedStubMappings(
             stores.getStubStore(),
@@ -172,7 +180,8 @@ public class WireMockApp implements StubServer, Admin {
             transformers,
             v2transformers,
             stores.getFilesBlobStore(),
-            Collections.emptyList());
+            Collections.emptyList(),
+            serveEventListeners);
     this.container = container;
     nearMissCalculator =
         new NearMissCalculator(stubMappings, requestJournal, scenarios, requestMatchers);
@@ -198,8 +207,6 @@ public class WireMockApp implements StubServer, Admin {
 
   public StubRequestHandler buildStubRequestHandler() {
     Map<String, PostServeAction> postServeActions = extensions.ofType(PostServeAction.class);
-    Map<String, ServeEventListener> serveEventListeners =
-        extensions.ofType(ServeEventListener.class);
     BrowserProxySettings browserProxySettings = options.browserProxySettings();
 
     final com.github.tomakehurst.wiremock.http.client.HttpClientFactory httpClientFactory =
@@ -528,6 +535,7 @@ public class WireMockApp implements StubServer, Admin {
 
   @Override
   public void shutdownServer() {
+    extensions.stopAll();
     stores.stop();
     container.shutdown();
   }
