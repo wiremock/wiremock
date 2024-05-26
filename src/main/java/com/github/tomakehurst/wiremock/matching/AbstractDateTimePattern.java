@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2022 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.DateTimeUnit;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -271,7 +272,11 @@ public abstract class AbstractDateTimePattern extends StringValuePattern {
                 : LocalDate.parse(dateTimeString))
             .atStartOfDay();
       } catch (DateTimeParseException ignored2) {
-        return null;
+        try {
+          return Year.parse(dateTimeString).atDay(1).atStartOfDay();
+        } catch (DateTimeParseException ignored3) {
+          return null;
+        }
       }
     }
   }

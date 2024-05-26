@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.common.DateTimeTruncation;
 import com.github.tomakehurst.wiremock.common.Json;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
@@ -78,6 +79,20 @@ public class EqualToDateTimePatternTest {
 
     String good = localExpected;
     String bad = LocalDateTime.parse(localExpected).minusSeconds(1).toString();
+
+    assertTrue(matcher.match(good).isExactMatch());
+    assertFalse(matcher.match(bad).isExactMatch());
+  }
+
+  @Test
+  public void matchesNowToYear() {
+    Year currentYear = Year.now();
+    Year previousYear = currentYear.minusYears(1);
+    StringValuePattern matcher =
+        WireMock.isNow().truncateExpected(DateTimeTruncation.FIRST_DAY_OF_YEAR);
+
+    String good = currentYear.toString();
+    String bad = previousYear.toString();
 
     assertTrue(matcher.match(good).isExactMatch());
     assertFalse(matcher.match(bad).isExactMatch());
