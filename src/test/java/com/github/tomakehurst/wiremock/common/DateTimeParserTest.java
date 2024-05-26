@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Thomas Akehurst
+ * Copyright (C) 2021-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +56,18 @@ public class DateTimeParserTest {
   public void parsesLocalDateFromFormatString() {
     DateTimeParser parser = DateTimeParser.forFormat("dd/MM/yyyy");
     assertThat(parser.parseLocalDate("23/06/2021"), is(LocalDate.parse("2021-06-23")));
+  }
+
+  @Test
+  public void parsesYearMonthFromFormatString() {
+    DateTimeParser parser = DateTimeParser.forFormat("MM/yyyy");
+    assertThat(parser.parseYearMonth("06/2021"), is(YearMonth.parse("2021-06")));
+  }
+
+  @Test
+  public void parsesYearFromFormatString() {
+    DateTimeParser parser = DateTimeParser.forFormat("yy");
+    assertThat(parser.parseYear("21"), is(Year.parse("2021")));
   }
 
   @Test
