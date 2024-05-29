@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Thomas Akehurst
+ * Copyright (C) 2022-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static java.util.stream.Collectors.toList;
 
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Pair;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -149,6 +151,16 @@ public abstract class AbstractStubMappings implements StubMappings {
 
   @Override
   public void addMapping(StubMapping mapping) {
+    if (store.get(mapping.getId()).isPresent()) {
+      String msg =
+          "ID of the provided stub mapping '"
+              + mapping.getUuid()
+              + "' is already taken by another stub mapping";
+      notifier().error(msg);
+      throw new InvalidInputException(
+          Errors.singleWithDetail(109, "Duplicate stub mapping ID", msg));
+    }
+
     for (StubLifecycleListener listener : stubLifecycleListeners) {
       listener.beforeStubCreated(mapping);
     }
