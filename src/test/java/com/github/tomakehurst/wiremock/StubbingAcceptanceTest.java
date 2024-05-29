@@ -34,8 +34,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.common.ClientError;
 import com.github.tomakehurst.wiremock.junit5.EnabledIfJettyVersion;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -56,6 +58,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -1219,6 +1222,31 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
     assertThat(testClient.get("/search?q=something").statusCode(), is(200));
     assertThat(testClient.get("/search").statusCode(), is(404));
+  }
+
+  @Test
+  void cannotCreateMultipleStubMappingsWithTheSameId() {
+    final UUID id = UUID.randomUUID();
+    stubFor(get("/first-stub-with-id").withId(id).willReturn(ok()));
+
+    assertThat(testClient.get("/first-stub-with-id").statusCode(), is(200));
+
+    ClientError exception =
+        Assertions.assertThrows(
+            ClientError.class,
+            () -> stubFor(post("/second-stub-with-id").withId(id).willReturn(created())));
+    assertThat(exception.getErrors().getErrors().size(), is(1));
+    assertThat(exception.getErrors().first().getCode(), is(109));
+    assertThat(exception.getErrors().first().getTitle(), is("Duplicate stub mapping ID"));
+    assertThat(
+        exception.getErrors().first().getDetail(),
+        is(
+            "ID of the provided stub mapping '"
+                + id
+                + "' is already taken by another stub mapping"));
+    assertThat(exception.getErrors().first().getSource(), nullValue());
+    assertThat(testClient.get("/second-stub-with-id").statusCode(), is(404));
+    assertThat(testClient.get("/first-stub-with-id").statusCode(), is(200));
   }
 
   private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {

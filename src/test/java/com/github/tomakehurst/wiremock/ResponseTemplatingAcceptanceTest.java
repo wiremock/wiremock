@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Thomas Akehurst
+ * Copyright (C) 2016-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,7 +168,7 @@ public class ResponseTemplatingAcceptanceTest {
       assertThat(response.content(), is("one"));
       assertThat(response.firstHeader("X-Value"), is("one"));
 
-      wm.stubFor(
+      wm.editStub(
           get(urlPathEqualTo(url))
               .withId(id)
               .willReturn(
@@ -183,17 +183,14 @@ public class ResponseTemplatingAcceptanceTest {
 
     @Test
     public void supportsDisablingTemplatingOfBodyFilesPerStub() {
-      UUID id = UUID.randomUUID();
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
-              .withId(id)
               .willReturn(aResponse().withBodyFile("templated-example-1.txt")));
 
       assertThat(client.get("/templated").content(), is("templated"));
 
       wm.stubFor(
           get(urlPathEqualTo("/templated"))
-              .withId(id)
               .willReturn(
                   aResponse()
                       .withBodyFile("templated-example-1.txt")
@@ -203,7 +200,6 @@ public class ResponseTemplatingAcceptanceTest {
 
       wm.stubFor(
           get(urlPathMatching("/templated/.*"))
-              .withId(id)
               .willReturn(
                   aResponse()
                       .withBodyFile("templated-example-{{request.path.1}}.txt")
