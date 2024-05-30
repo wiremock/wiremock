@@ -45,6 +45,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -911,6 +912,22 @@ class AdminApiTest extends AcceptanceTestBase {
         "BBB",
         fileSource.getTextFileNamed(fileName).readContentsAsString(),
         "File should have been changed");
+  }
+
+  @Test
+  void getStubFileContent() {
+    String fileName = "foo/bar.txt";
+    FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+    fileSource.createIfNecessary();
+    fileSource.writeTextFile(fileName, "AAA");
+
+    WireMockResponse response = testClient.get("/__admin/files/foo/bar.txt");
+
+    assertEquals(200, response.statusCode());
+    assertEquals(
+        "AAA",
+        new String(response.binaryContent(), StandardCharsets.UTF_8),
+        "File contents should be in file source");
   }
 
   @Test
