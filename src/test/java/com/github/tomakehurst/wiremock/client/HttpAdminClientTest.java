@@ -46,11 +46,10 @@ class HttpAdminClientTest {
   void shouldSendEmptyRequestForResetToDefaultMappings() {
     var server = new WireMockServer(options().dynamicPort());
     server.start();
-    server.addStubMapping(
-        server.stubFor(
-            post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/mappings/reset"))
-                .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
-                .willReturn(ok())));
+    server.stubFor(
+        post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/mappings/reset"))
+            .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
+            .willReturn(ok()));
     var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
 
     client.resetToDefaultMappings();
@@ -60,11 +59,10 @@ class HttpAdminClientTest {
   void shouldSendEmptyRequestForResetAll() {
     var server = new WireMockServer(options().dynamicPort());
     server.start();
-    server.addStubMapping(
-        server.stubFor(
-            post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
-                .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
-                .willReturn(ok())));
+    server.stubFor(
+        post(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/reset"))
+            .withHeader(HttpHeaders.CONTENT_LENGTH, equalTo("0"))
+            .willReturn(ok()));
     var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
 
     client.resetAll();
@@ -75,11 +73,10 @@ class HttpAdminClientTest {
     var server = new WireMockServer(options().dynamicPort());
     server.start();
     var expectedResponse = new GetScenariosResult(List.of(Scenario.inStartedState("scn1")));
-    server.addStubMapping(
-        server.stubFor(
-            get(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/scenarios"))
-                .withHeader(HttpHeaders.CONTENT_LENGTH, absent())
-                .willReturn(jsonResponse(expectedResponse, HttpStatus.SC_OK))));
+    server.stubFor(
+        get(urlPathEqualTo(ADMIN_TEST_PREFIX + "/__admin/scenarios"))
+            .withHeader(HttpHeaders.CONTENT_LENGTH, absent())
+            .willReturn(jsonResponse(expectedResponse, HttpStatus.SC_OK)));
     var client = new HttpAdminClient("localhost", server.port(), ADMIN_TEST_PREFIX);
 
     assertThat(client.getAllScenarios()).usingRecursiveComparison().isEqualTo(expectedResponse);
