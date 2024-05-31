@@ -72,8 +72,8 @@ public class StubMapping {
       new StubMapping(null, ResponseDefinition.notConfigured());
 
   /**
-   * @deprecated parses JSON without extensions loaded so won't work when custom matchers have been registered.
-   * Instead, call {@link Admin#getJson()} and use one of the readValue methods.
+   * @deprecated parses JSON without extensions loaded so won't work when custom matchers have been
+   *     registered. Instead, call {@link Admin#getJson()} and use one of the readValue methods.
    */
   @Deprecated
   public static StubMapping buildFrom(String mappingSpecJson) {

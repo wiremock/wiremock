@@ -148,7 +148,11 @@ public class ExtensionFactoryTest {
     private final ServerExtensions extensions;
 
     public MiscInfoApi(
-        Admin admin, Options options, Stores stores, FileSource fileSource, ServerExtensions extensions) {
+        Admin admin,
+        Options options,
+        Stores stores,
+        FileSource fileSource,
+        ServerExtensions extensions) {
       this.admin = admin;
       this.options = options;
       this.stores = stores;

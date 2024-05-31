@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Thomas Akehurst
+ * Copyright (C) 2023-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
-import java.util.List;
-
 import static java.util.Collections.emptyList;
+
+import java.util.List;
 
 public interface ExtensionFactory {
 

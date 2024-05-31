@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2021 Thomas Akehurst
+ * Copyright (C) 2011-2024 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ public class VerificationResult extends JournalBasedResult {
   }
 
   /**
-   * @deprecated parses JSON without extensions loaded so won't work when custom matchers have been registered.
-   * Instead, call {@link Admin#getJson()} and use one of the readValue methods.
+   * @deprecated parses JSON without extensions loaded so won't work when custom matchers have been
+   *     registered. Instead, call {@link Admin#getJson()} and use one of the readValue methods.
    */
   @Deprecated
   public static VerificationResult from(String json) {

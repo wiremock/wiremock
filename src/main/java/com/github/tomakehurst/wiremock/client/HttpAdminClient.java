@@ -74,7 +74,7 @@ public class HttpAdminClient implements Admin {
   private final AdminRoutes adminRoutes;
 
   private final CloseableHttpClient httpClient;
-  
+
   private final Json json;
 
   public HttpAdminClient(String scheme, String host, int port) {
@@ -123,8 +123,7 @@ public class HttpAdminClient implements Admin {
       String proxyHost,
       int proxyPort,
       ClientAuthenticator authenticator,
-      ClientExtensions extensions
-  ) {
+      ClientExtensions extensions) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
@@ -135,7 +134,7 @@ public class HttpAdminClient implements Admin {
     adminRoutes = AdminRoutes.forClient();
 
     httpClient = HttpClientFactory.createClient(createProxySettings(proxyHost, proxyPort));
-    
+
     json = Json.build(extensions);
   }
 

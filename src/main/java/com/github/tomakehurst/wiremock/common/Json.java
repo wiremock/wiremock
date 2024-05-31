@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static java.util.stream.Collectors.toList;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -22,22 +25,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
-import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.tomakehurst.wiremock.extension.Extensions;
-import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static java.util.stream.Collectors.toList;
 
 public final class Json implements Serialiser {
 
@@ -76,26 +70,11 @@ public final class Json implements Serialiser {
             .serializationInclusion(JsonInclude.Include.NON_NULL);
 
     if (extensions != null) {
-      final Map<String, ContentPatternExtension> contentPatternExtensions =
-          extensions.ofType(ContentPatternExtension.class);
-      if (!contentPatternExtensions.isEmpty()) {
-//        final List<Class<?>> customMatcherTypes = contentPatternExtensions.values().stream()
-//                .map(ContentPatternExtension::getContentPatternClass)
-//                .collect(toList());
-//        builder.subtypeResolver(new ExtensibleJsonSubtypeResolver(customMatcherTypes));
-
-//        builder.addHandler(new DeserializationProblemHandler() {
-//          @Override
-//          public JavaType handleMissingTypeId(DeserializationContext ctxt, JavaType baseType, TypeIdResolver idResolver, String failureMsg) throws IOException {
-//            return super.handleMissingTypeId(ctxt, baseType, idResolver, failureMsg);
-//          }
-//        });
-        SimpleModule module = new SimpleModule();
-        contentPatternExtensions.values().stream()
-                .map(ContentPatternExtension::getContentPatternClass)
-                .forEach(contentPatternType -> module.addAbstractTypeMapping(ContentPattern.class, contentPatternType));
-        builder.addModule(module);
-      }
+      final List<Class<?>> contentPatternExtensions =
+          extensions.ofType(ContentPatternExtension.class).values().stream()
+              .map(ContentPatternExtension::getContentPatternClass)
+              .collect(toList());
+      builder.registerSubtypes(contentPatternExtensions);
     }
 
     return new Json(builder.build());

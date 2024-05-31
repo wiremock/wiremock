@@ -29,17 +29,33 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.ContentPatternExtension;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import java.util.List;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ContentPatternExtensionAcceptanceTest {
 
+  private static final RequestPattern CUSTOM =
+      post(urlPathTemplate("/{path}"))
+          .withQueryParam("query", startsWith("query"))
+          .withFormParam("form", startsWith("form"))
+          .withPathParam("path", startsWith("path"))
+          .withHeader("header", startsWith("header"))
+          .withCookie("cookie", startsWith("cookie"))
+          .withRequestBody(startsWith("body"))
+          .willReturn(ok())
+          .build()
+          .getRequest();
+
   @SuppressWarnings("unchecked")
   @RegisterExtension
-  public static WireMockExtension wm =
+  public static WireMockExtension wmLocal =
       WireMockExtension.newInstance()
           .options(
               options()
@@ -48,68 +64,76 @@ public class ContentPatternExtensionAcceptanceTest {
                   .usingFilesUnderClasspath("content-pattern-extension"))
           .build();
 
-  static WireMock wireMockRemoteClient;
+  public static WireMock wmRemote;
 
   public static WireMockTestClient client;
 
   @SuppressWarnings("unchecked")
   @BeforeAll
   public static void beforeAll() {
-    client = new WireMockTestClient(wm.getPort());
-    wireMockRemoteClient = create()
-            .port(wm.getPort())
-            .extensions(StartsWithMatcherExtension.class)
-            .build();
+    wmRemote =
+        create().port(wmLocal.getPort()).extensions(StartsWithMatcherExtension.class).build();
+    client = new WireMockTestClient(wmLocal.getPort());
   }
 
   @Test
-  public void customMatcherWithRequestBody() {
-    wm.stubFor(
-        post("/stubFor/single").withRequestBody(startsWith("my")).willReturn(ok()));
-    assertThat(
-        client.postWithBody("/stubFor/single", "myContent", "text/plain", "UTF-8").statusCode(),
-        is(200));
-  }
-
-  @Test
-  public void customMatcherWithRequestBodyCombinedWithStandardMatchers() {
-    wm.stubFor(
-        post("/stubFor/multiple")
-            .withRequestBody(startsWith("my"))
-            .withRequestBody(containing("my"))
+  public void localStubFor() {
+    wmLocal.stubFor(
+        post(urlPathTemplate("/stubFor/{path}"))
+            .withQueryParam("query", startsWith("local"))
+            .withQueryParam("query", equalTo("localQuery"))
+            .withPathParam("path", startsWith("local"))
+            .withPathParam("path", equalTo("localPath"))
+            .withHeader("X-Local", startsWith("local"))
+            .withHeader("X-Local", equalTo("localHeader"))
+            .withRequestBody(startsWith("local"))
+            .withRequestBody(equalTo("localBody"))
             .willReturn(ok()));
     assertThat(
-        client.postWithBody("/stubFor/multiple", "myContent", "text/plain", "UTF-8").statusCode(),
+        client
+            .post(
+                "/stubFor/localPath?query=localQuery",
+                new StringEntity("localBody"),
+                withHeader("X-Local", "localHeader"))
+            .statusCode(),
         is(200));
   }
 
   @Test
-  public void customMatcherWithHeaderDefinedViaRemoteClient() {
-    wireMockRemoteClient.register(
-            get("/header/statically")
-                    .withHeader("X-Content", startsWith("my"))
-                    .willReturn(ok()));
+  public void remoteRegister() {
+    wmRemote.register(
+        post(urlPathTemplate("/register/{path}"))
+            .withQueryParam("query", startsWith("remote"))
+            .withQueryParam("query", equalTo("remoteQuery"))
+            .withPathParam("path", startsWith("remote"))
+            .withPathParam("path", equalTo("remotePath"))
+            .withHeader("X-Remote", startsWith("remote"))
+            .withHeader("X-Remote", equalTo("remoteHeader"))
+            .withRequestBody(startsWith("remote"))
+            .withRequestBody(equalTo("remoteBody"))
+            .willReturn(ok()));
     assertThat(
-            client.get("/header/statically", withHeader("X-Content", "myContent")).statusCode(),
-            is(200));
-
-    assertThat(
-            client.get("/header/statically", withHeader("X-Content", "wrong")).statusCode(),
-            is(404));
-  }
-
-  @Test
-  public void customBodyMatcherMappings() {
-    assertThat(
-        client.postWithBody("/mappings/single", "myContent", "text/plain", "UTF-8").statusCode(),
+        client
+            .post(
+                "/register/remotePath?query=remoteQuery",
+                new StringEntity("remoteBody"),
+                withHeader("X-Remote", "remoteHeader"))
+            .statusCode(),
         is(200));
   }
 
   @Test
-  public void customBodyMatcherMappingsCombinedWithStandardMatchers() {
-    assertThat(
-        client.postWithBody("/mappings/multiple", "myContent", "text/plain", "UTF-8").statusCode(),
-        is(200));
+  public void localGetStubMappings() {
+    List<StubMapping> stubMappings = wmLocal.getStubMappings();
+    assertThat(stubMappings.size(), is(1));
+    assertThat(stubMappings.get(0).getRequest(), is(CUSTOM));
+  }
+
+  @Test
+  public void remoteAllStubMappings() {
+    List<StubMapping> stubMappings = wmRemote.allStubMappings().getMappings();
+    assertThat(stubMappings.size(), is(1));
+    assertThat(stubMappings.get(0).getRequest(), is(CUSTOM));
   }
 
   public static class StartsWithMatcherExtension implements ContentPatternExtension {
@@ -139,6 +163,10 @@ public class ContentPatternExtensionAcceptanceTest {
     @Override
     public MatchResult match(String value) {
       return MatchResult.of(value.startsWith(expectedValue));
+    }
+
+    public String getStartsWith() {
+      return expectedValue;
     }
   }
 }

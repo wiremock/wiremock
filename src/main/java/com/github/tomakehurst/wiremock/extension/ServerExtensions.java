@@ -64,7 +64,6 @@ public class ServerExtensions extends Extensions implements WireMockServices {
     this.options = options;
     this.stores = stores;
     this.files = files;
-
   }
 
   public void load() {
@@ -209,5 +208,4 @@ public class ServerExtensions extends Extensions implements WireMockServices {
   public void stopAll() {
     loadedExtensions.values().forEach(Extension::stop);
   }
-
 }
